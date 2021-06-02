@@ -45,9 +45,6 @@ DEFINE VARIABLE ipcItemNO AS CHARACTER NO-UNDO.
 FUNCTION getItemName RETURNS CHARACTER
   ( ipcItemNO AS CHARACTER )  FORWARD.
 
-FUNCTION getQtyOnOrder RETURNS CHARACTER
-  ( ipcItemNO AS CHARACTER )  FORWARD.  
-
 FUNCTION getQtyOnHand RETURNS CHARACTER
   ( ipcItemNO AS CHARACTER )  FORWARD.
   
@@ -786,9 +783,13 @@ do v-local-loop = 1 to v-local-copies:
                      AND xstyle.style    EQ xeb.style
                      AND xstyle.industry EQ "2" NO-ERROR.
 
+                FIND FIRST bf-itemfg NO-LOCK
+                    WHERE bf-itemfg.company EQ xeb.company
+                    AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR.
+                     
                 PUT 
                    xeb.die-no FORMAT "x(10)" AT 69 
-                   itemfg.q-onh FORMAT "->>,>>>,>>9.999" AT 82 
+                   bf-itemfg.q-onh FORMAT "->>,>>>,>>9.999" AT 82 
                    if avail xstyle then xstyle.dscr else "" FORMAT "x(30)" AT 103.2 .
                 
                 PUT SKIP.
@@ -864,7 +865,7 @@ do v-local-loop = 1 to v-local-copies:
                  
                  PUT  bf-job-mat.rm-i-no AT 2 .
                  PUT  getItemName(bf-job-mat.rm-i-no) FORMAT "x(30)" AT 20.
-                 PUT  getQtyOnOrder(bf-job-mat.rm-i-no)  AT 58.
+                 PUT  bf-job-mat.qty-all AT 58.
                  PUT  getQtyOnHand(bf-job-mat.rm-i-no) AT 90.  
                  
               i =  i + 1 .
@@ -873,9 +874,9 @@ do v-local-loop = 1 to v-local-copies:
             i = i + 1 .
             v-tmp-line = v-tmp-line + 1 .  
             IF j GE 20 THEN
-            PUT "<=2><R1><C1><FROM><R+" + STRING(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            PUT "<=2><R1><C1><FROM><R+" + STRING(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
             ELSE 
-            PUT "<=2><R+1><C1><FROM><R+" + STRING(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            PUT "<=2><R+1><C1><FROM><R+" + STRING(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
             
             v-tmp-line = v-tmp-line + 1 .
               
@@ -958,16 +959,22 @@ do v-local-loop = 1 to v-local-copies:
             j = 1 .
             cFgBin = "".
             iFgBinQty = 0.
-            MAIN-FG-BIN:
-            FOR EACH fg-bin NO-LOCK
-                where fg-bin.company  eq cocode
-                and fg-bin.i-no     eq xeb.stock-no
-                and fg-bin.qty      gt 0
-                AND fg-bin.loc-bin  NE ""  BY fg-bin.tag:
-                ASSIGN cFgBin[j] = fg-bin.loc-bin
-                       iFgBinQty[j] = fg-bin.qty.
-                       j = j + 1.
-                   IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
+            FOR EACH xeb NO-LOCK 
+                WHERE xeb.company = est.company
+                  AND xeb.est-no = est.est-no
+                  AND xeb.form-no > 0 
+                BY xeb.stock-no:
+                MAIN-FG-BIN:
+                FOR EACH fg-bin NO-LOCK
+                    where fg-bin.company  eq cocode
+                    and fg-bin.i-no     eq xeb.stock-no
+                    and fg-bin.qty      gt 0
+                    AND fg-bin.loc-bin  NE ""  BY fg-bin.tag:
+                    ASSIGN cFgBin[j] = fg-bin.loc-bin
+                           iFgBinQty[j] = fg-bin.qty.
+                           j = j + 1.
+                       IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
+                END.                     
             END.
             PUT                                                      "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
                 "# Per Unit: " AT 3 tt-prem.tt-#-unit                "<C38>_____________________ <C57>____________________  <C77>Partial   <C90>________________" skip
@@ -977,7 +984,7 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+" + string(v-tmp-line + 7) + "><C1><FROM><R+15><C105><RECT><||3>" FORM "x(150)" SKIP
 
                 "<=1><R+" + string(v-tmp-line + 7) + "><C5>SET QTY ON HAND  <C25>Special instructions  <C60>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
-                "Bin           Bin Qty" AT 3                                                v-dept-inst[1] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[1] SKIP
+                "Bin              Bin Qty" AT 3                                             v-dept-inst[1] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[1] SKIP
                 cFgBin[1] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[1] FORMAT ">>>,>>>,>>>"    v-dept-inst[2] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[2] SKIP
                 cFgBin[2] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[2] FORMAT ">>>,>>>,>>>"    v-dept-inst[3] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[3] SKIP
                 cFgBin[3] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[3] FORMAT ">>>,>>>,>>>"    v-dept-inst[4] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[4] SKIP
@@ -1067,21 +1074,6 @@ FUNCTION getItemName RETURNS CHARACTER
         NO-LOCK NO-ERROR.
       IF AVAIL ITEM THEN
         RETURN ITEM.i-name.  /* Function return value. */
-
-END FUNCTION.
-
-FUNCTION getQtyOnOrder RETURNS CHARACTER
-  ( ipcItemNO AS CHARACTER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    FIND FIRST ITEM
-        {sys/look/itemW.i}
-          AND item.i-no EQ ipcItemNO
-        NO-LOCK NO-ERROR.
-      IF AVAIL ITEM THEN
-        RETURN STRING(item.q-ono).  /* Function return value. */
 
 END FUNCTION.
 
