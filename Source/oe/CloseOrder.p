@@ -25,6 +25,8 @@ DEFINE INPUT  PARAMETER iplUpdate AS LOGICAL     NO-UNDO.
 DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcReason AS CHARACTER   NO-UNDO.
 
+DEFINE VARIABLE hdOrderProcs     AS HANDLE    NO-UNDO.
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -155,7 +157,7 @@ PROCEDURE CloseOrderLine :
         NO-LOCK NO-ERROR.
     IF AVAILABLE bf-oe-ordl THEN 
     DO:
-        RUN OrderLineCloseCheck(BUFFER bf-oe-ordl,
+        RUN order_OrderLineCloseCheck IN hdOrderProcs (BUFFER bf-oe-ordl,
             OUTPUT opcStatus,
             OUTPUT opcReason).
         IF iplUpdate AND opcStatus NE bf-oe-ordl.stat THEN
@@ -369,165 +371,6 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-OrderLineCloseCheck) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OrderLineCloseCheck Procedure 
-PROCEDURE OrderLineCloseCheck :
-    /*------------------------------------------------------------------------------
-      Purpose: Checks to see if an order line can be closed    
-      Parameters:  order line buffer - > Outputs order status and reason
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-oe-ordl FOR oe-ordl.
-    DEFINE OUTPUT PARAMETER opcStatus AS CHARACTER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcReason AS CHARACTER   NO-UNDO.
-
-    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
-
-    DEFINE VARIABLE lAllTransfers            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE dAllowableUnderrun       LIKE oe-ordl.qty NO-UNDO.
-    DEFINE VARIABLE lInvQtyMet               AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lShipQtyMet              AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lUnassembledSetComponent AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lUnassembledSetHeader    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lNotStocked              AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cQtyMessage              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOEClose                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCountBoll               AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCountTrans              AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iInvoicedQuantity        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lInvoiceUnPosted         AS LOGICAL   NO-UNDO.
-
-    FIND FIRST oe-ord NO-LOCK OF ipbf-oe-ordl NO-ERROR.
-    IF NOT AVAILABLE oe-ord THEN 
-    DO:
-        ASSIGN
-            opcStatus = ipbf-oe-ordl.stat
-            opcReason = 'Order Header does not exist.'
-            .
-        RETURN.
-    END.
-                      
-    /*Transfer types*/
-    IF oe-ord.type EQ "T" THEN 
-    DO:
-
-        FOR EACH oe-boll
-            WHERE oe-boll.company  EQ ipbf-oe-ordl.company
-            AND oe-boll.ord-no   EQ ipbf-oe-ordl.ord-no
-            AND oe-boll.line     EQ ipbf-oe-ordl.line
-            AND oe-boll.i-no     EQ ipbf-oe-ordl.i-no
-            AND CAN-FIND(FIRST oe-bolh WHERE oe-bolh.b-no   EQ oe-boll.b-no
-            AND oe-bolh.posted EQ YES)
-            USE-INDEX ord-no
-            NO-LOCK:
-            ACCUMULATE oe-boll.qty (TOTAL).
-        END.
-        IF (ipbf-oe-ordl.qty GT 0 
-            AND (ACCUM TOTAL oe-boll.qty) GE ipbf-oe-ordl.qty) 
-            OR
-            (ipbf-oe-ordl.qty LT 0 
-            AND (ACCUM TOTAL oe-boll.qty) LE ipbf-oe-ordl.qty) 
-            THEN
-            ASSIGN 
-                opcStatus = 'C'
-                opcReason = 'Closed. Transfer order requirements met. BOL Qty Shipped: ' + STRING(ACCUM TOTAL oe-boll.qty) + ' OrderLine Qty: ' + STRING(ipbf-oe-ordl.qty) 
-                .
-        ELSE
-            ASSIGN
-                opcStatus = ''
-                opcReason = 'Not closed. Transfer order requirements not met. BOL Qty Shipped: ' + STRING(ACCUM TOTAL oe-boll.qty) + ' OrderLine Qty: ' + STRING(ipbf-oe-ordl.qty) 
-                .
-    END. /* Transfer order */
-    ELSE 
-    DO: /*all other cases*/
-        FIND FIRST itemfg
-            WHERE itemfg.company EQ ipbf-oe-ordl.company
-            AND itemfg.i-no    EQ ipbf-oe-ordl.i-no
-            NO-LOCK NO-ERROR.
-        RUN GetOEClose(INPUT ipbf-oe-ordl.company,
-            OUTPUT cOEClose).
-        
-        /*Get invoiced quantity*/
-        iInvoicedQuantity = ipbf-oe-ordl.inv-qty.
-        lInvoiceUnPosted = NO.
-        /*Subtract the invoiced quantity that is still unposted*/
-        FOR EACH inv-line NO-LOCK 
-            WHERE inv-line.company EQ ipbf-oe-ordl.company
-            AND inv-line.ord-no EQ ipbf-oe-ordl.ord-no
-            AND inv-line.i-no EQ ipbf-oe-ordl.i-no:
-            iInvoicedQuantity = iInvoicedQuantity - inv-line.inv-qty.
-            lInvoiceUnPosted = YES.
-        END.
-         
-        ASSIGN
-            dAllowableUnderrun       = ipbf-oe-ordl.qty * (1 - (ipbf-oe-ordl.under-pct / 100))
-            lUnassembledSetComponent = ipbf-oe-ordl.is-a-component
-            lInvQtyMet               = iInvoicedQuantity  GE dAllowableUnderrun
-            lShipQtyMet              = ipbf-oe-ordl.ship-qty GE dAllowableUnderrun
-            lUnassembledSetHeader    = CAN-FIND(FIRST bf-oe-ordl {sys/inc/ordlcomp.i bf-oe-ordl ipbf-oe-ordl})
-            lNotStocked              = AVAILABLE itemfg AND NOT itemfg.stocked
-            cQtyMessage              = ' Allowable Underrun Qty: ' + STRING(dAllowableUnderrun) + 
-            ' Inv Qty: ' + STRING(ipbf-oe-ordl.inv-qty) + 
-            ' Ship Qty: ' + STRING(ipbf-oe-ordl.ship-qty).
-        .
-
-        IF (lInvQtyMet OR lUnassembledSetComponent) /*if component, don't check inv qty*/
-            AND 
-            (lShipQtyMet OR lUnassembledSetHeader /*OR lNotStocked*/ ) /*if UnAssembled Set Header, don't check ship qty*/
-            THEN 
-        DO:  /*Allowable underrun is met*/
-        
-            /*additional check for job bin qty = 0*/
-            IF cOEClose EQ "OnHand=0" 
-                AND ipbf-oe-ordl.job-no NE ""
-                AND AVAILABLE itemfg 
-                AND itemfg.pur-man EQ NO
-                THEN 
-            DO:  /*Additional check for on-hand = 0 case for manufuctured items*/
-
-                FIND FIRST fg-bin
-                    WHERE fg-bin.company EQ ipbf-oe-ordl.company
-                    AND fg-bin.i-no EQ ipbf-oe-ordl.i-no
-                    AND fg-bin.job-no EQ ipbf-oe-ordl.job-no
-                    AND fg-bin.job-no2 EQ ipbf-oe-ordl.job-no2
-                    AND fg-bin.qty GT 0
-                    NO-LOCK NO-ERROR.
-                IF NOT AVAILABLE fg-bin THEN
-                    ASSIGN
-                        opcStatus = 'C'
-                        opcReason = 'Closed. Requirements for allowable underrun met and job inventory is 0.' + cQtyMessage
-                        .
-                ELSE
-                    ASSIGN 
-                        opcStatus = ''
-                        opcReason = 'Not Closed. Requirements for allowable underrun met but job inventory still exists.' + cQtyMessage
-                        .
-            END.  /*Additional check for on-hand = 0 case for manufactured items*/
-            ELSE 
-                ASSIGN 
-                    opcStatus = 'C'
-                    opcReason = 'Closed. Requirements for allowable underrun met.' + cQtyMessage  
-                    .
-        END. /*Allowable underrun is met*/
-        ELSE IF lInvoiceUnPosted  THEN
-            ASSIGN 
-                opcStatus = ''
-                opcReason = 'Not closed. The invoiced quantity is not posted.' + cQtyMessage
-                .
-        ELSE 
-            ASSIGN 
-                opcStatus = ''
-                opcReason = 'Not closed. Requirements for allowable underrun not met.' + cQtyMessage
-                .
-    END. /*Non transfer order cases*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
 
 &IF DEFINED(EXCLUDE-OrderLineCloseSet) = 0 &THEN
 
