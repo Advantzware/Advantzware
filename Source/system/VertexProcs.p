@@ -112,9 +112,12 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE VARIABLE cResponseFile   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIReqMethod   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dttzCurrentGMTDateTimeTZ AS DATETIME-TZ NO-UNDO.
     DEFINE VARIABLE dttzSysCtrlDateTimeTZ    AS DATETIME-TZ NO-UNDO.
+    
+    DEFINE VARIABLE oAPIHandler AS API.APIHandler NO-UNDO.
     
     DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
     DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
@@ -162,6 +165,11 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT cAPIPassword
         ).
 
+    RUN pGetAPIRequestMethod (
+        INPUT  ipcCompany,
+        OUTPUT cAPIReqMethod
+        ).
+    
     FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiID EQ "CalculateTax"
            AND NOT bf-APIOutbound.clientID BEGINS "_default"
@@ -173,46 +181,65 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             .
         RETURN.        
     END.
-    
-    ASSIGN
-        cResponseFile            = cTempDir + "\vertex_access_token" + STRING(MTIME) + ".txt"
-        FIX-CODEPAGE(lcResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") 
-                                 + (IF bf-APIOutbound.isSSLEnabled THEN
-                                        ""
-                                    ELSE
-                                        " --insecure ")
-                                 + ' -X POST "' 
-                                 + cAccessTokenURL + '" '
-                                 + '-H "Content-Type:application/x-www-form-urlencoded" '
-                                 + '--data-urlencode "client_id=' + cClientID + '" '
-                                 + '--data-urlencode "client_secret=' + cClientSecret + '" '
-                                 + '--data-urlencode "username=' + cAPIKey + '" '
-                                 + '--data-urlencode "password=' + cAPIPassword + '" '
-                                 + '--data-urlencode "grant_type=' + cGrantType + '" '
-                                 + '--data-urlencode "scope=' + cScope + '"'
-        .
 
-    /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand (
-        INPUT  cCommand,             /* Command string to run */
-        INPUT  cResponseFile,        /* File name to write the command output */
-        INPUT  TRUE,                 /* Run with SILENT option */
-        INPUT  FALSE,                /* Run with NO-WAIT option */
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ) NO-ERROR.
-    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Error excuting curl command"
-            . 
-            
-       OS-DELETE VALUE(cResponseFile).             
-       RETURN.
-    END.
+    FIX-CODEPAGE(lcResponse) = 'utf-8'.
     
-    COPY-LOB FILE cResponseFile TO lcResponse.
+    IF cAPIReqMethod EQ "cURL" THEN DO:
+        ASSIGN
+            cResponseFile            = cTempDir + "\vertex_access_token" + STRING(MTIME) + ".txt"
+            cCommand                 = SEARCH("curl.exe") 
+                                     + (IF bf-APIOutbound.isSSLEnabled THEN
+                                            ""
+                                        ELSE
+                                            " --insecure ")
+                                     + ' -X POST "' 
+                                     + cAccessTokenURL + '" '
+                                     + '-H "Content-Type:application/x-www-form-urlencoded" '
+                                     + '--data-urlencode "client_id=' + cClientID + '" '
+                                     + '--data-urlencode "client_secret=' + cClientSecret + '" '
+                                     + '--data-urlencode "username=' + cAPIKey + '" '
+                                     + '--data-urlencode "password=' + cAPIPassword + '" '
+                                     + '--data-urlencode "grant_type=' + cGrantType + '" '
+                                     + '--data-urlencode "scope=' + cScope + '"'
+            .
+    
+        /* execute CURL command with required parameters to call the API */
+        RUN OS_RunCommand (
+            INPUT  cCommand,             /* Command string to run */
+            INPUT  cResponseFile,        /* File name to write the command output */
+            INPUT  TRUE,                 /* Run with SILENT option */
+            INPUT  FALSE,                /* Run with NO-WAIT option */
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Error excuting curl command"
+                . 
+                
+           OS-DELETE VALUE(cResponseFile).             
+           RETURN.
+        END.
+        
+        COPY-LOB FILE cResponseFile TO lcResponse.
+    END.    
+    ELSE IF cAPIReqMethod EQ "Progress" THEN DO:
+        oAPIHandler = NEW API.APIHandler().
+
+        oAPIHandler:ContentType = "x-www-form-urlencoded".
+
+        oAPIHandler:AddURLEncodeData("client_id", cClientID).
+        oAPIHandler:AddURLEncodeData("client_secret", cClientSecret).
+        oAPIHandler:AddURLEncodeData("username", cAPIKey).
+        oAPIHandler:AddURLEncodeData("password", cAPIPassword).
+        oAPIHandler:AddURLEncodeData("grant_type", cGrantType).
+        oAPIHandler:AddURLEncodeData("scope", cScope).
+        
+        lcResponse = oAPIHandler:Post(cAccessTokenURL, "").  
+        
+        DELETE OBJECT oAPIHandler.
+    END.
 
     IF lcResponse EQ "" THEN DO:
         ASSIGN
@@ -350,6 +377,32 @@ PROCEDURE pGetAPIPassword PRIVATE:
         OUTPUT opcAPIPassword, 
         OUTPUT lFound
         ).
+END PROCEDURE.
+
+PROCEDURE pGetAPIRequestMethod PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the api request method from sys-ctrl
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAPIRequestMethod AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "APIRequestMethod", 
+        INPUT "C", 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "", 
+        INPUT "",
+        OUTPUT opcAPIRequestMethod, 
+        OUTPUT lFound
+        ).
+    IF opcAPIRequestMethod EQ "" THEN
+        opcAPIRequestMethod = "cURL".
+        
 END PROCEDURE.
 
 PROCEDURE pGetTaxAmounts PRIVATE:

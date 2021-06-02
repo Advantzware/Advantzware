@@ -49,7 +49,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
-           + "QuoteExpirationDays,QuoteExpireDuplicates"
+           + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1561,6 +1561,17 @@ CASE ip-nk1-value:
             INPUT NO,           
             INPUT "Expire duplicate quotes",            /* Description */
             INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ). 
+    WHEN "APIRequestMethod" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Desired method to make an API call", /* Description */
+            INPUT "cURL",                               /* Char Value */
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
