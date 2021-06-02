@@ -33,25 +33,25 @@ ASSIGN cocode = g_company
 
 {oe/oe-relp1.i NEW}
 
-DEF NEW SHARED BUFFER xoe-relh FOR oe-relh.
+DEFINE NEW SHARED BUFFER xoe-relh FOR oe-relh.
 
-DEF TEMP-TABLE tt-rell NO-UNDO LIKE oe-rell
+DEFINE TEMP-TABLE tt-rell NO-UNDO LIKE oe-rell
                        FIELD release# LIKE oe-relh.release#
                        FIELD row-id   AS   ROWID
                        INDEX row-id row-id
                        INDEX ord-no company ord-no line i-no
                              po-no rel-no b-ord-no.
 
-DEF TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll
+DEFINE TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll
                        FIELD release# LIKE oe-relh.release#
                        INDEX tt-boll b-no ord-no i-no po-no rel-no b-ord-no
                        INDEX release# release# ord-no i-no rel-no b-ord-no po-no.
 
-DEF TEMP-TABLE tt-boll2 NO-UNDO LIKE tt-boll
+DEFINE TEMP-TABLE tt-boll2 NO-UNDO LIKE tt-boll
                        INDEX b-no b-no.
 
 /*update changes to tmep-table in addon/bol/saverel.p as well*/
-DEF NEW SHARED TEMP-TABLE tt-relbol NO-UNDO 
+DEFINE NEW SHARED TEMP-TABLE tt-relbol NO-UNDO 
     FIELD release# LIKE oe-relh.release#
     FIELD tag# AS cha
     FIELD i-no AS cha FORM "x(15)"
@@ -70,7 +70,7 @@ DEF NEW SHARED TEMP-TABLE tt-relbol NO-UNDO
     FIELD t-qty LIKE oe-rell.qty
     FIELD line LIKE oe-rell.line
     FIELD oerell-row AS ROWID
-    FIELD seq AS INT
+    FIELD seq AS INTEGER
     FIELD warned AS LOG
     FIELD po-no LIKE oe-boll.po-no
     /* gdm - 10160906 */
@@ -92,14 +92,14 @@ INDEX i2 release#
 .
 {addon/bol/tt-email.i NEW}
 
-DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
+DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report.
 
 /* Just for updating oe-rel.qty */
-DEF TEMP-TABLE tt-report-a NO-UNDO LIKE report.          
+DEFINE TEMP-TABLE tt-report-a NO-UNDO LIKE report.          
 
-DEF BUFFER bf-tmp FOR tt-relbol.
-DEF BUFFER b-tt-relbol FOR tt-relbol.
-DEF BUFFER b-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-tmp FOR tt-relbol.
+DEFINE BUFFER b-tt-relbol FOR tt-relbol.
+DEFINE BUFFER b-oe-ordl FOR oe-ordl.
 
 DEFINE VARIABLE CHAR-hdl          AS cha              NO-UNDO.
 DEFINE VARIABLE v-ship-lu         AS ch               INITIAL ["I,S,B"] NO-UNDO.
@@ -157,8 +157,8 @@ DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 /* bol print/post */
-DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
-DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE NEW SHARED VARIABLE out-recid AS RECID NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
@@ -212,7 +212,7 @@ DO TRANSACTION:
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "BOLFMT"
         NO-LOCK NO-ERROR.
-  v-royal = AVAIL sys-ctrl AND lookup(sys-ctrl.char-fld,v-hold-list) NE 0.
+  v-royal = AVAILABLE sys-ctrl AND lookup(sys-ctrl.char-fld,v-hold-list) NE 0.
 
   /* gdm - 10160906 */
   {sys/inc/ssbolscan.i}
@@ -221,7 +221,7 @@ DO TRANSACTION:
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "SSBOLSCAN"
         NO-LOCK NO-ERROR.
-  IF AVAIL sys-ctrl THEN
+  IF AVAILABLE sys-ctrl THEN
   ASSIGN ss-bolscan = sys-ctrl.int-fld .
 
 
@@ -229,7 +229,7 @@ DO TRANSACTION:
        sys-ctrl.company EQ cocode AND
        sys-ctrl.name    EQ "SSUPDRELPMPT"
        NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO:
+  IF NOT AVAILABLE sys-ctrl THEN DO:
      CREATE sys-ctrl.
      ASSIGN
         sys-ctrl.company = cocode
@@ -246,16 +246,16 @@ END.
 
 /* Check if hold status will be checked on order */
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
-IF AVAIL oe-ctrl THEN
+IF AVAILABLE oe-ctrl THEN
   gvlCheckOrdStat = (IF oe-ctrl.spare-int-1 EQ 0 THEN YES ELSE NO).
 
 PROCEDURE mail EXTERNAL "xpMail.dll" :
-    DEF INPUT PARAM mailTo AS CHAR.
-    DEF INPUT PARAM mailsubject AS CHAR.
-    DEF INPUT PARAM mailText AS CHAR.
-    DEF INPUT PARAM mailFiles AS CHAR.
-    DEF INPUT PARAM mailDialog AS LONG.
-    DEF OUTPUT PARAM retCode AS LONG.
+    DEFINE INPUT PARAMETER mailTo AS CHARACTER.
+    DEFINE INPUT PARAMETER mailsubject AS CHARACTER.
+    DEFINE INPUT PARAMETER mailText AS CHARACTER.
+    DEFINE INPUT PARAMETER mailFiles AS CHARACTER.
+    DEFINE INPUT PARAMETER mailDialog AS LONG.
+    DEFINE OUTPUT PARAMETER retCode AS LONG.
 END.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY tt-relbol.seq DESC
@@ -372,7 +372,7 @@ FUNCTION get-bal RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-         
+
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -621,7 +621,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
-ON 'end-error':U OF tt-relbol.release#
+ON END-ERROR OF tt-relbol.release#
 DO:
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
    RUN do-cancel IN WIDGET-HANDLE(char-hdl).
@@ -630,7 +630,8 @@ DO:
    RETURN NO-APPLY.
 
 END.
-ON 'end-error':U OF tt-relbol.tag#
+
+ON END-ERROR OF tt-relbol.tag#
 DO:
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
    RUN do-cancel IN WIDGET-HANDLE(char-hdl).
@@ -639,7 +640,8 @@ DO:
    RETURN NO-APPLY.
 
 END.
-ON 'entry':U OF tt-relbol.release#
+
+ON ENTRY OF tt-relbol.release#
 DO:
     IF lv-scan-next THEN DO:
        APPLY "tab" TO SELF.
@@ -647,7 +649,8 @@ DO:
     END.
     RETURN.
 END.
-ON 'entry':U OF tt-relbol.tag#
+
+ON ENTRY OF tt-relbol.tag#
 DO:
     IF lv-go-to-unit THEN
     DO:
@@ -658,18 +661,13 @@ DO:
     RETURN.
 END.
 
-ON 'value-changed':U OF tt-relbol.tag#
+ON LEAVE OF tt-relbol.release#
 DO:
-   lCheckTagHoldMessage = NO.    
-END.
-
-ON 'leave':U OF tt-relbol.release#
-DO:
-    DEF VAR lv-num-item AS INT NO-UNDO.
-    DEF VAR v-release-in-process AS LOG NO-UNDO.
-    DEF VAR lOrderOnHold AS LOG NO-UNDO.
+    DEFINE VARIABLE lv-num-item AS INTEGER NO-UNDO.
+    DEFINE VARIABLE v-release-in-process AS LOG NO-UNDO.
+    DEFINE VARIABLE lOrderOnHold AS LOG NO-UNDO.
     
-    DEF BUFFER b-itemfg FOR itemfg.
+    DEFINE BUFFER b-itemfg FOR itemfg.
     IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-rel THEN RETURN .
     lv-do-leave-rel = NO.
     IF NOT CAN-FIND(FIRST oe-relh WHERE oe-relh.company = cocode
@@ -717,7 +715,6 @@ DO:
       RUN dispatch ("cancel-record").
       RETURN NO-APPLY.
     END.
-      
 
     FOR EACH oe-relh NO-LOCK WHERE oe-relh.company = cocode AND
                            oe-relh.release# = INT(SELF:SCREEN-VALUE)
@@ -732,13 +729,13 @@ DO:
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN do:
+        IF AVAILABLE b-oe-ordl THEN DO:
             dRoundup = oe-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
             {sys/inc/roundup.i dRoundup}
             iRelQtyPallet = iRelQtyPallet + dRoundup  .
         END.
         IF LAST-OF(oe-rell.LINE) THEN DO:
-            IF AVAIL b-oe-ordl THEN do:
+            IF AVAILABLE b-oe-ordl THEN DO:
                  v-job-qty = b-oe-ordl.qty .
                /* v-job-qty = get-bal().*/  /* Ticket# 22529 */
                 dRoundup = v-job-qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
@@ -749,7 +746,7 @@ DO:
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
                                   AND b-itemfg.i-no    EQ oe-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN do:
+            IF AVAILABLE b-itemfg THEN DO:
                 v-qoh = b-itemfg.q-onh.
                 dRoundup = v-qoh / (b-itemfg.case-count * b-itemfg.case-pall) .
                 {sys/inc/roundup.i dRoundup}
@@ -761,16 +758,19 @@ DO:
     RETURN .
 END.
 
-ON 'leave':U OF tt-relbol.tag#
+ON LEAVE OF tt-relbol.tag#
 DO:
    /* check release qty for the item */
-   DEF VAR lv-qty-rel AS INT NO-UNDO.
-   DEF VAR lv-qty-tag AS INT NO-UNDO.
-   DEF VAR ll AS LOG NO-UNDO.
+   DEFINE VARIABLE lv-qty-rel AS INTEGER NO-UNDO.
+   DEFINE VARIABLE lv-qty-tag AS INTEGER NO-UNDO.
+   DEFINE VARIABLE ll AS LOG NO-UNDO.
    DEFINE VARIABLE cTagList AS CHARACTER NO-UNDO .
 
-   IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag  THEN RETURN.
-   lv-do-leave-tag = NO.
+   IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag THEN RETURN.
+   ASSIGN
+        lv-do-leave-tag = NO
+        lCheckTagHoldMessage = NO
+        .
 
    FIND FIRST oe-relh
        WHERE oe-relh.company  EQ cocode
@@ -781,20 +781,20 @@ DO:
        WHERE loadtag.company   EQ cocode
          AND loadtag.item-type EQ NO
          AND loadtag.tag-no    EQ tt-relbol.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
-   IF NOT AVAIL loadtag THEN DO:
+   IF NOT AVAILABLE loadtag THEN DO:
      MESSAGE "Invalid Loadtag for the Release..." VIEW-AS ALERT-BOX ERROR.        
      RETURN NO-APPLY.
    END.
-  IF lPickTicketValidation AND AVAIL oe-relh THEN do:
+  IF lPickTicketValidation AND AVAILABLE oe-relh THEN DO:
       cTagList = "" .
       RUN addon/bol/GetTagList.p(INPUT cocode,INPUT oe-relh.release#, OUTPUT cTagList) .
       
-      IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
+      IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN DO:
         IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).
           
-          IF NOT lsecurityTag THEN do:
+          IF NOT lsecurityTag THEN DO:
               MESSAGE "Enter a password to override or You must use the tags assigned - '"
-                  cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .
+                  cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFORMATION .
               RETURN NO-APPLY .
           END.
       END.
@@ -881,14 +881,14 @@ DO:
          AND oe-ordl.ord-no   EQ v-ord-no
          AND oe-ordl.i-no     EQ loadtag.i-no
        NO-LOCK
-       BREAK BY oe-ordl.job-no  DESC
-             BY oe-ordl.job-no2 DESC:
+       BREAK BY oe-ordl.job-no  DESCENDING
+             BY oe-ordl.job-no2 DESCENDING:
      IF LAST(oe-ordl.job-no) OR
         (oe-ordl.job-no EQ loadtag.job-no AND
          oe-ordl.job-no2 EQ loadtag.job-no2) THEN
        LEAVE.
    END.
-   IF NOT AVAIL oe-ordl AND loadtag.ord-no <> 0 THEN DO:
+   IF NOT AVAILABLE oe-ordl AND loadtag.ord-no <> 0 THEN DO:
      MESSAGE "Tag# Order/FG# invalid..." VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
@@ -924,10 +924,10 @@ DO:
          AND fg-bin.job-no   EQ loadtag.job-no
          AND fg-bin.job-no2  EQ loadtag.job-no2
          AND fg-bin.qty      GT 0
-         AND ((AVAIL oe-ord AND fg-bin.cust-no EQ oe-ord.cust-no) OR
+         AND ((AVAILABLE oe-ord AND fg-bin.cust-no EQ oe-ord.cust-no) OR
               fg-bin.cust-no EQ "")
        USE-INDEX tag
-       BREAK BY fg-bin.cust-no DESC
+       BREAK BY fg-bin.cust-no DESCENDING
              BY fg-bin.qty:
 
      IF (fg-bin.cust-no EQ oe-relh.cust-no AND LAST-OF(fg-bin.cust-no)) OR
@@ -953,7 +953,7 @@ DO:
         itemfg.i-no = tt-relbol.i-no:SCREEN-VALUE
         NO-LOCK NO-ERROR.
 
-   IF AVAIL ITEMfg AND itemfg.ship-meth THEN DO: /* case */
+   IF AVAILABLE ITEMfg AND itemfg.ship-meth THEN DO: /* case */
       APPLY "entry" TO tt-relbol.cases IN BROWSE {&browse-name}. 
       DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
       RETURN NO-APPLY.
@@ -972,22 +972,25 @@ DO:
    RETURN NO-APPLY.
 END.
 
-ON 'value-changed':U OF tt-relbol.cases
+ON VALUE-CHANGED OF tt-relbol.cases
 DO:
    RUN calc-qty.
 END.
-ON 'value-changed':U OF tt-relbol.qty-case
+
+ON VALUE-CHANGED OF tt-relbol.qty-case
 DO:
    RUN calc-qty.
 END.
-ON 'value-changed':U OF tt-relbol.partial
+
+ON VALUE-CHANGED OF tt-relbol.partial
 DO:
    RUN calc-qty.
 END.
-ON 'help':U OF tt-relbol.release#
+
+ON HELP OF tt-relbol.release#
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR rec-val AS RECID NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO.
 
     RUN windows/l-oerelh.w (cocode,FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
     IF char-val <> "" THEN DO:
@@ -999,10 +1002,11 @@ DO:
    
     RETURN NO-APPLY.
 END.
-ON 'help':U OF tt-relbol.tag#
+
+ON HELP OF tt-relbol.tag#
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEF VAR rec-val AS RECID NO-UNDO.
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO.
                       /*was l-ldtag2.w */
     IF ss-bolscan = 0 THEN DO:
     RUN windows/l-ldtag9.w (cocode,NO, tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name},FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
@@ -1016,9 +1020,10 @@ DO:
     END.
 
 END.
-ON 'help':U OF tt-relbol.trailer#
+
+ON HELP OF tt-relbol.trailer#
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
+   DEFINE VARIABLE char-val AS cha NO-UNDO.
 
    RUN browsers/l-truck.w (cocode,
                            tt-relbol.trailer#:SCREEN-VALUE IN BROWSE {&browse-NAME}, 
@@ -1030,7 +1035,7 @@ DO:
    END.
 END.
 
-ON 'leave':U OF tt-relbol.trailer
+ON LEAVE OF tt-relbol.trailer
 DO:
     IF LASTKEY = -1 OR LASTKEY = 27 /*ESC*/ THEN
        RETURN.
@@ -1049,7 +1054,7 @@ DO:
          oe-relh.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
          NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-relh THEN DO:
+    IF AVAILABLE oe-relh THEN DO:
 
        IF TRIM(oe-relh.trailer) NE "" AND
           oe-relh.trailer NE tt-relbol.trailer:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
@@ -1068,7 +1073,7 @@ DO:
          itemfg.i-no = tt-relbol.i-no:SCREEN-VALUE
          NO-LOCK NO-ERROR.
     
-    IF AVAIL itemfg AND itemfg.ship-meth THEN
+    IF AVAILABLE itemfg AND itemfg.ship-meth THEN
     DO:
        APPLY "entry" TO tt-relbol.cases IN BROWSE {&browse-name}.
        DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
@@ -1154,15 +1159,15 @@ DO WITH FRAME {&FRAME-NAME}:
           tt-relbol.ord-no = v-ord-no 
           tt-relbol.job-no = loadtag.job-no
           tt-relbol.job-no2 = loadtag.job-no2
-          tt-relbol.loc = IF AVAIL fg-bin THEN fg-bin.loc ELSE loadtag.loc
-          tt-relbol.loc-bin = IF AVAIL fg-bin THEN fg-bin.loc-bin ELSE loadtag.loc-bin
-          tt-relbol.cust-no = IF AVAIL fg-bin THEN fg-bin.cust-no ELSE ""  
-          tt-relbol.qty = IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count  /* loadtag.qty */
-          tt-relbol.cases  = IF AVAIL fg-bin THEN TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) ELSE loadtag.case-bundle
-          tt-relbol.qty-case = IF AVAIL fg-bin THEN fg-bin.case-count ELSE loadtag.qty-case
-          tt-relbol.cases-unit = IF AVAIL fg-bin THEN fg-bin.cases-unit ELSE loadtag.case-bundle
-          tt-relbol.partial = IF AVAIL fg-bin THEN fg-bin.partial-count ELSE loadtag.partial
-          tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
+          tt-relbol.loc = IF AVAILABLE fg-bin THEN fg-bin.loc ELSE loadtag.loc
+          tt-relbol.loc-bin = IF AVAILABLE fg-bin THEN fg-bin.loc-bin ELSE loadtag.loc-bin
+          tt-relbol.cust-no = IF AVAILABLE fg-bin THEN fg-bin.cust-no ELSE ""  
+          tt-relbol.qty = IF AVAILABLE fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count  /* loadtag.qty */
+          tt-relbol.cases  = IF AVAILABLE fg-bin THEN TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) ELSE loadtag.case-bundle
+          tt-relbol.qty-case = IF AVAILABLE fg-bin THEN fg-bin.case-count ELSE loadtag.qty-case
+          tt-relbol.cases-unit = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE loadtag.case-bundle
+          tt-relbol.partial = IF AVAILABLE fg-bin THEN fg-bin.partial-count ELSE loadtag.partial
+          tt-relbol.line = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
           tt-relbol.po-no = lv-po-no
           tt-relbol.warned = ll.
    
@@ -1179,7 +1184,7 @@ DO WITH FRAME {&FRAME-NAME}:
            tt-relbol.cases-unit tt-relbol.partial
            WITH BROWSE {&browse-name}.
 
-   IF TRIM(ssbolscan-cha) NE "" AND AVAIL oe-relh THEN
+   IF TRIM(ssbolscan-cha) NE "" AND AVAILABLE oe-relh THEN
    DO:
       tt-relbol.trailer# = oe-relh.trailer.
       DISPLAY tt-relbol.trailer# WITH BROWSE {&browse-name}.
@@ -1198,23 +1203,23 @@ PROCEDURE build-email :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-done-what AS cha NO-UNDO.
-   DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
-   DEF INPUT PARAM ipdRelQty AS DECIMAL NO-UNDO.
-   DEF INPUT PARAM ipdScanQty AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ip-done-what AS cha NO-UNDO.
+   DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+   DEFINE INPUT PARAMETER ipdRelQty AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ipdScanQty AS DECIMAL NO-UNDO.
 
-   DEF BUFFER bf-relbol FOR tt-relbol.
-   DEF BUFFER bf-rell FOR oe-rell.
+   DEFINE BUFFER bf-relbol FOR tt-relbol.
+   DEFINE BUFFER bf-rell FOR oe-rell.
 
    IF ip-done-what = "Added" OR ip-done-what EQ "OverUnder" THEN DO:
       FIND bf-relbol WHERE RECID(bf-relbol) = ip-recid NO-LOCK NO-ERROR.   
-      IF AVAIL bf-relbol THEN DO:
+      IF AVAILABLE bf-relbol THEN DO:
          FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
                         AND oe-ordl.ord-no = bf-relbol.ord-no
                         AND oe-ordl.i-no = bf-relbol.i-no 
                         AND oe-ordl.LINE = bf-relbol.LINE
              USE-INDEX ord-no NO-LOCK NO-ERROR.
-         IF NOT AVAIL oe-ordl THEN
+         IF NOT AVAILABLE oe-ordl THEN
             FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
                            AND oe-ordl.ord-no = bf-relbol.ord-no
                            AND oe-ordl.i-no = bf-relbol.i-no
@@ -1228,12 +1233,12 @@ PROCEDURE build-email :
             ASSIGN tt-email.release# = bf-relbol.release#
                    tt-email.ord-no = bf-relbol.ord-no
                    tt-email.i-no = bf-relbol.i-no
-                   tt-email.part-no = IF AVAIL oe-ordl THEN oe-ordl.part-no ELSE ""
+                   tt-email.part-no = IF AVAILABLE oe-ordl THEN oe-ordl.part-no ELSE ""
                    tt-email.i-name = bf-relbol.i-name
                    tt-email.done-what = ip-done-what    
                    tt-email.ord-no2 = bf-relbol.ord-no
-                   tt-email.job-no = IF AVAIL oe-ordl THEN oe-ordl.job-no ELSE ''
-                   tt-email.job-no2 = IF AVAIL oe-ordl THEN oe-ordl.job-no2 ELSE 0
+                   tt-email.job-no = IF AVAILABLE oe-ordl THEN oe-ordl.job-no ELSE ''
+                   tt-email.job-no2 = IF AVAILABLE oe-ordl THEN oe-ordl.job-no2 ELSE 0
                    tt-email.qty-scan = ipdScanQty
                    tt-email.qty-rel = ipdRelQty
                     .
@@ -1242,7 +1247,7 @@ PROCEDURE build-email :
    END.
    ELSE DO:  /* deleted */
       FIND bf-rell WHERE RECID(bf-rell) = ip-recid NO-LOCK NO-ERROR.
-      IF AVAIL bf-rell THEN DO:
+      IF AVAILABLE bf-rell THEN DO:
          FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
                         AND oe-ordl.ord-no = bf-rell.ord-no
                         AND oe-ordl.i-no = bf-rell.i-no 
@@ -1256,12 +1261,12 @@ PROCEDURE build-email :
             ASSIGN tt-email.release# = tt-relbol.release#
                    tt-email.ord-no = tt-relbol.ord-no
                    tt-email.i-no = bf-rell.i-no
-                   tt-email.part-no = IF AVAIL oe-ordl THEN oe-ordl.part-no ELSE ""
-                   tt-email.i-name = IF AVAIL oe-ordl THEN oe-ordl.i-name ELSE ""
+                   tt-email.part-no = IF AVAILABLE oe-ordl THEN oe-ordl.part-no ELSE ""
+                   tt-email.i-name = IF AVAILABLE oe-ordl THEN oe-ordl.i-name ELSE ""
                    tt-email.done-what = ip-done-what   
                    tt-email.ord-no2 = bf-rell.ord-no
-                   tt-email.job-no = IF AVAIL oe-ordl THEN oe-ordl.job-no ELSE ''
-                   tt-email.job-no2 = IF AVAIL oe-ordl THEN oe-ordl.job-no2 ELSE 0
+                   tt-email.job-no = IF AVAILABLE oe-ordl THEN oe-ordl.job-no ELSE ''
+                   tt-email.job-no2 = IF AVAILABLE oe-ordl THEN oe-ordl.job-no2 ELSE 0
                    .
          END.
       END.
@@ -1300,10 +1305,10 @@ PROCEDURE check-bol :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF OUTPUT PARAM op-bol-printed AS LOG NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-bol-printed AS LOG NO-UNDO.
 
   FIND FIRST bf-tmp NO-ERROR.
-  IF NOT AVAIL bf-tmp THEN op-bol-printed = YES.
+  IF NOT AVAILABLE bf-tmp THEN op-bol-printed = YES.
   ELSE op-bol-printed = is-bol-printed.
 
 
@@ -1325,40 +1330,40 @@ PROCEDURE choose-order :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER iprOeRell AS ROWID NO-UNDO.
-DEF INPUT PARAMETER iprLoadTag AS ROWID NO-UNDO.
-DEF INPUT PARAMETER ipcButtonList AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER iprOeRell AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER iprLoadTag AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipcButtonList AS CHARACTER NO-UNDO.
 
 DEFINE OUTPUT PARAMETER opiOrderChosen AS INTEGER     NO-UNDO.
 DEFINE OUTPUT PARAMETER opcButtonChoice AS CHARACTER   NO-UNDO.
 
-DEF VAR lCancel AS LOG.
-DEF VAR lChoice AS LOG.
-DEF VAR v-msg1 AS CHAR NO-UNDO.
-DEF VAR v-msg1-1 AS CHAR NO-UNDO.
-DEF VAR v-msg2 AS CHAR NO-UNDO.
-DEF VAR v-msg3 AS CHAR NO-UNDO.
-DEF VAR v-msg4 AS CHAR NO-UNDO.
-DEF VAR choice AS CHAR NO-UNDO.
-DEF VAR op-values AS CHAR NO-UNDO.
-DEF VAR lValid AS LOG NO-UNDO.
-DEF VAR i AS INT NO-UNDO.
-DEF VAR ip-parms AS CHAR NO-UNDO.
-DEF VAR lcUserPrompt AS CHAR  NO-UNDO.
-DEF VAR lcNewOrder AS CHAR NO-UNDO.
-DEF VAR cOrderList AS CHAR NO-UNDO.
-DEF VAR cDir AS CHAR NO-UNDO.
+DEFINE VARIABLE lCancel AS LOG.
+DEFINE VARIABLE lChoice AS LOG.
+DEFINE VARIABLE v-msg1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg1-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE choice AS CHARACTER NO-UNDO.
+DEFINE VARIABLE op-values AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid AS LOG NO-UNDO.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE ip-parms AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcUserPrompt AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE lcNewOrder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOrderList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDir AS CHARACTER NO-UNDO.
 
-DEF BUFFER bf-oe-rell FOR oe-rell.
-DEF BUFFER bf2-oe-rell FOR oe-rell.
-DEF BUFFER bf-loadtag FOR loadtag.
-DEF BUFFER bf-oe-relh FOR oe-relh .
+DEFINE BUFFER bf-oe-rell FOR oe-rell.
+DEFINE BUFFER bf2-oe-rell FOR oe-rell.
+DEFINE BUFFER bf-loadtag FOR loadtag.
+DEFINE BUFFER bf-oe-relh FOR oe-relh .
 
 FIND bf2-oe-rell WHERE ROWID(bf2-oe-rell) = iprOeRell NO-LOCK NO-ERROR.
-IF NOT AVAIL bf2-oe-rell THEN
+IF NOT AVAILABLE bf2-oe-rell THEN
     RETURN.
 FIND bf-loadtag WHERE ROWID(bf-loadtag) = iprLoadTag NO-LOCK NO-ERROR.
-IF NOT AVAIL bf-loadtag THEN
+IF NOT AVAILABLE bf-loadtag THEN
     RETURN.
 
   
@@ -1476,12 +1481,12 @@ PROCEDURE create-temp-rel :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-create-backorder AS LOG NO-UNDO.
     
-  DEF VAR li-nxt-rel-no AS INT NO-UNDO.
-  DEF VAR dScanQty LIKE oe-boll.qty NO-UNDO.
-  DEF VAR v-s-code AS CHAR NO-UNDO.
-  DEF VAR v-next-seq AS INT NO-UNDO.
+  DEFINE VARIABLE li-nxt-rel-no AS INTEGER NO-UNDO.
+  DEFINE VARIABLE dScanQty LIKE oe-boll.qty NO-UNDO.
+  DEFINE VARIABLE v-s-code AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE v-next-seq AS INTEGER NO-UNDO.
 
-  DEF BUFFER bf-rell FOR oe-rell.
+  DEFINE BUFFER bf-rell FOR oe-rell.
 
   /* Create release line for each temp record without one */
   FOR EACH bf-tmp USE-INDEX release#,
@@ -1495,7 +1500,7 @@ PROCEDURE create-temp-rel :
     
 
     FIND FIRST bf-rell NO-LOCK WHERE bf-rell.r-no EQ oe-relh.r-no NO-ERROR.
-    v-s-code = IF AVAIL bf-rell THEN bf-rell.s-code ELSE "B".
+    v-s-code = IF AVAILABLE bf-rell THEN bf-rell.s-code ELSE "B".
 
     dScanQty = dScanQty + bf-tmp.qty.
 
@@ -1512,7 +1517,7 @@ PROCEDURE create-temp-rel :
             WHERE bf-rell.company EQ cocode
               AND bf-rell.ord-no  EQ bf-tmp.ord-no
             USE-INDEX ord-no 
-            BY bf-rell.rel-no DESC:
+            BY bf-rell.rel-no DESCENDING:
     
           li-nxt-rel-no = bf-rell.rel-no.
           LEAVE.  
@@ -1544,7 +1549,7 @@ PROCEDURE create-temp-rel :
                 AND ttRelQtys.ord-no EQ bf-tmp.ord-no
                 AND ttRelQtys.i-no EQ bf-tmp.i-no
               NO-LOCK NO-ERROR.
-          IF AVAIL ttRelQtys THEN DO:
+          IF AVAILABLE ttRelQtys THEN DO:
               IF dScanQty LT ttRelQtys.qty-rel 
                   OR dScanQty GT ttRelQtys.qty-rel * 1.1 THEN
                   RUN build-email(INPUT "OverUnder", 
@@ -1611,13 +1616,13 @@ PROCEDURE create-temp-rel :
                oe-ordl.line    EQ oe-rell.line
                NO-LOCK NO-ERROR.
 
-          FOR EACH b-tt-relbol BY b-tt-relbol.seq DESC:
+          FOR EACH b-tt-relbol BY b-tt-relbol.seq DESCENDING:
               v-next-seq = b-tt-relbol.seq + 1.
               LEAVE.
           END.
           FIND FIRST tt-relbol WHERE tt-relbol.oerell-row = ROWID(oe-rell)
               NO-LOCK NO-ERROR.
-          IF NOT AVAIL tt-relbol THEN DO:
+          IF NOT AVAILABLE tt-relbol THEN DO:
 
               CREATE tt-relbol.
               ASSIGN
@@ -1637,7 +1642,7 @@ PROCEDURE create-temp-rel :
               tt-relbol.partial = 0
               tt-relbol.t-qty = 0
               tt-relbol.oerell-row = ROWID(oe-rell)
-              tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
+              tt-relbol.line = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
               tt-relbol.po-no = oe-rell.po-no
               tt-relbol.seq   = v-next-seq              
               .
@@ -1732,13 +1737,13 @@ PROCEDURE display-qtys :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-release# LIKE oe-relh.release# NO-UNDO.
-  DEF VAR lv-i-no LIKE oe-rell.i-no NO-UNDO.
+  DEFINE VARIABLE lv-release# LIKE oe-relh.release# NO-UNDO.
+  DEFINE VARIABLE lv-i-no LIKE oe-rell.i-no NO-UNDO.
 
-  DEF BUFFER b-rell FOR oe-rell.
-  DEF BUFFER b-relh FOR oe-relh.
-  DEF BUFFER b-itemfg FOR itemfg.
-  DEF BUFFER b-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER b-rell FOR oe-rell.
+  DEFINE BUFFER b-relh FOR oe-relh.
+  DEFINE BUFFER b-itemfg FOR itemfg.
+  DEFINE BUFFER b-oe-ordl FOR oe-ordl.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1773,13 +1778,13 @@ PROCEDURE display-qtys :
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN do:
+        IF AVAILABLE b-oe-ordl THEN DO:
             dRoundup = b-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
                 {sys/inc/roundup.i dRoundup}
             iRelQtyPallet = iRelQtyPallet + dRoundup .
         END.
         IF LAST-OF(b-rell.LINE) THEN DO:
-            IF AVAIL b-oe-ordl THEN do:
+            IF AVAILABLE b-oe-ordl THEN DO:
                 v-job-qty = b-oe-ordl.qty .
                /* v-job-qty = get-bal().*/ /*Ticket# 22529*/
                 dRoundup = v-job-qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
@@ -1790,7 +1795,7 @@ PROCEDURE display-qtys :
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
                                 AND b-itemfg.i-no    EQ b-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN do:
+            IF AVAILABLE b-itemfg THEN DO:
                 v-qoh = b-itemfg.q-onh.
                 dRoundup = v-qoh / (b-itemfg.case-count * b-itemfg.case-pall) .
                 {sys/inc/roundup.i dRoundup}
@@ -1818,33 +1823,33 @@ PROCEDURE get-v-ord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF OUTPUT PARAMETER oprOeRell AS ROWID NO-UNDO.
-DEF OUTPUT PARAMETER oprCust AS ROWID NO-UNDO.
-DEF OUTPUT PARAMETER oprOeOrd AS ROWID NO-UNDO.
-DEF OUTPUT PARAMETER oplReturnNoApply AS LOGICAL NO-UNDO.
-DEF OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oprOeRell AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER oprCust AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER oprOeOrd AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER oplReturnNoApply AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
 
-DEF VAR lCancel AS LOG.
-DEF VAR lChoice AS LOG.
-DEF VAR v-msg1 AS CHAR NO-UNDO.
-DEF VAR v-msg1-1 AS CHAR NO-UNDO.
-DEF VAR v-msg2 AS CHAR NO-UNDO.
-DEF VAR v-msg3 AS CHAR NO-UNDO.
-DEF VAR v-msg4 AS CHAR NO-UNDO.
-DEF VAR choice AS CHAR NO-UNDO.
-DEF VAR op-values AS CHAR NO-UNDO.
-DEF VAR lValid AS LOG NO-UNDO.
-DEF VAR i AS INT NO-UNDO.
-DEF VAR ip-parms AS CHAR NO-UNDO.
-DEF VAR lcUserPrompt AS CHAR  NO-UNDO.
-DEF VAR lcNewOrder AS CHAR NO-UNDO.
-DEF VAR cOrderList AS CHAR NO-UNDO.
-DEF VAR cDir AS CHAR NO-UNDO.
-DEF VAR liCnt AS INT NO-UNDO.
-DEF VAR liOrderChosen LIKE oe-rell.ord-no NO-UNDO.
-DEF VAR lcUserButton AS CHAR NO-UNDO.
+DEFINE VARIABLE lCancel AS LOG.
+DEFINE VARIABLE lChoice AS LOG.
+DEFINE VARIABLE v-msg1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg1-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg3 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-msg4 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE choice AS CHARACTER NO-UNDO.
+DEFINE VARIABLE op-values AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid AS LOG NO-UNDO.
+DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE ip-parms AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcUserPrompt AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE lcNewOrder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOrderList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE liCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE liOrderChosen LIKE oe-rell.ord-no NO-UNDO.
+DEFINE VARIABLE lcUserButton AS CHARACTER NO-UNDO.
 
-DEF BUFFER bf-oe-rell FOR oe-rell.
+DEFINE BUFFER bf-oe-rell FOR oe-rell.
 
 ASSIGN v-ord-no = 0
        oplReturnNoApply = NO.
@@ -1856,11 +1861,11 @@ IF loadtag.ord-no = 0 THEN DO: /* stock box */
                        AND oe-rell.tag      EQ loadtag.tag-no                           
                        USE-INDEX r-no NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL oe-rell THEN DO:
-     DEF VAR v-ord-no-list AS cha NO-UNDO.
-     DEF VAR v-tag-no-list AS cha NO-UNDO.
-     DEF VAR v-i-qty AS INT NO-UNDO.
-     DEF VAR v-i-rel-qty AS INT NO-UNDO.
+  IF NOT AVAILABLE oe-rell THEN DO:
+     DEFINE VARIABLE v-ord-no-list AS cha NO-UNDO.
+     DEFINE VARIABLE v-tag-no-list AS cha NO-UNDO.
+     DEFINE VARIABLE v-i-qty AS INTEGER NO-UNDO.
+     DEFINE VARIABLE v-i-rel-qty AS INTEGER NO-UNDO.
 
      ASSIGN
      v-ord-no-list = ""
@@ -1949,14 +1954,14 @@ IF loadtag.ord-no = 0 THEN DO: /* stock box */
       END. /* More than one order on this release */
   END.
 
-  IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.
+  IF AVAILABLE oe-rell THEN v-ord-no = oe-rell.ord-no.
   ELSE DO:
 /*       IF v-i-rel-qty >= v-i-qty THEN DO: */
          FIND FIRST oe-rell NO-LOCK WHERE oe-rell.company   EQ cocode
                     AND oe-rell.r-no      EQ oe-relh.r-no
                     AND oe-rell.i-no      EQ loadtag.i-no
                     USE-INDEX r-no NO-ERROR.
-         IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.     
+         IF AVAILABLE oe-rell THEN v-ord-no = oe-rell.ord-no.     
 /*       END.                                                                        */
 /*       ELSE DO:                                                                    */
 /*          MESSAGE "Loadtag has no order number and FG Item not on any order." SKIP */
@@ -1974,13 +1979,13 @@ ELSE DO:
                          AND oe-rell.ord-no    EQ loadtag.ord-no
                          AND oe-rell.i-no EQ  loadtag.i-no
                        USE-INDEX r-no NO-LOCK NO-ERROR.
-  IF NOT AVAIL oe-rell AND relmerge-int EQ 1 THEN
+  IF NOT AVAILABLE oe-rell AND relmerge-int EQ 1 THEN
     FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                          AND oe-rell.r-no      EQ oe-relh.r-no
                          /* AND oe-rell.ord-no    EQ loadtag.ord-no      */
                          AND oe-rell.i-no EQ  loadtag.i-no
                        USE-INDEX r-no NO-LOCK NO-ERROR.
-  IF AVAIL oe-rell THEN DO: 
+  IF AVAILABLE oe-rell THEN DO: 
       /* There may be a mismatch between the order number on the release */
       /* compared to the loadtag, so ask the user which to use           */
 
@@ -2096,37 +2101,37 @@ ELSE DO:
      FIND FIRST oe-ord WHERE oe-ord.company = cocode
                          AND oe-ord.ord-no = loadtag.ord-no
                          AND oe-ord.OPENed = YES NO-LOCK NO-ERROR.
-     IF AVAIL oe-ord THEN DO:
+     IF AVAILABLE oe-ord THEN DO:
         IF oe-ord.cust-no = oe-relh.cust-no THEN DO: /* have ord# from release*/
            FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                 AND oe-rell.r-no      EQ oe-relh.r-no
                                 AND oe-rell.tag EQ  loadtag.tag-no
                               USE-INDEX r-no NO-LOCK NO-ERROR.
-           IF NOT AVAIL oe-rell THEN DO:
+           IF NOT AVAILABLE oe-rell THEN DO:
               {addon/bol/loadcust.i}
-              IF AVAIL cust AND cust.active = "X" THEN  DO: 
+              IF AVAILABLE cust AND cust.active = "X" THEN  DO: 
                  FIND FIRST oe-rell NO-LOCK WHERE oe-rell.company   EQ cocode
                           AND oe-rell.r-no      EQ oe-relh.r-no
                           AND oe-rell.i-no      EQ loadtag.i-no                           
                           USE-INDEX r-no NO-ERROR.
               END.
            END.
-           IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.
+           IF AVAILABLE oe-rell THEN v-ord-no = oe-rell.ord-no.
            ELSE v-ord-no = loadtag.ord-no.
         END.
         ELSE DO:
           {addon/bol/loadcust.i}
-          IF AVAIL cust AND cust.active = "X" THEN  DO: /* same as stock box ord-no = 0*/
+          IF AVAILABLE cust AND cust.active = "X" THEN  DO: /* same as stock box ord-no = 0*/
              FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                            AND oe-rell.r-no      EQ oe-relh.r-no
                            AND oe-rell.tag      EQ loadtag.tag-no                           
                            USE-INDEX r-no NO-LOCK NO-ERROR.
-             IF NOT AVAIL oe-rell THEN /* only one line for the item*/
+             IF NOT AVAILABLE oe-rell THEN /* only one line for the item*/
                 FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                           AND oe-rell.r-no      EQ oe-relh.r-no
                           AND oe-rell.i-no      EQ loadtag.i-no                           
                           USE-INDEX r-no NO-LOCK NO-ERROR.
-             IF AVAIL oe-rell THEN v-ord-no = oe-rell.ord-no.
+             IF AVAILABLE oe-rell THEN v-ord-no = oe-rell.ord-no.
           END.
         END.
      END. /* avail oe-ord */
@@ -2135,12 +2140,12 @@ ELSE DO:
                               AND oe-rell.r-no      EQ oe-relh.r-no
                               AND oe-rell.tag EQ  loadtag.tag-no
                               USE-INDEX r-no NO-LOCK NO-ERROR.
-         IF NOT AVAIL oe-rell THEN
+         IF NOT AVAILABLE oe-rell THEN
             FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                  AND oe-rell.r-no      EQ oe-relh.r-no
                                  AND oe-rell.i-no EQ  loadtag.i-no
                                  USE-INDEX r-no NO-LOCK NO-ERROR.
-         IF AVAIL oe-rell THEN  v-ord-no = oe-rell.ord-no.
+         IF AVAILABLE oe-rell THEN  v-ord-no = oe-rell.ord-no.
          ELSE DO:
             MESSAGE "Order " loadtag.ord-no " is Closed. Reopen it and try again."
                 VIEW-AS ALERT-BOX ERROR.
@@ -2152,9 +2157,9 @@ ELSE DO:
   END.  /* not avail oe-rell*/
 END. /* loadtag.ord-no <> 0 */   
 
-IF AVAIL oe-rell   THEN oprOeRell = ROWID(oe-rell).
-IF AVAIL cust      THEN oprCust   = ROWID(cust).
-IF AVAIL oe-ord    THEN oprOeOrd  = ROWID(oe-ord).
+IF AVAILABLE oe-rell   THEN oprOeRell = ROWID(oe-rell).
+IF AVAILABLE cust      THEN oprCust   = ROWID(cust).
+IF AVAILABLE oe-ord    THEN oprOeOrd  = ROWID(oe-ord).
 
 END PROCEDURE.
 
@@ -2167,9 +2172,9 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR fil_id AS RECID NO-UNDO.
-  DEF VAR nufile AS LOG NO-UNDO.
-  DEF BUFFER b-rell FOR oe-rell.
+  DEFINE VARIABLE fil_id AS RECID NO-UNDO.
+  DEFINE VARIABLE nufile AS LOG NO-UNDO.
+  DEFINE BUFFER b-rell FOR oe-rell.
   
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2256,7 +2261,7 @@ PROCEDURE local-assign-record :
           oe-relh.company  EQ cocode AND
           oe-relh.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-ERROR NO-WAIT.
-     IF AVAIL oe-relh THEN
+     IF AVAILABLE oe-relh THEN
      DO:
         ASSIGN oe-relh.trailer = tt-relbol.trailer#.
         FIND CURRENT oe-relh NO-LOCK.
@@ -2302,7 +2307,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -2311,7 +2316,7 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  FOR EACH bf-tmp BY bf-tmp.seq DESC:
+  FOR EACH bf-tmp BY bf-tmp.seq DESCENDING:
     li = bf-tmp.seq.
     LEAVE.
   END.
@@ -2351,9 +2356,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win
-PROCEDURE local-disable-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win 
+PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2366,11 +2370,9 @@ PROCEDURE local-disable-fields:
     /* Code placed here will execute AFTER standard behavior.    */
     lRecordUpdating = FALSE.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
@@ -2449,7 +2451,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST bf-ssrelbol no-lock
+  FIND FIRST bf-ssrelbol NO-LOCK
     WHERE bf-ssrelbol.company EQ cocode
       AND bf-ssrelbol.release# EQ INTEGER(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
       AND bf-ssrelbol.tag EQ tt-relbol.tag:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2470,7 +2472,7 @@ PROCEDURE local-update-record :
   RUN pEnablePrintButton.
    
   /* If updating, bf-ssrelbol will be available so don't auto open new line */
-  IF (ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty) AND NOT AVAIL bf-ssrelbol THEN      
+  IF (ssbol-int EQ 0 OR v-scan-qty LT v-rel-qty) AND NOT AVAILABLE bf-ssrelbol THEN      
       RUN scan-next.
   
 
@@ -2486,8 +2488,8 @@ PROCEDURE need-scroll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR lv-cnt AS INT NO-UNDO.
-DEF VAR lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE lv-cnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
 FOR EACH bf-tmp NO-LOCK WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name}):
     lv-cnt = lv-cnt + 1.             
@@ -2532,7 +2534,7 @@ IF gvlCheckOrdStat THEN DO:
         AND oe-ord.ord-no  EQ oe-rell.ord-no
       NO-LOCK NO-ERROR.
    
-    IF AVAIL oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
+    IF AVAILABLE oe-ord AND INDEX(oe-ord.stat, "H") GT 0 OR oe-ord.priceHold THEN
       ASSIGN
         cHoldMessage = "Order " + STRING(oe-ord.ord-no) + " is on " 
         cHoldMessage = cHoldMessage + (IF oe-ord.stat EQ "H" THEN "hold." ELSE "price hold. ") 
@@ -2550,6 +2552,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePrintButton B-table-Win 
+PROCEDURE pEnablePrintButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  
+  IF AVAILABLE tt-relbol THEN 
+  cAction = "initial".
+  ELSE cAction = "disable-all".
+  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Record-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN set-buttons IN WIDGET-HANDLE(char-hdl)(INPUT cAction).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-release B-table-Win 
 PROCEDURE post-release :
 /*------------------------------------------------------------------------------
@@ -2558,25 +2582,25 @@ PROCEDURE post-release :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-DEF BUFFER upd-oe-relh FOR oe-relh.
-DEF BUFFER bf-rell FOR oe-rell.
+DEFINE BUFFER upd-oe-relh FOR oe-relh.
+DEFINE BUFFER bf-rell FOR oe-rell.
 
-DEF VAR v-ship-lu AS ch INIT ["I,S,B"].
-DEF VAR v-ship-no AS INT.
-DEF VAR save_id AS RECID.
-DEF VAR time_stamp AS ch.
-DEF VAR v-s-code AS CHAR.
-DEF VAR v-first-release AS LOG.
-DEF VAR v-r-no LIKE inv-head.r-no.
-DEF VAR v-ext-price LIKE inv-line.t-price.
-DEF VAR v-nxt-r-no AS INT.
-DEF VAR v-po-no LIKE oe-rel.po-no.
-DEF VAR v-n-bol LIKE oe-ctrl.n-bol.
-DEF VAR v-bol-qty LIKE oe-boll.qty.
-DEF VAR temp-tax AS DEC INIT 0 NO-UNDO.
-DEF VAR v-relpost-hld LIKE relpost-chr NO-UNDO.
-DEF VAR lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
-DEF VAR ll-exception AS LOG NO-UNDO.
+DEFINE VARIABLE v-ship-lu AS ch INIT ["I,S,B"].
+DEFINE VARIABLE v-ship-no AS INTEGER.
+DEFINE VARIABLE save_id AS RECID.
+DEFINE VARIABLE time_stamp AS ch.
+DEFINE VARIABLE v-s-code AS CHARACTER.
+DEFINE VARIABLE v-first-release AS LOG.
+DEFINE VARIABLE v-r-no LIKE inv-head.r-no.
+DEFINE VARIABLE v-ext-price LIKE inv-line.t-price.
+DEFINE VARIABLE v-nxt-r-no AS INTEGER.
+DEFINE VARIABLE v-po-no LIKE oe-rel.po-no.
+DEFINE VARIABLE v-n-bol LIKE oe-ctrl.n-bol.
+DEFINE VARIABLE v-bol-qty LIKE oe-boll.qty.
+DEFINE VARIABLE temp-tax AS DECIMAL INIT 0 NO-UNDO.
+DEFINE VARIABLE v-relpost-hld LIKE relpost-chr NO-UNDO.
+DEFINE VARIABLE lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
+DEFINE VARIABLE ll-exception AS LOG NO-UNDO.
 
 {sa/sa-sls01.i}
 
@@ -2736,12 +2760,12 @@ PROCEDURE print-bol :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR fil_id AS RECID NO-UNDO.
-  DEF VAR nufile AS LOG NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
-  DEF VAR li AS LOG INIT YES NO-UNDO.
-  DEF VAR v-msgreturn AS INT NO-UNDO.
-  DEF VAR v-create-backorder AS LOG NO-UNDO.
+  DEFINE VARIABLE fil_id AS RECID NO-UNDO.
+  DEFINE VARIABLE nufile AS LOG NO-UNDO.
+  DEFINE VARIABLE ll AS LOG NO-UNDO.
+  DEFINE VARIABLE li AS LOG INIT YES NO-UNDO.
+  DEFINE VARIABLE v-msgreturn AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-create-backorder AS LOG NO-UNDO.
   DEFINE VARIABLE v-scan-qty-c AS INTEGER  INITIAL 0 NO-UNDO.
   DEFINE VARIABLE v-rel-qty-c AS INTEGER  INITIAL 0 NO-UNDO .
   DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
@@ -2793,8 +2817,8 @@ PROCEDURE print-bol :
                  AND oe-ordl.LINE    EQ oe-rell.LINE
                  NO-ERROR.
             v-rel-qty-c = v-rel-qty-c + oe-rell.qty.
-            iOverShipQty = iOverShipQty + (oe-rell.qty + (oe-rell.qty * ((IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE 0) / 100))).
-            iUnderShipQty = iUnderShipQty + (oe-rell.qty - (oe-rell.qty * ((IF AVAIL oe-ordl THEN oe-ordl.under-pct ELSE 0) / 100))).
+            iOverShipQty = iOverShipQty + (oe-rell.qty + (oe-rell.qty * ((IF AVAILABLE oe-ordl THEN oe-ordl.over-pct ELSE 0) / 100))).
+            iUnderShipQty = iUnderShipQty + (oe-rell.qty - (oe-rell.qty * ((IF AVAILABLE oe-ordl THEN oe-ordl.under-pct ELSE 0) / 100))).
         END.  
         IF iOverShipQty LT v-scan-qty-c  AND (ssbolprint-char = "OverShipWarning" OR ssbolprint-char =  "OverUnderShipWarning") THEN
             MESSAGE "Release Qty for item# " + STRING(tt-relbol.i-no) + " :  " + string(iOverShipQty) + "   " +
@@ -2846,10 +2870,10 @@ PROCEDURE prompt-for-order :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER opiOrder1 AS INT NO-UNDO.
-DEF INPUT PARAMETER opiOrder2 AS INT NO-UNDO.
-DEF OUTPUT PARAMETER oplCancel AS LOG NO-UNDO.
-DEF OUTPUT PARAMETER opiChoice AS INT NO-UNDO.
+DEFINE INPUT PARAMETER opiOrder1 AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER opiOrder2 AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCancel AS LOG NO-UNDO.
+DEFINE OUTPUT PARAMETER opiChoice AS INTEGER NO-UNDO.
 
 
 DEFINE VARIABLE lcUserPrompt1 AS CHARACTER INIT "".
@@ -2955,7 +2979,7 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+   DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
    RUN dispatch ('open-query').
    IF ip-rowid <> ? THEN
@@ -3006,7 +3030,7 @@ PROCEDURE send-email :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-release# AS INT NO-UNDO.
+  DEFINE INPUT PARAMETER ip-release# AS INTEGER NO-UNDO.
 
   RUN addon/bol/bolemail.p(INPUT ip-release#,
                            INPUT cocode,
@@ -3060,13 +3084,13 @@ PROCEDURE sharpsh-print :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  DEF VAR beg-cust AS CHAR NO-UNDO.
-  DEF VAR end-cust AS CHAR NO-UNDO.
-  DEF VAR beg-bol AS INT NO-UNDO.
-  DEF VAR end-bol AS INT NO-UNDO.
-  DEF VAR beg-ord AS INT NO-UNDO.
-  DEF VAR end-ord AS INT NO-UNDO.
-  DEF VAR v-reprint AS LOG NO-UNDO.
+  DEFINE VARIABLE beg-cust AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE end-cust AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE beg-bol AS INTEGER NO-UNDO.
+  DEFINE VARIABLE end-bol AS INTEGER NO-UNDO.
+  DEFINE VARIABLE beg-ord AS INTEGER NO-UNDO.
+  DEFINE VARIABLE end-ord AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-reprint AS LOG NO-UNDO.
 
   ASSIGN beg-cust = ""
          end-cust = "zzzzzzzz"
@@ -3111,10 +3135,10 @@ PROCEDURE upd-actual-rel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER v-term AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER v-term AS CHARACTER NO-UNDO.
 
-DEF VAR h_oerel-recalc-act AS HANDLE.
-DEF VAR vActQty AS DEC NO-UNDO.
+DEFINE VARIABLE h_oerel-recalc-act AS HANDLE.
+DEFINE VARIABLE vActQty AS DECIMAL NO-UNDO.
 
 RUN sbo/oerel-recalc-act.p PERSISTENT SET h_oerel-recalc-act.
 
@@ -3159,12 +3183,12 @@ PROCEDURE update-bol :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-term AS cha NO-UNDO.
+  DEFINE INPUT PARAMETER ip-term AS cha NO-UNDO.
 
-  DEF VAR lv-qty LIKE oe-boll.qty NO-UNDO.
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-weight LIKE oe-boll.weight NO-UNDO.
-  DEF VAR lv-freight LIKE oe-boll.freight NO-UNDO.
+  DEFINE VARIABLE lv-qty LIKE oe-boll.qty NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lv-weight LIKE oe-boll.weight NO-UNDO.
+  DEFINE VARIABLE lv-freight LIKE oe-boll.freight NO-UNDO.
   
   FOR EACH tt-boll USE-INDEX tt-boll,
 
@@ -3271,7 +3295,7 @@ PROCEDURE update-bol :
     IF LAST-OF(tt-boll2.b-no) THEN DO:
         
       FIND CURRENT oe-bolh.
-      IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing" THEN do: 
+      IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing" THEN DO: 
           RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT dTotFreight).
           oe-bolh.freight = dTotFreight.
       END.
@@ -3304,7 +3328,7 @@ PROCEDURE update-bol :
           AND oe-boll.ord-no  EQ tt-boll2.ord-no
           AND oe-boll.i-no    EQ tt-boll2.i-no
         EXCLUSIVE-LOCK NO-ERROR.
-      IF AVAIL oe-boll THEN DO:
+      IF AVAILABLE oe-boll THEN DO:
           {oe/oe-bolpc.i ALL}
       END.
       RELEASE oe-boll.
@@ -3322,8 +3346,8 @@ PROCEDURE validate-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR v-iqty AS INT NO-UNDO.
-  DEF VAR v-ttqty AS INT NO-UNDO.
+  DEFINE VARIABLE v-iqty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-ttqty AS INTEGER NO-UNDO.
 
   IF tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN DO:
      MESSAGE "Item must be entered. " VIEW-AS ALERT-BOX ERROR.          
@@ -3394,8 +3418,8 @@ PROCEDURE validate-scan :
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-create-backorder AS LOG NO-UNDO.
     
-  DEF BUFFER bf-relbol FOR tt-relbol.
-  DEF VAR v-msg AS CHAR NO-UNDO.
+  DEFINE BUFFER bf-relbol FOR tt-relbol.
+  DEFINE VARIABLE v-msg AS CHARACTER NO-UNDO.
   
   EMPTY TEMP-TABLE ttRelQtys.
   FOR EACH bf-tmp BREAK BY bf-tmp.release#:
@@ -3416,7 +3440,7 @@ PROCEDURE validate-scan :
             AND ttRelQtys.ord-no EQ oe-rell.ord-no
             AND ttRelQtys.i-no EQ oe-rell.i-no
           NO-LOCK NO-ERROR.
-      IF NOT AVAIL ttRelQtys THEN DO:
+      IF NOT AVAILABLE ttRelQtys THEN DO:
         CREATE ttRelQtys.
         ASSIGN 
             ttRelQtys.release# = oe-relh.release#
@@ -3471,9 +3495,9 @@ PROCEDURE validate-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-qty-rel LIKE oe-rell.qty NO-UNDO.
-  DEF VAR lv-qty-tag LIKE oe-rell.qty NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
+  DEFINE VARIABLE lv-qty-rel LIKE oe-rell.qty NO-UNDO.
+  DEFINE VARIABLE lv-qty-tag LIKE oe-rell.qty NO-UNDO.
+  DEFINE VARIABLE ll AS LOG NO-UNDO.
 
       
   IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN DO:
@@ -3514,11 +3538,11 @@ PROCEDURE validate-tag-status :
          WHERE oe-relh.company  EQ cocode 
          AND oe-relh.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
          NO-ERROR.
-    IF avail oe-relh THEN
+    IF AVAILABLE oe-relh THEN
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ cocode
          AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
-    IF AVAIL cust AND AVAIL oe-relh THEN
+    IF AVAILABLE cust AND AVAILABLE oe-relh THEN
     cTagStatus = cust.tagStatus.
   
     lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
@@ -3536,10 +3560,10 @@ PROCEDURE validate-tag-status :
   
     IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
     THEN DO:        
-        IF lTagStatusOnHold THEN do:
+        IF lTagStatusOnHold THEN DO:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
-          IF NOT lMessageValue then
-          do:
+          IF NOT lMessageValue THEN
+          DO:
               APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
               oplReturnError = YES .
           END.
@@ -3550,28 +3574,6 @@ PROCEDURE validate-tag-status :
   END.
 
   {methods/lValidateError.i NO}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnablePrintButton B-table-Win 
-PROCEDURE pEnablePrintButton :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
-  
-  IF AVAIL tt-relbol THEN 
-  cAction = "initial".
-  ELSE cAction = "disable-all".
-  
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Record-target",OUTPUT char-hdl).
-  IF valid-handle(widget-handle(char-hdl)) THEN
-  RUN set-buttons IN WIDGET-HANDLE(char-hdl)(INPUT cAction).
 
 END PROCEDURE.
 
@@ -3602,9 +3604,9 @@ FUNCTION get-bal RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
 
-  IF AVAIL b-oe-ordl AND b-oe-ordl.job-no NE "" THEN
+  IF AVAILABLE b-oe-ordl AND b-oe-ordl.job-no NE "" THEN
   FOR EACH fg-bin NO-LOCK
       WHERE fg-bin.company EQ cocode
         AND fg-bin.job-no  EQ b-oe-ordl.job-no
@@ -3618,5 +3620,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
