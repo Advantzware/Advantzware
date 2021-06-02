@@ -2308,15 +2308,7 @@ PROCEDURE pPostGL PRIVATE:
         cTransactionType    = "FG"
         cConsolidateOn      = ipbf-ttPostingMaster.consolidateOnFG
         cConsolidateAccount = ipbf-ttPostingMaster.accountFG
-        .  
-    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
-        cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
-    
-    ASSIGN 
-        cTransactionType    = "COGS"
-        cConsolidateOn      = ipbf-ttPostingMaster.consolidateOnCogs
-        cConsolidateAccount = ipbf-ttPostingMaster.accountCogs
-        .  
+        .     
     RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
         cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
     
@@ -2381,12 +2373,12 @@ PROCEDURE pPostGLType PRIVATE:
     
     DEFINE VARIABLE dAmountToPost AS DECIMAL NO-UNDO.
     DEFINE VARIABLE riGlTrans     AS ROWID   NO-UNDO.
-     
+          
     FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ ipcTransactionType
+        WHERE (ttGLTransaction.transactionType EQ ipcTransactionType  OR (ipcTransactionType EQ "FG" AND ttGLTransaction.transactionType EQ "COGS"))
         BREAK BY ttGLTransaction.account
         BY ttGLTransaction.invoiceID:
-        
+                 
         ASSIGN 
             dAmountToPost      = dAmountToPost + ttGLTransaction.amount
             iopdRunningBalance = iopdRunningBalance + ttGLTransaction.amount
