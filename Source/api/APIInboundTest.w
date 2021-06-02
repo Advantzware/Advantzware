@@ -371,6 +371,10 @@ DO:
     DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.    
     DEFINE VARIABLE iTimeElapsed   AS INT64     NO-UNDO.
     DEFINE VARIABLE cRequestURL    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
     
     IF fiRequestURL:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE "Request URL cannot be empty"
@@ -396,66 +400,104 @@ DO:
         RETURN.    
     END.
 
-    IF SEARCH("curl.exe") EQ ? THEN DO:
-        MESSAGE "curl not found!"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN. 
-    END.    
-
-    ASSIGN
-        cRequestFile  = "C:\Tmp\request"
-        cResponseFile = "C:\Tmp\response"
-        cRequestURL   = (IF SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "/" OR
-                            SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "\" THEN
-                             SUBSTRING(fiRequestURL:SCREEN-VALUE, 1, LENGTH(fiRequestURL:SCREEN-VALUE) - 1)
-                         ELSE
-                             fiRequestURL:SCREEN-VALUE)                        
-                      + cbAPI:SCREEN-VALUE
-        .
-
-    cCommand = SEARCH("curl.exe") + ' --user '
-             + fiUserName:SCREEN-VALUE + ':' + fiPassword:SCREEN-VALUE + ' '
-             + '-H "Content-Type: application/' +  lc(cbRequestDataType:SCREEN-VALUE + '"') /* handles XML or JSON only - not RAW */
-             + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -d "@' + cRequestFile + '" ' ELSE '')
-             + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -X ' + cbRequestVerb:SCREEN-VALUE ELSE '')  + ' '
-             + cRequestURL
-             + ' > ' + cResponseFile.    
+    RUN sys/ref/nk1look.p (
+        INPUT cocode, 
+        INPUT "APIRequestMethod", 
+        INPUT "C", 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "", 
+        INPUT "",
+        OUTPUT cAPIRequestMethod, 
+        OUTPUT lFound
+        ).
     
+    IF cAPIRequestMethod EQ "" THEN
+        cAPIRequestMethod = "cURL".
+
     ASSIGN
         edRequestData
         lcRequestData = edRequestData
         .
-    
-    /* Put Request Data from a variable into a Temporary file */
-    COPY-LOB lcRequestData TO FILE cRequestFile.
+
+    cRequestURL   = (IF SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "/" OR
+                        SUBSTRING(fiRequestURL:SCREEN-VALUE, LENGTH(fiRequestURL:SCREEN-VALUE), 1) EQ "\" THEN
+                         SUBSTRING(fiRequestURL:SCREEN-VALUE, 1, LENGTH(fiRequestURL:SCREEN-VALUE) - 1)
+                     ELSE
+                         fiRequestURL:SCREEN-VALUE)                        
+                  + cbAPI:SCREEN-VALUE.
     
     SESSION:SET-WAIT-STATE("GENERAL").
     
-    ETIME(YES).
+    IF cAPIRequestMethod EQ "cURL" THEN DO:
+        IF SEARCH("curl.exe") EQ ? THEN DO:
+            MESSAGE "curl not found!"
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN. 
+        END.    
     
-    /* execute CURL command with required parameters to call the API */
-    DOS SILENT VALUE(cCommand).
-
-    iTimeElapsed = ETIME.
+        ASSIGN
+            cRequestFile  = "C:\Tmp\request"
+            cResponseFile = "C:\Tmp\response"
+            .
     
-    SESSION:SET-WAIT-STATE("").    
+        cCommand = SEARCH("curl.exe") + ' --user '
+                 + fiUserName:SCREEN-VALUE + ':' + fiPassword:SCREEN-VALUE + ' '
+                 + '-H "Content-Type: application/' +  lc(cbRequestDataType:SCREEN-VALUE + '"') /* handles XML or JSON only - not RAW */
+                 + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -d "@' + cRequestFile + '" ' ELSE '')
+                 + (IF cbRequestVerb:SCREEN-VALUE NE 'GET' THEN ' -X ' + cbRequestVerb:SCREEN-VALUE ELSE '')  + ' '
+                 + cRequestURL
+                 + ' > ' + cResponseFile.    
+                
+        /* Put Request Data from a variable into a Temporary file */
+        COPY-LOB lcRequestData TO FILE cRequestFile.
         
+        ETIME(YES).
+        
+        /* execute CURL command with required parameters to call the API */
+        DOS SILENT VALUE(cCommand).
+    
+        iTimeElapsed = ETIME.    
+        /* Put Response Data from Temporary file into a variable */
+        COPY-LOB FILE cResponseFile TO lcResponseData. 
+                
+        OS-DELETE VALUE(cRequestFile).
+        OS-DELETE VALUE(cResponseFile). 
+    END.
+    ELSE IF cAPIRequestMethod EQ "Progress" THEN DO:
+        oAPIHandler = NEW API.APIHandler().
+
+        oAPIHandler:ContentType = LC(cbRequestDataType:SCREEN-VALUE).
+
+        oAPIHandler:SetBasicAuthentication(fiUserName:SCREEN-VALUE, fiPassword:SCREEN-VALUE).
+        
+        ETIME(YES).
+        
+        IF cbRequestVerb:SCREEN-VALUE EQ "POST" THEN        
+            lcResponseData = oAPIHandler:Post(cRequestURL, lcRequestData).
+        ELSE IF cbRequestVerb:SCREEN-VALUE EQ "GET" THEN 
+            lcResponseData = oAPIHandler:Get(cRequestURL).
+        
+        iTimeElapsed = ETIME.
+        
+        IF VALID-OBJECT(oAPIHandler) THEN
+            DELETE OBJECT oAPIHandler.      
+    END.   
+
+    SESSION:SET-WAIT-STATE("").    
+
+    edResponseData:SCREEN-VALUE = IF lcResponseData NE "" THEN
+                                      lcResponseData
+                                  ELSE
+                                      "Could not get any response".
+
     fiResponseTime:SCREEN-VALUE = IF iTimeElapsed GT 999 THEN
                                       (STRING(TRUNCATE(iTimeElapsed / 1000, 0)) + "s" + " " + STRING(INT(iTimeElapsed MOD 1000)) + "ms")
                                   ELSE
                                       STRING(iTimeElapsed) + "ms"
                                   .
     
-    /* Put Response Data from Temporary file into a variable */
-    COPY-LOB FILE cResponseFile TO lcResponseData. 
     
-    edResponseData:SCREEN-VALUE = IF lcResponseData NE "" THEN
-                                      lcResponseData
-                                  ELSE
-                                      "Could not get any response".
-    
-    OS-DELETE VALUE(cRequestFile).
-    OS-DELETE VALUE(cResponseFile).    
 END.
 
 /* _UIB-CODE-BLOCK-END */
