@@ -389,7 +389,7 @@ PROCEDURE local-row-available :
   {methods/run_link.i "container-source" "GetScreenType" "(Output cScreenType)"}
   IF cScreenType EQ "OW" OR cScreenType EQ "OC" OR cScreenType EQ "OQ1" THEN 
        btn-update:SENSITIVE = NO.
-  ELSE IF cScreenType EQ "OU1" AND AVAILABLE oe-ord THEN DO:
+  ELSE IF (cScreenType EQ "OU1" OR cScreenType EQ "OU6") AND AVAILABLE oe-ord THEN DO:
       IF oe-ord.stat EQ "C" THEN 
           btn-update:SENSITIVE = YES.
       ELSE 
