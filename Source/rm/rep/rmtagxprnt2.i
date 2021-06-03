@@ -1,9 +1,27 @@
 /* oe/rep/invxprnt.i */
-
+DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
 ASSIGN cTagno = tt-po-print.tag-no 
        cVendorTagno = tt-po-print.vend-tag 
        cSize = "W: " + STRING(tt-po-print.s-wid) + " x L: " + STRING(tt-po-print.s-len) .
-
+cCustName = "".
+RELEASE cust.
+FIND FIRST job-hdr NO-LOCK
+     WHERE job-hdr.company EQ cocode
+     AND job-hdr.job-no  EQ tt-po-print.job-no
+     AND job-hdr.job-no2 EQ tt-po-print.job-no2     
+     AND job-hdr.i-no    EQ tt-po-print.i-no
+     NO-ERROR.
+IF NOT AVAILABLE job-hdr THEN
+FIND FIRST job-hdr NO-LOCK
+     WHERE job-hdr.company EQ cocode
+     AND job-hdr.job-no  EQ tt-po-print.job-no
+     AND job-hdr.job-no2 EQ tt-po-print.job-no2     
+     NO-ERROR.
+IF AVAIL job-hdr THEN 
+FIND FIRST cust NO-LOCK
+     WHERE cust.company EQ cocode
+     AND cust.cust-no EQ job-hdr.cust-no NO-ERROR.
+cCustName = IF AVAIL cust THEN cust.name ELSE "". 
 PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
@@ -89,10 +107,8 @@ PUT "<R48><C3><#13><FROM><R48><C83><RECT><||3>" SKIP
     "<R48><C3><FROM><R53.5><C3><LINE><||3>" SKIP
     "<R48><C83><FROM><R53.5><C83><LINE><||3>" SKIP.
 
-/*PUT "<FArial><R49><C10><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".*/
-IF cVendorTagNo NE "" THEN 
-    PUT "<FArial><R47><C10><FROM><AT=+.8,+6><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" cVendorTagno FORMAT 'x(20)' ">"
-        "<AT=,1.8>Vendor Tag#: " cVendorTagno FORMAT "x(20)"  .
+PUT "<FArial><R48><C36><P16><B> Customer Name </B>"
+     "<R51><C10><P16><B>" cCustName FORMAT "x(30)"  "</B>".
 
 PUT "<R55><C3><#14><FROM><R55><C83><RECT><||3>" SKIP
     "<R66><C3><FROM><R66><C83><LINE><||3>" SKIP  
