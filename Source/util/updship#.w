@@ -708,7 +708,7 @@ PROCEDURE run-process :
     DEFINE VARIABLE lBol     AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOrder   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lInv     AS LOGICAL NO-UNDO.*/
-
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     SESSION:SET-WAIT-STATE("General").
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -906,6 +906,20 @@ PROCEDURE run-process :
                         po-ord.loc = bf-shipto.loc   . 
                                                   
                 END.
+                
+                FOR EACH bf-oe-prmtx
+                    WHERE bf-oe-prmtx.company EQ cocode
+                    AND bf-oe-prmtx.cust-no EQ cust.cust-no
+                    AND bf-oe-prmtx.cust-no NE "" 
+                    AND bf-oe-prmtx.custShipID EQ shipto.ship-id                      
+                    TRANSACTION:
+                 
+                    {custom/statusMsg.i "'Processing Shipto # ' + string(shipto.ship-id) + ' Price Matrix # ' + string(bf-oe-prmtx.cust-no) "}
+               
+                      ASSIGN
+                        bf-oe-prmtx.custShipID = bf-shipto.ship-id     
+                         .                                                  
+                END.
 
                 FOR EACH sys-ctrl-shipto 
                     WHERE sys-ctrl-shipto.company EQ cocode
@@ -943,6 +957,7 @@ PROCEDURE run-process :
     RELEASE oe-ordl .
     RELEASE po-ord .
     RELEASE sys-ctrl-shipto .
+    RELEASE bf-oe-prmtx .
 
     STATUS DEFAULT "".
 
