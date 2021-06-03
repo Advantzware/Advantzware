@@ -1134,6 +1134,11 @@ PROCEDURE local-update-record :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
+      
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopenmain-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost)).     
+      
   
   adm-adding-record = NO .
   adm-new-record = NO .
