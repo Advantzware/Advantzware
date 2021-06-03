@@ -40,6 +40,14 @@ DEF VAR v-sampreq LIKE reftable.val[2] NO-UNDO.
 {cec/msfcalc.i}
 {custom/formtext.i NEW}
 
+DEFINE VARIABLE ipcItemNO AS CHARACTER NO-UNDO.
+
+FUNCTION getItemName RETURNS CHARACTER
+  ( ipcItemNO AS CHARACTER )  FORWARD.
+
+FUNCTION getQtyOnHand RETURNS CHARACTER
+  ( ipcItemNO AS CHARACTER )  FORWARD.
+  
 
 def new shared var v-out1-id       as   recid    no-undo.  /* YSK 06/08/01  was~ local var */
 def new shared var v-out2-id       as   recid    no-undo.  /* YSK 06/08/01  was~ local var */
@@ -81,7 +89,12 @@ DEF VAR v-job-cust AS LOG NO-UNDO.
 DEF VAR xJobQty LIKE job-hdr.qty NO-UNDO.
 DEFINE VARIABLE cFgBin AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE iFgBinQty AS INTEGER EXTENT 10 NO-UNDO.
-DEFINE BUFFER bf-itemfg FOR itemfg.
+DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE ls-attach-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
+DEFINE BUFFER bf-itemfg  FOR itemfg.
+DEFINE BUFFER bf-job-mat FOR job-mat.
+DEFINE BUFFER bf-attach FOR asi.attach.
 
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
@@ -647,6 +660,24 @@ do v-local-loop = 1 to v-local-copies:
            PAGE.
         end.
         ELSE PAGE.
+        
+        /* print fgitem's image */
+        IF s-prt-fgimage THEN DO:        
+            ASSIGN ls-fgitem-img = bf-itemfg.box-image.
+            
+            IF ls-fgitem-img NE "" THEN
+            DO:
+               PUT UNFORMATTED "<#12><C1><FROM><C91><R+55><RECT><||3><C91>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5><P11><B>Job #: " v-job-prt "  FG Item: " bf-itemfg.i-no " "  "</B>"
+                "<=12><R+3><C1><FROM><C91><LINE><||3>"
+                "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+               PAGE. 
+            END.
+                        
+         END. /* IF s-prt-fgimage */
+         
+         RUN pPrintAttachImage(v-fg).
+                  
       end.  /* for each w-ef */
 
       IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN DO: /* print set header */
@@ -689,7 +720,6 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+4><C1><From><R+5><C105><RECT><||3>" SKIP
                 "<=1><R+4><C2>CUSTOMER INFORMATION <C35> ORDER INFORMATION <C72>ITEM DESCRIPTION" SKIP
                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
-                " Max Qty: " STRING(v-max-qty,">>>,>>9")
                 v-i-line[2] AT 86
                 SKIP
                 v-cus[2] AT 3
@@ -702,12 +732,13 @@ do v-local-loop = 1 to v-local-copies:
                 " Underrun:" format "x(7)"
                 "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
                 "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
-                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #           CAD#       STYLE" SKIP.
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #            Qty On Hand      STYLE" SKIP.
             /* each components */                                                    
 
             DEF VAR v-shipto AS cha NO-UNDO.
 
             v-tmp-line = 0.
+            j = 0.
             FOR EACH xeb NO-LOCK 
                 WHERE xeb.company = est.company
                   AND xeb.est-no = est.est-no
@@ -752,11 +783,15 @@ do v-local-loop = 1 to v-local-copies:
                      AND xstyle.style    EQ xeb.style
                      AND xstyle.industry EQ "2" NO-ERROR.
 
+                FIND FIRST bf-itemfg NO-LOCK
+                    WHERE bf-itemfg.company EQ xeb.company
+                    AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR.
+                     
                 PUT 
                    xeb.die-no FORMAT "x(10)" AT 69 
-                   xeb.cad-no FORMAT "x(10)" AT 85 
-                   if avail xstyle then xstyle.dscr else "" FORMAT "x(30)" AT 96. 
-
+                   bf-itemfg.q-onh FORMAT "->>,>>>,>>9.999" AT 82 
+                   if avail xstyle then xstyle.dscr else "" FORMAT "x(30)" AT 103.2 .
+                
                 PUT SKIP.
                 v-tmp-line = v-tmp-line + 1.
                 IF v-tmp-line + 65 > PAGE-SIZE THEN DO:
@@ -773,7 +808,6 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+4><C1><From><R+5><C105><RECT><||3>" SKIP
                 "<=1><R+4><C2>CUSTOMER INFORMATION <C35> ORDER INFORMATION <C72>ITEM DESCRIPTION" SKIP
                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
-                " Max Qty: " STRING(v-max-qty,">>>,>>>")
                 v-i-line[2] AT 86
                 SKIP
                 v-cus[2] AT 3
@@ -786,8 +820,9 @@ do v-local-loop = 1 to v-local-copies:
                 " Underrun:" format "x(7)"  
                 "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
                 "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
-                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #      CAD#        STYLE" SKIP.             
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #       Qty On Hand      STYLE" SKIP.             
                 END.
+                j = j + 1.
             END.
             v-tmp-line = v-tmp-line + 1.
             /* print raw materials from misc/fram of Est */ 
@@ -801,9 +836,55 @@ do v-local-loop = 1 to v-local-copies:
                   v-tmp-line = v-tmp-line + 1.
                END.
             END.
-            PUT "<=1><R+10><C1><FROM><R+" + string(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            PUT "<=1><R+10><C1><FROM><R+" + string(v-tmp-line) + "><#2><C105><RECT><||3>" FORM "x(150)" SKIP.
             v-tmp-line = v-tmp-line + 10.
-
+             
+            IF j GE 20 THEN DO:
+              v-tmp-line = 0.
+              PAGE.
+            END.
+            PUT SKIP.
+            PUT "<C2>RAW MATERIAL #   DESCRIPTION                           SHEETS REQUIRED                 QTY ON HAND" SKIP.
+            i = 0.
+            FOR EACH bf-job-mat NO-LOCK 
+               WHERE bf-job-mat.company = job.company
+                 AND bf-job-mat.job     = job.job 
+                 AND bf-job-mat.job-no  = job.job-no 
+                 AND bf-job-mat.job-no2 = job.job-no2,
+                 FIRST ITEM NO-LOCK
+                 WHERE ITEM.company EQ cocode
+                 AND ITEM.i-no EQ bf-job-mat.i-no
+                 AND INDEX("BW1234",item.mat-type) GT 0:
+                 
+                 IF v-tmp-line + 54 > PAGE-SIZE THEN DO: 
+                  PAGE.
+                  v-tmp-line = 0.
+                  PUT "<C2>RAW MATERIAL #   DESCRIPTION                           SHEETS REQUIRED                 QTY ON HAND" SKIP.
+                  v-tmp-line = v-tmp-line + 1.
+                 END.
+                 
+                 PUT  bf-job-mat.rm-i-no AT 2 .
+                 PUT  getItemName(bf-job-mat.rm-i-no) FORMAT "x(30)" AT 20.
+                 PUT  bf-job-mat.qty-all AT 58.
+                 PUT  getQtyOnHand(bf-job-mat.rm-i-no) AT 90.  
+                 
+              i =  i + 1 .
+              v-tmp-line = v-tmp-line + 1 .
+            END.
+            i = i + 1 .
+            v-tmp-line = v-tmp-line + 1 .  
+            IF j GE 20 THEN
+            PUT "<=2><R1><C1><FROM><R+" + STRING(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            ELSE 
+            PUT "<=2><R+1><C1><FROM><R+" + STRING(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
+            
+            v-tmp-line = v-tmp-line + 1 .
+              
+            IF v-tmp-line + 68 > PAGE-SIZE THEN DO: 
+             PAGE.
+             v-tmp-line = 0.             
+            END.
+            
             i = 0.
             
             PUT "<p10>".
@@ -869,11 +950,32 @@ do v-local-loop = 1 to v-local-copies:
                IF  i <= 15 THEN v-dept-inst[i] = tt-formtext.tt-text.      
             END.
             IF v-ship <> "" THEN v-dept-inst[15] = v-ship.  /* shipto notes */
+            
             PUT "<=1><R+" + string(v-tmp-line) + ">" form "X(20)".
             v-tmp-line = v-tmp-line + 1.
             PUT "Unitizing Bale <C44>Date <C62>Units <C79>Complete <C93>QA" AT 3 SKIP
                 "# Per Bndl: " AT 3 tt-prem.tt-#-bundle .
-            RUN stackImageSet(tt-prem.tt-pattern-code).    
+            RUN stackImageSet(tt-prem.tt-pattern-code).
+            j = 1 .
+            cFgBin = "".
+            iFgBinQty = 0.
+            FOR EACH xeb NO-LOCK 
+                WHERE xeb.company = est.company
+                  AND xeb.est-no = est.est-no
+                  AND xeb.form-no > 0 
+                BY xeb.stock-no:
+                MAIN-FG-BIN:
+                FOR EACH fg-bin NO-LOCK
+                    where fg-bin.company  eq cocode
+                    and fg-bin.i-no     eq xeb.stock-no
+                    and fg-bin.qty      gt 0
+                    AND fg-bin.loc-bin  NE ""  BY fg-bin.tag:
+                    ASSIGN cFgBin[j] = fg-bin.loc-bin
+                           iFgBinQty[j] = fg-bin.qty.
+                           j = j + 1.
+                       IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
+                END.                     
+            END.
             PUT                                                      "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
                 "# Per Unit: " AT 3 tt-prem.tt-#-unit                "<C38>_____________________ <C57>____________________  <C77>Partial   <C90>________________" skip
                 "Pattern: " AT 3 tt-prem.tt-pattern FORM "x(10)"     "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
@@ -881,34 +983,56 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+" + string(v-tmp-line) + "><C1><FROM><R+6><C105><RECT><||3>" FORM "x(150)" SKIP
                 "<=1><R+" + string(v-tmp-line + 7) + "><C1><FROM><R+15><C105><RECT><||3>" FORM "x(150)" SKIP
 
-                "<=1><R+" + string(v-tmp-line + 7) + "><C2>Special instructions  <C51>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
-                v-dept-inst[1] AT 3 FORM "x(82)" chr(124) format "xx" v-shp[1] SKIP
-                v-dept-inst[2] AT 3 FORM "x(82)" chr(124) format "xx" v-shp[2] SKIP
-                v-dept-inst[3] AT 3 FORM "x(82)" chr(124) format "xx" v-shp[3] SKIP
-                v-dept-inst[4] AT 3 FORM "x(82)" chr(124) format "xx" v-shp[4] SKIP
-                v-dept-inst[5] AT 3 FORM "x(82)" chr(124) format "xx" "Item PO #:" v-po-no SKIP
-                v-dept-inst[6] AT 3 SKIP
-                v-dept-inst[7] AT 3 SKIP
-                v-dept-inst[8] AT 3 SKIP
-                v-dept-inst[9] AT 3 SKIP
-                v-dept-inst[10] AT 3 SKIP
-                v-dept-inst[11] AT 3 SKIP
-                v-dept-inst[12] AT 3 SKIP
-                v-dept-inst[13] AT 3 SKIP
-                v-dept-inst[14] AT 3 SKIP
-                v-dept-inst[15] AT 3 
-                .
+                "<=1><R+" + string(v-tmp-line + 7) + "><C5>SET QTY ON HAND  <C25>Special instructions  <C60>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
+                "Bin              Bin Qty" AT 3                                             v-dept-inst[1] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[1] SKIP
+                cFgBin[1] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[1] FORMAT ">>>,>>>,>>>"    v-dept-inst[2] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[2] SKIP
+                cFgBin[2] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[2] FORMAT ">>>,>>>,>>>"    v-dept-inst[3] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[3] SKIP
+                cFgBin[3] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[3] FORMAT ">>>,>>>,>>>"    v-dept-inst[4] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[4] SKIP
+                cFgBin[4] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[4] FORMAT ">>>,>>>,>>>"    v-dept-inst[5] AT 30 FORM "x(62)" chr(124) format "xx" "Item PO #:" v-po-no SKIP
+                cFgBin[5] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[5] FORMAT ">>>,>>>,>>>"    v-dept-inst[6] AT 30 SKIP
+                                                                                            v-dept-inst[7] AT 30 SKIP
+                                                                                            v-dept-inst[8] AT 30 SKIP
+                                                                                            v-dept-inst[9] AT 30 SKIP
+                                                                                            v-dept-inst[10] AT 30 SKIP
+                                                                                            v-dept-inst[11] AT 30 SKIP
+                                                                                            v-dept-inst[12] AT 30 SKIP
+                                                                                            v-dept-inst[13] AT 30 SKIP
+                                                                                            v-dept-inst[14] AT 30 SKIP
+                                                                                            v-dept-inst[15] AT 30 
+                                                                                            .
             PAGE.
          END. /* i > 1*/
       END. /* set header printing  est.est-type = 6 */
 
 
+      RUN pPrintAttachImage(job-hdr.i-no).
+      
     end.  /* each job */
     end.  /* end v-local-loop  */
  
         hide all no-pause.
 
 
+PROCEDURE pPrintAttachImage:
+      DEFINE INPUT PARAMETER ipcItem AS CHARACTER NO-UNDO.
+      FOR EACH bf-attach NO-LOCK
+                 WHERE bf-attach.company       EQ cocode
+                 AND  (TRIM(bf-attach.est-no)  EQ TRIM(job-hdr.est-no)) 
+                 AND  (TRIM(bf-attach.i-no)    EQ TRIM(ipcItem))
+                 :
+            IF AVAIL bf-attach THEN ASSIGN ls-attach-img = bf-attach.attach-file.
+            
+        IF AVAIL bf-attach AND ls-attach-img NE "" AND bf-attach.spare-int-1 EQ 1 THEN
+        DO:  
+           PUT UNFORMATTED "<#12><C1><FROM><C91><R+55><RECT><||3><C91>" /*v-qa-text*/ SKIP
+            "<=12><R+1><C5><P14><B>Job #: </B>" v-job-prt "<B> Est #: </B>" TRIM(bf-attach.est-no) "<B> FG Item: </B>" CAPS(bf-attach.i-no) 
+            "<=12><R+3><C1><FROM><C91><LINE><||3>"
+            "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-attach-img ">" SKIP.  
+           PAGE. 
+        END.
+      END.  /* FOR EACH bf-attach */
+END PROCEDURE.
+        
 PROCEDURE stackImage:
   DEFINE BUFFER pattern FOR reftable.
   DEFINE BUFFER stackPattern FOR stackPattern.
@@ -935,5 +1059,37 @@ PROCEDURE stackImageSet:
     "<IMAGE#71=" stackPattern.stackImage ">"
     "<R-5>".
 END PROCEDURE.
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION getItemName RETURNS CHARACTER
+  ( ipcItemNO AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    FIND FIRST ITEM
+        {sys/look/itemW.i}
+          AND item.i-no EQ ipcItemNO
+        NO-LOCK NO-ERROR.
+      IF AVAIL ITEM THEN
+        RETURN ITEM.i-name.  /* Function return value. */
+
+END FUNCTION.
+
+FUNCTION getQtyOnHand RETURNS CHARACTER
+  ( ipcItemNO AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    FIND FIRST ITEM
+        {sys/look/itemW.i}
+          AND item.i-no EQ ipcItemNO
+        NO-LOCK NO-ERROR.
+      IF AVAIL ITEM THEN
+        RETURN STRING(item.q-onh).  /* Function return value. */
+
+END FUNCTION.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
