@@ -256,7 +256,27 @@ for each {1}report where {1}report.term-id eq v-term,
   release po-ordl.
   release po-ord.
   release vend.
-
+  
+  FIND FIRST job-hdr 
+       WHERE job-hdr.company EQ job.company
+         AND job-hdr.job     EQ 0
+         AND job-hdr.job-no  EQ job.job-no
+         AND job-hdr.job-no2 EQ job.job-no2
+         AND job-hdr.i-no    EQ v-itm
+         NO-LOCK NO-ERROR.
+  
+  IF AVAILABLE job-hdr THEN
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ job-hdr.company
+        AND   oe-ord.ord-no  EQ job-hdr.ord-no
+        NO-ERROR.
+  
+  IF AVAILABLE oe-ord THEN
+    FIND FIRST cust
+        WHERE cust.company EQ cocode
+          AND cust.cust-no EQ oe-ord.cust-no
+        NO-LOCK NO-ERROR.
+  
   find first po-ordl
       where po-ordl.company eq job.company
         and po-ordl.po-no   eq int({1}report.key-03)
@@ -280,11 +300,6 @@ for each {1}report where {1}report.term-id eq v-term,
      v-qty[2] = po-ordl.cons-qty
      v-qty[3] = po-ordl.t-rec-qty.
 
-    IF AVAILABLE po-ord THEN
-    FIND FIRST cust
-        WHERE cust.company EQ cocode
-          AND cust.cust-no EQ po-ord.cust-no
-        NO-LOCK NO-ERROR. 
      
     if po-ordl.cons-uom ne v-uom then do:
       ASSIGN
