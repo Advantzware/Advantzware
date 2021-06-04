@@ -30,14 +30,13 @@
     ld[1] = period.pst.
     LEAVE.
   END.
+
   IF tb_firstinvdate THEN
-  DO:
-    
-     ASSIGN 
-          ld[1] = begin_firstinvdate
-          ld[2] = begin_firstinvdate
-          ld[3] = end_firstinvdate .   
-  END.
+  ASSIGN 
+      ld[1] = begin_firstinvdate
+      ld[2] = begin_firstinvdate
+      ld[3] = end_firstinvdate
+      .   
   
   if slct-by-inv then do:
     MAIN-LOOP:
@@ -59,20 +58,19 @@
           and (ar-invl.billable or not ar-invl.misc)
         no-lock:
         
-        FOR EACH bf-ar-inv NO-LOCK
-            WHERE bf-ar-inv.company  EQ cocode
-            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
-            
-            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
-        LEAVE.
-        END.
-            
         IF tb_firstinvdate THEN DO:
-            IF NOT (dtCheckFirstInvDate GE ld[1]
-            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
-            
-        END.
-            
+            FOR EACH bf-ar-inv NO-LOCK
+                WHERE bf-ar-inv.company EQ cocode
+                  AND bf-ar-inv.cust-no EQ cust.cust-no
+                BY bf-ar-inv.inv-date
+                :                
+                dtCheckFirstInvDate = bf-ar-inv.inv-date.
+                LEAVE.
+            END.            
+            IF NOT (dtCheckFirstInvDate GE ld[1]  AND
+                    dtCheckFirstInvDate LE ld[3]) THEN
+            NEXT MAIN-LOOP.            
+        END.            
           
       do i = 1 to 3:
         v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
@@ -203,19 +201,19 @@
             and (ar-invl.billable or not ar-invl.misc)
           no-lock:
           
-        FOR EACH bf-ar-inv NO-LOCK
-            WHERE bf-ar-inv.company  EQ cocode
-            AND bf-ar-inv.cust-no    EQ cust.cust-no BY bf-ar-inv.inv-date:
-            
-            ASSIGN dtCheckFirstInvDate = bf-ar-inv.inv-date .
-        LEAVE.
-        END.
-            
         IF tb_firstinvdate THEN DO:
-            IF NOT (dtCheckFirstInvDate GE ld[1]
-            AND dtCheckFirstInvDate     LE ld[3]) THEN NEXT MAIN-LOOP.
-            
-        END.  
+            FOR EACH bf-ar-inv NO-LOCK
+                WHERE bf-ar-inv.company EQ cocode
+                  AND bf-ar-inv.cust-no EQ cust.cust-no
+                BY bf-ar-inv.inv-date
+                :                
+                dtCheckFirstInvDate = bf-ar-inv.inv-date.
+                LEAVE.
+            END.            
+            IF NOT (dtCheckFirstInvDate GE ld[1]  AND
+                    dtCheckFirstInvDate LE ld[3]) THEN
+            NEXT MAIN-LOOP.            
+        END.            
                 
         do i = 1 to 3:
           v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
