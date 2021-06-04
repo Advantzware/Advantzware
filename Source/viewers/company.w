@@ -71,10 +71,10 @@ company.subLedgerOP company.acc-level company.acc-dig[1] company.acc-dig[2] ~
 company.acc-dig[3] company.acc-dig[4] company.acc-dig[5] ~
 company.subLedgerWIP company.yend-off company.spare-char-1 ~
 company.subLedgerRM company.subLedgerFG company.subLedgerBR ~
-company.curr-code company.subLedgerAR 
+company.curr-code 
 &Scoped-define ENABLED-TABLES company
 &Scoped-define FIRST-ENABLED-TABLE company
-&Scoped-Define ENABLED-OBJECTS RECT-1 rBgColor 
+&Scoped-Define ENABLED-OBJECTS RECT-1 rBgColor COMBO-BOX_subLedgerAR 
 &Scoped-Define DISPLAYED-FIELDS company.company company.fid company.name ~
 company.sid company.addr[1] company.addr[2] company.city company.state ~
 company.zip company.subLedgerAP company.co-acc company.num-per ~
@@ -82,11 +82,11 @@ company.subLedgerPO company.subLedgerOP company.acc-level ~
 company.acc-dig[1] company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] ~
 company.acc-dig[5] company.subLedgerWIP company.yend-off ~
 company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
-company.yend-per company.subLedgerBR company.curr-code company.subLedgerAR 
+company.yend-per company.subLedgerBR company.curr-code 
 &Scoped-define DISPLAYED-TABLES company
 &Scoped-define FIRST-DISPLAYED-TABLE company
 &Scoped-Define DISPLAYED-OBJECTS fiBGColor fiSubLedgerClose lv-first-year ~
-fiPrevYearClosed lv-prd-num lv-prd-dt1 lv-prd-dt2 c-desc 
+lv-prd-num lv-prd-dt1 lv-prd-dt2 c-desc COMBO-BOX_subLedgerAR 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -124,6 +124,15 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE COMBO-BOX_subLedgerAR AS LOGICAL FORMAT "yes/no" INITIAL NO 
+     LABEL "A/R - Receivables" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEM-PAIRS "Yes",YES,
+                     "No",NO
+     DROP-DOWN-LIST
+     SIZE 11 BY 1
+     BGCOLOR 15 FONT 1.
+
 DEFINE VARIABLE c-desc AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
      SIZE 38 BY 1.
@@ -131,10 +140,6 @@ DEFINE VARIABLE c-desc AS CHARACTER FORMAT "x(30)"
 DEFINE VARIABLE fiBGColor AS CHARACTER FORMAT "X(256)":U INITIAL "BG Color" 
      VIEW-AS FILL-IN NATIVE 
      SIZE 11 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiPrevYearClosed AS CHARACTER FORMAT "X(256)":U INITIAL "Prev Year Closed?" 
-     VIEW-AS FILL-IN 
-     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSubLedgerClose AS CHARACTER FORMAT "X(256)":U INITIAL "SubLedger Close" 
      VIEW-AS FILL-IN 
@@ -266,10 +271,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 7 FGCOLOR 15 FONT 4
-     company.acc-dig[5] AT ROW 8.86 COL 68 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -277,8 +278,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     company.acc-dig[5] AT ROW 8.86 COL 68 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+          BGCOLOR 7 FGCOLOR 15 FONT 4
      company.subLedgerWIP AT ROW 10 COL 116.6 COLON-ALIGNED
-          LABEL "WIP - Work In Process"
+          LABEL "WIP - Work in Process"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
                      "No",NO
@@ -296,7 +301,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      company.subLedgerRM AT ROW 11.24 COL 116.6 COLON-ALIGNED
-          LABEL "R/M - Close Inventory"
+          LABEL "R/M Inventory"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
                      "No",NO
@@ -305,7 +310,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 1
      lv-first-year AT ROW 11.48 COL 39 COLON-ALIGNED
      company.subLedgerFG AT ROW 12.48 COL 116.6 COLON-ALIGNED
-          LABEL "F/G - Close Inventory" 
+          LABEL "F/G Inventory"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
                      "No",NO
@@ -320,7 +325,7 @@ DEFINE FRAME F-Main
      lv-prd-dt1 AT ROW 13.62 COL 48 COLON-ALIGNED NO-LABEL
      lv-prd-dt2 AT ROW 13.62 COL 70 COLON-ALIGNED
      company.subLedgerBR AT ROW 13.67 COL 116.6 COLON-ALIGNED
-          LABEL "B/R - Bank Reconciliation"
+          LABEL "Bank Reconciliation"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Yes",YES,
                      "No",NO
@@ -331,16 +336,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      c-desc AT ROW 14.81 COL 47 COLON-ALIGNED NO-LABEL
-     company.subLedgerAR AT ROW 14.86 COL 116.6 COLON-ALIGNED
-          LABEL "A/R - Receivables"
-          VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEM-PAIRS "Yes",YES,
-                     "No",NO
-          DROP-DOWN-LIST
-          SIZE 11 BY 1
-          BGCOLOR 15 FONT 1
-     "Sub Ledger Close" VIEW-AS TEXT
-          SIZE 23 BY 1.19 AT ROW 4.76 COL 103 WIDGET-ID 216
+     COMBO-BOX_subLedgerAR AT ROW 14.86 COL 116.6 COLON-ALIGNED
      "Previous Year Closed?" VIEW-AS TEXT
           SIZE 28 BY .95 AT ROW 12.67 COL 12
      RECT-1 AT ROW 1 COL 1
@@ -432,11 +428,6 @@ ASSIGN
 ASSIGN 
        fiBGColor:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiPrevYearClosed IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       fiPrevYearClosed:READ-ONLY IN FRAME F-Main        = TRUE.
-
 /* SETTINGS FOR FILL-IN fiSubLedgerClose IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -452,6 +443,20 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN company.spare-char-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR COMBO-BOX company.subLedgerAP IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerBR IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerFG IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerOP IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerPO IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerRM IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR COMBO-BOX company.subLedgerWIP IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN company.yend-off IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX company.yend-per IN FRAME F-Main
