@@ -622,6 +622,8 @@ DO:
     DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lSave AS LOG NO-UNDO.
 
+    IF users.securityLevel LT 900 THEN RETURN NO-APPLY.
+    
     ix = COLOR-TABLE:NUM-ENTRIES.
     COLOR-TABLE:NUM-ENTRIES = ix + 1.
     COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
@@ -633,11 +635,10 @@ DO:
             rBgColor:FGCOLOR = ix
             rBgColor:BGCOLOR = ix.
         FIND CURRENT company EXCLUSIVE.
-        /* Removed for testing until db change made */
-/*        ASSIGN                                                                */
-/*            company.cBgColor = STRING(COLOR-TABLE:get-red-value(ix)) + "," +  */
-/*                               STRING(COLOR-TABLE:get-green-value(ix)) + "," +*/
-/*                               STRING(COLOR-TABLE:get-blue-value(ix)).        */
+        ASSIGN
+            company.cBgColor = STRING(COLOR-TABLE:get-red-value(ix)) + "," +
+                               STRING(COLOR-TABLE:get-green-value(ix)) + "," +
+                               STRING(COLOR-TABLE:get-blue-value(ix)).
         FIND CURRENT company NO-LOCK.
     END.
 END.
@@ -667,6 +668,9 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+    FIND FIRST users NO-LOCK WHERE 
+        users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -941,11 +945,10 @@ PROCEDURE local-display-fields :
                                 lv-prd-dt1 = period.pst
                                 lv-prd-dt2 = period.pend.
     DISPLAY lv-first-year lv-prd-num lv-prd-dt1 lv-prd-dt2 WITH FRAME {&FRAME-NAME}.
-      /* Removed for testing until db change made */  
-/*      COLOR-TABLE:SET-DYNAMIC(ix, TRUE).                                  */
-/*      COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).  */
-/*      COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,company.cBgColor))).*/
-/*      COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,company.cBgColor))). */
+      COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+      COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).
+      COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,company.cBgColor))).
+      COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,company.cBgColor))).
     ASSIGN 
         rBgColor:FGCOLOR = ix
         rBgColor:BGCOLOR = ix.

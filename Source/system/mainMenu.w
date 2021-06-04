@@ -142,12 +142,8 @@ END.
 /* Set BGColor for this company */
 FIND company NO-LOCK WHERE
     company.company EQ g_company.
-//ASSIGN 
-//    cCompanyBgColor = company.cBgColor.
-CASE company.company:
-    WHEN "001" THEN ASSIGN cCompanyBgColor = "128,255,255".
-    WHEN "HMP" THEN ASSIGN cCompanyBgColor = "255,255,128".
-END CASE.    
+ASSIGN 
+    cCompanyBgColor = company.cBgColor.
         
 COLOR-TABLE:SET-DYNAMIC(21, TRUE).
 COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
@@ -2711,12 +2707,8 @@ PROCEDURE Set-Comp_Loc :
         /* Set BGColor for this company */
         FIND company NO-LOCK WHERE
             company.company EQ g_company.
-//        ASSIGN 
-//            cCompanyBgColor = company.cBgColor.
-        CASE company.company:
-            WHEN "001" THEN ASSIGN cCompanyBgColor = "128,255,255".
-            WHEN "HMP" THEN ASSIGN cCompanyBgColor = "255,255,128".
-        END CASE.
+        ASSIGN 
+            cCompanyBgColor = company.cBgColor.
                       
         COLOR-TABLE:SET-DYNAMIC(21, TRUE).
         COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
