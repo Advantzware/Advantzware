@@ -510,7 +510,8 @@ v-printline = 0.
         PUT int(po-ordl.over-pct) FORM ">>9" AT 7 " / "
             int(po-ordl.under-pct) FORM ">>9" 
             po-ordl.i-name AT 25 FORM "x(30)" SPACE(1)
-            v-adder[2] SPACE(12)
+            TRIM(v-adder[2]) SPACE(1)
+            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(1)
             v-change-dscr SKIP.
         
         ASSIGN
@@ -620,7 +621,6 @@ v-printline = 0.
        END.
 
        ASSIGN
-        v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
         dCoreDia = 0.
         IF AVAIL ITEM THEN do:
@@ -653,10 +653,10 @@ v-printline = 0.
        /* IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
            PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
         PUT cFlueTest.
-        IF v-cost GT 0 AND v-setup GT 0 THEN DO:
+        IF v-cost GT 0 THEN DO:
             /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
                STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
-            PUT "<FCourier New><C64>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
+            PUT "<FCourier New><C64>" v-cost FORM ">>,>>9.99<<" lv-pr-uom SKIP.
         END.
         ELSE
            PUT SKIP.
