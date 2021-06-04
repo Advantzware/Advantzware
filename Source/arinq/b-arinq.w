@@ -186,7 +186,14 @@ fi_po-no fi_bol-no fi_est-no
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  (ipcTable AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -674,26 +681,12 @@ DO:
     RUN dispatch ('open-query').
 
     GET FIRST Browser-Table .
-     IF NOT AVAIL ar-invl THEN DO:
+     IF NOT AVAIL ar-invl AND custcount NE "" THEN DO:
          IF fi_cust-no <> "" THEN DO:
              v-cust-no = fi_cust-no .
          END.
-         ELSE DO:
-             
-             FIND FIRST bf-ar-invl WHERE bf-ar-invl.company = cocode
-                 AND (bf-ar-invl.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
-                 AND (bf-ar-invl.i-no BEGINS fi_i-no OR fi_i-no = "")
-                 AND (bf-ar-invl.est-no BEGINS fi_est-no OR fi_est-no = "")
-                 AND (bf-ar-invl.part-no BEGINS fi_part-no OR fi_part-no = "")
-                 AND (bf-ar-invl.po-no BEGINS fi_po-no OR fi_po-no = "")
-                 AND (bf-ar-invl.actnum BEGINS fi_actnum OR fi_actnum = "")
-                 AND (bf-ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) 
-                 AND (bf-ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) 
-                 AND (bf-ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0) NO-LOCK NO-ERROR.
-
-             IF AVAIL bf-ar-invl THEN
-                 v-cust-no = bf-ar-invl.cust-no .
-             ELSE v-cust-no = "".
+         ELSE DO:                           
+           RUN pCheckCustUserRecord(OUTPUT v-cust-no).   
          END.
 
          FIND FIRST cust WHERE cust.company = cocode 
@@ -1428,6 +1421,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckCustUserRecord B-table-Win 
+PROCEDURE pCheckCustUserRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opcCustNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cGetQueryString AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE h_buffer2        AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.
+  DEFINE VARIABLE fhCustomer as handle no-undo.
+                               
+        cGetQueryString = "FOR EACH ar-invl NO-LOCK"
+                     + " WHERE ar-invl.company EQ " + QUOTER(cocode)
+                     + pGetWhereCriteria("ar-invl") 
+                     + " ,FIRST ar-inv  no-lock"
+                     + " WHERE ar-inv.x-no EQ ar-invl.x-no "
+                     + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
+                     + " AND ar-inv.inv-date LE " + quoter(fi_edate)       
+                     .  
+        CREATE BUFFER h_buffer FOR TABLE "ar-invl".
+        CREATE BUFFER h_buffer2 FOR TABLE "ar-inv".
+        CREATE QUERY h_lquery.                     
+        
+        h_lquery:ADD-BUFFER(h_buffer).
+        h_lquery:ADD-BUFFER(h_buffer2).
+        h_lquery:QUERY-PREPARE(cGetQueryString).
+        h_lquery:QUERY-OPEN().
+     
+        h_lquery:GET-FIRST().
+        MAIN-LOOP:
+        REPEAT:            
+            IF h_lquery:QUERY-OFF-END THEN
+                LEAVE MAIN-LOOP.  
+            fhCustomer = h_buffer:BUFFER-FIELD("cust-no" ).
+            opcCustNo = fhCustomer:BUFFER-VALUE .   
+            LEAVE MAIN-LOOP.           
+        END.
+        DELETE OBJECT h_lquery.
+        DELETE OBJECT h_buffer .    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-defaults B-table-Win 
 PROCEDURE set-defaults :
 /*------------------------------------------------------------------------------
@@ -1488,6 +1532,35 @@ PROCEDURE state-changed :
   END CASE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+ /* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  ( ipcTable AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Prepares and returns the where clause criteria based on table name
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.    
+            
+        cWhereCriteria = cWhereCriteria                           
+                         + (IF fi_i-no    NE ""  THEN " AND ar-invl.i-no  BEGINS "    + STRING(fi_i-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND ar-invl.cust-no BEGINS "   + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND ar-invl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND ar-invl.part-no BEGINS "    + QUOTER(fi_part-no)   ELSE "")
+                         + (IF fi_po-no   NE "" THEN " AND ar-invl.po-no EQ " + STRING(fi_po-no)  ELSE "")
+                         + (IF fi_actnum  NE "" THEN " AND ar-invl.actnum   BEGINS "    + QUOTER (fi_actnum)    ELSE "")
+                         + (IF fi_inv-no NE 0 THEN " AND ar-invl.inv-no EQ " + STRING(fi_inv-no)  ELSE "")
+                         + (IF fi_bol-no NE 0 THEN " AND ar-invl.bol-no EQ " + STRING(fi_bol-no)  ELSE "")
+                         + (IF fi_ord-no NE 0 THEN " AND ar-invl.ord-no EQ " + STRING(fi_ord-no)  ELSE ""). 
+     
+    
+    RETURN cWhereCriteria.      
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
