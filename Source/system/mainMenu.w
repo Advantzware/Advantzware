@@ -146,7 +146,7 @@ FIND company NO-LOCK WHERE
 //    cCompanyBgColor = company.cBgColor.
 CASE company.company:
     WHEN "001" THEN ASSIGN cCompanyBgColor = "128,255,255".
-    WHEN "002" THEN ASSIGN cCompanyBgColor = "255,255,128".
+    WHEN "HMP" THEN ASSIGN cCompanyBgColor = "255,255,128".
 END CASE.    
         
 COLOR-TABLE:SET-DYNAMIC(21, TRUE).
@@ -2715,7 +2715,7 @@ PROCEDURE Set-Comp_Loc :
 //            cCompanyBgColor = company.cBgColor.
         CASE company.company:
             WHEN "001" THEN ASSIGN cCompanyBgColor = "128,255,255".
-            WHEN "002" THEN ASSIGN cCompanyBgColor = "255,255,128".
+            WHEN "HMP" THEN ASSIGN cCompanyBgColor = "255,255,128".
         END CASE.
                       
         COLOR-TABLE:SET-DYNAMIC(21, TRUE).
