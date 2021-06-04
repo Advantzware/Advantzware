@@ -137,6 +137,15 @@ IF g_company EQ "" OR g_loc EQ "" THEN DO:
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
     RETURN.
 END.
+
+/* Set BGColor for this company */
+FIND company NO-LOCK WHERE
+    company.company EQ g_company.
+COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,company.cBgColor))).
+COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,company.cBgColor))).
+COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,company.cBgColor))).
+     
 cEulaFile = SEARCH("{&EulaFile}").
 
 &Scoped-define isActive YES
@@ -2690,6 +2699,15 @@ PROCEDURE Set-Comp_Loc :
             g_company                 = ipcCompany
             g_loc                     = ipcLoc
             .
+
+        /* Set BGColor for this company */
+        FIND company NO-LOCK WHERE
+            company.company EQ g_company.
+        COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,company.cBgColor))).
+        COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,company.cBgColor))).
+        COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,company.cBgColor))).
+
     END.
     RUN spSetSessionParam ("Company", g_company).
     RUN spSetSessionParam ("Location", g_loc).

@@ -74,7 +74,7 @@ company.subLedgerRM company.subLedgerFG company.subLedgerBR ~
 company.curr-code company.subLedgerAR 
 &Scoped-define ENABLED-TABLES company
 &Scoped-define FIRST-ENABLED-TABLE company
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 rBgColor 
 &Scoped-Define DISPLAYED-FIELDS company.company company.fid company.name ~
 company.sid company.addr[1] company.addr[2] company.city company.state ~
 company.zip company.subLedgerAP company.co-acc company.num-per ~
@@ -85,8 +85,8 @@ company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
 company.yend-per company.subLedgerBR company.curr-code company.subLedgerAR 
 &Scoped-define DISPLAYED-TABLES company
 &Scoped-define FIRST-DISPLAYED-TABLE company
-&Scoped-Define DISPLAYED-OBJECTS lv-first-year lv-prd-num lv-prd-dt1 ~
-lv-prd-dt2 c-desc 
+&Scoped-Define DISPLAYED-OBJECTS fiBGColor fiSubLedgerClose lv-first-year ~
+fiPrevYearClosed lv-prd-num lv-prd-dt1 lv-prd-dt2 c-desc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -128,6 +128,18 @@ DEFINE VARIABLE c-desc AS CHARACTER FORMAT "x(30)"
      VIEW-AS FILL-IN 
      SIZE 38 BY 1.
 
+DEFINE VARIABLE fiBGColor AS CHARACTER FORMAT "X(256)":U INITIAL "BG Color" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 11 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPrevYearClosed AS CHARACTER FORMAT "X(256)":U INITIAL "Prev Year Closed?" 
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSubLedgerClose AS CHARACTER FORMAT "X(256)":U INITIAL "SubLedger Close" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lv-first-year AS INTEGER FORMAT ">>>9":U INITIAL 0 
      LABEL "First Open Year" 
      VIEW-AS FILL-IN 
@@ -147,6 +159,11 @@ DEFINE VARIABLE lv-prd-num AS INTEGER FORMAT ">9":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE rBgColor
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 9 BY 1.91
+     BGCOLOR 21 FGCOLOR 21 .
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 130 BY 15.24.
@@ -163,6 +180,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
           BGCOLOR 15 FONT 4
+     fiBGColor AT ROW 1.48 COL 115 COLON-ALIGNED NO-LABEL
      company.name AT ROW 2.43 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
@@ -181,6 +199,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
+     fiSubLedgerClose AT ROW 5.05 COL 100 COLON-ALIGNED NO-LABEL
      company.city AT ROW 6 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
@@ -325,6 +344,7 @@ DEFINE FRAME F-Main
      "Previous Year Closed?" VIEW-AS TEXT
           SIZE 28 BY .95 AT ROW 12.67 COL 12
      RECT-1 AT ROW 1 COL 1
+     rBgColor AT ROW 2.67 COL 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -407,6 +427,21 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN company.company IN FRAME F-Main
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN fiBGColor IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiBGColor:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiPrevYearClosed IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiPrevYearClosed:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiSubLedgerClose IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiSubLedgerClose:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-first-year IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-prd-dt1 IN FRAME F-Main
@@ -566,6 +601,40 @@ DO:
         AND currency.c-code  EQ {&self-name}:SCREEN-VALUE
       NO-ERROR.
   IF AVAIL currency THEN c-desc:SCREEN-VALUE = currency.c-desc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rBgColor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor V-table-Win
+ON MOUSE-SELECT-DBLCLICK OF rBgColor IN FRAME F-Main
+DO:
+    DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lSave AS LOG NO-UNDO.
+
+    ix = COLOR-TABLE:NUM-ENTRIES.
+    COLOR-TABLE:NUM-ENTRIES = ix + 1.
+    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+
+    SYSTEM-DIALOG COLOR ix UPDATE lSave. 
+    
+    IF lSave THEN DO:
+        ASSIGN 
+            rBgColor:FGCOLOR = ix
+            rBgColor:BGCOLOR = ix.
+        FIND CURRENT company EXCLUSIVE.
+        /* Removed for testing until db change made */
+/*        ASSIGN                                                                */
+/*            company.cBgColor = STRING(COLOR-TABLE:get-red-value(ix)) + "," +  */
+/*                               STRING(COLOR-TABLE:get-green-value(ix)) + "," +*/
+/*                               STRING(COLOR-TABLE:get-blue-value(ix)).        */
+        FIND CURRENT company NO-LOCK.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -832,7 +901,19 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
 
+    ix = COLOR-TABLE:NUM-ENTRIES.
+    COLOR-TABLE:NUM-ENTRIES = ix + 1.
+
+    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+    COLOR-TABLE:SET-RED-VALUE(ix, red).
+    COLOR-TABLE:SET-GREEN-VALUE(ix, green).
+    COLOR-TABLE:SET-BLUE-VALUE(ix, blue).
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -855,6 +936,15 @@ PROCEDURE local-display-fields :
                                 lv-prd-dt1 = period.pst
                                 lv-prd-dt2 = period.pend.
     DISPLAY lv-first-year lv-prd-num lv-prd-dt1 lv-prd-dt2 WITH FRAME {&FRAME-NAME}.
+      /* Removed for testing until db change made */  
+/*      COLOR-TABLE:SET-DYNAMIC(ix, TRUE).                                  */
+/*      COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).  */
+/*      COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,company.cBgColor))).*/
+/*      COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,company.cBgColor))). */
+    ASSIGN 
+        rBgColor:FGCOLOR = ix
+        rBgColor:BGCOLOR = ix.
+        
   END.
 
 END PROCEDURE.
