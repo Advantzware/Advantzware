@@ -25,8 +25,8 @@
                 "<R21><C36><FROM><R25><C36><LINE>" SKIP
                 "<R21><C52><FROM><R25><C52><LINE>" SKIP
                 "<R21><C67><FROM><R25><C67><LINE>" SKIP
-                "<FArial><=4><R+1>    Weight Lbs             Weight Kg           Company Name              PO Number                 Order Number                  Ship Date" SKIP
-                "<FCourier New>" tt-boll.weight AT 2 (tt-boll.weight * 0.45) AT 14 CoCode AT 35 tt-boll.po-no AT 48 tt-boll.ord-no AT 69  oe-bolh.rel-date AT 84 SKIP
+                "<FArial><=4><R+1>    Weight (Lbs)           Weight (Kg)         Company Name              PO Number                 Order Number                  Ship Date" SKIP
+                "<FCourier New>" tt-boll.weight AT 2 (tt-boll.weight * 0.453592) AT 14 CoCode AT 35 tt-boll.po-no AT 48 tt-boll.ord-no AT 69  oe-bolh.rel-date AT 84 SKIP
                 .
      
      PUT        "<|10><R26><C1><#5><FROM><R30><#6><C81><RECT>" SKIP

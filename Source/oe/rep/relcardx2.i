@@ -44,17 +44,18 @@
                    "<R19><C12><FROM><R23><C12><LINE>" SKIP
                    "<R19><C25><FROM><R23><C25><LINE>" SKIP
                    "<R19><C34><FROM><R23><C34><LINE>" SKIP
-                   "<R19><C57><FROM><R23><C57><LINE>" SKIP
                    .
                    IF v-relprint EQ "CardedX2" THEN
                    DO:
                       PUT
                       "<R19><C43><FROM><R23><C43><LINE>" SKIP
-                      "<FArial><=4><R+1>  Delivery Zone           Weight(LBS)          Weight(Kg)         FOB                    Ship Via                                Freight Terms" SKIP
-                      "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(5) (v-weight * 0.45) SPACE(6) "EXW" SPACE(10) v-carrier space(3) v-frt-terms   SKIP.
+                      "<R19><C63><FROM><R23><C63><LINE>" SKIP
+                      "<FArial><=4><R+1>  Delivery Zone           Weight(LBS)          Weight(Kg)         FOB                    Ship Via                                     Freight Terms" SKIP
+                      "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(7) (v-weight * 0.453592) SPACE(6) "EXW" SPACE(5) v-carrier space(8) v-frt-terms   SKIP.
                    END.
                    ELSE DO:
                       PUT
+                      "<R19><C57><FROM><R23><C57><LINE>" SKIP
                       "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
                       "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(10) oe-ord.fob-code SPACE(8) v-carrier space(10) v-frt-terms   SKIP.
                    END.

@@ -490,16 +490,16 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-            "<=8><R+1> Total Pallets     :" /*v-tot-cases*/ v-tot-palls
-            "<=8><R+2> Total Cases       :" v-tot-cases
+            "<=8><R+1> Total Pallets   :" /*v-tot-cases*/ v-tot-palls
+            "<=8><R+2> Total Cases     :" v-tot-cases
             .
         IF v-print-fmt EQ "GPI2_I" THEN
         DO: 
-            v-tot-wt2 = v-tot-wt * 0.45 .
-            PUT "<=8><R+3> Total Weight      :" "<C61>" v-tot-wt " LBS / " "<C68>"v-tot-wt2 " Kg"  .
+            v-tot-wt2 = v-tot-wt * 0.453592 .
+            PUT "<=8><R+3> Total Weight    :" "<C60>" v-tot-wt " Lbs/" "<C67>"v-tot-wt2 " Kg"  .
         END.
         ELSE DO:
-            PUT "<=8><R+3> Total Weight      :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+            PUT "<=8><R+3> Total Weight    :" v-tot-wt /*fORM ">>,>>9.99"*/ .
         END.
     
         PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
