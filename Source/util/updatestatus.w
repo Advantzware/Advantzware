@@ -1026,7 +1026,7 @@ PROCEDURE pRunProcess :
                         WHERE bf-oe-ordl.company EQ oe-ord.company
                         AND bf-oe-ordl.ord-no EQ oe-ord.ord-no:
                                                 
-                        RUN order_OrderLineCloseCheck IN hdOrderProcs (BUFFER bf-oe-ordl,
+                        RUN Order_OrderLineCloseCheck IN hdOrderProcs (BUFFER bf-oe-ordl,
                                                 OUTPUT cStatus,
                                                 OUTPUT cReason).
                         IF cStatus EQ "C" THEN lCheckStatus = YES. 

@@ -1427,7 +1427,7 @@ PROCEDURE pOrderProcsMakeBOLLinesFromSSRelBol PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE order_OrderLineCloseCheck :
+PROCEDURE Order_OrderLineCloseCheck :
     /*------------------------------------------------------------------------------
       Purpose: Checks to see if an order line can be closed    
       Parameters:  order line buffer - > Outputs order status and reason

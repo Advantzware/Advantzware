@@ -157,7 +157,7 @@ PROCEDURE CloseOrderLine :
         NO-LOCK NO-ERROR.
     IF AVAILABLE bf-oe-ordl THEN 
     DO:
-        RUN order_OrderLineCloseCheck IN hdOrderProcs (BUFFER bf-oe-ordl,
+        RUN Order_OrderLineCloseCheck IN hdOrderProcs (BUFFER bf-oe-ordl,
             OUTPUT opcStatus,
             OUTPUT opcReason).
         IF iplUpdate AND opcStatus NE bf-oe-ordl.stat THEN
