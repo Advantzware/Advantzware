@@ -959,22 +959,17 @@ do v-local-loop = 1 to v-local-copies:
             j = 1 .
             cFgBin = "".
             iFgBinQty = 0.
-            FOR EACH xeb NO-LOCK 
-                WHERE xeb.company = est.company
-                  AND xeb.est-no = est.est-no
-                  AND xeb.form-no > 0 
-                BY xeb.stock-no:
-                MAIN-FG-BIN:
-                FOR EACH fg-bin NO-LOCK
-                    where fg-bin.company  eq cocode
-                    and fg-bin.i-no     eq xeb.stock-no
-                    and fg-bin.qty      gt 0
-                    AND fg-bin.loc-bin  NE ""  BY fg-bin.tag:
-                    ASSIGN cFgBin[j] = fg-bin.loc-bin
-                           iFgBinQty[j] = fg-bin.qty.
-                           j = j + 1.
-                       IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
-                END.                     
+            MAIN-FG-BIN:
+            FOR EACH fg-bin NO-LOCK
+                WHERE fg-bin.company  EQ est.company
+                AND fg-bin.i-no       EQ v-fg-set
+                AND fg-bin.qty        GT 0
+                AND fg-bin.loc-bin    NE ""  
+                BY fg-bin.tag:
+                       cFgBin[j]    = fg-bin.loc-bin.
+                       iFgBinQty[j] = fg-bin.qty.
+                       j = j + 1.
+                   IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
             END.
             PUT                                                      "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
                 "# Per Unit: " AT 3 tt-prem.tt-#-unit                "<C38>_____________________ <C57>____________________  <C77>Partial   <C90>________________" skip
@@ -984,22 +979,22 @@ do v-local-loop = 1 to v-local-copies:
                 "<=1><R+" + string(v-tmp-line + 7) + "><C1><FROM><R+15><C105><RECT><||3>" FORM "x(150)" SKIP
 
                 "<=1><R+" + string(v-tmp-line + 7) + "><C5>SET QTY ON HAND  <C25>Special instructions  <C60>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
-                "Bin              Bin Qty" AT 3                                             v-dept-inst[1] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[1] SKIP
-                cFgBin[1] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[1] FORMAT ">>>,>>>,>>>"    v-dept-inst[2] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[2] SKIP
-                cFgBin[2] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[2] FORMAT ">>>,>>>,>>>"    v-dept-inst[3] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[3] SKIP
-                cFgBin[3] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[3] FORMAT ">>>,>>>,>>>"    v-dept-inst[4] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[4] SKIP
-                cFgBin[4] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[4] FORMAT ">>>,>>>,>>>"    v-dept-inst[5] AT 30 FORM "x(62)" chr(124) format "xx" "Item PO #:" v-po-no SKIP
-                cFgBin[5] AT 3 FORMAT "x(10)" SPACE(2) iFgBinQty[5] FORMAT ">>>,>>>,>>>"    v-dept-inst[6] AT 30 SKIP
-                                                                                            v-dept-inst[7] AT 30 SKIP
-                                                                                            v-dept-inst[8] AT 30 SKIP
-                                                                                            v-dept-inst[9] AT 30 SKIP
-                                                                                            v-dept-inst[10] AT 30 SKIP
-                                                                                            v-dept-inst[11] AT 30 SKIP
-                                                                                            v-dept-inst[12] AT 30 SKIP
-                                                                                            v-dept-inst[13] AT 30 SKIP
-                                                                                            v-dept-inst[14] AT 30 SKIP
-                                                                                            v-dept-inst[15] AT 30 
-                                                                                            .
+                " Bin           Bin Qty" AT 3                                      v-dept-inst[1] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[1] SKIP
+                cFgBin[1] AT 3 FORMAT "x(10)" iFgBinQty[1] FORMAT ">>>,>>>,>>>"    v-dept-inst[2] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[2] SKIP
+                cFgBin[2] AT 3 FORMAT "x(10)" iFgBinQty[2] FORMAT ">>>,>>>,>>>"    v-dept-inst[3] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[3] SKIP
+                cFgBin[3] AT 3 FORMAT "x(10)" iFgBinQty[3] FORMAT ">>>,>>>,>>>"    v-dept-inst[4] AT 30 FORM "x(62)" chr(124) format "xx" v-shp[4] SKIP
+                cFgBin[4] AT 3 FORMAT "x(10)" iFgBinQty[4] FORMAT ">>>,>>>,>>>"    v-dept-inst[5] AT 30 FORM "x(62)" chr(124) format "xx" "Item PO #:" v-po-no SKIP
+                cFgBin[5] AT 3 FORMAT "x(10)" iFgBinQty[5] FORMAT ">>>,>>>,>>>"    v-dept-inst[6] AT 30 SKIP
+                                                                                   v-dept-inst[7] AT 30 SKIP
+                                                                                   v-dept-inst[8] AT 30 SKIP
+                                                                                   v-dept-inst[9] AT 30 SKIP
+                                                                                   v-dept-inst[10] AT 30 SKIP
+                                                                                   v-dept-inst[11] AT 30 SKIP
+                                                                                   v-dept-inst[12] AT 30 SKIP
+                                                                                   v-dept-inst[13] AT 30 SKIP
+                                                                                   v-dept-inst[14] AT 30 SKIP
+                                                                                   v-dept-inst[15] AT 30 
+                                                                                   .
             PAGE.
          END. /* i > 1*/
       END. /* set header printing  est.est-type = 6 */
