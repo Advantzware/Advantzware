@@ -19,6 +19,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
+USING system.SharedConfig. 
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -115,6 +117,8 @@ DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAccessRelButton AS LOGICAL NO-UNDO .
+DEFINE VARIABLE scInstance  AS CLASS system.SharedConfig NO-UNDO.
+
 RUN methods/prgsecur.p
 	    (INPUT "loc.",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
@@ -494,10 +498,20 @@ END.
 ON CHOOSE OF btnRelease IN FRAME F-Main /* View Releases */
 DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
+   
+    RUN pCheckRelease(INPUT cLocation, OUTPUT lRecordFound).                                     
     
+    IF lRecordFound THEN
     RUN oeinq/b-relinfo.w(ROWID(itemfg), cLocation).
+    ELSE DO:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").    
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +541,14 @@ DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
-
+       
+    IF itemfg.q-alloc EQ 0 THEN
+    do:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").
+    END.
     IF itemfg.q-alloc NE 0 THEN
         IF cFGBinInquiry EQ "Yes" THEN
         RUN AOA/dynGrid.p (13,
@@ -561,8 +582,9 @@ DO:
     DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
-    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
-    IF itemfg.q-ono NE 0 THEN DO:
+    IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.   
+      
+   
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ itemfg.company
                AND job-hdr.i-no    EQ itemfg.i-no
@@ -571,29 +593,27 @@ DO:
                             WHERE job.company EQ job-hdr.company
                               AND job.job     EQ job-hdr.job
                               AND job.job-no  EQ job-hdr.job-no
-                              AND job.job-no2 EQ job-hdr.job-no2)
+                              AND job.job-no2 EQ job-hdr.job-no2
+                              AND job.opened EQ YES
+                              AND (job.loc EQ cLocation OR cLocation EQ "*All")
+                              )
              NO-ERROR.
         IF AVAILABLE job-hdr THEN
+        DO:        
             IF cFGBinInquiry EQ "Yes" THEN
             RUN AOA/dynGrid.p (15,
                 "company^" + itemfg.company +
                 "|fgItem^" + itemfg.i-no
                 ).
             ELSE
-              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
-            /*RUN jc/w-inqjob.w (ROWID(itemfg), YES).*/
-        ELSE DO:
-            FIND FIRST fg-set NO-LOCK
-                 WHERE fg-set.company EQ itemfg.company
-                   AND fg-set.part-no EQ itemfg.i-no
-                 NO-ERROR.
-            IF AVAILABLE fg-set THEN
-             RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
-            /*RUN jc/w-inqjbc.w (ROWID(itemfg), YES).*/
+              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).                   
         END.
-        IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
-            MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
-    END.          
+        ELSE DO:
+              scInstance = SharedConfig:instance.
+              scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+              scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+              RUN displayMessage("68").
+        END.              
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,12 +632,15 @@ DO:
          WHERE po-ordl.company   EQ itemfg.company
            AND po-ordl.i-no      EQ itemfg.i-no
            AND po-ordl.item-type EQ NO
-           AND po-ordl.opened    EQ YES
+           AND lookup(po-ordl.stat, "o,p,u,a") > 0
            AND CAN-FIND(FIRST po-ord
                         WHERE po-ord.company EQ po-ordl.company
-                          AND po-ord.po-no   EQ po-ordl.po-no)
+                          AND po-ord.po-no   EQ po-ordl.po-no 
+                          AND (po-ord.loc EQ cLocation OR cLocation EQ "*All" )
+                          AND lookup(po-ord.stat, "N,O,R,U,H") > 0)
          NO-ERROR.
     IF AVAILABLE po-ordl THEN
+    do:
         IF cFGBinInquiry EQ "Yes" THEN
         RUN AOA/dynGrid.p (14,
             "company^" + itemfg.company +
@@ -626,6 +649,14 @@ DO:
         ELSE
         /*RUN po/w-inqpo.w (ROWID(itemfg), YES).*/
          RUN poinq/b-poinfo.w (ROWID(itemfg), cLocation).
+    END.
+    ELSE      
+    DO:
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("Item",TRIM(STRING(itemfg.i-no))).
+       scInstance:SetValue("Loc",TRIM(STRING(cLocation))).
+       RUN displayMessage("68").     
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1247,10 +1278,39 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckRelease B-table-Win
+PROCEDURE pCheckRelease PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:
+------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipLocation AS CHARACTER NO-UNDO.
+     DEFINE OUTPUT PARAMETER oplReturnRelease AS LOGICAL NO-UNDO.
+     
+     MAIN-LOOP:
+     FOR EACH oe-ordl   
+        WHERE oe-ordl.company EQ cocode          
+          AND oe-ordl.opened  EQ YES 
+          AND oe-ordl.i-no EQ itemfg.i-no 
+          AND ( oe-ordl.stat    NE "C"  OR oe-ordl.stat EQ "") NO-LOCK, 
+       FIRST oe-ord NO-LOCK                             
+        WHERE oe-ord.company  EQ oe-ordl.company     
+          AND oe-ord.ord-no   EQ oe-ordl.ord-no     
+          AND (oe-ord.opened EQ YES ),             
+        EACH oe-rel WHERE oe-rel.company = oe-ordl.company   
+         AND oe-rel.ord-no = oe-ordl.ord-no                 
+         AND oe-rel.i-no = oe-ordl.i-no                     
+         AND oe-rel.line = oe-ordl.line                     
+         AND (oe-rel.spare-char-1 EQ ipLocation OR ipLocation EQ "*All" ) 
+         AND LOOKUP(oe-rel.s-code,"B,S") NE 0 AND lookup(oe-rel.stat,"S,A,L,B,Z") NE 0 NO-LOCK :
+         oplReturnRelease = YES.
+         LEAVE MAIN-LOOP.
+     END.    
 
-
-
-
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPOLocation B-table-Win
 PROCEDURE pGetPOLocation PRIVATE:
