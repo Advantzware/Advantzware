@@ -966,7 +966,7 @@ do v-local-loop = 1 to v-local-copies:
                 AND fg-bin.qty        GT 0
                 AND fg-bin.loc-bin    NE ""  
                 BY fg-bin.tag:
-                       cFgBin[j]    = fg-bin.loc-bin + " @ " .
+                       cFgBin[j]    = fg-bin.loc-bin.
                        iFgBinQty[j] = fg-bin.qty.
                        j = j + 1.
                    IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
