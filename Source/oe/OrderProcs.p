@@ -1535,7 +1535,7 @@ PROCEDURE pOrderLineCloseCheck private:
             lUnassembledSetHeader    = CAN-FIND(FIRST bf-oe-ordl {sys/inc/ordlcomp.i bf-oe-ordl ipbf-oe-ordl})
             lNotStocked              = AVAILABLE itemfg AND NOT itemfg.stocked
             cQtyMessage              = ' Allowable Underrun Qty: ' + STRING(dAllowableUnderrun) + 
-            ' Inv Qty(posted): ' + STRING(iInvoicedQuantity) + 
+            ' Inv Qty (posted): ' + STRING(iInvoicedQuantity) + 
             ' Ship Qty: ' + STRING(ipbf-oe-ordl.ship-qty).
         .
 
