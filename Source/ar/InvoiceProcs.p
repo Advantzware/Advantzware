@@ -262,7 +262,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.amountTotalTax     = ipbf-ar-inv.tax-amt
             ttInv.shiptoID           = ipbf-ar-inv.ship-id
             ttInv.terms              = ipbf-ar-inv.terms            
-            ttInv.invoiceDueDate     = ipbf-ar-inv.due-date   
+            ttInv.invoiceDueDate     = ipbf-ar-inv.due-date
+            ttInv.customerPONo       = ipbf-ar-inv.po-no
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -426,6 +427,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
     DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm  FOR oe-ordm.
+    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
     
     DEFINE VARIABLE dTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
@@ -454,7 +456,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ttInv.amountTotalFreight = ipbf-inv-head.t-inv-freight 
             ttInv.amountTotalTax     = ipbf-inv-head.t-inv-tax
             ttInv.shiptoID           = ipbf-inv-head.sold-no
-            ttInv.terms              = ipbf-inv-head.terms
+            ttInv.terms              = ipbf-inv-head.terms            
             ttInv.invoiceDueDate     = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms).            
             . 
 
@@ -608,8 +610,24 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                    AND bf-oe-ordm.ord-no  EQ bf-inv-misc.ord-no
                  NO-ERROR.
 
-            IF AVAILABLE bf-oe-ordl THEN
-                ttInvLine.orderLine = bf-oe-ordl.line.
+            
+            ttInvLine.orderLine = IF AVAIL bf-oe-ordm THEN bf-oe-ordm.ord-line ELSE IF AVAIL bf-oe-ordl THEN bf-oe-ordl.LINE ELSE 0.
+                
+            IF bf-inv-misc.po-no EQ "" THEN
+            DO:
+                FIND FIRST bf-oe-ordl NO-LOCK
+                     WHERE bf-oe-ordl.company EQ ipbf-inv-head.company
+                       AND bf-oe-ordl.LINE    EQ ttInvLine.orderLine
+                       AND bf-oe-ordl.ord-no  EQ bf-inv-misc.ord-no
+                     NO-ERROR.
+                     
+                FIND FIRST bf-oe-ord NO-LOCK
+                     WHERE bf-oe-ord.company EQ ipbf-inv-head.company                       
+                       AND bf-oe-ord.ord-no  EQ bf-inv-misc.ord-no
+                     NO-ERROR.     
+                     
+               ttInvLine.customerPONo = IF AVAIL bf-oe-ordl AND bf-oe-ordl.po-no NE "" THEN bf-oe-ordl.po-no ELSE IF AVAIL bf-oe-ord THEN bf-oe-ord.po-no ELSE "". 
+             END.    
             
             RUN pAssignCommonLineData (
                 BUFFER ttInv, 
