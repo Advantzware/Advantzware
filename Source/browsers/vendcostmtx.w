@@ -83,7 +83,6 @@ DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
 DEFINE VARIABLE iCount          AS INTEGER NO-UNDO.
 DEFINE VARIABLE iVendCostItemID AS INTEGER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iRtnInt         AS INTEGER NO-UNDO.
 DEFINE VARIABLE lButtongoPressed AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
@@ -97,19 +96,6 @@ DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
-
-/* this is to get Number of records to load in the browser */
-RUN sys/ref/nk1look.p (
-    INPUT cocode, 
-    INPUT "VendItemBrowse", 
-    INPUT "I" /* Integer */, 
-    INPUT NO ,
-    INPUT NO ,
-    INPUT "" /* cust */, 
-    INPUT "" /* ship-to*/,
-    OUTPUT iRtnInt, 
-    OUTPUT lRecFound
-    ).
  
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
@@ -207,9 +193,9 @@ vendItemCost.estimateNo get-eff-date() @ dtEffDate ~
 vendItemCost.expirationDate vendItemCost.vendorItemID ~
 fGetCostLevels() @ cLevel[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE vendItemCost.itemID eq "999999999" and ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE FALSE and ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH vendItemCost WHERE vendItemCost.itemID eq "999999999" and ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH vendItemCost WHERE FALSE and ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table vendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table vendItemCost
@@ -521,6 +507,7 @@ ASSIGN
      _TblList          = "asi.vendItemCost"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
+     _Where[1]         = "FALSE" 
      _FldNameList[1]   > asi.vendItemCost.itemType
 "vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
