@@ -11,7 +11,7 @@
     Created     : Thu Apr 30 14:34:07 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-
+BLOCK-LEVEL ON ERROR UNDO, THROW. 
 /* ***************************  Definitions  ************************** */
 {system\TaxProcs.i}
 {oe\PostInvoice.i}
@@ -1122,21 +1122,16 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     DEFINE OUTPUT PARAMETER opriArInv AS ROWID.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
-      
-    DEFINE VARIABLE iNextXNo    AS INTEGER NO-UNDO.
-    
+          
     /*used for Terms procedures*/
     DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
-    
-    iNextXNO = fGetNextXNo().
-    
+        
     CREATE bf-ar-inv.
     DISABLE TRIGGERS FOR LOAD OF ar-inv.
     ASSIGN
-        bf-ar-inv.x-no         = iNextXNO
         bf-ar-inv.company      = ipbf-inv-head.company
         bf-ar-inv.ord-no       = ipbf-ttInvoiceToPost.orderID
         bf-ar-inv.ord-date     = ipbf-ttInvoiceToPost.orderDate
@@ -2527,12 +2522,6 @@ PROCEDURE pPostInvoices PRIVATE:
         :
         opiCountPosted = opiCountPosted + 1.
 
-        RUN pCreateEDI(BUFFER bf-inv-head).
-
-        RUN pPostSalesTaxForInvHead (
-            INPUT ROWID(bf-inv-head)
-            ).
-        
         /*Create ar-inv based on inv-head and return writeable buffer*/
         RUN pCreateARInvHeader(BUFFER bf-inv-head, BUFFER ttInvoiceToPost, OUTPUT riArInv).  
         FIND FIRST bf-ar-inv NO-LOCK
@@ -2544,7 +2533,14 @@ PROCEDURE pPostInvoices PRIVATE:
                 iXNo = bf-ar-inv.x-no
                 . 
             RUN pCopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
-        END.            
+        END.      
+              
+        RUN pCreateEDI(BUFFER bf-inv-head).
+
+        RUN pPostSalesTaxForInvHead (
+            INPUT ROWID(bf-inv-head)
+            ).
+
         iLine = 1.
         FOR EACH ttInvoiceLineToPost
             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo 
