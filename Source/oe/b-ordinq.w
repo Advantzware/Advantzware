@@ -1065,11 +1065,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-{methods/template/sortindicator.i}
+
   DEFINE VARIABLE lh-column AS HANDLE NO-UNDO.
   DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
-
+    {methods/template/sortindicator.i 'b-ordinq'}
+IF VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN) THEN 
+DO:
   lh-column = {&BROWSE-NAME}:CURRENT-COLUMN.
   IF lh-column:LABEL-BGCOLOR NE 14 THEN RETURN NO-APPLY.
 
@@ -1085,15 +1087,15 @@ DO:
   IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
 
   ELSE
-    ASSIGN
+      ASSIGN
      lv-sort-by     = lv-column-nam
      lv-sort-by-lab = lv-column-lab.
-
+END.
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
 
-  {methods/template/sortindicatorend.i}
+  {methods/template/sortindicatorend.i 'b-ordinq'}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1979,6 +1981,11 @@ PROCEDURE local-view :
   {methods/template/local/setvalue.i}
   APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
 
+    FIND FIRST userColumn NO-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
+        AND userColumn.programName = "b-ordinq"
+        AND userColumn.sorted = TRUE NO-ERROR.        
+    IF  AVAILABLE userColumn THEN 
+        APPLY 'start-search' TO {&browse-name}. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -815,30 +815,48 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
-DO:
-{methods/template/sortindicator.i}
-  DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+    DO:
 
-  
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
+        DEF VAR lh-column     AS HANDLE NO-UNDO.
+        DEF VAR lv-column-nam AS CHAR   NO-UNDO.
+        DEF VAR lv-column-lab AS CHAR   NO-UNDO.
 
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+        {methods/template/sortindicator.i 'b-ordrel'}
 
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab .
+        ASSIGN
+            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+            lv-column-nam = lh-column:NAME
+            lv-column-lab = lh-column:LABEL no-error.
+   
+        IF NOT VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN)THEN 
+        DO:
+         /*   FIND FIRST userColumn NO-LOCK 
+                WHERE userColumn.usrId     EQ USERID('ASI') 
+                AND userColumn.programName EQ "b-ordrel" NO-ERROR.         
+            IF  AVAILABLE userColumn THEN 
+            ASSIGN    
+                lv-sort-by      = userColumn.SortByColumnName
+                lv-sort-by-lab  = userColumn.sortByColumnLabel
+                ll-sort-asc     = userColumn.sortAsc
+                lh-column       = hCurrentColumn. */ 
+        END.
+        ELSE
+        DO:
+            IF lv-sort-by EQ lv-column-nam THEN 
+                ll-sort-asc = NOT ll-sort-asc.
+            ELSE
+            ASSIGN
+                lv-sort-by     = lv-column-nam
+                lv-sort-by-lab = lv-column-lab .
+         END.
+         
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+    /*APPLY "choose" TO btn_go.*/
+    
+    RUN resort-query .
+    
+    {methods/template/sortindicatorend.i 'b-ordrel'}
 
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  /*APPLY "choose" TO btn_go.*/
-  RUN resort-query .
-    {methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3663,6 +3681,11 @@ PROCEDURE local-view :
   &ENDIF
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
   
+    FIND FIRST userColumn NO-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
+        AND userColumn.programName = "b-ordrel" 
+        AND userColumn.sorted = TRUE NO-ERROR.        
+    IF  AVAILABLE userColumn THEN 
+        APPLY 'start-search' TO {&browse-name} IN FRAME {&frame-name}. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -19,6 +19,32 @@
 
 /* ***************************  Definitions  ************************** */
 
+    
+FIND FIRST userColumn NO-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
+    AND userColumn.programName = {1} 
+    AND userColumn.sorted = TRUE NO-ERROR.        
+IF  {&BROWSE-NAME}:CURRENT-COLUMN = ?  AND AVAILABLE userColumn THEN 
+DO:
+    GET-HANDLE:
+    DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
+        hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
+        IF  hColumnRowColor:NAME = userColumn.ColName THEN
+        DO:
+
+            hCurrentColumn = hColumnRowColor.
+            LEAVE GET-HANDLE.
+        END.
+                          
+    END.
+    hCurrentColumn:SORT-ASCENDING = lsortBy.
+    ASSIGN    
+        lv-sort-by     = userColumn.ColName
+        lv-sort-by-lab = userColumn.sortByColumnLabel
+        ll-sort-asc    = userColumn.sortAsc
+        lh-column      = hCurrentColumn.
+END.
+ELSE
+DO:
 {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 hCurrentColumn = {&BROWSE-NAME}:CURRENT-COLUMN.
 IF VALID-HANDLE(hPrevColumn) AND hPrevColumn:LABEL-BGCOLOR = 30 THEN
@@ -32,4 +58,4 @@ IF hCurrentColumn EQ hPrevColumn THEN
 hCurrentColumn:SORT-ASCENDING = lsortBy.
 
 hPrevColumn = {&BROWSE-NAME}:CURRENT-COLUMN.
-
+END.
