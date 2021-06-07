@@ -259,10 +259,9 @@ for each {1}report where {1}report.term-id eq v-term,
   
   FIND FIRST job-hdr 
        WHERE job-hdr.company EQ job.company
-         AND job-hdr.job     EQ 0
+         AND job-hdr.job     EQ job.job
          AND job-hdr.job-no  EQ job.job-no
          AND job-hdr.job-no2 EQ job.job-no2
-         AND job-hdr.i-no    EQ v-itm
          NO-LOCK NO-ERROR.
   
   IF AVAILABLE job-hdr THEN
@@ -270,12 +269,6 @@ for each {1}report where {1}report.term-id eq v-term,
         WHERE oe-ord.company EQ job-hdr.company
         AND   oe-ord.ord-no  EQ job-hdr.ord-no
         NO-ERROR.
-  
-  IF AVAILABLE oe-ord THEN
-    FIND FIRST cust
-        WHERE cust.company EQ cocode
-          AND cust.cust-no EQ oe-ord.cust-no
-        NO-LOCK NO-ERROR.
   
   find first po-ordl
       where po-ordl.company eq job.company
@@ -355,8 +348,8 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "rm-qty"          THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") .
                      WHEN "job-due-date"    THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
                      WHEN "item-desc"       THEN cVarValue = STRING(cItemDesc).
-                     WHEN "cust"            THEN cVarValue = IF AVAIL cust THEN STRING(cust.cust-no,"x(8)") ELSE "".
-                     WHEN "custname"        THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(30)") ELSE "".
+                     WHEN "cust"            THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
+                     WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
                 cExcelVarValue = cVarValue.
@@ -404,8 +397,8 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "rm-qty"          THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN  STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") . 
                      WHEN "job-due-date"    THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
                      WHEN "item-desc"       THEN cVarValue = STRING(cItemDesc).
-                     WHEN "cust"            THEN cVarValue = IF AVAIL cust THEN STRING(cust.cust-no,"x(8)") ELSE "".
-                     WHEN "custname"        THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(15)") ELSE "".
+                     WHEN "cust"            THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
+                     WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
                 cExcelVarValue = cVarValue.
