@@ -22,27 +22,27 @@
 hCurrentColumn:LABEL-BGCOLOR = 30. 
 
 FOR EACH userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
-AND userColumn.programName = {1}
+AND userColumn.programName = '{&programName}'
 AND userColumn.ColName     = hCurrentColumn:NAME BY userColumn.colPosition:
     userColumn.sorted      = FALSE .
     iLastColPos = userColumn.colPosition.
     END.
 
 FIND FIRST userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
-    AND userColumn.programName = {1}
+    AND userColumn.programName = '{&programName}'
     AND userColumn.ColName    = hCurrentColumn:NAME NO-ERROR.
         
 IF NOT AVAILABLE userColumn THEN 
 DO:
     CREATE userColumn.
     ASSIGN
-        userColumn.programName       = {1}
+        userColumn.programName       = '{&programName}'
         userColumn.usrId             = USERID('ASI') 
         userColumn.ColName           = hCurrentColumn:NAME
         userColumn.sortByColumnLabel = hCurrentColumn:LABEL
         userColumn.sortAsc           = lsortBy
         userColumn.sorted            = TRUE
-    userColumn.colPosition = iLastColPos + 1.
+        userColumn.colPosition = iLastColPos + 1.
 END.
 ELSE
 DO:

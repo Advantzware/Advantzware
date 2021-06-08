@@ -821,26 +821,14 @@ ON START-SEARCH OF br_table IN FRAME F-Main
         DEF VAR lv-column-nam AS CHAR   NO-UNDO.
         DEF VAR lv-column-lab AS CHAR   NO-UNDO.
 
-        {methods/template/sortindicator.i 'b-ordrel'}
+        {methods/template/sortindicator.i &programName=b-ordrel}
 
         ASSIGN
             lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
             lv-column-nam = lh-column:NAME
             lv-column-lab = lh-column:LABEL no-error.
    
-        IF NOT VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN)THEN 
-        DO:
-         /*   FIND FIRST userColumn NO-LOCK 
-                WHERE userColumn.usrId     EQ USERID('ASI') 
-                AND userColumn.programName EQ "b-ordrel" NO-ERROR.         
-            IF  AVAILABLE userColumn THEN 
-            ASSIGN    
-                lv-sort-by      = userColumn.SortByColumnName
-                lv-sort-by-lab  = userColumn.sortByColumnLabel
-                ll-sort-asc     = userColumn.sortAsc
-                lh-column       = hCurrentColumn. */ 
-        END.
-        ELSE
+        IF VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN)THEN 
         DO:
             IF lv-sort-by EQ lv-column-nam THEN 
                 ll-sort-asc = NOT ll-sort-asc.
@@ -855,7 +843,7 @@ ON START-SEARCH OF br_table IN FRAME F-Main
     
     RUN resort-query .
     
-    {methods/template/sortindicatorend.i 'b-ordrel'}
+    {methods/template/sortindicatorend.i &programName=b-ordrel}
 
 END.
 

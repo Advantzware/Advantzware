@@ -21,7 +21,7 @@
 
     
 FIND FIRST userColumn NO-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
-    AND userColumn.programName = {1} 
+    AND userColumn.programName = '{&programName}' 
     AND userColumn.sorted = TRUE NO-ERROR.        
 IF  {&BROWSE-NAME}:CURRENT-COLUMN = ?  AND AVAILABLE userColumn THEN 
 DO:

@@ -1069,7 +1069,7 @@ DO:
   DEFINE VARIABLE lh-column AS HANDLE NO-UNDO.
   DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
-    {methods/template/sortindicator.i 'b-ordinq'}
+    {methods/template/sortindicator.i &programName=b-ordinq}
 IF VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN) THEN 
 DO:
   lh-column = {&BROWSE-NAME}:CURRENT-COLUMN.
@@ -1095,7 +1095,7 @@ END.
 
   RUN dispatch ("open-query").
 
-  {methods/template/sortindicatorend.i 'b-ordinq'}
+  {methods/template/sortindicatorend.i &programName=b-ordinq}
 END.
 
 /* _UIB-CODE-BLOCK-END */

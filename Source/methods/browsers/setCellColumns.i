@@ -164,11 +164,11 @@ PROCEDURE local-destroy:
       END.       
       
       DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-          FIND FIRST userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
-              AND userColumn.programName = "{&cellColumnDat}"
-              AND userColumn.ColName    = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME NO-ERROR.
+          FIND FIRST bf-userColumn EXCLUSIVE-LOCK WHERE bf-userColumn.usrId     EQ USERID('ASI') 
+          AND bf-userColumn.programName = "{&cellColumnDat}"
+          AND bf-userColumn.ColName    = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME NO-ERROR.
         
-          IF NOT AVAILABLE userColumn THEN 
+          IF NOT AVAILABLE bf-userColumn THEN 
         CREATE bf-userColumn.
         ASSIGN 
             bf-userColumn.colName     = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME
