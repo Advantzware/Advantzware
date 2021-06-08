@@ -2713,7 +2713,11 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            "A",
                                            ipdtPostingDate,
                                            "",
-                                           "RM").     
+                                           "RM").   
+                       ASSIGN 
+                        dDebitsTotal = 0
+                        dCreditsTotal = 0
+                        .  
                     END.
                 END.
             END.      
