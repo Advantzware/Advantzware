@@ -248,13 +248,15 @@ END.
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Select Vendor */
 DO:
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
+    DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated". 
     IF AVAILABLE estCostMaterial THEN
     RUN system/vendorcostSelector.w(
      INPUT  estCostMaterial.company, //ipcCompany ,
      INPUT  estCostMaterial.itemID ,
-     INPUT  "RM", //ipcItemType ,
-     INPUT  "ALL", //ipcScope ,
+     INPUT  IF isPurchasedFG THEN "FG" ELSE "RM", //ipcItemType ,
+     INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride, //ipcScope ,
      INPUT  "Yes", //iplIncludeBlankVendor ,
      INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
      INPUT  estCostMaterial.formNo, //ipiFormNo,
