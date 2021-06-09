@@ -89,7 +89,7 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel btn-auto-calc 
+&Scoped-Define ENABLED-OBJECTS btPOScores Btn-Save Btn-Cancel btn-auto-calc 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -195,8 +195,6 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btPOScores IN FRAME Panel-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
        btPOScores:HIDDEN IN FRAME Panel-Frame           = TRUE.
 
@@ -241,6 +239,7 @@ DO:
      enable btn-cancel with frame {&frame-name}.
      btn-save:label = "&Save" .
      btn-auto-calc:sensitive = no.
+     btPOScores:SENSITIVE = FALSE.
      run auto-calc in widget-handle(source-str). 
   END.
 
@@ -257,6 +256,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       btn-auto-calc:sensitive = yes.
+      btPOScores:SENSITIVE = TRUE.
       RUN notify ('cancel-record':U).
    END.
 END.
@@ -288,11 +288,13 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
+           btPOScores:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
            btn-auto-calc:sensitive = yes.
+           btPOScores:SENSITIVE = TRUE.
         END.                              
      END.
      ELSE 
