@@ -83,20 +83,19 @@ DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
 DEFINE VARIABLE iCount          AS INTEGER NO-UNDO.
 DEFINE VARIABLE iVendCostItemID AS INTEGER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iRtnInt         AS INTEGER NO-UNDO.
+DEFINE VARIABLE lButtongoPressed AS LOGICAL   NO-UNDO.
 
-/* this is to get Number of records to load in the browser */
-RUN sys/ref/nk1look.p (
-    INPUT cocode, 
-    INPUT "VendItemBrowse", 
-    INPUT "I" /* Integer */, 
-    INPUT NO ,
-    INPUT NO ,
-    INPUT "" /* cust */, 
-    INPUT "" /* ship-to*/,
-    OUTPUT iRtnInt, 
-    OUTPUT lRecFound
-    ).
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLastRecKey        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowAll           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
  
 FIND FIRST users NO-LOCK WHERE 
     users.user_id EQ USERID(LDBNAME(1)) 
@@ -106,7 +105,7 @@ IF AVAILABLE users THEN ASSIGN
 
 &SCOPED-DEFINE key-phrase TRUE
 
-&SCOPED-DEFINE for-each1 ~
+/*&SCOPED-DEFINE for-each1 ~
     FOR EACH vendItemCost ~
         WHERE {&key-phrase} ~
           AND vendItemCost.company   EQ cocode ~
@@ -142,13 +141,8 @@ IF AVAILABLE users THEN ASSIGN
           AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
           AND (tb_in-exp  OR (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)) ~
           AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY)
-/*
-&SCOPED-DEFINE for-each-ExactMatch ~
-    FOR EACH vendItemCost ~
-        WHERE {&key-phrase} ~
-          AND vendItemCost.company   EQ cocode ~
-          AND (vendItemCost.itemID eq fi_i-no )
-*/
+
+          
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "itemType"       THEN vendItemCost.itemType ELSE ~
     IF lv-sort-by EQ "itemID"         THEN vendItemCost.itemID ELSE ~
@@ -167,7 +161,7 @@ IF AVAILABLE users THEN ASSIGN
 
 &SCOPED-DEFINE sortby-phrase-desc ~
     BY ({&sortby-log}) DESC ~
-    {&sortby}
+    {&sortby}        */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -199,9 +193,9 @@ vendItemCost.estimateNo get-eff-date() @ dtEffDate ~
 vendItemCost.expirationDate vendItemCost.vendorItemID ~
 fGetCostLevels() @ cLevel[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCost WHERE FALSE and ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH vendItemCost WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH vendItemCost WHERE FALSE and ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table vendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table vendItemCost
@@ -280,6 +274,22 @@ FUNCTION get-eff-date RETURNS DATE
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  (ipcTable AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -497,6 +507,7 @@ ASSIGN
      _TblList          = "asi.vendItemCost"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "vendItemCost"
+     _Where[1]         = "FALSE" 
      _FldNameList[1]   > asi.vendItemCost.itemType
 "vendItemCost.itemType" "Type" "x(5)" "character" ? ? ? 14 ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.vendItemCost.itemID
@@ -618,7 +629,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
-  
+               
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN
                 fi_vend-no                                               
@@ -627,6 +638,7 @@ DO:
                 fi_est-no
                 ll-first = NO 
                 fi_vend-item
+                lButtongoPressed = YES 
                 .                                             
      
             RUN dispatch ("open-query").
@@ -888,25 +900,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-query B-table-Win 
-PROCEDURE first-query :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    IF ll-first THEN 
-    DO:
-        RUN set-defaults.
-        RUN query-first.
-    END.
-    ELSE
-        RUN query-go.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getCellColumns B-table-Win 
 PROCEDURE getCellColumns :
@@ -1076,8 +1069,16 @@ PROCEDURE local-initialize :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
+      
     /* Code placed here will execute PRIOR to standard behavior. */
+     RUN Browser_GetRecordAndTimeLimit(
+        INPUT  cocode,
+        INPUT  "PF3",
+        OUTPUT iRecordLimit,
+        OUTPUT dQueryTimeLimit,
+        OUTPUT lEnableShowAll
+        ).
+        
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN setCellColumns.
@@ -1107,37 +1108,44 @@ PROCEDURE local-open-query :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
-    IF ll-show-all THEN 
+         
+    IF ll-show-all THEN
     DO:
+        RUN set-defaults.          
+        RUN pPrepareAndExecuteQuery(
+            INPUT YES  
+            ).
+    END.    
+    ELSE do: 
+        IF ll-first THEN
         RUN set-defaults.
+        
+        RUN pPrepareAndExecuteQuery(
+            INPUT IF lButtongoPressed THEN NO ELSE YES /* If Button go is pressed then only show the limit alert */ 
+            ).
+    END.       
 
-        &SCOPED-DEFINE open-query                   ~
-            OPEN QUERY {&browse-name}               ~
-                {&for-eachblank}  NO-LOCK
-
-        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
-    END.
-    ELSE RUN first-query.
-
-    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
-    DO:
-        RUN dispatch ("display-fields").
-        RUN dispatch ("row-changed").
-
-    END.
+    IF lButtongoPressed THEN 
+        lButtongoPressed = NO.        
+          
     IF ll-first THEN DO:
         RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCost'). 
         cVendItemCostItem# = RETURN-VALUE.
         RUN GET-ATTRIBUTE IN adm-broker-hdl ('OneVendItemCostEst#').        
         IF (cVendItemCostItem# NE "" AND cVendItemCostItem# NE ?) or
            (RETURN-VALUE <> "" AND RETURN-VALUE <> ?) THEN DO:    
-                             
+                           
            RUN openqueryOne (cVendItemCostItem#).                  
         END.     
     END.     
     ll-show-all = NO .
+    
+    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
+    DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed").
+
+    END.
   
     APPLY "value-changed" TO BROWSE {&browse-name}.
   
@@ -1238,132 +1246,20 @@ PROCEDURE openQueryOne :
     fi_est-no = IF RETURN-VALUE EQ ? THEN "" ELSE return-value.
     IF fi_est-no NE "" THEN ASSIGN tb_in-est = YES.
         
-    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue.
-/*    DISPLAY fi_i-no fi_vend-no cb_itemType fi_est-no WITH FRAME {&frame-name}.*/
-/*    RUN query-go.*/
-
-    {&for-each-ExactMatch} NO-LOCK
-     USE-INDEX vendItemCostID:
-         ASSIGN
-             iCount          = iCount + 1
-             iVendCostItemID = VendItemCost.VendItemCostID
-             .
-        IF iCount GE iRtnInt THEN
-            LEAVE.
-     END.
-     &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-            {&for-each-ExactMatch}                          ~
-            AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
-            USE-INDEX vendItemCostID
-
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
-                    
-     RUN dispatch ('display-fields').    
-   
+    ASSIGN fi_i-no = IF ipcValue EQ ? THEN "" ELSE ipcValue.                                                                   
+                
+    RUN dispatch ('display-fields').    
+    
+    RUN pPrepareAndExecuteQuery(
+            INPUT YES  
+            ).     
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-first B-table-Win 
-PROCEDURE query-first :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li AS INTEGER NO-UNDO.
-    iCount = 0.
-    
-    {&for-each1} NO-LOCK
-    USE-INDEX vendItemCostID:
-        ASSIGN
-            iCount          = iCount + 1
-            iVendCostItemID = VendItemCost.VendItemCostID
-            .
-        IF iCount GE iRtnInt THEN
-            LEAVE.
-    END.
 
-    &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-            {&for-each1}                          ~
-            AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
-            USE-INDEX vendItemCostID
-            
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-go B-table-Win 
-PROCEDURE query-go :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE li AS INTEGER NO-UNDO.
-    iCount = 0.
-    DO WITH FRAME {&frame-name} :
-      ASSIGN fi_i-no tb_exactMatch tb_in-est. 
-    END.
-    
-    IF tb_exactMatch THEN DO:
-    
-        {&for-each-ExactMatch} NO-LOCK
-         USE-INDEX vendItemCostID:
-             ASSIGN
-                 iCount          = iCount + 1
-                  iVendCostItemID = VendItemCost.VendItemCostID
-                 .
-            IF iCount GE iRtnInt THEN
-                LEAVE.
-         END.
-         &SCOPED-DEFINE open-query                   ~
-             OPEN QUERY {&browse-name}               ~
-                 {&for-each-ExactMatch}                          ~
-                  AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
-                  USE-INDEX vendItemCostID
-    
-          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}. 
-     END.
-     ELSE DO: 
-         {&for-each1} NO-LOCK
-          USE-INDEX vendItemCostID:
-              ASSIGN
-                  iCount          = iCount + 1
-                  iVendCostItemID = VendItemCost.VendItemCostID
-                  .
-              IF iCount GE iRtnInt THEN
-                  LEAVE.
-          END.
-
-          &SCOPED-DEFINE open-query                   ~
-              OPEN QUERY {&browse-name}               ~
-                  {&for-each1}                          ~
-                   AND VendItemCost.VendItemCostID LE iVendCostItemID NO-LOCK ~
-                   USE-INDEX vendItemCostID
-    
-          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}.
-          
-      END.
-   
-/*    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.  */
-/*                    ELSE {&open-query} {&sortby-phrase-desc}.*/
-  
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -1374,12 +1270,26 @@ PROCEDURE repo-query :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
  
-    RUN dispatch IN this-procedure ("open-query").
+    /*RUN dispatch IN this-procedure ("open-query").
   
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
 
     RUN dispatch IN this-procedure ("row-changed").
-    APPLY "value-changed" TO BROWSE {&browse-name}.
+    APPLY "value-changed" TO BROWSE {&browse-name}. */
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+          RUN one-row-query (ip-rowid).
+          REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+        END.
+        IF NOT ERROR-STATUS:ERROR THEN 
+        DO: 
+           //RUN dispatch ("row-changed").
+            RUN dispatch IN this-procedure ("row-changed").
+            APPLY "value-changed" TO BROWSE {&browse-name}.
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -1429,6 +1339,169 @@ PROCEDURE send-records :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForShowAll B-table-Win 
+PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to show all records in browse
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+               
+    cShowAllQuery = "FOR EACH vendItemCost NO-LOCK"
+                    + " WHERE vendItemCost.company EQ " + QUOTER(cocode)
+                    + pGetWhereCriteria("vendItemCost")                     
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY vendItemCost.itemID"
+                    .              
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cShowAllQuery,               /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse                                                  
+        ).
+    lShowAll = NO.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
+PROCEDURE pPrepareAndExecuteQuery :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to prepare and execute query in browse
+ Notes:
+------------------------------------------------------------------------------*/   
+    DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
+    
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).
+          
+    cLimitingQuery = "FOR EACH vendItemCost NO-LOCK"
+                     + " WHERE vendItemCost.company EQ " + QUOTER(cocode)
+                     + pGetWhereCriteria("vendItemCost")                     
+                     + " BREAK BY vendItemCost.vendItemCostID desc"
+                     .  
+             
+    /* Limit the query if order no is 0 or cadd No is Blank */                    
+    IF fi_i-no EQ "" THEN             
+        RUN Browse_PrepareAndExecuteLimitingQuery(
+            INPUT  cLimitingQuery,   /* Query */
+            INPUT  cQueryBuffers,    /* Buffers Name */
+            INPUT  iRecordLimit,     /* Record Limit */
+            INPUT  dQueryTimeLimit,  /* Time Limit*/
+            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+            INPUT  cFieldName,       /* Field Name*/
+            INPUT  iplInitialLoad,   /* Initial Query*/
+            INPUT  lIsBreakByUsed,   /* Is breakby used */
+            OUTPUT cResponse           
+            ).       
+  
+    ELSE 
+        cResponse = "ItemNo". /* For identification purpose */          
+      
+    IF cResponse EQ "" AND lButtongoPressed THEN  
+        MESSAGE "No Records Found..."
+            VIEW-AS ALERT-BOX ERROR.
+              
+    ELSE IF cResponse EQ "ShowALL" THEN 
+        RUN pPrepareAndExecuteQueryForShowAll.
+            
+    ELSE DO:
+        /* Use below logic to sort records by rec_key */                
+        cBrowseWhereClause = (IF fi_i-no EQ "" THEN " AND vendItemCost.vendItemCostID  GE " + STRING(INTEGER(cResponse)) ELSE "").        
+               
+        cBrowseQuery = "FOR EACH vendItemCost NO-LOCK"
+                       + " WHERE vendItemCost.company EQ " + QUOTER(cocode)
+                       + cBrowseWhereClause   
+                       + pGetWhereCriteria("vendItemCost")             
+                       + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY vendItemCost.itemID"
+                       .  
+                       
+        RUN Browse_PrepareAndExecuteBrowseQuery(
+            INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+            INPUT  cBrowseQuery,                /* BRowse Query */             
+            INPUT  NO,                          /* Show limit alert? */        
+            INPUT  0,                           /* Record limit */             
+            INPUT  0,                           /* Time Limit */               
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+            OUTPUT cResponse                                                   
+            ).
+    END.                                     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE one-row-query B-table-Win 
+PROCEDURE one-row-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE cQuery    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
+    
+    RUN set-defaults.      
+           
+    cQuery = "FOR EACH vendItemCost NO-LOCK"
+             + " WHERE vendItemCost.company EQ " + QUOTER(cocode)
+             + " AND ROWID(vendItemCost)    EQ " + "TO-ROWID(" + "'" + STRING(ip-rowid) + "')"
+             + pGetWhereCriteria("vendItemCost")              
+             + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY vendItemCost.itemID "
+             .
+                 
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cQuery,                      /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse
+        ).               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win
+PROCEDURE pAssignCommonRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Assign Common Records for the query
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcQueryBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldName        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplIsBreakByUsed    AS LOGICAL   NO-UNDO.
+         
+    ASSIGN         
+        iopcQueryBuffer   = "vendItemCost"
+        iopcFieldBuffer   = "vendItemCost"
+        iopcFieldName     = "vendItemCostID" 
+        ioplIsBreakByUsed = YES 
+        .
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1582,6 +1655,69 @@ FUNCTION get-eff-date RETURNS DATE
 
 END FUNCTION.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Retuns the sort condition based on the input 
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    RETURN (IF ipcSortBy EQ 'itemType'         THEN "vendItemCost.itemType"                             ELSE ~
+            IF ipcSortBy EQ 'itemID'           THEN "vendItemCost.itemID"                               ELSE ~
+            IF ipcSortBy EQ 'vendorID'         THEN "vendItemCost.vendorID"                             ELSE ~
+            IF ipcSortBy EQ 'customerID'       THEN "vendItemCost.customerID"                           ELSE ~
+            IF ipcSortBy EQ 'effectiveDate'    THEN "STRING(YEAR(vendItemCost.effectiveDate),'9999')   
+                                               + STRING(MONTH(vendItemCost.effectiveDate),'99')   
+                                               + STRING(DAY(vendItemCost.effectiveDate),'99')"          ELSE ~
+            IF ipcSortBy EQ 'expirationDate'   THEN "STRING(YEAR(vendItemCost.expirationDate),'9999')   
+                                               + STRING(MONTH(vendItemCost.expirationDate),'99')   
+                                               + STRING(DAY(vendItemCost.expirationDate),'99')"         ELSE ~                                
+            IF ipcSortBy EQ 'estimateNo'       THEN "vendItemCost.estimateNo"                           ELSE ~
+            IF ipcSortBy EQ 'vendorItemID'     THEN "vendItemCost.vendorItemID"                         ELSE ~
+                                               "vendItemCost.itemType"
+            
+            ).
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  ( ipcTable AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Prepares and returns the where clause criteria based on table name
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.      
+    
+    IF cb_itemType NE "ALL" THEN 
+        cWhereCriteria = " AND vendItemCost.itemType BEGINS "   + QUOTER(cb_itemType) .    
+        
+    cWhereCriteria = cWhereCriteria                         
+                     
+                     + (IF fi_vend-no   NE "" THEN " AND vendItemCost.vendorID BEGINS " + QUOTER(fi_vend-no)         ELSE "")
+                     + (IF fi_i-no      NE "" THEN " AND vendItemCost.itemID " + (IF tb_exactMatch THEN "EQ " ELSE "BEGINS " ) + QUOTER(fi_i-no) ELSE "")
+                     + (IF fi_est-no    NE "" THEN " AND TRIM(vendItemCost.estimateNo) BEGINS " + QUOTER(trim(fi_est-no))    ELSE "")
+                     + (IF fi_vend-item NE "" THEN " AND TRIM(vendItemCost.vendorItemID) EQ " + QUOTER(trim(fi_vend-item)) ELSE "")
+                     
+                     
+                     + (IF NOT tb_in-est THEN " AND vendItemCost.estimateNo EQ '' " ELSE "")
+                     + (IF NOT tb_in-exp THEN " AND (vendItemCost.expirationDate GE " + string(TODAY) + " OR vendItemCost.expirationDate = ?) " ELSE "")
+                     + (IF NOT tb_fut-eff THEN " AND vendItemCost.effectiveDate LE " + STRING(TODAY)  ELSE "")
+                                           
+                      . 
+     
+         
+    RETURN cWhereCriteria.      
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
