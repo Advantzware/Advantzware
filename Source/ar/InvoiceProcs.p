@@ -133,7 +133,10 @@ PROCEDURE pAssignCommonLineData PRIVATE:
          NO-ERROR.
     IF AVAILABLE bf-oe-ord THEN DO:
         IF ipbf-ttInv.customerPONo EQ "" THEN 
-            ipbf-ttInv.customerPONo EQ bf-oe-ord.po-no.
+            ipbf-ttInv.customerPONo = bf-oe-ord.po-no.
+        
+        IF ipbf-ttInvLine.customerPONoNoBlank EQ "" THEN
+            ipbf-ttInvLine.customerPONoNoBlank = bf-oe-ord.po-no.
             
         IF ipbf-ttInv.payloadID EQ "" THEN 
             ipbf-ttInv.payloadID = bf-oe-ord.spare-char-3.
@@ -233,7 +236,6 @@ PROCEDURE pBuildDataForPosted PRIVATE:
     DEFINE BUFFER bf-ar-invl  FOR ar-invl.
     DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm  FOR oe-ordm.
-    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
              
     DEFINE VARIABLE dTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
@@ -306,15 +308,24 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
-                ttInvLine.itemID                 = bf-ar-invl.i-no
-                ttInvLine.itemName               = bf-ar-invl.i-name
+                ttInvLine.itemID                 = bf-ar-invl.inv-i-no
+                ttInvLine.itemName               = IF bf-ar-invl.misc THEN
+                                                       bf-ar-invl.prep-charge
+                                                   ELSE
+                                                       bf-ar-invl.i-name
                 ttInvLine.itemDescription        = bf-ar-invl.i-dscr
+                ttInvLine.charge                 = bf-ar-invl.prep-charge
+                ttInvLine.chargeDescription      = bf-ar-invl.i-dscr                
                 ttInvLine.priceTotal             = bf-ar-invl.amt
                 ttInvLine.taxable                = bf-ar-invl.tax
                 ttInvLine.billable               = TRUE
                 ttInvLine.amountTaxableExFreight = ttInvLine.priceTotal
                 ttInvLine.amountFreight          = bf-ar-invl.t-freight
                 ttInvLine.customerPONo           = bf-ar-invl.po-no
+                ttInvLine.customerPONoNoBlank    = IF ttInvLine.customerPONo EQ "" THEN
+                                                       ipbf-ar-inv.po-no
+                                                   ELSE
+                                                       ttInvLine.customerPONo
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = bf-ar-invl.misc
                 ttInvLine.bNo                    = bf-ar-invl.b-no
@@ -393,8 +404,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 IF AVAILABLE bf-oe-ordl THEN DO:
                     ttInvLine.orderLine = bf-oe-ordl.line.
 
-                    IF ttInvLine.customerPONo EQ "" THEN
-                        ttInvLine.customerPONo = bf-oe-ordl.po-no.                
+                    IF ttInvLine.customerPONoNoBlank EQ "" THEN
+                        ttInvLine.customerPONoNoBlank = bf-oe-ordl.po-no.                
                 END.
             END.
             ELSE DO:
@@ -406,8 +417,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 IF AVAILABLE bf-oe-ordm THEN DO:
                     ttInvLine.orderLine = bf-oe-ordm.line.
                     
-                    IF ttInvLine.customerPONo EQ "" THEN
-                        ttInvLine.customerPONo = bf-oe-ordm.po-no.
+                    IF ttInvLine.customerPONoNoBlank EQ "" THEN
+                        ttInvLine.customerPONoNoBlank = bf-oe-ordm.po-no.
                 END.            
             END.
             
@@ -416,15 +427,6 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                                             ELSE
                                                 ttInvLine.orderLine.  
 
-            IF ttInvLine.customerPONo EQ "" THEN DO:
-                FIND FIRST bf-oe-ord NO-LOCK
-                     WHERE bf-oe-ord.company EQ bf-ar-invl.company                       
-                       AND bf-oe-ord.ord-no  EQ bf-ar-invl.ord-no
-                     NO-ERROR.     
-                IF AVAILABLE bf-oe-ord THEN
-                    ttInvLine.customerPONo = bf-oe-ord.po-no. 
-            END.
-   
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
                 BUFFER ttInvLine
@@ -457,7 +459,6 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
     DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm  FOR oe-ordm.
-    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
     
     DEFINE VARIABLE dTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
@@ -535,6 +536,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.taxable                = bf-inv-line.tax
                 ttInvLine.billable               = TRUE
                 ttInvLine.customerPONo           = bf-inv-line.po-no
+                ttInvLine.customerPONoNoBlank    = ttInvLine.customerPONo                
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = FALSE
                 ttInvLine.bNo                    = bf-inv-line.b-no
@@ -572,23 +574,14 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             IF AVAILABLE bf-oe-ordl THEN DO:
                 ttInvLine.orderLine = bf-oe-ordl.line.
                 
-                IF ttInvLine.customerPONo EQ "" THEN
-                    ttInvLine.customerPONo = bf-oe-ordl.po-no.                
+                IF ttInvLine.customerPONoNoBlank EQ "" THEN
+                    ttInvLine.customerPONoNoBlank = bf-oe-ordl.po-no.                
             END.
             
             ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
                                                 ttInvLine.orderLineOverride
                                             ELSE
                                                 ttInvLine.orderLine. 
-
-            IF ttInvLine.customerPONo EQ "" THEN DO:
-                FIND FIRST bf-oe-ord NO-LOCK
-                     WHERE bf-oe-ord.company EQ bf-inv-line.company                       
-                       AND bf-oe-ord.ord-no  EQ bf-inv-line.ord-no
-                     NO-ERROR.     
-                IF AVAILABLE bf-oe-ord THEN
-                    ttInvLine.customerPONo = bf-oe-ord.po-no. 
-            END.
 
             RUN pAssignCommonLineData(
                 BUFFER ttInv, 
@@ -604,6 +597,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.invoiceID              = ttInv.invoiceID
                 ttInvLine.company                = ttInv.company
                 ttInvLine.lineNo                 = bf-inv-misc.line
+                ttInvLine.orderID                = bf-inv-misc.ord-no
                 ttInvLine.orderLine              = bf-inv-misc.line
                 ttInvLine.orderLineOverride      = bf-inv-misc.spare-int-4                
                 ttInvLine.quantityInvoiced       = 1
@@ -656,8 +650,8 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             IF AVAILABLE bf-oe-ordm THEN DO:
                 ttInvLine.orderLine = bf-oe-ordm.line.
                 
-                IF ttInvLine.customerPONo EQ "" THEN
-                    ttInvLine.customerPONo = bf-oe-ordm.po-no.
+                IF ttInvLine.customerPONoNoBlank EQ "" THEN
+                    ttInvLine.customerPONoNoBlank = bf-oe-ordm.po-no.
             END.
             
             ttInvLine.orderLineOverridden = IF ttInvLine.orderLineOverride GT 0 THEN
@@ -665,15 +659,6 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                                             ELSE
                                                 ttInvLine.orderLine. 
                 
-            IF ttInvLine.customerPONo EQ "" THEN DO:
-                FIND FIRST bf-oe-ord NO-LOCK
-                     WHERE bf-oe-ord.company EQ bf-inv-misc.company                       
-                       AND bf-oe-ord.ord-no  EQ bf-inv-misc.ord-no
-                     NO-ERROR.     
-                IF AVAILABLE bf-oe-ord THEN
-                    ttInvLine.customerPONo = bf-oe-ord.po-no. 
-            END.    
-            
             RUN pAssignCommonLineData (
                 BUFFER ttInv, 
                 BUFFER ttInvLine
