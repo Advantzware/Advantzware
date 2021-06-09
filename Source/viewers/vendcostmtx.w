@@ -72,12 +72,20 @@ DEFINE VARIABLE lCheckEditMode AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFGItemUOM AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cReturn AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lVendCostMatrix AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cReturn, OUTPUT lRecFound).
 IF lRecFound THEN
 lFGItemUOM = LOGICAL(cReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "VendCostMatrix", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturn, OUTPUT lRecFound).
+IF lRecFound THEN
+lVendCostMatrix = LOGICAL(cReturn) NO-ERROR.
+
 {system/ttConversionProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1258,7 +1266,10 @@ PROCEDURE pSetDefaultValues PRIVATE:
             vendItemCost.createdDate:SCREEN-VALUE    = STRING(TODAY)
             vendItemCost.updatedID:SCREEN-VALUE      = USERID('ASI')
             vendItemCost.updatedDate:SCREEN-VALUE    = STRING(TODAY)
-            .   
+            . 
+         IF lVendCostMatrix THEN        
+         vendItemCost.useQuantityFromBase:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes".
+          
     END.                 
 END PROCEDURE.
 	
