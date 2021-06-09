@@ -201,6 +201,8 @@ RUN BuildData IN hdInvoiceProcs (
     OUTPUT TABLE ttTaxDetail BY-REFERENCE
     ).
 
+DELETE PROCEDURE hdInvoiceProcs.
+
 FOR EACH ttInv:
     RUN pUpdateCXMLSettings(
         INPUT ttInv.company,
