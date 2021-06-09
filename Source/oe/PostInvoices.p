@@ -3069,7 +3069,6 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.ytd-msf          = bf-itemfg.ytd-msf + ttFGItemToUpdate.quantityInvoicedMSFTotal
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
-                bf-itemfg.q-alloc          = bf-itemfg.q-alloc + ttFGItemToUpdate.quantityShippedTotal
                 .
             
             DELETE ttFGItemToUpdate.
