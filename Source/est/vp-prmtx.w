@@ -239,6 +239,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "Record-source", OUTPUT char-hdl).
     IF valid-handle(widget-handle(char-hdl)) THEN
     run local-display-fields in widget-handle(char-hdl). 
+    RUN pDisableButton(NO).
   END.
 END.
 
