@@ -169,7 +169,7 @@ est.csrUser_id eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
 ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no ~
 eb.upc-no eb.style eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len ~
 eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid ~
-eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
 &Scoped-define ENABLED-TABLES est eb ef
 &Scoped-define FIRST-ENABLED-TABLE est
 &Scoped-define SECOND-ENABLED-TABLE eb
@@ -184,7 +184,7 @@ eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
 eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
 eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
 eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck ~
-eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
 &Scoped-define DISPLAYED-TABLES est eb est-qty ef
 &Scoped-define FIRST-DISPLAYED-TABLE est
 &Scoped-define SECOND-DISPLAYED-TABLE eb
@@ -512,6 +512,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
+     eb.lockLayout AT ROW 11.71 COL 115 COLON-ALIGNED 
+          VIEW-AS TOGGLE-BOX 
+          SIZE 30 BY 1     
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -2471,6 +2474,22 @@ PROCEDURE auto-calc :
    disable eb.t-wid eb.t-len eb.t-sqin
            with frame {&frame-name}.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -225,6 +225,17 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-auto-calc C-WIn
 ON CHOOSE OF btn-auto-calc IN FRAME Panel-Frame /* Auto-Calculate */
 DO:
+    DEFINE VARIABLE source-str as CHARACTER no-undo.
+    DEFINE VARIABLE lAutoLock AS LOGICAL NO-UNDO.
+     RUN get-link-handle IN adm-broker-hdl 
+       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+    run pCheckAutoLock in widget-handle(source-str) (OUTPUT lAutoLock).
+    IF lAutoLock THEN
+    DO:
+       MESSAGE "Layout is locked and must be unlocked before auto calc is available " 
+                VIEW-AS ALERT-BOX INFO.
+       RETURN NO-APPLY.         
+    END.
 
     IF ceAuto-calc-msg = YES THEN do:
         MESSAGE
@@ -235,9 +246,7 @@ DO:
     END.
      
   DO WITH FRAME Panel-Frame:
-     def var source-str as cha no-undo.
-     RUN get-link-handle IN adm-broker-hdl 
-       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+     
      enable btn-cancel with frame {&frame-name}.
      btn-save:label = "&Save" .
      btn-auto-calc:sensitive = no.
