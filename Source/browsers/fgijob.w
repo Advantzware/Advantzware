@@ -53,7 +53,10 @@ IF llRecFound THEN
     lShowRecalcFields = NOT LOGICAL(lcReturn) NO-ERROR.  
     
 {sys/inc/oeinq.i}
- 
+
+&Scoped-define additionalFields ~
+    FIELD rRowID AS ROWID
+
 {fg/w-jobs.i "NEW SHARED"}
 {Inventory/ttInventory.i "NEW SHARED"}
 
@@ -563,6 +566,9 @@ ON CHOOSE OF btnLocationDetails IN FRAME F-Main /* View Location Details */
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+&Scoped-define useRowID w-job.rRowID
+&Scoped-define rowIDTable fg-bin
+{methods/ctrl-a_browser.i}
 
 RUN set-read-only(YES).
 
@@ -825,6 +831,7 @@ PROCEDURE build-table :
             w-job.tagStatusDescription = w-jobs.tagStatusDescription
             w-job.onHold               = w-jobs.onHold
             w-job.ship-default         = w-jobs.ship-default
+            w-job.rRowID               = w-jobs.rRowID
             .
 
         IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
@@ -887,7 +894,8 @@ PROCEDURE create-table :
             w-jobs.std-fix-cost = ip-fix
             w-jobs.std-tot-cost = w-jobs.std-lab-cost + w-jobs.std-mat-cost +
                            w-jobs.std-var-cost + w-jobs.std-fix-cost
-            w-jobs.sell-uom     = "M"  .
+            w-jobs.sell-uom     = "M"
+            .
     END.
 
 END PROCEDURE.
@@ -943,6 +951,7 @@ PROCEDURE createWJobs :
         w-jobs.tagStatusDescription = cStatusDescription
         w-jobs.onHold               = fg-bin.onHold
         w-jobs.ship-default         = fg-bin.ship-default
+        w-jobs.rRowID               = ROWID(fg-bin)
         .
       
     FIND FIRST job-hdr NO-LOCK
