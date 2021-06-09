@@ -1,4 +1,4 @@
-/* oe/rep/relcardedx2.i */     
+/* oe/rep/bolcardX.i */     
    
     PUT "<FArial>"  SKIP
             "<C2><R2><#1><R+10><#2><C+38><IMAGE#1=" ls-full-img3  SKIP.
@@ -44,14 +44,16 @@
      PUT        "<P10><=6><R+1><C1><FROM><R+1><#7><C81><RECT><||3>" FORM "x(150)" SKIP
                 "<=6><R+1><C20><FROM><=7><C20><LINE>" SKIP
                 "<=6><R+1><C33><FROM><=7><C33><LINE>" SKIP
-                "<=6><R+1><C44><FROM><=7><C44><LINE>" SKIP
-                "<=6><R+1><C60><FROM><=7><C60><LINE>" SKIP
+                "<=6><R+1><C43><FROM><=7><C43><LINE>" SKIP
+                "<=6><R+1><C53><FROM><=7><C53><LINE>" SKIP
+                "<=6><R+1><C67><FROM><=7><C67><LINE>" SKIP
                 "<FArial><=6><R+1>"
                 "<C10>Tag#"
                 "<C22.5>Cases/Pallet"
                 "<C36>Cases"
-                "<C49>Quantity"
-                "<C66>Weight Of Pallet" SKIP
+                "<C45>Quantity"
+                "<C53.5>Weight Of Pallet(Lbs)"
+                "<C68>Weight Of Pallet(Kg)" SKIP
                 .
       ASSIGN
          v-printline  = 0
@@ -66,7 +68,7 @@
           NO-LOCK:
           PUT "<FArial><=7><R+" + STRING(v-printline) + ">" "<C3>" xoe-boll.tag FORMAT "X(20)" .
           PUT "<C24.5>" (IF xoe-boll.tot-pallets NE 0 THEN xoe-boll.tot-pallets ELSE 1).
-          PUT "<C35>" xoe-boll.cases "<C48>" xoe-boll.qty "<C66.5>" xoe-boll.weight SKIP
+          PUT "<C35>" xoe-boll.cases "<C43>" xoe-boll.qty "<C57>" xoe-boll.weight "<C70>" (xoe-boll.weight * 0.453592) SKIP
           "<C1><FROM><C81><LINE>".
           
           v-qty        = v-qty + xoe-boll.qty.
@@ -81,16 +83,18 @@
      PUT         "<=7><C1><FROM><R+" + STRING(v-printline) + "><#8><C81><RECT><||3>" FORM "x(150)" SKIP
                 "<=7><C20><FROM><R+" + STRING(v-printline + 3) + "><C20><LINE>" FORM "x(150)" SKIP
                 "<=7><C33><FROM><R+" + STRING(v-printline + 3) + "><C33><LINE>" FORM "x(150)" SKIP
-                "<=7><C44><FROM><R+" + STRING(v-printline + 3) + "><C44><LINE>" FORM "x(150)" SKIP
-                "<=7><C60><FROM><R+" + STRING(v-printline + 3) + "><C60><LINE>" FORM "x(150)" SKIP
+                "<=7><C43><FROM><R+" + STRING(v-printline + 3) + "><C43><LINE>" FORM "x(150)" SKIP
+                "<=7><C53><FROM><R+" + STRING(v-printline + 3) + "><C53><LINE>" FORM "x(150)" SKIP
+                "<=7><C67><FROM><R+" + STRING(v-printline + 3) + "><C67><LINE>" FORM "x(150)" SKIP
                 .
      
      PUT         "<=8><C1><FROM><R+3><C81><RECT><||3>" FORM "x(150)" SKIP
                  "<=8><R+0.4><C3><P12><B>Total #: "
                  "<=8><R+0.4><C23>" iRelPallet 
                  "<=8><R+0.4><C34>" iRelCase 
-                 "<=8><R+0.4><C48>" v-qty 
-                 "<=8><R+0.4><C65>" dTotalWeight
+                 "<=8><R+0.4><C42>" v-qty 
+                 "<=8><R+0.4><C54>" dTotalWeight
+                 "<=8><R+0.4><C69>" (dTotalWeight * 0.453592)
                  "</B><P10>" 
                  .
             v-printline = v-printline + 16.
