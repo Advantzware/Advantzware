@@ -76,6 +76,7 @@ DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
 
 DEFINE VARIABLE cFilterValue    AS CHARACTER NO-UNDO EXTENT 1000.
 DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustListTable  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE h_brbuffer      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_browser       AS HANDLE    NO-UNDO.
@@ -887,7 +888,7 @@ PROCEDURE attachQuery :
         "FOR EACH" + " " +
         h_brbuffer:NAME + " " +
         "NO-LOCK" + 
-        SUBSTITUTE(cCustListQuery, h_brbuffer:NAME)
+        REPLACE(cCustListQuery, "&1", h_brbuffer:NAME)
         ).
 
     h_brquery:QUERY-OPEN().
@@ -909,8 +910,18 @@ PROCEDURE buildTempTable :
     DEFINE VARIABLE h_field    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE ls-allData AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBuffer    AS INTEGER   NO-UNDO.
-    
-    ls-queryString = ip-queryString. 
+
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+                
+    ls-queryString = ip-queryString
+                   + cLocalCustListQuery.
+                    
     h_query:QUERY-PREPARE (ls-queryString).
     
     h_query:QUERY-OPEN().        
@@ -1192,7 +1203,8 @@ PROCEDURE init :
                     ).
                 IF lUseCustList THEN
                 ASSIGN
-                    cCustListField = ENTRY(2,dynValueColumn.colName,".")
+                    cCustListField = REPLACE(dynValueColumn.colName,".", "&")
+                    cCustListTable = ENTRY(1, dynValueColumn.colName, ".")
                     cCustListQuery = ", FIRST ttCustList WHERE ttCustList.cust-no EQ &1."
                                    + cCustListField
                                    + " AND ttCustList.log-fld EQ YES "
@@ -1837,19 +1849,31 @@ PROCEDURE validateRecordLimit :
     DEFINE VARIABLE ls-lqueryString AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBufferCount    AS INTEGER   NO-UNDO.
-    
+
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
+
     IF ip-recLimit LE 0 THEN DO:
         ip-filterFirst = TRUE.
         RETURN.
     END.
 
-    ls-lqueryString = ip-queryString.
-    
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+
+    ls-lqueryString = ip-queryString
+                    + cLocalCustListQuery.
+
     CREATE QUERY h_lquery.
     
     DO iBufferCount = 1 TO EXTENT(h_buffer):
         h_lquery:ADD-BUFFER(h_buffer[iBufferCount]).         
     END.
+
+    IF lUseCustList THEN
+        h_lquery:ADD-BUFFER(BUFFER ttCustList:HANDLE).
            
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
@@ -1891,6 +1915,7 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     DEFINE VARIABLE ld-dateValidation    AS DATE      NO-UNDO.
     DEFINE VARIABLE ls-comboboxValue     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBuffer              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
     
     h_widget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.
 
@@ -1965,7 +1990,15 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     
     ls-returnQueryString = TRIM(ls-returnQueryString, ",").
     
-    ls-returnQueryString = ls-returnQueryString + "BY" + " " + REPLACE(ls-sortBy, "&", ".") + " "
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+    
+    ls-returnQueryString = ls-returnQueryString 
+                         + cLocalCustListQuery 
+                         + " BY" + " " + REPLACE(ls-sortBy, "&", ".") + " "
                          + ls-sortType
                          .
 
@@ -1991,7 +2024,7 @@ FUNCTION generateSearchQuery RETURNS CHARACTER
                                 + (IF ls-searchValue = "" THEN "" ELSE "WHERE" + " "
                                 + h_ttbuffer:NAME + "." + "allData MATCHES" + " "
                                 + ls-searchValue) + " "
-                                + SUBSTITUTE(cCustListQuery, h_ttbuffer:NAME)
+                                + REPLACE(cCustListQuery, "&1", h_ttbuffer:NAME)
                                 + "BY" + " " + h_ttbuffer:NAME + "." + ls-sortBy + " "
                                 + ls-sortType
                                 .
