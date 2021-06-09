@@ -92,6 +92,7 @@ DEFINE VARIABLE dExtendedPrice   AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cPriceUom        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCostUom         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceLineCost AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dProdBalance     AS DECIMAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
@@ -275,7 +276,8 @@ oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
-pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh 
+pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
+fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -527,6 +529,12 @@ FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnProductionBalance B-table-Win 
+FUNCTION fnProdBalance RETURNS DECIMAL
+  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
@@ -740,6 +748,8 @@ DEFINE BROWSE Browser-Table
       pGetCostUom() @ cCostUom COLUMN-LABEL "Cost!Uom" FORMAT "x(4)":U
       oe-ord.entered-id COLUMN-LABEL "Entered By" FORMAT "x(8)":U
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
+            WIDTH 16 LABEL-BGCOLOR 14
+      fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
             WIDTH 16 LABEL-BGCOLOR 14
   ENABLE
       oe-ordl.ord-no
@@ -993,6 +1003,8 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ord.entered-id" "Entered By" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[38]   > "ASI.itemfg.q-onh"
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[39]   > "_<CALC>"
+"fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -3359,6 +3371,25 @@ FUNCTION fnPrevOrder RETURNS INTEGER
             IF AVAILABLE bf-oe-ordl THEN
                 iResult = (bf-oe-ordl.ord-no).
         END.
+	    RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnProdBalance B-table-Win 
+FUNCTION fnProdBalance RETURNS DECIMAL
+  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
+     
+     ASSIGN
+        iResult = ( ipOrderQty - ipProdQty ) .
+     
 	    RETURN iResult.
 
 END FUNCTION.
