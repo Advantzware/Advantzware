@@ -17,3 +17,6 @@ DEFINE TEMP-TABLE ttRecapProductCategory NO-UNDO
     FIELD dscr            AS CHARACTER LABEL "Description"          FORMAT "x(20)"
         INDEX ttRecapProductCategory IS PRIMARY rowType proCat
         .
+RUN spSetSessionParam ("SummaryTables", "1").
+RUN spSetSessionParam ("SummaryHandle1", STRING(TEMP-TABLE ttRecapProductCategory:HANDLE)).
+RUN spSetSessionParam ("SummaryTitle1", "Recap Product Category").

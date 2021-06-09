@@ -26,9 +26,11 @@ DEFINE VARIABLE aoaCompany          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaProgramID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaTitle            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE aoaUserID           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJasperFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSelectedColumns    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrv             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iIndent             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lJasperStarter      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUseDefault         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE svShowParameters    AS LOGICAL   NO-UNDO.
@@ -64,6 +66,19 @@ DEFINE STREAM sJasper.
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fDataType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDataType Procedure
+FUNCTION fDataType RETURNS CHARACTER 
+  (ipcDataType AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-fFormatValue) = 0 &THEN
 
@@ -413,6 +428,45 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pJasperBoxStyle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperBoxStyle Procedure
+PROCEDURE pJasperBoxStyle:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiNumber   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcElements AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    DO idx = 1 TO NUM-ENTRIES(ipcElements):
+        PUT STREAM sJasper UNFORMATTED
+            "    <style name=~"" ipcType ipiNumber "_" ENTRY(idx,ipcElements) "~" mode=~"Opaque~" backcolor=~""
+            (IF ENTRY(idx,ipcElements) EQ "TH" THEN "#BFE1FF"
+             ELSE IF ENTRY(idx,ipcElements) EQ "CH" THEN "#F0F8FF"
+             ELSE "#FFFFFF")
+            "~">" SKIP
+            "        <box>" SKIP
+            "            <pen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
+            "            <topPen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
+            "            <leftPen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
+            "            <bottomPen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
+            "            <rightPen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
+            "        </box>" SKIP
+            "    </style>" SKIP
+            .
+    END. /* do idx */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pJasperColumnFooterBand) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperColumnFooterBand Procedure 
@@ -598,6 +652,7 @@ PROCEDURE pJasperDetailBand :
             "            </textField>" SKIP
             .
     END. /* each ttColumn */
+    RUN pJasperSubDataSet ("Detail", "ComponentElement").
     PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </detail>" SKIP
@@ -626,20 +681,21 @@ PROCEDURE pJasperFieldDeclarations :
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* field declarations */
+    iIndent = 8.
+    RUN pJasperSubDataSet ("Summary", "FieldDeclarations").
+    RUN pJasperSubDataSet ("Detail", "FieldDeclarations").
+    iIndent = 4.
+    PUT STREAM sJasper UNFORMATTED
+            "    <parameter name=~"RecordID~" class=~"java.lang.String~" isForPrompting=~"false~"/>" SKIP
+            .
+    RUN pJasperQueryString (REPLACE(aoaTitle," ","_"), REPLACE(aoaTitle," ","")).
+    RUN pJasperFieldDeclarationsPut ("NoDataMessage", "String", "NoDataMessage").
+    RUN pJasperFieldDeclarationsPut ("RecordID", "String", "RecordID").
     FOR EACH ttColumn
           BY ttColumn.ttOrder
         :
-        CASE ttColumn.ttType:
-            WHEN "Character" THEN
-            cDataType = "String".
-            WHEN "Decimal" THEN
-            cDataType = "Double".
-            WHEN "Integer" THEN
-            cDataType = "Integer".
-            OTHERWISE
-            cDataType = "String".
-        END CASE.
         ASSIGN
+            cDataType  = fDataType(ttColumn.ttType)
             cFieldName = (IF ttColumn.ttTable NE "" AND NOT ttColumn.ttField BEGINS "Calc" THEN ttColumn.ttTable + "__" ELSE "")
                        + ttColumn.ttField
             cFieldName = REPLACE(cFieldName,"[","")
@@ -647,16 +703,41 @@ PROCEDURE pJasperFieldDeclarations :
             cData      = IF ttColumn.ttFormula NE "" AND INDEX(ttColumn.ttFormula,"|") EQ 0 THEN ttColumn.ttFormula
                          ELSE cFieldName
             .
-        PUT STREAM sJasper UNFORMATTED
-            "    <field name=~"" cFieldName "~" class=~"java.lang." cDataType "~">" SKIP
-            "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" cFieldName "~"/>" SKIP
-            "        <fieldDescription><![CDATA[" cData "]]></fieldDescription>" SKIP
-            "    </field>" SKIP
-            .
+        RUN pJasperFieldDeclarationsPut (cFieldName, cDataType, cData).
     END. /* each ttColumn */
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pJasperFieldDeclarationsPut) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperFieldDeclarationsPut Procedure
+PROCEDURE pJasperFieldDeclarationsPut:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFieldName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDataType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcData      AS CHARACTER NO-UNDO.
+
+    PUT STREAM sJasper UNFORMATTED
+        FILL(" ",  iIndent)
+        "<field name=~"" ipcFieldName "~" class=~"java.lang." ipcDataType "~">" SKIP
+        FILL(" ",  iIndent)
+        "    <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" ipcFieldName "~"/>" SKIP
+        FILL(" ",  iIndent)
+        "    <fieldDescription><![CDATA[" ipcData "]]></fieldDescription>" SKIP
+        FILL(" ",  iIndent)
+        "</field>" SKIP
+        .
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -901,7 +982,7 @@ PROCEDURE pJasperJSON:
     DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cDynFunc     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJSONFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFirstRow    AS LOGICAL   NO-UNDO INITIAL YES.
     
@@ -913,8 +994,8 @@ PROCEDURE pJasperJSON:
         OS-CREATE-DIR "users".
         OS-CREATE-DIR "users\_default".
         OS-CREATE-DIR VALUE("users\" + aoaUserID).
-        cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
-        OUTPUT STREAM sJasper TO VALUE(cJasperFile).
+        cJSONFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
+        OUTPUT STREAM sJasper TO VALUE(cJSONFile).
         PUT STREAM sJasper UNFORMATTED
             "~{" SKIP
             FILL(" ",2)
@@ -990,7 +1071,7 @@ PROCEDURE pJasperJSON:
             "}" SKIP
             .
         OUTPUT STREAM sJasper CLOSE.
-        RUN pJasperCopy (cJasperFile).
+        RUN pJasperCopy (cJSONFile).
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -1272,14 +1353,16 @@ PROCEDURE pJasperQueryString :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcQuery1 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuery2 AS CHARACTER NO-UNDO.
+
     PUT STREAM sJasper UNFORMATTED
-        "    <queryString language=~"json~">" SKIP
-        "        <![CDATA[" REPLACE(aoaTitle," ","_") "." REPLACE(aoaTitle," ","") "]]>" SKIP
-        "    </queryString>" SKIP
-        "    <field name=~"NoDataMessage~" class=~"java.lang.String~">" SKIP
-        "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"NoDataMessage~"/>" SKIP
-        "        <fieldDescription><![CDATA[NoDataMessage]]></fieldDescription>" SKIP
-        "    </field>" SKIP
+        FILL(" ", iIndent)
+        "<queryString language=~"json~">" SKIP
+        FILL(" ", iIndent)
+        "    <![CDATA[" ipcQuery1 "." ipcQuery2 "]]>" SKIP
+        FILL(" ", iIndent)
+        "</queryString>" SKIP
         .
 
 END PROCEDURE.
@@ -1358,7 +1441,7 @@ PROCEDURE pJasperStarter :
     DEFINE OUTPUT PARAMETER opcJastFile   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 5.
+    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
@@ -1380,8 +1463,6 @@ PROCEDURE pJasperStarter :
                        + STRING(MONTH(dtDate),"99")
                        + STRING(DAY(dtDate),"99") + "."
                        + STRING(iTime,"99999")
-        cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[1],".jrxml",".err")
-                         ELSE cJasperFile[4] + ".err"
         opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
@@ -1393,8 +1474,6 @@ PROCEDURE pJasperStarter :
                        + REPLACE(aoaTitle," ","_")
                        + "." + REPLACE(aoaTitle," ","") + " "
                        +  cJasperFile[1]
-                       + " 1>NUL 2>"
-                       + cJasperFile[5]
                        .
     DO idx = 1 TO EXTENT(cJasperFile) - 1:
         IF cJasperFile[idx] EQ ? THEN DO:
@@ -1417,7 +1496,6 @@ PROCEDURE pJasperStarter :
     END. /* if not can-do */
     /* log jasperstarter command for debug purposes if needed */
     OUTPUT TO VALUE(cUserFolder + "JasperStarter.log").
-    PUT UNFORMATTED cJasperStarter SKIP.
     PUT UNFORMATTED
         REPLACE(
         REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
@@ -1454,9 +1532,160 @@ PROCEDURE pJasperStyles :
         "        </conditionalStyle>" SKIP
         "    </style>" SKIP
         .
+    // style name Table_CH, _TD, TH code placed here
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pJasperSubDataSet) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperSubDataSet Procedure
+PROCEDURE pJasperSubDataSet:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBand AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cDataType  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHandle    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLabel     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParam     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTitle     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iField     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFieldIdx  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
+
+    RUN spGetSessionParam (ipcType + "Tables", OUTPUT cTables).
+    iTables = INTEGER(cTables).
+    IF iTables NE 0 THEN
+    DO idx = 1 TO iTables:
+        RUN spGetSessionParam (ipcType + "Handle" + STRING(idx), OUTPUT cHandle).
+        hTable = WIDGET-HANDLE(cHandle).
+        IF NOT VALID-HANDLE(hTable) THEN NEXT.
+        RUN spGetSessionParam (ipcType + "Title" + STRING(idx), OUTPUT cTitle).
+        ASSIGN
+            hTable = hTable:DEFAULT-BUFFER-HANDLE
+            iField = 0
+            .
+        CASE ipcBand:
+            WHEN "FieldDeclarations" THEN DO:
+                RUN pJasperBoxStyle (
+                    ipcType,
+                    idx,
+                    IF ipcType EQ "Summary" THEN "TH,CH,TD" ELSE "CH,TD"
+                    ).
+                PUT STREAM sJasper UNFORMATTED
+                    "    <subDataset name=~"" ipcType STRING(idx) "~">" SKIP
+                    "        <property name=~"net.sf.jasperreports.json.source~" value=~"" REPLACE(cJasperFile,"jrxml","json") "~"/>" SKIP
+                    .
+                IF ipcType EQ "Detail" THEN DO:
+                    PUT STREAM sJasper UNFORMATTED
+                        FILL(" ", iIndent)
+                        "<parameter name=~"RecordID~" class=~"java.lang.String~"/>" SKIP
+                        .
+                    cParam = "(parentRecordID == $P~{RecordID})".
+                END. /* if detail */
+                RUN pJasperQueryString (REPLACE(aoaTitle," ","_"), ipcType + STRING(idx) + cParam).
+            END.
+            WHEN "ComponentElement" THEN DO:
+                PUT STREAM sJasper UNFORMATTED
+                    "            <componentElement>" SKIP
+                    "                <reportElement x=~"0~" y=~"14~" width=~"504~" height=~"72~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    "                    <property name=~"com.jaspersoft.studio.layout~" value=~"com.jaspersoft.studio.editor.layout.VerticalRowLayout~"/>" SKIP
+                    "                    <property name=~"com.jaspersoft.studio.table.style.table_header~" value=~"" ipcType STRING(idx) "_TH~"/>" SKIP
+                    "                    <property name=~"com.jaspersoft.studio.table.style.column_header~" value=~"" ipcType STRING(idx) "_CH~"/>" SKIP
+                    "                    <property name=~"com.jaspersoft.studio.table.style.detail~" value=~"" ipcType STRING(idx) "_TD~"/>" SKIP
+                    "                </reportElement>" SKIP
+                    "                <jr:table xmlns:jr=~"http://jasperreports.sourceforge.net/jasperreports/components~" xsi:schemaLocation=~"http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd~">" SKIP
+                    "                    <datasetRun subDataset=~"" ipcType STRING(idx) "~">" SKIP
+                    "                        <connectionExpression><![CDATA[$P~{REPORT_CONNECTION}]]></connectionExpression>" SKIP
+                    "                    </datasetRun>" SKIP
+                    "                    <jr:columnGroup width=~"504~">" SKIP
+                    "                        <property name=~"com.jaspersoft.studio.components.table.model.column.name~" value=~"Columns [2]~"/>" SKIP
+                    "                        <jr:tableHeader style=~"" ipcType STRING(idx) "_TH~" height=~"30~" rowSpan=~"1~">" SKIP
+                    "                            <staticText>" SKIP
+                    "                                <reportElement x=~"0~" y=~"0~" width=~"504~" height=~"30~"/>" SKIP
+                    "                                <textElement textAlignment=~"Center~" verticalAlignment=~"Middle~">" SKIP
+                    "                                    <font isBold=~"true~"/>" SKIP
+                    "                                </textElement>" SKIP
+                    "                                <text><![CDATA[" cTitle "]]></text>" SKIP
+                    "                            </staticText>" SKIP
+                    "                        </jr:tableHeader>" SKIP
+                    .
+            END.
+        END CASE.
+        DO iFieldIdx = 1 TO hTable:NUM-FIELDS:
+            IF CAN-DO("rowType,parameters,recDataType",hTable:BUFFER-FIELD(iFieldIdx):NAME) THEN NEXT.
+            IF hTable:BUFFER-FIELD(iFieldIdx):NAME BEGINS "xx" THEN NEXT.
+            ASSIGN
+                cFieldName = hTable:BUFFER-FIELD(iFieldIdx):NAME
+                cFieldName = hTable:NAME + "__" + cFieldName
+                cDataType  = fDataType(hTable:BUFFER-FIELD(iFieldIdx):DATA-TYPE)
+                cLabel     = hTable:BUFFER-FIELD(iFieldIdx):LABEL
+                .
+            CASE ipcBand:
+                WHEN "FieldDeclarations" THEN DO:
+                    RUN pJasperFieldDeclarationsPut (cFieldName, cDataType, cFieldName).
+                END.
+                WHEN "ComponentElement" THEN DO:
+                    PUT STREAM sJasper UNFORMATTED
+                        "                        <jr:column width=~"42~">" SKIP
+                        "                            <property name=~"com.jaspersoft.studio.components.table.model.column.name~" value=~"" cFieldName "~"/>" SKIP
+                        "                            <jr:tableHeader style=~"" ipcType STRING(idx) "_TH~" height=~"0~" rowSpan=~"1~"/>" SKIP
+                        "                            <jr:tableFooter style=~"" ipcType STRING(idx) "_TH~" height=~"7~" rowSpan=~"1~"/>" SKIP
+                        "                            <jr:columnHeader style=~"" ipcType STRING(idx) "_CH~" height=~"14~" rowSpan=~"1~">" SKIP
+                        "                                <staticText>" SKIP
+                        "                                    <reportElement x=~"0~" y=~"0~" width=~"42~" height=~"14~"/>" SKIP
+                        "                                    <textElement>" SKIP
+                        "                                        <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
+                        "                                    </textElement>" SKIP
+                        "                                    <text><![CDATA[" cLabel "]]></text>" SKIP
+                        "                                </staticText>" SKIP
+                        "                            </jr:columnHeader>" SKIP
+                        "                            <jr:columnFooter style=~"" ipcType STRING(idx) "_CH~" height=~"0~" rowSpan=~"1~"/>" SKIP
+                        "                            <jr:detailCell style=~"" ipcType STRING(idx) "_TD~" height=~"14~">" SKIP
+                        "                                <textField isBlankWhenNull=~"true~">" SKIP
+                        "                                    <reportElement x=~"0~" y=~"0~" width=~"42~" height=~"14~">" SKIP
+                        "                                        <property name=~"com.jaspersoft.studio.spreadsheet.connectionID~"/>" SKIP
+                        "                                    </reportElement>" SKIP
+                        "                                    <textFieldExpression><![CDATA[$F~{" cFieldName "}]]></textFieldExpression>" SKIP
+                        "                                </textField>" SKIP
+                        "                            </jr:detailCell>" SKIP
+                        "                        </jr:column>" SKIP
+                        .
+                END.
+            END CASE.
+        END. /* do ifieldidx */
+        CASE ipcBand:
+            WHEN "FieldDeclarations" THEN DO:
+                PUT STREAM sJasper UNFORMATTED
+                    "    </subDataset>" SKIP
+                    .
+            END.
+            WHEN "ComponentElement" THEN DO:
+                PUT STREAM sJasper UNFORMATTED
+                    "                    </jr:columnGroup>" SKIP
+                    "                </jr:table>" SKIP
+                    "            </componentElement>" SKIP
+                    .
+            END.
+        END CASE.
+/*        RUN spDeleteSessionParam (ipcType + "Handle" + STRING(idx)).*/
+    END. /* do idx */
+/*    RUN spDeleteSessionParam (ipcType + "Tables").*/
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1474,9 +1703,10 @@ PROCEDURE pJasperSummaryBand :
     /* summary band */
     PUT STREAM sJasper UNFORMATTED
         "    <summary>" SKIP
-        "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
+        "        <band height=~"" 86 "~" splitType=~"Stretch~">" SKIP
         .
     RUN pJasperGroupType ("Report").
+    RUN pJasperSubDataSet ("Summary", "ComponentElement").
     PUT STREAM sJasper UNFORMATTED
         "        </band>" SKIP
         "    </summary>" SKIP
@@ -1860,8 +2090,7 @@ PROCEDURE spJasper :
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSize AS INTEGER NO-UNDO.
 
     IF lJasperStarter EQ NO THEN DO:
         MESSAGE 
@@ -1897,7 +2126,6 @@ PROCEDURE spJasper :
     OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
     RUN pJasperReport ("Open", ipcType, iSize).
     RUN pJasperStyles.
-    RUN pJasperQueryString.
     RUN pJasperFieldDeclarations.
     RUN pJasperVariableDeclarations.
     IF svShowGroupHeader OR svShowGroupFooter THEN
@@ -1950,7 +2178,6 @@ PROCEDURE spJasperQuery:
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cjrxml       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder  AS CHARACTER NO-UNDO.
@@ -1993,7 +2220,6 @@ PROCEDURE spJasperQuery:
             OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
             RUN pJasperReport ("Open", ipcType, iSize).
             RUN pJasperStyles.
-            RUN pJasperQueryString.
             RUN pJasperFieldDeclarations.
             RUN pJasperVariableDeclarations.
             IF svShowGroupHeader OR svShowGroupFooter THEN
@@ -2084,6 +2310,36 @@ END PROCEDURE.
 &ENDIF
 
 /* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fDataType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDataType Procedure
+FUNCTION fDataType RETURNS CHARACTER 
+  (ipcDataType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+
+    CASE ipcDataType:
+        WHEN "Character" THEN
+        cDataType = "String".
+        WHEN "Decimal" THEN
+        cDataType = "Double".
+        WHEN "Integer" THEN
+        cDataType = "Integer".
+        OTHERWISE
+        cDataType = "String".
+    END CASE.
+    RETURN cDataType.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-fFormatValue) = 0 &THEN
 
