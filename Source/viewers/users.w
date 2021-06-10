@@ -93,7 +93,7 @@ DEFINE TEMP-TABLE ttUsers
         
 DEFINE TEMP-TABLE ttModes
     FIELD ttfMode AS CHAR.
-            
+
 DEFINE BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1712,7 +1712,7 @@ PROCEDURE ipCleanUsrFile:
         otherwise skip this user, because the streamline process has already been run for him/her */
         IF ttUsers.ttfPdbname EQ "*" THEN DO:                           /* Is this the master record? */
             
-            IF ttUsers.ttfModeList EQ "" THEN NEXT.                     /* SKIP user if the mode list been set at the master level already */
+            IF ttUsers.ttfModeList NE "" THEN NEXT.                     /* SKIP user if the mode list been set at the master level already */
             
             ELSE DO:  
                 /* Look for any "per-database" lines that have limits set (this is where modes USED to be controlled) */
@@ -1749,12 +1749,13 @@ PROCEDURE ipCleanUsrFile:
 
     /* Last, delete the "bad" ttUser records that contain per-database entries */
     /* This will be written back out to advantzware.usr in ipWriteUserFile */
-    FOR EACH ttUsers WHERE 
-        ttUsers.ttfPdbname NE "*":
-        DELETE ttUsers.
-        ASSIGN 
-            lCleaned = TRUE.
-    END.                        
+    /* DISABLE THIS UNTIL ALL USERS HAVE 21.02 OR HIGHER */
+/*    FOR EACH ttUsers WHERE        */
+/*        ttUsers.ttfPdbname NE "*":*/
+/*        DELETE ttUsers.           */
+/*        ASSIGN                    */
+/*            lCleaned = TRUE.      */
+/*    END.                          */
 
     /* If we cleaned the file and updated the ttUsers table, write advantzware.usr file with changes and re-read */
     IF lCleaned EQ TRUE THEN DO:
