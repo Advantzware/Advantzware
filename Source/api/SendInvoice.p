@@ -54,6 +54,7 @@ DEFINE VARIABLE cCXMLShipToPrefix    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLIdentityCust    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLPayloadID       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLSharedSecret    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerPONoBlank   AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
 DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
@@ -245,7 +246,10 @@ FOR EACH ttInv:
             lFirstItemLine = iLineCount EQ 1
             lFirstMiscLine = iMiscLineCount EQ 1
             .
-        
+        cCustomerPONoBlank = ttInvLine.customerPONoNoBlank.
+        IF cCustomerPONoBlank EQ "" THEN
+            cCustomerPONoBlank = "No " + STRING(ttInvLine.isMisc, "Misc/Line") + " PO".
+            
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FirstLineItem", STRING(lFirstItemLine)).  
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FirstMiscItem", STRING(lFirstMiscLine)).                   
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemLineID", STRING(ttInvLine.lineNo)).        
@@ -255,7 +259,7 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPriceEach", STRING(ttInvLine.pricePerEach)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BuyerPart", STRING(ttInvLine.customerPartID)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PONum", STRING(ttInvLine.customerPONo)).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PONumNoBlank", STRING(ttInvLine.customerPONoNoBlank)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PONumNoBlank", cCustomerPONoBlank).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumber",STRING(ttInvLine.orderLine)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverride",STRING(ttInvLine.orderLineOverride)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverridden",STRING(ttInvLine.orderLineOverridden)).
