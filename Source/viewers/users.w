@@ -1749,13 +1749,13 @@ PROCEDURE ipCleanUsrFile:
 
     /* Last, delete the "bad" ttUser records that contain per-database entries */
     /* This will be written back out to advantzware.usr in ipWriteUserFile */
-    /* DISABLE THIS UNTIL ALL USERS HAVE 21.02 OR HIGHER */
-/*    FOR EACH ttUsers WHERE        */
-/*        ttUsers.ttfPdbname NE "*":*/
-/*        DELETE ttUsers.           */
-/*        ASSIGN                    */
-/*            lCleaned = TRUE.      */
-/*    END.                          */
+    /* Note that this will NOT affect backward compatibility, as the display control is in the update asiLogin program */
+    FOR EACH ttUsers WHERE
+        ttUsers.ttfPdbname NE "*":
+        DELETE ttUsers.
+        ASSIGN
+            lCleaned = TRUE.
+    END.
 
     /* If we cleaned the file and updated the ttUsers table, write advantzware.usr file with changes and re-read */
     IF lCleaned EQ TRUE THEN DO:
