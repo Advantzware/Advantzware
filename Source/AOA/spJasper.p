@@ -195,6 +195,33 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pDeleteSessionParam) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteSessionParam Procedure
+PROCEDURE pDeleteSessionParam:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTables AS INTEGER NO-UNDO.
+
+    RUN spGetSessionParam (ipcType + "Tables", OUTPUT iTables).
+    DO idx = 1 TO iTables:
+        RUN spDeleteSessionParam (ipcType + "Handle" + STRING(idx)).
+        RUN spDeleteSessionParam (ipcType + "Title"  + STRING(idx)).
+    END. /* do idx */
+    RUN spDeleteSessionParam (ipcType + "Tables").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pGetSelectedColumns) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns Procedure 
@@ -445,10 +472,7 @@ PROCEDURE pJasperBoxStyle:
     DO idx = 1 TO NUM-ENTRIES(ipcElements):
         PUT STREAM sJasper UNFORMATTED
             "    <style name=~"" ipcType ipiNumber "_" ENTRY(idx,ipcElements) "~" mode=~"Opaque~" backcolor=~""
-            (IF ENTRY(idx,ipcElements) EQ "TH" THEN "#BFE1FF"
-             ELSE IF ENTRY(idx,ipcElements) EQ "CH" THEN "#F0F8FF"
-             ELSE "#FFFFFF")
-            "~">" SKIP
+            (IF idx EQ 1 THEN "#BFE1FF" ELSE IF idx EQ 2 THEN "#F0F8FF" ELSE "#FFFFFF") "~">" SKIP
             "        <box>" SKIP
             "            <pen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
             "            <topPen lineWidth=~"0.5~" lineColor=~"#000000~"/>" SKIP
@@ -587,13 +611,17 @@ PROCEDURE pJasperDetailBand :
     DEFINE INPUT PARAMETER ipiSize AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
 
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* detail band */
+    RUN spGetSessionParam ("DetailTables", OUTPUT cTables).
+    iTables = INTEGER(cTables).
     PUT STREAM sJasper UNFORMATTED
         "    <detail>" SKIP
-        "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
+        "        <band height=~"" iTables * 56 + 14 + (IF iTables NE 0 THEN 4 ELSE 0) "~" splitType=~"Stretch~">" SKIP
         "            <rectangle radius=~"" 0 "~">" SKIP
         "                <reportElement style=~"Zebra~" mode=~"Opaque~" "
         "x=~"" 0 "~" "
@@ -677,20 +705,36 @@ PROCEDURE pJasperFieldDeclarations :
     DEFINE VARIABLE cData      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDataType  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTypes     AS CHARACTER NO-UNDO INITIAL "Detail,Summary".
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
 
     DEFINE BUFFER ttColumn FOR ttColumn.
     
-    /* field declarations */
+    DO idx = 1 TO NUM-ENTRIES(cTypes):
+        RUN spGetSessionParam (ENTRY(idx,cTypes) + "Tables", OUTPUT cTables).
+        iTables = INTEGER(cTables).
+        IF iTables EQ 0 THEN NEXT.
+        DO jdx = 1 TO iTables:
+            RUN pJasperBoxStyle (
+                ENTRY(idx,cTypes),
+                jdx,
+                IF ENTRY(idx,cTypes) EQ "Summary" THEN "TH,CH,TD" ELSE "CH,TD"
+                ).
+        END. /* do jdx */
+    END. /* do idx */
     iIndent = 8.
-    RUN pJasperSubDataSet ("Summary", "FieldDeclarations").
-    RUN pJasperSubDataSet ("Detail", "FieldDeclarations").
+    DO idx = 1 TO NUM-ENTRIES(cTypes):
+        RUN pJasperSubDataSet (ENTRY(idx,cTypes), "FieldDeclarations").
+    END. /* do idx */
     iIndent = 4.
     PUT STREAM sJasper UNFORMATTED
-            "    <parameter name=~"RecordID~" class=~"java.lang.String~" isForPrompting=~"false~"/>" SKIP
+            "    <parameter name=~"paramRecordID~" class=~"java.lang.String~" isForPrompting=~"false~"/>" SKIP
             .
     RUN pJasperQueryString (REPLACE(aoaTitle," ","_"), REPLACE(aoaTitle," ","")).
     RUN pJasperFieldDeclarationsPut ("NoDataMessage", "String", "NoDataMessage").
-    RUN pJasperFieldDeclarationsPut ("RecordID", "String", "RecordID").
     FOR EACH ttColumn
           BY ttColumn.ttOrder
         :
@@ -1532,7 +1576,6 @@ PROCEDURE pJasperStyles :
         "        </conditionalStyle>" SKIP
         "    </style>" SKIP
         .
-    // style name Table_CH, _TD, TH code placed here
 
 END PROCEDURE.
 
@@ -1557,6 +1600,7 @@ PROCEDURE pJasperSubDataSet:
     DEFINE VARIABLE cHandle    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLabel     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParam     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPattern   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTitle     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
@@ -1564,6 +1608,7 @@ PROCEDURE pJasperSubDataSet:
     DEFINE VARIABLE iFieldIdx  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iWidth     AS INTEGER   NO-UNDO.
 
     RUN spGetSessionParam (ipcType + "Tables", OUTPUT cTables).
     iTables = INTEGER(cTables).
@@ -1579,11 +1624,6 @@ PROCEDURE pJasperSubDataSet:
             .
         CASE ipcBand:
             WHEN "FieldDeclarations" THEN DO:
-                RUN pJasperBoxStyle (
-                    ipcType,
-                    idx,
-                    IF ipcType EQ "Summary" THEN "TH,CH,TD" ELSE "CH,TD"
-                    ).
                 PUT STREAM sJasper UNFORMATTED
                     "    <subDataset name=~"" ipcType STRING(idx) "~">" SKIP
                     "        <property name=~"net.sf.jasperreports.json.source~" value=~"" REPLACE(cJasperFile,"jrxml","json") "~"/>" SKIP
@@ -1591,30 +1631,77 @@ PROCEDURE pJasperSubDataSet:
                 IF ipcType EQ "Detail" THEN DO:
                     PUT STREAM sJasper UNFORMATTED
                         FILL(" ", iIndent)
-                        "<parameter name=~"RecordID~" class=~"java.lang.String~"/>" SKIP
+                        "<parameter name=~"paramRecordID~" class=~"java.lang.String~"/>" SKIP
                         .
-                    cParam = "(parentRecordID == $P~{RecordID})".
+                    cParam = "(" + hTable:NAME + "__recordID == $P~{paramRecordID})".
                 END. /* if detail */
                 RUN pJasperQueryString (REPLACE(aoaTitle," ","_"), ipcType + STRING(idx) + cParam).
             END.
             WHEN "ComponentElement" THEN DO:
+                DO iFieldIdx = 1 TO hTable:NUM-FIELDS:
+                    IF CAN-DO("rowType,parameters,recDataType,recordID",hTable:BUFFER-FIELD(iFieldIdx):NAME) THEN NEXT.
+                    IF hTable:BUFFER-FIELD(iFieldIdx):NAME BEGINS "xx" THEN NEXT.
+                    iWidth = iWidth
+                           + MAX(hTable:BUFFER-FIELD(iFieldIdx):WIDTH,LENGTH(hTable:BUFFER-FIELD(iFieldIdx):LABEL))
+                           * {&aoaJasper}
+                           .
+                END. /* do ifieldidx */
                 PUT STREAM sJasper UNFORMATTED
                     "            <componentElement>" SKIP
-                    "                <reportElement x=~"0~" y=~"14~" width=~"504~" height=~"72~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    .
+                IF ipcType EQ "Summary" THEN
+                PUT STREAM sJasper UNFORMATTED
+                    "                <reportElement x=~"43~" y=~"14~" width=~"" iWidth "~" height=~"72~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    .
+                ELSE
+                PUT STREAM sJasper UNFORMATTED
+                    "                <reportElement key=~"~" style=~"" ipcType STRING(idx) "_CH~" isPrintRepeatedValues=~"false~" x=~"43~" y=~"14~" width=~"" iWidth "~" height=~"56~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    .
+                PUT STREAM sJasper UNFORMATTED
                     "                    <property name=~"com.jaspersoft.studio.layout~" value=~"com.jaspersoft.studio.editor.layout.VerticalRowLayout~"/>" SKIP
+                    .
+                IF ipcType EQ "Summary" THEN
+                PUT STREAM sJasper UNFORMATTED
                     "                    <property name=~"com.jaspersoft.studio.table.style.table_header~" value=~"" ipcType STRING(idx) "_TH~"/>" SKIP
+                    .
+                PUT STREAM sJasper UNFORMATTED
                     "                    <property name=~"com.jaspersoft.studio.table.style.column_header~" value=~"" ipcType STRING(idx) "_CH~"/>" SKIP
                     "                    <property name=~"com.jaspersoft.studio.table.style.detail~" value=~"" ipcType STRING(idx) "_TD~"/>" SKIP
+                    .
+                IF ipcType EQ "Detail" THEN
+                PUT STREAM sJasper UNFORMATTED
+                    "                    <property name=~"net.sf.jasperreports.export.headertoolbar.table.name~" value=~"~"/>" SKIP
+                    .
+                PUT STREAM sJasper UNFORMATTED
                     "                </reportElement>" SKIP
                     "                <jr:table xmlns:jr=~"http://jasperreports.sourceforge.net/jasperreports/components~" xsi:schemaLocation=~"http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd~">" SKIP
                     "                    <datasetRun subDataset=~"" ipcType STRING(idx) "~">" SKIP
+                    .
+                IF ipcType EQ "Summary" THEN
+                PUT STREAM sJasper UNFORMATTED
                     "                        <connectionExpression><![CDATA[$P~{REPORT_CONNECTION}]]></connectionExpression>" SKIP
+                    .
+                ELSE DO:
+                    FIND FIRST ttColumn
+                         WHERE ttColumn.ttField EQ "recordID"
+                         NO-ERROR.
+                    IF AVAILABLE ttColumn THEN
+                    PUT STREAM sJasper UNFORMATTED
+                        "                        <datasetParameter name=~"paramRecordID~">" SKIP
+                        "                            <datasetParameterExpression><![CDATA[$F~{" ttColumn.ttTable "__recordID}]]></datasetParameterExpression>" SKIP
+                        "                        </datasetParameter>" SKIP
+                        .
+                END. /* else */
+                PUT STREAM sJasper UNFORMATTED
                     "                    </datasetRun>" SKIP
-                    "                    <jr:columnGroup width=~"504~">" SKIP
+                    .
+                IF ipcType EQ "Summary" THEN
+                PUT STREAM sJasper UNFORMATTED
+                    "                    <jr:columnGroup width=~"" iWidth "~">" SKIP
                     "                        <property name=~"com.jaspersoft.studio.components.table.model.column.name~" value=~"Columns [2]~"/>" SKIP
                     "                        <jr:tableHeader style=~"" ipcType STRING(idx) "_TH~" height=~"30~" rowSpan=~"1~">" SKIP
                     "                            <staticText>" SKIP
-                    "                                <reportElement x=~"0~" y=~"0~" width=~"504~" height=~"30~"/>" SKIP
+                    "                                <reportElement x=~"0~" y=~"0~" width=~"" iWidth "~" height=~"30~"/>" SKIP
                     "                                <textElement textAlignment=~"Center~" verticalAlignment=~"Middle~">" SKIP
                     "                                    <font isBold=~"true~"/>" SKIP
                     "                                </textElement>" SKIP
@@ -1625,7 +1712,7 @@ PROCEDURE pJasperSubDataSet:
             END.
         END CASE.
         DO iFieldIdx = 1 TO hTable:NUM-FIELDS:
-            IF CAN-DO("rowType,parameters,recDataType",hTable:BUFFER-FIELD(iFieldIdx):NAME) THEN NEXT.
+            IF CAN-DO("rowType,parameters,recDataType,recordID",hTable:BUFFER-FIELD(iFieldIdx):NAME) THEN NEXT.
             IF hTable:BUFFER-FIELD(iFieldIdx):NAME BEGINS "xx" THEN NEXT.
             ASSIGN
                 cFieldName = hTable:BUFFER-FIELD(iFieldIdx):NAME
@@ -1638,24 +1725,37 @@ PROCEDURE pJasperSubDataSet:
                     RUN pJasperFieldDeclarationsPut (cFieldName, cDataType, cFieldName).
                 END.
                 WHEN "ComponentElement" THEN DO:
+                    ASSIGN
+                        cPattern = ""
+                        iWidth   = MAX(hTable:BUFFER-FIELD(iFieldIdx):WIDTH,LENGTH(hTable:BUFFER-FIELD(iFieldIdx):LABEL))
+                                 * {&aoaJasper}
+                                 .
+                    IF CAN-DO("Integer,Decimal",hTable:BUFFER-FIELD(iFieldIdx):DATA-TYPE) THEN
+                    cPattern = " pattern=~"" + fJasperPattern(hTable:BUFFER-FIELD(iFieldIdx):FORMAT) + "~"".
                     PUT STREAM sJasper UNFORMATTED
-                        "                        <jr:column width=~"42~">" SKIP
+                        "                        <jr:column width=~"" iWidth "~">" SKIP
                         "                            <property name=~"com.jaspersoft.studio.components.table.model.column.name~" value=~"" cFieldName "~"/>" SKIP
+                        .
+                    IF ipcType EQ "Summary" THEN
+                    PUT STREAM sJasper UNFORMATTED
                         "                            <jr:tableHeader style=~"" ipcType STRING(idx) "_TH~" height=~"0~" rowSpan=~"1~"/>" SKIP
                         "                            <jr:tableFooter style=~"" ipcType STRING(idx) "_TH~" height=~"7~" rowSpan=~"1~"/>" SKIP
+                        .
+                    PUT STREAM sJasper UNFORMATTED
                         "                            <jr:columnHeader style=~"" ipcType STRING(idx) "_CH~" height=~"14~" rowSpan=~"1~">" SKIP
                         "                                <staticText>" SKIP
-                        "                                    <reportElement x=~"0~" y=~"0~" width=~"42~" height=~"14~"/>" SKIP
+                        "                                    <reportElement x=~"0~" y=~"0~" width=~"" iWidth "~" height=~"14~"/>" SKIP
                         "                                    <textElement>" SKIP
                         "                                        <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
                         "                                    </textElement>" SKIP
                         "                                    <text><![CDATA[" cLabel "]]></text>" SKIP
                         "                                </staticText>" SKIP
                         "                            </jr:columnHeader>" SKIP
-                        "                            <jr:columnFooter style=~"" ipcType STRING(idx) "_CH~" height=~"0~" rowSpan=~"1~"/>" SKIP
+                        "                            <jr:columnFooter style=~"" ipcType STRING(idx) "_CH~" height=~""
+                        IF ipcType EQ "Summary" THEN 0 ELSE 7 "~" rowSpan=~"1~"/>" SKIP
                         "                            <jr:detailCell style=~"" ipcType STRING(idx) "_TD~" height=~"14~">" SKIP
-                        "                                <textField isBlankWhenNull=~"true~">" SKIP
-                        "                                    <reportElement x=~"0~" y=~"0~" width=~"42~" height=~"14~">" SKIP
+                        "                                <textField isBlankWhenNull=~"true~"" cPattern ">" SKIP
+                        "                                    <reportElement x=~"0~" y=~"0~" width=~"" iWidth "~" height=~"14~">" SKIP
                         "                                        <property name=~"com.jaspersoft.studio.spreadsheet.connectionID~"/>" SKIP
                         "                                    </reportElement>" SKIP
                         "                                    <textFieldExpression><![CDATA[$F~{" cFieldName "}]]></textFieldExpression>" SKIP
@@ -1673,16 +1773,17 @@ PROCEDURE pJasperSubDataSet:
                     .
             END.
             WHEN "ComponentElement" THEN DO:
+                IF ipcType EQ "Summary" THEN
                 PUT STREAM sJasper UNFORMATTED
                     "                    </jr:columnGroup>" SKIP
+                    .
+                PUT STREAM sJasper UNFORMATTED
                     "                </jr:table>" SKIP
                     "            </componentElement>" SKIP
                     .
             END.
         END CASE.
-/*        RUN spDeleteSessionParam (ipcType + "Handle" + STRING(idx)).*/
     END. /* do idx */
-/*    RUN spDeleteSessionParam (ipcType + "Tables").*/
 
 END PROCEDURE.
 	
@@ -2153,6 +2254,8 @@ PROCEDURE spJasper :
     RUN pJasperCopy (cJasperFile).
     /* command line call to jasperstarter script */
     RUN pJasperStarter (ipcType, "AOA", OUTPUT opcJasperFile).
+    RUN pDeleteSessionParam ("Detail").
+    RUN pDeleteSessionParam ("Summary").
 
 END PROCEDURE.
 
@@ -2301,6 +2404,8 @@ PROCEDURE spJasperQuery:
             RUN pLocalCSV (hQuery).
         END. /* if lok */
     END. /* avail dynsubject */
+    RUN pDeleteSessionParam ("Detail").
+    RUN pDeleteSessionParam ("Summary").
 
 END PROCEDURE.
 	

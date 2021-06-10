@@ -112,13 +112,6 @@ REPEAT:
             cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
             cBufferValue = cBufferValue + "%"
             .
-        IF dynValueColumn.sortOrder EQ 1 THEN
-        PUT STREAM sJasperJSON UNFORMATTED
-            FILL(" ",8)
-            "~"RecordID~": ~""
-            STRING(iRecordCount)
-            "~"," SKIP
-            .
         IF dynValueColumn.sortOrder GT 1 THEN
         PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
         PUT STREAM sJasperJSON UNFORMATTED
@@ -224,13 +217,6 @@ PROCEDURE pSubDataSet:
                 PUT STREAM sJasperJSON UNFORMATTED
                     FILL(" ",6) "~{" SKIP
                     .
-                IF ipcType EQ "Detail" AND iField EQ 1 THEN
-                PUT STREAM sJasperJSON UNFORMATTED
-                    FILL(" ",8)
-                    "~"ParentRecordID~": ~""
-                    STRING(0)
-                    "~"," SKIP
-                    .
                 IF iField GT 1 THEN
                 PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
                 PUT STREAM sJasperJSON UNFORMATTED
@@ -249,7 +235,7 @@ PROCEDURE pSubDataSet:
         END. /* repeat */
         PUT STREAM sJasperJSON UNFORMATTED
             SKIP
-            FILL(" ",4) "]" SKIP
+            FILL(" ",4) "]"
             .
         hQuery:QUERY-CLOSE().
         DELETE OBJECT hQuery.
