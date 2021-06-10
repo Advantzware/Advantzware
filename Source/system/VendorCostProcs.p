@@ -786,6 +786,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iVendCostLevelID     AS INTEGER   NO-UNDO.
  
     FIND FIRST bf-po-ord NO-LOCK 
         WHERE ROWID(bf-po-ord) EQ ipriPoOrd
@@ -865,8 +866,10 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                 
-                IF dCostPerUOM NE bf-po-ordl.cost OR bf-po-ordl.cost EQ 0 THEN
+                
+                RUN pGetCostLevel(bf-vendItemCost.vendItemCostID, dQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+                     
+                IF dCostPerUOM NE bf-po-ordl.cost OR iVendCostLevelID EQ 0 THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -875,9 +878,11 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.cShipID          = ""
                         ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
                         ttPriceHold.lPriceHold       = YES
-                        ttPriceHold.cPriceHoldDetail = ""
-                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
-                        .                                            
+                        ttPriceHold.cPriceHoldDetail = ""  .
+                        IF iVendCostLevelID EQ 0 THEN
+                        ttPriceHold.cPriceHoldReason = "No matrix exist ".
+                        ELSE
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table" .                                            
                 END. 
                 
                 IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder THEN
