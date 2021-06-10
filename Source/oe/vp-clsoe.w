@@ -381,7 +381,7 @@ PROCEDURE local-row-available :
                                      ELSE ll-opened = ?.
 
     IF ll-opened EQ ? THEN DO:
-      btn-update:LABEL = "Open/Reopen".
+      btn-update:LABEL = "Open".
       DISABLE btn-update.
     END.
     ELSE btn-update:LABEL = STRING(ll-opened,"&Close/&Reopen").
