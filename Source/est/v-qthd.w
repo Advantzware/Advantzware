@@ -1043,11 +1043,11 @@ PROCEDURE enable-detail :
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
               {&list-5}
-              quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
+              quotehd.est-no quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
  IF lQuotePriceMatrix AND quotehd.approved AND NOT adm-new-record THEN
- DO:
+ DO:            
      DISABLE {&list-5}
               quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
               quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 
@@ -1092,7 +1092,7 @@ PROCEDURE local-assign-record :
 
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
     
-  IF lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
+  IF NOT adm-new-record AND lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
   DO:
      quotehd.expireDate = TODAY + iQuoteExpirationDays. 
   END.
