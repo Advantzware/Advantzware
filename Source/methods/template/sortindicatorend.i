@@ -19,18 +19,13 @@
 
 /* ***************************  Definitions  ************************** */
 
-hCurrentColumn:LABEL-BGCOLOR = 30. 
+hCurrentColumn:LABEL-BGCOLOR = 30.
 
-FOR EACH userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
-AND userColumn.programName = '{&programName}'
-AND userColumn.ColName     = hCurrentColumn:NAME BY userColumn.colPosition:
-    userColumn.sorted      = FALSE .
-    iLastColPos = userColumn.colPosition.
-    END.
-
+IF '{&programName}' NE '' THEN
+DO:
 FIND FIRST userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
     AND userColumn.programName = '{&programName}'
-    AND userColumn.ColName    = hCurrentColumn:NAME NO-ERROR.
+    AND userColumn.ColName = "Sorting-Column" NO-ERROR.
         
 IF NOT AVAILABLE userColumn THEN 
 DO:
@@ -38,16 +33,22 @@ DO:
     ASSIGN
         userColumn.programName       = '{&programName}'
         userColumn.usrId             = USERID('ASI') 
-        userColumn.ColName           = hCurrentColumn:NAME
+        userColumn.ColName           = "Sorting-Column"
+        userColumn.sortByColumnName  = hCurrentColumn:NAME
         userColumn.sortByColumnLabel = hCurrentColumn:LABEL
         userColumn.sortAsc           = lsortBy
         userColumn.sorted            = TRUE
-        userColumn.colPosition = iLastColPos + 1.
+        userColumn.colPosition       = 10000
+        NO-ERROR.
 END.
 ELSE
 DO:
     ASSIGN
+        userColumn.sortByColumnName  = hCurrentColumn:NAME
         userColumn.sortByColumnLabel = hCurrentColumn:LABEL
         userColumn.sortAsc           = lsortBy
-        userColumn.sorted            = TRUE.
+        userColumn.sorted            = TRUE
+        NO-ERROR.
         END.
+ END.      
+        

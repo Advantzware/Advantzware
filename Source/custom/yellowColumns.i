@@ -1622,6 +1622,33 @@ END PROCEDURE.
 PROCEDURE startSearch:
   DEFINE VARIABLE sortDisplay AS CHARACTER NO-UNDO.
   DEFINE VARIABLE brwCurrentColumn AS HANDLE NO-UNDO.
+
+    IF NOT VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN IN FRAME {&frame-name} ) THEN 
+    DO: 
+    FIND FIRST userColumn NO-LOCK 
+        WHERE userColumn.usrId      EQ USERID('ASI') 
+        AND userColumn.programName  EQ '{&yellowColumnsName}' 
+        AND userColumn.ColName      EQ "Sorting-Column" NO-ERROR.        
+    IF AVAILABLE userColumn THEN 
+    DO:
+        GET-HANDLE:
+        DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
+            hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
+            IF  VALID-HANDLE(hColumnRowColor) AND hColumnRowColor:NAME = userColumn.sortByColumnName THEN
+            DO:
+                hCurrentColumn = hColumnRowColor.
+                LEAVE GET-HANDLE.
+            END.                         
+        END.             
+        sortColumn = userColumn.sortByColumnLabel.
+        hCurrentColumn:LABEL-BGCOLOR        = 30.
+        hCurrentColumn:SORT-ASCENDING = userColumn.sortAsc.
+        brwCurrentColumn = hCurrentColumn.
+        sortcolumnhand = hCurrentColumn.
+    END.
+    END.
+  ELSE 
+  DO:
   brwCurrentColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
   IF brwCurrentColumn:LABEL-BGCOLOR = 30 THEN
       brwCurrentColumn:LABEL-BGCOLOR = 14.
@@ -1657,18 +1684,51 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
-
+END.
  // IF browserTitle NE '' THEN
   //BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
-
   RUN openQuery.
+    hCurrentColumn:LABEL-BGCOLOR        = 30 NO-ERROR.
+  
+    IF VALID-HANDLE(brwCurrentColumn ) THEN 
+    DO:
+        brwCurrentColumn:LABEL-BGCOLOR = 30 NO-ERROR.
 
-    brwCurrentColumn:LABEL-BGCOLOR = 30.
-
-ASSIGN
-    sortColumn = brwCurrentColumn:LABEL
-	sortcolumnhand = brwCurrentColumn.
-
+        ASSIGN
+            sortColumn = brwCurrentColumn:LABEL
+	        sortcolumnhand = brwCurrentColumn.
+    END.
+    
+    IF VALID-HANDLE(brwCurrentColumn) THEN
+    DO:	
+    FIND FIRST userColumn EXCLUSIVE-LOCK WHERE userColumn.usrId     EQ USERID('ASI') 
+        AND userColumn.programName = '{&yellowColumnsName}'
+        AND userColumn.ColName = "Sorting-Column" NO-ERROR.
+       
+    IF NOT AVAILABLE userColumn THEN 
+    DO:
+        CREATE userColumn.
+        ASSIGN
+            userColumn.programName       = '{&yellowColumnsName}'
+            userColumn.usrId             = USERID('ASI') 
+            userColumn.ColName           = "Sorting-Column"
+            userColumn.sortByColumnName  = brwCurrentColumn:NAME
+            userColumn.sortByColumnLabel = brwCurrentColumn:LABEL
+            userColumn.sortAsc           = sortBy
+            userColumn.sorted            = TRUE
+            userColumn.colPosition       = 10000
+       .
+    END.
+    ELSE
+    DO:
+        ASSIGN
+            userColumn.sortByColumnName  = brwCurrentColumn:NAME
+            userColumn.sortByColumnLabel = brwCurrentColumn:LABEL
+            userColumn.sortAsc           = sortBy
+            userColumn.sorted            = TRUE
+        .
+    END.
+    END.
 END PROCEDURE.
 
 /* Sort removed from b-cusinq 'Date' */

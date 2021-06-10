@@ -31,6 +31,7 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE programName ce/b-estq
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -897,8 +898,10 @@ DO:
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
-  
-  IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
+  IF VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN) THEN
+  DO:
+  IF ({&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14) OR
+  ({&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 30) THEN DO:
       ASSIGN
           lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
           lv-column-nam = lh-column:NAME
@@ -911,6 +914,7 @@ DO:
          lv-sort-by     = lv-column-nam
          lv-sort-by-lab = lv-column-lab
          .    
+         END.
       APPLY "END-SEARCH":U TO {&BROWSE-NAME}.    
       APPLY "CHOOSE":U TO btn_go.
   END. /* if sortable column */
@@ -2006,6 +2010,8 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
+    /* Code placed here will execute PRIOR to standard behavior. */
+    APPLY 'START-SEARCH' TO BROWSE {&browse-name}.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 

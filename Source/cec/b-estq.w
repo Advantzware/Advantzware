@@ -30,6 +30,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE programName cec/b-estq
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -1059,7 +1060,10 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
+    IF VALID-HANDLE({&BROWSE-NAME}:CURRENT-COLUMN) THEN
+  DO:
+  IF ({&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14) OR
+  ({&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 30) THEN DO:
       ASSIGN
        lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
        lv-column-nam = lh-column:NAME
@@ -1071,7 +1075,7 @@ DO:
         ASSIGN
          lv-sort-by     = lv-column-nam
          lv-sort-by-lab = lv-column-lab.
-    
+   end. 
       APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
     
       APPLY "choose" TO btn_go.
@@ -2255,7 +2259,7 @@ PROCEDURE local-open-query :
        dEndDepth    = TRUNC(vi_dep-2,0) + ((vi_dep-2 - TRUNC(vi_dep-2,0)) * k_frac)
        .
   /* Code placed here will execute PRIOR to standard behavior. */
-
+apply 'start-search' to browse {&browse-name}.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
   /* Code placed here will execute AFTER standard behavior.    */

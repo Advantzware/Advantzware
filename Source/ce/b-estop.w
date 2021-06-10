@@ -945,7 +945,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+APPLY 'start-search' TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
