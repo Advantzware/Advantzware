@@ -11,7 +11,7 @@
 &Scoped-define ttTempTable ttFGPostHist
 DEFINE TEMP-TABLE ttFGPostHist NO-UNDO
     FIELD transDate   AS DATE      FORMAT "99/99/9999"         LABEL "Date"       
-    FIELD itemNo      AS CHARACTER FORMAT "x(10)"              LABEL "Item"       
+    FIELD itemNo      AS CHARACTER FORMAT "x(15)"              LABEL "Item"       
     FIELD itemName    AS CHARACTER FORMAT "x(30)"              LABEL "Description"
     FIELD poNo        AS CHARACTER FORMAT "x(9)"               LABEL "PO"         
     FIELD vendorNo    AS CHARACTER FORMAT "x(8)"               LABEL "Vendor"     
@@ -56,6 +56,14 @@ DEFINE TEMP-TABLE ttFGPostHist NO-UNDO
     FIELD Reason-cd   AS CHARACTER FORMAT "x(2)"               LABEL "Reason Code"       
     FIELD Reason-dscr AS CHARACTER FORMAT "x(25)"              LABEL "Reason Description"
     FIELD custName    AS CHARACTER FORMAT "x(30)"              LABEL "Customer Name"
+    FIELD item-mat-cost     AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Item Mat Cost"
+    FIELD item-dl-cost      AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Item DL Cost"
+    FIELD item-voh-cost     AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Item VOH Cost"
+    FIELD item-foh-cost     AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Item FOH Cost"
+    FIELD bin-mat-cost      AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Bin Mat Cost"
+    FIELD bin-dl-cost       AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Bin DL Cost"
+    FIELD bin-voh-cost      AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Bin VOH Cost"
+    FIELD bin-foh-cost      AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<"  LABEL "Bin FOH Cost"
     .
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD rec-id2 AS RECID
@@ -622,6 +630,10 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE order-no        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBinQtyb        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cocode          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dBinMatCost     AS DECIMAL INIT 0 NO-UNDO.
+    DEFINE VARIABLE dBinDLCost      AS DECIMAL INIT 0 NO-UNDO.
+    DEFINE VARIABLE dBinVOHCost     AS DECIMAL INIT 0 NO-UNDO.
+    DEFINE VARIABLE dBinFOHCost     AS DECIMAL INIT 0 NO-UNDO.
 
     DEFINE BUFFER bfg-rcpth   FOR fg-rcpth.
     DEFINE BUFFER b-fgrdtlh   FOR fg-rdtlh.
@@ -658,7 +670,13 @@ PROCEDURE pBusinessLogic:
         v-new-job = NO.
         IF FIRST-OF(tt-report.key-01) THEN
         v-whse = fg-rdtlh.loc.      
-        v-stnd-cost = 0.
+        ASSIGN
+            v-stnd-cost = 0
+            dBinMatCost = 0
+            dBinDLCost  = 0
+            dBinVOHCost = 0
+            dBinFOHCost = 0
+            .
         IF fg-rcpth.rita-code EQ "S" THEN DO:
           FIND FIRST fg-bin NO-LOCK
                WHERE fg-bin.company EQ fg-rcpth.company
@@ -900,8 +918,15 @@ PROCEDURE pBusinessLogic:
                AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
                AND fg-bin.tag     EQ fg-rdtlh.tag
              USE-INDEX co-ino NO-ERROR.
-            IF AVAILABLE fg-bin THEN
-            v-stnd-cost = fg-bin.std-tot-cost.
+            IF AVAILABLE fg-bin THEN DO:
+                ASSIGN    
+                    v-stnd-cost = fg-bin.std-tot-cost
+                    dBinMatCost = fg-bin.std-mat-cost
+                    dBinDLCost  = fg-bin.std-lab-cost
+                    dBinVOHCost = fg-bin.std-var-cost
+                    dBinFOHCost = fg-bin.std-fix-cost
+                    .
+            END.
             ELSE
             IF AVAILABLE itemfg THEN
             v-stnd-cost = itemfg.total-std-cost.
@@ -984,6 +1009,14 @@ PROCEDURE pBusinessLogic:
             ttFGPostHist.Reason      = cReason
             ttFGPostHist.Reason-cd   = IF AVAILABLE fg-rdtlh AND fg-rdtlh.reject-code[1] NE "" THEN fg-rdtlh.reject-code[1] ELSE ""
             ttFGPostHist.Reason-dscr = IF AVAILABLE rejct-cd AND rejct-cd.dscr NE "" THEN rejct-cd.dscr ELSE ""
+            ttFGPostHist.item-mat-cost = itemfg.std-mat-cost
+            ttFGPostHist.item-dl-cost  = itemfg.std-lab-cost
+            ttFGPostHist.item-voh-cost = itemfg.std-var-cost
+            ttFGPostHist.item-foh-cost = itemfg.std-fix-cost
+            ttFGPostHist.bin-mat-cost  = IF dBinMatCost NE 0 THEN dBinMatCost ELSE 0
+            ttFGPostHist.bin-dl-cost   = IF dBinDLCost  NE 0 THEN dBinDLCost  ELSE 0
+            ttFGPostHist.bin-voh-cost  = IF dBinVOHCost NE 0 THEN dBinVOHCost ELSE 0
+            ttFGPostHist.bin-foh-cost  = IF dBinFOHCost NE 0 THEN dBinFOHCost ELSE 0
             .
     END.
 

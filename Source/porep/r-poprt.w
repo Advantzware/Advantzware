@@ -1868,7 +1868,7 @@ PROCEDURE pRunFormatValueChanged :
         IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
         ELSE ENABLE tb_spec .
 
-        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex',v-print-fmt) THEN DO:
+        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,CapCity',v-print-fmt) THEN DO:
             IF v-print-fmt NE "CentBox" THEN
                 ASSIGN
                 tb_itemDescription = NO
@@ -2137,7 +2137,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule,CapCity") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -2226,6 +2226,7 @@ PROCEDURE SetPOPrintForm :
     WHEN 'Soule'        THEN ASSIGN v-program = "po/po-soule.p"     li-lineperpage = 80.
     WHEN 'SouleMed'     THEN ASSIGN v-program = "po/po-soulemed.p"  li-lineperpage = 80.
     WHEN 'PeachTree'    THEN ASSIGN v-program = "po/po-pchtree.p"   li-lineperpage = 80.
+    WHEN 'CapCity'      THEN ASSIGN v-program = "po/po-capcity.p"   li-lineperpage = 80.
     OTHERWISE                
        ASSIGN v-program       = "po/po-asi.p"       
               li-lineperpage  =  IF v-print-fmt EQ "Sonoco" THEN 66 ELSE 60.

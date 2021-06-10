@@ -140,6 +140,9 @@ DEFINE VARIABLE hdArtiosProcs AS HANDLE.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
 RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3217,6 +3220,11 @@ PROCEDURE local-assign-record :
 
   IF ll-auto-calc-selected THEN DO:
 
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+        INPUT ROWID(eb)
+        ).
+
     RUN calc-blank-size.
     FIND CURRENT eb.
   END.
@@ -3597,6 +3605,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -4721,7 +4751,9 @@ PROCEDURE UpdatePOScores :
     IF AVAILABLE eb THEN
         RUN est/d-panelDetails.w (
             INPUT ROWID(eb),
-            INPUT "eb"
+            INPUT "eb",
+            INPUT "",
+            INPUT ""
             ).
 END PROCEDURE.
 
