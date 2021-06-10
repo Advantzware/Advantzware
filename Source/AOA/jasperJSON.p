@@ -99,6 +99,7 @@ REPEAT:
             cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
             cBufferValue = REPLACE(cBufferValue,"~"","''")
             cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+            cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
             cFullName    = REPLACE(dynValueColumn.colName,".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
