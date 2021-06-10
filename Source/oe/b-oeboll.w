@@ -74,6 +74,9 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+
+RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
 {inventory/ttInventory.i "NEW SHARED"}
 
@@ -1726,6 +1729,9 @@ DEF VAR v-pallets AS DEC NO-UNDO.
 DEF VAR v-freight AS DEC NO-UNDO.
 DEF VAR v-freight-related-modified AS LOG NO-UNDO.
 DEF VAR dFreight AS DEC NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
 DEF BUFFER bf-oe-boll FOR oe-boll.
 DEF BUFFER bf2-oe-boll FOR oe-boll.
 DEF BUFFER bf3-oe-boll FOR oe-boll.
@@ -1844,7 +1850,9 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
      
     /* RUN calc-all-freight. */
   END. /* if freight modified or new record */
-
+  
+  IF cFreightCalculationValue NE "ALL" THEN
+  RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
 
   oe-bolh.tot-pallets = oe-boll.tot-pallets.
 
@@ -2069,6 +2077,9 @@ PROCEDURE local-delete-record :
   DEF VAR li-ord-no LIKE oe-boll.ord-no NO-UNDO.
   DEF VAR li-boll-cnt AS INT NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
   li-boll-cnt = 0.
   FOR EACH bf-boll 
     WHERE bf-boll.company = oe-boll.company
@@ -2138,6 +2149,9 @@ PROCEDURE local-delete-record :
 
   IF AVAIL oe-bolh THEN
   DO:
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).  
+    
     oe-bolh.tot-pallets = 0.
    
     FOR EACH b2-oe-boll WHERE b2-oe-boll.company EQ oe-bolh.company
