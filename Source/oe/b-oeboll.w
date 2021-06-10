@@ -74,6 +74,8 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
 
 RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
@@ -1729,8 +1731,6 @@ DEF VAR v-pallets AS DEC NO-UNDO.
 DEF VAR v-freight AS DEC NO-UNDO.
 DEF VAR v-freight-related-modified AS LOG NO-UNDO.
 DEF VAR dFreight AS DEC NO-UNDO.
-DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   
 DEF BUFFER bf-oe-boll FOR oe-boll.
 DEF BUFFER bf2-oe-boll FOR oe-boll.
@@ -2077,9 +2077,7 @@ PROCEDURE local-delete-record :
   DEF VAR li-ord-no LIKE oe-boll.ord-no NO-UNDO.
   DEF VAR li-boll-cnt AS INT NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
-  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-  
+   
   li-boll-cnt = 0.
   FOR EACH bf-boll 
     WHERE bf-boll.company = oe-boll.company
@@ -2814,6 +2812,10 @@ DEF BUFFER bf-boll FOR oe-boll.
    /* gdm - */
    FIND CURRENT oe-bolh EXCLUSIVE-LOCK.
    RUN recalc-freight (OUTPUT dTotFreight).
+   
+   IF cFreightCalculationValue NE "ALL" THEN
+   RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
+   
 /*    ASSIGN oe-bolh.tot-pallets = 0                                                       */
 /*           dTotFreight         = 0                                                       */
 /*           tot-other-freight   = 0.                                                      */
