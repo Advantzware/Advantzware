@@ -53,10 +53,6 @@ IF llRecFound THEN
     lShowRecalcFields = NOT LOGICAL(lcReturn) NO-ERROR.  
     
 {sys/inc/oeinq.i}
-
-&Scoped-define additionalFields ~
-    FIELD rRowID AS ROWID
-
 {fg/w-jobs.i "NEW SHARED"}
 {Inventory/ttInventory.i "NEW SHARED"}
 

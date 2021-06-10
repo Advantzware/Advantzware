@@ -45,7 +45,7 @@ DEFINE {1} TEMP-TABLE w-job NO-UNDO
   FIELD tagStatusDescription AS CHARACTER FORMAT "X(32)"
   FIELD onHold               AS LOGICAL 
   FIELD ship-default         AS LOGICAL
-  {&additionalFields}
+  FIELD rRowID               AS ROWID
   INDEX w-job job-no job-no2 loc loc-bin tag.
 
 
