@@ -108,7 +108,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24.81
+         SIZE 150 BY 25.81
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
@@ -145,7 +145,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Release"
-         HEIGHT             = 24.81
+         HEIGHT             = 25.81
          WIDTH              = 150
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-relinq ).
        RUN set-position IN h_b-relinq ( 4.57 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 19.76 , 144.00 ) */
+       /* Size in UIB:  ( 20.76 , 144.00 ) */
 
        /* Links to SmartViewer h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_b-relinq , 'move-columns':U , h_movecol ).
@@ -406,7 +406,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 13.38 , 6.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 14.38 , 6.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -414,7 +414,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-relhld ).
-       RUN set-position IN h_p-relhld ( 13.38 , 70.00 ) NO-ERROR.
+       RUN set-position IN h_p-relhld ( 14.38 , 70.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.67 , 11.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -424,7 +424,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-ordhd ).
-       RUN set-position IN h_p-ordhd ( 13.38 , 81.00 ) NO-ERROR.
+       RUN set-position IN h_p-ordhd ( 14.38 , 81.00 ) NO-ERROR.
        RUN set-size IN h_p-ordhd ( 1.67 , 65.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -436,7 +436,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_b-oerell ).
-       RUN set-position IN h_b-oerell ( 15.29 , 7.00 ) NO-ERROR.
+       RUN set-position IN h_b-oerell ( 16.29 , 7.00 ) NO-ERROR.
        RUN set-size IN h_b-oerell ( 6.91 , 134.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -447,7 +447,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_vp-oerell ).
-       RUN set-position IN h_vp-oerell ( 23.67 , 18.00 ) NO-ERROR.
+       RUN set-position IN h_vp-oerell ( 24.67 , 18.00 ) NO-ERROR.
        RUN set-size IN h_vp-oerell ( 1.52 , 119.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
