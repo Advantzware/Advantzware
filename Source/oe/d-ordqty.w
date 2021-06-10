@@ -34,6 +34,9 @@ DEF VAR columnCounts AS INT NO-UNDO.
 DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
 DEF VAR idx AS INT NO-UNDO.
 DEF VAR v-current-rowid AS ROWID.
+DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -386,13 +389,20 @@ PROCEDURE build-table :
   Notes:       
 ------------------------------------------------------------------------------*/
   find est-qty where recid(est-qty) = ip-recid no-lock.
+  
+  RUN sys/ref/nk1look.p (INPUT est-qty.company, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  IF lRecFound THEN
+      lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
   lv-first-quote-date = ?.
   FOR EACH quotehd NO-LOCK 
       WHERE quotehd.company EQ est-qty.company AND
       quotehd.est-no EQ est-qty.est-no AND 
       quotehd.quo-date LE TODAY AND
-      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ,
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
+      ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix),
   EACH quoteitm OF quotehd WHERE
       CAN-FIND(FIRST eb WHERE
       eb.company EQ est-qty.company AND

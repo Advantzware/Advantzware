@@ -21,6 +21,7 @@ DEFINE TEMP-TABLE ttPanel
     FIELD cScoreType            AS CHARACTER
     FIELD dPanelSize            AS DECIMAL
     FIELD dPanelSizeFromFormula AS DECIMAL
+    FIELD lAddAllowanceToSize   AS LOGICAL
     .
 
 /* ********************  Preprocessor Definitions  ******************** */
