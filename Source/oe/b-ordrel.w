@@ -467,35 +467,35 @@ DEFINE BROWSE br_table
                      "I-Invoice","I",
                      "T-Transfer","T"
         DROP-DOWN-LIST
-      oe-rel.ship-id            COLUMN-LABEL "Ship To"          FORMAT "x(8)":U                 WIDTH 12            
-      get-stat() @ cAbbrStatus  COLUMN-LABEL "S"                FORMAT "x(1)":U                 WIDTH 5
-      oe-rel.carrier            COLUMN-LABEL "Via"              FORMAT "x(5)":U                 WIDTH 12            
-      oe-rel.tot-qty            COLUMN-LABEL "Sched Qty"        FORMAT "->>,>>>,>>9":U          WIDTH 16
-      oe-rel.qty                COLUMN-LABEL "Actual Qty"       FORMAT "->>,>>>,>>9":U          WIDTH 16    
-      tt-report.po-no           COLUMN-LABEL "Customer PO#"     FORMAT "x(15)":U                WIDTH 18            
-      tt-report.lot-no          COLUMN-LABEL "Customer Lot #"   FORMAT "x(15)":U                WIDTH 20  
-      tt-report.prom-date       COLUMN-LABEL "Due Date"         FORMAT "99/99/9999":U           WIDTH 16
-      tt-report.cStatus         COLUMN-LABEL "Rel Date"         FORMAT "99/99/9999":U           WIDTH 16  
-      oe-rel.ship-addr[1]       COLUMN-LABEL "Ship To Address"  FORMAT "x(26)":U                WIDTH 39            
-      oe-rel.ship-city          COLUMN-LABEL "City"             FORMAT "x(15)":U                WIDTH 25    
-      oe-rel.ship-state         COLUMN-LABEL "ST"               FORMAT "x(2)":U                 WIDTH 5     
-      tt-report.price           COLUMN-LABEL "Sell Price"       FORMAT ">>,>>>,>>9.99<<<<":U    WIDTH 16    
-      tt-report.whsed           COLUMN-LABEL "$0"               FORMAT "Y/N":U                  WIDTH 5     
-      oe-ordl.disc              COLUMN-LABEL "Discount"         FORMAT "(>>>,>>9.99)":U         WIDTH 16
-      oe-ordl.t-price           COLUMN-LABEL "Ext Order Price"  FORMAT "->>,>>>,>>9.99":U       WIDTH 24
-      tt-report.frt-pay         COLUMN-LABEL "Frt Pay"          FORMAT "x(8)":U                 WIDTH 12    
-      tt-report.flute           COLUMN-LABEL "FOB"              FORMAT "x(1)":U                 WIDTH 6     
-      oe-rel.spare-char-1       COLUMN-LABEL "Ship From"        FORMAT "x(5)":U                 WIDTH 13
-      oe-rel.spare-char-2       COLUMN-LABEL "Dt Chg Reason"    FORMAT "x(30)":U                WIDTH 23
-      oe-rel.spare-char-3       COLUMN-LABEL "Dt Chg User"      FORMAT "x(8)":U                 WIDTH 16
-      tt-report.q-rel           COLUMN-LABEL "Release #"        FORMAT ">>>>>>9":U              WIDTH 13  
-      oe-rel.r-no               COLUMN-LABEL "Seq. #"           FORMAT ">>>>>>>>9":U            WIDTH 13
-      oe-rel.link-no            COLUMN-LABEL "Int. Release"     FORMAT ">>>>>>>9":U             WIDTH 17
-      tt-report.job-start-date  COLUMN-LABEL "Ship Date"        FORMAT "99/99/9999":U           WIDTH 14
-      tt-report.iTotRel         COLUMN-LABEL "Tot Rel"          FORMAT "->>,>>>,>>9.9<<":U      WIDTH 16
-      tt-report.prom-code       COLUMN-LABEL "Due Dt Chg Usr"   FORMAT "x(5)":U                 WIDTH 20
-      tt-report.pr-uom          COLUMN-LABEL "Due Dt Chg Rsn"   FORMAT "x(4)":U                 WIDTH 20
-      oe-rel.stat               COLUMN-LABEL "Rel. Status"      FORMAT "X(15)":U                WIDTH 28
+      oe-rel.ship-id            COLUMN-LABEL "Ship To"          FORMAT "x(8)":U                 WIDTH 12   LABEL-BGCOLOR 14         
+      get-stat() @ cAbbrStatus  COLUMN-LABEL "S"                FORMAT "x(1)":U                 WIDTH 5    LABEL-BGCOLOR 14
+      oe-rel.carrier            COLUMN-LABEL "Via"              FORMAT "x(5)":U                 WIDTH 12   LABEL-BGCOLOR 14         
+      oe-rel.tot-qty            COLUMN-LABEL "Sched Qty"        FORMAT "->>,>>>,>>9":U          WIDTH 16   LABEL-BGCOLOR 14
+      oe-rel.qty                COLUMN-LABEL "Actual Qty"       FORMAT "->>,>>>,>>9":U          WIDTH 16   LABEL-BGCOLOR 14 
+      tt-report.po-no           COLUMN-LABEL "Customer PO#"     FORMAT "x(15)":U                WIDTH 18   LABEL-BGCOLOR 14         
+      tt-report.lot-no          COLUMN-LABEL "Customer Lot #"   FORMAT "x(15)":U                WIDTH 20   LABEL-BGCOLOR 14
+      tt-report.prom-date       COLUMN-LABEL "Due Date"         FORMAT "99/99/9999":U           WIDTH 16   LABEL-BGCOLOR 14
+      tt-report.cStatus         COLUMN-LABEL "Rel Date"         FORMAT "99/99/9999":U           WIDTH 16   LABEL-BGCOLOR 14
+      oe-rel.ship-addr[1]       COLUMN-LABEL "Ship To Address"  FORMAT "x(26)":U                WIDTH 39   LABEL-BGCOLOR 14         
+      oe-rel.ship-city          COLUMN-LABEL "City"             FORMAT "x(15)":U                WIDTH 25   LABEL-BGCOLOR 14 
+      oe-rel.ship-state         COLUMN-LABEL "ST"               FORMAT "x(2)":U                 WIDTH 5    LABEL-BGCOLOR 14 
+      tt-report.price           COLUMN-LABEL "Sell Price"       FORMAT ">>,>>>,>>9.99<<<<":U    WIDTH 16   LABEL-BGCOLOR 14 
+      tt-report.whsed           COLUMN-LABEL "$0"               FORMAT "Y/N":U                  WIDTH 5    LABEL-BGCOLOR 14 
+      oe-ordl.disc              COLUMN-LABEL "Discount"         FORMAT "(>>>,>>9.99)":U         WIDTH 16   LABEL-BGCOLOR 14
+      oe-ordl.t-price           COLUMN-LABEL "Ext Order Price"  FORMAT "->>,>>>,>>9.99":U       WIDTH 24   LABEL-BGCOLOR 14
+      tt-report.frt-pay         COLUMN-LABEL "Frt Pay"          FORMAT "x(8)":U                 WIDTH 12   LABEL-BGCOLOR 14 
+      tt-report.flute           COLUMN-LABEL "FOB"              FORMAT "x(1)":U                 WIDTH 6    LABEL-BGCOLOR 14 
+      oe-rel.spare-char-1       COLUMN-LABEL "Ship From"        FORMAT "x(5)":U                 WIDTH 13   LABEL-BGCOLOR 14
+      oe-rel.spare-char-2       COLUMN-LABEL "Dt Chg Reason"    FORMAT "x(30)":U                WIDTH 23   LABEL-BGCOLOR 14
+      oe-rel.spare-char-3       COLUMN-LABEL "Dt Chg User"      FORMAT "x(8)":U                 WIDTH 16   LABEL-BGCOLOR 14
+      tt-report.q-rel           COLUMN-LABEL "Release #"        FORMAT ">>>>>>9":U              WIDTH 13   LABEL-BGCOLOR 14
+      oe-rel.r-no               COLUMN-LABEL "Seq. #"           FORMAT ">>>>>>>>9":U            WIDTH 13   LABEL-BGCOLOR 14
+      oe-rel.link-no            COLUMN-LABEL "Int. Release"     FORMAT ">>>>>>>9":U             WIDTH 17   LABEL-BGCOLOR 14
+      tt-report.job-start-date  COLUMN-LABEL "Ship Date"        FORMAT "99/99/9999":U           WIDTH 14   LABEL-BGCOLOR 14
+      tt-report.iTotRel         COLUMN-LABEL "Tot Rel"          FORMAT "->>,>>>,>>9.9<<":U      WIDTH 16   LABEL-BGCOLOR 14
+      tt-report.prom-code       COLUMN-LABEL "Due Dt Chg Usr"   FORMAT "x(5)":U                 WIDTH 20   LABEL-BGCOLOR 14
+      tt-report.pr-uom          COLUMN-LABEL "Due Dt Chg Rsn"   FORMAT "x(4)":U                 WIDTH 20   LABEL-BGCOLOR 14
+      oe-rel.stat               COLUMN-LABEL "Rel. Status"      FORMAT "X(15)":U                WIDTH 28   LABEL-BGCOLOR 14
         VIEW-AS COMBO-BOX INNER-LINES 8 
         LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
@@ -820,25 +820,85 @@ DO:
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
+  lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN  NO-ERROR.
+  IF VALID-HANDLE(lh-column) THEN 
+  DO:
+      ASSIGN
+       lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+       lv-column-nam = lh-column:NAME
+       lv-column-lab = lh-column:LABEL.
+    
+      IF lv-sort-by EQ lv-column-nam THEN 
+        ll-sort-asc = NOT ll-sort-asc.  
+      ELSE
+        ASSIGN
+         lv-sort-by     = lv-column-nam
+         lv-sort-by-lab = lv-column-lab .
 
-  
-  ASSIGN
-   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
+        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+        /*APPLY "choose" TO btn_go.*/
+        RUN resort-query .
+        {methods/template/sortindicatorend.i}
 
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab .
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  /*APPLY "choose" TO btn_go.*/
-  RUN resort-query .
-    {methods/template/sortindicatorend.i}
+        FIND FIRST userColumn EXCLUSIVE-LOCK 
+            WHERE userColumn.usrId     EQ USERID('ASI') 
+            AND userColumn.programName EQ 'oe/b-ordrel'
+            AND userColumn.ColName     EQ "Sorting-Column" NO-ERROR.
+            
+        IF NOT AVAILABLE userColumn THEN 
+        DO:
+            CREATE userColumn.
+            ASSIGN
+                userColumn.programName       = 'oe/b-ordrel'
+                userColumn.usrId             = USERID('ASI') 
+                userColumn.ColName           = "Sorting-Column"
+                userColumn.sortByColumnName  = lh-column:NAME
+                userColumn.sortByColumnLabel = lh-column:LABEL
+                userColumn.sortAsc           = lsortBy
+                userColumn.sorted            = TRUE
+                userColumn.colPosition       = 10000
+                .
+        END.
+        ELSE
+        ASSIGN
+            userColumn.sortByColumnName  = lh-column:NAME
+            userColumn.sortByColumnLabel = lh-column:LABEL
+            userColumn.sortAsc           = lsortBy
+            userColumn.sorted            = TRUE
+            .          
+    END. 
+    ELSE
+    DO:       
+        FIND FIRST userColumn NO-LOCK 
+        WHERE userColumn.usrId      EQ USERID('ASI') 
+          AND userColumn.programName  EQ 'oe/b-ordrel' 
+          AND userColumn.ColName      EQ "Sorting-Column" NO-ERROR.        
+        IF AVAILABLE userColumn THEN 
+        DO:
+            GET-HANDLE:
+            DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
+                hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
+                IF  VALID-HANDLE(hColumnRowColor) AND 
+                    hColumnRowColor:NAME = userColumn.sortByColumnName THEN
+              DO:
+                  hCurrentColumn = hColumnRowColor.
+                  LEAVE GET-HANDLE.
+              END.                 
+          END.
+          ASSIGN    
+              lv-sort-by                          = userColumn.sortByColumnName
+              lv-sort-by-lab                      = userColumn.sortByColumnLabel
+              ll-sort-asc                         = userColumn.sortAsc
+              hCurrentColumn:LABEL-BGCOLOR        = 30
+              hCurrentColumn:SORT-ASCENDING       = ll-sort-asc
+              lsortBy                             = userColumn.sortAsc.
+              hPrevColumn                         = hCurrentColumn.
+      END.
+        RUN resort-query .
+        hCurrentColumn:LABEL-BGCOLOR = 30.
+      END.  
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3566,9 +3626,10 @@ PROCEDURE local-open-query :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
   
-  /* Code placed here will execute AFTER standard behavior.    */
-  /*RUN delete-phantoms.*/
-
+    /* Code placed here will execute AFTER standard behavior.    */
+    /*RUN delete-phantoms.*/
+    APPLY 'start-search' TO BROWSE {&browse-name}. 
+    hCurrentColumn:LABEL-BGCOLOR = 30 NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
