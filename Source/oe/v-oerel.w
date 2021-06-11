@@ -22,7 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&Scoped-define proc-enable  proc-enable
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -47,6 +47,7 @@ DEF VAR v-access-list AS CHAR.
 DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -101,25 +102,25 @@ END.
 DEFINE QUERY external_tables FOR oe-relh.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-relh.ship-id oe-relh.carrier ~
-oe-relh.rel-date oe-relh.spare-char-1 oe-relh.trailer oe-relh.releaseDockTime 
+oe-relh.rel-date oe-relh.spare-char-1 oe-relh.trailer  
 &Scoped-define ENABLED-TABLES oe-relh
 &Scoped-define FIRST-ENABLED-TABLE oe-relh
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-38 btnCalendar-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-38 btnCalendar-1 ~
+dtDockDate cDockTime btnCalendar-2
 &Scoped-Define DISPLAYED-FIELDS oe-relh.printed oe-relh.spare-char-3 ~
 oe-relh.cust-no oe-relh.ship-id oe-relh.release# oe-relh.carrier ~
-oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer ~
-oe-relh.releaseDockTime
+oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer 
 &Scoped-define DISPLAYED-TABLES oe-relh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-relh
 &Scoped-Define DISPLAYED-OBJECTS fi_hold cust_name ship_name cust_addr1 ~
 ship_addr1 cust_addr2 ship_addr2 cust_city cust_state cust_zip ship_city ~
 ship_state ship_zip line_i-no freight_term qty-ordered qty-rel qty-ship ~
-qty-oh 
+qty-oh dtDockDate cDockTime
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS oe-relh.cust-no 
-&Scoped-define ROW-AVAILABLE btnCalendar-1 
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -155,6 +156,11 @@ DEFINE BUTTON btnCalendar-1
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
 
 DEFINE VARIABLE cust_addr1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -238,6 +244,16 @@ DEFINE VARIABLE ship_state AS CHARACTER FORMAT "x(2)"
 DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
+     
+ 
+DEFINE VARIABLE dtDockDate AS DATE FORMAT "99/99/9999" 
+     LABEL "Dock Appointment"
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
+     
+DEFINE VARIABLE cDockTime AS CHARACTER FORMAT "99:99:99" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY 1.     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -308,11 +324,10 @@ DEFINE FRAME F-Main
      oe-relh.trailer AT ROW 6.48 COL 110 COLON-ALIGNED
           LABEL "Trailer #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     oe-relh.releaseDockTime AT ROW 7.71 COL 100 COLON-ALIGNED
-          LABEL "Dock Appointment" FORMAT "99/99/9999 HH:MM"
-          VIEW-AS FILL-IN 
-          SIZE 25 BY 1
+          SIZE 30 BY 1      
+     dtDockDate AT ROW 7.71 COL 107 COLON-ALIGNED
+     btnCalendar-2 AT ROW 7.71 COL 124.5
+     cDockTime AT ROW 7.71 COL 127 COLON-ALIGNED NO-LABEL 
      line_i-no AT ROW 6.71 COL 16 COLON-ALIGNED
      freight_term AT ROW 6.71 COL 72 COLON-ALIGNED
      qty-ordered AT ROW 9.24 COL 17 COLON-ALIGNED
@@ -386,8 +401,14 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */   
 /* SETTINGS FOR FILL-IN oe-relh.carrier IN FRAME F-Main
-   EXP-FORMAT                                                           */
+   EXP-FORMAT                                                           */    
+/* SETTINGS FOR FILL-IN dtDockDate IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */  
+/* SETTINGS FOR FILL-IN cDockTime IN FRAME F-Main
+   NO-LABEL EXP-FORMAT                                                  */   
 /* SETTINGS FOR FILL-IN oe-relh.cust-no IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN cust_addr1 IN FRAME F-Main
@@ -443,8 +464,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-relh.spare-char-3 IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 /* SETTINGS FOR FILL-IN oe-relh.trailer IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN oe-relh.releaseDockTime IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -531,6 +550,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i dtDockDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME oe-relh.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.carrier V-table-Win
@@ -596,6 +625,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME dtDockDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDockDate V-table-Win
+ON HELP OF dtDockDate IN FRAME F-Main /* Dock Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cDockTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cDockTime V-table-Win
+ON LEAVE OF cDockTime IN FRAME F-Main /* Dock Time */
+DO:      
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-time(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME oe-relh.ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.ship-id V-table-Win
@@ -995,6 +1047,7 @@ PROCEDURE display-items :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-recid as recid no-undo.
+  DEFINE VARIABLE cGenTime AS CHARACTER NO-UNDO.
 
   DEF BUFFER b-oe-ordl-2 FOR oe-ordl.
   DEF BUFFER b-oe-rell-2 FOR oe-rell.
@@ -1031,8 +1084,13 @@ PROCEDURE display-items :
               qty-ship = 0
               qty-oh = itemfg.q-onh.
   IF QTY-rel < 0  THEN qty-rel = 0.
-
-  display qty-ordered qty-rel qty-ship qty-oh with frame {&frame-name}.
+          
+  dtDockDate = date(oe-relh.releaseDockTime).
+  cGenTime =  SUBSTRING(string(oe-relh.releaseDockTime),11,9) .
+  cGenTime = REPLACE(cGenTime, ":","") .
+  cDockTime  = trim(cGenTime).
+  
+  display qty-ordered qty-rel qty-ship qty-oh dtDockDate cDockTime with frame {&frame-name}.
 
 END PROCEDURE.
 
@@ -1164,6 +1222,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-save-rec-key LIKE oe-rel.rec_key NO-UNDO.
   DEF VAR sdate AS CHAR NO-UNDO.
   DEF VAR v-orig-shipid AS CHAR NO-UNDO.
+  DEFINE VARIABLE dtStartDateTime   AS DATETIME  NO-UNDO.
   DEF BUFFER bfNotes FOR notes.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1275,6 +1334,12 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN
+     dtDockDate
+     cDockTime.
+  dtStartDateTime   = DATETIME(STRING(dtDockDate,"99/99/9999") + " " + string(cDockTime,"99:99:99")) NO-ERROR .     
+  oe-relh.releaseDockTime = dtStartDateTime NO-ERROR. 
+ 
   if lv-ship-no <> 0 then do:
      oe-relh.ship-no = lv-ship-no.
 
@@ -1316,6 +1381,7 @@ PROCEDURE local-cancel-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
+  RUN pEnableDisable(NO).
   /* Code placed here will execute AFTER standard behavior.    */
   adm-adding-record = NO.
   
@@ -1367,11 +1433,14 @@ PROCEDURE local-create-record :
          qty-oh    = 0 
          qty-ordered = 0
          qty-rel = 0
-         qty-ship = 0 .
+         qty-ship = 0
+         dtDockDate = ?
+         cDockTime = "".
 
-  display oe-relh.rel-date cust_name cust_addr1 cust_addr2 cust_city cust_state cust_zip
+  display oe-relh.rel-date cust_name cust_addr1 cust_addr2 cust_city cust_state cust_zip dtDockDate cDockTime
           ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip line_i-no freight_term qty-oh qty-ordered qty-rel qty-ship with frame {&frame-name}. 
   run dispatch ('row-changed').
+  RUN pEnableDisable(YES).
 
 END PROCEDURE.
 
@@ -1478,6 +1547,7 @@ PROCEDURE local-display-fields :
       USE-INDEX r-no no-lock no-error.
   lv-recid2 = if avail b-oe-rell-2 then recid(b-oe-rell-2) else ?.
   run display-items (lv-recid2).
+  RUN pEnableDisable(NO).
 
   /* If it's blank, will be added automatically with dialog box */
   IF NOT l-update-reason-perms 
@@ -1521,6 +1591,9 @@ PROCEDURE local-update-record :
 
   RUN valid-date-change NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  RUN valid-time(OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
    /* ========== end of validation ==========*/
 
   ASSIGN
@@ -1557,7 +1630,8 @@ PROCEDURE local-update-record :
       BUFFER oe-relh,
       INPUT "UpdateRelease"
       ).
-      
+   
+   RUN pEnableDisable(NO).   
   /*run dispatch ('row-changed').*/
   ll-got-ship-id = no.
   IF lv-adding-record THEN DO:
@@ -1820,6 +1894,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+
+DO WITH FRAME {&FRAME-NAME}:
+    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
+    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
+END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableDisable V-table-Win 
+PROCEDURE pEnableDisable :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iplEnable  AS LOGICAL NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.
+    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.   
+END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
 /*------------------------------------------------------------------------------
@@ -2008,6 +2119,58 @@ PROCEDURE valid-ship-id :
       APPLY "entry" TO oe-relh.ship-id.
       RETURN ERROR.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-time V-table-Win 
+PROCEDURE valid-time :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+  
+    IF cDockTime:SCREEN-VALUE NE ""   THEN
+    DO:
+        IF length(cDockTime:SCREEN-VALUE) LT 8 AND cDockTime:SCREEN-VALUE NE "?" THEN
+        DO:
+             MESSAGE "Please enter valid time..."
+                     VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cDockTime.
+            oplReturnError = YES.
+        END.
+        ELSE IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,1,2)) GT 23 THEN
+        DO:
+            MESSAGE "Hours is invalid..."
+                     VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cDockTime.
+            oplReturnError = YES.            
+        END.
+        ELSE IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,4,2)) GT 59 THEN
+        DO:
+            MESSAGE "Minutes is invalid..."
+                     VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cDockTime.
+            oplReturnError = YES.            
+        END.
+        IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,7,2)) GT 59 THEN
+        DO:
+            MESSAGE "Second is invalid..."
+                     VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cDockTime.
+            oplReturnError = YES.            
+        END.        
+    END.
+
+    
   END.
 
   {methods/lValidateError.i NO}
