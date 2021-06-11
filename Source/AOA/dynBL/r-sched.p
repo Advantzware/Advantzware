@@ -13,6 +13,7 @@
 {AOA/tempTable/ttScheduledReleases.i}
 {AOA/tempTable/ttScheduledReleasesNotes.i}
 {AOA/tempTable/ttScheduledReleasesStats.i}
+RUN spSetSessionParam ("DetailTables", "2").
 
 DEFINE TEMP-TABLE ttReport NO-UNDO
     FIELD company    AS CHARACTER 
@@ -114,6 +115,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cCarrier       LIKE oe-relh.carrier   NO-UNDO.
     DEFINE VARIABLE dPallets         AS DECIMAL           NO-UNDO.
     DEFINE VARIABLE iCount           AS INTEGER           NO-UNDO.
+    DEFINE VARIABLE iRecordID        AS INTEGER           NO-UNDO.
     DEFINE VARIABLE iTotal           AS INTEGER           NO-UNDO.
     DEFINE VARIABLE iOHRelQty        AS INTEGER           NO-UNDO.
     DEFINE VARIABLE cCRRate        LIKE cust.cr-rating    NO-UNDO.
@@ -632,9 +634,10 @@ PROCEDURE pBusinessLogic:
                     cReasonDesc = rejct-cd.dscr
                     .      
             END. /* avail job-hdr */
+            iRecordID = iRecordID + 1.
             IF lSubRpt_PrintSpecNotes AND AVAILABLE itemfg THEN 
-            RUN pPrintSpecNotes (itemfg.rec_key).
-            RUN jobRouting (OUTPUT lRunComplete, OUTPUT cRouting).    
+            RUN pPrintSpecNotes (itemfg.rec_key, iRecordID).
+            RUN jobRouting (iRecordID, OUTPUT lRunComplete, OUTPUT cRouting).    
             
             FOR EACH fg-rcpth
                     WHERE fg-rcpth.company = cCompany 
@@ -730,6 +733,7 @@ PROCEDURE pBusinessLogic:
                 ttScheduledReleases.lastShipDate    = STRING(w-ord.last-date,"99/99/9999")
                 ttScheduledReleases.priceUOM        = w-ord.pr-uom
                 ttScheduledReleases.price           = w-ord.price
+                ttScheduledReleases.recordID        = iRecordID
                 .
         END. /* each w-ord */
         EMPTY TEMP-TABLE w-ord.
@@ -737,6 +741,7 @@ PROCEDURE pBusinessLogic:
 END PROCEDURE.
 
 PROCEDURE jobRouting:
+    DEFINE INPUT  PARAMETER ipiRecordID    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplRunComplete AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRouting     AS CHARACTER NO-UNDO.
     
@@ -844,6 +849,7 @@ PROCEDURE jobRouting:
             IF lSubRpt_PrintScheduleStats THEN DO:
                 CREATE ttScheduledReleasesStats.
                 ASSIGN 
+                    ttScheduledReleasesStats.recordID       = ipiRecordID
                     ttScheduledReleasesStats.xxItemFGRecKey = itemfg.rec_key
                     ttScheduledReleasesStats.statsLine      = "S/B: " + TRIM(STRING(tt-fg-set.qtyPerSet,"->>,>>9.99<<<<"))
                                                             + "/"     + TRIM(STRING(tt-fg-set.part-qty-dec,">>"))
@@ -1015,7 +1021,8 @@ PROCEDURE pGetVendorPOInfo :
 END PROCEDURE.
 
 PROCEDURE pPrintSpecNotes:
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKey   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiRecordID AS INTEGER NO-UNDO.
     
     FOR EACH notes NO-LOCK
         WHERE notes.rec_key   EQ ipcRecKey
@@ -1029,6 +1036,7 @@ PROCEDURE pPrintSpecNotes:
             ASSIGN 
                 ttScheduledReleasesNotes.xxItemFGRecKey = ipcRecKey
                 ttScheduledReleasesNotes.noteCode       = notes.note_code
+                ttScheduledReleasesNotes.recordID       = ipiRecordID
                 .
         END. /* first-of */
         ttScheduledReleasesNotes.noteText = ttScheduledReleasesNotes.noteText + " " + TRIM(notes.note_text).     

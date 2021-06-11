@@ -36,6 +36,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
 &Scoped-define subjectID 20
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
+DEFINE VARIABLE iRecordID  AS INTEGER NO-UNDO.
 DEFINE VARIABLE lOrderLine AS LOGICAL NO-UNDO.
 
 FUNCTION fCalcSellPrice RETURN DECIMAL ():
@@ -59,24 +60,24 @@ END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    DEFINE VARIABLE lInc       AS    LOGICAL          NO-UNDO INITIAL YES.
-    DEFINE VARIABLE cStat      AS    CHARACTER        NO-UNDO INITIAL "A".
-    DEFINE VARIABLE iBalQty    AS    INTEGER          NO-UNDO.
-    DEFINE VARIABLE iQOH       LIKE  itemfg.q-onh     NO-UNDO.
-    DEFINE VARIABLE iQtyShp    LIKE  iQOH             NO-UNDO.
-    DEFINE VARIABLE iQtyRel    LIKE  iQOH             NO-UNDO.
-    DEFINE VARIABLE cComma     AS    CHARACTER        NO-UNDO INITIAL ",".
-    DEFINE VARIABLE dJobQty    AS    DECIMAL          NO-UNDO.
-    DEFINE VARIABLE dRecQty    AS    DECIMAL          NO-UNDO.
-    DEFINE VARIABLE cStat2     AS    CHARACTER        NO-UNDO.
-    DEFINE VARIABLE dtDueDate  LIKE  oe-ordl.req-date NO-UNDO.
-    DEFINE VARIABLE dtDueDate2 LIKE  oe-ordl.req-date NO-UNDO.
-    DEFINE VARIABLE lSched     AS    LOGICAL          NO-UNDO.
-    DEFINE VARIABLE iIndex     AS INTEGER             NO-UNDO.
-    DEFINE VARIABLE tmpFile    AS CHARACTER           NO-UNDO.
-    DEFINE VARIABLE lc-result  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lInc         AS LOGICAL          NO-UNDO INITIAL YES.
+    DEFINE VARIABLE cStat        AS CHARACTER        NO-UNDO INITIAL "A".
+    DEFINE VARIABLE iBalQty      AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE iQOH       LIKE itemfg.q-onh     NO-UNDO.
+    DEFINE VARIABLE iQtyShp    LIKE iQOH             NO-UNDO.
+    DEFINE VARIABLE iQtyRel    LIKE iQOH             NO-UNDO.
+    DEFINE VARIABLE cComma       AS CHARACTER        NO-UNDO INITIAL ",".
+    DEFINE VARIABLE dJobQty      AS DECIMAL          NO-UNDO.
+    DEFINE VARIABLE dRecQty      AS DECIMAL          NO-UNDO.
+    DEFINE VARIABLE cStat2       AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE dtDueDate  LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE dtDueDate2 LIKE oe-ordl.req-date NO-UNDO.
+    DEFINE VARIABLE lSched       AS LOGICAL          NO-UNDO.
+    DEFINE VARIABLE iIndex       AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE tmpFile      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE lc-result    AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE cResult      AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER          NO-UNDO.
     
     DEFINE BUFFER bOERell FOR oe-rell.
     
@@ -413,8 +414,8 @@ PROCEDURE pBusinessLogic:
             .
         IF LAST-OF(tt-report.row-id) THEN DO:
             IF NOT CAN-FIND(FIRST ttOpenOrderReportDetail
-                            WHERE ttOpenOrderReportDetail.company EQ cCompany
-                              AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no) THEN
+                            WHERE ttOpenOrderReportDetail.xxcompany EQ cCompany
+                              AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no) THEN
             RUN pCalcQOH (cCompany).
     
             ASSIGN
@@ -422,15 +423,15 @@ PROCEDURE pBusinessLogic:
                 tt-report.key-08 = STRING(iIndex)
                 .
             FOR EACH ttOpenOrderReportDetail
-                WHERE ttOpenOrderReportDetail.company EQ oe-ordl.company
-                  AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no
-                  AND ttOpenOrderReportDetail.job-no  EQ oe-ordl.job-no
-                  AND ttOpenOrderReportDetail.job-no2 EQ oe-ordl.job-no2
+                WHERE ttOpenOrderReportDetail.xxcompany EQ oe-ordl.company
+                  AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no
+                  AND ttOpenOrderReportDetail.job-no    EQ oe-ordl.job-no
+                  AND ttOpenOrderReportDetail.job-no2   EQ oe-ordl.job-no2
                 :
                 ASSIGN
                     tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                    ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                    ttOpenOrderReportDetail.xxIndex = iIndex
+                    ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                    ttOpenOrderReportDetail.xxIndex  = iIndex
                     .
             END. /*  end of for each ttOpenOrderReportDetail */
     
@@ -447,15 +448,15 @@ PROCEDURE pBusinessLogic:
                 :
                 IF FIRST-OF(job-hdr.i-no) THEN
                 FOR EACH ttOpenOrderReportDetail 
-                    WHERE ttOpenOrderReportDetail.company EQ job-hdr.company
-                      AND ttOpenOrderReportDetail.i-no    EQ job-hdr.i-no
-                      AND ttOpenOrderReportDetail.job-no  EQ job-hdr.job-no
-                      AND ttOpenOrderReportDetail.job-no2 EQ job-hdr.job-no2
+                    WHERE ttOpenOrderReportDetail.xxcompany EQ job-hdr.company
+                      AND ttOpenOrderReportDetail.xxi-no    EQ job-hdr.i-no
+                      AND ttOpenOrderReportDetail.job-no    EQ job-hdr.job-no
+                      AND ttOpenOrderReportDetail.job-no2   EQ job-hdr.job-no2
                     :
                     ASSIGN
                         tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                        ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                        ttOpenOrderReportDetail.xxIndex = iIndex
+                        ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                        ttOpenOrderReportDetail.xxIndex  = iIndex
                         .
                 END. /* each ttOpenOrderReportDetail */
             END. /* each job-hdr */
@@ -604,17 +605,33 @@ PROCEDURE pBusinessLogic:
             ttOpenOrderReport.palletCount = ttOpenOrderReport.unit
                                           * ttOpenOrderReport.pallet
             ttOpenOrderReport.sellPrice   = fCalcSellPrice()
-            ttOpenOrderReport.cSTATUS     = lc-result
+            ttOpenOrderReport.cStatus     = lc-result
             ttOpenOrderReport.xxSort1     = IF cPrimarySort EQ "Customer" THEN ttOpenOrderReport.custNo
                                             ELSE tt-report.key-01
             ttOpenOrderReport.xxSort2     = tt-report.key-03
             ttOpenOrderReport.xxIndex     = INTEGER(tt-report.key-08)
-            iCount = iCount + 1
+            iRecordID                     = iRecordID + 1            
+            ttOpenOrderReport.recordID    = iRecordID
+            iCount                        = iCount + 1
             .
+        FOR EACH ttOpenOrderReportDetail
+            WHERE ttOpenOrderReportDetail.xxcompany EQ cCompany
+              AND ttOpenOrderReportDetail.xxi-no    EQ ttOpenOrderReport.fgItemNo
+              AND ttOpenOrderReportDetail.qty       GT 0
+              AND (ttOpenOrderReportDetail.xxord-no EQ ttOpenOrderReport.orderNo
+               OR ttOpenOrderReportDetail.job-no    EQ "")
+             :
+             ttOpenOrderReportDetail.recordID = ttOpenOrderReport.recordID.
+        END. /* each ttopenorderreportdetail */
         IF lProgressBar THEN
-            RUN spProgressBar (cProgressBar, iCount, ?).
-            DELETE tt-report.
+        RUN spProgressBar (cProgressBar, iCount, ?).
+        DELETE tt-report.
     END. /* each tt-report */
+    FOR EACH ttOpenOrderReportDetail
+        WHERE ttOpenOrderReportDetail.recordID EQ 0
+        :
+        DELETE ttOpenOrderReportDetail.
+    END. /* each ttopenorderreportdetail */
 END PROCEDURE.
 
 PROCEDURE pBuildttReport:
@@ -749,7 +766,7 @@ PROCEDURE pBuildttReport:
 END PROCEDURE.
 
 PROCEDURE pCalcQOH:
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
 
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany
@@ -759,7 +776,17 @@ PROCEDURE pCalcQOH:
           AND fg-bin.i-no    EQ itemfg.i-no
         :
         CREATE ttOpenOrderReportDetail.
-        BUFFER-COPY fg-bin TO ttOpenOrderReportDetail.
+        ASSIGN
+            ttOpenOrderReportDetail.xxcompany = fg-bin.company
+            ttOpenOrderReportDetail.xxi-no    = fg-bin.i-no
+            ttOpenOrderReportDetail.xxord-no  = fg-bin.ord-no
+            ttOpenOrderReportDetail.job-no    = fg-bin.job-no
+            ttOpenOrderReportDetail.job-no2   = fg-bin.job-no2
+            ttOpenOrderReportDetail.loc       = fg-bin.loc
+            ttOpenOrderReportDetail.loc-bin   = fg-bin.loc-bin
+            ttOpenOrderReportDetail.tag       = fg-bin.tag
+            ttOpenOrderReportDetail.qty       = fg-bin.qty
+            .
     END. /*FOR EACH itemfg*/
 END PROCEDURE.
 

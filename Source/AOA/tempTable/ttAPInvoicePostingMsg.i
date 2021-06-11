@@ -8,3 +8,5 @@ DEFINE TEMP-TABLE ttAPInvoicePostingMsg NO-UNDO
         INDEX ID IS PRIMARY
               xxID
     .
+RUN spSetSessionParam ("SummaryHandle3", TEMP-TABLE ttAPInvoicePostingMsg:HANDLE).
+RUN spSetSessionParam ("SummaryTitle3", "AP Invoice Posting Messages").

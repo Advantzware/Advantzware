@@ -201,6 +201,7 @@ PROCEDURE pSubDataSet:
                     cBufferValue = hTable:BUFFER-FIELD(iFieldIdx):BUFFER-VALUE()
                     cBufferValue = REPLACE(cBufferValue,"~"","''")
                     cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                    cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
                     cFullName    = hTable:NAME + "__" + cFieldName
                     cFullName    = REPLACE(cFullName,"[","")
                     cFullName    = REPLACE(cFullName,"]","")
