@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cCurlLoc AS CHAR NO-UNDO.
 
 {src/adm2/widgetprto.i}
 
@@ -352,7 +353,14 @@ PROCEDURE initializeObject:
         NO-ERROR.
     IF users.securityLevel LT 900 THEN ASSIGN 
         bHotFix:VISIBLE IN FRAME {&frame-name} = FALSE.
-
+        
+    IF SEARCH("curl.exe") NE ? THEN ASSIGN                              /* Is cURL in /Resources? (99% of the time it will be) */
+        cCurlLoc = SEARCH("curl.exe").
+    ELSE IF SEARCH("c:\windows\system32\curl.exe") NE ? THEN ASSIGN     /* for the 0.1%, see if it's in system */
+        cCurlLoc = SEARCH("c:\windows\system32\curl.exe").
+    ELSE ASSIGN                                                         /* cUrl not found, disable the hotfix button */
+        bHotfix:SENSITIVE IN FRAME {&frame-name} = FALSE.
+        
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -411,16 +419,17 @@ PROCEDURE ipInstallPatch:
 
     /* first, pull the current patch list from the website */
     ASSIGN 
-        cCmd = 'CALL CURL "helpsvr.advantzware.com/Patches/hotfixlist.txt"  -o c:\tmp\hotfixlist.txt -s'.
+        cCmd = 'CALL ' + cCurlLoc + ' "helpsvr.advantzware.com/Patches/hotfixlist.txt"  -o c:\tmp\hotfixlist.txt -s'.
     OS-COMMAND SILENT VALUE(cCmd).
     PAUSE 5 BEFORE-HIDE NO-MESSAGE.
         
     /* Now parse the hotfixlist to see if there is a new hotfix (or upgrade) available */
     IF SEARCH("c:\tmp\hotfixlist.txt") NE ? THEN DO:
         INPUT FROM VALUE("c:\tmp\hotfixlist.txt").
+        IMPORT UNFORMATTED cRawLine.
+        IF INDEX("0123456789",SUBSTRING(cRawLine,1,1)) EQ 0 THEN LEAVE.  /* cURL worked, but returned an error */
         SEARCH-BLOCK:
         REPEAT:
-            IMPORT UNFORMATTED cRawLine.
             ASSIGN 
                 deNewVersion = DECIMAL(SUBSTRING(cRawLine,1,5)) 
                 iNewPatch = INTEGER(SUBSTRING(cRawLine,7,2)).             
@@ -446,6 +455,7 @@ PROCEDURE ipInstallPatch:
                     LEAVE SEARCH-BLOCK.
                 END.
             END.
+            IMPORT UNFORMATTED cRawLine.
         END.
         INPUT CLOSE.
         OS-DELETE "c:\tmp\hotfixlist.txt".
@@ -460,11 +470,11 @@ PROCEDURE ipInstallPatch:
     /* If user wants to UPDATE current version, download Hotfix file and open Explorer to allow unzip */
     IF lUpdate THEN DO:
         ASSIGN 
-            cCmd =  'CALL CURL "helpsvr.advantzware.com/Patches/Hotfix' + cPatchToProcess + '.zip"  -o ' + cOverrideDir + 
+            cCmd =  'CALL ' + cCurlLoc + ' "helpsvr.advantzware.com/Patches/Hotfix' + cPatchToProcess + '.zip"  -o ' + cOverrideDir + 
                     '\Hotfix' + cPatchToProcess + '.zip -s'.
         OS-COMMAND SILENT VALUE(cCmd).
         ASSIGN 
-            cCmd =  'CALL "c:\program files\7-zip\7z.exe"  e ' + cOverrideDir + '\Hotfix' + cPatchToProcess + '.zip -o' + cOverrideDir + ' -aoa'. 
+            cCmd =  'CALL "c:\program files\7-zip\7z.exe"  x ' + cOverrideDir + '\Hotfix' + cPatchToProcess + '.zip -o' + cOverrideDir + ' -aoa'. 
         OS-COMMAND SILENT VALUE(cCmd).
 
         INPUT FROM VALUE (cOverrideDir + "\HotfixList.txt").
