@@ -116,6 +116,9 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
 FUNCTION fUseNew RETURNS LOGICAL 
     (ipcCompany AS CHARACTER) FORWARD.
 
+FUNCTION fUseBlank RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER) FORWARD.
+
 FUNCTION IsComboType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -4604,6 +4607,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE dCostTotal          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
 
     ASSIGN
         lCostFound = NO
@@ -4628,8 +4632,10 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                 NO,
                 OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
         END.
-        ELSE
-            
+        ELSE 
+        DO:
+        lUseBlank = fUseBlank(ipbf-estCostMaterial.company).
+            IF NOT lUseBlank THEN  
             RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
                 ipbf-estCostMaterial.itemID, "RM", 
                 cScope, lIncludeBlankVendor, 
@@ -4639,6 +4645,19 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                 ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
                 OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
                 OUTPUT lError, OUTPUT cMessage).
+                
+             ELSE 
+             DO:
+                opcVendorID = "".
+                RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
+                      opcVendorID, "", ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, YES /*ipbf-estCostMaterial.blankNo*/, 
+                      ipdQty, ipcQtyUOM, 
+                      ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                      ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM, 
+                      NO,
+                      OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+             END.
+         END.
 
         RETURN.
     END.
@@ -5356,6 +5375,23 @@ FUNCTION fUseNew RETURNS LOGICAL
     
     RETURN lFound AND cReturn EQ "New".
 		
+END FUNCTION.
+
+FUNCTION fUseBlank RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the Setting to use new estimate calculation
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "Blank Vendor".
+        
 END FUNCTION.
 
 FUNCTION IsComboType RETURNS LOGICAL 
