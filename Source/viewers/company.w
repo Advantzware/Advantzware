@@ -64,17 +64,17 @@ DEFINE VARIABLE copyCompany AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR company.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS company.fid company.name company.sid ~
-company.addr[1] company.addr[2] company.city company.state company.zip ~
-company.subLedgerAP company.co-acc company.num-per company.subLedgerPO ~
-company.subLedgerOP company.acc-level company.acc-dig[1] company.acc-dig[2] ~
-company.acc-dig[3] company.acc-dig[4] company.acc-dig[5] ~
-company.subLedgerWIP company.yend-off company.spare-char-1 ~
-company.subLedgerRM company.subLedgerFG company.subLedgerBR ~
-company.curr-code 
+&Scoped-Define ENABLED-FIELDS company.fid company.cBgColor company.name ~
+company.sid company.addr[1] company.addr[2] company.city company.state ~
+company.zip company.subLedgerAP company.co-acc company.num-per ~
+company.subLedgerPO company.subLedgerOP company.acc-level ~
+company.acc-dig[1] company.acc-dig[2] company.acc-dig[3] company.acc-dig[4] ~
+company.acc-dig[5] company.subLedgerWIP company.yend-off ~
+company.spare-char-1 company.subLedgerRM company.subLedgerFG ~
+company.subLedgerBR company.curr-code 
 &Scoped-define ENABLED-TABLES company
 &Scoped-define FIRST-ENABLED-TABLE company
-&Scoped-Define ENABLED-OBJECTS RECT-1 rBgColor COMBO-BOX_subLedgerAR 
+&Scoped-Define ENABLED-OBJECTS RECT-1 COMBO-BOX_subLedgerAR 
 &Scoped-Define DISPLAYED-FIELDS company.company company.fid company.name ~
 company.sid company.addr[1] company.addr[2] company.city company.state ~
 company.zip company.subLedgerAP company.co-acc company.num-per ~
@@ -124,6 +124,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bResetColor 
+     LABEL "(Reset)" 
+     SIZE 10 BY .71
+     FONT 0.
+
 DEFINE VARIABLE COMBO-BOX_subLedgerAR AS LOGICAL FORMAT "yes/no" INITIAL NO 
      LABEL "A/R - Receivables" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -139,7 +144,7 @@ DEFINE VARIABLE c-desc AS CHARACTER FORMAT "x(30)"
 
 DEFINE VARIABLE fiBGColor AS CHARACTER FORMAT "X(256)":U INITIAL "BG Color" 
      VIEW-AS FILL-IN NATIVE 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 11 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fiSubLedgerClose AS CHARACTER FORMAT "X(256)":U INITIAL "SubLedger Close" 
      VIEW-AS FILL-IN 
@@ -185,7 +190,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
           BGCOLOR 15 FONT 4
-     fiBGColor AT ROW 1.48 COL 115 COLON-ALIGNED NO-LABEL
+     fiBGColor AT ROW 1.48 COL 102 COLON-ALIGNED NO-LABEL
+     company.cBgColor AT ROW 1.48 COL 114 COLON-ALIGNED HELP
+          "" NO-LABEL FORMAT "x(11)"
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
      company.name AT ROW 2.43 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
@@ -199,6 +208,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
+     bResetColor AT ROW 3.62 COL 116
      company.addr[2] AT ROW 4.81 COL 19 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
@@ -267,10 +277,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 7 FGCOLOR 15 FONT 4
-     company.acc-dig[4] AT ROW 8.86 COL 64 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -278,6 +284,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     company.acc-dig[4] AT ROW 8.86 COL 64 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+          BGCOLOR 7 FGCOLOR 15 FONT 4
      company.acc-dig[5] AT ROW 8.86 COL 68 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -340,7 +350,7 @@ DEFINE FRAME F-Main
      "Previous Year Closed?" VIEW-AS TEXT
           SIZE 28 BY .95 AT ROW 12.67 COL 12
      RECT-1 AT ROW 1 COL 1
-     rBgColor AT ROW 2.67 COL 118
+     rBgColor AT ROW 2.43 COL 105
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -419,8 +429,15 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN company.addr[2] IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR BUTTON bResetColor IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN c-desc IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN company.cBgColor IN FRAME F-Main
+   NO-DISPLAY EXP-LABEL EXP-FORMAT EXP-HELP                             */
+ASSIGN 
+       company.cBgColor:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN company.company IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN fiBGColor IN FRAME F-Main
@@ -440,6 +457,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lv-prd-dt2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-prd-num IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE rBgColor IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN company.spare-char-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
@@ -511,6 +530,35 @@ DO:
   APPLY 'ENTRY' TO company.acc-dig[1].
   RETURN NO-APPLY.
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bResetColor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bResetColor V-table-Win
+ON CHOOSE OF bResetColor IN FRAME F-Main /* (Reset) */
+DO:
+        DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+        DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+        DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+        DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
+        DEFINE VARIABLE lSave AS LOG NO-UNDO.
+
+        IF users.securityLevel LT 900 THEN RETURN NO-APPLY.
+    
+        ix = COLOR-TABLE:NUM-ENTRIES.
+        COLOR-TABLE:NUM-ENTRIES = ix + 1.
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix,119).
+        COLOR-TABLE:SET-GREEN-VALUE(ix,150).
+        COLOR-TABLE:SET-BLUE-VALUE(ix,203).
+
+        ASSIGN 
+            rBgColor:FGCOLOR = ix
+            rBgColor:BGCOLOR = ix
+            company.cBgColor:SCREEN-VALUE = "".
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -633,13 +681,10 @@ DO:
     IF lSave THEN DO:
         ASSIGN 
             rBgColor:FGCOLOR = ix
-            rBgColor:BGCOLOR = ix.
-        FIND CURRENT company EXCLUSIVE.
-        ASSIGN
-            company.cBgColor = STRING(COLOR-TABLE:get-red-value(ix)) + "," +
+            rBgColor:BGCOLOR = ix
+            company.cBgColor:SCREEN-VALUE = STRING(COLOR-TABLE:get-red-value(ix)) + "," +
                                STRING(COLOR-TABLE:get-green-value(ix)) + "," +
                                STRING(COLOR-TABLE:get-blue-value(ix)).
-        FIND CURRENT company NO-LOCK.
     END.
 END.
 
@@ -842,6 +887,10 @@ PROCEDURE enable-company :
 
   RUN enable-co-acc.
 
+    ASSIGN 
+        rBgColor:SENSITIVE IN FRAME {&frame-name} = TRUE
+        bResetColor:SENSITIVE = TRUE.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -945,10 +994,18 @@ PROCEDURE local-display-fields :
                                 lv-prd-dt1 = period.pst
                                 lv-prd-dt2 = period.pend.
     DISPLAY lv-first-year lv-prd-num lv-prd-dt1 lv-prd-dt2 WITH FRAME {&FRAME-NAME}.
-      COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-      COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).
-      COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,company.cBgColor))).
-      COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,company.cBgColor))).
+    IF company.cBgColor NE "" THEN DO:
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).
+        COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,company.cBgColor))).
+        COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,company.cBgColor))).
+    END.
+    ELSE DO:
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix, 119).
+        COLOR-TABLE:SET-GREEN-VALUE(ix, 150).
+        COLOR-TABLE:SET-BLUE-VALUE(ix, 203).
+    END.
     ASSIGN 
         rBgColor:FGCOLOR = ix
         rBgColor:BGCOLOR = ix.
@@ -990,6 +1047,11 @@ PROCEDURE local-update-record :
   END.
   IF company.spare-char-1:SCREEN-VALUE EQ "" THEN
     company.spare-char-1:SCREEN-VALUE = company.spare-char-1.
+    
+    ASSIGN 
+        rBgColor:SENSITIVE IN FRAME {&frame-name} = FALSE 
+        bResetColor:SENSITIVE = FALSE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
