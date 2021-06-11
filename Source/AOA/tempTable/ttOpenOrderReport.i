@@ -24,8 +24,6 @@ DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
     FIELD palletCount AS INTEGER   LABEL "Pallet Count"     FORMAT ">>>,>>9"
     FIELD sellPrice   AS DECIMAL   LABEL "Sell Price"       FORMAT "->,>>>,>>9.99"
     FIELD cstatus     AS CHARACTER LABEL "Status"           FORMAT "x(20)"
-    FIELD xxSort1     AS CHARACTER LABEL "Sort 1"           FORMAT "x(100)"
-    FIELD xxSort2     AS CHARACTER LABEL "Sort 2"           FORMAT "x(100)"
     FIELD xxIndex     AS INTEGER   LABEL "Index"            FORMAT ">>>>>>9"
-        INDEX ttOpenOrderReport IS PRIMARY rowType xxSort1 xxSort2
+        INDEX ttOpenOrderReport IS PRIMARY rowType
         .

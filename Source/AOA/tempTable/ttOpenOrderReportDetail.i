@@ -6,6 +6,7 @@ DEFINE TEMP-TABLE ttOpenOrderReportDetail NO-UNDO
     FIELD xxcompany LIKE fg-bin.company
     FIELD xxi-no    LIKE fg-bin.i-no
     FIELD xxord-no  LIKE fg-bin.ord-no
+    FIELD xxcust-no LIKE fg-bin.cust-no
     FIELD job-no    LIKE fg-bin.job-no
     FIELD job-no2   LIKE fg-bin.job-no2
     FIELD loc       LIKE fg-bin.loc

@@ -1903,31 +1903,31 @@ PROCEDURE calc-qoh :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR vdat          AS   DATE.
-  DEF VAR v-curr        AS   LOG.
-  DEF VAR v-q-or-v      AS   LOG.
-
-  DEF VAR v-qohj        AS   DEC                EXTENT 6.
-  DEF VAR v-qohi        LIKE v-qohj.
-  DEF VAR v-qty         AS   INT.
-  DEF VAR v-qty1        LIKE v-qty.
-  DEF VAR v-qtyc        LIKE v-qty.
-  DEF VAR v-red         LIKE v-qty.
-  DEF VAR v             AS   INT.
-  DEF VAR v-val         AS   DEC                EXTENT 4.
-  DEF VAR v-cst         AS   DEC                EXTENT 4.
-  DEF VAR v-u-val       AS   DEC.
-  DEF VAR v-u-cst       AS   DEC.
-  DEF VAR v-date        AS   DATE.
-
-  DEF BUFFER b-f-rc for fg-rcpth.
-  DEF BUFFER b-f-rd for fg-rdtlh.
-
-
-  ASSIGN
-   vdat     = TODAY
-   v-curr   = YES
-   v-q-or-v = YES.
+/*  DEF VAR vdat          AS   DATE.                       */
+/*  DEF VAR v-curr        AS   LOG.                        */
+/*  DEF VAR v-q-or-v      AS   LOG.                        */
+/*                                                         */
+/*  DEF VAR v-qohj        AS   DEC                EXTENT 6.*/
+/*  DEF VAR v-qohi        LIKE v-qohj.                     */
+/*  DEF VAR v-qty         AS   INT.                        */
+/*  DEF VAR v-qty1        LIKE v-qty.                      */
+/*  DEF VAR v-qtyc        LIKE v-qty.                      */
+/*  DEF VAR v-red         LIKE v-qty.                      */
+/*  DEF VAR v             AS   INT.                        */
+/*  DEF VAR v-val         AS   DEC                EXTENT 4.*/
+/*  DEF VAR v-cst         AS   DEC                EXTENT 4.*/
+/*  DEF VAR v-u-val       AS   DEC.                        */
+/*  DEF VAR v-u-cst       AS   DEC.                        */
+/*  DEF VAR v-date        AS   DATE.                       */
+/*                                                         */
+/*  DEF BUFFER b-f-rc for fg-rcpth.                        */
+/*  DEF BUFFER b-f-rd for fg-rdtlh.                        */
+/*                                                         */
+/*                                                         */
+/*  ASSIGN                                                 */
+/*   vdat     = TODAY                                      */
+/*   v-curr   = YES                                        */
+/*   v-q-or-v = YES.                                       */
 
   FOR EACH itemfg
       WHERE itemfg.company EQ cocode
