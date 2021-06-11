@@ -903,6 +903,10 @@ PROCEDURE copy-proc :
 ------------------------------------------------------------------------------*/  
  
       quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
+      quotehd.quo-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
+      quotehd.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ?.
+      IF lQuoteExpirationDays THEN      
+      quotehd.expireDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(TODAY + iQuoteExpirationDays).            
  
 END PROCEDURE.
 
@@ -1092,7 +1096,7 @@ PROCEDURE local-assign-record :
 
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
     
-  IF NOT adm-new-record AND lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
+  IF lQuoteExpirationDays AND cQuoteExpirationDays EQ "Update" AND dtOldExpDate EQ quotehd.expireDate THEN
   DO:
      quotehd.expireDate = TODAY + iQuoteExpirationDays. 
   END.
