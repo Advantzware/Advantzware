@@ -1063,6 +1063,14 @@ PROCEDURE pPrintData:
                     AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
                     AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
                     NO-ERROR .
+                IF NOT AVAIL bf-oe-ordl THEN     
+                FIND FIRST bf-oe-ordl NO-LOCK
+                    WHERE bf-oe-ordl.company EQ job-hdr.company
+                    AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no
+                    AND bf-oe-ordl.job-no  EQ job-hdr.job-no
+                    AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
+                    AND bf-oe-ordl.i-no EQ bf-eb.stock-no                      
+                    NO-ERROR .    
                 FIND FIRST bf-job-hdr  NO-LOCK
                     WHERE bf-job-hdr.company EQ job-hdr.company
                     AND bf-job-hdr.ord-no  EQ bf-eb.ord-no
