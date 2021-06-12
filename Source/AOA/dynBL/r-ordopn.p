@@ -97,10 +97,6 @@ PROCEDURE pBusinessLogic:
         cOrderStatus = SUBSTRING(cOrderStatus,1,1)
         lInc         = lIncludeZeroOrderBalanceItems
         .
-ASSIGN
-cStartCustNo = "ibm1000"
-cEndCustNo = "ibm1000"
-.
     FIND FIRST oe-ctrl NO-LOCK
          WHERE oe-ctrl.company EQ cCompany
          NO-ERROR.
@@ -572,10 +568,10 @@ cEndCustNo = "ibm1000"
            LEAVE.
         END. /* end of for each oe-rel */
     
-        lc-result = oe-ord.stat .
-            RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
-            IF cResult NE "" THEN
-                lc-result  = cResult .
+        lc-result = oe-ord.stat.
+        RUN oe/getStatusDesc.p (oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+        lc-result = cResult.
     
         CREATE ttOpenOrderReport.
         ASSIGN
@@ -606,7 +602,7 @@ cEndCustNo = "ibm1000"
             ttOpenOrderReport.recordID    = iRecordID
             iCount                        = iCount + 1
             .
-        IF lShowDetail THEN
+        IF lShowDetail AND ttOpenOrderReport.qtyOnhand GT 0 THEN
         FOR EACH ttOpenOrderReportDetail
             WHERE ttOpenOrderReportDetail.xxcompany EQ cCompany
               AND ttOpenOrderReportDetail.xxi-no    EQ ttOpenOrderReport.fgItemNo

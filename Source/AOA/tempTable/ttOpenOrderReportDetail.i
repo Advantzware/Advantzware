@@ -7,11 +7,11 @@ DEFINE TEMP-TABLE ttOpenOrderReportDetail NO-UNDO
     FIELD xxi-no    LIKE fg-bin.i-no
     FIELD xxord-no  LIKE fg-bin.ord-no
     FIELD xxcust-no LIKE fg-bin.cust-no
-    FIELD job-no    LIKE fg-bin.job-no
+    FIELD job-no    LIKE fg-bin.job-no  LABEL "Job"
     FIELD job-no2   LIKE fg-bin.job-no2
     FIELD loc       LIKE fg-bin.loc
     FIELD loc-bin   LIKE fg-bin.loc-bin
-    FIELD tag       LIKE fg-bin.tag
+    FIELD tag       LIKE fg-bin.tag     LABEL "Tag" FORMAT "x(15)"
     FIELD qty       LIKE fg-bin.qty
     FIELD xxIndex     AS INTEGER LABEL "Index" FORMAT ">>>>>>9"
     .
