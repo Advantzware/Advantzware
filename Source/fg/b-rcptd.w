@@ -1673,11 +1673,11 @@ IF AVAIL bfFgBin  THEN DO:
         fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * bfFgBin.qty).
     END.
     ELSE DO:
-      
+        
       ASSIGN            
         fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.i-no
         fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} = "0" /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
-        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMaxCompQty)
+        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.case-count)
         fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.cases-unit)
         fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty)
         fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty).
@@ -1695,11 +1695,11 @@ IF AVAIL bfFgBin  THEN DO:
         fg-rctd.t-qty = -1 * bfFgBin.qty.
     END.
     ELSE DO:
-    
+               
       ASSIGN            
         fg-rctd.i-no = bfFgBin.i-no
         fg-rctd.cases = 0 /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
-        fg-rctd.qty-case = dMaxCompQty
+        fg-rctd.qty-case = bfFgBin.case-count
         fg-rctd.cases-unit = bfFgBin.cases-unit
         fg-rctd.partial = -1 * dMaxCompQty
         fg-rctd.t-qty = -1 * dMaxCompQty.
