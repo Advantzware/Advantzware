@@ -251,9 +251,10 @@ DEFINE VARIABLE dtDockDate AS DATE FORMAT "99/99/9999"
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
      
-DEFINE VARIABLE cDockTime AS CHARACTER FORMAT "99:99:99" 
+DEFINE VARIABLE cDockTime AS CHARACTER FORMAT "99:99" 
+     LABEL "Time"
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1.     
+     SIZE 10 BY 1.     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -325,9 +326,9 @@ DEFINE FRAME F-Main
           LABEL "Trailer #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1      
-     dtDockDate AT ROW 7.71 COL 107 COLON-ALIGNED
-     btnCalendar-2 AT ROW 7.71 COL 124.5
-     cDockTime AT ROW 7.71 COL 127 COLON-ALIGNED NO-LABEL 
+     dtDockDate AT ROW 7.71 COL 103 COLON-ALIGNED
+     btnCalendar-2 AT ROW 7.71 COL 120.5
+     cDockTime AT ROW 7.71 COL 130 COLON-ALIGNED  
      line_i-no AT ROW 6.71 COL 16 COLON-ALIGNED
      freight_term AT ROW 6.71 COL 72 COLON-ALIGNED
      qty-ordered AT ROW 9.24 COL 17 COLON-ALIGNED
@@ -408,7 +409,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN dtDockDate IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */  
 /* SETTINGS FOR FILL-IN cDockTime IN FRAME F-Main
-   NO-LABEL EXP-FORMAT                                                  */   
+   EXP-LABEL EXP-FORMAT                                                  */   
 /* SETTINGS FOR FILL-IN oe-relh.cust-no IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN cust_addr1 IN FRAME F-Main
@@ -1086,7 +1087,7 @@ PROCEDURE display-items :
   IF QTY-rel < 0  THEN qty-rel = 0.
           
   dtDockDate = date(oe-relh.releaseDockTime).
-  cGenTime =  SUBSTRING(string(oe-relh.releaseDockTime),11,9) .
+  cGenTime =  SUBSTRING(string(oe-relh.releaseDockTime),11,6) .
   cGenTime = REPLACE(cGenTime, ":","") .
   cDockTime  = trim(cGenTime).
   
@@ -1333,11 +1334,8 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-     dtDockDate
-     cDockTime.
-  dtStartDateTime   = DATETIME(STRING(dtDockDate,"99/99/9999") + " " + string(cDockTime,"99:99:99")) NO-ERROR .     
+  /* Code placed here will execute AFTER standard behavior.    */  
+  dtStartDateTime   = DATETIME(STRING(dtDockDate,"99/99/9999") + " " + string(cDockTime,"99:99")) NO-ERROR .     
   oe-relh.releaseDockTime = dtStartDateTime NO-ERROR. 
  
   if lv-ship-no <> 0 then do:
@@ -1441,6 +1439,8 @@ PROCEDURE local-create-record :
           ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip line_i-no freight_term qty-oh qty-ordered qty-rel qty-ship with frame {&frame-name}. 
   run dispatch ('row-changed').
   RUN pEnableDisable(YES).
+  dtDockDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+  cDockTime:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0000".
 
 END PROCEDURE.
 
@@ -1594,6 +1594,10 @@ PROCEDURE local-update-record :
   
   RUN valid-time(OUTPUT lError) NO-ERROR.
   IF lError THEN RETURN NO-APPLY.
+  
+  ASSIGN
+     dtDockDate = DATE(dtDockDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} )      
+     cDockTime  = REPLACE(cDockTime:SCREEN-VALUE IN FRAME {&FRAME-NAME}, ":","") . 
    /* ========== end of validation ==========*/
 
   ASSIGN
@@ -1904,7 +1908,7 @@ PROCEDURE proc-enable :
 
 DO WITH FRAME {&FRAME-NAME}:
     dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
-    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
+    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.    
 END.
   
 END PROCEDURE.
@@ -2138,38 +2142,21 @@ PROCEDURE valid-time :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
   
-    IF cDockTime:SCREEN-VALUE NE ""   THEN
-    DO:
-        IF length(cDockTime:SCREEN-VALUE) LT 8 AND cDockTime:SCREEN-VALUE NE "?" THEN
-        DO:
-             MESSAGE "Please enter valid time..."
-                     VIEW-AS ALERT-BOX ERROR.
+    IF cDockTime:SCREEN-VALUE NE "" AND cDockTime:SCREEN-VALUE NE "?"  THEN
+    DO:        
+         IF int(SUBSTRING(cDockTime:SCREEN-VALUE ,1,2)) >= 24 THEN DO:
+            MESSAGE "Invalid Hours." 
+                    VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO cDockTime.
-            oplReturnError = YES.
-        END.
-        ELSE IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,1,2)) GT 23 THEN
-        DO:
-            MESSAGE "Hours is invalid..."
-                     VIEW-AS ALERT-BOX ERROR.
+                oplReturnError = YES.
+         END.
+         IF int(SUBSTRING(cDockTime:SCREEN-VALUE,4,2)) < 0 OR 
+            int(SUBSTRING(cDockTime:SCREEN-VALUE,4,2)) >= 60 THEN DO:
+            MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO cDockTime.
-            oplReturnError = YES.            
-        END.
-        ELSE IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,4,2)) GT 59 THEN
-        DO:
-            MESSAGE "Minutes is invalid..."
-                     VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO cDockTime.
-            oplReturnError = YES.            
-        END.
-        IF integer(SUBSTRING(cDockTime:SCREEN-VALUE,7,2)) GT 59 THEN
-        DO:
-            MESSAGE "Second is invalid..."
-                     VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO cDockTime.
-            oplReturnError = YES.            
-        END.        
-    END.
-
+                oplReturnError = YES.
+         END.   
+    END. 
     
   END.
 
