@@ -612,6 +612,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.taxable                = bf-inv-misc.tax
                 ttInvLine.billable               = bf-inv-misc.bill EQ "Y"
                 ttInvLine.customerPONo           = bf-inv-misc.po-no
+                ttInvLine.customerPONoNoBlank    = bf-inv-misc.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = TRUE
                 .
