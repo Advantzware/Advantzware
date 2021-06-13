@@ -1473,7 +1473,8 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-glhist.tr-num     = ipiRun
             bf-glhist.curr-code = ipcCurrCode
             bf-glhist.ex-rate   = ipdExRate
-            bf-glhist.glYear    = IF ipdtTransactionDate EQ ? THEN year(ipbf-ttPostingMaster.postDate) ELSE YEAR(ipdtTransactionDate)
+            bf-glhist.glYear    = ipbf-ttPostingMaster.periodGLYear
+            bf-glhist.yr        = IF ipdtTransactionDate EQ ? THEN year(ipbf-ttPostingMaster.postDate) ELSE YEAR(ipdtTransactionDate)
             bf-glhist.entryType = "A"
             bf-glhist.module    = "AR"
             bf-glhist.posted    =  NO
@@ -1944,7 +1945,8 @@ PROCEDURE pGetSettings PRIVATE:
          ipbf-ttPostingMaster.exportPath = cReturn + "\OB4\" . /* created sub folder*/             
     END.
        
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalOrderlineChange", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).   
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalOrderlineChange", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalMiscCharge", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
 END PROCEDURE.
 
 PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
@@ -2118,6 +2120,7 @@ PROCEDURE pInitialize PRIVATE:
             ttPostingMaster.periodID        = bf-period.pnum
             ttPostingMaster.periodDateStart = bf-period.pst
             ttPostingMaster.periodDateEnd   = bf-period.pend
+            ttPostingMaster.periodGLYear    = bf-period.yr
             .                    
     ELSE 
     DO:
@@ -3066,7 +3069,6 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.ytd-msf          = bf-itemfg.ytd-msf + ttFGItemToUpdate.quantityInvoicedMSFTotal
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
-                bf-itemfg.q-alloc          = bf-itemfg.q-alloc + ttFGItemToUpdate.quantityShippedTotal
                 .
             
             DELETE ttFGItemToUpdate.
@@ -3380,6 +3382,13 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             bf-ttInvoiceMiscToPost.rNo EQ bf-inv-head.r-no
             AND bf-ttInvoiceMiscToPost.isBillable :
             dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
+            
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalMiscCharge", bf-inv-head.cust-no,iplIsValidateOnly).        
+            IF lValidateRequired THEN
+            DO:                             
+               RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable Misc charge line exist").
+               lAutoApprove = NO.
+            END.            
         END.
              
         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 

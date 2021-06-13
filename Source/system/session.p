@@ -31,6 +31,7 @@ DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVersion            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hProgressBar        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
@@ -62,8 +63,8 @@ DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "browsers/BrowserProcs.p,"
-                    + "oe/PriceProcs.p,"
                     + "est/EstimateProcs.p,"
+                    + "oe/PriceProcs.p,"
                     + "system/CommonProcs.p,"
                     + "system/ConversionProcs.p,"
                     + "system/CreditProcs.p,"
@@ -125,7 +126,6 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
@@ -236,6 +236,20 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfVersion Procedure
+FUNCTION sfVersion RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -377,6 +391,9 @@ ASSIGN
     cUserID     = users.user_id
     .
 RUN spSetSessionParam("UserID",cUserID).
+/* get current ASI version */
+FIND LAST updateHist NO-LOCK NO-ERROR.
+cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "Unknown".
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
@@ -894,10 +911,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
-
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spActivateCueCards Procedure
@@ -2385,9 +2399,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
 
@@ -2431,9 +2443,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
@@ -2502,9 +2512,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
@@ -2557,6 +2565,25 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfVersion Procedure
+FUNCTION sfVersion RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN cVersion.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure

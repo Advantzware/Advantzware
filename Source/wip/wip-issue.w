@@ -67,7 +67,6 @@ DEFINE VARIABLE iTotOnHand              AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount                  AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
-{system/sysconst.i}
 {Inventory/ttBrowseInventory.i}
 {Inventory/ttInventory.i}
 {wip/keyboardDefs.i}
@@ -1083,7 +1082,7 @@ PROCEDURE init :
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
     IF ipcJobNo NE "" THEN 

@@ -57,7 +57,7 @@ DEF VAR ll-close AS LOG NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 begin_ord end_ord begin_date end_date ~
-tb_only btn_ok 
+tb_only btn_ok btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_ord end_ord begin_date end_date ~
 tb_only 
 
@@ -76,6 +76,11 @@ tb_only
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_ok AUTO-GO 
      LABEL "OK" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 FONT 6.
+     
+DEFINE BUTTON btn_Cancel AUTO-END-KEY 
+     LABEL "Ca&ncel" 
      SIZE 15 BY 1.14
      BGCOLOR 8 FONT 6.
 
@@ -121,13 +126,14 @@ DEFINE FRAME D-Dialog
      end_date AT ROW 4.1 COL 63 COLON-ALIGNED HELP
           "Enter Endng Order Date"
      tb_only AT ROW 6 COL 9
-     btn_ok AT ROW 8.62 COL 35
+     btn_ok AT ROW 8.62 COL 25
+     btn_Cancel AT ROW 8.62 COL 45
      RECT-1 AT ROW 1.24 COL 1
      SPACE(0.19) SKIP(2.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Close Orders"
-         DEFAULT-BUTTON btn_ok.
+         DEFAULT-BUTTON btn_ok CANCEL-BUTTON btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -206,6 +212,18 @@ END.
 ON LEAVE OF begin_ord IN FRAME D-Dialog /* Beginning Order# */
 DO:
   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Cancel D-Dialog
+ON CHOOSE OF btn_Cancel IN FRAME D-Dialog /* Cancel */
+DO:
+  APPLY "END-ERROR":U TO SELF.
+    //APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */

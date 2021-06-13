@@ -62,18 +62,18 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
+    cTextListToSelect  = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
                           "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default," +
                           "Help Contents"
                            
-    cFieldListToSelect = "name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
+    cFieldListToSelect = "company,name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
                           "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip,securityLevelUser,securityLevelDefault," +
                           "help-cont" .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default".
+    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Date Value," +
+                          "Decimal Value,Integer Value,Logical Value,User Sec Level".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -90,11 +90,11 @@ ASSIGN
 &Scoped-define FRAME-NAME rd-sysexp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_name end_name ~
-begin_mod end_mod Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_name end_name begin_mod end_mod ~
-sl_avail sl_selected tb_excel tb_runExcel fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_Company end_Company ~
+begin_name end_name begin_mod end_mod fi_compare_company Btn_Def sl_avail sl_selected ~
+Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_Company end_Company begin_name end_name ~
+begin_mod end_mod fi_compare_company sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -167,6 +167,11 @@ DEFINE BUTTON btn_Up
     LABEL "Move Up" 
     SIZE 16 BY 1.
 
+DEFINE VARIABLE begin_Company AS CHARACTER FORMAT "x(8)" 
+    LABEL "From Company" 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1.
+    
 DEFINE VARIABLE begin_mod  AS CHARACTER FORMAT "x(5)" 
     LABEL "From Module" 
     VIEW-AS FILL-IN 
@@ -177,6 +182,11 @@ DEFINE VARIABLE begin_name AS CHARACTER FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
+DEFINE VARIABLE end_Company   AS CHARACTER FORMAT "X(8)"  
+    LABEL "To Company" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1.
+
 DEFINE VARIABLE end_mod    AS CHARACTER FORMAT "X(5)" INITIAL "zzzzzzzzzzz" 
     LABEL "To Module" 
     VIEW-AS FILL-IN 
@@ -186,8 +196,13 @@ DEFINE VARIABLE end_name   AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzz"
     LABEL "To Name" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
+    
+DEFINE VARIABLE fi_compare_company   AS CHARACTER FORMAT "X(8)"  
+    LABEL "Compare with Company" 
+    VIEW-AS FILL-IN 
+    SIZE 20 BY 1.    
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sysctrl.csv" 
+DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\NK1List.csv" 
     LABEL "If Yes, File Name" 
     VIEW-AS FILL-IN 
     SIZE 43 BY 1
@@ -229,14 +244,20 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL   INITIAL YES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-sysexp
-    begin_name AT ROW 3.67 COL 28 COLON-ALIGNED HELP
+    begin_Company AT ROW 3.22 COL 28 COLON-ALIGNED HELP
+    "Enter Beginning Company" 
+    end_Company AT ROW 3.22 COL 71 COLON-ALIGNED HELP
+    "Enter Ending Company" 
+    begin_name AT ROW 4.17 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Name" WIDGET-ID 142
-    end_name AT ROW 3.67 COL 71 COLON-ALIGNED HELP
+    end_name AT ROW 4.17 COL 71 COLON-ALIGNED HELP
     "Enter Ending Name" WIDGET-ID 144
-    begin_mod AT ROW 4.62 COL 28 COLON-ALIGNED HELP
+    begin_mod AT ROW 5.12 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Module" WIDGET-ID 150
-    end_mod AT ROW 4.62 COL 71 COLON-ALIGNED HELP
+    end_mod AT ROW 5.12 COL 71 COLON-ALIGNED HELP
     "Enter Ending Module" WIDGET-ID 152
+    fi_compare_company AT ROW 6.56 COL 28 COLON-ALIGNED HELP
+    "Compare with Company" 
     Btn_Def AT ROW 11.19 COL 44 HELP
     "Add Selected Table to Tables to Audit" WIDGET-ID 56
     sl_avail AT ROW 11.24 COL 9 NO-LABELS WIDGET-ID 26
@@ -293,16 +314,25 @@ ASSIGN
     FRAME rd-sysexp:HIDDEN     = TRUE.
 
 ASSIGN 
+    begin_Company:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
+    
+ASSIGN 
     begin_mod:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
 
 ASSIGN 
     begin_name:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
 
 ASSIGN 
+    end_Company:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
+    
+ASSIGN 
     end_mod:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
 
 ASSIGN 
     end_name:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
+    
+ASSIGN    
+    fi_compare_company:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
 
 ASSIGN 
     fi_file:PRIVATE-DATA IN FRAME rd-sysexp = "parm".
@@ -355,6 +385,17 @@ ON WINDOW-CLOSE OF FRAME rd-sysexp /* Export SysCtrl to Excel */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_Company
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_Company rd-sysexp
+ON LEAVE OF begin_Company IN FRAME rd-sysexp /* From Company */
+DO:
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_mod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mod rd-sysexp
 ON LEAVE OF begin_mod IN FRAME rd-sysexp /* From Module */
@@ -392,6 +433,9 @@ ON CHOOSE OF btn-cancel IN FRAME rd-sysexp /* Cancel */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok rd-sysexp
 ON CHOOSE OF btn-ok IN FRAME rd-sysexp /* OK */
     DO:
+        RUN valid-company NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -467,6 +511,17 @@ ON CHOOSE OF btn_Up IN FRAME rd-sysexp /* Move Up */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_Company
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_Company rd-sysexp
+ON LEAVE OF end_Company IN FRAME rd-sysexp /* To Company */
+DO:
+    ASSIGN {&self-name}.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_mod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mod rd-sysexp
 ON LEAVE OF end_mod IN FRAME rd-sysexp /* To Module */
@@ -488,6 +543,17 @@ ON LEAVE OF end_name IN FRAME rd-sysexp /* To Name */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_compare_company
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_compare_company rd-sysexp
+ON LEAVE OF fi_compare_company IN FRAME rd-sysexp /* To Compare with Company */
+DO:
+    RUN valid-company NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-sysexp
@@ -584,11 +650,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN DisplaySelectionList.
     RUN enable_UI.
+    
     {methods/nowait.i}
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
+        ASSIGN
+        begin_Company:SCREEN-VALUE = cocode 
+        end_Company:SCREEN-VALUE   = cocode .
+        fi_file:SCREEN-VALUE = "c:~\tmp~\NK1List.csv".
 RUN DisplaySelectionList2.
-APPLY "entry" TO begin_name.
+APPLY "entry" TO begin_Company.
 END.
 WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -736,12 +807,12 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    DISPLAY begin_name end_name begin_mod end_mod sl_avail sl_selected tb_excel 
-        tb_runExcel fi_file 
+    DISPLAY begin_Company end_Company begin_name end_name begin_mod end_mod  
+        fi_compare_company sl_avail sl_selected tb_excel tb_runExcel fi_file 
         WITH FRAME rd-sysexp.
-    ENABLE RECT-6 RECT-7 RECT-8 begin_name end_name begin_mod end_mod Btn_Def 
-        sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_runExcel 
-        fi_file btn-ok btn-cancel 
+    ENABLE RECT-6 RECT-7 RECT-8 begin_Company end_Company begin_name end_name 
+        begin_mod end_mod fi_compare_company Btn_Def sl_avail sl_selected Btn_Add Btn_Remove 
+        btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
         WITH FRAME rd-sysexp.
     VIEW FRAME rd-sysexp.
     {&OPEN-BROWSERS-IN-QUERY-rd-sysexp}
@@ -821,38 +892,63 @@ PROCEDURE run-report :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE v-excelheader        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-excel-detail-lines2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cexcelheader         AS CHARACTER NO-UNDO .
     DEFINE BUFFER b-sys-ctrl FOR sys-ctrl.
+    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
 
     v-excelheader = buildHeader().
+    
+    IF fi_compare_company NE "" THEN
+    v-excelheader = v-excelheader + buildHeader().
+    
     SESSION:SET-WAIT-STATE ("general").
 
     IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
-    IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+    
+        IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
-    FIND FIRST users NO-LOCK
-            WHERE  users.user_id EQ USERID(LDBNAME(1)) 
-            NO-ERROR.
+        FIND FIRST users NO-LOCK
+                WHERE  users.user_id EQ USERID(LDBNAME(1)) 
+                NO-ERROR.
 
-    FOR EACH b-sys-ctrl WHERE b-sys-ctrl.company = cocode
-        AND b-sys-ctrl.NAME GE begin_name
-        AND b-sys-ctrl.NAME LE end_name
-        AND b-sys-ctrl.module GE begin_mod
-        AND b-sys-ctrl.module LE end_mod
-        AND b-sys-ctrl.securityLevelUser LE users.securityLevel
-        NO-LOCK:
+        FOR EACH b-sys-ctrl NO-LOCK
+            WHERE b-sys-ctrl.company GE begin_Company 
+            AND b-sys-ctrl.company LE end_Company
+            AND b-sys-ctrl.NAME GE begin_name
+            AND b-sys-ctrl.NAME LE end_name
+            AND b-sys-ctrl.module GE begin_mod
+            AND b-sys-ctrl.module LE end_mod
+            AND b-sys-ctrl.securityLevelUser LE users.securityLevel:
+            
 
-        v-excel-detail-lines = "".
+            v-excel-detail-lines = "".
 
-        FOR EACH ttRptSelected:
-            v-excel-detail-lines = v-excel-detail-lines + 
-                appendXLLine(fGetValueExternalToSysCtrl(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
-        END.
+            FOR EACH ttRptSelected:
+                v-excel-detail-lines = v-excel-detail-lines + 
+                    appendXLLine(fGetValueExternalToSysCtrl(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
+            END.
+          IF fi_compare_company NE "" AND fi_compare_company NE b-sys-ctrl.company THEN DO:
+                FIND FIRST bf-sys-ctrl NO-LOCK
+                    WHERE bf-sys-ctrl.company EQ fi_compare_company
+                    AND bf-sys-ctrl.NAME EQ b-sys-ctrl.NAME
+                    NO-ERROR.
+                IF AVAILABLE bf-sys-ctrl THEN DO:
+                
+                    FOR EACH ttRptSelected:
+                       v-excel-detail-lines = v-excel-detail-lines + 
+                        appendXLLine(fGetValueExternalToSysCtrl(BUFFER bf-sys-ctrl,ttRptSelected.FieldList)).
+                    END.
+                 
+                END. /*IF AVAILABLE bf-sys-ctrl THEN DO*/
+            
+          END. /*IF fi_compare_company NE "" */
+          
+            PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
 
-        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
-
-    END. /* b-sys-ctrl */
-
+        END. /* b-sys-ctrl */
+   
+    
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
@@ -863,6 +959,37 @@ PROCEDURE run-report :
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     SESSION:SET-WAIT-STATE ("").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company rd-sysexp
+PROCEDURE valid-company :
+/*------------------------------------------------------------------------------
+  Purpose:    
+  Parameters:  <none>
+  Notes:      
+------------------------------------------------------------------------------*/
+  DEF VAR lv-msg AS CHAR INIT "" NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    IF fi_compare_company:SCREEN-VALUE NE "" THEN
+    DO:
+        IF NOT CAN-FIND(FIRST company WHERE company.company EQ fi_compare_company:SCREEN-VALUE) THEN
+          lv-msg = "Invalid company".
+
+        IF lv-msg NE "" THEN DO:
+          MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO fi_compare_company.
+          RETURN ERROR.
+        END.
+    END. /* IF fi_compare_company:SCREEN-VALUE NE "" */
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

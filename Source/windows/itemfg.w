@@ -133,6 +133,8 @@ DEFINE VARIABLE h_itmfgink-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_locw AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcq AS HANDLE NO-UNDO.
@@ -692,6 +694,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-locw ( 27.57 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.33 , 113.20 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-3 ).
+       RUN set-position IN h_movecol-3 ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3,14':U) NO-ERROR.
 
@@ -701,6 +711,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
 
+       /* Links to SmartObject h_movecol-3. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'move-columns':U , h_movecol-3 ).
+       
        /* Links to SmartBrowser h_locw. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'repo-query':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'Record':U , h_locw ).
@@ -1171,6 +1184,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-fg-bj-2 ).
        RUN set-position IN h_p-fg-bj-2 ( 27.91 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.10 , 95.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-4 ).
+       RUN set-position IN h_movecol-4 ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,5':U) NO-ERROR.
@@ -1178,6 +1199,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemfg-5. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg-5 ).
 
+       /* Links to SmartObject h_movecol-4. */
+       RUN add-link IN adm-broker-hdl ( h_fgijob , 'move-columns':U , h_movecol-4 ).
+       
        /* Links to SmartBrowser h_fgijob. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_fgijob ).
        RUN add-link IN adm-broker-hdl ( h_fgijob , 'ViewDetail':U , THIS-PROCEDURE ).

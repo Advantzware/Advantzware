@@ -368,7 +368,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
+{methods/template/viewer4.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1643,6 +1643,55 @@ PROCEDURE local-update-record :
    adm-adding-record = NO
    adm-new-record    = NO.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-inv-head FOR inv-head .
+  
+  IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
+  DO:    
+    FIND FIRST bf-inv-head NO-LOCK
+         WHERE bf-inv-head.company EQ cocode
+         AND bf-inv-head.bol-no EQ inv-head.bol-no 
+         AND rowid(bf-inv-head) NE ROWID(inv-head)  NO-ERROR.
+    IF AVAIL bf-inv-head THEN
+    DO:
+      iBolNo =  inv-head.bol-no.
+      MESSAGE "This BOL has multiple invoices and all invoices will be deleted back to the BOL"
+      "- Do you want to proceed and delete these?" VIEW-AS ALERT-BOX QUESTION 
+                              BUTTONS OK-CANCEL UPDATE lcheckflg as logical .
+      lCheckMessage = YES.                        
+      IF NOT lcheckflg THEN RETURN NO-APPLY.        
+    END.      
+  END.
+  
+  IF NOT adm-new-record AND NOT lCheckMessage THEN DO:
+    {custom/askdel.i}
+  END.
+  
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF lCheckMessage THEN
+  DO:
+    FOR EACH bf-inv-head EXCLUSIVE-LOCK
+        WHERE bf-inv-head.company EQ cocode
+        AND bf-inv-head.bol-no EQ iBolNo :
+      DELETE  bf-inv-head. 
+    END.
+  END.
+  RELEASE bf-inv-head.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-{system/sysconst.i}
+// {system/sysconst.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -129,7 +129,7 @@ DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U
 
 DEFINE FRAME F-Main
      btChange AT ROW 3.19 COL 61.6 WIDGET-ID 14 NO-TAB-STOP 
-     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18
+     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18 NO-TAB-STOP 
      fiTag AT ROW 4.81 COL 17.8 COLON-ALIGNED WIDGET-ID 8
      fiTrailer AT ROW 4.81 COL 117.4 COLON-ALIGNED WIDGET-ID 10
      btDelete AT ROW 12.57 COL 175.6 WIDGET-ID 16 NO-TAB-STOP 
@@ -592,7 +592,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
 
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + cCompanyName + " - " + cLocation.
                          
     fiTrailer:HIDDEN = NOT glScanTrailer.

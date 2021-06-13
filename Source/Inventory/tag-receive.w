@@ -54,6 +54,7 @@ DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 {inventory/ttBrowseInventory.i}
 {inventory/ttInventoryStockDetails.i}
 {inventory/ttInventory.i}
+
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -643,7 +644,7 @@ PROCEDURE pInit :
            
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 END PROCEDURE.
 

@@ -231,6 +231,7 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -242,16 +243,24 @@ RUN methods/prgsecur.p
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	     
+DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRecValue, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEAddCustomerOption = logical(cRecValue) NO-ERROR. 
+    
+ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRecValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRecValue) NO-ERROR.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2354,7 +2363,10 @@ PROCEDURE assign-qty :
   DEF BUFFER bf-est FOR est.
   DEF BUFFER bf-est-qty FOR est-qty.
   FIND bf-est-qty WHERE RECID(bf-est-qty) = recid(est-qty).
-  ASSIGN      bf-est-qty.qty[1] = est-qty.eqty
+  ASSIGN      bf-est-qty.qty[1] = est-qty.eqty  .
+  
+  IF est.est-type LE 6 AND est.est-type NE 4 THEN 
+          ASSIGN  
               bf-est-qty.qty[2] = lv-copy-qty[2]
               bf-est-qty.qty[3] = lv-copy-qty[3]
               bf-est-qty.qty[4] = lv-copy-qty[4]
@@ -2394,8 +2406,8 @@ PROCEDURE assign-qty :
               bf-est-qty.qty-date[8] = lv-copy-date[8]  
               bf-est-qty.qty-date[9] = lv-copy-date[9]  
               bf-est-qty.qty-date[10] = lv-copy-date[10]  
-              .  
-       ASSIGN bf-est-qty.qty[11] = lv-copy-qty[11]
+               
+              bf-est-qty.qty[11] = lv-copy-qty[11]
               bf-est-qty.qty[12] = lv-copy-qty[12]
               bf-est-qty.qty[13] = lv-copy-qty[13]
               bf-est-qty.qty[14] = lv-copy-qty[14]
@@ -2438,7 +2450,9 @@ PROCEDURE assign-qty :
               .  
       FIND bf-est WHERE bf-est.company = bf-est-qty.company AND
                         bf-est.est-no = bf-est-qty.est-no.
-      ASSIGN bf-est.est-qty[1] = est-qty.eqty
+      ASSIGN bf-est.est-qty[1] = est-qty.eqty .
+      IF est.est-type LE 6 AND est.est-type NE 4 THEN 
+          ASSIGN
              bf-est.est-qty[2] = bf-est-qty.qty[2]
              bf-est.est-qty[3] = bf-est-qty.qty[3]
              bf-est.est-qty[4] = bf-est-qty.qty[4]
@@ -5745,6 +5759,9 @@ PROCEDURE local-assign-record :
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:
     FIND xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
     RUN fg/ce-addfg.p (xeb.stock-no).
+    
+    IF lQuotePriceMatrix AND AVAIL eb THEN
+    RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs (INPUT cocode, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no).    
   END.
 
   IF ll-add-set-part EQ NO THEN
@@ -7304,13 +7321,23 @@ PROCEDURE reset-est-type :
       ASSIGN
        op-est-type = 8
        eb.yld-qty  = eb.bl-qty.
+       
+      RUN pReSetEstQty(rowid(est-qty)).
 
       FOR EACH bf-eb OF bf-est WHERE ROWID(eb) NE ROWID(bf-eb):
         RUN set-yld-qty (ROWID(bf-eb)).
       END.
     END.
 
-  IF (op-est-type EQ 6 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
+   IF op-est-type EQ 8 AND li-form-no EQ 1 AND li-blank-no EQ 1 
+    AND eb.bl-qty EQ eb.yld-qty THEN do:
+  
+   MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll.
+   IF ll THEN op-est-type = 1.           
+  END.  
+  ELSE IF (op-est-type EQ 6 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 5 AND eb.quantityPerSet GE 2) THEN DO:
     /*MESSAGE "Is this estimate a two piece box set?"
             VIEW-AS ALERT-BOX QUESTION
@@ -7716,6 +7743,9 @@ PROCEDURE set-auto-add-item :
       END.
   END.
   
+  IF lQuotePriceMatrix AND AVAIL eb THEN
+  RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT cocode, INPUT eb.est-no, INPUT eb.part-no, INPUT eb.stock-no).
+  
   RUN update-e-itemfg-vend.
   IF lv-num-created GT 0 THEN DO:
   
@@ -7809,6 +7839,7 @@ PROCEDURE set-or-combo :
            ld          = est-qty.eqty / b-eb.num-up.
           {sys/inc/roundup.i ld}
           b-eb.yld-qty = ld * b-eb.num-up.
+          RUN pReSetEstQty(rowid(est-qty)).                   
         END.
         ELSE
         IF est.est-type EQ 6 THEN b-eb.quantityPerSet = 1.
@@ -8672,6 +8703,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
+PROCEDURE pReSetEstQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+ DEFINE BUFFER bf-est-qty FOR est-qty.
+ FIND FIRST bf-est-qty EXCLUSIVE-LOCK
+      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
+      
+ IF AVAIL bf-est-qty THEN
+     ASSIGN
+         bf-est-qty.qty = 0
+         bf-est-qty.qty[1] = est-qty.eqty.
+ RELEASE bf-est-qty.
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
 PROCEDURE pUpdateRecord :
 /*------------------------------------------------------------------------------
@@ -8733,6 +8789,17 @@ PROCEDURE pGetStyleValue :
             RUN new-board.
          END.
        END.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
+PROCEDURE pGetEstRowid :
+  DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+  IF AVAIL eb THEN iprwRowid = ROWID(eb).
 
 END PROCEDURE.
 

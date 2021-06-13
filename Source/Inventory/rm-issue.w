@@ -86,6 +86,7 @@ DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 {Inventory/ttInventory.i}
 {Inventory/ttBrowseInventory.i}
 {Inventory/ttInventoryStockDetails.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {methods/template/brwcustomdef.i}
@@ -1349,7 +1350,7 @@ PROCEDURE pInit :
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
     IF AVAILABLE company THEN
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + STRING(company.name) + " - " + ipcLocation  .
 
     IF ipcJobNo NE "" THEN DO:

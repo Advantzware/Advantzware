@@ -527,7 +527,6 @@ PROCEDURE GetVendorCost:
             OUTPUT opdCostTotal, OUTPUT lIsSelected, 
             OUTPUT iLeadDays, OUTPUT dCostDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
-        opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
     END.
 END PROCEDURE.
@@ -672,6 +671,49 @@ PROCEDURE GetDimCharge:
     
 END PROCEDURE.
 
+PROCEDURE pExpireOldCost PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+
+    DEFINE VARIABLE dtExpirationDate AS DATE NO-UNDO.
+
+    DEFINE BUFFER bfVendItemCost FOR vendItemCost.
+
+    FOR EACH vendItemCost NO-LOCK 
+        WHERE vendItemCost.company    EQ ipcCompany
+          AND vendItemCost.itemID     EQ ipcItemID
+          AND vendItemCost.itemType   EQ ipcItemType
+          AND vendItemCost.vendorID   EQ ipcVendorID
+          AND vendItemCost.customerID EQ ipcCustomerID
+          AND vendItemCost.estimateNo EQ ipcEstimateNo
+          AND vendItemCost.formNo     EQ ipiFormNo
+          AND vendItemCost.blankNo    EQ ipiBlankNo
+        BREAK BY vendItemCost.effectiveDate  DESCENDING
+              BY vendItemCost.expirationDate DESCENDING
+        :
+        IF NOT FIRST(vendItemCost.effectiveDate) AND
+           vendItemCost.expirationDate NE dtExpirationDate THEN
+        DO TRANSACTION:
+            FIND FIRST bfVendItemCost EXCLUSIVE-LOCK
+                 WHERE ROWID(bfVendItemCost) EQ ROWID(vendItemCost).
+            bfVendItemCost.expirationDate = dtExpirationDate.
+            RELEASE bfVendItemCost.
+        END. /* if not first-of */
+        dtExpirationDate = vendItemCost.effectiveDate - 1.
+    END. /* each venditemcost */
+
+END PROCEDURE.
+
 PROCEDURE pExpirePriceByCust PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -744,6 +786,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iVendCostLevelID     AS INTEGER   NO-UNDO.
  
     FIND FIRST bf-po-ord NO-LOCK 
         WHERE ROWID(bf-po-ord) EQ ipriPoOrd
@@ -823,9 +866,26 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
                 
-                IF dCostPerUOM NE bf-po-ordl.cost THEN
+                RUN pGetCostLevel(bf-vendItemCost.vendItemCostID, dQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+                     
+                IF dCostPerUOM NE bf-po-ordl.cost OR iVendCostLevelID EQ 0 THEN
+                DO:
+                    CREATE ttPriceHold.                 
+                    ASSIGN                       
+                        ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                        ttPriceHold.cCustID          = bf-po-ord.cust-no
+                        ttPriceHold.cShipID          = ""
+                        ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
+                        ttPriceHold.lPriceHold       = YES
+                        ttPriceHold.cPriceHoldDetail = ""  .
+                        IF iVendCostLevelID EQ 0 THEN
+                        ttPriceHold.cPriceHoldReason = "No matrix exist ".
+                        ELSE
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table" .                                            
+                END. 
+                
+                IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -835,9 +895,10 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
                         ttPriceHold.lPriceHold       = YES
                         ttPriceHold.cPriceHoldDetail = ""
-                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
-                        .                                            
-                END.                  
+                        ttPriceHold.cPriceHoldReason = IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder THEN "Item quantity is less then min order qty(Item - " + ttPriceHold.cFGItemID + "  Min Qty - " + STRING(bf-vendItemCost.quantityMinimumOrder) + ")"
+                                                       ELSE "Item quantity is greater then max order qty(Item - " + ttPriceHold.cFGItemID + "  Max Qty - " + STRING(bf-vendItemCost.quantityMaximumOrder) + ")"
+                        .                    
+                END.
             END.  
             ELSE 
             DO:             
@@ -887,12 +948,40 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                 bf-po-ord.rec_key,
                 "po-ord",
                 ttPriceHold.cPriceHoldReason,
+                "",
                 ""
                 ).
         END.
     END.
     RELEASE bf-po-ord.
     
+END PROCEDURE.
+
+PROCEDURE Vendor_ExpireOldCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+
+    RUN pExpireOldCost (
+        ipcCompany,
+        ipcItemID,
+        ipcItemType,
+        ipcVendorID,
+        ipcCustomerID,
+        ipcEstimateNo,
+        ipiFormNo,
+        ipiBlankNo   
+        ).
+
 END PROCEDURE.
 
 PROCEDURE Vendor_ExpirePriceByCust:

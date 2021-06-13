@@ -373,7 +373,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   end.
   v-tot-palls = oe-bolh.tot-pallet.
-  PUT "<R47><C50><#8>"
+  PUT "<R46><C50><#8>"
       "<=8><FROM><R+4><C+30><RECT> " 
       /*"<=8><R+1> Total Pallets      :" /*oe-bolh.tot-pallets*/ v-tot-palls FORM ">,>>>,>>9"*/
       "<=8> Total Class 70 Weight :" v-wgt-70 FORM ">>>>,>>9"
@@ -388,7 +388,7 @@ CASE v-frt-class:
     WHEN "C" THEN v-frt-class = v-frt-class + "                                250".
 END CASE.
 
-PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP(1)
+PUT "<FBook Antiqua><R44><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP(1)
     oe-bolh.ship-i[1] AT 7 SKIP
     oe-bolh.ship-i[2] AT 7 SKIP
     oe-bolh.ship-i[3] AT 7 SKIP
@@ -405,9 +405,13 @@ PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
     "<=7><C1><R+5><FROM><C+38><LINE> "  
     "<=7><C3><R+5>If charges are to be prepaid, write or stamp here, ""To be Prepaid""  "
     "<=7><C8><R+5.7><B><P14>" v-prepaid FORM "x(20)" "</B>"
-    "<P9><=7><R+3><C50>Carrier _______________________________________" SKIP(1)
-    "<=7><R+5><C50>Date __________________________________________" SKIP   
-    "<=7><R+6><C72>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
+    "<P9><=7><R+0.5><C47><B>ATTN DRIVERS:    COMPLETE ALL ITEMS BELOW" "</B>" 
+    "<P9><=7><R+2><C40>Carrier __________________________________" 
+    "<=7><R+2><C66>Date ___________________" SKIP   
+    "<=7><R+3.5><C40>DRIVER COUNTS:  # of PCS _______________"    
+    "<=7><R+3.5><C66> # of Pallets _____________" SKIP   
+    "<P9><=7><R+5.5><C40>Driver Signature  _________________________________________________" SKIP   
+    /*"<=7><R+6><C72>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP*/
     "<=7><R+8><C9>CLASS   <C42>DESCRIPTION OF ARTICLES" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
     /*v-frt-class FORM "x(40)" AT 10 */
@@ -415,13 +419,14 @@ PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
     "<C1><FROM><C80><LINE> "   SKIP
     "<=7><R+10><C10>100 (as FAK 55) <C36>Item #29785-sub 6, KD, corrugated, in packages" SKIP
     "<C1><FROM><C80><LINE> "   SKIP
+    "<=7><R+11><C73>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
     .
 
 
-  v-printline = v-printline + 14.
+  v-printline = v-printline + 15.
   IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
   oe-bolh.printed = yes.
-
+  
   /*IF v-printline < 45 THEN PUT SKIP(60 - v-printline).*/
   PAGE.
   v-printline = 0.

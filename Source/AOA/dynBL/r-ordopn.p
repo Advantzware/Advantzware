@@ -76,6 +76,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE tmpFile    AS CHARACTER           NO-UNDO.
     DEFINE VARIABLE lc-result  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bOERell FOR oe-rell.
     
@@ -608,7 +609,10 @@ PROCEDURE pBusinessLogic:
                                             ELSE tt-report.key-01
             ttOpenOrderReport.xxSort2     = tt-report.key-03
             ttOpenOrderReport.xxIndex     = INTEGER(tt-report.key-08)
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
             DELETE tt-report.
     END. /* each tt-report */
 END PROCEDURE.

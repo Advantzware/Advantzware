@@ -1358,7 +1358,7 @@ PROCEDURE pJasperStarter :
     DEFINE OUTPUT PARAMETER opcJastFile   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 5.
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
@@ -1380,6 +1380,8 @@ PROCEDURE pJasperStarter :
                        + STRING(MONTH(dtDate),"99")
                        + STRING(DAY(dtDate),"99") + "."
                        + STRING(iTime,"99999")
+        cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[1],".jrxml",".err")
+                         ELSE cJasperFile[4] + ".err"
         opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
         cJasperStarter = "jasperstarter process "
                        + "-f " + LC(ipcType) + " "
@@ -1391,6 +1393,8 @@ PROCEDURE pJasperStarter :
                        + REPLACE(aoaTitle," ","_")
                        + "." + REPLACE(aoaTitle," ","") + " "
                        +  cJasperFile[1]
+                       + " 1>NUL 2>"
+                       + cJasperFile[5]
                        .
     DO idx = 1 TO EXTENT(cJasperFile) - 1:
         IF cJasperFile[idx] EQ ? THEN DO:
@@ -1413,6 +1417,7 @@ PROCEDURE pJasperStarter :
     END. /* if not can-do */
     /* log jasperstarter command for debug purposes if needed */
     OUTPUT TO VALUE(cUserFolder + "JasperStarter.log").
+    PUT UNFORMATTED cJasperStarter SKIP.
     PUT UNFORMATTED
         REPLACE(
         REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
@@ -1420,7 +1425,7 @@ PROCEDURE pJasperStarter :
         SKIP.
     OUTPUT CLOSE.
     OS-DELETE VALUE(cJasperFile[3]).
-    OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
+    OS-COMMAND SILENT CALL VALUE(cJasperStarter).
 
 END PROCEDURE.
 

@@ -945,7 +945,12 @@ DO:
         OUTPUT lSuccess,
         OUTPUT cMessage
         ).
-        
+    
+    RUN Outbound_UpdateGlobalFieldValues IN hdOutboundProcs (
+        INPUT  iAPIOutboundID,
+        INPUT-OUTPUT lcRequestData
+        ).
+            
     scInstance:DeleteValue("APIOutboundTestMode").
     
     IF NOT lSuccess THEN DO:
@@ -1273,7 +1278,7 @@ PROCEDURE local-enable :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLocation.
   
     /* Dispatch standard ADM method.                             */

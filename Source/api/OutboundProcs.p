@@ -931,6 +931,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentTime", TIME).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDateTime", NOW).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyID", cCompany).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", system.SessionConfig:Instance:GetValue("CompanyName")).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1", system.SessionConfig:Instance:GetValue("CompanyStreet1")).
@@ -951,6 +952,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAddress2", bf-cust.addr[2]).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCity", bf-cust.city).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXState", bf-cust.state).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPostalCode", bf-cust.zip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXCountry", bf-cust.country).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXEmail", bf-cust.email).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAreaCode", bf-cust.area-code).

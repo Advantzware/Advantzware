@@ -107,11 +107,11 @@ DEFINE QUERY external_tables FOR pc-prdh.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table pc-prdd.job-no pc-prdd.job-no2 ~
 pc-prdd.frm pc-prdd.blank-no pc-prdd.pass pc-prdd.i-no pc-prdd.i-name ~
 pc-prdd.code pc-prdd.startx pc-prdd.stopx pc-prdd.hours pc-prdd.crew ~
-pc-prdd.qty pc-prdd.waste pc-prdd.complete 
+pc-prdd.qty pc-prdd.waste pc-prdd.complete pc-prdd.notes[1] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table pc-prdd.job-no ~
 pc-prdd.job-no2 pc-prdd.frm pc-prdd.blank-no pc-prdd.pass pc-prdd.i-no ~
 pc-prdd.code pc-prdd.startx pc-prdd.stopx pc-prdd.hours pc-prdd.crew ~
-pc-prdd.qty pc-prdd.waste pc-prdd.complete 
+pc-prdd.qty pc-prdd.waste pc-prdd.complete pc-prdd.notes[1]
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table pc-prdd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table pc-prdd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH pc-prdd WHERE pc-prdd.company = pc-prdh.company ~
@@ -214,6 +214,7 @@ DEFINE BROWSE Browser-Table
       pc-prdd.qty FORMAT ">>>>>>>9-":U LABEL-BGCOLOR 14
       pc-prdd.waste FORMAT ">>>>9-":U LABEL-BGCOLOR 14
       pc-prdd.complete FORMAT "Y/N":U LABEL-BGCOLOR 14
+      pc-prdd.notes[1] LABEL "Notes"     LABEL-BGCOLOR 14
   ENABLE
       pc-prdd.job-no
       pc-prdd.job-no2
@@ -229,6 +230,7 @@ DEFINE BROWSE Browser-Table
       pc-prdd.qty
       pc-prdd.waste
       pc-prdd.complete
+      pc-prdd.notes[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 9.05

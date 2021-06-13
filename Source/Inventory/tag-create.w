@@ -75,6 +75,7 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 {Inventory/ttInventory.i}
 {Inventory/ttPrintInventoryStock.i}
 {Inventory/ttPrintInventoryStockFG.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -1519,7 +1520,7 @@ PROCEDURE pInit :
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
     ASSIGN
@@ -1717,6 +1718,8 @@ PROCEDURE pUpdateComboBoxes :
             ipcCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            ?,
+            ?,
             INPUT-OUTPUT cMachineListItems
             ).
     END.

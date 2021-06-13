@@ -14,8 +14,10 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     
+USING system.SharedConfig.
 
-CREATE WIDGET-POOL.
+CREATE WIDGET-POOL.     
 
 /* ***************************  Definitions  ************************** */
 
@@ -35,6 +37,8 @@ DEFINE TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
    FIELD acct-dscr LIKE account.dscr
    FIELD tt-rowid AS ROWID
    INDEX tt-glhist glhist-flag DESC actnum ASC.
+   
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.   
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -71,7 +75,7 @@ DEFINE TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_run-no BUTTON-1 BROWSE-1 
+&Scoped-Define ENABLED-OBJECTS begin_run-no BUTTON-1 btn_update btn_add BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS begin_run-no 
 
 /* Custom List Definitions                                              */
@@ -92,6 +96,14 @@ DEFINE BUTTON BUTTON-1
      LABEL "Populate Browser" 
      SIZE 22 BY 1.14.
 
+DEFINE BUTTON btn_update 
+     LABEL "Update" 
+     SIZE 15 BY 1.14.
+     
+DEFINE BUTTON btn_add 
+     LABEL "Add" 
+     SIZE 15 BY 1.14.
+     
 DEFINE VARIABLE begin_run-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Run#" 
      VIEW-AS FILL-IN 
@@ -117,7 +129,7 @@ DEFINE BROWSE BROWSE-1
  ENABLE tt-glhist.tr-amt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 125 BY 12.38.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 12.38.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -126,11 +138,13 @@ DEFINE FRAME FRAME-A
      begin_run-no AT ROW 1.48 COL 8 COLON-ALIGNED HELP
           "Enter Beginning Run Number"
      BUTTON-1 AT ROW 1.48 COL 29
+     btn_update AT ROW 1.48 COL 59
+     btn_add AT ROW 1.48 COL 74     
      BROWSE-1 AT ROW 3.14 COL 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 130 BY 15.38.
+         SIZE 150 BY 15.38.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -151,11 +165,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Fix G/L History"
          HEIGHT             = 15.38
-         WIDTH              = 130
+         WIDTH              = 150
          MAX-HEIGHT         = 15.38
-         MAX-WIDTH          = 130
+         MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 15.38
-         VIRTUAL-WIDTH      = 130
+         VIRTUAL-WIDTH      = 150
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -270,6 +284,114 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btn_update
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_update C-Win
+ON CHOOSE OF btn_update IN FRAME FRAME-A /* Update*/
+DO:
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE cOldAccount AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE dOldAmt AS DECIMAL NO-UNDO.
+   DEFINE BUFFER bf-glhist FOR glhist.
+   DO WITH FRAME {&FRAME-NAME}:
+
+       IF AVAIL tt-glhist THEN
+       DO:
+         cOldAccount = tt-glhist.actnum .
+         dOldAmt = tt-glhist.tr-amt.
+         
+         RUN gl/d-glinq.w (INPUT cocode,INPUT tt-glhist.tt-rowid,INPUT "update",OUTPUT riRowid) .
+         
+         FIND FIRST bf-glhist NO-LOCK
+              WHERE rowid(bf-glhist) EQ riRowid NO-ERROR.
+         IF AVAIL bf-glhist  THEN
+         DO:
+            IF bf-glhist.actnum NE cOldAccount THEN
+            DO:
+                FIND FIRST account EXCLUSIVE-LOCK 
+                     WHERE account.company EQ  cocode
+                     AND account.actnum EQ cOldAccount NO-ERROR.
+                
+                IF avail account THEN
+                 account.cyr[bf-glhist.period] = account.cyr[bf-glhist.period] - dOldAmt .                    
+                 
+                 FIND FIRST account EXCLUSIVE-LOCK 
+                     WHERE account.company EQ  cocode
+                     AND account.actnum EQ bf-glhist.actnum NO-ERROR.
+                 IF avail account THEN
+                 account.cyr[bf-glhist.period] = account.cyr[bf-glhist.period] + bf-glhist.tr-amt .
+            END.
+            ELSE IF bf-glhist.tr-amt NE dOldAmt THEN
+            DO:
+                 FIND FIRST account EXCLUSIVE-LOCK 
+                     WHERE account.company EQ  cocode
+                     AND account.actnum EQ bf-glhist.actnum NO-ERROR.
+                 IF avail account THEN
+                 account.cyr[bf-glhist.period] = account.cyr[bf-glhist.period] + (bf-glhist.tr-amt - dOldAmt) .                  
+            END.
+             
+         END.
+         RELEASE account.
+         PAUSE 0.         
+         APPLY "choose" TO BUTTON-1.
+       END.
+      
+      
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&Scoped-define SELF-NAME btn_add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_add C-Win
+ON CHOOSE OF btn_add IN FRAME FRAME-A /* Add*/
+DO:
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+   DEFINE VARIABLE riNewRowid AS ROWID NO-UNDO.
+   DEFINE BUFFER bf-glhist FOR glhist .
+   DO WITH FRAME {&FRAME-NAME}:
+
+    IF AVAIL tt-glhist THEN
+    DO:
+        CREATE glhist .
+        BUFFER-COPY tt-glhist EXCEPT rec_key  TO glhist.
+        riNewRowid = ROWID(glhist).
+        glhist.actnum = "".
+        glhist.tr-amt = 0.
+        RELEASE glhist.
+        
+        RUN gl/d-glinq.w (INPUT cocode,INPUT riNewRowid,INPUT "update",OUTPUT riRowid) .
+         
+         FIND FIRST bf-glhist NO-LOCK
+              WHERE rowid(bf-glhist) EQ riRowid NO-ERROR.
+         IF AVAIL bf-glhist THEN
+         DO:            
+           FIND FIRST account EXCLUSIVE-LOCK 
+                     WHERE account.company EQ  cocode
+                     AND account.actnum EQ bf-glhist.actnum NO-ERROR.
+                 IF avail account THEN
+                 account.cyr[bf-glhist.period] = account.cyr[bf-glhist.period] + bf-glhist.tr-amt  .              
+         END.
+         IF NOT AVAIL bf-glhist THEN
+         DO:
+             FIND FIRST bf-glhist EXCLUSIVE-LOCK
+                  WHERE rowid(bf-glhist) EQ riNewRowid NO-ERROR.
+             IF avail bf-glhist THEN DELETE bf-glhist.             
+         END.
+         RELEASE account.
+         RELEASE bf-glhist.
+         PAUSE 0.         
+         APPLY "choose" TO BUTTON-1.
+    END.
+      
+      
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &Scoped-define SELF-NAME BUTTON-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BUTTON-1 C-Win
@@ -358,6 +480,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   RUN enable_UI.
+  
+  ASSIGN 
+        scInstance   = SharedConfig:instance
+        begin_run-no =  INTEGER(scInstance:GetValue("TransTrNumber")) NO-ERROR. 
+        begin_run-no:SCREEN-VALUE =  STRING(scInstance:GetValue("TransTrNumber")) NO-ERROR.
+        IF begin_run-no NE 0 THEN
+        DO:
+             APPLY "choose" TO BUTTON-1.
+        END.          
 
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -400,7 +531,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_run-no 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_run-no BUTTON-1 BROWSE-1 
+  ENABLE begin_run-no BUTTON-1 btn_update btn_add BROWSE-1 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

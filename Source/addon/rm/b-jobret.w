@@ -757,7 +757,7 @@ DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
-    RUN validate-jobmat (YES) NO-ERROR.
+    RUN pValidateMatAct NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF adm-new-record THEN DO:
@@ -828,7 +828,7 @@ DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN validate-jobmat (YES) NO-ERROR.
+    RUN pValidateMatAct NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -890,8 +890,6 @@ END.
 ON LEAVE OF rm-rctd.b-num IN BROWSE Browser-Table /* B */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-  RUN validate-jobmat (NO) NO-ERROR.
-  if error-status:error then return no-apply.
 
   IF rm-rctd.b-num NE INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
      RUN update-qty-proc.
@@ -1941,6 +1939,47 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateMatAct B-table-Win
+PROCEDURE pValidateMatAct PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-mat-act FOR mat-act.
+    DEFINE BUFFER bf-job     FOR job.
+    
+    FIND FIRST bf-job NO-LOCK
+         WHERE bf-job.company EQ cocode
+           AND bf-job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+           AND bf-job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE)
+         NO-ERROR.
+    IF NOT AVAILABLE bf-job THEN DO:
+        MESSAGE "Invalid Job '" + rm-rctd.job-no:SCREEN-VALUE + "-" + rm-rctd.job-no2:SCREEN-VALUE + "'"
+        VIEW-AS ALERT-BOX.
+        APPLY "ENTRY" TO rm-rctd.job-no.
+        RETURN ERROR.    
+    END.
+
+    FIND FIRST bf-mat-act NO-LOCK
+         WHERE bf-mat-act.company EQ cocode
+           AND bf-mat-act.job     EQ bf-job.job 
+           AND bf-mat-act.i-no    EQ rm-rctd.i-no:SCREEN-VALUE
+           AND bf-mat-act.tag     EQ rm-rctd.tag:SCREEN-VALUE
+         NO-ERROR.
+    IF NOT AVAILABLE bf-mat-act THEN DO:
+        MESSAGE "Tag '" + rm-rctd.tag:SCREEN-VALUE + "' is not issued yet to job '" + rm-rctd.job-no:SCREEN-VALUE + "-" + rm-rctd.job-no2:SCREEN-VALUE + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY" TO rm-rctd.job-no.
+        RETURN ERROR.    
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rmbin-help B-table-Win 
 PROCEDURE rmbin-help :
 /*------------------------------------------------------------------------------
@@ -2241,7 +2280,7 @@ PROCEDURE valid-all :
   RUN valid-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
-  RUN validate-jobmat (NO) NO-ERROR.
+  RUN pValidateMatAct NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
   RUN valid-job-tag NO-ERROR.

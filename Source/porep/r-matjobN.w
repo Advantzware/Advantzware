@@ -75,16 +75,16 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 ASSIGN cTextListToSelect = "Job No,Item No,UOM,Required,Ordered,Received,Vendor,"
                          + "Width,Length,Scoring,Po Due Date,Balance,P/O No,Name,Committed," 
-                         + "Job Qty Allocated,RM Qty Allocated,Job Due Date" 
+                         + "Job Qty Allocated,RM Qty Allocated,Job Due Date,Item Description,Customer,Customer Name" 
        cFieldListToSelect = "job,ino,uom,reqr,ord,rece,vend," +
-                            "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty,job-due-date" 
-       cFieldLength = "10,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12"
-       cFieldType = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c,c"  
+                            "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty,job-due-date,item-desc,cust,custname" 
+       cFieldLength = "10,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12,30,8,30"
+       cFieldType = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c,c,c,c,c"  
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Job No,Item No,UOM,Required,Ordered,Received,Vendor,"
-                         + "Width,Length,Scoring,Date Due" .
+                         + "Width,Length,Scoring" .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1263,6 +1263,7 @@ def var v-stat                  like job.stat init ""                   no-undo.
 def var v-wid                   like po-ordl.s-wid                      no-undo.
 def var v-len                   like po-ordl.s-len                      no-undo.
 def var v-bwt                   like item.basis-w                       no-undo.
+DEFINE VARIABLE cItemDesc       LIKE item.i-dscr                        NO-UNDO.
 
 DEF VAR lv-val LIKE reftable.val EXTENT 20 NO-UNDO.
 DEF VAR lv-typ LIKE reftable.dscr EXTENT 20 NO-UNDO.

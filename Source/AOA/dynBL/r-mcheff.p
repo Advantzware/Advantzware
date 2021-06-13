@@ -64,6 +64,7 @@ PROCEDURE pBusinessLogic:
 END PROCEDURE.
 
 PROCEDURE pro-rate-mr :
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE BUFFER b-mch-act FOR mch-act.
     DEFINE BUFFER b-job-cod FOR job-code.
 
@@ -85,6 +86,9 @@ PROCEDURE pro-rate-mr :
         ELSE
         IF b-job-cod.cat EQ "MR" THEN
         tt-srt.tot-mr-hours  = tt-srt.tot-mr-hours  + b-mch-act.hours.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     END. /* each b-mch-act */
 
 END PROCEDURE.

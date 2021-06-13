@@ -3027,7 +3027,7 @@ PROCEDURE build-work :
     status default 'Now Processing BOL: ' + string (oe-bolh.bol-no) + '....'.
 
     lv-run-bol        = IF lv-run-bol = "" AND report.key-04 = "FIBRECI" THEN  "NO" ELSE  "Yes" .
-    IF lv-run-commercial = "" AND report.key-03 <> "N" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" AND v-coc-fmt <> "CCC3" AND v-coc-fmt <> "CCC2" AND v-coc-fmt <> "CCC4" AND v-coc-fmt <> "CCC5" AND v-coc-fmt <> "CCCEss" THEN
+    IF lv-run-commercial = "" AND report.key-03 <> "N" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" AND v-coc-fmt <> "CCC3" AND v-coc-fmt <> "CCC2" AND v-coc-fmt <> "CCC4" AND v-coc-fmt <> "CCC5" AND v-coc-fmt <> "CCCEss" AND v-coc-fmt <> "CCCRev" THEN
          lv-run-commercial = "YES".
 
     IF NOT CAN-FIND(FIRST tt-post WHERE tt-post.row-id = ROWID(oe-bolh)) THEN
@@ -3576,7 +3576,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
    IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel" AND v-print-fmt <> "Mclean-Excel") OR
-      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5" AND v-print-fmt <> "CCCEss") THEN
+      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5" AND v-print-fmt <> "CCCEss" AND v-print-fmt <> "CCCRev") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          when 2 then run output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3884,7 +3884,7 @@ PROCEDURE output-to-mail :
                            INPUT 1,
                            INPUT v-printed).
 
-      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt eq "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss") THEN
+      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt eq "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss" AND v-coc-fmt <> "CCCRev") THEN
       DO:
          lv-pdf-file = init-dir + "\cofc.pdf".
 
@@ -5820,7 +5820,7 @@ PROCEDURE SetBOLForm :
                 is-xprint-form = NO
                 v-program = "oe/rep/cocsoule.p".       
 
-         WHEN "CCC" OR WHEN "CCCWPP" OR WHEN "CCC2" OR WHEN "CCC3" OR WHEN "CCC4" OR WHEN "CCC5" THEN
+         WHEN "CCC" OR WHEN "CCCWPP" OR WHEN "CCC2" OR WHEN "CCC3" OR WHEN "CCC4" OR WHEN "CCC5" OR WHEN "CCCRev" THEN
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocccc.p".

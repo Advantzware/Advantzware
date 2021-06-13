@@ -82,7 +82,6 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
-{system/sysconst.i}
 {Inventory/ttBrowseInventory.i}
 {Inventory/ttInventory.i}
 {Inventory/ttPrintInventoryStock.i}
@@ -1612,7 +1611,7 @@ PROCEDURE init :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
 
     ASSIGN 
@@ -2018,6 +2017,8 @@ PROCEDURE pUpdateMachineList :
         ipcCompany,
         ipcJobNo,
         INT(ipcJobNo2),
+        ?,
+        ?,
         INPUT-OUTPUT opcMachineListItems 
         ).
 

@@ -391,7 +391,7 @@ for each report where report.term-id eq v-term-id no-lock,
       v-inv-qty FORM "->>>>>9" SPACE(3)
       v-i-dscr  format "x(30)" SPACE(3)
       v-enum FORM ">>9" SPACE(1)
-      v-price  format ">>,>>9.99" SPACE(2)
+      v-price  format ">>,>>9.9999" SPACE(2)
       ar-invl.pr-qty-uom SPACE(1)
       ar-invl.amt  format "->>>,>>9.99"
       SKIP.

@@ -48,6 +48,7 @@ DEF INPUT PARAMETER ipcFromVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
+DEF INPUT PARAMETER ipcLogFile AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
@@ -77,7 +78,7 @@ DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
 
-DEF NEW SHARED TEMP-TABLE ttUpdateHist
+DEF SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
     FIELD toVersion AS CHAR 
     FIELD applyDate AS DATE 
@@ -1835,6 +1836,29 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanUserWindow C-Win
+PROCEDURE ipCleanUserWindow:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Cleaning userWindow table").
+
+    DISABLE TRIGGERS FOR LOAD OF userWindow.
+    
+    FOR EACH userWindow EXCLUSIVE WHERE
+        userWindow.state EQ 3:
+        DELETE userWindow.
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmAdminUser C-Win 
 PROCEDURE ipConfirmAdminUser :
 /*------------------------------------------------------------------------------
@@ -2127,6 +2151,163 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPolScore C-Win
+PROCEDURE ipConvertPolScore PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cScoreOn       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPanelSize     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cScoreType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-reftable1   FOR reftable.
+    DEFINE BUFFER bf-reftable2   FOR reftable.
+    DEFINE BUFFER bf-po-ordl     FOR po-ordl.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    DEFINE BUFFER bf-company     FOR company.
+
+    RUN ipStatus ("    Creating panelHeader and panelDetail records.").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+    
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    FOR EACH bf-company NO-LOCK 
+        WHERE bf-company.company = "001":
+        RUN sys/ref/nk1look.p (
+            INPUT bf-company.company,     /* Company Code */ 
+            INPUT "CECSCRN",      /* sys-ctrl name */
+            INPUT "C",            /* Output return value */
+            INPUT NO,             /* Use ship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cSizeFormat, 
+            OUTPUT lRecFound
+            ).
+        
+        FOR EACH bf-po-ordl NO-LOCK 
+            WHERE bf-po-ordl.company = bf-company.company:
+    
+            FIND FIRST bf-reftable1 NO-LOCK
+                WHERE bf-reftable1.reftable EQ "POLSCORE"
+                  AND bf-reftable1.company  EQ bf-po-ordl.company
+                  AND bf-reftable1.loc      EQ "1"
+                  AND bf-reftable1.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable1.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            
+            FIND FIRST bf-reftable2 NO-LOCK
+                WHERE bf-reftable2.reftable EQ "POLSCORE"
+                  AND bf-reftable2.company  EQ bf-po-ordl.company
+                  AND bf-reftable2.loc      EQ "2"
+                  AND bf-reftable2.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable2.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            IF NOT AVAILABLE bf-reftable1 AND NOT AVAILABLE bf-reftable2 THEN
+                NEXT.
+            
+            FIND FIRST bf-panelHeader NO-LOCK
+                WHERE bf-panelHeader.company  EQ bf-po-ordl.company
+                  AND bf-panelHeader.linkType EQ "P"
+                  AND bf-panelHeader.poID     EQ bf-po-ordl.po-no
+                  AND bf-panelHeader.poLine   EQ bf-po-ordl.line
+                NO-ERROR.
+            IF AVAILABLE bf-panelHeader THEN
+                NEXT.
+            
+            CREATE bf-panelHeader.
+            ASSIGN
+                bf-panelHeader.company  = bf-po-ordl.company
+                bf-panelHeader.linkType = "P"
+                bf-panelHeader.poID     = bf-po-ordl.po-no
+                bf-panelHeader.poLine   = bf-po-ordl.line
+                .   
+        
+            cScoreOn = IF bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+                           "L"
+                       ELSE
+                           "W".
+    
+            DO iIndex = 1 TO 20:
+                ASSIGN
+                    dPanelSize = 0
+                    cScoreType = ""
+                    .
+            
+                IF iIndex LE 12 THEN DO:
+                    IF NOT AVAILABLE bf-reftable1 THEN
+                        NEXT.
+                
+                    IF bf-reftable1.val[iIndex] EQ 0 AND TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable1.val[iIndex]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1))
+                            .
+                END.
+                ELSE IF iIndex LE 20 THEN DO:
+                    IF NOT AVAILABLE bf-reftable2 THEN
+                        NEXT.
+    
+                    IF bf-reftable2.val[iIndex - 12] EQ 0 AND TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable2.val[iIndex - 12]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1))
+                            .
+                END.
+        
+                IF cSizeFormat EQ "16th's" THEN 
+                    RUN Convert16thsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+                ELSE IF cSizeFormat EQ "32nd's" THEN 
+                    RUN Convert32ndsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+    
+                CREATE bf-panelDetail.
+                ASSIGN
+                    bf-panelDetail.company              = bf-panelHeader.company
+                    bf-panelDetail.panelHeaderID        = bf-panelHeader.panelHeaderID
+                    bf-panelDetail.panelType            = cScoreOn
+                    bf-panelDetail.panelNo              = iIndex
+                    bf-panelDetail.panelFormula         = ""
+                    bf-panelDetail.scoringAllowance     = 0
+                    bf-panelDetail.scoreType            = cScoreType
+                    bf-panelDetail.panelSize            = dPanelSize
+                    bf-panelDetail.panelSizeFromFormula = dPanelSize
+                    .               
+            END.
+        END.
+    END.
+    
+    DELETE PROCEDURE hdFormulaProcs.
+
+    PROPATH = cOrigPropath.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
@@ -2720,6 +2901,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210003.
     IF iCurrentVersion LT 21010000 THEN
         RUN ipDataFix210100.
+	IF iCurrentVersion LT 21020000 THEN
+		RUN ipDataFix210200.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3479,9 +3662,31 @@ PROCEDURE ipDataFix210100:
     RUN ipFixForeignAccount.
     RUN ipResetProbeMSF.
     RUN ipUpdateSurchargeAccounts.
+    RUN ipCleanUserWindow.
     
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210200 C-Win
+PROCEDURE ipDataFix210200 PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210200...").
+
+    RUN ipConvertPolScore.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4829,9 +5034,18 @@ PROCEDURE ipLoadDAOAData :
     END.
     
     FOR EACH dynParamValue EXCLUSIVE WHERE 
-        dynParamValue.user-id EQ "_default":
+        dynParamValue.user-id EQ "_default" AND
+        dynParamValue.subjectID LT 5000:
         DELETE dynParamValue.
     END.
+    
+    /* Ticket 99703 */
+    FOR EACH dynParamValue EXCLUSIVE-LOCK WHERE 
+        dynParamValue.user-id NE "_default" AND 
+        dynParamValue.paramvalueid EQ 0:
+        DELETE dynParamValue.
+    END.
+    /* End Ticket 99703 */
 
     FOR EACH dynPrgrmsPage EXCLUSIVE:
         DELETE dynPrgrmsPage.
@@ -6709,14 +6923,15 @@ PROCEDURE ipStatus :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcStatus AS CHAR NO-UNDO.
-    DEF VAR cLogFile AS CHAR NO-UNDO.
-                
+
+    /* Give the asiUpdate program time to close the log file */
+    PAUSE 1 BEFORE-HIDE NO-MESSAGE.
+                   
     IF INDEX(ipcStatus,"duplicate") EQ 0 THEN DO:
         ASSIGN
             eStatus:{&SV}       = eStatus:{&SV} + ipcStatus + CHR(10)
             eStatus:CURSOR-LINE = eStatus:NUM-LINES.
         ASSIGN
-            cLogFile = cEnvAdmin + "\UpdateLog.txt"
             iMsgCtr = iMsgCtr + 1
             cMsgStr[iMsgCtr] = "  " + ipcStatus.
         FIND FIRST ttUpdateHist NO-LOCK NO-ERROR.
@@ -6725,7 +6940,7 @@ PROCEDURE ipStatus :
                 ttUpdateHist.endTimeInt = INT(TIME)
                 ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
                 ttUpdateHist.success = lSuccess.        
-        OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
+        OUTPUT STREAM logStream TO VALUE(ipcLogFile) APPEND.
         PUT STREAM logStream
             STRING(TODAY,"99/99/99") AT 1
             STRING(TIME,"HH:MM:SS") AT 12
@@ -7059,8 +7274,8 @@ PROCEDURE ipUpdateSQLSettings:
             Output some values to a file /Admin/SQLParms.txt. This contains
                 dbname=<dbname>
                 dbport=<port>
-                cusername=asi
-                cpassword=Boxco2020
+                cusername=sysprogress
+                cpassword=sysprogress
             This file will be used later by the batch file to ensure SQL permissions are given to all files
             It will then be deleted as part of the normal upgrade
             
@@ -7089,8 +7304,8 @@ PROCEDURE ipUpdateSQLSettings:
     OUTPUT TO VALUE(cAdminDir + "\SQLParms.txt").
     PUT UNFORMATTED "dbname=" + ipcName + CHR(10).         
     PUT UNFORMATTED "dbport=" + cSQLDbPort + CHR(10).         
-    PUT UNFORMATTED "cusername=asi" + CHR(10).         
-    PUT UNFORMATTED "cpassword=Boxco2020" + CHR(10).         
+    PUT UNFORMATTED "cusername=sysprogress" + CHR(10).         
+    PUT UNFORMATTED "cpassword=sysprogress" + CHR(10).         
     OUTPUT CLOSE.    
     
 END PROCEDURE.
@@ -7099,9 +7314,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSurchargeAccounts C-Win
+ &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateSurchargeAccounts C-Win
 PROCEDURE ipUpdateSurchargeAccounts:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -7125,7 +7338,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateTTIniFile C-Win 

@@ -98,7 +98,7 @@ DEFINE VARIABLE h_vi-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-qtrpc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-prmtx AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_changevalue AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -285,6 +285,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_v-qthd ).
        RUN set-position IN h_v-qthd ( 3.62 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 10.48 , 143.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/changevalue.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_changevalue ).
+       RUN set-position IN h_changevalue ( 15.05 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.67 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-quote.w':U ,
@@ -314,7 +322,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-qtitm ( 7.86 , 130.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-addupd.w':U ,
+             INPUT  'panels/p-qtitem.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -329,12 +337,29 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-qthd. */
        RUN add-link IN adm-broker-hdl ( h_b-qtest , 'Record':U , h_v-qthd ).
        RUN add-link IN adm-broker-hdl ( h_p-quote , 'TableIO':U , h_v-qthd ).
+       
+       /* Links to SmartViewer h_changevalue. */
+       RUN add-link IN adm-broker-hdl ( h_b-qtest , 'changeValue':U , h_changevalue ).
 
        /* Links to SmartNavBrowser h_b-qtitm. */
        RUN add-link IN adm-broker-hdl ( h_p-addupd , 'TableIO':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
        /* Links to SmartViewer h_vp-prmtx. */
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_vp-prmtx ).
+       RUN add-link IN adm-broker-hdl ( h_b-qtitm , 'priceMatrix':U , h_vp-prmtx ).
+       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-qthd ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_changevalue ,
+             h_v-qthd , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-quote ,
+             h_changevalue , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vp-prmtx ,
+             h_p-quote , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-qtitm ,
+             h_vp-prmtx , 'AFTER':U ).
+       
 
     END. /* Page 2 */
 
@@ -360,7 +385,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 11.43 , 143.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-qtqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -421,7 +446,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 34.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-qtmisc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,

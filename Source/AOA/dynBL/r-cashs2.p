@@ -64,6 +64,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lInvFound   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE i           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE j           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
     
     /* subject business logic */
     FOR EACH cust NO-LOCK
@@ -370,7 +371,10 @@ PROCEDURE pBusinessLogic:
             ttCashReceiptBySalesRepName.balAftPay = dRemBal
             ttCashReceiptBySalesRepName.commAmt   = dCom-2
             ttCashReceiptBySalesRepName.commPct   = dComm%
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
         IF LAST-OF(tt-report.inv-no) THEN
         DELETE tt-report.
     END. /* each tt-report */

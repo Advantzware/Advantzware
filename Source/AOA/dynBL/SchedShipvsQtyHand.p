@@ -44,7 +44,8 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iQtyOrder AS INTEGER FORMAT "->>>,>>>,>>9" INITIAL 0 NO-UNDO.
     DEFINE VARIABLE iQtyPo    AS INTEGER FORMAT "->>>,>>>,>>9" INITIAL 0 NO-UNDO.
     DEFINE VARIABLE iRelQty LIKE iQtyOrder NO-UNDO.     
-    DEFINE VARIABLE dHldQty   AS DECIMAL   NO-UNDO.    
+    DEFINE VARIABLE dHldQty   AS DECIMAL   NO-UNDO.  
+    DEFINE VARIABLE iCount    AS INTEGER   NO-UNDO.  
 
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ cCompany
@@ -183,7 +184,10 @@ PROCEDURE pBusinessLogic:
                 ttSchedShipvsQtyHand.balShip  = iBalShip
                 ttSchedShipvsQtyHand.openPo   = iQtyPo
                 ttSchedShipvsQtyHand.relNo    = tt-report.key-06            
+                iCount = iCount + 1
                 .
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).
         END.
     END. /* each ttReport */
 END PROCEDURE.

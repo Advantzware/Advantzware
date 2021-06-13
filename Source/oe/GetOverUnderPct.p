@@ -114,14 +114,17 @@ CASE cFGOversDefault:
         END. 
     WHEN "Order" THEN 
         DO:       
-            FIND FIRST oe-ord NO-LOCK
-                WHERE oe-ord.ord-no EQ ipiOrderNo NO-ERROR . 
-                
-            IF AVAILABLE oe-ord THEN
-                ASSIGN
-                    opdOverPer  = oe-ord.over-pct
-                    opdUnderPer = oe-ord.under-pct 
-                    opcTagDesc  = "Order no. - " + string(ipiOrderNo)  .                              
+            IF ipiOrderNo NE 0 THEN 
+            DO:             
+                FIND FIRST oe-ord NO-LOCK
+                    WHERE oe-ord.ord-no EQ ipiOrderNo NO-ERROR . 
+                    
+                IF AVAILABLE oe-ord THEN
+                    ASSIGN
+                        opdOverPer  = oe-ord.over-pct
+                        opdUnderPer = oe-ord.under-pct 
+                        opcTagDesc  = "Order no. - " + string(ipiOrderNo).
+            END.                              
         END.           
 END CASE.
 

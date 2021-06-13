@@ -167,10 +167,13 @@ DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecordUpdating AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE lBOLQtyPopup AS LOGICAL NO-UNDO.
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
+RUN oe/ReleaseProcs.p PERSISTENT SET hdReleaseProcs.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
@@ -197,6 +200,12 @@ RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cFreightCalculationValue = cRtnChar NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT g_company, "BOLQtyPopup", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBOLQtyPopup = logical(cRtnChar) NO-ERROR.    
 
 /* Include file contains transaction keyword */
 {sys/ref/relpost.i}
@@ -908,6 +917,7 @@ DO:
      IF NOT ll THEN RETURN NO-APPLY.
      tt-relbol.warned = YES.
    END.
+       
    
    RELEASE oe-ord.
    IF v-ord-no NE 0 THEN
@@ -935,8 +945,9 @@ DO:
    END.
    
    /* Code moved since with section was too long */
-   RUN assign-ttrel.
-   
+   RUN assign-ttrel(OUTPUT lReturnError) NO-ERROR.
+   IF lReturnError THEN RETURN NO-APPLY.
+           
    IF TRIM(ssbolscan-cha) NE "" THEN
    DO:       
       DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
@@ -1146,46 +1157,81 @@ PROCEDURE assign-ttrel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DO WITH FRAME {&FRAME-NAME}:
+    DEFINE OUTPUT  PARAMETER oplError AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lUseReleaseQty      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iQuantityToScan     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
 
-   ASSIGN tt-relbol.tag# = tt-relbol.tag#:SCREEN-VALUE IN BROWSE br_table
-          tt-relbol.i-no = loadtag.i-no
-          tt-relbol.i-name = loadtag.i-name          
-          tt-relbol.ord-no = v-ord-no 
-          tt-relbol.job-no = loadtag.job-no
-          tt-relbol.job-no2 = loadtag.job-no2
-          tt-relbol.loc = IF AVAIL fg-bin THEN fg-bin.loc ELSE loadtag.loc
-          tt-relbol.loc-bin = IF AVAIL fg-bin THEN fg-bin.loc-bin ELSE loadtag.loc-bin
-          tt-relbol.cust-no = IF AVAIL fg-bin THEN fg-bin.cust-no ELSE ""  
-          tt-relbol.qty = IF AVAIL fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count  /* loadtag.qty */
-          tt-relbol.cases  = IF AVAIL fg-bin THEN TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) ELSE loadtag.case-bundle
-          tt-relbol.qty-case = IF AVAIL fg-bin THEN fg-bin.case-count ELSE loadtag.qty-case
-          tt-relbol.cases-unit = IF AVAIL fg-bin THEN fg-bin.cases-unit ELSE loadtag.case-bundle
-          tt-relbol.partial = IF AVAIL fg-bin THEN fg-bin.partial-count ELSE loadtag.partial
-          tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
-          tt-relbol.po-no = lv-po-no
-          tt-relbol.warned = ll.
-   
-   DISPLAY tt-relbol.release#
-           tt-relbol.tag# 
-           tt-relbol.i-no
-           tt-relbol.i-name
-           tt-relbol.qty
-           tt-relbol.ord-no
-           tt-relbol.loc
-           tt-relbol.loc-bin
-           tt-relbol.cust-no
-           tt-relbol.cases tt-relbol.qty-case
-           tt-relbol.cases-unit tt-relbol.partial
-           WITH BROWSE {&browse-name}.
+        ASSIGN 
+            tt-relbol.tag#    = tt-relbol.tag#:SCREEN-VALUE IN BROWSE br_table
+            tt-relbol.i-no    = loadtag.i-no
+            tt-relbol.i-name  = loadtag.i-name          
+            tt-relbol.ord-no  = v-ord-no 
+            tt-relbol.job-no  = loadtag.job-no
+            tt-relbol.job-no2 = loadtag.job-no2
+            tt-relbol.loc     = IF AVAILABLE fg-bin THEN fg-bin.loc ELSE loadtag.loc
+            tt-relbol.loc-bin = IF AVAILABLE fg-bin THEN fg-bin.loc-bin ELSE loadtag.loc-bin
+            tt-relbol.cust-no = IF AVAILABLE fg-bin THEN fg-bin.cust-no ELSE ""            
+            tt-relbol.line    = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
+            tt-relbol.po-no   = lv-po-no
+            tt-relbol.warned  = ll.
+      
+        RUN pCheckReleaseQty(
+            INPUT  loadtag.company,        
+            INPUT  INTEGER (tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name}),   
+            INPUT  loadtag.i-no,
+            INPUT  IF AVAILABLE fg-bin THEN fg-bin.qty ELSE loadtag.pallet-count,
+            OUTPUT lUseReleaseQty,      
+            OUTPUT iQuantityToScan, 
+            OUTPUT oplError  
+            ).
+        IF oplError THEN
+            RETURN.
+            
+        ASSIGN   
+            tt-relbol.qty        = iQuantityToScan
+            tt-relbol.cases      = IF AVAILABLE fg-bin THEN TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) ELSE loadtag.case-bundle
+            tt-relbol.qty-case   = IF AVAILABLE fg-bin THEN fg-bin.case-count ELSE loadtag.qty-case
+            tt-relbol.cases-unit = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE loadtag.case-bundle
+            tt-relbol.partial    = IF AVAILABLE fg-bin THEN fg-bin.partial-count ELSE loadtag.partial
+            .
 
-   IF TRIM(ssbolscan-cha) NE "" AND AVAIL oe-relh THEN
-   DO:
-      tt-relbol.trailer# = oe-relh.trailer.
-      DISPLAY tt-relbol.trailer# WITH BROWSE {&browse-name}.
-   END.
+        IF lUseReleaseQty THEN DO:
+            ASSIGN
+                iQuantityofSubUnits = TRUNCATE((tt-relbol.qty - tt-relbol.partial) / tt-relbol.qty-case, 0)
+                iPartial            = tt-relbol.qty - (iQuantityofSubUnits * tt-relbol.qty-case)
+                .
 
-END.
+            ASSIGN
+                tt-relbol.cases   = iQuantityOfSubUnits
+                tt-relbol.partial = iPartial
+                .
+        END.
+           
+        DISPLAY tt-relbol.release#
+            tt-relbol.tag# 
+            tt-relbol.i-no
+            tt-relbol.i-name
+            tt-relbol.qty
+            tt-relbol.ord-no
+            tt-relbol.loc
+            tt-relbol.loc-bin
+            tt-relbol.cust-no
+            tt-relbol.cases tt-relbol.qty-case
+            tt-relbol.cases-unit tt-relbol.partial
+            WITH BROWSE {&browse-name}.
+
+        IF TRIM(ssbolscan-cha) NE "" AND AVAILABLE oe-relh THEN
+        DO:
+            tt-relbol.trailer# = oe-relh.trailer.
+            DISPLAY tt-relbol.trailer# WITH BROWSE {&browse-name}.
+        END.
+
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2352,6 +2398,33 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdReleaseProcs) THEN
+        DELETE PROCEDURE hdReleaseProcs.
+    
+    IF VALID-HANDLE(hInventoryProcs) THEN
+        DELETE PROCEDURE hInventoryProcs.
+                
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+   /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields B-table-Win
 PROCEDURE local-disable-fields:
 /*------------------------------------------------------------------------------
@@ -2549,6 +2622,79 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckReleaseQty B-table-Win 
+PROCEDURE pCheckReleaseQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiScannedQuantity AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseReleaseQty   AS LOGICAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opiQuantityToScan  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE iTotalScannedQuantity AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalReleaseQuantity AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lReleaseQuantitySelected AS LOGICAL NO-UNDO.
+
+    /* Fetch quantity scanned so far */
+    RUN Release_GetScannedQuantity IN hdReleaseProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        INPUT  ipcItemID,
+        OUTPUT iTotalScannedQuantity
+        ).        
+
+    /* Fetch release quantity for the scanned item */                
+    RUN Release_GetReleaseQuantity  IN hdReleaseProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        INPUT  ipcItemID,
+        OUTPUT iTotalReleaseQuantity
+        ). 
+
+    IF lBOLQtyPopup THEN DO:
+        IF (ipiScannedQuantity + iTotalScannedQuantity) GT iTotalReleaseQuantity THEN DO:
+            MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
+                     "YES to import entire Pallet Quantity for the Selected Tag#." SKIP
+                     "NO to import just the Release Quantity for the Selected Tag#."
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE lQuantitySelection AS LOGICAL.
+            
+            opiQuantityToScan = ipiScannedQuantity.
+            
+            IF lQuantitySelection THEN
+                RETURN.
+                
+            oplUseReleaseQty = NOT lQuantitySelection.             
+        END.     
+    END.
+
+    IF iTotalScannedQuantity GE iTotalReleaseQuantity THEN DO:
+         oplError = TRUE.
+
+         MESSAGE "Cannot scan more than Scheduled Release quantity '" + STRING(iTotalReleaseQuantity) + "'" 
+            VIEW-AS ALERT-BOX ERROR.
+ 
+        RETURN.             
+    END.
+    
+    ASSIGN
+        oplUseReleaseQty  = TRUE
+        opiQuantityToScan = iTotalReleaseQuantity - iTotalScannedQuantity   
+        opiQuantityToScan = MINIMUM(opiQuantityToScan, ipiScannedQuantity)
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-release B-table-Win 
 PROCEDURE post-release :
@@ -3505,16 +3651,37 @@ PROCEDURE validate-tag-status :
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO. 
   DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
       
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
-    THEN DO:
-      lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+  
+    FIND FIRST oe-relh NO-LOCK 
+         WHERE oe-relh.company  EQ cocode 
+         AND oe-relh.release# EQ INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
+         NO-ERROR.
+    IF avail oe-relh THEN
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode
+         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+    IF AVAIL cust AND AVAIL oe-relh THEN
+    cTagStatus = cust.tagStatus.
+  
+    lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                cocode,
                                tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND ((cTagStatus EQ "" AND lTagStatusOnHold) OR (cTagStatus EQ "H" AND NOT lTagStatusOnHold)) THEN
+    DO:
+       MESSAGE "Bin Tag status did not match with Customer Tag status.."  VIEW-AS ALERT-BOX ERROR.
+       APPLY "ENTRY":U TO tt-relbol.tag# IN BROWSE {&browse-name}.
+       oplReturnError = YES.
+       RETURN .
+    END.     
+  
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
+    THEN DO:        
         IF lTagStatusOnHold THEN do:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
           IF NOT lMessageValue then

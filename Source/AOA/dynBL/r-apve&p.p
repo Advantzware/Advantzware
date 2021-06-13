@@ -76,7 +76,8 @@ END FUNCTION.
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cCashAcct AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lInvalid  AS LOGICAL   NO-UNDO.
-
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 0, 100). 
     DO TRANSACTION:
         ASSIGN
             g_company = cCompany 
@@ -159,35 +160,58 @@ PROCEDURE pBusinessLogic:
     /* ********************************************************************************************* */
     /* Business Logic Main Block ******************************************************************* */
     /* ********************************************************************************************* */
-    
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 5, 100). 
     RUN pCheckDate (dtPostDate, OUTPUT iPeriod, OUTPUT lInvalid).
     IF lInvalid THEN RETURN.
     IF lFGPostDir THEN DO:
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 10, 100). 
         RUN pCheckInvDate (dtStartInvoiceDate, OUTPUT lInvalid).
         IF lInvalid THEN RETURN.
         RUN pCheckInvDate (dtEndInvoiceDate, OUTPUT lInvalid).
         IF lInvalid THEN RETURN.
     END. /* if lfgpostdir */
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 15, 100). 
     RUN pGetTransNum.
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 20, 100). 
     RUN pEditReport (rmpostgl).
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 30, 100). 
     IF lPostOK THEN DO:
         IF lPost THEN DO: 
             RUN pPostGL (apautocheck-log).
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, 40, 100). 
             RUN pCopyReportToAuditDir.
             RUN pClearAP.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, 60, 100). 
         END. /* lpost */
-        ELSE RUN pUndoTransNum.
+        ELSE 
+        DO:
+            RUN pUndoTransNum.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, 60, 100). 
+        END.        
     END. /* if lpostok */
     ELSE DO:
          fErrorMsg("No Invoices available for posting.").
          RUN pUndoTransNum.
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 60, 100). 
     END. /* else */
     
     FOR EACH ttAPInvoicePostingMsg:
         ttAPInvoicePostingMsg.xxID = 0.
     END. /* ttAPInvoicePostingMsg */
-    
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 80, 100). 
     {AOA/BL/exportDynTempTable.i ttAPInvoicePostingMsg}
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 100, 100). 
 END PROCEDURE.
 
 PROCEDURE pCheckDate:

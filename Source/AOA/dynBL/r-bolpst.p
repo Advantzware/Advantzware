@@ -223,7 +223,8 @@ PROCEDURE pBusinessLogic:
         
         /* Best default for GUI applications is...                              */
         PAUSE 0 BEFORE-HIDE.
-    
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 0, 100). 
         RUN pCheckDate.
         IF lInvalidDate THEN RETURN NO-APPLY.
     
@@ -234,12 +235,14 @@ PROCEDURE pBusinessLogic:
         END.
     
         EMPTY TEMP-TABLE tt-email.
-    
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 10, 100). 
         RUN pRunReport. 
         fDebugMsg("Decide to post lpost " + string(lpost) + " avail w-bolh " + string(CAN-FIND(FIRST w-bolh))).
         IF lPost THEN DO:
             IF CAN-FIND(FIRST w-bolh) THEN DO:
-    
+                IF lProgressBar THEN
+                    RUN spProgressBar (cProgressBar, 70, 100). 
                 fDebugMsg("Start Post pPostBols").
                 RUN pPostBols (fgreorder-log).
                 /* close transfer order here, Non-UI procedure */
@@ -273,6 +276,8 @@ PROCEDURE pBusinessLogic:
             END. /* If can-find w-bolh */
     
         END. /* if lPost */
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 80, 100). 
         RUN pProcessNoPostRecs.  
         FOR EACH ttPostBOLCreateInvoice:
             fDebugMsg("After pRunReport each ttPostBolCreateInvoice " + STRING(ttPostBOLCreateInvoice.bolNo)).        
@@ -297,7 +302,9 @@ PROCEDURE pBusinessLogic:
               IF AVAILABLE w-except THEN 
                 ttPostBolCreateInvoice.reason = "Insufficient Inventory".
             END.
-        END.    
+        END. 
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, 100, 100).    
     END. /* main block */
     OUTPUT STREAM sDebug CLOSE.
 /*    LOG-MANAGER:CLOSE-LOG ().*/

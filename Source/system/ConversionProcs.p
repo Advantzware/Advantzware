@@ -20,6 +20,11 @@
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION Conv_GetSqft RETURNS DECIMAL 
+	(ipdLength AS DECIMAL,
+	 ipdWidth AS DECIMAL,
+	 ipcDimUOM AS CHARACTER) FORWARD.
+
 FUNCTION Conv_IsEAUOM RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcItemID AS CHARACTER,
@@ -1220,6 +1225,16 @@ PROCEDURE pResetUOMsToBase PRIVATE:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION Conv_GetSqft RETURNS DECIMAL 
+	( ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+    Purpose: Public Wrapper for fGetSqft
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN fGetSqft(ipdLength, ipdWidth, ipcDimUOM).
+    		
+END FUNCTION.
 
 FUNCTION Conv_IsEAUOM RETURNS LOGICAL 
     (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipcUOM AS CHARACTER):

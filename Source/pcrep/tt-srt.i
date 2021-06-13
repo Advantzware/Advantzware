@@ -25,6 +25,7 @@ DEFINE TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
     FIELD fgItemName     AS CHARACTER FORMAT "x(30)"
     FIELD jobNo          AS CHARACTER FORMAT "x(10)"  LABEL "Job"
     FIELD notes          AS CHARACTER FORMAT "x(256)" LABEL "Notes"
+    FIELD entryNotes     AS CHARACTER FORMAT "x(25)" LABEL "Entry Notes"
         INDEX dept-idx dept m-code job-no job-no2 frm blank-no
         INDEX job-idx job-no job-no2
         .

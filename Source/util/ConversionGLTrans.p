@@ -24,7 +24,7 @@
     /* First, copy the period table into temp-table to prevent further DB reads */
     FOR EACH period NO-LOCK:
         CREATE ttPeriod.
-        IMPORT ttPeriod.
+        BUFFER-COPY period TO ttPeriod.
     END.
     
     /* Next, find the first open period start date for each company */
@@ -66,13 +66,18 @@
             glhist.tr-num    = gltrans.trnum
             glhist.tr-amt    = gltrans.tr-amt
             glhist.entryType = "A"
-            glhist.glYear    = YEAR(gltrans.tr-date)
+            glhist.yr        = YEAR(gltrans.tr-date)
             glhist.createdBy = gltrans.createdBy
             glhist.curr-code = gltrans.curr-code
             glhist.ex-rate   = gltrans.ex-rate
             glhist.posted    = IF gltrans.tr-date LT ttOpenPeriodStartDateByCompany.daStartDate THEN TRUE ELSE FALSE
             glhist.postedby  = IF glhist.posted THEN USERID(LDBNAME(1)) ELSE ""
             .
+        FIND FIRST ttPeriod NO-LOCK
+             WHERE ttPeriod.company EQ gltrans.company
+             AND ttPeriod.pst LE gltrans.tr-date
+             AND ttPeriod.pend GE gltrans.tr-date NO-ERROR.        
+        glhist.glYear = IF AVAIL ttPeriod THEN ttPeriod.yr ELSE YEAR(gltrans.tr-date)     .
         DELETE GLTrans.        
     END.
     RELEASE glhist.

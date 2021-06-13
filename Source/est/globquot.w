@@ -51,6 +51,9 @@ assign
  cocode = gcompany
  locode = gloc.
 
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE tt-rowid NO-UNDO FIELD row-id AS ROWID
                                 INDEX row-id row-id.
 DEFINE TEMP-TABLE tt-quoteqty LIKE quoteqty .
@@ -59,6 +62,11 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 
 DEF STREAM excel.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -798,6 +806,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_fg-cat:SENSITIVE = NO 
         begin_fg-cat:SCREEN-VALUE = "" 
         end_fg-cat:SCREEN-VALUE = "zzzzz" .
+     IF lQuotePriceMatrix THEN
+     ASSIGN
+       tb_prmtx:SENSITIVE = NO
+       tb_prmtx:SCREEN-VALUE = "NO" .
+     
     APPLY "entry" TO begin_cust.
   END.
 
@@ -1014,6 +1027,7 @@ for each quotehd
       and quotehd.cust-no  le tcust
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
+      AND quotehd.approved EQ FALSE
     use-index cust2,
 
     each quoteitm
@@ -1176,6 +1190,7 @@ for each quotehd
       and quotehd.cust-no  le tcust
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
+      AND quotehd.approved EQ FALSE
     use-index cust2,
 
     each quoteitm

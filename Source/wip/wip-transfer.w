@@ -1150,7 +1150,7 @@ PROCEDURE init :
            
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
     IF ipcJobNo NE "" THEN 

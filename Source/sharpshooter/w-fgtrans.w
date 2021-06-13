@@ -195,7 +195,7 @@ DEFINE BROWSE BROWSE-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btReset AT ROW 1.43 COL 93.8 WIDGET-ID 32
+     btReset AT ROW 1.43 COL 93.8 WIDGET-ID 32 NO-TAB-STOP 
      fiTag AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 4
      btPost AT ROW 1.57 COL 157 WIDGET-ID 20 NO-TAB-STOP 
      btExit AT ROW 1.57 COL 178 WIDGET-ID 26 NO-TAB-STOP 

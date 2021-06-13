@@ -791,8 +791,7 @@ DO:
     END.
     
     IF fg-rdtlh.tag:MODIFIED THEN 
-    DO:
-        MESSAGE "MOD" VIEW-AS ALERT-BOX.
+    DO:         
         RUN valid-tag NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         RUN valid-tag-no NO-ERROR.

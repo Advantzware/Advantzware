@@ -70,6 +70,7 @@ DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 {Inventory/ttInventory.i}
 {Inventory/ttBrowseInventory.i}
 {Inventory/ttInventoryStockDetails.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {custom/globdefs.i}
@@ -1481,7 +1482,7 @@ PROCEDURE pInit :
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany NO-ERROR .
     IF AVAILABLE company THEN
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (

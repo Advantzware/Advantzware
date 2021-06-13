@@ -72,8 +72,10 @@ DEF VAR cFileName AS CHAR FORMAT "x(30)" NO-UNDO .
 DEFINE VARIABLE lProcess      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cExcelHeader  AS CHARACTER NO-UNDO.     
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 DEF TEMP-TABLE ttRowidsToPurge
     FIELD ttRowid AS ROWID.
@@ -1271,6 +1273,18 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                         INPUT  cRoundingType,
                         INPUT  iRoundingLevel
                         ).
+                  FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
+                  
+                  RUN Price_ExpireOldPrice(
+                        INPUT bf-oe-prmtx.company,
+                        INPUT bf-oe-prmtx.i-no,
+                        INPUT bf-oe-prmtx.custshipid,
+                        INPUT bf-oe-prmtx.cust-no,
+                        INPUT bf-oe-prmtx.custype,
+                        INPUT bf-oe-prmtx.procat
+                        ).
+                        
+                  RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs(ROWID(bf-oe-prmtx)).       
               END.                       
           END.
 /*        END. */

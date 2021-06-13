@@ -67,7 +67,8 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD ExpireDate      AS DATE      FORMAT "99/99/9999" INITIAL "12/31/2099" COLUMN-LABEL "Exp Date" HELP "validated - must be greater than eff date"
     FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
     FIELD cOnline      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
-    FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" .
+    FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" 
+    FIELD quoteID      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Quote" HELP "Optional - Integer".
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -157,6 +158,9 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
             RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPriceMatrix.ShipTo NE "" THEN 
+            RUN pIsValidShiptoID IN hdValidator (ipbf-ttImportPriceMatrix.CustomerID,ipbf-ttImportPriceMatrix.ShipTo, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).    
         
         IF oplValid THEN 
         RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).
@@ -365,7 +369,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[10]).
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.minOrderQty, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.minOrderQty). 
-    
+    RUN pAssignValueI (ipbf-ttImportPriceMatrix.quoteID, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.quoteID). 
+      
+    FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
     RUN Price_ExpireOldPrice(
         INPUT bf-oe-prmtx.company,
         INPUT bf-oe-prmtx.i-no,

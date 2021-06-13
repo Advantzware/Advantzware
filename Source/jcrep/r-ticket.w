@@ -3137,7 +3137,7 @@ PROCEDURE pRunFormatValueChanged :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         
-        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2,Henry,Soule") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE = YES.
         ELSE  ASSIGN tb_fgimage:SENSITIVE = NO.
         IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2,Henry") > 0 THEN

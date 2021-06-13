@@ -453,20 +453,20 @@ DEF VAR cTableList AS CHAR NO-UNDO.
         ASSIGN 
             cTableName = ENTRY(iCtr,cTableList)
             cLabelList = "".
-        FIND FIRST _file NO-LOCK WHERE  
-            _file._file-name EQ cTableName
+        FIND FIRST ASI._file NO-LOCK WHERE  
+            ASI._file._file-name EQ cTableName
             NO-ERROR.
-        FOR EACH _field OF _file NO-LOCK BY _field._Order:
+        FOR EACH ASI._field OF ASI._file NO-LOCK BY ASI._field._Order:
             ASSIGN 
                 lv-count = 1.
-            IF _field._extent = 0 THEN
-                ASSIGN cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name).
+            IF ASI._field._extent = 0 THEN
+                ASSIGN cLabelList = cLabelList + "," + (IF ASI._field._label NE "" AND ASI._field._label NE ? THEN ASI._field._label ELSE ASI._field._field-name).
             ELSE 
-                ASSIGN cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name) + "[1]".
-            DO WHILE lv-count < _field._extent:
+                ASSIGN cLabelList = cLabelList + "," + (IF ASI._field._label NE "" AND ASI._field._label NE ? THEN ASI._field._label ELSE ASI._field._field-name) + "[1]".
+            DO WHILE lv-count < ASI._field._extent:
                 ASSIGN 
                     lv-count    = lv-count + 1
-                    cLabelList = cLabelList + "," + (IF _field._label NE "" AND _field._label NE ? THEN _field._label ELSE _field._field-name) + "[" + STRING(lv-count) + "]".
+                    cLabelList = cLabelList + "," + (IF ASI._field._label NE "" AND ASI._field._label NE ? THEN ASI._field._label ELSE ASI._field._field-name) + "[" + STRING(lv-count) + "]".
             END.
         END.        
         ASSIGN 
@@ -829,8 +829,6 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
                  
                 IF lProcess THEN 
                     DELETE oe-rell.
-                    MESSAGE lDelete iRno
-                    VIEW-AS ALERT-BOX.
                 IF lDelete THEN DO:
                     lDelete = NO.
                     STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing release header records".
