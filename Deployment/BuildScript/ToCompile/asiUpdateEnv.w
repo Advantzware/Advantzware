@@ -2024,7 +2024,7 @@ PROCEDURE ipConvertGLTrans:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN ipStatus ("    Convert GLTrans to GLHist...").
@@ -2067,7 +2067,7 @@ PROCEDURE ipConvertJcCtrl :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
 
     FOR EACH bf-company NO-LOCK:
@@ -2181,7 +2181,7 @@ PROCEDURE ipConvertPolScore PRIVATE:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH      = cNewPropath
         .
     
@@ -2500,7 +2500,7 @@ PROCEDURE ipConvertVendorCosts:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     
         IF NOT VALID-HANDLE(hSession) THEN DO:
@@ -6221,7 +6221,7 @@ PROCEDURE ipRefTableConv :
     ASSIGN
         lSuccess = FALSE 
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     RUN ipStatus ("   ReftableConvert for " + fiEnvironment:{&SV}).
     RUN 
@@ -6605,7 +6605,7 @@ PROCEDURE ipResetCostGroups:
     
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN est/ResetCostGroupsAndCategories.p.   
@@ -7325,7 +7325,7 @@ PROCEDURE ipUpdateSurchargeAccounts:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN ipStatus ("    Updating surcharge accounts").
