@@ -794,12 +794,23 @@ FOR EACH ef
         AND xjob-hdr.i-no    EQ eb.stock-no NO-LOCK:
         v-job-qty = v-job-qty + xjob-hdr.qty.
     END.
-    v-ord-qty = 0.
+    v-ord-qty = 0.  
+    FIND FIRST xjob-hdr WHERE xjob-hdr.company EQ cocode
+                AND xjob-hdr.job     EQ job-hdr.job
+                AND xjob-hdr.job-no  EQ job-hdr.job-no
+                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
+                AND xjob-hdr.frm EQ eb.form-no
+                AND xjob-hdr.blank-no EQ eb.blank-no
+                AND xjob-hdr.i-no EQ eb.stock-no NO-LOCK NO-ERROR.    
+               
+    iOrderNo =  IF AVAIL xjob-hdr THEN xjob-hdr.ord-no ELSE job-hdr.ord-no .
+    cCustNo =  IF AVAIL xjob-hdr THEN xjob-hdr.cust-no ELSE job-hdr.cust-no .
+    
     IF job-hdr.ord-no EQ 0 THEN v-ord-qty = v-job-qty.
     ELSE
         FOR EACH oe-ordl FIELDS(qty)
             WHERE oe-ordl.company EQ job-hdr.company
-            AND oe-ordl.ord-no  EQ eb.ord-no
+            AND oe-ordl.ord-no  EQ iOrderNo
             AND oe-ordl.job-no  EQ job-hdr.job-no
             AND oe-ordl.job-no2 EQ job-hdr.job-no2
             AND (oe-ordl.i-no EQ eb.stock-no OR est.est-type EQ 2)
@@ -818,17 +829,7 @@ FOR EACH ef
         v-job-qty2 = v-job-qty2 + xjob-hdr.qty.
     END.
     /** PRINT ITEM **/
-    
-    FIND FIRST xjob-hdr WHERE xjob-hdr.company EQ cocode
-                AND xjob-hdr.job     EQ job-hdr.job
-                AND xjob-hdr.job-no  EQ job-hdr.job-no
-                AND xjob-hdr.job-no2 EQ job-hdr.job-no2
-                AND xjob-hdr.frm EQ eb.form-no
-                AND xjob-hdr.blank-no EQ eb.blank-no
-                AND xjob-hdr.i-no EQ eb.stock-no NO-LOCK NO-ERROR.    
-               
-    iOrderNo =  IF AVAIL xjob-hdr THEN xjob-hdr.ord-no ELSE job-hdr.ord-no .
-    cCustNo =  IF AVAIL xjob-hdr THEN xjob-hdr.cust-no ELSE job-hdr.cust-no .
+        
     v-shipto = "".
     FIND FIRST oe-ordl
         WHERE oe-ordl.company EQ job-hdr.company
@@ -1054,33 +1055,35 @@ PROCEDURE pPrintData:
                 WHERE bf-eb.company EQ bf-xeb.company
                   AND bf-eb.est-no EQ bf-xeb.est-no 
                   AND bf-eb.form-no EQ bf-xeb.form-no BREAK BY bf-eb.blank-no :
-
-                FIND FIRST bf-oe-ordl NO-LOCK
-                    WHERE bf-oe-ordl.company EQ job-hdr.company
-                    AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no
-                    AND bf-oe-ordl.job-no  EQ job-hdr.job-no
-                    AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
-                    AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
-                    AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
-                    NO-ERROR .
-                IF NOT AVAIL bf-oe-ordl THEN     
-                FIND FIRST bf-oe-ordl NO-LOCK
-                    WHERE bf-oe-ordl.company EQ job-hdr.company
-                    AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no
-                    AND bf-oe-ordl.job-no  EQ job-hdr.job-no
-                    AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
-                    AND bf-oe-ordl.i-no EQ bf-eb.stock-no                      
-                    NO-ERROR .    
+                  
                 FIND FIRST bf-job-hdr  NO-LOCK
-                    WHERE bf-job-hdr.company EQ job-hdr.company
-                    AND bf-job-hdr.ord-no  EQ bf-eb.ord-no
+                    WHERE bf-job-hdr.company EQ job-hdr.company                      
                     AND bf-job-hdr.job-no  EQ job-hdr.job-no
                     AND bf-job-hdr.job-no2 EQ job-hdr.job-no2
                     AND bf-job-hdr.i-no EQ bf-eb.stock-no 
-                    AND bf-job-hdr.frm = int(tt-reftable.val[12]) 
+                    AND bf-job-hdr.frm EQ int(tt-reftable.val[12])
+                    AND bf-job-hdr.blank-no EQ bf-eb.blank-no
                     NO-ERROR .
-
-                      
+                
+                IF AVAIL bf-job-hdr THEN do:   
+                    FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ job-hdr.company
+                        AND bf-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
+                        AND bf-oe-ordl.job-no  EQ job-hdr.job-no
+                        AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
+                        AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
+                        NO-ERROR .
+                    IF NOT AVAIL bf-oe-ordl THEN
+                    FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ job-hdr.company
+                        AND bf-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
+                        AND bf-oe-ordl.job-no  EQ job-hdr.job-no
+                        AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
+                        NO-ERROR .    
+                END.    
+                                                         
                 PUT "<C1.5>" STRING(string(iCount) + "." ) FORMAT "x(2)" 
                     "<C4>"  bf-eb.stock-no FORMAT "x(15)"
                     "<C16>" bf-eb.part-no FORMAT "x(15)"
@@ -1092,6 +1095,7 @@ PROCEDURE pPrintData:
                     "<C72>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.over-pct ELSE v-over-pct) FORMAT ">>>>%"
                     "<C77>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.under-pct ELSE dUnderPct) FORMAT ">>>>%" SKIP.
                 iCount = iCount + 1 .
+                RELEASE bf-oe-ordl.
             END.
             PUT "<P10>" v-fill SKIP.
             
