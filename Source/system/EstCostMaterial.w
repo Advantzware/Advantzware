@@ -36,15 +36,15 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+DEFINE INPUT PARAMETER ipiEstCostHeaderID   AS INTEGER      NO-UNDO.
+DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO. 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
-//DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INTEGER NO-UNDO.
-DEFINE VARIABLE  ipiEstCostHeaderID AS INTEGER NO-UNDO.
+//DEFINE VARIABLE  ipiEstCostHeaderID AS INTEGER NO-UNDO.
 ipiEstCostHeaderID = 7.
 
 /* _UIB-CODE-BLOCK-END */
@@ -69,8 +69,8 @@ ipiEstCostHeaderID = 7.
 &Scoped-define FIELDS-IN-QUERY-brVendItemCost estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.costPerUOM estCostMaterial.costSetup   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
-&Scoped-define QUERY-STRING-brVendItemCost FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-brVendItemCost FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost estCostMaterial
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost estCostMaterial
 
@@ -163,16 +163,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 199.8
-         MAX-BUTTON         = NO
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         MAX-BUTTON         = no
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -193,7 +193,7 @@ ASSIGN
        brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -204,7 +204,7 @@ THEN C-Win:HIDDEN = NO.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brVendItemCost
 /* Query rebuild information for BROWSE brVendItemCost
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID~{&SORTBY-PHRASE}.
+OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -277,7 +277,10 @@ DO:
     FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
         FIND CURRENT estCostMaterial EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE estCostMaterial THEN 
-        estCostMaterial.vendorId = ttVendItemCost.vendorID.
+        DO:          
+            estCostMaterial.vendorId = ttVendItemCost.vendorID.
+            oplVendorUpdated = TRUE.
+        END.
         FIND CURRENT estCostMaterial NO-LOCK NO-ERROR.  
     END.
     {&OPEN-QUERY-brVendItemCost}

@@ -4885,6 +4885,17 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
     DO:
         //run prompt for vendors
         FOR EACH estCostHeader NO-LOCK 
+            WHERE estCostHeader.company     EQ ipcCompany
+            AND estCostHeader.estimateNo    EQ ipcEstimateNo
+            AND estCostHeader.jobID         EQ ipcJobID
+            AND estCostHeader.jobID2        EQ ipiJobID2:
+            
+            RUN system/EstCostMaterial.w(
+                INPUT ipcEstimateNo,
+                OUTPUT lChangesMade).
+        END.
+        
+    /*    FOR EACH estCostHeader NO-LOCK 
             WHERE estCostHeader.company EQ ipcCompany
             AND estCostHeader.estimateNo EQ ipcEstimateNo
             AND estCostHeader.jobID EQ ipcJobID
@@ -4896,7 +4907,7 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
             
             UPDATE estCostHeader.quantityMaster estCostMaterial.vendorID .
             lChangesMade = YES.
-        END.
+        END. */
         IF lChangesMade THEN
             FOR EACH estCostHeader NO-LOCK 
                 WHERE estCostHeader.company EQ ipcCompany
