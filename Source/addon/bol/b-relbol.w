@@ -164,7 +164,6 @@ DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecordUpdating AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lBOLQtyPopup AS LOGICAL NO-UNDO.
@@ -669,7 +668,7 @@ END.
 
 ON 'value-changed':U OF tt-relbol.tag#
 DO:
-   lCheckTagHoldMessage = NO.    
+       
 END.
 
 ON 'leave':U OF tt-relbol.release#
@@ -2461,7 +2460,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  lCheckTagHoldMessage = NO .
+  
   lRecordUpdating = TRUE.
 END PROCEDURE.
 
@@ -3663,15 +3662,16 @@ PROCEDURE validate-tag-status :
     IF avail oe-relh THEN
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ cocode
-         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+         AND cust.cust-no EQ oe-relh.cust-no NO-ERROR.
     IF AVAIL cust AND AVAIL oe-relh THEN
     cTagStatus = cust.tagStatus.
-  
+   
     lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                cocode,
                                tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
+                               
     IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND ((cTagStatus EQ "" AND lTagStatusOnHold) OR (cTagStatus EQ "H" AND NOT lTagStatusOnHold)) THEN
     DO:
        MESSAGE "Bin Tag status did not match with Customer Tag status.."  VIEW-AS ALERT-BOX ERROR.
@@ -3680,19 +3680,7 @@ PROCEDURE validate-tag-status :
        RETURN .
     END.     
   
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
-    THEN DO:        
-        IF lTagStatusOnHold THEN do:
-          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
-          IF NOT lMessageValue then
-          do:
-              APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
-              oplReturnError = YES .
-          END.
-          ELSE lCheckTagHoldMessage = YES.
-        END.
-        
-    END.      
+    
   END.
 
   {methods/lValidateError.i NO}
