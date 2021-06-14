@@ -51,7 +51,6 @@ DEFINE BUFFER bf-rell FOR oe-rell.
 DEFINE BUFFER bf-ordl FOR oe-ordl.
 DEFINE VARIABLE hInventoryProcs AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lActiveBin      AS LOGICAL NO-UNDO.
-{Inventory/ttInventory.i "NEW SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

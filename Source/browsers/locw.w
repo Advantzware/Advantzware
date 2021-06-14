@@ -33,7 +33,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
-{Inventory/ttInventory.i "NEW SHARED"}
 {fg/fullset.i NEW}
 
 ASSIGN

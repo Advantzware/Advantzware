@@ -32,7 +32,6 @@ DEFINE OUTPUT PARAMETER opcStatusID   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOnHold     AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-{inventory/ttinventory.i "NEW SHARED"}.
 {custom/globdefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.

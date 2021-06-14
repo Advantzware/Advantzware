@@ -10,7 +10,6 @@
     Created     : Tue Oct 09 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-{inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
