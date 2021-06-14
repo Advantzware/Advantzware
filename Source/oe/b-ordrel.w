@@ -856,7 +856,6 @@ DO:
                 userColumn.sortByColumnName  = lh-column:NAME
                 userColumn.sortByColumnLabel = lh-column:LABEL
                 userColumn.sortAsc           = lsortBy
-                userColumn.sorted            = TRUE
                 userColumn.colPosition       = 10000
                 .
         END.
@@ -865,7 +864,6 @@ DO:
             userColumn.sortByColumnName  = lh-column:NAME
             userColumn.sortByColumnLabel = lh-column:LABEL
             userColumn.sortAsc           = lsortBy
-            userColumn.sorted            = TRUE
             .          
     END. 
     ELSE
