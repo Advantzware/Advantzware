@@ -36,6 +36,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
 &Scoped-define subjectID 20
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
+DEFINE VARIABLE dOrdVal    AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iRecordID  AS INTEGER NO-UNDO.
 DEFINE VARIABLE lOrderLine AS LOGICAL NO-UNDO.
 
@@ -568,6 +569,26 @@ PROCEDURE pBusinessLogic:
            LEAVE.
         END. /* end of for each oe-rel */
     
+        dOrdVal = 0.
+        IF oe-ordl.pr-uom BEGINS "L" AND oe-ordl.pr-uom NE "LB" THEN
+        dOrdVal = oe-ordl.price * IF oe-ordl.qty LT 0 THEN -1 ELSE 1.
+        ELSE IF oe-ordl.pr-uom EQ "CS" THEN
+             dOrdVal = oe-ordl.qty
+                     / (IF oe-ordl.cas-cnt NE 0 THEN oe-ordl.cas-cnt
+                        ELSE IF AVAILABLE itemfg AND itemfg.case-count NE 0 THEN
+                        itemfg.case-count ELSE 1)
+                     * oe-ordl.price
+                     .
+             ELSE IF oe-ordl.pr-uom EQ "C" THEN
+                  dOrdVal = oe-ordl.qty / 100 * oe-ordl.price.
+                  ELSE IF oe-ordl.pr-uom EQ "M" THEN
+                       dOrdVal = oe-ordl.qty / 1000 * oe-ordl.price.
+                       ELSE /* default to each */
+                       dOrdVal = oe-ordl.qty * oe-ordl.price.
+        dOrdVal = ROUND(dOrdVal,2).
+        IF oe-ordl.disc NE 0 THEN
+        dOrdVal = ROUND(dOrdVal * (1 - (oe-ordl.disc / 100)),2).
+
         lc-result = oe-ord.stat.
         RUN oe/getStatusDesc.p (oe-ord.stat, OUTPUT cResult) .
         IF cResult NE "" THEN
@@ -575,32 +596,36 @@ PROCEDURE pBusinessLogic:
     
         CREATE ttOpenOrderReport.
         ASSIGN
-            ttOpenOrderReport.custNo      = cust.cust-no
-            ttOpenOrderReport.lineDueDate = oe-ordl.req-date
-            ttOpenOrderReport.relDueDate  = dtDueDate2 
-            ttOpenOrderReport.custPartNo  = oe-ordl.part-no 
-            ttOpenOrderReport.fgItemName  = oe-ordl.i-name 
-            ttOpenOrderReport.fgItemNo    = oe-ordl.i-no 
-            ttOpenOrderReport.orderNo     = oe-ordl.ord-no
-            ttOpenOrderReport.cadNo       = tt-report.cad-no
-            ttOpenOrderReport.poNo        = tt-report.po-no
-            ttOpenOrderReport.qtyOrd      = oe-ordl.qty 
-            ttOpenOrderReport.qtyOnhand   = tt-report.q-onh
-            ttOpenOrderReport.qtyShipped  = tt-report.q-shp
-            ttOpenOrderReport.qtyActRel   = tt-report.q-rel
-            ttOpenOrderReport.qtyWIP      = tt-report.q-wip
-            ttOpenOrderReport.qtyAvail    = tt-report.q-avl
-            ttOpenOrderReport.salesRep    = oe-ordl.s-man[1]
-            ttOpenOrderReport.unit        = tt-report.unit-count
-            ttOpenOrderReport.pallet      = tt-report.units-pallet
-            ttOpenOrderReport.palletCount = ttOpenOrderReport.unit
-                                          * ttOpenOrderReport.pallet
-            ttOpenOrderReport.sellPrice   = fCalcSellPrice()
-            ttOpenOrderReport.cStatus     = lc-result
-            ttOpenOrderReport.xxIndex     = INTEGER(tt-report.key-08)
-            iRecordID                     = iRecordID + 1            
-            ttOpenOrderReport.recordID    = iRecordID
-            iCount                        = iCount + 1
+            ttOpenOrderReport.custNo       = cust.cust-no
+            ttOpenOrderReport.lineDueDate  = oe-ordl.req-date
+            ttOpenOrderReport.relDueDate   = dtDueDate2 
+            ttOpenOrderReport.custPartNo   = oe-ordl.part-no 
+            ttOpenOrderReport.fgItemName   = oe-ordl.i-name 
+            ttOpenOrderReport.fgItemNo     = oe-ordl.i-no 
+            ttOpenOrderReport.orderNo      = oe-ordl.ord-no
+            ttOpenOrderReport.cadNo        = tt-report.cad-no
+            ttOpenOrderReport.poNo         = tt-report.po-no
+            ttOpenOrderReport.qtyOrd       = oe-ordl.qty 
+            ttOpenOrderReport.qtyOnhand    = tt-report.q-onh
+            ttOpenOrderReport.qtyShipped   = tt-report.q-shp
+            ttOpenOrderReport.qtyActRel    = tt-report.q-rel
+            ttOpenOrderReport.qtyWIP       = tt-report.q-wip
+            ttOpenOrderReport.qtyAvail     = tt-report.q-avl
+            ttOpenOrderReport.salesRep     = oe-ordl.s-man[1]
+            ttOpenOrderReport.unit         = tt-report.unit-count
+            ttOpenOrderReport.pallet       = tt-report.units-pallet
+            ttOpenOrderReport.palletCount  = ttOpenOrderReport.unit
+                                           * ttOpenOrderReport.pallet
+            ttOpenOrderReport.sellPrice    = fCalcSellPrice()
+            ttOpenOrderReport.cStatus      = lc-result
+            ttOpenOrderReport.orderValue   = dOrdVal
+            ttOpenOrderReport.ackDate      = oe-ord.ack-prnt-date
+            ttOpenOrderReport.ordStartDate = oe-ord.ord-date
+            ttOpenOrderReport.csr          = oe-ord.csrUser_id
+            ttOpenOrderReport.xxIndex      = INTEGER(tt-report.key-08)
+            iRecordID                      = iRecordID + 1            
+            ttOpenOrderReport.recordID     = iRecordID
+            iCount                         = iCount + 1
             .
         IF lShowDetail AND ttOpenOrderReport.qtyOnhand GT 0 THEN
         FOR EACH ttOpenOrderReportDetail
