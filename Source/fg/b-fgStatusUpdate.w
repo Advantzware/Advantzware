@@ -41,7 +41,6 @@ CREATE WIDGET-POOL.
 
 {api/inbound/ttItem.i}
 {custom/globdefs.i}
-{inventory/ttInventory.i "NEW SHARED"}.
 
 /* Parameters Definitions ---                                           */
 

@@ -133,10 +133,6 @@ DEFINE BUTTON Btn-ord
      SIZE 15 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-poScores 
-     LABEL "PO Scores" 
-     SIZE 15 BY 1.29.
-
 DEFINE BUTTON btn-recost 
      LABEL "&Recost Board" 
      SIZE 15 BY 1.29.
@@ -159,15 +155,14 @@ DEFINE BUTTON Btn-View
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn-poScores AT ROW 1 COL 1.4 WIDGET-ID 4
-     Btn-ord AT ROW 1 COL 16.6
-     Btn-View AT ROW 1 COL 31.8
-     Btn-Save AT ROW 1 COL 47
-     Btn-Add AT ROW 1 COL 62
-     Btn-copy AT ROW 1 COL 77
-     Btn-Delete AT ROW 1 COL 92
-     btn-scores AT ROW 1 COL 107
-     btn-recost AT ROW 1 COL 122 WIDGET-ID 2
+     Btn-ord AT ROW 1 COL 1
+     Btn-View AT ROW 1 COL 16.2
+     Btn-Save AT ROW 1 COL 31.4
+     Btn-Add AT ROW 1 COL 46.4
+     Btn-copy AT ROW 1 COL 61.4
+     Btn-Delete AT ROW 1 COL 76.4
+     btn-scores AT ROW 1 COL 91.4
+     btn-recost AT ROW 1 COL 106.4 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -243,11 +238,6 @@ ASSIGN
 ASSIGN 
        Btn-ord:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
-
-/* SETTINGS FOR BUTTON Btn-poScores IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       Btn-poScores:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
        btn-recost:PRIVATE-DATA IN FRAME F-Main     = 
@@ -424,20 +414,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-poScores
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-poScores V-table-Win
-ON CHOOSE OF Btn-poScores IN FRAME F-Main /* PO Scores */
-DO:
-    RUN est/d-panelDetails.w (
-        INPUT ROWID(po-ordl),
-        INPUT "po-ordl"
-        ).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn-recost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recost V-table-Win
 ON CHOOSE OF btn-recost IN FRAME F-Main /* Recost Board */
@@ -504,8 +480,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-scores V-table-Win
 ON CHOOSE OF btn-scores IN FRAME F-Main /* Scores */
 DO:
-  IF AVAIL po-ordl THEN
-     run po/d-scores.w (ROWID(po-ordl)).
+    IF AVAIL po-ordl THEN
+        RUN est/d-panelDetails.w (
+            INPUT ROWID(po-ordl),
+            INPUT "po-ordl",
+            INPUT  "",
+            INPUT  ""
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -604,23 +585,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHideFrame V-table-Win 
-PROCEDURE pHideFrame :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        HIDE.
-    END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -684,6 +648,23 @@ PROCEDURE local-row-available :
     DELETE w-po-ordl.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHideFrame V-table-Win 
+PROCEDURE pHideFrame :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE.
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

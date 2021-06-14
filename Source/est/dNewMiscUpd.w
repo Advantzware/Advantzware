@@ -42,8 +42,6 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
-
 RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cReturnChar, OUTPUT lRecFound).

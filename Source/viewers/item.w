@@ -53,7 +53,6 @@ DEF VAR ect-format AS CHAR NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.

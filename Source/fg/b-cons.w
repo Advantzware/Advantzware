@@ -39,7 +39,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {methods/template/brwCustomDef.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 DO TRANSACTION:

@@ -32,7 +32,6 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 &SCOPED-DEFINE BRWSDEFS rm-issued

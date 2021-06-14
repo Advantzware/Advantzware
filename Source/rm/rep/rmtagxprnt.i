@@ -1,10 +1,5 @@
 /* oe/rep/invxprnt.i */
-DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cTagno AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cVendorTagno AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSize AS CHARACTER NO-UNDO.
+
 ASSIGN cTagno = tt-po-print.tag-no 
        cVendorTagno = tt-po-print.vend-tag 
        cSize = "W: " + STRING(tt-po-print.s-wid) + " x L: " + STRING(tt-po-print.s-len) .

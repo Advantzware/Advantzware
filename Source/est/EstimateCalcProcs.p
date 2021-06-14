@@ -1744,6 +1744,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstHeaderToCalc.
     FIND FIRST bf-est NO-LOCK 
@@ -1765,16 +1766,19 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
             AND bf-est-qty.est-no  EQ bf-est.est-no
             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
-        DO iQtyCount = 1 TO 20:
-            IF bf-est-qty.qty[iQtyCount] NE 0 THEN 
-            DO:
-                RUN pAddHeader(BUFFER bf-est, bf-est-qty.qty[iQtyCount], MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
-                    ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-                CREATE ttEstHeaderToCalc.
-                ASSIGN 
-                    ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+            DO iQtyCount = 1 TO 20:
+                IF IsComboType(ENTRY(bf-est.est-type, gcTypeList)) AND iQtyCount GT 1 THEN LEAVE.
+                
+                iQty = IF bf-est-qty.qty[iQtyCount] EQ 0 AND iQtyCount EQ 1 THEN bf-est-qty.eqty ELSE bf-est-qty.qty[iQtyCount].
+                IF iQty NE 0 THEN 
+                DO:
+                    RUN pAddHeader(BUFFER bf-est, iQty, MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
+                        ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
+                    CREATE ttEstHeaderToCalc.
+                    ASSIGN 
+                        ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                END.
             END.
-        END.
     END.
 
 END PROCEDURE.

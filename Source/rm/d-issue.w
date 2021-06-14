@@ -147,7 +147,6 @@ DEFINE VARIABLE iWarehouseLength       AS INTEGER NO-UNDO.
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 {windows/l-jobmt3.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE TEMP-TABLE tt-frm NO-UNDO 
     FIELD frm    LIKE job-mat.frm

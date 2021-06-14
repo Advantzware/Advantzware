@@ -557,6 +557,7 @@ def buffer b-cust for cust.
 def buffer b-ship for shipto.
 def buffer b-sold for soldto.
 DEF BUFFER b-sold2 FOR soldto.
+DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
 def var v-cust      like cust.cust-no.
 def var v-new-cust  like cust.cust-no.
@@ -829,6 +830,17 @@ for each cust-markup
   cust-markup.cust-no = v-new-cust.
 end.
 
+for each bf-oe-prmtx
+    where bf-oe-prmtx.company eq cocode
+      and bf-oe-prmtx.cust-no eq v-cust
+      transaction:
+
+  DISPLAY bf-oe-prmtx.custype bf-oe-prmtx.procat WITH DOWN.
+
+  bf-oe-prmtx.cust-no = v-new-cust.
+end.
+RELEASE bf-oe-prmtx.
+
 for each oe-bolh
     where oe-bolh.company eq cocode
       and oe-bolh.cust-no eq v-cust
@@ -971,31 +983,6 @@ end.
 
 v-char = "".
 
-find first oe-prmtx
-    where oe-prmtx.company eq cocode
-    use-index custitem no-lock no-error.
-
-do while avail oe-prmtx:
-  v-char = oe-prmtx.custype.
-
-  for each oe-prmtx
-      where oe-prmtx.company eq cocode
-        and oe-prmtx.custype eq v-char
-        and oe-prmtx.cust-no eq v-cust
-      use-index custitem
-
-      transaction:
-
-    oe-prmtx.cust-no = v-new-cust.
-  end.
-
-  RELEASE oe-prmtx.
-
-  find first oe-prmtx
-      where oe-prmtx.company eq cocode
-        and oe-prmtx.custype gt v-char
-      use-index custitem no-lock no-error.
-end.
 
 do i = 1 to 4:
   for each oe-reth
@@ -1170,7 +1157,20 @@ for each shipto
 
     oe-bolh.ship-no = i.
   end.
+  
+  for each bf-oe-prmtx
+      where bf-oe-prmtx.company eq cocode         
+        and bf-oe-prmtx.cust-no eq v-new-cust
+        AND bf-oe-prmtx.cust-no NE ""
+        and bf-oe-prmtx.custShipID eq shipto.ship-id      
+      transaction:
 
+    if avail b-ship then bf-oe-prmtx.custShipID = trim(string(i,">>>>>>>9")).
+    else
+    if shipto.ship-id eq v-cust then bf-oe-prmtx.custShipID = v-new-cust.  
+  end.
+  RELEASE bf-oe-prmtx.
+  
   for each ar-inv
       where ar-inv.company eq cocode
         /*and ar-inv.posted  eq no*/ /* ticket - 24071*/ 

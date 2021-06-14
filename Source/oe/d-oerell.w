@@ -27,7 +27,6 @@ DEFINE OUTPUT PARAMETER ip-rowid AS ROWID     NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
-{inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN cocode = g_company.
 ASSIGN locode = g_loc.

@@ -82,8 +82,9 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
-// {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventory.i}
+{Inventory/ttPrintInventoryStock.i}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -2108,6 +2109,10 @@ PROCEDURE rebuildTempTable :
     DEFINE INPUT PARAMETER ipiJobno2  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiFormno  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankno AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iAll     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCreated AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iOnHand  AS INTEGER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -2120,25 +2125,35 @@ PROCEDURE rebuildTempTable :
         ipiFormno,
         ipiBlankno,
         OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        OUTPUT iTotOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
             
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}    
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  "",
+        OUTPUT iAll,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockInitial,
+        OUTPUT iCreated,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+                
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockReceived,
+        OUTPUT iOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
 
     ASSIGN
-        btAll:LABEL     = "All - " + STRING(DYNAMIC-FUNCTION(
-                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                                                   ""   /* All records */
-                                                   ))
-        btCreated:LABEL = "Cr - " + STRING(DYNAMIC-FUNCTION(
-                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                                                   gcStatusStockInitial
-                                                   ))
-        btOH:LABEL      = "OH - " + STRING(DYNAMIC-FUNCTION(
-                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                                                   gcStatusStockReceived
-                                                   ))
+        btAll:LABEL     = "All - " + STRING(iAll)
+        btCreated:LABEL = "Cr - " + STRING(iCreated)
+        btOH:LABEL      = "OH - " + STRING(iOnHand)
         .
+
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}    
         
     IF AVAILABLE ttBrowseInventory THEN DO:
         ASSIGN

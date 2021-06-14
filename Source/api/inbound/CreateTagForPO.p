@@ -12,7 +12,6 @@
   ----------------------------------------------------------------------*/
   
 /* existing includes */
-{inventory/ttinventory.i "NEW SHARED"}.
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}

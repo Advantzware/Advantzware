@@ -33,7 +33,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
-{Inventory/ttInventory.i "NEW SHARED"}
 {fg/fullset.i NEW}
 
 ASSIGN
@@ -639,9 +638,10 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+{methods/ctrl-a_browser.i}
 
 &SCOPED-DEFINE cellColumnDat locw.w 
- {methods/browsers/setCellColumns.i}
+{methods/browsers/setCellColumns.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

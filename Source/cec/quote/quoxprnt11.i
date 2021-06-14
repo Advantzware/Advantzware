@@ -317,8 +317,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                             xxx = (xqqty.qty * xqqty.price).
 
        
-            PUT "<C42>" xqqty.qty FORMAT ">>>>>>>9" SPACE(1)  
-                xqqty.rels space(4)
+            PUT "<C45>" xqqty.qty FORMAT ">>>>>>>9"  
+               "<C52.5>" xqqty.rels space(1)
                 xqqty.price FORMAT "->>,>>9.99" space(2)
                 xqqty.uom SPACE(2)
                 xxx FORM "->>>>,>>9.99".

@@ -30,7 +30,6 @@ DEFINE TEMP-TABLE ttFreightClass
     FIELD dLbs AS DECIMAL 
     FIELD dPallets AS DECIMAL
     . 
-{Inventory/ttInventory.i "NEW SHARED"}
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
