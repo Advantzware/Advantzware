@@ -88,9 +88,9 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS company estimateID formNo blankNo ~
+&Scoped-Define ENABLED-OBJECTS company JobNo formNo blankNo Pass ~
 operationID btnGo fi_file tb_excel BROWSE-1 btnDon btnAssess 
-&Scoped-Define DISPLAYED-OBJECTS company estimateID formNo blankNo ~
+&Scoped-Define DISPLAYED-OBJECTS company JobNo formNo blankNo Pass ~
 operationID fi_file tb_excel 
 
 /* Custom List Definitions                                              */
@@ -137,11 +137,6 @@ DEFINE VARIABLE company AS CHARACTER FORMAT "X(6)":U INITIAL "001"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE estimateID AS CHARACTER FORMAT "X(6)":U 
-     LABEL "Estimate" 
-     VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\OperationsTester.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
@@ -153,10 +148,20 @@ DEFINE VARIABLE formNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE operationID AS CHARACTER FORMAT "X(6)":U 
-     LABEL "Operation" 
+DEFINE VARIABLE JobNo AS CHARACTER FORMAT "X(6)":U INITIAL "400176" 
+     LABEL "Job" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
+
+DEFINE VARIABLE operationID AS CHARACTER FORMAT "X(6)":U INITIAL "ZLM" 
+     LABEL "Machine Code" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
+
+DEFINE VARIABLE Pass AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
+     LABEL "Pass" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Export To Excel?" 
@@ -188,14 +193,16 @@ DEFINE BROWSE BROWSE-1
 DEFINE FRAME wOperationsTester
      company AT ROW 1.24 COL 24 COLON-ALIGNED HELP
           "Enter Company" WIDGET-ID 36
-     estimateID AT ROW 2.52 COL 24 COLON-ALIGNED HELP
-          "Enter Estimate" WIDGET-ID 46
-     formNo AT ROW 2.52 COL 48 COLON-ALIGNED HELP
+     JobNo AT ROW 2.43 COL 24 COLON-ALIGNED HELP
+          "Enter Job#" WIDGET-ID 46
+     formNo AT ROW 2.43 COL 51 COLON-ALIGNED HELP
           "Enter Estimate" WIDGET-ID 48
-     blankNo AT ROW 2.52 COL 60 COLON-ALIGNED HELP
+     blankNo AT ROW 2.43 COL 63 COLON-ALIGNED HELP
           "Enter Estimate" WIDGET-ID 50
+     Pass AT ROW 2.43 COL 75 COLON-ALIGNED HELP
+          "Enter Pass" WIDGET-ID 54
      operationID AT ROW 3.86 COL 24 COLON-ALIGNED HELP
-          "Enter Estimate" WIDGET-ID 52
+          "Enter Machine#" WIDGET-ID 52
      btnGo AT ROW 5.24 COL 5.6 WIDGET-ID 10
      fi_file AT ROW 5.24 COL 95 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 40
@@ -308,7 +315,7 @@ DO:
 ON CHOOSE OF btnAssess IN FRAME wOperationsTester /* Show Standards for Attributes */
 DO:
         IF fValidateInputs() THEN 
-            RUN pAssessSelection(company, estimateID, operationID).  
+            RUN pAssessSelection(company, JobNo, operationID).  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,7 +328,7 @@ ON CHOOSE OF btnGo IN FRAME wOperationsTester /* Get Attributes */
 DO:
 
         IF fValidateInputs() THEN          
-            RUN pBuildList (company, estimateID, formNo, blankNo).
+            RUN pBuildList (company, JobNo, formNo, blankNo,Pass,operationID).
         IF tb_excel THEN
             RUN pRunReport (fi_file).
     END.
@@ -333,17 +340,6 @@ DO:
 &Scoped-define SELF-NAME company
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL company wOperationsTester
 ON LEAVE OF company IN FRAME wOperationsTester /* Company */
-DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME estimateID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estimateID wOperationsTester
-ON LEAVE OF estimateID IN FRAME wOperationsTester /* Estimate */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -374,9 +370,31 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME JobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL JobNo wOperationsTester
+ON LEAVE OF JobNo IN FRAME wOperationsTester /* Job */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME operationID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL operationID wOperationsTester
-ON LEAVE OF operationID IN FRAME wOperationsTester /* Operation */
+ON LEAVE OF operationID IN FRAME wOperationsTester /* Machine Code */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Pass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Pass wOperationsTester
+ON LEAVE OF Pass IN FRAME wOperationsTester /* Pass */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -457,9 +475,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company estimateID formNo blankNo operationID fi_file tb_excel 
+  DISPLAY company JobNo formNo blankNo Pass operationID fi_file tb_excel 
       WITH FRAME wOperationsTester.
-  ENABLE company estimateID formNo blankNo operationID btnGo fi_file tb_excel 
+  ENABLE company JobNo formNo blankNo Pass operationID btnGo fi_file tb_excel 
          BROWSE-1 btnDon btnAssess 
       WITH FRAME wOperationsTester.
   VIEW FRAME wOperationsTester.
@@ -476,7 +494,7 @@ PROCEDURE pAssessSelection PRIVATE :
          Notes:
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNum AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
@@ -486,25 +504,40 @@ PROCEDURE pAssessSelection PRIVATE :
     DEFINE VARIABLE dOpRunSpeed AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dOpRunSpoil AS DECIMAL   NO-UNDO.
     
+    FIND FIRST job NO-LOCK 
+        WHERE job.company EQ ipcCompany
+        AND job.job-no EQ ipcJobNum
+        NO-ERROR.
+        
+    IF NOT AVAILable job then
+    DO:
+        MESSAGE 'Job DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+     END. 
+    
     FIND FIRST est NO-LOCK 
         WHERE est.company EQ ipcCompany
-        AND est.est-no EQ ipcEstimateID
+        AND est.est-no EQ job.est-no
         NO-ERROR.
-    IF AVAILABLE est THEN 
+    IF NOT AVAILABLE est THEN
     DO:
-        RUN SetAttributes(TABLE ttAttribute).
-        RUN GetOperationStandards (est.company, est.loc, ipcOperationID, 
-            OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
+        MESSAGE 'Estimate DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+     END. 
+      
+    RUN SetAttributes(TABLE ttAttribute).
+    RUN GetOperationStandards (est.company, est.loc, ipcOperationID, 
+        OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
             
-        MESSAGE "Machine: " ipcOperationID SKIP 
-            "MR Waste: " dOpMRWaste SKIP 
-            "MR Hours: " dOpMRHours SKIP 
-            "Run Speed: " dOpRunSpeed SKIP 
-            "Run Spoil: " dOpRunSpoil SKIP(1) 
-            "Error: " lError SKIP 
-            cMessage
-            VIEW-AS ALERT-BOX.
-    END.
+    MESSAGE "Machine: " ipcOperationID SKIP 
+        "MR Waste: " dOpMRWaste SKIP 
+        "MR Hours: " dOpMRHours SKIP 
+        "Run Speed: " dOpRunSpeed SKIP 
+        "Run Spoil: " dOpRunSpoil SKIP(1) 
+        "Error: " lError SKIP(4) 
+        "Message:: "cMessage
+        VIEW-AS ALERT-BOX.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -513,31 +546,68 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildList wOperationsTester 
 PROCEDURE pBuildList PRIVATE :
 /*------------------------------------------------------------------------------
-             Purpose:
-             Notes:
-            ------------------------------------------------------------------------------*/
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
-    FIND FIRST est NO-LOCK 
-        WHERE est.company EQ ipcCompany
-        AND est.est-no EQ ipcEstimateID
+    
+    FIND FIRST mach NO-LOCK
+        WHERE mach.company EQ ipcCompany
+          AND mach.m-code  EQ ipcOperationID
         NO-ERROR.
-    IF AVAILABLE est THEN 
+        
+    IF NOT AVAILable mach then
     DO:
-        FOR FIRST eb NO-LOCK OF est
-            WHERE eb.form-no EQ ipiFormNo
-            AND eb.blank-no EQ ipiBlankNo
-            ,
-            FIRST ef NO-LOCK OF eb:
-            RUN SetAttributesFromEb (ROWID(eb), operationID,1, OUTPUT lError, OUTPUT cMessage).
-        END.
-    END.
+        MESSAGE 'MACHINE DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+     END.
+     MESSAGE mach.dept[1]
+     VIEW-AS ALERT-BOX.
+     
+    /*Find machine from same department*/
+    FIND FIRST job-mch NO-LOCK
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job-no EQ ipcJobNo
+        AND job-mch.frm     EQ ipiFormNo
+        AND job-mch.blank-no EQ ipiBlankNo
+        AND job-mch.dept    EQ mach.dept[1]
+        and job-mch.m-code  = ipcOperationID
+        AND job-mch.pass    EQ ipiPass
+        NO-ERROR.
+        
+    if available job-mch then 
+    DO:
+        RUN GetOperationStandardsForJobMch(ROWID(job-mch)).
+         
+    end.
+    /* New machine */
+    else
+    DO:
+        MESSAGE "job-mch Not Found-----WIP"
+        VIEW-AS ALERT-BOX.
+        return.
+        
+       /* RUN ProcessOperationChange 
+          ( INPUT ipcCompany,
+            INPUT mach.m-code,
+            INPUT ipcJobNo, 
+            INPUT ipiFormNo,
+            INPUT ipiBlankNo,
+            INPUT ipiPass,
+            INPUT mach.dept[1],
+            OUTPUT cMessage).
+            */
+    end.
+    
     RUN GetAttributes (OUTPUT TABLE ttAttribute).
     STATUS DEFAULT "".
     {&CLOSE-QUERY-BROWSE-1}   
@@ -601,8 +671,8 @@ FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
     lAllValid = YES.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-             company fi_file estimateID blankNo formNo operationID.
-        estimateID = FILL(" ",8 - LENGTH(TRIM(estimateID))) + TRIM(estimateID). 
+             company fi_file jobno blankNo formNo pass operationID.
+        //estimateID = FILL(" ",8 - LENGTH(TRIM(estimateID))) + TRIM(estimateID). 
         
     END.
     RETURN lAllValid.

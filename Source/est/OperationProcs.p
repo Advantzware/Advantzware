@@ -52,6 +52,7 @@ DEFINE VARIABLE giAttributeIDStyle       AS INTEGER   NO-UNDO INITIAL 101.
 DEFINE VARIABLE giAttributeIDBoardItemID AS INTEGER   NO-UNDO INITIAL 102.
 DEFINE VARIABLE giAttributeIDCaliper     AS INTEGER   NO-UNDO INITIAL 8.
 DEFINE VARIABLE giAttributeIDBoxDepth    AS INTEGER   NO-UNDO INITIAL 104.
+DEFINE VARIABLE giAttributeIDBlankSqIn   AS INTEGER   NO-UNDO INITIAL 35.
 
 DEFINE VARIABLE glOpRatesSeparate        AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
 
@@ -107,8 +108,8 @@ FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
     ipcMachine AS CHARACTER,
     ipiPass AS INTEGER) FORWARD.  
      
-FUNCTION fGetOperationsCalThickness RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb) FORWARD.
+FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
+    (BUFFER ipbf-ef FOR ef) FORWARD.
     
 FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
@@ -148,6 +149,9 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
 
 FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
+
+FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb) FORWARD. 
 
 /* ***************************  Main Block  *************************** */
 
@@ -287,7 +291,7 @@ PROCEDURE GetOperationStandardsForJobMch:
             AND bf-eb.blank-no EQ MAX(bf-job-mch.blank-no,1)
             NO-ERROR.
             
-        RUN SetAttributesFromEb (ROWID(bf-eb), bf-job-mch.m-code, bf-job-mch.pass, OUTPUT lError, OUTPUT cMessage).
+        RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, OUTPUT lError, OUTPUT cMessage).
         IF NOT lError THEN 
         DO:
             FIND CURRENT bf-job-mch EXCLUSIVE-LOCK.
@@ -985,12 +989,13 @@ PROCEDURE pGetMRWaste PRIVATE:
     DEFINE VARIABLE iColors          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dMRWasteFromMach AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dMRWasteFromInks AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAttrName        AS CHARACTER NO-UNDO.
             
     dMRWasteFromMach = ipbf-mach.mr-waste.
         
     IF fIsDepartment(gcDeptsForPrinters, ipbf-mach.dept) THEN   
     DO:      
-        RUN pGetAttribute(1, OUTPUT cColors, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
+        RUN pGetAttribute(1, OUTPUT cColors, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
         IF NOT oplError THEN 
             iColors = INTEGER(cColors).
         IF fIsDepartment(gcDeptsForCoaters, ipbf-mach.dept) OR fIsDepartment(gcDeptsForPrinters, ipbf-mach.dept) THEN
@@ -1081,6 +1086,7 @@ PROCEDURE pOperationChangeAddDepartment PRIVATE:
         /* this let's SB know touch screen data collection made changes */
         bf-job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
         .
+       
     RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch)).
     
 END PROCEDURE.
@@ -1280,6 +1286,7 @@ PROCEDURE ProcessOperationChange:
 
     RUN pOperationChangeDetermineAction(BUFFER bf-job-mch, ipcOperationID, OUTPUT cAction).
     opcAction = cAction.
+   
     CASE cAction:
         WHEN "Cancel" THEN 
             RETURN.
@@ -1386,11 +1393,11 @@ PROCEDURE pSetAttributesBlank PRIVATE:
     RUN pSetAttributeFromStandard(ipbf-eb.company,  4, STRING(ipbf-eb.t-len)). //refactor dBlankLen
     RUN pSetAttributeFromStandard(ipbf-eb.company,  5, STRING(ipbf-eb.t-wid)). //refactor dBlankWid
     RUN pSetAttributeFromStandard(ipbf-eb.company,  6, STRING(ipbf-eb.lin-in)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  7, STRING(ipbf-eb.t-sqft)). 
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  8, STRING(fGetOperationsCalThickness(BUFFER ipbf-eb))). //v-dep * 1000
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  7, STRING(fGetBlankSqFtArea(BUFFER ipbf-eb))).  //eb.t-sqFt
     RUN pSetAttributeFromStandard(ipbf-eb.company,  30, "0"). //none?
     RUN pSetAttributeFromStandard(ipbf-eb.company,  33, STRING(ipbf-eb.num-wid)).
     RUN pSetAttributeFromStandard(ipbf-eb.company,  34, STRING(ipbf-eb.num-len)).
+    RUN pSetAttribute(giAttributeIDBlankSqIn, "Blank Sq In", STRING(ipbf-eb.t-sqin)).  //eb.t-sqin
     
 END PROCEDURE.
 
@@ -1412,7 +1419,7 @@ PROCEDURE pSetAttributesForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
     
     RUN pSetAttribute(giAttributeIDBoardItemID, "Board ItemID", ipbf-ef.board).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  8, STRING(ipbf-ef.cal)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  8, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  9, STRING(ipbf-ef.weight)). 
     RUN pSetAttributeFromStandard(ipbf-ef.company,  10, STRING(ipbf-ef.roll-wid)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  11, STRING(ipbf-ef.nsh-wid)).
@@ -1591,6 +1598,8 @@ PROCEDURE SetAttributesFromJobMch:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMchCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipipass AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
@@ -1639,7 +1648,7 @@ PROCEDURE SetAttributesFromJobMch:
     IF AVAILABLE bf-eb THEN 
     DO:
         RUN pSetAttributesBlank(BUFFER bf-eb).
-        RUN pSetAttributeForColor(BUFFER bf-eb, bf-job-mch.blank-no, bf-job-mch.pass).  //Maxco
+        RUN pSetAttributeForColors(BUFFER bf-eb, bf-job-mch.blank-no, bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  13, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
         RUN pSetAttributeFromStandard(bf-eb.company,  18, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  20, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
@@ -1739,6 +1748,7 @@ FUNCTION fGetColorsForBlankPass RETURNS INTEGER PRIVATE
         END.
     END.    
 
+    RETURN iColors.
 END FUNCTION.
 
 FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
@@ -1908,47 +1918,20 @@ FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
 END FUNCTION.
 
 
-FUNCTION fGetOperationsCalThickness RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb):
+FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
+    (BUFFER ipbf-ef FOR ef):
     /*------------------------------------------------------------------------------
-    Purpose: 
-    Notes:
+    Purpose: Returns caliper Thickness in Integer
+    Notes: Converting the Caliper Thickness into Integer number multilpying by 1000, 
+           Reason being Axis values are configured as integer than decimal. 
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount       AS INTEGER NO-UNDO.
-    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE VARIABLE iReturnValue AS INTEGER NO-UNDO.
     
-    FIND FIRST est NO-LOCK
-        WHERE est.company EQ ipbf-eb.company
-        AND est.est-no EQ ipbf-eb.est-no NO-ERROR.
-         
-    dReturnValue = ipbf-eb.dep.
-
-    IF AVAIL est AND est.est-type = 6 THEN
-        FOR EACH bf-eb FIELDS(style) WHERE
-            bf-eb.company EQ ipbf-eb.company AND
-            bf-eb.est-no  EQ ipbf-eb.est-no AND
-            bf-eb.form-no NE 0
-            NO-LOCK:
-
-            iCount = iCount + 1.
-            IF iCount GE 3 THEN
-                LEAVE.
-
-            IF NOT CAN-FIND(FIRST style WHERE
-                style.company EQ ipbf-eb.company AND
-                style.style   EQ ipbf-eb.style AND
-                LOOKUP(style.TYPE,'P,R') > 0) THEN
-            DO:
-                iCount = 0.
-                LEAVE.
-            END.
-        END.
-
-    IF iCount EQ 2 THEN
-        dReturnValue = ipbf-eb.wid.     
+    IF AVAILABLE ipbf-ef AND ipbf-ef.cal NE 0 THEN
+        iReturnValue = ipbf-ef.cal  * 1000.  
     
-    RETURN dReturnValue.
+    
+    RETURN iReturnValue.
 		
 END FUNCTION.
 
@@ -2042,18 +2025,15 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
         WHERE ef.company EQ ipbf-eb.company
         AND ef.est-no EQ ipbf-eb.est-no
         AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.     
-         
-    IF ipbf-eb.est-type EQ 6 THEN
-        ASSIGN
-            iYldQty = IF ipbf-eb.quantityPerSet GT 0 THEN ipbf-eb.quantityPerSet ELSE (-1 / ipbf-eb.quantityPerSet) .            
-         
+       
     IF AVAIL mach THEN
     DO:
         IF INDEX("AP",mach.p-type) GT 0 THEN 
         DO:
             ASSIGN           
                 iNOut = 1.           
-            IF mach.p-type EQ "A" THEN iYldQty = 1.
+            IF mach.p-type EQ "A" THEN 
+                iYldQty = 1.
             ELSE
                 FOR EACH eb FIELDS(quantityPerSet)
                     WHERE eb.company EQ ipbf-eb.company
@@ -2067,9 +2047,11 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
         ELSE 
         DO:
             RUN est/ef-#out.p (ROWID(ef), OUTPUT iNOut).
-            iYldQty = IF ipbf-eb.est-type EQ 8 THEN 1
+            IF ipbf-eb.est-type EQ 8 THEN
+                iYldQty =  1.
             ELSE
-                IF ipbf-eb.quantityPerSet LT 0 THEN (-1 / ipbf-eb.quantityPerSet) ELSE ipbf-eb.quantityPerSet.
+                iYldQty = IF ipbf-eb.quantityPerSet GE 0 THEN ipbf-eb.quantityPerSet ELSE (-1 / ipbf-eb.quantityPerSet) .
+                
         END.        
     END.
     
@@ -2091,12 +2073,6 @@ FUNCTION fGetOperationsGrsShtWid RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iOut         AS INTEGER NO-UNDO.            
     
-    FIND FIRST ef NO-LOCK
-        WHERE ef.company EQ ipbf-eb.company
-        AND ef.est-no EQ ipbf-eb.est-no
-        AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
-    IF avail ef THEN
-        iOut = ef.n-out.
     FIND FIRST est-op NO-LOCK
         WHERE est-op.company EQ ipbf-eb.company
         AND est-op.m-code EQ ipcMachine
@@ -2104,9 +2080,21 @@ FUNCTION fGetOperationsGrsShtWid RETURNS DECIMAL PRIVATE
         AND est-op.s-num EQ ipbf-eb.form-no
         AND (est-op.b-num EQ ipbf-eb.blank-no OR est-op.b-num EQ 0 )
         AND est-op.op-pass EQ ipiPass 
-        and est-op.line    lt 500 NO-ERROR.      
-    IF AVAIL est-op THEN
-        iOut = est-op.n-out.          
+        and est-op.line    lt 500 NO-ERROR.
+    
+    IF AVAIL est-op AND est-op.n-out NE 0 THEN
+        iOut = est-op.n-out.
+    ELSE
+    Do:
+        FIND FIRST ef NO-LOCK
+            WHERE ef.company EQ ipbf-eb.company
+            AND ef.est-no EQ ipbf-eb.est-no
+            AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
+        
+        IF avail ef THEN
+            iOut = ef.n-out.
+            
+    END.          
         
     dReturnValue = iOut .         
     
@@ -2131,37 +2119,37 @@ FUNCTION fGetOperationsPartPerSet RETURNS INTEGER PRIVATE
     DEFINE VARIABLE iShortCount  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iCount       AS INTEGER NO-UNDO.
     
-    FOR EACH eb NO-LOCK
-        WHERE eb.company EQ ipbf-eb.company
-        AND eb.est-no  EQ ipbf-eb.est-no
-        AND eb.form-no NE 0
-        USE-INDEX est-qty:
-        
-        IF ipbf-eb.est-type EQ 6 THEN
-        DO:
+    IF ipbf-eb.est-type EQ 6 THEN
+    DO:
+        FOR EACH eb NO-LOCK
+            WHERE eb.company EQ ipbf-eb.company
+            AND eb.est-no  EQ ipbf-eb.est-no
+            AND eb.form-no NE 0
+            USE-INDEX est-qty:
+            
             ASSIGN
                 iYldQty     = IF eb.quantityPerSet GT 0 THEN eb.quantityPerSet ELSE (-1 / eb.quantityPerSet)
                 iPartPerSet = iPartPerSet + iYldQty 
                 iCount      = iCount + 1.  
-            
+                
             IF iCount EQ 1 THEN
                 iLongCount = iYldQty.
             ELSE IF iCount EQ 2 THEN
                     iShortCount = iYldQty.
-        END.
-
-        IF eb.form-no EQ ipbf-eb.form-no THEN 
-            IF ipbf-eb.est-type EQ 6 THEN iPartPerForm = iPartPerForm + iYldQty.   
-    END.
-    iReturnValue = IF ipiPartPerSet EQ 2 THEN iPartPerForm ELSE iPartPerSet.
-    IF ipcSetCount NE "" THEN
-    DO:
+                        
+            IF eb.form-no EQ ipbf-eb.form-no THEN
+                iPartPerForm = iPartPerForm + iYldQty.   
+        END. /* FOR EACH eb NO-LOCK */
+        
+        
         IF ipcSetCount EQ "long" THEN
             iReturnValue = iLongCount.
-        ELSE 
+        ELSE IF ipcSetCount EQ "short" THEN
             iReturnValue = iShortCount.
+        ELSE
+            iReturnValue = IF ipiPartPerSet EQ 2 THEN iPartPerForm ELSE iPartPerSet.
     END.
-    
+        
     RETURN iReturnValue.
 		
 END FUNCTION.
@@ -2328,3 +2316,22 @@ FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
     
 END FUNCTION.
 
+
+FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb):
+    /*------------------------------------------------------------------------------
+     Purpose: It returns the Blank Sq.Ft. of a Blank record
+     Notes: It takes Blank's t-sqin field and converts that into SqFt.
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
+    
+    IF AVAILABLE ipbf-eb and ipbf-eb.t-sqin NE 0 THEN
+        dReturnValue = DYNAMIC-FUNCTION("fConv_GetAreaSqFeet", ipbf-eb.t-sqin,"SQIN").
+        
+    IF dReturnValue = ? THEN
+        dReturnValue = 0.
+       
+    RETURN dReturnValue.
+    
+END FUNCTION.

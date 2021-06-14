@@ -32,7 +32,10 @@ FUNCTION fConv_GetFeet RETURNS DECIMAL
 FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     (ipdDim AS DECIMAL,
     ipcUOM AS CHARACTER) FORWARD.
-
+    
+FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER )FORWARD.
+        
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     (ipdLength AS DECIMAL,
     ipdWidth AS DECIMAL,
@@ -1258,6 +1261,20 @@ FUNCTION fConv_GetFeet RETURNS DECIMAL
         
 END FUNCTION.
 
+FUNCTION fConv_GetAreaSqFeet RETURNS DECIMAL
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Given an area measurement in Sq unit, convert to Sq feet
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dReturnVal AS DECIMAL NO-UNDO.
+    
+    ASSIGN dReturnVal = fGetSqInches(ipdArea, ipcUOM) / 144 NO-ERROR. 
+       
+    RETURN dReturnVal.
+        
+END FUNCTION.
+
 FUNCTION fConv_ttUOMHandle RETURNS HANDLE
     ( ):
     /*------------------------------------------------------------------------------
@@ -1298,6 +1315,38 @@ FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     RETURN dInches.
 		
 END FUNCTION.
+
+FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
+    ( ipdArea AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: given an Are measurement and uom, convert to Sq inches
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dSqCMPerSqIn AS DECIMAL NO-UNDO INITIAL 6.4516.
+    DEFINE VARIABLE dSQInPerSQFt AS DECIMAL NO-UNDO INITIAL 144.  
+    
+    CASE CAPS(ipcUOM):
+        WHEN "SQIN" OR WHEN "SQLI" THEN 
+            dInches = ipdArea.
+        WHEN "SQFT" OR WHEN "SQLF" THEN 
+            dInches = ipdArea * dSQInPerSQFt.
+        WHEN "SQCM" THEN 
+            dInches = ipdArea / dSqCMPerSqIn.
+        WHEN "SQMM" THEN 
+            dInches = ipdArea / (dSqCMPerSqIn * 100).
+        WHEN "SQMET" OR WHEN "SQM" THEN 
+            dInches = ipdArea / (dSqCMPerSqIn / 10000).          
+        OTHERWISE 
+        dInches = ipdArea.
+ 
+    END CASE.     
+      
+    RETURN dInches.
+        
+END FUNCTION.
+
 
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
     (ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
