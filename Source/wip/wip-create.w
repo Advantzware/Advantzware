@@ -679,6 +679,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-create W-Win
 ON CHOOSE OF bt-create IN FRAME F-Main /* Create */
 DO: 
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     IF DECIMAL(ls-qty-per-tag:SCREEN-VALUE) EQ 0 THEN DO:
         MESSAGE "Quantity Per Tag cannot be 0.00"
             VIEW-AS ALERT-BOX ERROR.               
@@ -693,6 +694,9 @@ DO:
         APPLY "ENTRY" TO ls-total-run-qty.
         RETURN.
     END.
+    
+    RUN pCheckTagQuantity(INPUT ipcCompany, INPUT cFormattedJobno, INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME}, INPUT INT(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}), INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},  OUTPUT lError) .
+    IF lError THEN RETURN NO-APPLY.
     
     RUN CreateTransactionInitializedFromJob IN hdInventoryProcs (
         ipcCompany,
@@ -2371,3 +2375,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTagQuantity W-Win 
+PROCEDURE pCheckTagQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTagQty AS DECIMAL NO-UNDO.
+    
+    FOR EACH inventoryStock NO-LOCK
+       WHERE inventoryStock.company   EQ ipcCompany
+         AND inventoryStock.jobID     EQ ipcJobno
+         AND inventoryStock.jobID2    EQ ipiJobno2   
+         AND (IF ipcMachine           EQ "" THEN TRUE 
+              ELSE inventoryStock.MachineID EQ ipcMachine)
+         AND inventoryStock.formNo    EQ ipiFormno:  
+        dTagQty = dTagQty + inventoryStock.quantityOriginal.
+    END. 
+    IF dTagQty GE DECIMAL(ls-total-run-qty:SCREEN-VALUE IN FRAME {&FRAME-NAME})  THEN
+    DO:
+        MESSAGE "Quantity Exceeds Run Quantity, Continue?"  
+                VIEW-AS ALERT-BOX QUESTION 
+                BUTTONS OK-CANCEL UPDATE lcheckflg as logical .           
+        IF not lcheckflg THEN 
+        oplReturnError = YES.
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
