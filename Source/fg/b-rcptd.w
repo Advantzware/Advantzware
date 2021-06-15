@@ -1479,7 +1479,7 @@ gvcCurrentItem = fg-rctd.i-no.
 
       /* If total quantity was used for cost, update the other records with the new cost */  
       IF lv-cost-basis = "FULLQTY" THEN DO:  
-          RUN get-set-full-qty (INPUT bfFgRctd.std-cost, INPUT NO, OUTPUT full-qty).
+          RUN get-set-full-qty (INPUT bfFgRctd.i-no, INPUT bfFgRctd.std-cost, INPUT NO, OUTPUT full-qty).
       END.
       
       RUN copyBinInfo (INPUT ROWID(fg-bin), ROWID(bfFgRctd)).
@@ -1504,6 +1504,7 @@ PROCEDURE get-set-full-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ipItemNO AS CHARACTER NO-UNDO.
   DEF INPUT PARAMETER ip-cost-to-set AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-on-screen AS LOG NO-UNDO.
   DEF OUTPUT PARAMETER op-out-qty AS DEC NO-UNDO.
@@ -1530,13 +1531,13 @@ PROCEDURE get-set-full-qty :
         (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
         AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
         AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
-        AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
+        AND b-fg-rctd.i-no = ipItemNO //fg-rctd.i-no:SCREEN-VALUE 
         AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
         OR (adm-new-record AND NOT adm-adding-record))
         AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
         AND b-fg-rctd.SetHeaderRno GT 0
         NO-LOCK:     
-
+           
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:
 
@@ -1633,18 +1634,18 @@ END.
 
 /* Obtain quantity of set header record */                        
 dMaxCompQty = maxComponentQty().
-
+ 
 IF AVAIL bfFgBin  THEN DO:
   
   /* dTotalQty is the qty in other lines with the same item number */
-  RUN get-set-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
+  RUN get-set-full-qty (INPUT fg-rctd.i-no, INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
   
   dTotalQty = ABS(dTotalQty).
   IF iprFgRctd EQ ? THEN
     dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})).
   ELSE
     dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty)).
-  
+    
   /* dMaxCompQty is the max that can be used from bfFgBin */
   IF ABS(dMaxCompQty) GT 0 AND ABS(dTotalQty) GT 0 THEN DO:
     
