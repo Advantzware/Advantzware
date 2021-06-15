@@ -45,7 +45,8 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 {system/VendorCostProcs.i}
 
 //DEFINE VARIABLE  ipiEstCostHeaderID AS INTEGER NO-UNDO.
-ipiEstCostHeaderID = 7.
+//DEFINE VARIABLE oplVendorUpdated    AS LOGICAL      NO-UNDO. 
+//ipiEstCostHeaderID = 7.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -60,27 +61,27 @@ ipiEstCostHeaderID = 7.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME brVendItemCost
+&Scoped-define BROWSE-NAME brEstCostMaterial
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES estCostMaterial
 
-/* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.costPerUOM estCostMaterial.costSetup   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
-&Scoped-define SELF-NAME brVendItemCost
-&Scoped-define QUERY-STRING-brVendItemCost FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-brVendItemCost estCostMaterial
-&Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost estCostMaterial
+/* Definitions for BROWSE brEstCostMaterial                             */
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.costPerUOM estCostMaterial.costSetup   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
+&Scoped-define SELF-NAME brEstCostMaterial
+&Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-brEstCostMaterial estCostMaterial
+&Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial estCostMaterial
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-brVendItemCost}
+    ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS brVendItemCost bOk 
+&Scoped-Define ENABLED-OBJECTS brEstCostMaterial bOk 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -102,14 +103,14 @@ DEFINE BUTTON bOk
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY brVendItemCost FOR 
+DEFINE QUERY brEstCostMaterial FOR 
       estCostMaterial SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE brVendItemCost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brVendItemCost C-Win _FREEFORM
-  QUERY brVendItemCost NO-LOCK DISPLAY
+DEFINE BROWSE brEstCostMaterial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
+  QUERY brEstCostMaterial NO-LOCK DISPLAY
       estCostMaterial.formNo    COLUMN-LABEL "Form"       
             LABEL-BGCOLOR 14
       estCostMaterial.blankNo COLUMN-LABEL "Blank"    
@@ -131,7 +132,7 @@ DEFINE BROWSE brVendItemCost
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     brVendItemCost AT ROW 1.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
+     brEstCostMaterial AT ROW 1.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 17 COL 64 WIDGET-ID 342
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -156,23 +157,23 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Vendor Selector"
+         TITLE              = "Estimate cost material"
          HEIGHT             = 17.71
          WIDTH              = 149.8
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 199.8
-         MAX-BUTTON         = no
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         MAX-BUTTON         = NO
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -186,14 +187,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB brVendItemCost 1 DEFAULT-FRAME */
-/* SETTINGS FOR BROWSE brVendItemCost IN FRAME DEFAULT-FRAME
+/* BROWSE-TAB brEstCostMaterial 1 DEFAULT-FRAME */
+/* SETTINGS FOR BROWSE brEstCostMaterial IN FRAME DEFAULT-FRAME
    ALIGN-R                                                              */
 ASSIGN 
-       brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+       brEstCostMaterial:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -201,14 +202,14 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brVendItemCost
-/* Query rebuild information for BROWSE brVendItemCost
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brEstCostMaterial
+/* Query rebuild information for BROWSE brEstCostMaterial
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
-*/  /* BROWSE brVendItemCost */
+*/  /* BROWSE brEstCostMaterial */
 &ANALYZE-RESUME
 
  
@@ -219,7 +220,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHe
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Vendor Selector */
+ON END-ERROR OF C-Win /* Estimate cost material */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -232,7 +233,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Vendor Selector */
+ON WINDOW-CLOSE OF C-Win /* Estimate cost material */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -290,12 +291,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME brVendItemCost
-&Scoped-define SELF-NAME brVendItemCost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
-ON START-SEARCH OF brVendItemCost IN FRAME DEFAULT-FRAME
+&Scoped-define BROWSE-NAME brEstCostMaterial
+&Scoped-define SELF-NAME brEstCostMaterial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brEstCostMaterial C-Win
+ON START-SEARCH OF brEstCostMaterial IN FRAME DEFAULT-FRAME
 DO:
-   /* IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         
         IF cColumnLabel EQ cSaveLabel THEN
@@ -310,7 +311,7 @@ DO:
             cSaveLabel                 = cColumnLabel
             .
         RUN pReopenBrowse.
-    END.    */   
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,13 +349,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
-/*
-&Scoped-define sdBrowseName brVendItemCost
-{methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
-{methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
-{methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
-{methods/sortByProc.i "pBycostTotal" "ttVendItemCost.costTotal"}
-{methods/sortByProc.i "pByVendorItem" "ttVendItemCost.vendorItem"}*/
+
+&Scoped-define sdBrowseName brEstCostMaterial
+{methods/sortByProc.i "pByFormNo" "estCostMaterial.formNo"}
+{methods/sortByProc.i "pByBlankNo" "estCostMaterial.blankNo"}
+{methods/sortByProc.i "pByItemID" "estCostMaterial.itemID"}
+{methods/sortByProc.i "pByVendorID" "estCostMaterial.vendorID"}
+{methods/sortByProc.i "pByCostPerUOM" "estCostMaterial.costPerUOM"}
+{methods/sortByProc.i "pByCostSetup" "estCostMaterial.costSetup"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -392,7 +394,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE brVendItemCost bOk 
+  ENABLE brEstCostMaterial bOk 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -407,18 +409,19 @@ PROCEDURE pReOpenBrowse :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
     CASE cColumnLabel:
+        WHEN "formNo" THEN
+            RUN pByFormNo.
+        WHEN "blankNo" THEN
+            RUN pByBlankNo.
+        WHEN "itemID" THEN
+            RUN pByItemID.
         WHEN "vendorID" THEN
             RUN pByVendorID.
-        WHEN "costPerVendorUOM" THEN
-            RUN pByCostPerVendorUOM.
+        WHEN "costPerUOM" THEN
+            RUN pByCostPerUOM.
         WHEN "costSetup" THEN
-            RUN pByCostSetup.
-        WHEN "costTotal" THEN
-            RUN pBycostTotal.
-        WHEN "vendorItem" THEN
-            RUN pByVendorItem.       
+            RUN pByCostSetup.       
         OTHERWISE
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
