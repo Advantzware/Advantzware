@@ -853,17 +853,15 @@ DO:
                 userColumn.programName       = 'oe/b-ordrel'
                 userColumn.usrId             = USERID('ASI') 
                 userColumn.ColName           = "Sorting-Column"
-                userColumn.sortByColumnName  = lh-column:NAME
-                userColumn.sortByColumnLabel = lh-column:LABEL
-                userColumn.sortAsc           = lsortBy
+                userColumn.sortByColumn      = lh-column:NAME
+                userColumn.sorted            = (IF lsortBy THEN 'A' ELSE 'D')
                 userColumn.colPosition       = 10000
                 .
         END.
         ELSE
         ASSIGN
-            userColumn.sortByColumnName  = lh-column:NAME
-            userColumn.sortByColumnLabel = lh-column:LABEL
-            userColumn.sortAsc           = lsortBy
+            userColumn.sortByColumn      = lh-column:NAME
+            userColumn.sorted            = (IF lsortBy THEN 'A' ELSE 'D')
             .          
     END. 
     ELSE
@@ -878,19 +876,18 @@ DO:
             DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
                 hColumnRowColor = HANDLE(ENTRY(iCnt,cColHandList,",")).
                 IF  VALID-HANDLE(hColumnRowColor) AND 
-                    hColumnRowColor:NAME = userColumn.sortByColumnName THEN
+                    hColumnRowColor:NAME = userColumn.sortByColumn THEN
               DO:
                   hCurrentColumn = hColumnRowColor.
                   LEAVE GET-HANDLE.
               END.                 
           END.
           ASSIGN    
-              lv-sort-by                          = userColumn.sortByColumnName
-              lv-sort-by-lab                      = userColumn.sortByColumnLabel
-              ll-sort-asc                         = userColumn.sortAsc
+              lv-sort-by                          = userColumn.sortByColumn
+              ll-sort-asc                         = (IF userColumn.sorted = 'A' THEN YES ELSE NO )
               hCurrentColumn:LABEL-BGCOLOR        = 30
               hCurrentColumn:SORT-ASCENDING       = ll-sort-asc
-              lsortBy                             = userColumn.sortAsc.
+              lsortBy                             = (IF userColumn.sorted = 'A' THEN YES ELSE NO ).
               hPrevColumn                         = hCurrentColumn.
       END.
         RUN resort-query .
