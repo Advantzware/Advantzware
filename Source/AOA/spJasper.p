@@ -671,6 +671,9 @@ PROCEDURE pJasperGroupDeclarations :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGroupName AS CHARACTER NO-UNDO.
+
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* groups declarations */
@@ -678,11 +681,18 @@ PROCEDURE pJasperGroupDeclarations :
         WHERE ttColumn.isGroup EQ YES
            BY ttColumn.ttOrder
         :
+        ASSIGN
+            cGroupName = REPLACE(ttColumn.ttLabel," ","_")
+            cGroupName = REPLACE(cGroupName,"[","")
+            cGroupName = REPLACE(cGroupName,"]","")
+            cFieldName = REPLACE(ttColumn.ttField,"[","")
+            cFieldName = REPLACE(cFieldName,"]","")
+            .
         PUT STREAM sJasper UNFORMATTED
-            "    <group name=~"" REPLACE(ttColumn.ttLabel," ","_") + "_Group~">" SKIP
+            "    <group name=~"" REPLACE(cGroupName," ","_") + "_Group~">" SKIP
             "        <groupExpression><![CDATA[$F~{"
             (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "")
-            ttColumn.ttField "}]]></groupExpression>" SKIP
+            cFieldName "}]]></groupExpression>" SKIP
             .
         IF svShowGroupHeader THEN
         RUN pJasperGroupHeader (ROWID(ttColumn)).
@@ -764,7 +774,6 @@ PROCEDURE pJasperGroupFooter :
             "                        <font isBold=~"true~"/>" SKIP
             "                    </textElement>" SKIP
             "                    <textFieldExpression><![CDATA[$V~{"
-/*            (IF bttColumn.ttTable NE "" THEN bttColumn.ttTable + "__" ELSE "")*/
             bttColumn.ttField "_" REPLACE(ttColumn.ttLabel," ","_") "_Group"
             "}]]></textFieldExpression>" SKIP
             "                </textField>" SKIP
