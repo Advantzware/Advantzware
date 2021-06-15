@@ -4891,7 +4891,7 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
             AND estCostHeader.jobID2        EQ ipiJobID2:
             
             RUN testers/EstCostMaterial.w(
-                INPUT ipcEstimateNo,
+                INPUT estCostHeader.estCostHeaderID,
                 OUTPUT lChangesMade).
         END.
         

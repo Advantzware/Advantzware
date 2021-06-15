@@ -284,7 +284,7 @@ DO:
         END.
         FIND CURRENT estCostMaterial NO-LOCK NO-ERROR.  
     END.
-    {&OPEN-QUERY-brVendItemCost}
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
 /* _UIB-CODE-BLOCK-END */
