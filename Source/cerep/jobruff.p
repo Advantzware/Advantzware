@@ -838,7 +838,8 @@ FOR EACH ef
         AND oe-ordl.job-no2 EQ job-hdr.job-no2
         AND oe-ordl.i-no    EQ eb.stock-no /*job-hdr.i-no*/
         NO-LOCK NO-ERROR.
-
+    IF v-ord-qty EQ 0 AND AVAIL oe-ordl THEN
+    v-ord-qty = oe-ordl.qty.
     FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
         AND oe-ord.ord-no  EQ iOrderNo NO-LOCK NO-ERROR.
     
