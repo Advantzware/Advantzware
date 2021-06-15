@@ -99,10 +99,9 @@ DEFINE QUERY external_tables FOR ap-pay.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ap-payl.inv-no ~
 fInvDate() @ dInvDate ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
-ap-payl.actnum display-actdscr() @ act_dscr ap-payl.rec_key
+ap-payl.actnum display-actdscr() @ act_dscr ap-payl.rec_key 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-payl.inv-no ~
-ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
-ap-payl.actnum 
+ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ap-payl.actnum 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-payl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ap-payl
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ap-payl OF ap-pay WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -145,6 +144,7 @@ FUNCTION fInvDate RETURNS DATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -185,8 +185,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-payl.inv-no /*FORMAT "x(12)":U WIDTH 18.2*/
-      fInvDate() @ dInvDate COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U WIDTH 20
+      ap-payl.inv-no FORMAT "x(20)":U WIDTH 30
+      fInvDate() @ dInvDate
       ap-payl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
             WIDTH 20.2
       ap-payl.amt-paid COLUMN-LABEL "Credit Amount" FORMAT "->>,>>>,>>9.99":U
@@ -196,7 +196,7 @@ DEFINE BROWSE Browser-Table
       ap-payl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
             WIDTH 32.2
       display-actdscr() @ act_dscr
-      ap-payl.rec_key FORMAT "X(20)":U
+      ap-payl.rec_key FORMAT "X(21)":U
   ENABLE
       ap-payl.inv-no
       ap-payl.amt-due
@@ -256,7 +256,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.38
+         HEIGHT             = 10.48
          WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -282,7 +282,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -302,7 +302,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _FldNameList[1]   > ASI.ap-payl.inv-no
-"ap-payl.inv-no" ? ? "character" ? ? ? ? ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-payl.inv-no" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "fInvDate() @ dInvDate" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ap-payl.amt-due
@@ -407,6 +407,22 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
@@ -430,21 +446,6 @@ DO:
      {brsleave.i}
 END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:
-    &SCOPED-DEFINE exclude-row-display true
-    {methods/template/brwRowDisplay.i} 
-    IF lAPInvoiceLength THEN
-        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
-    ELSE
-        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
-
-END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -474,18 +475,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-/*
-&Scoped-define SELF-NAME dInvDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dInvDate Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF dInvDate IN BROWSE Browser-Table /* Due Date */
-DO:
-  APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
-  RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   */
 
 
 &Scoped-define SELF-NAME ap-payl.amt-due
@@ -776,9 +765,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win
-PROCEDURE local-cancel-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -795,11 +783,9 @@ PROCEDURE local-cancel-record:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .                 
                 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
@@ -911,9 +897,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win
-PROCEDURE local-reset-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record B-table-Win 
+PROCEDURE local-reset-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -929,11 +914,9 @@ PROCEDURE local-reset-record:
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -973,9 +956,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        ASSIGN ap-payl.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    END.
+    ELSE DO: 
+        ASSIGN ap-payl.inv-no:WIDTH IN BROWSE {&browse-name} = 20.    
+    END.
+END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win
-PROCEDURE presetColor:
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor B-table-Win 
+PROCEDURE presetColor :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -988,11 +988,9 @@ PROCEDURE presetColor:
             .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-header B-table-Win 
 PROCEDURE redisplay-header :
@@ -1229,8 +1227,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvDate B-table-Win 
 FUNCTION fInvDate RETURNS DATE
   ( /* parameter-definitions */ ) :
@@ -1258,20 +1254,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
-PROCEDURE pAPInvoiceLength :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAPInvoiceLength THEN DO:
-        ASSIGN ap-payl.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
-    END.
-    ELSE DO: 
-        ASSIGN ap-payl.inv-no:WIDTH IN BROWSE {&browse-name} = 20.    
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
