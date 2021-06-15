@@ -695,7 +695,14 @@ DO:
         RETURN.
     END.
     
-    RUN pCheckTagQuantity(INPUT ipcCompany, INPUT cFormattedJobno, INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME}, INPUT INT(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}), INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},  OUTPUT lError) .
+    RUN pCheckTagQuantity(
+             INPUT ipcCompany,
+             INPUT cFormattedJobno,
+             INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+             INPUT INT(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+             INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 
+             INPUT DECIMAL(ls-total-run-qty:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+             OUTPUT lError) .
     IF lError THEN RETURN NO-APPLY.
     
     RUN CreateTransactionInitializedFromJob IN hdInventoryProcs (
@@ -2388,26 +2395,31 @@ PROCEDURE pCheckTagQuantity :
     DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTagQty AS DECIMAL NO-UNDO.
     
-    FOR EACH inventoryStock NO-LOCK
-       WHERE inventoryStock.company   EQ ipcCompany
-         AND inventoryStock.jobID     EQ ipcJobno
-         AND inventoryStock.jobID2    EQ ipiJobno2   
-         AND (IF ipcMachine           EQ "" THEN TRUE 
-              ELSE inventoryStock.MachineID EQ ipcMachine)
-         AND inventoryStock.formNo    EQ ipiFormno:  
-        dTagQty = dTagQty + inventoryStock.quantityOriginal.
-    END. 
-    IF dTagQty GE DECIMAL(ls-total-run-qty:SCREEN-VALUE IN FRAME {&FRAME-NAME})  THEN
+    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    
+    RUN Inventory_GetOnHandQuantity IN hdInventoryProcs(
+                             INPUT ipcCompany,
+                             INPUT ipcJobno,
+                             INPUT ipcMachine,
+                             INPUT ipiJobno2,
+                             INPUT ipiFormno,
+                             INPUT gcItemTypeWIP,
+                             INPUT ipdRunQty,
+                             OUTPUT lError,
+                             OUTPUT cMessage
+                             ).                                         
+    IF lError THEN
     DO:
-        MESSAGE "Quantity Exceeds Run Quantity, Continue?"  
+        MESSAGE cMessage  
                 VIEW-AS ALERT-BOX QUESTION 
                 BUTTONS OK-CANCEL UPDATE lcheckflg as logical .           
         IF not lcheckflg THEN 
         oplReturnError = YES.
-    END.
+    END.  
     
 END PROCEDURE.
 

@@ -341,6 +341,35 @@ PROCEDURE Inventory_FGQuantityAdjust:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetOnHandQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    RUN pGetOnHandQuantity(
+           INPUT ipcCompany,
+           INPUT ipcJobno,
+           INPUT ipcMachine,
+           INPUT ipiJobno2,
+           INPUT ipiFormno,
+           INPUT ipcItemType,
+           INPUT ipdRunQty,
+           OUTPUT oplError,
+           OUTPUT opcMessage
+           ).
+        
+END PROCEDURE.
+
 PROCEDURE Inventory_GetWarehouseLength:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2556,6 +2585,40 @@ PROCEDURE pCreateRawMaterialHistoryRecords PRIVATE:
             .
         IF bf-rm-rdtlh.tag EQ bf-rm-rdtlh.tag2 THEN
             bf-rm-rdtlh.tag2 = "".
+    END.
+END PROCEDURE.
+
+PROCEDURE pGetOnHandQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dTagQty AS DECIMAL NO-UNDO.
+    
+    FOR EACH inventoryStock NO-LOCK
+       WHERE inventoryStock.company   EQ ipcCompany
+         AND inventoryStock.jobID     EQ ipcJobno
+         AND inventoryStock.jobID2    EQ ipiJobno2   
+         AND (IF ipcMachine           EQ "" THEN FALSE 
+              ELSE inventoryStock.MachineID EQ ipcMachine)
+         AND inventoryStock.formNo    EQ ipiFormno
+         AND inventoryStock.itemType  EQ ipcItemType :   
+        dTagQty = dTagQty + inventoryStock.quantityOriginal.
+    END. 
+    IF dTagQty GE DECIMAL(ipdRunQty)  THEN
+    DO:
+        opcMessage = "Quantity Exceeds Run Quantity, Continue?"  .           
+        oplError = YES.
     END.
 END PROCEDURE.
 
