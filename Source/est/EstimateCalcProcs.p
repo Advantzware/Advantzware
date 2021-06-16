@@ -75,6 +75,7 @@ DEFINE VARIABLE glApplyOperationMinimumCharge         AS LOGICAL   NO-UNDO. /*CE
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
+DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -112,12 +113,6 @@ FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
 
 FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
-
-FUNCTION fUseNew RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER) FORWARD.
-
-FUNCTION fUseBlank RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER) FORWARD.
 
 FUNCTION IsComboType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
@@ -4621,7 +4616,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
-        IF ipbf-estCostMaterial.vendorID NE "" THEN 
+        IF ipbf-estCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
         DO:
             opcVendorID = ipbf-estCostMaterial.vendorID.
             RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
@@ -4634,29 +4629,15 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
         END.
         ELSE 
         DO:
-        lUseBlank = fUseBlank(ipbf-estCostMaterial.company).
-            IF NOT lUseBlank THEN  
             RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
-                ipbf-estCostMaterial.itemID, "RM", 
-                cScope, lIncludeBlankVendor, 
-                ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
-                ipdQty, ipcQtyUOM, 
-                ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-                ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-                OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
-                OUTPUT lError, OUTPUT cMessage).
-                
-             ELSE 
-             DO:
-                opcVendorID = "".
-                RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
-                      opcVendorID, "", ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, YES /*ipbf-estCostMaterial.blankNo*/, 
-                      ipdQty, ipcQtyUOM, 
-                      ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-                      ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM, 
-                      NO,
-                      OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
-             END.
+                    ipbf-estCostMaterial.itemID, "RM", 
+                    cScope, lIncludeBlankVendor, 
+                    ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
+                    ipdQty, ipcQtyUOM, 
+                    ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
+                    OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
+                    OUTPUT lError, OUTPUT cMessage).
          END.
 
         RETURN.
@@ -4890,8 +4871,8 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
             AND estCostHeader.jobID         EQ ipcJobID
             AND estCostHeader.jobID2        EQ ipiJobID2:
             
-            RUN testers/EstCostMaterial.w(
-                INPUT estCostHeader.estCostHeaderID,
+            RUN est/EstCostMaterial.w(
+                estCostHeader.estCostHeaderID,
                 OUTPUT lChangesMade).
         END.
         
@@ -5193,6 +5174,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEVendor", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glPromptForMaterialVendor = cReturn EQ "YES".
     
+    RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    glUseBlankVendor = lFound AND cReturn EQ "Blank Vendor".
+
     
 END PROCEDURE.
 
@@ -5369,40 +5353,6 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     ELSE dValueRounded = INTEGER (ipdValue).
     RETURN dValueRounded.
 		
-END FUNCTION.
-
-FUNCTION fUseNew RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the Setting to use new estimate calculation
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    
-    RETURN lFound AND cReturn EQ "New".
-		
-END FUNCTION.
-
-FUNCTION fUseBlank RETURNS LOGICAL 
-    (ipcCompany AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the Setting to use new estimate calculation
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    
-    RETURN lFound AND cReturn EQ "Blank Vendor".
-        
 END FUNCTION.
 
 FUNCTION IsComboType RETURNS LOGICAL 
