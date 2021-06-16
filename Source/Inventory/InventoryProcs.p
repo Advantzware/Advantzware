@@ -1835,7 +1835,9 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                      NO-ERROR.
                 IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
                     CREATE ttRawMaterialsGLTransToPost.
-                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset.
+                    ASSIGN 
+                        ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
+                        ttRawMaterialsGLTransToPost.memo = "RM Receipt".
                 END.
                 ttRawMaterialsGLTransToPost.debits = ttRawMaterialsGLTransToPost.debits + dExtCost.
 
@@ -1845,87 +1847,124 @@ PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
                      NO-ERROR.
                 IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
                     CREATE ttRawMaterialsGLTransToPost.
-                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued.
+                    ASSIGN 
+                        ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued
+                        ttRawMaterialsGLTransToPost.memo = "RM Receipt".
                 END.
                 ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dExtCost.
             END.
-            ELSE IF bf-rm-rctd.rita-code EQ "I" AND bf-rm-rctd.job-no NE "" THEN DO:
+            ELSE IF bf-rm-rctd.rita-code EQ "I" THEN DO:
+                IF  bf-rm-rctd.job-no NE "" THEN 
+                DO: 
+                    FOR EACH bf-job-hdr NO-LOCK
+                        WHERE bf-job-hdr.company EQ bf-rm-rctd.company
+                        AND bf-job-hdr.job-no  EQ bf-rm-rctd.job-no
+                        AND bf-job-hdr.job-no2 EQ bf-rm-rctd.job-no2,
+                        FIRST bf-job OF bf-job-hdr NO-LOCK
+                        BREAK BY bf-job-hdr.frm:
+                        lSingleJob = FIRST(bf-job-hdr.frm) AND LAST(bf-job-hdr.frm).
+                        LEAVE.
+                    END.
 
-                FOR EACH bf-job-hdr NO-LOCK
-                    WHERE bf-job-hdr.company EQ bf-rm-rctd.company
-                      AND bf-job-hdr.job-no  EQ bf-rm-rctd.job-no
-                      AND bf-job-hdr.job-no2 EQ bf-rm-rctd.job-no2,
-                    FIRST bf-job OF bf-job-hdr NO-LOCK
-                    BREAK BY bf-job-hdr.frm:
-                    lSingleJob = FIRST(bf-job-hdr.frm) AND LAST(bf-job-hdr.frm).
-                    LEAVE.
+                    FOR EACH bf-job-hdr NO-LOCK
+                        WHERE bf-job-hdr.company  EQ bf-rm-rctd.company
+                        AND bf-job-hdr.job-no     EQ bf-rm-rctd.job-no
+                        AND bf-job-hdr.job-no2    EQ bf-rm-rctd.job-no2
+                        AND ((bf-job-hdr.frm      EQ bf-rm-rctd.s-num AND
+                             (bf-job-hdr.blank-no EQ bf-rm-rctd.b-num OR bf-rm-rctd.b-num EQ 0))
+                        OR  lSingleJob),
+                        FIRST bf-job OF bf-job-hdr NO-LOCK,
+                        FIRST bf-itemfg NO-LOCK
+                        WHERE bf-itemfg.company EQ bf-rm-rctd.company
+                          AND bf-itemfg.i-no    EQ bf-job-hdr.i-no,
+                        FIRST bf-prodl NO-LOCK
+                        WHERE bf-prodl.company EQ bf-rm-rctd.company
+                          AND bf-prodl.procat  EQ bf-itemfg.procat
+                          AND CAN-FIND(FIRST bf-prod
+                                       WHERE bf-prod.company EQ bf-rm-rctd.company
+                                         AND bf-prod.prolin  EQ bf-prodl.prolin),
+                        FIRST bf-prod NO-LOCK
+                        WHERE bf-prod.company EQ bf-rm-rctd.company
+                          AND bf-prod.prolin  EQ bf-prodl.prolin
+                          AND bf-prod.wip-mat NE "":
+                        
+                        IF lSingleJob OR
+                           bf-rm-rctd.b-num NE 0 OR
+                           bf-job-hdr.sq-in LE 0 OR
+                           bf-job-hdr.sq-in EQ ? THEN
+                            dAmount = dExtCost.
+                        ELSE
+                            dAmount = ROUND(dExtCost * (bf-job-hdr.sq-in / 100),2).
+
+                        /* Debit FG Wip Material */
+                        FIND FIRST ttRawMaterialsGLTransToPost
+                             WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
+                               AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
+                               AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
+                               AND ttRawMaterialsGLTransToPost.accountNo EQ bf-prod.wip-mat 
+                             NO-ERROR.
+                        IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                            CREATE ttRawMaterialsGLTransToPost.
+                            ASSIGN
+                                ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
+                                ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
+                                ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
+                                ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
+                                ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
+                                .
+                        END.
+                        ttRawMaterialsGLTransToPost.debitsAmount = ttRawMaterialsGLTransToPost.debitsAmount + dAmount.
+
+                        /* Credit RM Asset */
+                        FIND FIRST ttRawMaterialsGLTransToPost
+                            WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
+                            AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
+                            AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
+                            AND ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
+                            NO-ERROR.
+                        IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                            CREATE ttRawMaterialsGLTransToPost.
+                            ASSIGN
+                                ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
+                                ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
+                                ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
+                                ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
+                                ttRawMaterialsGLTransToPost.memo      = "RM Issue To Job"
+                                .
+                        END.
+                        ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dAmount.
+                    END.
                 END.
-
-                FOR EACH bf-job-hdr NO-LOCK
-                    WHERE bf-job-hdr.company  EQ bf-rm-rctd.company
-                    AND bf-job-hdr.job-no     EQ bf-rm-rctd.job-no
-                    AND bf-job-hdr.job-no2    EQ bf-rm-rctd.job-no2
-                    AND ((bf-job-hdr.frm      EQ bf-rm-rctd.s-num AND
-                         (bf-job-hdr.blank-no EQ bf-rm-rctd.b-num OR bf-rm-rctd.b-num EQ 0))
-                    OR  lSingleJob),
-                    FIRST bf-job OF bf-job-hdr NO-LOCK,
-                    FIRST bf-itemfg NO-LOCK
-                    WHERE bf-itemfg.company EQ bf-rm-rctd.company
-                      AND bf-itemfg.i-no    EQ bf-job-hdr.i-no,
-                    FIRST bf-prodl NO-LOCK
-                    WHERE bf-prodl.company EQ bf-rm-rctd.company
-                      AND bf-prodl.procat  EQ bf-itemfg.procat
-                      AND CAN-FIND(FIRST bf-prod
-                                   WHERE bf-prod.company EQ bf-rm-rctd.company
-                                     AND bf-prod.prolin  EQ bf-prodl.prolin),
-                    FIRST bf-prod NO-LOCK
-                    WHERE bf-prod.company EQ bf-rm-rctd.company
-                      AND bf-prod.prolin  EQ bf-prodl.prolin
-                      AND bf-prod.wip-mat NE "":
-                    
-                    IF lSingleJob OR
-                       bf-rm-rctd.b-num NE 0 OR
-                       bf-job-hdr.sq-in LE 0 OR
-                       bf-job-hdr.sq-in EQ ? THEN
-                        dAmount = dExtCost.
-                    ELSE
-                        dAmount = ROUND(dExtCost * (bf-job-hdr.sq-in / 100),2).
-
+                ELSE DO:
+                    dAmount = dExtCost.
                     /* Debit FG Wip Material */
                     FIND FIRST ttRawMaterialsGLTransToPost
-                         WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
-                           AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
-                           AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
-                           AND ttRawMaterialsGLTransToPost.accountNo EQ bf-prod.wip-mat 
-                         NO-ERROR.
-                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                        WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.cons-exp 
+                        NO-ERROR.
+                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN 
+                    DO:
                         CREATE ttRawMaterialsGLTransToPost.
                         ASSIGN
-                            ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
-                            ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
-                            ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
-                            ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
+                            ttRawMaterialsGLTransToPost.accountNo = bf-costtype.cons-exp
+                            ttRawMaterialsGLTransToPost.memo      = "RM Issue"
                             .
                     END.
                     ttRawMaterialsGLTransToPost.debitsAmount = ttRawMaterialsGLTransToPost.debitsAmount + dAmount.
-
+    
                     /* Credit RM Asset */
                     FIND FIRST ttRawMaterialsGLTransToPost
-                         WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
-                           AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
-                           AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
-                           AND ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
-                         NO-ERROR.
-                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                        WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
+                        NO-ERROR.
+                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN 
+                    DO: 
                         CREATE ttRawMaterialsGLTransToPost.
                         ASSIGN
-                            ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
-                            ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
-                            ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
                             ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
+                            ttRawMaterialsGLTransToPost.memo      = "RM Issue"
                             .
                     END.
                     ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dAmount.
+              
                 END.
             END.
         END.
@@ -2733,7 +2772,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                         RUN GL_SpCreateGLHist(ipcCompany,
                                            ttRawMaterialsGLTransToPost.accountNo,
                                            "RMPOST",
-                                           IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "RM Issue to Job" ELSE "RM Receipt",
+                                           ttRawMaterialsGLTransToPost.memo,
                                            ipdtPostingDate,
                                            dDebitsTotal - dCreditsTotal,
                                            bf-gl-ctrl.trnum,
@@ -2741,7 +2780,11 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            "A",
                                            ipdtPostingDate,
                                            "",
-                                           "RM").     
+                                           "RM").   
+                       ASSIGN 
+                        dDebitsTotal = 0
+                        dCreditsTotal = 0
+                        .  
                     END.
                 END.
             END.      
