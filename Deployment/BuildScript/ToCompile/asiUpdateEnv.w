@@ -5238,6 +5238,14 @@ PROCEDURE ipLoadDAOAData :
             emailConfig.configID = 1
             emailConfig.description = "DAOA Report Config".
     END.
+    
+/* 100844 Error in dAOA - Invalid Entry with odd symbol */
+    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
+    FOR EACH dynValueParam EXCLUSIVE WHERE 
+        dynValueParam.paramvalue EQ CHR(231):
+        ASSIGN 
+            dynValueParam.paramvalue = CHR(254).
+    END.    
 
 END PROCEDURE.
 
