@@ -7335,7 +7335,7 @@ PROCEDURE reset-est-type :
    MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE ll.
-   IF ll THEN op-est-type = 1.           
+   IF ll THEN op-est-type = 5.           
   END.  
   ELSE IF (op-est-type EQ 6 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 5 AND eb.quantityPerSet GE 2) THEN DO:
