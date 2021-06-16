@@ -1357,6 +1357,7 @@ PROCEDURE local-update-record :
   run get-link-handle in adm-broker-hdl (this-procedure,"tableio-source", output char-hdl).
   run set-label in widget-handle(char-hdl) ("&Update").  
   run set-buttons in widget-handle(char-hdl) ("Initial").
+  {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 END PROCEDURE.
 
 

@@ -423,19 +423,19 @@ DEFINE RECTANGLE rUsed
      BGCOLOR 10 .
 
 DEFINE VARIABLE slAvailDbBaks AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 39 BY 6.67 NO-UNDO.
 
 DEFINE VARIABLE slAvailDbs AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 30 BY 4.29 NO-UNDO.
 
 DEFINE VARIABLE slAvailEnvBaks AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 39 BY 6.67 NO-UNDO.
 
 DEFINE VARIABLE slAvailEnvs AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 30 BY 4.29 NO-UNDO.
 
 DEFINE VARIABLE tbArchiveDbBak AS LOGICAL INITIAL no 
@@ -1295,10 +1295,10 @@ PROCEDURE pBackupDB :
     STATUS DEFAULT "Backing up database " + slAvailDbs:{&SV}.
     
     IF lOnline THEN ASSIGN 
-        cCmdString = cDLCDir + "\bin\_mprshut " + cDbLongName + " -C backup online " + 
+            cCmdString = cDLCDir + "\bin\probkup online " + cDbLongName + " " + 
                      cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases\" + fiDbBkupFileName:{&SV}.
     ELSE ASSIGN 
-            cCmdString = cDLCDir + "\bin\_dbutil probkup " + cDbLongName + " " + 
+            cCmdString = cDLCDir + "\bin\probkup " + cDbLongName + " " + 
                      cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases\" + fiDbBkupFileName:{&SV}.
 {&Won}
     OS-COMMAND SILENT VALUE(cCmdString).
@@ -1625,6 +1625,12 @@ PROCEDURE pGetDbBakList :
     DEF VAR iFileSize AS INT NO-UNDO.
     DEF VAR daFileDate AS DATE NO-UNDO.
     
+    ASSIGN
+        opcDbBakList = ""
+        cDbLongBakList = ""
+        cDbBakSize = ""
+        cDbBakDate = "".
+
     OS-CREATE-DIR VALUE(ipcDbBakDir).
     INPUT FROM OS-DIR(ipcDbBakDir).
     REPEAT:
@@ -1774,9 +1780,10 @@ PROCEDURE pGetDbFileStats :
     DEF VAR iFileSize AS INT NO-UNDO.
     
     ASSIGN 
-        iIndex = LOOKUP(ipcDbName,slAvailDbs:LIST-ITEMS {&IN}).
+        iIndex = LOOKUP(ipcDbName,cAllDbList).
         
     INPUT FROM OS-DIR (cDbDrive + "\" + cTopDir + "\" + cDbDir + "\" + ENTRY(iIndex,cAllDbDirList)).
+
     REPEAT:
         IMPORT 
             cFileName
@@ -1789,7 +1796,7 @@ PROCEDURE pGetDbFileStats :
             FILE-INFO:FILE-NAME = cLongFileName
             iFileSize = FILE-INFO:FILE-SIZE / 1024000.
     END.
-        
+
     IF rsDoWhat:{&SV} EQ "B" 
     AND tbEstimate:CHECKED THEN 
         RUN pGetDbBakSize (cDbLongName).

@@ -11,7 +11,6 @@
     Notes       :
   ----------------------------------------------------------------------*/
 {api/inbound/ttItem.i}
-{inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 

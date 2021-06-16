@@ -556,6 +556,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
   RUN check-date.
+  
+   tran-year:SENSITIVE IN FRAME FRAME-A = NO. 
 
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN 

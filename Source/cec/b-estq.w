@@ -170,11 +170,12 @@ DEFINE VARIABLE lIsMatches      AS LOGICAL   NO-UNDO.
 
 &SCOPED-DEFINE for-ef                     ~
            each ASI.ef WHERE ASI.ef.company = ASI.est.company ~
-                         AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no  
+                         AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no OUTER-JOIN 
 
 &SCOPED-DEFINE for-eb                     ~
        FOR EACH ASI.eb WHERE ASI.eb.company = g_company  ~
-                 AND eb.form-no > 0 AND eb.blank-no > 0                     ~
+                 AND ( (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type NE 6 ) OR (tb_Only-Headers and eb.est-type EQ 6 and eb.form-no eq 0) ~
+                      OR tb_Include-Headers  or (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type EQ 6 and not tb_Only-Headers and  not tb_Include-Headers ))                   ~
                  AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "")             ~
                  AND {system/brMatches.i  eb.cust-no begin_cust-no}   ~
                  AND {system/brMatches.i  eb.ship-id begin_ship}   ~
@@ -196,8 +197,8 @@ DEFINE VARIABLE lIsMatches      AS LOGICAL   NO-UNDO.
 &SCOPED-DEFINE for-eb1                     ~
        FOR EACH ASI.eb ~
            WHERE ASI.eb.company EQ g_company  ~
-           AND eb.form-no  GT 0 ~
-           AND eb.blank-no GT 0 ~
+           AND ((eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type NE 6 ) OR (tb_Only-Headers and eb.est-type EQ 6 and eb.form-no eq 0) ~
+                OR tb_Include-Headers or (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type EQ 6 and not tb_Only-Headers and  not tb_Include-Headers ))                   ~
            AND ((lookup(eb.cust-no,custcount) NE 0 AND eb.cust-no NE "") OR custcount EQ "") ~
            AND eb.cust-no BEGINS begin_cust-no ~
            AND eb.ship-id BEGINS begin_ship    ~
@@ -343,11 +344,12 @@ and est-qty.eqty = eb.eqty  ~
 &Scoped-Define ENABLED-OBJECTS vi_est-no begin_cust-no vi_part-no ~
 vi_stock-no vi_part-dscr1 vi_style vi_len vi_len-2 vi_wid vi_wid-2 vi_dep ~
 vi_dep-2 vi_die-no TG_exact-match vi_cad-no vi_plate-no tb_single tb_set ~
-tb_tancom btn_go btn_prev Browser-Table RECT-1 
+tb_tancom btn_go btn_prev Browser-Table RECT-1 tb_Include-Headers ~
+tb_Only-Headers
 &Scoped-Define DISPLAYED-OBJECTS vi_est-no begin_cust-no begin_ship ~
 vi_part-no vi_stock-no vi_part-dscr1 vi_style vi_len vi_len-2 vi_wid ~
 vi_wid-2 vi_dep vi_dep-2 vi_die-no TG_exact-match vi_cad-no vi_plate-no ~
-tb_single tb_set tb_tancom fi_sort-by 
+tb_single tb_set tb_tancom fi_sort-by tb_Include-Headers tb_Only-Headers
 //FI_moveCol 
 
 /* Custom List Definitions                                              */
@@ -504,6 +506,16 @@ DEFINE VARIABLE vi_wid-2 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 9999.9999
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151 BY 5.24.
+     
+DEFINE VARIABLE tb_Include-Headers AS LOGICAL INITIAL YES 
+     LABEL "Include Headers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY .86 NO-UNDO.
+
+DEFINE VARIABLE tb_Only-Headers AS LOGICAL INITIAL NO 
+     LABEL "Only Headers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17 BY .86 NO-UNDO.     
 
 DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
      LABEL "Set" 
@@ -640,8 +652,10 @@ DEFINE FRAME F-Main
      vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
      vi_plate-no AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABEL
      tb_single AT ROW 4.19 COL 3
-     tb_set AT ROW 4.19 COL 17
-     tb_tancom AT ROW 4.19 COL 30
+     tb_tancom AT ROW 4.19 COL 17
+     tb_set AT ROW 4.19 COL 38
+     tb_Include-Headers AT ROW 4.19 COL 50.4 WIDGET-ID 8
+     tb_Only-Headers AT ROW 4.19 COL 70.8 WIDGET-ID 10
      btn_go AT ROW 5.05 COL 3
      btn_prev AT ROW 5.05 COL 18
      btn_next AT ROW 5.05 COL 39
@@ -1163,6 +1177,8 @@ DO:
      tb_single
      tb_set
      tb_tancom
+     tb_Include-Headers 
+     tb_Only-Headers
      .
 
     RUN dispatch ("open-query").
@@ -1570,6 +1586,49 @@ DO:
     APPLY "choose" TO btn_go.
   END.
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_set
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_set B-table-Win
+ON VALUE-CHANGED OF tb_set IN FRAME F-Main
+DO:
+    IF logical(tb_set:SCREEN-VALUE) EQ YES THEN
+    ASSIGN
+    tb_Only-Headers:HIDDEN = NO
+    tb_Include-Headers:HIDDEN = NO.
+    ELSE 
+    ASSIGN
+    tb_Only-Headers:HIDDEN = YES
+    tb_Include-Headers:HIDDEN = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_Only-Headers
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Only-Headers B-table-Win
+ON VALUE-CHANGED OF tb_Only-Headers IN FRAME F-Main
+DO:
+    IF logical(tb_Only-Headers:SCREEN-VALUE) EQ YES THEN
+    ASSIGN    
+    tb_Include-Headers:SCREEN-VALUE = "NO".
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_Include-Headers
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Include-Headers B-table-Win
+ON VALUE-CHANGED OF tb_Include-Headers IN FRAME F-Main
+DO:
+    IF logical(tb_Include-Headers:SCREEN-VALUE) EQ YES THEN
+    ASSIGN    
+    tb_Only-Headers:SCREEN-VALUE = "NO".
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2015,7 +2074,8 @@ IF ll-initial THEN DO:
         OPEN QUERY {&browse-name}               ~
                    FOR EACH eb WHERE eb.company = g_company AND eb.est-no >= lv-est-no  ~
                               AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "")        ~
-                              AND eb.form-no > 0 AND eb.blank-no > 0 NO-LOCK USE-INDEX est-no,  ~
+                              AND ((eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type NE 6 ) OR (tb_Only-Headers and eb.est-type EQ 6 and eb.form-no eq 0) ~
+                              OR tb_Include-Headers or (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type EQ 6 and not tb_Only-Headers and  not tb_Include-Headers )) NO-LOCK USE-INDEX est-no,  ~
                    {&for-est}  NO-LOCK, ~
                    {&for-eqty} NO-LOCK, ~
                    {&for-ef}  NO-LOCK
@@ -2647,7 +2707,8 @@ IF lv-show-prev THEN DO:
                    FOR EACH eb WHERE eb.company = g_company AND eb.est-no >= lv-est-no  ~
                                  AND eb.est-no <= lv-last-show-est-no   ~
                               AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "")        ~
-                              AND eb.form-no > 0 AND eb.blank-no > 0 NO-LOCK USE-INDEX est-no,  ~
+                              AND ( (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type NE 6 ) OR (tb_Only-Headers and eb.est-type EQ 6 and eb.form-no eq 0) ~
+                              OR tb_Include-Headers  or (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type EQ 6 and not tb_Only-Headers and  not tb_Include-Headers )) NO-LOCK USE-INDEX est-no,  ~
                    {&for-est}  NO-LOCK, ~
                    {&for-eqty} NO-LOCK, ~
                    {&for-ef}  NO-LOCK
@@ -2688,7 +2749,8 @@ ELSE IF lv-show-next THEN DO:
                      FOR EACH eb WHERE eb.company = g_company AND eb.est-no <= lv-est-no  ~
                                    AND eb.est-no >= lv-first-show-est-no   ~
                                 AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "")        ~
-                                AND eb.form-no > 0 AND eb.blank-no > 0 NO-LOCK USE-INDEX est-no,  ~
+                                AND ( (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type NE 6 ) OR (tb_Only-Headers and eb.est-type EQ 6 and eb.form-no eq 0) ~
+                                OR tb_Include-Headers  or (eb.form-no > 0 AND eb.blank-no > 0 and eb.est-type EQ 6 and not tb_Only-Headers and  not tb_Include-Headers )) NO-LOCK USE-INDEX est-no,  ~
                      {&for-est}  NO-LOCK, ~
                      {&for-eqty} NO-LOCK, ~
                      {&for-ef}  NO-LOCK

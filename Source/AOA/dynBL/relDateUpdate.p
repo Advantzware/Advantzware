@@ -52,6 +52,7 @@ DEFINE TEMP-TABLE ttPost NO-UNDO
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
     IF lUseImportFile THEN
     RUN pLoadImportFile.
@@ -182,6 +183,9 @@ PROCEDURE pBusinessLogic:
                     RUN pCreatePost ("oe-relh", ROWID(oe-relh), dtAsOfDate).
                 END. /* if avail */
             END. /* each oe-rell */
+            iCount = iCount + 1.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?). 
         END. /* each oe-ord */
     END. /* each cust */
     IF lPost THEN
@@ -289,6 +293,7 @@ PROCEDURE pLoadImportFile:
 END PROCEDURE.
 
 PROCEDURE pPostDates:
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     FOR EACH ttPost:
         CASE ttPost.tableName:
             WHEN "oe-ord" THEN DO:
@@ -320,6 +325,9 @@ PROCEDURE pPostDates:
                 oe-relh.rel-date = ttPost.fieldDate.
             END. /* oe-relh */
         END CASE.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?). 
     END. /* each ttpost */
 END PROCEDURE.
 
@@ -381,5 +389,6 @@ PROCEDURE pUpdateTempRecord:
                 ttTempTable.newSchedDate = ipdtAsOfDate
                 .
         END. /* order */
+        
     END CASE.
 END PROCEDURE.

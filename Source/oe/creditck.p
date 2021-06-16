@@ -113,8 +113,8 @@ DO:
             ELSE DO: 
 
             MESSAGE 
-                "Customer has exceeded credit limit, " +
-                "order limit or invoice is past due"
+                "Customer:" TRIM(cust.name)
+                TRIM(v-error)
                 VIEW-AS ALERT-BOX WARNING BUTTONS OK.
             END. /* else do*/
 

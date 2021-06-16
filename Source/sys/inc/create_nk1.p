@@ -41,7 +41,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
-           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,FreightCalculation,"
+           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,FreightCalculation,"
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,MiscEstimateSource,"
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
@@ -49,7 +49,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
-           + "QuoteExpirationDays,QuoteExpireDuplicates"
+           + "QuoteExpirationDays,QuoteExpireDuplicates,InvoiceApprovalMiscCharge"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -839,18 +839,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Configuration file for Check printing (JSON)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
-    WHEN "VendItemBrowse" THEN   
-    RUN sys/inc/addnk1.p (
-        INPUT cocode, 
-        INPUT ip-nk1-value, 
-        INPUT NO /* Prompt? */,
-        INPUT "Int val = # of records to load in the browse that meet desired criteria",
-        INPUT "" /* Char Value */, 
-        INPUT 25 /* Int value */,
-        INPUT NO /* Logical value */, 
-        INPUT 0 /* dec value*/
-        ).     
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
     WHEN "FreightCalculation" THEN   
         RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
             INPUT "Freight Calculation",
@@ -1565,6 +1554,17 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
             ). 
+    WHEN "InvoiceApprovalMiscCharge" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Do not auto approve if invoice has a misc item",            /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).         
 
 END CASE.
 ELSE

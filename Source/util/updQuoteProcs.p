@@ -148,9 +148,12 @@ PROCEDURE UpdateExpireDate_allQuote:
         FOR EACH bf-quotehd NO-LOCK
             WHERE bf-quotehd.company EQ quoteitm.company
             AND bf-quotehd.loc EQ quoteitm.loc
-            AND bf-quotehd.cust-no EQ quotehd.cust-no,
+            AND bf-quotehd.cust-no EQ quotehd.cust-no
+            AND bf-quotehd.ship-id EQ quotehd.ship-id
+            AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod,
             FIRST bf-quoteitm OF bf-quotehd
             WHERE bf-quoteitm.part-no EQ quoteitm.part-no
+            AND bf-quoteitm.i-no EQ quoteitm.i-no 
             NO-LOCK BREAK BY bf-quotehd.cust-no
             BY bf-quoteitm.part-no
             BY bf-quotehd.quo-date:

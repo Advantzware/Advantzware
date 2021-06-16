@@ -931,6 +931,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentTime", TIME).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDateTime", NOW).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyID", cCompany).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", system.SessionConfig:Instance:GetValue("CompanyName")).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1", system.SessionConfig:Instance:GetValue("CompanyStreet1")).

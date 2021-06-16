@@ -221,7 +221,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cFGColor        AS CHARACTER NO-UNDO EXTENT 10 FORMAT "x(10)".
     DEFINE VARIABLE cFGColorDesc    AS CHARACTER NO-UNDO EXTENT 10 FORMAT "x(10)".
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
-    
+    DEFINE VARIABLE iProgressCount  AS INTEGER   NO-UNDO.
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ cCompany
           AND itemfg.i-no    GE cStartFGItem
@@ -471,6 +471,10 @@ PROCEDURE pBusinessLogic:
             ttFinishGoods.dfuncAlloc = "Assembled w/Part Receipts".
         END CASE.          
         IF g_period NE 0 THEN
-        ttFinishGoods.dfuncTotMSFPTD = itemfg.ptd-msf[g_period].        
+        ttFinishGoods.dfuncTotMSFPTD = itemfg.ptd-msf[g_period].    
+        iProgressCount = iProgressCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iProgressCount, ?).    
     END. /* each item */
 END PROCEDURE.

@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttBrowseInventory.i}
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 

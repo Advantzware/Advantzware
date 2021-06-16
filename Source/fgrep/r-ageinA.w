@@ -2745,7 +2745,14 @@ FOR EACH tt-file WHERE
    tt-days = tt-file.tt-days
    lv-last-fld = IF rd_show2 BEGINS "Day" THEN STRING(tt-days,">>>9")
                                                ELSE ""
-   v-shipdt = IF v-sdate THEN v-shipdt ELSE "" .  
+   .
+  
+  IF NOT v-sdate THEN               
+            ASSIGN
+               v-shipdt[1]     = ""
+               v-shipdt[2]     = ""  .
+        
+  
 
    RUN reduce_negatives.
 

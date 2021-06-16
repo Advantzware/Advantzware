@@ -149,9 +149,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
     DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iStartTime    AS INTEGER   NO-UNDO.
-    
-    RUN spProgressBar ("Running Browse_PrepareAndExecuteLimitingQuery", 50, 100).
-
+        
     /* Convert seconds in milliseconds */
     ipdTimeLimit = ipdTimeLimit * 1000.
     
@@ -243,8 +241,7 @@ PROCEDURE Browse_PrepareAndExecuteLimitingQuery:
             hdQuery:QUERY-CLOSE().
         DELETE OBJECT hdQuery.
     END.
-    RUN spProgressBar (?, ?, 100).
-
+    
 END PROCEDURE.
 
 PROCEDURE Browser_GetRecordAndTimeLimit:

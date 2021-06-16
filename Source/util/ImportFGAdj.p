@@ -29,7 +29,6 @@ DEFINE TEMP-TABLE ttImportFGAdj
     .
 DEFINE VARIABLE giIndexOffset     AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
 DEFINE VARIABLE hdInventoryProcs  AS HANDLE  NO-UNDO.
-{Inventory/ttInventory.i "NEW SHARED"}
 {jc/jcgl-sh.i  NEW}
 
 /* ********************  Preprocessor Definitions  ******************** */

@@ -147,7 +147,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "System Control Parameters Maintenance"
          HEIGHT             = 23.81
-         WIDTH              = 150
+         WIDTH              = 200
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -317,7 +317,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 198.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
@@ -364,7 +364,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_sys-ctrl ).
        RUN set-position IN h_sys-ctrl ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_sys-ctrl ( 19.52 , 145.00 ) NO-ERROR.
+       RUN set-size IN h_sys-ctrl ( 19.52 , 195.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.

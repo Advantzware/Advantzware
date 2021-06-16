@@ -6,7 +6,7 @@ DEF VAR lv-msg AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
-{Inventory/ttInventory.i "NEW SHARED"}
+
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (

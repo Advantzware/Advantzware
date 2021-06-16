@@ -166,7 +166,7 @@ DEFINE VARIABLE cDueManualChanged AS LOGICAL NO-UNDO. //97238 MFG Date - Weekend
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
-DEF NEW SHARED VAR matrixTag AS CHARACTER NO-UNDO.
+DEF VAR matrixTag AS CHARACTER NO-UNDO.
 {system/ttTag.i &Table-Name=ttTag}
 {system/ttTag.i &Table-Name=ttTempTag}
 
@@ -4728,7 +4728,8 @@ PROCEDURE display-est-detail :
               WHERE quotehd.company EQ est.company AND
               quotehd.est-no EQ est.est-no AND 
               quotehd.quo-date LE TODAY AND
-              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
+              ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-ERROR .
            
           IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
@@ -5863,14 +5864,12 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
             ASSIGN 
                 fil_id = RECID(oe-ordl).
         END.
-
+         
         IF lv-q-no NE 0 THEN 
-        DO:        
+        DO:         
             FIND CURRENT oe-ordl.
             ASSIGN 
-                oe-ordl.q-no = lv-q-no.
-             IF lQuotePriceMatrix THEN   
-             RUN pUpdateQuoteApprovedField(INPUT lv-q-no, INPUT oe-ordl.i-no).    
+                oe-ordl.q-no = lv-q-no.                  
         END.
     END.
     ELSE IF oe-ordl.est-no EQ ""            /* Est-no on line is blank and not a transfer order */
@@ -6340,16 +6339,19 @@ PROCEDURE get-price :
       FIND FIRST itemfg
           WHERE itemfg.company EQ cocode
             AND itemfg.i-no    EQ v-i-item
-          NO-LOCK NO-ERROR.
-      IF AVAIL itemfg THEN DO:          
-        RUN oe/oe-price.p.
-        IF matrixExists THEN 
-        DO:  
-            RUN pAddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
-                INPUT "Price Matrix " + matrixTag
-                ). 
-        END.
+            NO-LOCK NO-ERROR.
+        IF AVAIL itemfg THEN 
+        DO:          
+            RUN oe/oe-price.p.
+            IF matrixExists THEN 
+            DO:  
+                matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
+
+                RUN pAddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "Price Matrix " + matrixTag
+                    ). 
+            END.
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
         DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
         RUN Conv_CalcTotalPrice(cocode, 
@@ -8162,6 +8164,7 @@ DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
             AND quotehd.est-no  EQ ipcEstNo
             AND quotehd.quo-date LE TODAY 
             AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) 
             USE-INDEX quote NO-LOCK,
             
             EACH quoteitm OF quotehd
@@ -8400,46 +8403,6 @@ DEFINE BUFFER bf-itemfg FOR itemfg.
 
 END PROCEDURE.
 	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateQuoteApprovedField d-oeitem 
-PROCEDURE pUpdateQuoteApprovedField :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipiQuote AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
-  DEFINE BUFFER bf-quotehd FOR quotehd .
-  
-  FIND FIRST bf-quotehd EXCLUSIVE-LOCK
-       WHERE bf-quotehd.company EQ cocode 
-       AND bf-quotehd.q-no EQ  ipiQuote NO-ERROR .
-  IF AVAIL bf-quotehd THEN
-  DO:   
-    bf-quotehd.approved = YES.
-    RUN AddTagInfo (
-                INPUT bf-quotehd.rec_key,
-                INPUT "quotehd",
-                INPUT "The status is set to Approved ",
-                INPUT ""
-                ). /*From TagProcs Super Proc*/
-                
-    FIND FIRST oe-prmtx NO-LOCK
-         WHERE oe-prmtx.company EQ bf-quotehd.company           
-         AND oe-prmtx.i-no EQ ipcFGItem        
-         AND oe-prmtx.quoteId EQ bf-quotehd.q-no NO-ERROR.
-         
-    IF NOT AVAIL oe-prmtx THEN     
-    RUN oe/updprmtx2.p (ROWID(bf-quotehd), "", 0, "", 0, "Q").             
-  END.
-  RELEASE bf-quotehd.
-  
-END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

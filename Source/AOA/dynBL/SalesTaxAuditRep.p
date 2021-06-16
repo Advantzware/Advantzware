@@ -50,7 +50,7 @@ DEFINE TEMP-TABLE ttSalesTaxAuditRep NO-UNDO
 
 PROCEDURE pBusinessLogic: 
     DEFINE VARIABLE lCustTaxAble AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE iCount       AS INTEGER NO-UNDO.
     FOR EACH cust NO-LOCK
         WHERE cust.company EQ cCompany
           AND cust.cust-no GE cStartCustNo
@@ -68,6 +68,9 @@ PROCEDURE pBusinessLogic:
             NEXT. 
             IF itemfg.taxable NE lCustTaxAble THEN
             RUN pLogProblem ("FGItem", "FG Item Taxable <> Customer Taxable").
+            iCount = iCount + 1.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).
         END.
         IF cPrepStatus NE "None" THEN
         FOR EACH prep NO-LOCK
@@ -80,6 +83,9 @@ PROCEDURE pBusinessLogic:
             NEXT.
             IF prep.taxable NE lCustTaxAble THEN
             RUN pLogProblem ("Prep", "Prep Item Taxable <> Customer Taxable").
+            iCount = iCount + 1.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).
         END.    
         IF cShipToStatus NE "None" THEN DO:
             FOR EACH shipto NO-LOCK
@@ -99,7 +105,10 @@ PROCEDURE pBusinessLogic:
                 IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
                 RUN pLogProblem ("ShipTo", "Non Taxable customer without Resale certificate"). 
                 IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
-                RUN pLogProblem ("ShipTo", "Resale expiration date issue").    
+                RUN pLogProblem ("ShipTo", "Resale expiration date issue").  
+                iCount = iCount + 1.
+                IF lProgressBar THEN
+                    RUN spProgressBar (cProgressBar, iCount, ?).  
             END.
         END.
         IF cCustomerStatus NE "None" THEN DO:
@@ -116,6 +125,9 @@ PROCEDURE pBusinessLogic:
             RUN pLogProblem ("Cust", "Non Taxable customer without Resale certificate"). 
             IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
             RUN pLogProblem ("Cust", "Resale expiration date issue").
+            iCount = iCount + 1.
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).
         END. /* if ccustomerstatus */       
     END. /* each cust */
 END PROCEDURE.

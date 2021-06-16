@@ -108,6 +108,23 @@ DEFINE VARIABLE cFormattedJobno    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
+DEFINE VARIABLE iInitialQueryLimit AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cReturn            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound             AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "POBrowse", 
+    INPUT  "I",      /* Logical */
+    INPUT  NO,      /* check by cust */
+    INPUT  NO,      /* use cust not vendor */
+    INPUT  "",      /* cust */
+    INPUT  "",      /* ship-to*/
+    OUTPUT cReturn,
+    OUTPUT lFound
+    ).
+IF lFound THEN
+    iInitialQueryLimit = INTEGER(cReturn).        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -913,8 +930,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
+    /* Progress does not preserve trailing spaces in a fill-in's screen-value attribute */
+    /* So once the value is converted to upper case any trailing spaces will be removed in fill-in*/
+    /* So do not convert current value to uppercase when last key pressed is a space */
+    IF LASTKEY EQ 32 THEN 
+        RETURN.
+    
+    {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1793,6 +1815,7 @@ PROCEDURE pPrepareAndExecuteQuery :
     DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSortPhrase           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iRecordCount          AS INTEGER   NO-UNDO.
     
     RUN pAssignCommonRecords(
         INPUT-OUTPUT cQueryBuffers,
@@ -1807,18 +1830,36 @@ PROCEDURE pPrepareAndExecuteQuery :
     RUN pQueryString (cBrowseWhereClause, cSortPhrase, OUTPUT cLimitingQuery).             
     /* Limit the query if order no is 0 or cadd No is Blank */                    
     IF fi_po-no EQ 0 THEN
-        RUN Browse_PrepareAndExecuteLimitingQuery(
-            INPUT  cLimitingQuery,   /* Query */
-            INPUT  cQueryBuffers,    /* Buffers Name */
-            INPUT  iRecordLimit,     /* Record Limit */
-            INPUT  dQueryTimeLimit,  /* Time Limit*/
-            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
-            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
-            INPUT  cFieldName,       /* Field Name*/
-            INPUT  iplInitialLoad,   /* Initial Query*/
-            INPUT  lIsBreakByUsed,   /* Is breakby used */
-            OUTPUT cResponse           
-            ).  
+        IF iplInitialLoad THEN DO:
+            FOR EACH po-ordl NO-LOCK 
+                WHERE po-ordl.company  EQ cocode 
+                  AND po-ordl.opened   EQ TRUE 
+                  AND po-ordl.due-date GE fi_due-date, 
+                FIRST po-ord NO-LOCK 
+                WHERE po-ord.company EQ po-ordl.company 
+                  AND po-ord.po-no EQ po-ordl.po-no 
+                BREAK BY po-ordl.po-no DESCENDING:                
+                IF FIRST-OF(po-ordl.po-no) THEN 
+                    iRecordCount = iRecordCount + 1.
+                cResponse = STRING(po-ordl.po-no).
+                IF iRecordCount GE iInitialQueryLimit THEN 
+                    LEAVE.
+            END. 
+        END.
+        ELSE DO:
+            RUN Browse_PrepareAndExecuteLimitingQuery(
+                INPUT  cLimitingQuery,   /* Query */
+                INPUT  cQueryBuffers,    /* Buffers Name */
+                INPUT  iRecordLimit,     /* Record Limit */
+                INPUT  dQueryTimeLimit,  /* Time Limit*/
+                INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+                INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+                INPUT  cFieldName,       /* Field Name*/
+                INPUT  iplInitialLoad,   /* Initial Query*/
+                INPUT  lIsBreakByUsed,   /* Is breakby used */
+                OUTPUT cResponse           
+                ).              
+        END.
     ELSE 
         cResponse = "PurchaseNo". /* For identification purpose */            
     IF cResponse EQ "" AND lButtongoPressed THEN  

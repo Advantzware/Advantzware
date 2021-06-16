@@ -199,7 +199,8 @@ PROCEDURE pAddRecord:
     FOR EACH ttImportMap
         WHERE ttImportMap.cType EQ  "{&ImportTempTable}":
         cData = TRIM(ipcData[ttImportMap.iImportIndex]).                       
-       
+        cData = RIGHT-TRIM(cData).                       
+
         hdTempTableBuffer = TEMP-TABLE {&ImportTempTable}:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
         CASE ttImportMap.cDataType:
             WHEN "integer" THEN DO:

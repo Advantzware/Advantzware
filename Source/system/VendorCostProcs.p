@@ -527,7 +527,6 @@ PROCEDURE GetVendorCost:
             OUTPUT opdCostTotal, OUTPUT lIsSelected, 
             OUTPUT iLeadDays, OUTPUT dCostDeviation,
             OUTPUT oplError, INPUT-OUTPUT opcMessage).
-        opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
     END.
 END PROCEDURE.
@@ -787,6 +786,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iVendCostLevelID     AS INTEGER   NO-UNDO.
  
     FIND FIRST bf-po-ord NO-LOCK 
         WHERE ROWID(bf-po-ord) EQ ipriPoOrd
@@ -866,9 +866,26 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                dCostPerUOM = dCostPerUOM + dCostPerUOMUpcharge.
                 
-                IF dCostPerUOM NE bf-po-ordl.cost THEN
+                RUN pGetCostLevel(bf-vendItemCost.vendItemCostID, dQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+                     
+                IF dCostPerUOM NE bf-po-ordl.cost OR iVendCostLevelID EQ 0 THEN
+                DO:
+                    CREATE ttPriceHold.                 
+                    ASSIGN                       
+                        ttPriceHold.cFGItemID        = bf-po-ordl.i-no
+                        ttPriceHold.cCustID          = bf-po-ord.cust-no
+                        ttPriceHold.cShipID          = ""
+                        ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
+                        ttPriceHold.lPriceHold       = YES
+                        ttPriceHold.cPriceHoldDetail = ""  .
+                        IF iVendCostLevelID EQ 0 THEN
+                        ttPriceHold.cPriceHoldReason = "No matrix exist ".
+                        ELSE
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table" .                                            
+                END. 
+                
+                IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -878,9 +895,10 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
                         ttPriceHold.lPriceHold       = YES
                         ttPriceHold.cPriceHoldDetail = ""
-                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
-                        .                                            
-                END.                  
+                        ttPriceHold.cPriceHoldReason = IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder THEN "Item quantity is less then min order qty(Item - " + ttPriceHold.cFGItemID + "  Min Qty - " + STRING(bf-vendItemCost.quantityMinimumOrder) + ")"
+                                                       ELSE "Item quantity is greater then max order qty(Item - " + ttPriceHold.cFGItemID + "  Max Qty - " + STRING(bf-vendItemCost.quantityMaximumOrder) + ")"
+                        .                    
+                END.
             END.  
             ELSE 
             DO:             

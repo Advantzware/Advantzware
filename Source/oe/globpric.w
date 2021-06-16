@@ -1273,6 +1273,17 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
                         INPUT  cRoundingType,
                         INPUT  iRoundingLevel
                         ).
+                  FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
+                  
+                  RUN Price_ExpireOldPrice(
+                        INPUT bf-oe-prmtx.company,
+                        INPUT bf-oe-prmtx.i-no,
+                        INPUT bf-oe-prmtx.custshipid,
+                        INPUT bf-oe-prmtx.cust-no,
+                        INPUT bf-oe-prmtx.custype,
+                        INPUT bf-oe-prmtx.procat
+                        ).
+                        
                   RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs(ROWID(bf-oe-prmtx)).       
               END.                       
           END.

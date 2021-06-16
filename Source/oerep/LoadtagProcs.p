@@ -2221,7 +2221,6 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
                    AND bf-job-hdr.frm      EQ ipiFormNo
                    AND bf-job-hdr.blank-no EQ ipiBlankNo
                    AND bf-job-hdr.i-no     EQ ipcItemID
-                   AND bf-job-hdr.opened   EQ TRUE
                  NO-ERROR.
         
         IF NOT AVAILABLE bf-job-hdr THEN DO:

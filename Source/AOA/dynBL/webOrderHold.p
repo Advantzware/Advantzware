@@ -40,6 +40,9 @@ DEFINE TEMP-TABLE ttTempTable NO-UNDO LIKE oe-ord
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bTag FOR tag.
     
     FOR EACH tag NO-LOCK
@@ -70,6 +73,9 @@ PROCEDURE pBusinessLogic:
             ttTempTable.tagType     = tag.tagType
             ttTempTable.updateDT    = tag.updateDT
             ttTempTable.updateUser  = tag.updateUser
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     END. /* each tag */
 END PROCEDURE.

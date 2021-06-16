@@ -496,6 +496,7 @@ PROCEDURE pCheckAccount :
        
             MESSAGE cValidNote
                 VIEW-AS ALERT-BOX INFORMATION .
+             APPLY "entry" TO bank_account.    
             oplReturnError = TRUE .
         END.               
     END.

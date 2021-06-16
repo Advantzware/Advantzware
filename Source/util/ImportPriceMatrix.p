@@ -158,6 +158,9 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
             RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPriceMatrix.ShipTo NE "" THEN 
+            RUN pIsValidShiptoID IN hdValidator (ipbf-ttImportPriceMatrix.CustomerID,ipbf-ttImportPriceMatrix.ShipTo, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).    
         
         IF oplValid THEN 
         RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).
@@ -367,7 +370,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.minOrderQty, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.minOrderQty). 
     RUN pAssignValueI (ipbf-ttImportPriceMatrix.quoteID, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.quoteID). 
-    
+      
+    FIND CURRENT bf-oe-prmtx NO-LOCK NO-ERROR.  
     RUN Price_ExpireOldPrice(
         INPUT bf-oe-prmtx.company,
         INPUT bf-oe-prmtx.i-no,

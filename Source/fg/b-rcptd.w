@@ -65,7 +65,6 @@ DEF VAR trans-time          AS CHAR  NO-UNDO.
 DEF VAR v-copy-mode         AS LOG   NO-UNDO.
 DEF VAR lrMissingRow        AS ROWID NO-UNDO.
 DEF VAR gvcCurrentItem      AS CHAR  NO-UNDO.
-DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lColMove AS LOGICAL NO-UNDO INIT TRUE.
 DEF VAR lv-cost-basis AS CHAR NO-UNDO.
 DEF VAR v-auto-add-tag AS LOG NO-UNDO.
@@ -79,7 +78,6 @@ DEF BUFFER b-tt FOR tt-fg-rctd.
 DEFINE TEMP-TABLE w-rowid 
     FIELD w-rowid AS CHAR
     INDEX w-rowid IS PRIMARY w-rowid.
-{Inventory/ttInventory.i "NEW SHARED"}
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {oe/d-selbin.i NEW}
@@ -580,8 +578,6 @@ ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
-RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
- 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -1112,8 +1108,6 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hInventoryProcs.
-
 
 END PROCEDURE.
 	

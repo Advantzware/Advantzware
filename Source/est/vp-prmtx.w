@@ -239,6 +239,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "Record-source", OUTPUT char-hdl).
     IF valid-handle(widget-handle(char-hdl)) THEN
     run local-display-fields in widget-handle(char-hdl). 
+    RUN pDisableButton(NO).
   END.
 END.
 
@@ -320,14 +321,17 @@ PROCEDURE pDisableButton :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplDisable AS LOGICAL NO-UNDO.  
+  DEFINE INPUT PARAMETER iplDisable AS LOGICAL NO-UNDO. 
+  
+  IF AVAIL quotehd AND quotehd.approved THEN
+  iplDisable = YES.
   
   DO WITH FRAME {&FRAME-NAME}:
     IF iplDisable THEN
     DISABLE btn-update.
     ELSE ENABLE btn-update.
   END. 
-       
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,7 +343,6 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -347,7 +350,9 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   
-  IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+  IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO. 
+          
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,6 +371,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+    
   
 
 END PROCEDURE.

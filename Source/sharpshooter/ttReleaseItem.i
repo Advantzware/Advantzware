@@ -18,9 +18,9 @@ DEFINE TEMP-TABLE ttReleaseItem NO-UNDO
     FIELD orderID                   AS INTEGER     LABEL "Order #"                    FORMAT ">>>>>>>>9"
     FIELD itemID                    AS CHARACTER   LABEL "Item #"                     FORMAT "X(40)"
     FIELD itemName                  AS CHARACTER   LABEL "Item Name"                  FORMAT "X(200)"
-    FIELD quantityRelease           AS DECIMAL     LABEL "Release Quantity"           FORMAT ">>>>>>>>9.99<<<<"
-    FIELD quantityScanned           AS DECIMAL     LABEL "Scanned Quantity"           FORMAT ">>>>>>>>9.99<<<<"
-    FIELD quantityOnHand            AS DECIMAL     LABEL "On Hand Quantity"           FORMAT ">>>>>>>>9.99<<<<"
+    FIELD quantityRelease           AS DECIMAL     LABEL "Release Quantity"           FORMAT "->>>>>>>>9.99<<<<"
+    FIELD quantityScanned           AS DECIMAL     LABEL "Scanned Quantity"           FORMAT "->>>>>>>>9.99<<<<"
+    FIELD quantityOnHand            AS DECIMAL     LABEL "On Hand Quantity"           FORMAT "->>>>>>>>9.99<<<<"
     FIELD quantityOfUnitsRelease    AS INTEGER     LABEL "Total Release Units"        FORMAT ">>>>>>>>9"
     FIELD quantityOfUnitsScanned    AS INTEGER     LABEL "Total Scanned Units"        FORMAT ">>>>>>>>9"
     INDEX idxRelease company releaseID 

@@ -214,7 +214,7 @@ ASSIGN
 ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
 DO:
   run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", OUTPUT char-hdl).
-  run pCheckUpdate in widget-handle(char-hdl)(OUTPUT lNotAllowedUpdate). 
+  run pCheckUpdate in widget-handle(char-hdl)(INPUT YES,OUTPUT lNotAllowedUpdate). 
   IF lNotAllowedUpdate THEN RETURN. 
   
   add-active = yes.
@@ -246,7 +246,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", OUTPUT char-hdl).
-   run pCheckUpdate in widget-handle(char-hdl)(OUTPUT lNotAllowedUpdate). 
+   run pCheckUpdate in widget-handle(char-hdl)(INPUT YES,OUTPUT lNotAllowedUpdate). 
    IF lNotAllowedUpdate THEN RETURN. 
    RUN notify ('delete-record':U).  
 END.
@@ -277,7 +277,7 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", OUTPUT char-hdl).
-           run pCheckUpdate in widget-handle(char-hdl)(OUTPUT lNotAllowedUpdate). 
+           run pCheckUpdate in widget-handle(char-hdl)(INPUT YES,OUTPUT lNotAllowedUpdate). 
            IF lNotAllowedUpdate THEN RETURN. 
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
@@ -570,6 +570,12 @@ DO WITH FRAME Panel-Frame:
        panel-state NE "add-only"    THEN btn-save:SENSITIVE = yes.
 
     IF NOT v-can-run THEN DISABLE ALL.
+    run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+    DO:     
+        run pCheckUpdate in widget-handle(char-hdl)( INPUT NO, OUTPUT lNotAllowedUpdate).
+        IF lNotAllowedUpdate THEN DISABLE ALL.
+    END.
   END.
 
 

@@ -30,7 +30,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Browse01 h_cust
 &SCOPED-DEFINE h_Object02 h_soldto-2
 &SCOPED-DEFINE h_Object03 h_p-cstsld
-&SCOPED-DEFINE h_Object03 h_p-updbtn-2
+&SCOPED-DEFINE h_Object04 h_p-updbtn-2
 
 &SCOPED-DEFINE moveRight {&h_Object04},{&h_Object05}
 

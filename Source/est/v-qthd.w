@@ -99,30 +99,31 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 DEFINE QUERY external_tables FOR quotehd.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS quotehd.pricingMethod quotehd.quo-date ~
-quotehd.est-no quotehd.expireDate quotehd.del-date quotehd.cust-no ~
-quotehd.billto[1] quotehd.billto[2] quotehd.billto[3] quotehd.billto[4] ~
-quotehd.contact quotehd.ship-id quotehd.shipto[1] quotehd.shipto[2] ~
-quotehd.shipto[3] quotehd.shipto[4] quotehd.sold-id quotehd.soldto[1] ~
-quotehd.soldto[2] quotehd.soldto[3] quotehd.soldto[4] quotehd.sman ~
-quotehd.terms quotehd.carrier quotehd.del-zone 
+quotehd.est-no quotehd.expireDate quotehd.del-date quotehd.effectiveDate ~
+quotehd.cust-no quotehd.billto[1] quotehd.billto[2] quotehd.billto[3] ~
+quotehd.billto[4] quotehd.contact quotehd.ship-id quotehd.shipto[1] ~
+quotehd.shipto[2] quotehd.shipto[3] quotehd.shipto[4] quotehd.sold-id ~
+quotehd.soldto[1] quotehd.soldto[2] quotehd.soldto[3] quotehd.soldto[4] ~
+quotehd.sman quotehd.terms quotehd.carrier quotehd.del-zone 
 &Scoped-define ENABLED-TABLES quotehd
 &Scoped-define FIRST-ENABLED-TABLE quotehd
-&Scoped-Define ENABLED-OBJECTS btTags RECT-5 btnCalendar-1
+&Scoped-Define ENABLED-OBJECTS btTags btnCalendar-1 RECT-5 btnCalendar-2 
 &Scoped-Define DISPLAYED-FIELDS quotehd.approved quotehd.pricingMethod ~
 quotehd.q-no quotehd.quo-date quotehd.est-no quotehd.expireDate ~
-quotehd.del-date quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
-quotehd.billto[3] quotehd.billto[4] quotehd.contact quotehd.ship-id ~
-quotehd.shipto[1] quotehd.shipto[2] quotehd.shipto[3] quotehd.shipto[4] ~
-quotehd.sold-id quotehd.soldto[1] quotehd.soldto[2] quotehd.soldto[3] ~
-quotehd.soldto[4] quotehd.sman quotehd.terms quotehd.carrier ~
-quotehd.del-zone 
+quotehd.del-date quotehd.effectiveDate quotehd.cust-no quotehd.billto[1] ~
+quotehd.billto[2] quotehd.billto[3] quotehd.billto[4] quotehd.contact ~
+quotehd.ship-id quotehd.shipto[1] quotehd.shipto[2] quotehd.shipto[3] ~
+quotehd.shipto[4] quotehd.sold-id quotehd.soldto[1] quotehd.soldto[2] ~
+quotehd.soldto[3] quotehd.soldto[4] quotehd.sman quotehd.terms ~
+quotehd.carrier quotehd.del-zone 
 &Scoped-define DISPLAYED-TABLES quotehd
 &Scoped-define FIRST-DISPLAYED-TABLE quotehd
 &Scoped-Define DISPLAYED-OBJECTS ls-status sman_desc term_desc carrier_desc ~
-zon_desc btnCalendar-1
+zon_desc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
 &Scoped-define List-5 quotehd.cust-no quotehd.billto[1] quotehd.billto[2] ~
 quotehd.billto[3] quotehd.billto[4] quotehd.shipto[1] quotehd.shipto[2] ~
 quotehd.shipto[3] quotehd.shipto[4] quotehd.soldto[1] quotehd.soldto[2] ~
@@ -171,7 +172,12 @@ DEFINE BUTTON btnCalendar-1
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-     
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
 DEFINE BUTTON btTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
@@ -184,7 +190,7 @@ DEFINE VARIABLE carrier_desc AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-status AS CHARACTER FORMAT "X(256)":U 
      LABEL "Order Status" 
      VIEW-AS FILL-IN 
-     SIZE 13.5 BY 1 NO-UNDO.
+     SIZE 13.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE sman_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -227,12 +233,16 @@ DEFINE FRAME F-Main
      quotehd.expireDate AT ROW 1.19 COL 96.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     btnCalendar-1 AT ROW 1.19 COL 110.60     
-     ls-status AT ROW 1.19 COL 129.0 COLON-ALIGNED
-     quotehd.del-date AT ROW 2.19 COL 40 COLON-ALIGNED
+     btnCalendar-1 AT ROW 1.19 COL 110.6
+     ls-status AT ROW 1.19 COL 129 COLON-ALIGNED
+     quotehd.del-date AT ROW 2.29 COL 18.4 COLON-ALIGNED
           LABEL "Delivery Date"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     quotehd.effectiveDate AT ROW 2.29 COL 92.4 COLON-ALIGNED
+          LABEL "Effective"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      quotehd.cust-no AT ROW 4.33 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -248,9 +258,9 @@ DEFINE FRAME F-Main
      quotehd.billto[4] AT ROW 8.14 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-     quotehd.contact AT ROW 2.19 COL 69.6 COLON-ALIGNED
+     quotehd.contact AT ROW 2.29 COL 44.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
+          SIZE 36.4 BY 1
      quotehd.ship-id AT ROW 4.33 COL 48 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -290,10 +300,6 @@ DEFINE FRAME F-Main
           LABEL "Terms"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     term_desc AT ROW 10.29 COL 25.4 COLON-ALIGNED NO-LABEL
-     quotehd.carrier AT ROW 9.33 COL 81 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -301,11 +307,16 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     term_desc AT ROW 10.29 COL 25.4 COLON-ALIGNED NO-LABEL
+     quotehd.carrier AT ROW 9.33 COL 81 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
      carrier_desc AT ROW 9.33 COL 92 COLON-ALIGNED NO-LABEL
      quotehd.del-zone AT ROW 10.29 COL 81 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      zon_desc AT ROW 10.29 COL 92 COLON-ALIGNED NO-LABEL
+     btnCalendar-2 AT ROW 2.29 COL 106.4 WIDGET-ID 10
      "Bill To" VIEW-AS TEXT
           SIZE 10 BY .95 AT ROW 3.38 COL 4
           FGCOLOR 9 
@@ -378,8 +389,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
-   3                                                                    */       
 /* SETTINGS FOR FILL-IN quotehd.approved IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN quotehd.billto[1] IN FRAME F-Main
@@ -390,6 +399,10 @@ ASSIGN
    ALIGN-L 5                                                            */
 /* SETTINGS FOR FILL-IN quotehd.billto[4] IN FRAME F-Main
    ALIGN-L 5                                                            */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
 /* SETTINGS FOR FILL-IN quotehd.carrier IN FRAME F-Main
    5                                                                    */
 /* SETTINGS FOR FILL-IN carrier_desc IN FRAME F-Main
@@ -400,6 +413,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN quotehd.est-no IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN quotehd.effectiveDate IN FRAME F-Main
+   EXP-LABEL                                                           */   
 /* SETTINGS FOR FILL-IN ls-status IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN quotehd.q-no IN FRAME F-Main
@@ -555,6 +570,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i quotehd.expireDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i quotehd.effectiveDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btTags
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
 ON CHOOSE OF btTags IN FRAME F-Main
@@ -645,6 +682,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME quotehd.expireDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.expireDate V-table-Win
+ON HELP OF quotehd.expireDate IN FRAME F-Main /* Expire Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME quotehd.effectiveDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.effectiveDate V-table-Win
+ON HELP OF quotehd.effectiveDate IN FRAME F-Main /* Effective */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME quotehd.ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.ship-id V-table-Win
@@ -743,26 +800,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME quotehd.expireDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quotehd.expireDate V-table-Win
-ON HELP OF quotehd.expireDate IN FRAME F-Main /* Expire Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
-DO:
-  {methods/btnCalendar.i quotehd.expireDate}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &UNDEFINE SELF-NAME
 
@@ -852,6 +889,25 @@ PROCEDURE adm-row-available :
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-proc V-table-Win 
+PROCEDURE copy-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/  
+ 
+      quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
+      quotehd.quo-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
+      quotehd.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ?.
+      IF lQuoteExpirationDays THEN      
+      quotehd.expireDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(TODAY + iQuoteExpirationDays).            
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -978,7 +1034,7 @@ PROCEDURE enable-detail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ ENABLE btnCalendar-2 WITH FRAME {&FRAME-NAME}.
  IF AVAIL quotehd AND quotehd.est-no <> "" AND NOT adm-new-record THEN  /* update with est#*/
       DISABLE /*quotehd.cust-no quotehd.billto[1] quotehd.billto[2]
               quotehd.billto[3] quotehd.billto[4]
@@ -991,34 +1047,18 @@ PROCEDURE enable-detail :
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
               {&list-5}
-              quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
+              quotehd.est-no quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
  IF lQuotePriceMatrix AND quotehd.approved AND NOT adm-new-record THEN
- DO:
+ DO:            
      DISABLE {&list-5}
               quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
               quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 
-              quotehd.sold-id quotehd.pricingMethod WITH FRAME {&FRAME-NAME}.
+              quotehd.sold-id quotehd.pricingMethod quotehd.effectiveDate btnCalendar-2 WITH FRAME {&FRAME-NAME}.
  END.
  ENABLE btnCalendar-1 WITH FRAME {&FRAME-NAME}.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-proc V-table-Win 
-PROCEDURE copy-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/  
- 
-      quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
- 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1341,11 +1381,14 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE newRecord AS LOGICAL NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
    newRecord = adm-new-record.
 
   /* validation ===*/
+   RUN valid-effective-date (OUTPUT lReturnError)NO-ERROR.
+   IF lReturnError THEN RETURN NO-APPLY.
+  
    RUN valid-cust-no NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1610,6 +1653,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
+PROCEDURE pCheckUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
+   DO:
+    MESSAGE "Quote is approved update not allowed." VIEW-AS ALERT-BOX INFO.
+     oplNotAllowedUpdate = YES.     
+   END.                                                        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-quote V-table-Win 
 PROCEDURE print-quote :
 /*------------------------------------------------------------------------------
@@ -1662,25 +1724,6 @@ PROCEDURE proc-delete :
        bf-probe.do-quote = YES.
        RELEASE bf-probe.       
    END.   
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdate V-table-Win 
-PROCEDURE pCheckUpdate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
-   IF AVAIL quotehd AND quotehd.approved AND lQuotePriceMatrix THEN
-   DO:
-    MESSAGE "Quote is approved update not allowed." VIEW-AS ALERT-BOX INFO.
-     oplNotAllowedUpdate = YES.     
-   END.                                                        
 
 END PROCEDURE.
 
@@ -1924,6 +1967,30 @@ PROCEDURE valid-sold-id :
 
       RUN new-sold-id.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-effective-date V-table-Win 
+PROCEDURE valid-effective-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:     
+
+    IF quotehd.effectiveDate:SCREEN-VALUE EQ "" THEN DO:     
+        MESSAGE "Effective date is blank, Please enter Effective date..."  VIEW-AS ALERT-BOX.
+        APPLY "entry" TO quotehd.effectiveDate.
+        oplReturnError = TRUE. 
+      END. 
   END.
 
   {methods/lValidateError.i NO}
