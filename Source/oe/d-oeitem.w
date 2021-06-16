@@ -4728,7 +4728,8 @@ PROCEDURE display-est-detail :
               WHERE quotehd.company EQ est.company AND
               quotehd.est-no EQ est.est-no AND 
               quotehd.quo-date LE TODAY AND
-              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) NO-ERROR .
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
+              ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-ERROR .
            
           IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
