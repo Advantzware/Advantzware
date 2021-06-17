@@ -461,8 +461,6 @@ PROCEDURE pBusinessLogic:
                             dCreditDebitAmt = ar-cashl.amt-paid * -1
                             dDiscAmt        = ar-cashl.amt-disc * -1
                             .
-/*                        IF cvType EQ "VD" AND dCreditDebitAmt LT 0 THEN*/
-/*                        dCreditDebitAmt = dCreditDebitAmt * -1.        */
                     END. /* else */    
                     IF dDiscAmt NE 0 THEN DO:
                         cDiscType = "DISC".
@@ -686,46 +684,33 @@ PROCEDURE pBusinessLogic:
                        AND terms.t-code  EQ cust.terms
                      NO-ERROR.
                 lFirstCust = NO.
-            END. /*  IF lFirstCust THEN DO */    
+            END. /*  IF lFirstCust THEN DO */
             cInvoiceNote = "ON ACCT".    
-            IF ar-cashl.memo EQ TRUE THEN DO:
-                IF ar-cashl.amt-paid + ar-cashl.amt-disc GT 0 THEN
+
+            IF ar-cashl.memo THEN NEXT.
+
+            cTrDscr = "VOID " + cust.cust-no + " "
+                + STRING(ar-cash.check-no,"999999999999")
+                + " Inv# " + STRING(ar-cashl.inv-no).
+            IF ar-cashl.voided EQ YES OR   
+               CAN-FIND(FIRST glhist
+                        WHERE glhist.company EQ cust.company
+                          AND glhist.jrnl    EQ "CASHRVD"
+                          AND glhist.tr-dscr EQ cTrDscr) THEN DO:
                 ASSIGN
-                    cvType          = "DM"
-                    dCreditDebitAmt = ar-cashl.amt-paid
-                    dDiscAmt        = ar-cashl.amt-disc 
+                    cvType       = "VD"
+                    cInvoiceNote = "VOID"
                     .
-                ELSE
-                ASSIGN
-                    cvType          = "CM"
-                    dCreditDebitAmt = ar-cashl.amt-paid
-                    dDiscAmt        = ar-cashl.amt-disc
-                    .
-            END. /* IF ar-cashl.memo EQ TRUE */
-            ELSE DO:
-                cTrDscr = "VOID " + cust.cust-no + " "
-                    + STRING(ar-cash.check-no,"999999999999")
-                    + " Inv# " + STRING(ar-cashl.inv-no).
-                IF ar-cashl.voided EQ YES OR   
-                   CAN-FIND(FIRST glhist
-                            WHERE glhist.company EQ cust.company
-                              AND glhist.jrnl    EQ "CASHRVD"
-                              AND glhist.tr-dscr EQ cTrDscr) THEN DO:
-                    ASSIGN
-                        cvType       = "VD"
-                        cInvoiceNote = "VOID"
-                        .
-                END. /* do */
-                ELSE cvType = "PY".
-            
-                ASSIGN
-                    dCreditDebitAmt = ar-cashl.amt-paid * -1
-                    dDiscAmt        = ar-cashl.amt-disc * -1
-                    .
+            END. /* do */
+            ELSE cvType = "PY".
         
-                IF cvType EQ "VD" AND dCreditDebitAmt LT 0 THEN
-                dCreditDebitAmt = dCreditDebitAmt * -1.
-            END. /* ELSE DO */    
+            ASSIGN
+                dCreditDebitAmt = ar-cashl.amt-paid * -1
+                dDiscAmt        = ar-cashl.amt-disc * -1
+                .
+    
+            IF cvType EQ "VD" AND dCreditDebitAmt LT 0 THEN
+            dCreditDebitAmt = dCreditDebitAmt * -1.
             IF lFirstUnapp THEN DO:
                 IF cvType EQ "VD" THEN DO:
                     IF ar-cashl.voided THEN  
