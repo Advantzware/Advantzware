@@ -62,25 +62,38 @@ CREATE WIDGET-POOL.
 &Scoped-define BROWSE-NAME BROWSE-2
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fg-rctd
+&Scoped-define INTERNAL-TABLES fg-rctd fg-rdtlh
 
 /* Definitions for BROWSE BROWSE-2                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-2 fg-rctd.po-no fg-rctd.po-line ~
-fg-rctd.receiver-no fg-rctd.i-no fg-rctd.i-name fg-rctd.loc fg-rctd.loc-bin ~
-fg-rctd.tag fg-rctd.rct-date 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 fg-rctd.receiver-no 
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 fg-rctd
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 fg-rctd
+fg-rdtlh.receiver-no fg-rctd.i-no fg-rctd.i-name fg-rctd.loc ~
+fg-rctd.loc-bin fg-rctd.tag fg-rctd.rct-date 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 fg-rdtlh.receiver-no 
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 fg-rdtlh
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 fg-rdtlh
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH fg-rctd ~
       WHERE fg-rctd.company EQ gcompany AND ~
 fg-rctd.po-no NE "" AND ~
-fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE NO-LOCK INDEXED-REPOSITION
+fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE NO-LOCK, ~
+      EACH fg-rdtlh WHERE TRUE /* Join to fg-rctd incomplete */ ~
+      AND fg-rdtlh.company eq fg-rctd.company AND ~
+fg-rdtlh.r-no eq fg-rctd.r-no and ~
+fg-rdtlh.loc eq fg-rctd.loc and ~
+fg-rdtlh.loc-bin eq fg-rctd.loc-bin and ~
+fg-rdtlh.tag eq fg-rctd.tag NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY BROWSE-2 FOR EACH fg-rctd ~
       WHERE fg-rctd.company EQ gcompany AND ~
 fg-rctd.po-no NE "" AND ~
-fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE NO-LOCK INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 fg-rctd
+fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE NO-LOCK, ~
+      EACH fg-rdtlh WHERE TRUE /* Join to fg-rctd incomplete */ ~
+      AND fg-rdtlh.company eq fg-rctd.company AND ~
+fg-rdtlh.r-no eq fg-rctd.r-no and ~
+fg-rdtlh.loc eq fg-rctd.loc and ~
+fg-rdtlh.loc-bin eq fg-rctd.loc-bin and ~
+fg-rdtlh.tag eq fg-rctd.tag NO-LOCK INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 fg-rctd fg-rdtlh
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 fg-rctd
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-2 fg-rdtlh
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -123,7 +136,8 @@ DEFINE VARIABLE fiPoNo AS CHARACTER FORMAT "X(256)":U
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-2 FOR 
-      fg-rctd SCROLLING.
+      fg-rctd, 
+      fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -132,7 +146,7 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 NO-LOCK DISPLAY
       fg-rctd.po-no FORMAT "x(9)":U
       fg-rctd.po-line FORMAT ">>9":U
-      fg-rctd.receiver-no FORMAT "x(20)":U WIDTH 17.2
+      fg-rdtlh.receiver-no FORMAT "x(20)":U
       fg-rctd.i-no FORMAT "x(10)":U WIDTH 18.2
       fg-rctd.i-name FORMAT "x(30)":U WIDTH 32.2
       fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8
@@ -140,7 +154,7 @@ DEFINE BROWSE BROWSE-2
       fg-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(21)":U WIDTH 24.6
       fg-rctd.rct-date FORMAT "99/99/9999":U
   ENABLE
-      fg-rctd.receiver-no
+      fg-rdtlh.receiver-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 148 BY 14.29 FIT-LAST-COLUMN.
@@ -216,15 +230,20 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
 /* Query rebuild information for BROWSE BROWSE-2
-     _TblList          = "asi.fg-rctd"
+     _TblList          = "asi.fg-rctd,asi.fg-rdtlh WHERE asi.fg-rctd ..."
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "fg-rctd.company EQ gcompany AND
 fg-rctd.po-no NE """" AND
 fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE"
+     _Where[2]         = "fg-rdtlh.company eq fg-rctd.company AND
+fg-rdtlh.r-no eq fg-rctd.r-no and
+fg-rdtlh.loc eq fg-rctd.loc and
+fg-rdtlh.loc-bin eq fg-rctd.loc-bin and
+fg-rdtlh.tag eq fg-rctd.tag"
      _FldNameList[1]   = asi.fg-rctd.po-no
      _FldNameList[2]   = asi.fg-rctd.po-line
-     _FldNameList[3]   > asi.fg-rctd.receiver-no
-"fg-rctd.receiver-no" ? ? "character" ? ? ? ? ? ? yes ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > asi.fg-rdtlh.receiver-no
+"fg-rdtlh.receiver-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.fg-rctd.i-no
 "fg-rctd.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.fg-rctd.i-name
@@ -278,23 +297,16 @@ ON CHOOSE OF bCheck IN FRAME DEFAULT-FRAME /* Check PO */
 OR RETURN OF fiPoNo
 DO:
 
-    FIND FIRST fg-rctd NO-LOCK WHERE 
-        fg-rctd.company EQ gcompany AND
-        fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE AND 
-        fg-rctd.rita-code EQ "R"
-        NO-ERROR.
-    IF NOT AVAIL fg-rctd THEN DO:
-        MESSAGE 
-            "No recipts found for this PO." 
-            VIEW-AS ALERT-BOX.
-        RETURN.
-    END. 
+    OPEN QUERY browse-2 FOR EACH asi.fg-rctd
+        WHERE fg-rctd.company EQ gcompany AND
+        fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE NO-LOCK,
+        EACH asi.fg-rdtlh EXCLUSIVE WHERE fg-rdtlh.company eq fg-rctd.company AND
+        fg-rdtlh.r-no eq fg-rctd.r-no and
+        fg-rdtlh.loc eq fg-rctd.loc and
+        fg-rdtlh.loc-bin eq fg-rctd.loc-bin and
+        fg-rdtlh.tag eq fg-rctd.tag
+        BY fg-rdtlh.receiver DESCENDING.
         
-    OPEN QUERY browse-2 FOR EACH fg-rctd EXCLUSIVE WHERE 
-        fg-rctd.company EQ gcompany AND
-        fg-rctd.po-no EQ fiPoNo:SCREEN-VALUE AND 
-        fg-rctd.rita-code EQ "R" 
-        BY fg-rctd.receiver DESCENDING. 
 
     browse-2:REFRESH().
 END.
