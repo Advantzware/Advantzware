@@ -430,10 +430,10 @@ v-printline = 0.
             "<C21>" po-ordl.i-no FORM "x(30)"
             "<C53>" po-ordl.due-date.
         IF lPrintPrice THEN DO:
-            IF po-ordl.cost LE 9999.99 THEN
-                PUT "<C61.5>" po-ordl.cost FORM "->>>9.99"
+            IF po-ordl.cost LE 9999.9999 THEN
+                PUT "<C61.5>" po-ordl.cost FORM "->>>9.99<<"
                 "<C69>" po-ordl.pr-uom.
-            PUT "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99".
+            PUT "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99<<".
         END.
         PUT SKIP.
 
@@ -910,11 +910,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
           "<R56><C1>" v-inst[4].
       IF lPrintPrice THEN
         PUT  "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
-    "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
+    "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99<<"
     "<=8><R+2> "  v-bot-lab[1] 
     "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
                 /*v-bot-lab[2] */
-    "<=8><R+4> Grand Total:" po-ord.t-cost FORM ">,>>>,>>9.99" .
+    "<=8><R+4> Grand Total:" po-ord.t-cost FORM ">,>>>,>>9.99<<" .
 /*Please acknowledge receipt and that pricing is correct on this P.O." */ 
 IF v-print-terms THEN
 PUT "<FArial><R58><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
