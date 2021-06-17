@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+//{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
