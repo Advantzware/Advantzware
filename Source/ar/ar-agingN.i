@@ -1032,20 +1032,22 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
        ELSE RELEASE terms .     
 
       v-neg-text = "ON ACCT".
-
-      if ar-cashl.memo eq true then do:
-         if (ar-cashl.amt-paid + ar-cashl.amt-disc) gt 0 then
-            assign v-type = "DM"
-                   v-cr-db-amt = ar-cashl.amt-paid
-                   v-disc-amt = ar-cashl.amt-disc.
-         else
-            assign v-type = "CM"
-                   v-cr-db-amt = ar-cashl.amt-paid
-                   v-disc-amt = ar-cashl.amt-disc.
-      end.
-
-      else
-      DO:
+      
+      if ar-cashl.memo THEN NEXT.
+      
+      /*if ar-cashl.memo eq true then do:                         */
+      /*   if (ar-cashl.amt-paid + ar-cashl.amt-disc) gt 0 then   */
+      /*      assign v-type = "DM"                                */
+      /*             v-cr-db-amt = ar-cashl.amt-paid              */
+      /*             v-disc-amt = ar-cashl.amt-disc.              */
+      /*   else                                                   */
+      /*      assign v-type = "CM"                                */
+      /*             v-cr-db-amt = ar-cashl.amt-paid              */
+      /*             v-disc-amt = ar-cashl.amt-disc.              */
+      /*end.                                                      */
+                                                                  
+      /*else                                                      */
+      /*DO:                                                       */
          v-tr-dscr = "VOID " + cust.cust-no + " "
                    + STRING(ar-cash.check-no,"999999999999")
                    + " Inv# " + STRING(ar-cashl.inv-no).
@@ -1072,7 +1074,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
          ELSE*/
           IF v-type EQ "VD" AND v-cr-db-amt LT 0 THEN
             v-cr-db-amt = v-cr-db-amt * -1.
-      END.
+      
 
       if first-unapp then do:
          IF v-type EQ "VD" THEN
