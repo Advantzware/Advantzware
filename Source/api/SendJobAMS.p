@@ -903,8 +903,8 @@ PROCEDURE pProcessAMSData PRIVATE:
     
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
         
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart. 
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If there is a Combo Form (multiple blanks out of one sheet/form), we need to add a “Combo Form” 
@@ -938,8 +938,8 @@ PROCEDURE pProcessAMSData PRIVATE:
 
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
 
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.         
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If the job is for a Set, we need to make the assumption that the last operation on the 
