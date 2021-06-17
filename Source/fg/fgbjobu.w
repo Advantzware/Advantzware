@@ -501,6 +501,7 @@ DO:
     DEFINE VARIABLE lOldValueOnHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateAllJobTags AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateJobPO AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER b-fg-bin FOR fg-bin.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
@@ -631,7 +632,13 @@ DO:
                 fg-bin.qty           = w-job.qty
                 fg-bin.partial-count = w-job.partial-count
                 .
-            IF ll-changed THEN DO:                
+            IF ll-changed THEN DO:
+               RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
+               IF lMsgResponse THEN
+               DO:
+                  RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).  
+               END.
+               ELSE do:
                 FIND FIRST itemfg
                      {sys/look/itemfgrlW.i}
                      AND itemfg.i-no EQ fg-bin.i-no
@@ -676,7 +683,7 @@ DO:
                     bf-fg-rctd.cases-unit     = fg-bin.cases-unit .  
                     
                     RELEASE bf-fg-rctd.
-                    
+               END. /* not lMsgResponse*/     
                  
                 IF fg-bin.tag NE "" THEN DO:
                 FOR EACH loadtag
