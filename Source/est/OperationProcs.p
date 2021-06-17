@@ -42,19 +42,57 @@ DEFINE TEMP-TABLE ttJobMch NO-UNDO LIKE job-mch
     FIELD isExtraCopy AS LOGICAL
     .
 
+
+/* Define Globals - Machine Attributes */
+
+DEFINE VARIABLE giAttributeIDNoOfColors       AS INTEGER NO-UNDO INITIAL 1.    //# of Colors
+DEFINE VARIABLE giAttributeIDBoxLen           AS INTEGER NO-UNDO INITIAL 2.    //Box Length
+DEFINE VARIABLE giAttributeIDBoxWid           AS INTEGER NO-UNDO INITIAL 3.    //Box Width
+DEFINE VARIABLE giAttributeIDBlankLen         AS INTEGER NO-UNDO INITIAL 4.    //Blank Length
+DEFINE VARIABLE giAttributeIDBlankWid         AS INTEGER NO-UNDO INITIAL 5.    //Blank Width
+DEFINE VARIABLE giAttributeIDGlueLapLen       AS INTEGER NO-UNDO INITIAL 6.    //Glue Lap Length
+DEFINE VARIABLE giAttributeIDBlankSqFt        AS INTEGER NO-UNDO INITIAL 7.    //Blank Sq In/Sq Ft
+DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness
+DEFINE VARIABLE giAttributeIDWeightperMSF     AS INTEGER NO-UNDO INITIAL 9.    //Weight per MSF
+DEFINE VARIABLE giAttributeIDRollWid          AS INTEGER NO-UNDO INITIAL 10.    //Roll Width
+DEFINE VARIABLE giAttributeIDNShtWid          AS INTEGER NO-UNDO INITIAL 11.    //Net Sheet Width
+DEFINE VARIABLE giAttributeIDNShtLen          AS INTEGER NO-UNDO INITIAL 12.    //Net Sheet Length
+DEFINE VARIABLE giAttributeIDDieNumberUp      AS INTEGER NO-UNDO INITIAL 13.    //Die Number Up
+DEFINE VARIABLE giAttributeIDFilmLen          AS INTEGER NO-UNDO INITIAL 14.    //Film Length
+DEFINE VARIABLE giAttributeIDFilmWid          AS INTEGER NO-UNDO INITIAL 15.    //Film Width
+DEFINE VARIABLE giAttributeIDGShtLen          AS INTEGER NO-UNDO INITIAL 16.    //Gross Sht Length
+DEFINE VARIABLE giAttributeIDGShtWi           AS INTEGER NO-UNDO INITIAL 17.    //Gross Sht Width
+DEFINE VARIABLE giAttributeIDEstQty           AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty
+DEFINE VARIABLE giAttributeIDDieLIIn          AS INTEGER NO-UNDO INITIAL 19.    //Die Lineal Inches
+DEFINE VARIABLE giAttributeIDEstSheets        AS INTEGER NO-UNDO INITIAL 20.    //Estimated Sheets
+DEFINE VARIABLE giAttributeIDSheetSqIn        AS INTEGER NO-UNDO INITIAL 21.    //Sheet Square Inches
+DEFINE VARIABLE giAttributeIDNoOfPlates       AS INTEGER NO-UNDO INITIAL 22.    //Number of Plates
+DEFINE VARIABLE giAttributeIDNoOfCuts         AS INTEGER NO-UNDO INITIAL 23.    //Number of Cuts
+DEFINE VARIABLE giAttributeIDNoOfItems        AS INTEGER NO-UNDO INITIAL 24.    //Number of Items
+DEFINE VARIABLE giAttributeIDNoOutGShtWid     AS INTEGER NO-UNDO INITIAL 25.    //# Out GrsSht Width
+DEFINE VARIABLE giAttributeIDNoOutGShtLen     AS INTEGER NO-UNDO INITIAL 26.    //# Out Grs Sht Length
+DEFINE VARIABLE giAttributeIDSetPartsperForm  AS INTEGER NO-UNDO INITIAL 27.    //Set Parts per Form
+DEFINE VARIABLE giAttributeIDInkCoverage      AS INTEGER NO-UNDO INITIAL 28.    //Ink Coverage
+DEFINE VARIABLE giAttributeIDPartsperSet      AS INTEGER NO-UNDO INITIAL 29.    //Parts per Set
+DEFINE VARIABLE giAttributeIDRoutingNoOut     AS INTEGER NO-UNDO INITIAL 30.    //Routing # Out
+DEFINE VARIABLE giAttributeIDQtySetLongs      AS INTEGER NO-UNDO INITIAL 31.    //Qty/Set Longs
+DEFINE VARIABLE giAttributeIDQtySetShorts     AS INTEGER NO-UNDO INITIAL 32.    //Qty/Set Shorts
+DEFINE VARIABLE giAttributeIDNoOnDieLen       AS INTEGER NO-UNDO INITIAL 33.    //# On Die Length
+DEFINE VARIABLE giAttributeIDNoOnDieWid       AS INTEGER NO-UNDO INITIAL 34.    //# On Die Width
+DEFINE VARIABLE giAttributeIDBlankSqIn        AS INTEGER NO-UNDO INITIAL 35.    //Blank Sq In
+DEFINE VARIABLE giAttributeIDUnitizingFormula AS INTEGER NO-UNDO INITIAL 98.    //Unitizing Formula
+DEFINE VARIABLE giAttributeIDDieHoursFormula  AS INTEGER NO-UNDO INITIAL 99.    //Die Hours Formula
+DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   //Style
+DEFINE VARIABLE giAttributeIDBoardItemID      AS INTEGER NO-UNDO INITIAL 102.   //Board ItemID
+DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   //Box Depth
+ 
+
 DEFINE VARIABLE gcDeptsForPrinters       AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers         AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers        AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters       AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
-DEFINE VARIABLE gcDeptsForCoaters        AS CHARACTER NO-UNDO INITIAL "PR,CT".    
-    
-DEFINE VARIABLE giAttributeIDStyle       AS INTEGER   NO-UNDO INITIAL 101.
-DEFINE VARIABLE giAttributeIDBoardItemID AS INTEGER   NO-UNDO INITIAL 102.
-DEFINE VARIABLE giAttributeIDCaliper     AS INTEGER   NO-UNDO INITIAL 8.
-DEFINE VARIABLE giAttributeIDBoxDepth    AS INTEGER   NO-UNDO INITIAL 104.
-DEFINE VARIABLE giAttributeIDBlankSqIn   AS INTEGER   NO-UNDO INITIAL 35.
-
-DEFINE VARIABLE glOpRatesSeparate        AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
+DEFINE VARIABLE gcDeptsForCoaters        AS CHARACTER NO-UNDO INITIAL "PR,CT".
+DEFINE VARIABLE glOpRatesSeparate        AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/   
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -1304,27 +1342,53 @@ PROCEDURE pSetAttributeForColors PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an estimate blank buffer and pass, set the 
         # of colors attribute.
-     Notes:
+     Notes: If Blank NO specific then return colors for that Blank otherwsie for whole Form
+            If DEpartment is Press then count for specific Pass number Otherwise All
     ------------------------------------------------------------------------------*/
+    
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
-    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDeptt        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iColors   AS INTEGER.
+    DEFINE VARIABLE cFeedType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cError    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.        
+            
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-ef   FOR ef.
+    DEFINE BUFFER bf-mach FOR mach.
     
-    DEFINE BUFFER bf-eb FOR eb.
+    RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
     
-    DEFINE VARIABLE iColors AS INTEGER.
+    IF AVAILABLE bf-mach THEN
+        cFeedType = mach.p-type. 
     
-    IF ipiBlankNo EQ 0 THEN 
-    DO:    
-        FOR EACH bf-eb NO-LOCK 
-            WHERE bf-eb.company EQ ipbf-eb.company
-            AND bf-eb.est-no EQ ipbf-eb.est-no
-            AND bf-eb.form-no EQ ipbf-eb.form-no:
-            iColors = iColors + fGetColorsForBlankPass(BUFFER bf-eb, ipiPass).
-        END.
-    END.    
-    ELSE 
+    /* For Printers; get colors for specific Blank and Specific Pass */
+    IF ipcDeptt = "PR" THEN
         iColors = fGetColorsForBlankPass(BUFFER ipbf-eb, ipiPass).
+    
+    /* For a Blank Fed machine; get Colors for a specific BlankNo, Passes-All */
+    ELSE IF cFeedType EQ "B" THEN
+            iColors = fGetColorsForBlankPass(BUFFER ipbf-eb, 0).
+        
+    /* For Other cases; get Colors for a Form, Blanks-All, Passes-All */       
+    ELSE
+    DO:
+        FOR FIRST bf-ef NO-LOCK
+            WHERE bf-ef.company EQ ipbf-eb.company
+            AND bf-ef.est-no EQ ipbf-eb.est-no
+            AND bf-ef.form-no EQ ipbf-eb.form-no,
+            EACH bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ bf-ef.company
+            AND bf-eb.est-no EQ bf-ef.est-no
+            AND bf-eb.form-no EQ bf-ef.form-no:
+                
+            iColors = iColors + fGetColorsForBlankPass(BUFFER bf-eb, 0).
+        END.
+    END.
         
     RUN pSetAttributeFromStandard(ipbf-eb.company,  1, iColors).  //Maxco
 
@@ -1648,7 +1712,7 @@ PROCEDURE SetAttributesFromJobMch:
     IF AVAILABLE bf-eb THEN 
     DO:
         RUN pSetAttributesBlank(BUFFER bf-eb).
-        RUN pSetAttributeForColors(BUFFER bf-eb, bf-job-mch.blank-no, bf-job-mch.pass).  //Maxco
+        RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  13, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
         RUN pSetAttributeFromStandard(bf-eb.company,  18, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  20, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
@@ -1727,7 +1791,7 @@ FUNCTION fGetColorsForBlankPass RETURNS INTEGER PRIVATE
     /*------------------------------------------------------------------------------
          Purpose: Given an estimate blank buffer and pass, set the 
             # of colors attribute.
-         Notes:
+         Notes: PassNo is optional Parameter
         ------------------------------------------------------------------------------*/
     
     DEFINE VARIABLE iIndex  AS INTEGER NO-UNDO.
@@ -1736,14 +1800,14 @@ FUNCTION fGetColorsForBlankPass RETURNS INTEGER PRIVATE
     IF ipbf-eb.est-type GE 5 THEN
     DO:    
         DO iIndex = 1 TO 10:
-            IF ipbf-eb.i-ps[iIndex] NE ipiPass THEN NEXT.
+            IF ipiPass NE 0 AND ipbf-eb.i-ps[iIndex] NE ipiPass THEN NEXT.
             iColors = iColors + fIsInk(ipbf-eb.company, ipbf-eb.i-code[iIndex]).   
         END.
     END.  
     ELSE 
     DO:  
         DO iIndex = 1 TO 17:
-            IF ipbf-eb.i-ps2[iIndex] NE ipiPass THEN NEXT.
+            IF ipiPass NE 0 AND ipbf-eb.i-ps2[iIndex] NE ipiPass THEN NEXT.
             iColors = iColors + fIsInk(ipbf-eb.company, ipbf-eb.i-code2[iIndex]).
         END.
     END.    

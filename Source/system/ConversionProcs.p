@@ -14,6 +14,13 @@
 /* ***************************  Definitions  ************************** */
 
  {system/ttConversionProcs.i}
+ 
+ 
+/*Settings Globals - Measurement Conversion Constants */
+DEFINE VARIABLE gdCMPerIn AS DECIMAL   NO-UNDO INITIAL 2.54.
+DEFINE VARIABLE gdInPerFt AS DECIMAL   NO-UNDO INITIAL 12.
+DEFINE VARIABLE gdMMPerCm AS DECIMAL   NO-UNDO INITIAL 10.  
+DEFINE VARIABLE gdCMPerM  AS DECIMAL   NO-UNDO INITIAL 100.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -1293,20 +1300,18 @@ FUNCTION fGetInches RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dCMPerIn AS DECIMAL NO-UNDO INITIAL 2.54. 
-    
     CASE CAPS(ipcUOM):
         WHEN "IN" OR WHEN "LI" THEN 
             dInches = ipdDim.
         WHEN "FT" OR WHEN "LF" THEN 
-            dInches = ipdDim * 12.
+            dInches = ipdDim * gdInPerFt.
         WHEN "CM" THEN 
-            dInches = ipdDim / dCMPerIn.
+            dInches = ipdDim / gdCMPerIn.
         WHEN "MM" THEN 
-            dInches = ipdDim / (dCMPerIn * 10).
+            dInches = ipdDim / (gdCMPerIn * gdMMPerCm).
         WHEN "MET" OR 
         WHEN "M" THEN 
-            dInches = ipdDim / (dCMPerIn / 100).          
+            dInches = ipdDim / (gdCMPerIn / gdCMPerM).          
         OTHERWISE 
         dInches = ipdDim.
  
@@ -1323,21 +1328,19 @@ FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
-    
-    DEFINE VARIABLE dSqCMPerSqIn AS DECIMAL NO-UNDO INITIAL 6.4516.
-    DEFINE VARIABLE dSQInPerSQFt AS DECIMAL NO-UNDO INITIAL 144.  
+    DEFINE VARIABLE iExponent AS INTEGER NO-UNDO INITIAL 2.
     
     CASE CAPS(ipcUOM):
         WHEN "SQIN" OR WHEN "SQLI" THEN 
             dInches = ipdArea.
         WHEN "SQFT" OR WHEN "SQLF" THEN 
-            dInches = ipdArea * dSQInPerSQFt.
+            dInches = ipdArea * EXP( gdInPerFt, iExponent).
         WHEN "SQCM" THEN 
-            dInches = ipdArea / dSqCMPerSqIn.
+            dInches = ipdArea / EXP( gdCMPerIn, iExponent).
         WHEN "SQMM" THEN 
-            dInches = ipdArea / (dSqCMPerSqIn * 100).
+            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) * EXP( gdMMPerCm, iExponent)).
         WHEN "SQMET" OR WHEN "SQM" THEN 
-            dInches = ipdArea / (dSqCMPerSqIn / 10000).          
+            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) / EXP( gdCMPerM, iExponent)).          
         OTHERWISE 
         dInches = ipdArea.
  
