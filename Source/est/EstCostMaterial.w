@@ -40,7 +40,7 @@ DEFINE INPUT PARAMETER ipiEstCostHeaderID   AS INTEGER      NO-UNDO.
 DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO. 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+//{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
