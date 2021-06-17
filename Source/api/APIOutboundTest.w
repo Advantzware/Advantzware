@@ -839,7 +839,8 @@ DO:
                 INPUT STRING(ROWID(oe-bolh))
                 ).
         END.
-        WHEN "SendJob" THEN DO:
+        WHEN "SendJob" OR 
+        WHEN "SendJobAMS" THEN DO:
             FIND FIRST job NO-LOCK
                  WHERE job.company EQ cCompany
                    AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-")))) + TRIM(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
@@ -1100,7 +1101,8 @@ DO:
                 OUTPUT recVal
                 ).      
         END.
-        WHEN "SendJob" THEN DO:  
+        WHEN "SendJob" OR
+        WHEN "SendJobAMS" THEN DO:  
             RUN system/openlookup.p (
                 cCompany, 
                 "Job-no",            /* lookup field */
@@ -1118,7 +1120,7 @@ DO:
         IF fiAPIID:SCREEN-VALUE EQ "SendPurchaseOrderLineStatus" THEN
             fiPrimaryKey:SCREEN-VALUE = ENTRY(2,returnFields,"|") 
                                       + "-" + ENTRY(4,returnFields,"|").
-        ELSE IF fiAPIID:SCREEN-VALUE EQ "SendJob" THEN
+        ELSE IF fiAPIID:SCREEN-VALUE EQ "SendJob" OR fiAPIID:SCREEN-VALUE EQ "SendJobAMS" THEN
             fiPrimaryKey:SCREEN-VALUE = ENTRY(4,returnFields,"|")
                                      + "-" + ENTRY(6,returnFields,"|").                            
         ELSE
