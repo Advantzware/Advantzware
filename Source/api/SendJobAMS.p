@@ -603,7 +603,13 @@ PROCEDURE pCreateLinks PRIVATE:
                      WHERE bf-to-ttTask.taskID EQ INTEGER(ENTRY(1, bf-ttPart.taskIDs))
                      NO-ERROR.
                 IF AVAILABLE bf-to-ttTask THEN DO:
-                    CREATE ttLink.
+                    FIND FIRST ttLink 
+                         WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
+                           AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
+                         NO-ERROR.
+                    IF NOT AVAILABLE ttLink THEN
+                        CREATE ttLink.                
+
                     ASSIGN
                         iLinkSeqNo          = iLinkSeqNo + 1
                         ttLink.fromPart     = bf-from-ttTask.partID
@@ -631,7 +637,13 @@ PROCEDURE pCreateLinks PRIVATE:
                AND bf-to-ttTask.lineID  GT bf-from-ttTask.lineID
              NO-ERROR.             
         IF AVAILABLE bf-to-ttTask THEN DO:
-            CREATE ttLink.
+            FIND FIRST ttLink 
+                 WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
+                   AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
+                 NO-ERROR.
+            IF NOT AVAILABLE ttLink THEN
+                CREATE ttLink.
+
             ASSIGN
                 iLinkSeqNo          = iLinkSeqNo + 1
                 ttLink.toPart       = bf-to-ttTask.partID
@@ -666,7 +678,13 @@ PROCEDURE pCreateLinks PRIVATE:
                    AND bf-to-ttTask.blankNo GT bf-from-ttTask.blankNo
                  NO-ERROR.
             IF AVAILABLE bf-to-ttTask THEN DO:
-                CREATE ttLink.
+                FIND FIRST ttLink 
+                     WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
+                       AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
+                     NO-ERROR.
+                IF NOT AVAILABLE ttLink THEN
+                    CREATE ttLink.
+
                 ASSIGN
                     iLinkSeqNo          = iLinkSeqNo + 1
                     ttLink.fromPart     = bf-from-ttTask.partID
@@ -705,7 +723,13 @@ PROCEDURE pCreateLinks PRIVATE:
                      WHERE bf-to-ttTask.taskID EQ INTEGER(ENTRY(1, bf-ttPart.taskIDs)) 
                      NO-ERROR.
                 IF AVAILABLE bf-to-ttTask THEN DO:
-                    CREATE ttLink.
+                    FIND FIRST ttLink 
+                         WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
+                           AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
+                         NO-ERROR.
+                    IF NOT AVAILABLE ttLink THEN
+                        CREATE ttLink.
+
                     ASSIGN
                         iLinkSeqNo          = iLinkSeqNo + 1
                         ttLink.fromPart     = bf-from-ttTask.partID
@@ -738,22 +762,33 @@ PROCEDURE pCreateLinks PRIVATE:
             FIND FIRST bf-ttPart
                  WHERE bf-ttPart.setAssembly
                  NO-ERROR.
-            IF AVAILABLE bf-to-ttTask THEN DO:
-                CREATE ttLink.
-                ASSIGN
-                    iLinkSeqNo          = iLinkSeqNo + 1
-                    ttLink.fromPart     = bf-from-ttTask.partID
-                    ttLink.fromTask     = STRING(bf-from-ttTask.taskID)
-                    ttLink.fromLocation = bf-from-ttTask.location
-                    ttLink.toPart       = bf-to-ttTask.partID
-                    ttLink.toTask       = STRING(bf-to-ttTask.taskID)
-                    ttLink.toLocation   = bf-to-ttTask.location
-                    ttLink.formNo       = bf-from-ttTask.formNo
-                    ttLink.blankNo      = bf-from-ttTask.blankNo
-                    ttLink.passNo       = bf-from-ttTask.passNo
-                    ttLink.isAssembly   = TRUE
-                    ttLink.seqNo        = (ttLink.formNo * 1000) + ttLink.blankNo + ttLink.passNo + iLinkSeqNo
-                    .
+            IF AVAILABLE bf-ttPart THEN DO:
+                FIND FIRST bf-to-ttTask
+                     WHERE bf-to-ttTask.taskID EQ INTEGER(ENTRY(1, bf-ttPart.taskIDs)) 
+                     NO-ERROR.
+                IF AVAILABLE bf-to-ttTask THEN DO:            
+                    FIND FIRST ttLink 
+                         WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
+                           AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
+                         NO-ERROR.
+                    IF NOT AVAILABLE ttLink THEN
+                        CREATE ttLink.
+                    
+                    ASSIGN
+                        iLinkSeqNo          = iLinkSeqNo + 1
+                        ttLink.fromPart     = bf-from-ttTask.partID
+                        ttLink.fromTask     = STRING(bf-from-ttTask.taskID)
+                        ttLink.fromLocation = bf-from-ttTask.location
+                        ttLink.toPart       = bf-to-ttTask.partID
+                        ttLink.toTask       = STRING(bf-to-ttTask.taskID)
+                        ttLink.toLocation   = bf-to-ttTask.location
+                        ttLink.formNo       = bf-from-ttTask.formNo
+                        ttLink.blankNo      = bf-from-ttTask.blankNo
+                        ttLink.passNo       = bf-from-ttTask.passNo
+                        ttLink.isAssembly   = TRUE
+                        ttLink.seqNo        = (ttLink.formNo * 1000) + ttLink.blankNo + ttLink.passNo + iLinkSeqNo
+                        .
+                END.
             END.
         END.          
     END.
