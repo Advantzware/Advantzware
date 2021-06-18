@@ -78,12 +78,31 @@ DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cVendItemCostMaximum  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lVendItemCostMaximum  AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, 
+                       INPUT "VendItemCostMaximum", 
+                       INPUT "C" /* Logical */, 
+                       INPUT  NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, 
+                       INPUT "" /* cust */, 
+                       INPUT "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+cVendItemCostMaximum = STRING(cRtnChar) NO-ERROR.   
+ 
+RUN sys/ref/nk1look.p (INPUT cocode, "VendItemCostMaximum", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+lVendItemCostMaximum = LOGICAL(cRtnChar) NO-ERROR.      
  
 RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
@@ -586,8 +605,15 @@ PROCEDURE pCreateValues :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lNewRecordCreated AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .  
   
      FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
+     FIND FIRST bf-vendItemCostLevel NO-LOCK
+          WHERE bf-vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-ERROR.
+     IF NOT AVAIL bf-vendItemCostLevel THEN
+     lNewRecordCreated = YES.
      
     DO WITH FRAME {&frame-name}:        
         CREATE vendItemCostLevel .
@@ -604,6 +630,17 @@ PROCEDURE pCreateValues :
     
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
     opRowid = ROWID(vendItemCostLevel) .
+    
+    DO WITH FRAME {&FRAME-NAME}:
+      IF lVendItemCostMaximum AND lNewRecordCreated THEN do:
+         CREATE bf-vendItemCostLevel .
+         ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID.
+         IF cVendItemCostMaximum EQ  "Unlimited" THEN
+           bf-vendItemCostLevel.quantityBase    = 9999999 .
+         ELSE bf-vendItemCostLevel.quantityBase    = DECIMAL(dBase:SCREEN-VALUE) + 0.01 .   
+         FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .     
+      END.
+    END.     
     
     RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 

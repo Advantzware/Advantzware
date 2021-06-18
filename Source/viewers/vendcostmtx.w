@@ -71,8 +71,9 @@ DEFINE VARIABLE lCheckEditMode AS LOGICAL NO-UNDO.
 &Scoped-define VendItemCostCreateAfter procCreateAfter
 DEFINE VARIABLE lFGItemUOM AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cReturn AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lVendCostMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iVendItemCostMaximum AS INTEGER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -84,8 +85,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "VendCostMatrix", "L" /* Logical */, NO /* 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cReturn, OUTPUT lRecFound).
 IF lRecFound THEN
-lVendCostMatrix = LOGICAL(cReturn) NO-ERROR.
+lVendCostMatrix = LOGICAL(cReturn) NO-ERROR. 
 
+
+  RUN sys/ref/nk1look.p (INPUT cocode, "VendItemCostMaximum", "I" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturn, OUTPUT lRecFound) .
+  IF lRecFound THEN
+  iVendItemCostMaximum = INTEGER(cReturn) NO-ERROR. 
+    
 {system/ttConversionProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -746,8 +754,8 @@ END.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
-
+  &ENDIF 
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -998,24 +1006,11 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  vendItemCost.company = cocode.
-  
-  IF adm-adding-record THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    CREATE bf-vendItemCostLevel .
-        ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
-               bf-vendItemCostLevel.quantityBase    = 99999999 .
-        FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .
-
-     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
-
-  END.
-
+  vendItemCost.company = cocode.  
+ 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
-  
-  
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).   
 
 END PROCEDURE.
 
@@ -1128,7 +1123,12 @@ PROCEDURE local-update-record :
             vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, '|'))
         .  
     END.
-    ELSE 
+    ELSE
+    DO: 
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+      
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
@@ -1136,6 +1136,7 @@ PROCEDURE local-update-record :
           INPUT NO, /* Do not Change quantityFrom */
           OUTPUT rdRowidLevel
           ) .
+    END.      
   END.
   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
   
@@ -1287,8 +1288,11 @@ PROCEDURE pSetDefaultValues PRIVATE:
             vendItemCost.updatedID:SCREEN-VALUE      = USERID('ASI')
             vendItemCost.updatedDate:SCREEN-VALUE    = STRING(TODAY)
             . 
-         IF lVendCostMatrix THEN        
+         
+         IF iVendItemCostMaximum EQ 0 THEN
          vendItemCost.useQuantityFromBase:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes".
+         ELSE IF iVendItemCostMaximum EQ 1 THEN
+         vendItemCost.useQuantityFromBase:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No". 
           
     END.                 
 END PROCEDURE.
