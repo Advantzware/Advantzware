@@ -1565,7 +1565,7 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
             ).  
-    WHEN "VendItemCostMaximum" THEN do:    
+    WHEN "VendItemCostMaximum" THEN     
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
@@ -1573,9 +1573,9 @@ CASE ip-nk1-value:
             INPUT "Set Maximum Order Quantity or Highest Entered Quantity", /* Description */
             INPUT "Unlimited",                          /* Char Value */
             INPUT 0,                                    /* Int value */
-            INPUT NO,                                   /* Logical value */ 
+            INPUT YES,                                  /* Logical value */ 
             INPUT 0                                     /* Dec value*/
-            ). END.    
+            ).     
 END CASE.
 ELSE
 CASE ip-nk1-value:
