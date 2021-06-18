@@ -96,9 +96,9 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancel ~
-fiItem fiHotKey fiTitle fiProgramName 
-&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiHotKey fiTitle lItem ~
-lSize lAddress fiProgramName lQuantity lShow 
+fiItem fiWid fiDep fiTitle fiLen fiProgramName 
+&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiWid fiDep fiTitle fiLen ~
+lItem lSize x x-2 lAddress fiProgramName lQuantity lShow 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,14 +122,19 @@ DEFINE BUTTON bOk
      LABEL "Ok" 
      SIZE 15 BY 1.29.
 
-DEFINE VARIABLE fiHotKey AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiDep AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 23.6 BY 1.1
+     SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 31.4 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiLen AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiProgramName AS CHARACTER FORMAT "X(256)":U 
@@ -140,6 +145,11 @@ DEFINE VARIABLE fiProgramName AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiTitle AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 58.6 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiWid AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE lAddress AS CHARACTER FORMAT "X(256)":U INITIAL "Address:" 
@@ -167,6 +177,16 @@ DEFINE VARIABLE lSize AS CHARACTER FORMAT "X(256)":U INITIAL "Size:"
      SIZE 6 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE x AS CHARACTER FORMAT "X(256)":U INITIAL "X" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE x-2 AS CHARACTER FORMAT "X(256)":U INITIAL "X" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 147 BY 3.81
@@ -190,6 +210,9 @@ DEFINE BROWSE brVendItemCost
   QUERY brVendItemCost NO-LOCK DISPLAY
       ttVendItemCost.vendorID       COLUMN-LABEL "Vendor ID"       
             LABEL-BGCOLOR 14
+      ttvendItemCost.estimateNo +  
+        (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
+        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) ))   COLUMN-LABEL "Estimate" 
       ttVendItemCost.costPerVendorUOM    COLUMN-LABEL "Cost"    
              LABEL-BGCOLOR 14  
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
@@ -222,12 +245,16 @@ DEFINE FRAME DEFAULT-FRAME
      bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
      bCancel AT ROW 21.05 COL 75.2 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
-     fiHotKey AT ROW 1.86 COL 48.4 COLON-ALIGNED NO-LABEL WIDGET-ID 330
+     fiWid AT ROW 1.86 COL 56.8 COLON-ALIGNED NO-LABEL WIDGET-ID 346
+     fiDep AT ROW 1.86 COL 65.6 COLON-ALIGNED NO-LABEL WIDGET-ID 350
      fiTitle AT ROW 1.86 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 332
+     fiLen AT ROW 1.91 COL 47.6 COLON-ALIGNED NO-LABEL WIDGET-ID 348
      lItem AT ROW 2.1 COL 4.4 NO-LABEL WIDGET-ID 64
      lSize AT ROW 2.1 COL 41.6 COLON-ALIGNED NO-LABEL WIDGET-ID 326
+     x AT ROW 2.1 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 354
+     x-2 AT ROW 2.1 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 356
      lAddress AT ROW 2.1 COL 74.8 NO-LABEL WIDGET-ID 328
-     fiProgramName AT ROW 3.43 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiProgramName AT ROW 3.38 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      lQuantity AT ROW 3.67 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
      lShow AT ROW 3.71 COL 119.8 NO-LABEL WIDGET-ID 338
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
@@ -291,7 +318,7 @@ ASSIGN
        brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
-       fiHotKey:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiDep:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiItem IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
@@ -299,13 +326,23 @@ ASSIGN
        fiItem:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
+       fiLen:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+ASSIGN 
        fiProgramName:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
+       fiTitle:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
        fiTitle:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+ASSIGN 
+       fiWid:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN lAddress IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       lAddress:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 /* SETTINGS FOR FILL-IN lItem IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lQuantity IN FRAME DEFAULT-FRAME
@@ -313,6 +350,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lShow IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lSize IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN x IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN x-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -410,6 +451,26 @@ DO:
             .
         RUN pReopenBrowse.
     END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON VALUE-CHANGED OF brVendItemCost IN FRAME DEFAULT-FRAME
+DO:
+  FOR FIRST estCostMaterial NO-LOCK 
+    WHERE estCostMaterial.company = ttVendItemCost.company
+    AND   estCostMaterial.estimateNo = ttvendItemCost.estimateNo
+    AND   estCostMaterial.formNo = ttvendItemCost.formNo
+    AND   estCostMaterial.blankNo = ttvendItemCost.blankNo:
+        ASSIGN
+            fiLen:SCREEN-VALUE = STRING(estCostMaterial.dimLength)
+            fiWid:SCREEN-VALUE = STRING(estCostMaterial.dimWidth)
+            fiDep:SCREEN-VALUE = STRING(estCostMaterial.dimDepth)
+            .
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,11 +593,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbShowAll fiItem fiHotKey fiTitle lItem lSize lAddress fiProgramName 
-          lQuantity lShow 
+  DISPLAY tbShowAll fiItem fiWid fiDep fiTitle fiLen lItem lSize x x-2 lAddress 
+          fiProgramName lQuantity lShow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiHotKey fiTitle 
-         fiProgramName 
+  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiWid fiDep 
+         fiTitle fiLen fiProgramName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

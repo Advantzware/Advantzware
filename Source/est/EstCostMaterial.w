@@ -67,7 +67,7 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 &Scoped-define INTERNAL-TABLES estCostMaterial
 
 /* Definitions for BROWSE brEstCostMaterial                             */
-&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.costPerUOM estCostMaterial.costSetup   
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
 &Scoped-define SELF-NAME brEstCostMaterial
 &Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
@@ -81,7 +81,10 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
     ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS brEstCostMaterial bOk 
+&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel fiItem ~
+fiItem-2 fiItem-3 fiItem-4 
+&Scoped-Define DISPLAYED-OBJECTS fiItem fiItem-2 fiItem-3 fiItem-4 estimate ~
+calculationQuantity custNo custName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -97,9 +100,58 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bCancel 
+     LABEL "Calculate" 
+     SIZE 16 BY 1.38.
+
 DEFINE BUTTON bOk 
-     LABEL "Select Vendor" 
-     SIZE 15 BY 1.29.
+     LABEL "Choose Vendor" 
+     SIZE 17.60 BY 1.38.
+
+DEFINE VARIABLE calculationQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Calculation Quantity:" 
+      VIEW-AS TEXT 
+     SIZE 24 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE custName AS CHARACTER FORMAT "X(256)":U INITIAL "Name:" 
+      VIEW-AS TEXT 
+     SIZE 8.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE custNo AS CHARACTER FORMAT "X(256)":U INITIAL "Customer#:" 
+      VIEW-AS TEXT 
+     SIZE 14.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
+      VIEW-AS TEXT 
+     SIZE 12.6 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 17.2 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiItem-2 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 14.2 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiItem-3 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 16.8 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiItem-4 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 30.4 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE RECTANGLE RECT-13
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 148 BY 2.14
+     BGCOLOR 23 FGCOLOR 24 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -111,17 +163,25 @@ DEFINE QUERY brEstCostMaterial FOR
 DEFINE BROWSE brEstCostMaterial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
   QUERY brEstCostMaterial NO-LOCK DISPLAY
-      estCostMaterial.formNo    COLUMN-LABEL "Form"       
+      estCostMaterial.formNo                    COLUMN-LABEL "Form"       
             LABEL-BGCOLOR 14
-      estCostMaterial.blankNo COLUMN-LABEL "Blank"    
+      estCostMaterial.blankNo                   COLUMN-LABEL "Blank"    
              LABEL-BGCOLOR 14  
-      estCostMaterial.itemID COLUMN-LABEL "Item ID"  
+      estCostMaterial.itemID                    COLUMN-LABEL "Item ID"  
              LABEL-BGCOLOR 14   
-      estCostMaterial.vendorID COLUMN-LABEL "Best Vendor" 
+      estCostMaterial.vendorID                  COLUMN-LABEL "Current Vendor" 
              LABEL-BGCOLOR 14
-      estCostMaterial.costPerUOM COLUMN-LABEL "Per UOM Cost" 
+      estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
              LABEL-BGCOLOR 14
-      estCostMaterial.costSetup COLUMN-LABEL "Setup Cost"        
+      estCostMaterial.quantityUOM               COLUMN-LABEL "Quantity UOM" 
+             LABEL-BGCOLOR 14  
+      estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
+             LABEL-BGCOLOR 14
+      estCostMaterial.costUOM                   COLUMN-LABEL "Cost UOM"        
+             LABEL-BGCOLOR 14          
+      estCostMaterial.costSetup                 COLUMN-LABEL "Setup Cost"        
+             LABEL-BGCOLOR 14
+      estCostMaterial.costTotal                COLUMN-LABEL "Total Cost" 
              LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -132,12 +192,22 @@ DEFINE BROWSE brEstCostMaterial
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     brEstCostMaterial AT ROW 1.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
-     bOk AT ROW 17 COL 64 WIDGET-ID 342
+     brEstCostMaterial AT ROW 3.67 COL 148.6 RIGHT-ALIGNED WIDGET-ID 200
+     bOk AT ROW 19.19 COL 3 WIDGET-ID 342
+     bCancel AT ROW 19.19 COL 132.6 WIDGET-ID 356
+     fiItem AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
+     fiItem-2 AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
+     fiItem-3 AT ROW 1.67 COL 90.4 NO-LABEL WIDGET-ID 350
+     fiItem-4 AT ROW 1.67 COL 116.2 NO-LABEL WIDGET-ID 354
+     estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
+     calculationQuantity AT ROW 1.91 COL 36.2 NO-LABEL WIDGET-ID 346
+     custNo AT ROW 1.91 COL 76 NO-LABEL WIDGET-ID 348
+     custName AT ROW 1.91 COL 108 NO-LABEL WIDGET-ID 352
+     RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 17.71
+         SIZE 149.8 BY 19.76
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -158,7 +228,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Estimate cost material"
-         HEIGHT             = 17.71
+         HEIGHT             = 19.76
          WIDTH              = 149.8
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 199.8
@@ -187,11 +257,39 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB brEstCostMaterial 1 DEFAULT-FRAME */
+/* BROWSE-TAB brEstCostMaterial RECT-13 DEFAULT-FRAME */
 /* SETTINGS FOR BROWSE brEstCostMaterial IN FRAME DEFAULT-FRAME
    ALIGN-R                                                              */
 ASSIGN 
        brEstCostMaterial:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+/* SETTINGS FOR FILL-IN calculationQuantity IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN custName IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN custNo IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN estimate IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiItem IN FRAME DEFAULT-FRAME
+   ALIGN-L                                                              */
+ASSIGN 
+       fiItem:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiItem-2 IN FRAME DEFAULT-FRAME
+   ALIGN-L                                                              */
+ASSIGN 
+       fiItem-2:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiItem-3 IN FRAME DEFAULT-FRAME
+   ALIGN-L                                                              */
+ASSIGN 
+       fiItem-3:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiItem-4 IN FRAME DEFAULT-FRAME
+   ALIGN-L                                                              */
+ASSIGN 
+       fiItem-4:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -244,9 +342,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME bCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
+ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Calculate */
+DO:
+    APPLY 'CLOSE' TO THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME bOk
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bOk C-Win
-ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Select Vendor */
+ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Choose Vendor */
 DO:
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -330,6 +439,9 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 {methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
+
+bOk:LOAD-IMAGE("Graphics/32x32/choosevendor.png").
+bCancel:LOAD-IMAGE("Graphics/32x32/calculate.png").
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -394,7 +506,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE brEstCostMaterial bOk 
+  DISPLAY fiItem fiItem-2 fiItem-3 fiItem-4 estimate calculationQuantity custNo 
+          custName 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiItem fiItem-2 fiItem-3 
+         fiItem-4 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
