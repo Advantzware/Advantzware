@@ -81,10 +81,10 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
     ~{&OPEN-QUERY-brEstCostMaterial}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel fiItem ~
-fiItem-2 fiItem-3 fiItem-4 
-&Scoped-Define DISPLAYED-OBJECTS fiItem fiItem-2 fiItem-3 fiItem-4 estimate ~
-calculationQuantity custNo custName 
+&Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
+fiEstimatNo fiCalculationquantity fiCustomerNo fiName 
+&Scoped-Define DISPLAYED-OBJECTS fiEstimatNo fiCalculationquantity ~
+fiCustomerNo fiName estimate calculationQuantity custNo custName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -106,7 +106,7 @@ DEFINE BUTTON bCancel
 
 DEFINE BUTTON bOk 
      LABEL "Choose Vendor" 
-     SIZE 17.60 BY 1.38.
+     SIZE 17.6 BY 1.38.
 
 DEFINE VARIABLE calculationQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Calculation Quantity:" 
       VIEW-AS TEXT 
@@ -128,22 +128,22 @@ DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:"
      SIZE 12.6 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 17.2 BY 1.1
-     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
-
-DEFINE VARIABLE fiItem-2 AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiCalculationquantity AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 14.2 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiItem-3 AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiCustomerNo AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 16.8 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiItem-4 AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEstimatNo AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 17.2 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiName AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 30.4 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
@@ -195,10 +195,10 @@ DEFINE FRAME DEFAULT-FRAME
      brEstCostMaterial AT ROW 3.67 COL 148.6 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 19.19 COL 3 WIDGET-ID 342
      bCancel AT ROW 19.19 COL 132.6 WIDGET-ID 356
-     fiItem AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
-     fiItem-2 AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
-     fiItem-3 AT ROW 1.67 COL 90.4 NO-LABEL WIDGET-ID 350
-     fiItem-4 AT ROW 1.67 COL 116.2 NO-LABEL WIDGET-ID 354
+     fiEstimatNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
+     fiCalculationquantity AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
+     fiCustomerNo AT ROW 1.67 COL 90.4 NO-LABEL WIDGET-ID 350
+     fiName AT ROW 1.67 COL 116.2 NO-LABEL WIDGET-ID 354
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
      calculationQuantity AT ROW 1.91 COL 36.2 NO-LABEL WIDGET-ID 346
      custNo AT ROW 1.91 COL 76 NO-LABEL WIDGET-ID 348
@@ -271,25 +271,25 @@ ASSIGN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN estimate IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN fiItem IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiCalculationquantity IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
-       fiItem:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiCalculationquantity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiItem-2 IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiCustomerNo IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
-       fiItem-2:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiCustomerNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiItem-3 IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiEstimatNo IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
-       fiItem-3:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiEstimatNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiItem-4 IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiName IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
-       fiItem-4:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiName:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -450,6 +450,8 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -457,7 +459,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     RUN enable_UI.
+    FOR FIRST estCostHeader WHERE estCostHeader.estCostHeaderID = ipiEstCostHeaderID:
+        ASSIGN
+            fiEstimatNo:SCREEN-VALUE           = estCostHeader.estimateNo
+            fiCalculationquantity:SCREEN-VALUE = STRING(estCostHeader.quantityMaster)
+            .
 
+    END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -506,11 +514,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiItem fiItem-2 fiItem-3 fiItem-4 estimate calculationQuantity custNo 
-          custName 
+  DISPLAY fiEstimatNo fiCalculationquantity fiCustomerNo fiName estimate 
+          calculationQuantity custNo custName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiItem fiItem-2 fiItem-3 
-         fiItem-4 
+  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimatNo 
+         fiCalculationquantity fiCustomerNo fiName 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
