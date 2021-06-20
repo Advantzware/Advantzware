@@ -24,11 +24,11 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-DEFINE INPUT PARAMETER iprRowid2 AS ROWID NO-UNDO.
-DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplFirstRow AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opRowid AS ROWID NO-UNDO .
+DEFINE INPUT  PARAMETER iprRowid    AS ROWID     NO-UNDO.
+DEFINE INPUT  PARAMETER iprRowid2   AS ROWID     NO-UNDO.
+DEFINE INPUT  PARAMETER ipcType     AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplFirstRow AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opRowid     AS ROWID     NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -36,9 +36,10 @@ DEFINE OUTPUT PARAMETER opRowid AS ROWID NO-UNDO .
 {methods/defines/globdefs.i}
 DEFINE BUFFER b-prgrms FOR prgrms.
 DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
-DEFINE VARIABLE v-count    AS INTEGER NO-UNDO.
-DEFINE VARIABLE k_frac     AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE VARIABLE period_pos   AS INTEGER           NO-UNDO.
+DEFINE VARIABLE v-count      AS INTEGER           NO-UNDO.
+DEFINE VARIABLE k_frac       AS DECIMAL           NO-UNDO INIT 6.25.
+DEFINE VARIABLE dMaxQty      AS DECIMAL           NO-UNDO INIT 9999999999.999999.
 
 DEFINE BUFFER bff-e-itemfg-vend FOR e-itemfg-vend .
 
@@ -57,7 +58,6 @@ ELSE
 {custom/gcompany.i}  
 
 gcompany = cocode.
-
 
 {sys/inc/f16to32.i}
 
@@ -114,10 +114,10 @@ RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_BestCost Btn_OK dFrom dBase dEaCost1 ~
-dSetup1 dDev1 Btn_Cancel dTo cDevLabel iLeadTime RECT-21 
-&Scoped-Define DISPLAYED-OBJECTS tb_BestCost dFrom dBase dEaCost1 dSetup1 ~
-dDev1 dTo cDevLabel cPriceUom iLeadTime 
+&Scoped-Define ENABLED-OBJECTS tb_MaxQty Btn_Cancel Btn_OK tb_BestCost dFrom ~
+dBase dEaCost1 dSetup1 dDev1 dTo cDevLabel iLeadTime RECT-21 
+&Scoped-Define DISPLAYED-OBJECTS tb_MaxQty tb_BestCost dFrom dBase dEaCost1 ~
+dSetup1 dDev1 dTo cDevLabel cPriceUom iLeadTime 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -135,13 +135,13 @@ dDev1 dTo cDevLabel cPriceUom iLeadTime
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 10 BY 1.91
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&Ok" 
-     SIZE 10 BY 1.91
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
 
 DEFINE VARIABLE cDevLabel AS CHARACTER FORMAT "x(9)":U INITIAL "Deviation" 
@@ -155,9 +155,9 @@ DEFINE VARIABLE cPriceUom AS CHARACTER FORMAT "x(3)":U
      SIZE 12.6 BY 1
      BGCOLOR 15 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE dBase AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dBase AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16.6 BY 1
+     SIZE 25 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dDev1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
@@ -172,7 +172,7 @@ DEFINE VARIABLE dEaCost1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0
 
 DEFINE VARIABLE dFrom AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 18.6 BY 1
+     SIZE 25.4 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dSetup1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
@@ -180,9 +180,9 @@ DEFINE VARIABLE dSetup1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0
      SIZE 18.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dTo AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0 
+DEFINE VARIABLE dTo AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0.000000 
      VIEW-AS FILL-IN 
-     SIZE 18.6 BY 1
+     SIZE 24.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE iLeadTime AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
@@ -192,17 +192,23 @@ DEFINE VARIABLE iLeadTime AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 8.57
+     SIZE 79 BY 9.05
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 21.8 BY 2.38.
+     SIZE 17.8 BY 2.29.
+
+DEFINE VARIABLE tb_MaxQty AS LOGICAL INITIAL no 
+     LABEL "Max Quantity" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81
+     FONT 1 NO-UNDO.
 
 DEFINE VARIABLE tb_BestCost AS LOGICAL INITIAL no 
      LABEL "Use For Best Cost" 
      VIEW-AS TOGGLE-BOX
-     SIZE 32 BY .81
+     SIZE 23 BY .81
      FONT 6.
 
 /* Query definitions                                                    */
@@ -214,31 +220,32 @@ DEFINE QUERY D-Dialog FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     tb_BestCost AT ROW 8.52 COL 21.2 WIDGET-ID 386
-     Btn_OK AT ROW 10.14 COL 39
-     dFrom AT ROW 3.76 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     tb_MaxQty AT ROW 4.81 COL 3 WIDGET-ID 388
+     Btn_Cancel AT ROW 10.67 COL 72
+     Btn_OK AT ROW 10.67 COL 64
+     tb_BestCost AT ROW 9.1 COL 29 WIDGET-ID 386
+     dFrom AT ROW 3.86 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 218
      dBase AT ROW 3.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
-     dEaCost1 AT ROW 6.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
-     dSetup1 AT ROW 6.19 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 276
-     dDev1 AT ROW 6.19 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 360
-     Btn_Cancel AT ROW 10.14 COL 49
-     dTo AT ROW 3.76 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 380
-     cDevLabel AT ROW 5.19 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 288
-     cPriceUom AT ROW 1.48 COL 38.2 COLON-ALIGNED
-     iLeadTime AT ROW 8.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 382
+     dEaCost1 AT ROW 6.76 COL 3 NO-LABEL WIDGET-ID 266
+     dSetup1 AT ROW 6.76 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 276
+     dDev1 AT ROW 6.76 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     dTo AT ROW 3.86 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 380
+     cDevLabel AT ROW 5.76 COL 53 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     cPriceUom AT ROW 1.48 COL 53 COLON-ALIGNED
+     iLeadTime AT ROW 9.05 COL 3 NO-LABEL WIDGET-ID 382
      "Quantity Range" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 2.76 COL 31.4 WIDGET-ID 242
      "Quantity Base" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
      "Cost Per" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 5.19 COL 3 WIDGET-ID 264
+          SIZE 12 BY 1 AT ROW 5.76 COL 3 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 5.19 COL 22.2 WIDGET-ID 278
+          SIZE 12 BY 1 AT ROW 5.76 COL 29 WIDGET-ID 278
      "Lead Time" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 7.48 COL 3 WIDGET-ID 384
+          SIZE 12 BY 1 AT ROW 8.05 COL 3 WIDGET-ID 384
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 82
-     RECT-21 AT ROW 9.91 COL 38
-     SPACE(0.20) SKIP(0.56)
+     RECT-21 AT ROW 10.52 COL 63
+     SPACE(0.19) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -278,6 +285,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN cPriceUom IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN dEaCost1 IN FRAME D-Dialog
+   ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN iLeadTime IN FRAME D-Dialog
+   ALIGN-L                                                              */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -436,6 +447,22 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_MaxQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_MaxQty D-Dialog
+ON VALUE-CHANGED OF tb_MaxQty IN FRAME D-Dialog /* Max Quantity */
+DO:
+    ASSIGN {&SELF-NAME}.
+    IF {&SELF-NAME} THEN
+    ASSIGN
+        dBase:SCREEN-VALUE = STRING(dMaxQty)
+        dTo:SCREEN-VALUE   = STRING(dMaxQty)
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
@@ -447,8 +474,6 @@ DO:
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
-    /*{src/adm/template/dialogmn.i}*/
 
     RUN enable_UI.
 
@@ -529,11 +554,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb_BestCost dFrom dBase dEaCost1 dSetup1 dDev1 dTo cDevLabel cPriceUom 
-          iLeadTime 
+  DISPLAY tb_MaxQty tb_BestCost dFrom dBase dEaCost1 dSetup1 dDev1 dTo cDevLabel 
+          cPriceUom iLeadTime 
       WITH FRAME D-Dialog.
-  ENABLE tb_BestCost Btn_OK dFrom dBase dEaCost1 dSetup1 dDev1 Btn_Cancel dTo 
-         cDevLabel iLeadTime RECT-21 
+  ENABLE tb_MaxQty Btn_Cancel Btn_OK tb_BestCost dFrom dBase dEaCost1 dSetup1 
+         dDev1 dTo cDevLabel iLeadTime RECT-21 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -591,13 +616,13 @@ PROCEDURE pCreateValues :
      
     DO WITH FRAME {&frame-name}:        
         CREATE vendItemCostLevel .
-        ASSIGN vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
-        ASSIGN 
-            vendItemCostLevel.quantityBase    = DECIMAL(dBase:SCREEN-VALUE)  
-            vendItemCostLevel.costPerUOM    = DECIMAL(dEaCost1:SCREEN-VALUE) 
-            vendItemCostLevel.costSetup     = DECIMAL(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = DECIMAL(dDev1:SCREEN-VALUE)
-            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE)
+        ASSIGN
+            vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID
+            vendItemCostLevel.quantityBase   = DECIMAL(dBase:SCREEN-VALUE)  
+            vendItemCostLevel.costPerUOM     = DECIMAL(dEaCost1:SCREEN-VALUE) 
+            vendItemCostLevel.costSetup      = DECIMAL(dSetup1:SCREEN-VALUE)
+            vendItemCostLevel.costDeviation  = DECIMAL(dDev1:SCREEN-VALUE)
+            vendItemCostLevel.leadTimeDays   = INTEGER(iLeadTime:SCREEN-VALUE)
             vendItemCostLevel.useForBestCost = LOGICAL(tb_BestCost:SCREEN-VALUE)
             . 
     END.
@@ -617,10 +642,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
 PROCEDURE pDisplayValue :
 /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
     DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO. 
     DEFINE VARIABLE dQuantityTo   AS DECIMAL NO-UNDO.
       
@@ -634,19 +659,19 @@ PROCEDURE pDisplayValue :
         FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
         
         FIND FIRST vendItemCostLevel WHERE ROWID(vendItemCostLevel) EQ iprRowid2 NO-LOCK NO-ERROR  .
-        IF AVAIL vendItemCostLevel THEN DO:
+        IF AVAIL vendItemCostLevel THEN
              ASSIGN 
-                dFrom:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityFrom)
-                dTo:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                dBase:SCREEN-VALUE  = STRING(vendItemCostLevel.quantityBase)
-                dEaCost1:SCREEN-VALUE = STRING(vendItemCostLevel.costPerUOM)
-                dSetup1:SCREEN-VALUE  = STRING(vendItemCostLevel.costSetup)
-                dDev1:SCREEN-VALUE    = STRING(vendItemCostLevel.costDeviation)
-                cPriceUom:SCREEN-VALUE = vendItemCost.vendorUOM 
-                iLeadTime:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                dFrom:SCREEN-VALUE       = STRING(vendItemCostLevel.quantityFrom)
+                dTo:SCREEN-VALUE         = STRING(vendItemCostLevel.quantityTo)
+                dBase:SCREEN-VALUE       = STRING(vendItemCostLevel.quantityBase)
+                dEaCost1:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)
+                dSetup1:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)
+                dDev1:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                cPriceUom:SCREEN-VALUE   = vendItemCost.vendorUOM 
+                iLeadTime:SCREEN-VALUE   = STRING(vendItemCostLevel.leadTimeDays)
                 tb_BestCost:SCREEN-VALUE = STRING(vendItemCostLevel.useForBestCost)
+                tb_MaxQty:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo EQ dMaxQty)
                 .
-        END.        
         IF ipcType EQ "Copy" THEN
             dBase:SCREEN-VALUE  = "0" .
       DISABLE dFrom dTo cDevLabel.
@@ -655,7 +680,7 @@ PROCEDURE pDisplayValue :
               dDev1:HIDDEN = TRUE
               cDevLabel:HIDDEN = TRUE .
       IF ipcType EQ "View" THEN
-          DISABLE dFrom dTo dBase dEaCost1 dSetup1 dDev1 iLeadTime tb_BestCost.
+          DISABLE dFrom dTo dBase dEaCost1 dSetup1 dDev1 iLeadTime tb_BestCost tb_MaxQty.
         
       opRowid = iprRowid2 .
     END.
