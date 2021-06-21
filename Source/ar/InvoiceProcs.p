@@ -332,10 +332,12 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 .
             
             IF ttInvLine.isMisc THEN
-                ttInvLine.pricePerEach = IF bf-ar-invl.inv-qty EQ 0 THEN 
-                                             bf-ar-invl.amt
-                                         ELSE
-                                             (bf-ar-invl.amt / bf-ar-invl.inv-qty).
+                ASSIGN
+                    ttInvLine.quantityInvoiced = 1
+                    ttInvLine.pricePerEach     = IF bf-ar-invl.inv-qty EQ 0 THEN 
+                                                     bf-ar-invl.amt
+                                                 ELSE
+                                                     (bf-ar-invl.amt / bf-ar-invl.inv-qty).
             ELSE
                 ttInvLine.pricePerEach = (bf-ar-invl.amt / bf-ar-invl.inv-qty).
             
