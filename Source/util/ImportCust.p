@@ -418,8 +418,9 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.tagStatus = "".
     ELSE IF ipbf-ttImportCust.tagStatus EQ "Only on Hold tags" THEN 
         ipbf-ttImportCust.tagStatus = "H".
-    ELSE ipbf-ttImportCust.tagStatus = "A".          
-       
+    ELSE ipbf-ttImportCust.tagStatus = "A". 
+    
+    DELETE OBJECT hdValidator.   
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
@@ -615,20 +616,21 @@ PROCEDURE pAddNote:
     DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER.
-
+    DEFINE BUFFER bf-notes FOR notes.
+    
     IF ipcText NE "" THEN 
     DO:
-        CREATE notes.
+        CREATE bf-notes.
         ASSIGN
-            notes.rec_key    = ipcRecKey
-            notes.note_date  = TODAY
-            notes.note_time  = TIME
-            notes.note_text  = ipcText
-            notes.note_title = ipcTitle
-            notes.note_code  = ipcCode
-            notes.user_id    = "asi"
-            notes.note_type  = ipcType
+            bf-notes.rec_key    = ipcRecKey
+            bf-notes.note_date  = TODAY
+            bf-notes.note_time  = TIME
+            bf-notes.note_text  = ipcText
+            bf-notes.note_title = ipcTitle
+            bf-notes.note_code  = ipcCode
+            bf-notes.user_id    = "asi"
+            bf-notes.note_type  = ipcType
             .                    
     END.                           
-
+    RELEASE bf-notes.
 END PROCEDURE.
