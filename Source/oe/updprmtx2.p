@@ -150,7 +150,8 @@ IF AVAIL quotehd THEN DO:
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
-       quotehd.approved = YES.
+       quotehd.approved = YES
+       quotehd.expireDate = 12/31/99.
        IF dtEffectiveDate EQ ? THEN
        quotehd.effectiveDate = TODAY.
        RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
