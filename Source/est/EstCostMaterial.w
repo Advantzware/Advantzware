@@ -130,7 +130,7 @@ DEFINE VARIABLE fiEstimatNo AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 148 BY 2.14
+     SIZE 77 BY 2.14
      BGCOLOR 23 FGCOLOR 24 .
 
 /* Query definitions                                                    */
@@ -144,37 +144,37 @@ DEFINE BROWSE brEstCostMaterial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
   QUERY brEstCostMaterial NO-LOCK DISPLAY
       estCostMaterial.formNo                    COLUMN-LABEL "Form"       
-            LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14    FORMAT '>9'
       estCostMaterial.blankNo                   COLUMN-LABEL "Blank"    
-             LABEL-BGCOLOR 14  
+             LABEL-BGCOLOR 14   FORMAT ">9"
       estCostMaterial.itemID                    COLUMN-LABEL "Item ID"  
-             LABEL-BGCOLOR 14   
+             LABEL-BGCOLOR 14   FORMAT "x(20)" 
       estCostMaterial.vendorID                  COLUMN-LABEL "Current Vendor" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "x(10)"
       estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
       estCostMaterial.quantityRequiredTotalInCUOM COLUMN-LABEL "Quantity UOM" 
-             LABEL-BGCOLOR 14  
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
       estCostMaterial.costUOM                   COLUMN-LABEL "Cost UOM"        
-             LABEL-BGCOLOR 14          
+             LABEL-BGCOLOR 14   FORMAT "x(5)"          
       estCostMaterial.costSetup                 COLUMN-LABEL "Setup Cost"        
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
       estCostMaterial.costTotal                COLUMN-LABEL "Total Cost" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 147.4 BY 15.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 169.8 BY 15.19
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     brEstCostMaterial AT ROW 3.67 COL 148.6 RIGHT-ALIGNED WIDGET-ID 200
+     brEstCostMaterial AT ROW 3.67 COL 171 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 19.19 COL 3 WIDGET-ID 342
-     bCancel AT ROW 19.19 COL 132.6 WIDGET-ID 356
+     bCancel AT ROW 19.19 COL 155.8 WIDGET-ID 356
      fiEstimatNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      fiCalculationquantity AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
@@ -183,7 +183,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 19.76
+         SIZE 171.8 BY 19.76
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -205,7 +205,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Estimate cost material"
          HEIGHT             = 19.76
-         WIDTH              = 149.8
+         WIDTH              = 171.8
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
@@ -323,8 +323,7 @@ DO:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
-    
-    DEFINE VARIABLE gcScopePOEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - PO Estimated". 
+     
     IF AVAILABLE estCostMaterial THEN
     RUN system/vendorcostSelector.w(
      INPUT  estCostMaterial.company, //ipcCompany ,
@@ -439,8 +438,13 @@ END.
 {methods/sortByProc.i "pByBlankNo" "estCostMaterial.blankNo"}
 {methods/sortByProc.i "pByItemID" "estCostMaterial.itemID"}
 {methods/sortByProc.i "pByVendorID" "estCostMaterial.vendorID"}
+{methods/sortByProc.i "pByQuantityRequiredTotal" "estCostMaterial.quantityRequiredTotal"}
+{methods/sortByProc.i "pByQuantityRequiredTotalInCUOM" "estCostMaterial.quantityRequiredTotalInCUOM"}
 {methods/sortByProc.i "pByCostPerUOM" "estCostMaterial.costPerUOM"}
+{methods/sortByProc.i "pByCostUOM" "estCostMaterial.costUOM"}
 {methods/sortByProc.i "pByCostSetup" "estCostMaterial.costSetup"}
+{methods/sortByProc.i "pByCostTotal" "estCostMaterial.costTotal"}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -505,10 +509,18 @@ PROCEDURE pReOpenBrowse :
             RUN pByItemID.
         WHEN "vendorID" THEN
             RUN pByVendorID.
+        WHEN "quantityRequiredTotal" THEN
+            RUN pByQuantityRequiredTotal.
+        WHEN "quantityRequiredTotalInCUOM" THEN
+            RUN pByQuantityRequiredTotalInCUOM.
         WHEN "costPerUOM" THEN
             RUN pByCostPerUOM.
+        WHEN "costUOM" THEN
+            RUN pByCostUOM.
         WHEN "costSetup" THEN
-            RUN pByCostSetup.       
+            RUN pByCostSetup.
+        WHEN "costTotal" THEN
+            RUN pByCostTotal.       
         OTHERWISE
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.

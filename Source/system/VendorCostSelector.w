@@ -81,11 +81,11 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -174,7 +174,7 @@ DEFINE VARIABLE lQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity Requi
 
 DEFINE VARIABLE lShow AS CHARACTER FORMAT "X(256)":U INITIAL "Show All" 
       VIEW-AS TEXT 
-     SIZE 27.4 BY .62
+     SIZE 11.2 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE lSize AS CHARACTER FORMAT "X(256)":U INITIAL "Size:" 
@@ -194,7 +194,7 @@ DEFINE VARIABLE x-2 AS CHARACTER FORMAT "X(256)":U INITIAL "X"
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 147 BY 3.81
+     SIZE 157 BY 3.81
      BGCOLOR 23 FGCOLOR 24 .
 
 DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL NO 
@@ -213,42 +213,46 @@ DEFINE QUERY brVendItemCost FOR
 DEFINE BROWSE brVendItemCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brVendItemCost C-Win _FREEFORM
   QUERY brVendItemCost NO-LOCK DISPLAY
-      ttVendItemCost.vendorID       COLUMN-LABEL "Vendor ID"       
-            LABEL-BGCOLOR 14
+      ttVendItemCost.vendorID           COLUMN-LABEL "Vendor ID"       
+            LABEL-BGCOLOR 14    FORMAT "x(10)"
       ttvendItemCost.estimateNo +  
         (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
         (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) ))   COLUMN-LABEL "Estimate" 
-      ttVendItemCost.costPerVendorUOM    COLUMN-LABEL "Cost"    
-             LABEL-BGCOLOR 14  
+      ttVendItemCost.costPerVendorUOM   COLUMN-LABEL "Cost"    
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
-             LABEL-BGCOLOR 14   
+             LABEL-BGCOLOR 14   FORMAT "x(5)"    
       ttVendItemCost.costSetup    COLUMN-LABEL "Setup" 
-             LABEL-BGCOLOR 14
-      ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99" 
+     /* ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
+             LABEL-BGCOLOR 14*/
       ttVendItemCost.costTotal      COLUMN-LABEL "Total Cost"        
-             LABEL-BGCOLOR 14
-      ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   FORMAT "x(32)":U
-             LABEL-BGCOLOR 14 
+             LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99" 
+      ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   
+             LABEL-BGCOLOR 14   FORMAT "x(15)"  
+      ttVendItemCost.effectiveDate      COLUMN-LABEL "Effective"        
+             LABEL-BGCOLOR 14   FORMAT "99/99/9999" 
+      ttVendItemCost.expirationDate COLUMN-LABEL "Expiration"   
+             LABEL-BGCOLOR 14   FORMAT "99/99/9999"  
       ttVendItemCost.isValid      COLUMN-LABEL "Valid"        
-             LABEL-BGCOLOR 14
-      ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"   FORMAT "x(32)":U
-             LABEL-BGCOLOR 14 
+             LABEL-BGCOLOR 14   FORMAT "Yes/No" 
+      ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"  
+             LABEL-BGCOLOR 14   FORMAT "x(100)"  
           //  ttVendItemCost.note COLUMN-LABEL "Note"   FORMAT "x(32)":U
            // WIDTH 24 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 147.4 BY 15.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 15.19
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     tbShowAll AT ROW 3.62 COL 116.2 WIDGET-ID 336
-     brVendItemCost AT ROW 5.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
-     bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
-     bCancel AT ROW 21.05 COL 75.2 WIDGET-ID 344
+     tbShowAll AT ROW 3.62 COL 141 WIDGET-ID 336
+     brVendItemCost AT ROW 5.29 COL 159 RIGHT-ALIGNED WIDGET-ID 200
+     bOk AT ROW 21.05 COL 61.6 WIDGET-ID 342
+     bCancel AT ROW 21.05 COL 85.6 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
      fiTitle AT ROW 1.86 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 332
      fiLen AT ROW 2.05 COL 47.6 COLON-ALIGNED NO-LABEL WIDGET-ID 348
@@ -262,12 +266,12 @@ DEFINE FRAME DEFAULT-FRAME
      fiQuantity AT ROW 3.38 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      fiUOM AT ROW 3.38 COL 46.8 COLON-ALIGNED NO-LABEL WIDGET-ID 358
      lQuantity AT ROW 3.67 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-     lShow AT ROW 3.71 COL 119.8 NO-LABEL WIDGET-ID 338
+     lShow AT ROW 3.71 COL 144.6 NO-LABEL WIDGET-ID 338
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 21.81
+         SIZE 161.2 BY 21.81
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -289,7 +293,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Vendor Selector"
          HEIGHT             = 21.81
-         WIDTH              = 149.8
+         WIDTH              = 161.2
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
@@ -468,24 +472,12 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
-ON VALUE-CHANGED OF brVendItemCost IN FRAME DEFAULT-FRAME
-DO:
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME tbShowAll
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbShowAll C-Win
 ON VALUE-CHANGED OF tbShowAll IN FRAME DEFAULT-FRAME
 DO:
-    IF tbShowAll:CHECKED THEN 
     {&OPEN-QUERY-brVendItemCost}
-    ELSE 
-    OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,11 +543,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiQuantity:SCREEN-VALUE = STRING(ipdQuantity)
         fiUOM:SCREEN-VALUE      = ipcQuantityUOM
         .
-    
-    IF tbShowAll:CHECKED THEN 
-        {&OPEN-QUERY-brVendItemCost}
-    ELSE 
-        OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
+ 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -563,9 +551,13 @@ END.
 &Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
+{methods/sortByProc.i "pByVendorUOM" "ttVendItemCost.vendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
 {methods/sortByProc.i "pBycostTotal" "ttVendItemCost.costTotal"}
 {methods/sortByProc.i "pByVendorItem" "ttVendItemCost.vendorItem"}
+{methods/sortByProc.i "pByEffectiveDate" "ttVendItemCost.effectiveDate"}
+{methods/sortByProc.i "pByExpirationDate" "ttVendItemCost.expirationDate"}
+{methods/sortByProc.i "pByIsValid" "ttVendItemCost.isValid"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -628,12 +620,20 @@ PROCEDURE pReOpenBrowse :
             RUN pByVendorID.
         WHEN "costPerVendorUOM" THEN
             RUN pByCostPerVendorUOM.
+        WHEN "vendorUOM" THEN
+            RUN pByVendorUOM.
         WHEN "costSetup" THEN
             RUN pByCostSetup.
         WHEN "costTotal" THEN
             RUN pBycostTotal.
         WHEN "vendorItem" THEN
-            RUN pByVendorItem.       
+            RUN pByVendorItem.
+        WHEN "effectiveDate" THEN
+            RUN pByEffectiveDate.
+        WHEN "expirationDate" THEN
+            RUN pByExpirationDate.
+        WHEN "isValid" THEN
+            RUN pByIsValid.       
         OTHERWISE
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.
