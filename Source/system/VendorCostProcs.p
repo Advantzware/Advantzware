@@ -1073,6 +1073,8 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-ttVendItemCost FOR ttVendItemCost.
+    
     CREATE ttVendItemCost.
     BUFFER-COPY ipbf-vendItemCost TO ttVendItemCost.
     ASSIGN 
@@ -1153,6 +1155,18 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
                 ttVendItemCost.isValid        = NO 
                 ttVendItemCost.reasonNotValid = opcMessage
                 .
+    END.
+    FOR EACH bf-ttVendItemCost 
+        WHERE bf-ttVendItemCost.company EQ ipbf-vendItemCost.company
+        AND bf-ttVendItemCost.itemID EQ ipbf-vendItemCost.itemID
+        AND bf-ttVendItemCost.vendorID EQ ipbf-vendItemCost.vendorID
+        AND bf-ttVendItemCost.estimateNo EQ ipbf-vendItemCost.estimateNo
+        AND bf-ttVendItemCost.formNo EQ ipbf-vendItemCost.formNo
+        AND bf-ttVendItemCost.blankNo EQ ipbf-vendItemCost.blankNo
+        AND bf-ttVendItemCost.effectiveDate LT ipbf-vendItemCost.effectiveDate 
+        :
+        bf-ttVendItemCost.reasonNotValid = "Not Recent".
+        bf-ttVendItemCost.isValid = NO.          
     END.
 
 END PROCEDURE.
