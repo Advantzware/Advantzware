@@ -777,7 +777,6 @@ DO:
    IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag THEN RETURN.
    ASSIGN
         lv-do-leave-tag = NO
-        lCheckTagHoldMessage = NO
         .
 
    FIND FIRST oe-relh
@@ -3695,7 +3694,7 @@ PROCEDURE validate-tag-status :
        RETURN .
     END.     
   
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" 
     THEN DO:        
         IF lTagStatusOnHold THEN DO:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
@@ -3704,9 +3703,7 @@ PROCEDURE validate-tag-status :
               APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
               oplReturnError = YES .
           END.
-          ELSE lCheckTagHoldMessage = YES.
         END.
-        
     END.      
   END.
 
