@@ -186,8 +186,7 @@ PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplExpire         AS LOGICAL   NO-UNDO.
+------------------------------------------------------------------------------*/    
     DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID         AS CHARACTER NO-UNDO.
@@ -244,9 +243,10 @@ PROCEDURE pExpireOldPrices PRIVATE:
           INPUT ipcShipID,
           INPUT ipcCustNo,
           INPUT ipcCustType
-          ).  
+          ).
+          
+      IF iplExpire THEN    
       RUN pCheckDuplicateQuoteEntry(
-                   INPUT iplExpire,
                    INPUT ipcCompany,
                    INPUT ipcItemID,
                    INPUT ipcShipID,
