@@ -143,10 +143,7 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
           AND oe-prmtx.i-no       EQ ipcItemID
           AND oe-prmtx.custype    EQ ipcCustType
           AND oe-prmtx.custShipID EQ ipcShipID:          
-          
-          IF NOT(oe-prmtx.exp-date EQ ? OR oe-prmtx.exp-date GT TODAY) THEN 
-            NEXT.             
-                      
+                                
         CREATE ttOePrmtx.        
         ASSIGN
             ttOePrmtx.company       = oe-prmtx.company       
@@ -218,11 +215,8 @@ PROCEDURE pExpireOldPrices PRIVATE:
           AND bf-oe-prmtx.custShipID EQ ipcShipID
           AND bf-oe-prmtx.procat     EQ ipcProcat         
           BY bf-oe-prmtx.eff-date
-          BY bf-oe-prmtx.exp-date:        
-            
-        IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
-            NEXT.
-                       
+          BY bf-oe-prmtx.exp-date:      
+                                                        
         ASSIGN 
             iCount = iCount + 1
             iCount1 = 0
@@ -276,7 +270,9 @@ PROCEDURE pExpireOldPrices PRIVATE:
                       
                 IF ttOeprmtx.effectiveDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
                     IF iplExpire THEN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate.
+                      ASSIGN 
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate
+                        bf-oe-prmtx.quoteID  = 0.
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate.                           
                 END.                 
