@@ -81,7 +81,7 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
@@ -96,9 +96,9 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancel ~
-fiItem fiWid fiDep fiTitle fiLen fiProgramName 
-&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiWid fiDep fiTitle fiLen ~
-lItem lSize x x-2 lAddress fiProgramName lQuantity lShow 
+fiItem fiTitle fiLen fiWid fiDep fiQuantity fiUOM 
+&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiLen fiWid fiDep lItem ~
+lSize x x-2 fiQuantity fiUOM lQuantity lShow 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,14 +137,19 @@ DEFINE VARIABLE fiLen AS CHARACTER FORMAT "X(256)":U
      SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiProgramName AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiQuantity AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 86.8 BY 1.1
+     SIZE 17.8 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiTitle AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 58.6 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiUOM AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 17.8 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiWid AS CHARACTER FORMAT "X(256)":U 
@@ -245,16 +250,17 @@ DEFINE FRAME DEFAULT-FRAME
      bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
      bCancel AT ROW 21.05 COL 75.2 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
-     fiWid AT ROW 1.86 COL 56.8 COLON-ALIGNED NO-LABEL WIDGET-ID 346
-     fiDep AT ROW 1.86 COL 65.6 COLON-ALIGNED NO-LABEL WIDGET-ID 350
      fiTitle AT ROW 1.86 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 332
-     fiLen AT ROW 1.91 COL 47.6 COLON-ALIGNED NO-LABEL WIDGET-ID 348
+     fiLen AT ROW 2.05 COL 47.6 COLON-ALIGNED NO-LABEL WIDGET-ID 348
+     fiWid AT ROW 2.05 COL 56.8 COLON-ALIGNED NO-LABEL WIDGET-ID 346
+     fiDep AT ROW 2.05 COL 65.6 COLON-ALIGNED NO-LABEL WIDGET-ID 350
      lItem AT ROW 2.1 COL 4.4 NO-LABEL WIDGET-ID 64
      lSize AT ROW 2.1 COL 41.6 COLON-ALIGNED NO-LABEL WIDGET-ID 326
      x AT ROW 2.1 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 354
      x-2 AT ROW 2.1 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 356
      lAddress AT ROW 2.1 COL 74.8 NO-LABEL WIDGET-ID 328
-     fiProgramName AT ROW 3.38 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiQuantity AT ROW 3.38 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiUOM AT ROW 3.38 COL 46.8 COLON-ALIGNED NO-LABEL WIDGET-ID 358
      lQuantity AT ROW 3.67 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
      lShow AT ROW 3.71 COL 119.8 NO-LABEL WIDGET-ID 338
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
@@ -329,17 +335,22 @@ ASSIGN
        fiLen:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
-       fiProgramName:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiQuantity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiTitle IN FRAME DEFAULT-FRAME
+   NO-DISPLAY                                                           */
 ASSIGN 
        fiTitle:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
        fiTitle:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
+       fiUOM:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+ASSIGN 
        fiWid:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN lAddress IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
 ASSIGN 
        lAddress:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
@@ -460,17 +471,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
 ON VALUE-CHANGED OF brVendItemCost IN FRAME DEFAULT-FRAME
 DO:
-  FOR FIRST estCostMaterial NO-LOCK 
-    WHERE estCostMaterial.company = ttVendItemCost.company
-    AND   estCostMaterial.estimateNo = ttvendItemCost.estimateNo
-    AND   estCostMaterial.formNo = ttvendItemCost.formNo
-    AND   estCostMaterial.blankNo = ttvendItemCost.blankNo:
-        ASSIGN
-            fiLen:SCREEN-VALUE = STRING(estCostMaterial.dimLength)
-            fiWid:SCREEN-VALUE = STRING(estCostMaterial.dimWidth)
-            fiDep:SCREEN-VALUE = STRING(estCostMaterial.dimDepth)
-            .
-   END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -541,7 +542,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
      
     RUN enable_UI.
-    fiItem:screen-value IN FRAME {&frame-name} = ipcItemID.
+
+    ASSIGN
+        fiItem:screen-value     = ipcItemID
+        fiLen:SCREEN-VALUE      = STRING(ipdDimLength)
+        fiWid:SCREEN-VALUE      = STRING(ipdDimWidth)
+        fiDep:SCREEN-VALUE      = STRING(ipdDimDepth)
+        fiQuantity:SCREEN-VALUE = STRING(ipdQuantity)
+        fiUOM:SCREEN-VALUE      = ipcQuantityUOM
+        .
+    
     IF tbShowAll:CHECKED THEN 
         {&OPEN-QUERY-brVendItemCost}
     ELSE 
@@ -593,11 +603,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbShowAll fiItem fiWid fiDep fiTitle fiLen lItem lSize x x-2 lAddress 
-          fiProgramName lQuantity lShow 
+  DISPLAY tbShowAll fiItem fiLen fiWid fiDep lItem lSize x x-2 fiQuantity fiUOM 
+          lQuantity lShow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiWid fiDep 
-         fiTitle fiLen fiProgramName 
+  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiTitle fiLen 
+         fiWid fiDep fiQuantity fiUOM 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

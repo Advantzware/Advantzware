@@ -67,7 +67,7 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 &Scoped-define INTERNAL-TABLES estCostMaterial
 
 /* Definitions for BROWSE brEstCostMaterial                             */
-&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityRequiredTotalInCUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
 &Scoped-define SELF-NAME brEstCostMaterial
 &Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
@@ -82,9 +82,9 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
-fiEstimatNo fiCalculationquantity fiCustomerNo fiName 
-&Scoped-Define DISPLAYED-OBJECTS fiEstimatNo fiCalculationquantity ~
-fiCustomerNo fiName estimate calculationQuantity custNo custName 
+fiEstimatNo fiCalculationquantity 
+&Scoped-Define DISPLAYED-OBJECTS fiEstimatNo fiCalculationquantity estimate ~
+calculationQuantity 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -113,16 +113,6 @@ DEFINE VARIABLE calculationQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Calc
      SIZE 24 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE custName AS CHARACTER FORMAT "X(256)":U INITIAL "Name:" 
-      VIEW-AS TEXT 
-     SIZE 8.2 BY .62
-     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
-
-DEFINE VARIABLE custNo AS CHARACTER FORMAT "X(256)":U INITIAL "Customer#:" 
-      VIEW-AS TEXT 
-     SIZE 14.2 BY .62
-     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
-
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
      SIZE 12.6 BY .62
@@ -133,19 +123,9 @@ DEFINE VARIABLE fiCalculationquantity AS CHARACTER FORMAT "X(256)":U
      SIZE 14.2 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiCustomerNo AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 16.8 BY 1.1
-     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
-
 DEFINE VARIABLE fiEstimatNo AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 17.2 BY 1.1
-     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
-
-DEFINE VARIABLE fiName AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 30.4 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE RECTANGLE RECT-13
@@ -173,7 +153,7 @@ DEFINE BROWSE brEstCostMaterial
              LABEL-BGCOLOR 14
       estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
              LABEL-BGCOLOR 14
-      estCostMaterial.quantityUOM               COLUMN-LABEL "Quantity UOM" 
+      estCostMaterial.quantityRequiredTotalInCUOM COLUMN-LABEL "Quantity UOM" 
              LABEL-BGCOLOR 14  
       estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
              LABEL-BGCOLOR 14
@@ -197,12 +177,8 @@ DEFINE FRAME DEFAULT-FRAME
      bCancel AT ROW 19.19 COL 132.6 WIDGET-ID 356
      fiEstimatNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      fiCalculationquantity AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
-     fiCustomerNo AT ROW 1.67 COL 90.4 NO-LABEL WIDGET-ID 350
-     fiName AT ROW 1.67 COL 116.2 NO-LABEL WIDGET-ID 354
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
      calculationQuantity AT ROW 1.91 COL 36.2 NO-LABEL WIDGET-ID 346
-     custNo AT ROW 1.91 COL 76 NO-LABEL WIDGET-ID 348
-     custName AT ROW 1.91 COL 108 NO-LABEL WIDGET-ID 352
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -265,10 +241,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN calculationQuantity IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN custName IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN custNo IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN estimate IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiCalculationquantity IN FRAME DEFAULT-FRAME
@@ -276,20 +248,10 @@ ASSIGN
 ASSIGN 
        fiCalculationquantity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiCustomerNo IN FRAME DEFAULT-FRAME
-   ALIGN-L                                                              */
-ASSIGN 
-       fiCustomerNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
-
 /* SETTINGS FOR FILL-IN fiEstimatNo IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
        fiEstimatNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
-
-/* SETTINGS FOR FILL-IN fiName IN FRAME DEFAULT-FRAME
-   ALIGN-L                                                              */
-ASSIGN 
-       fiName:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -360,7 +322,9 @@ DO:
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
-    DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated". 
+    DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+    
+    DEFINE VARIABLE gcScopePOEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - PO Estimated". 
     IF AVAILABLE estCostMaterial THEN
     RUN system/vendorcostSelector.w(
      INPUT  estCostMaterial.company, //ipcCompany ,
@@ -371,7 +335,7 @@ DO:
      INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
      INPUT  estCostMaterial.formNo, //ipiFormNo,
      INPUT  estCostMaterial.blankNo, //ipiBlankNo,
-     INPUT  0, //ipdQuantity ,
+     INPUT  estCostMaterial.quantityRequiredTotalInCUOM , //ipdQuantity ,
      INPUT  estCostMaterial.quantityUOM, //ipcQuantityUOM ,
      INPUT  estCostMaterial.dimLength, //ipdDimLength ,
      INPUT  estCostMaterial.dimWidth, //ipdDimWidth ,
@@ -514,11 +478,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiEstimatNo fiCalculationquantity fiCustomerNo fiName estimate 
-          calculationQuantity custNo custName 
+  DISPLAY fiEstimatNo fiCalculationquantity estimate calculationQuantity 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimatNo 
-         fiCalculationquantity fiCustomerNo fiName 
+         fiCalculationquantity 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
