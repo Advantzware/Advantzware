@@ -151,7 +151,7 @@ IF AVAIL quotehd THEN DO:
     DO:    
       ASSIGN
        quotehd.approved = YES
-       quotehd.expireDate = 12/31/99.
+       quotehd.expireDate = 12/31/2099.
        IF dtEffectiveDate EQ ? THEN
        quotehd.effectiveDate = TODAY.
        RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
