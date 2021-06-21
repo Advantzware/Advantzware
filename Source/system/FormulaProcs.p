@@ -522,7 +522,9 @@ PROCEDURE pAdjustSquareBoxFit:
     DEFINE VARIABLE cSizeFormat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCecScrnLog   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dSquareBoxFit AS DECIMAL   NO-UNDO.
-
+    DEFINE VARIABLE cChar         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iChar         AS INTEGER   NO-UNDO.
+    
     DEFINE BUFFER bf-reftable FOR reftable.
         
     RUN GetSizeFactor (
@@ -541,20 +543,21 @@ PROCEDURE pAdjustSquareBoxFit:
         IF AVAILABLE bf-reftable THEN 
             dSquareBoxFit = bf-reftable.val[1].        
     END.    
-
-    FIND FIRST ttPanel
-         WHERE ttPanel.cPanelType BEGINS "W"
-           AND ttPanel.iPanelNum  EQ 1
-         NO-ERROR.
-    IF AVAILABLE ttPanel THEN
-        ttPanel.dPanelSize = ttPanel.dPanelSize - dSquareBoxFit.
-        
+    
+    /* Subtract square fit score from all the panels that contains "W" in its panel formula */
     FOR EACH ttPanel
         WHERE ttPanel.cPanelType BEGINS "W"
         BY ttPanel.iPanelNum DESCENDING:
-        IF ttPanel.dPanelSize NE 0 THEN DO:
-            ttPanel.dPanelSize = ttPanel.dPanelSize - dSquareBoxFit.
-            LEAVE.
+        IF INDEX(ttPanel.cPanelFormula, "W") EQ 0 THEN
+            NEXT.
+            
+        DO iChar = 1 TO LENGTH(ttPanel.cPanelFormula):
+            cChar = SUBSTRING(ttPanel.cPanelFormula, iChar, 1).
+            IF cChar EQ "W" THEN 
+                ASSIGN
+                    ttPanel.dScoringAllowance = ttPanel.dScoringAllowance - dSquareBoxFit
+                    ttPanel.dPanelSize        = ttPanel.dPanelSize - dSquareBoxFit
+                    .
         END.
     END.
 END PROCEDURE.
