@@ -67,10 +67,9 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 Btn_Cancel ~
-btAPIIDLookup fiAPIId btClientIDLookup fiClientID btTriggerIDLookup btGo ~
-fiTriggerID 
-&Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel fiAPIId fiClientIDlb ~
-fiClientID fiAPITriggerIDLabel fiTriggerID fiPrimaryKeyLabel fiPrimaryKey ~
+btTriggerIDLookup btGo fiTriggerID edRequestData 
+&Scoped-Define DISPLAYED-OBJECTS fiAPITriggerIDLabel fiTriggerID ~
+fiAPIIDLabel fiAPIId fiClientIDlb fiClientID fiPrimaryKeyLabel fiPrimaryKey ~
 fiEventDescLabel edEventDesc fiMessage fiEndPointLabel edEndpoint ~
 fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
 fiErrorMessageLabel edErrorMessage 
@@ -159,7 +158,7 @@ DEFINE VARIABLE edResponseData AS LONGCHAR
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 43.6 BY 1
+     SIZE 44.2 BY 1
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
@@ -174,7 +173,7 @@ DEFINE VARIABLE fiAPITriggerIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Trig
 
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 35.6 BY 1
+     SIZE 28.2 BY 1
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiClientIDlb AS CHARACTER FORMAT "X(256)":U INITIAL "Client ID:" 
@@ -243,16 +242,16 @@ DEFINE RECTANGLE RECT-3
 
 DEFINE FRAME F-Main
      Btn_Cancel AT ROW 1.33 COL 140 WIDGET-ID 132
-     btAPIIDLookup AT ROW 1.67 COL 60.8 WIDGET-ID 46
-     fiAPIIDLabel AT ROW 1.71 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fiAPIId AT ROW 1.71 COL 14.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     btClientIDLookup AT ROW 1.71 COL 121.8 WIDGET-ID 122
-     fiClientIDlb AT ROW 1.76 COL 70.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     fiClientID AT ROW 1.76 COL 83.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     btTriggerIDLookup AT ROW 3 COL 60.8 WIDGET-ID 120
-     btGo AT ROW 3 COL 111.4 WIDGET-ID 118
-     fiAPITriggerIDLabel AT ROW 3.05 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 116
-     fiTriggerID AT ROW 3.05 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     btTriggerIDLookup AT ROW 1.52 COL 60.8 WIDGET-ID 120
+     btGo AT ROW 1.52 COL 66.6 WIDGET-ID 118
+     fiAPITriggerIDLabel AT ROW 1.57 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 116
+     fiTriggerID AT ROW 1.57 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     btAPIIDLookup AT ROW 2.95 COL 60.8 WIDGET-ID 46
+     btClientIDLookup AT ROW 2.95 COL 108.4 WIDGET-ID 122
+     fiAPIIDLabel AT ROW 3 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 3 COL 14.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     fiClientIDlb AT ROW 3 COL 65 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiClientID AT ROW 3 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      btUpdateRequest AT ROW 4.62 COL 103.4 WIDGET-ID 108
      btPrimaryKeyLookup AT ROW 4.76 COL 62.8 WIDGET-ID 112
      fiPrimaryKeyLabel AT ROW 4.81 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 102
@@ -331,6 +330,19 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btAPIIDLookup IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btAPIIDLookup:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR BUTTON btClientIDLookup IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btClientIDLookup:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       btGo:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR BUTTON btPrimaryKeyLookup IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btSubmit IN FRAME F-Main
@@ -349,16 +361,21 @@ ASSIGN
 
 /* SETTINGS FOR EDITOR edEventDesc IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR EDITOR edRequestData IN FRAME F-Main
-   NO-ENABLE                                                            */
+ASSIGN 
+       edRequestData:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR EDITOR edResponseData IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        edResponseData:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiAPIId IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiAPITriggerIDLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiClientID IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiClientIDlb IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -392,6 +409,9 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fiResponseDataLabel:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       fiTriggerID:READ-ONLY IN FRAME F-Main        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
@@ -466,7 +486,7 @@ DO:
     ASSIGN
         fiPrimaryKey:SENSITIVE       = FALSE
         btSubmit:SENSITIVE           = FALSE
-        edRequestData:SENSITIVE      = FALSE
+        edRequestData:READ-ONLY      = TRUE
         btUpdateRequest:SENSITIVE    = FALSE
         btPrimaryKeyLookup:SENSITIVE = FALSE
         fiPrimaryKey:SCREEN-VALUE    = ""
@@ -662,7 +682,7 @@ DO:
         edEventDesc:SCREEN-VALUE     = ""
         btUpdateRequest:SENSITIVE    = FALSE
         btPrimaryKeyLookup:SENSITIVE = FALSE        
-        edRequestData:SENSITIVE      = FALSE
+        edRequestData:READ-ONLY      = TRUE
         fiMessage:SCREEN-VALUE       = "Outbound Event ID: "
                                      + STRING(iAPIOutboundEventID)
                                      + " created"
@@ -701,7 +721,7 @@ DO:
     
     ASSIGN
         btSubmit:SENSITIVE          = FALSE
-        edRequestData:SENSITIVE     = FALSE
+        edRequestData:READ-ONLY     = FALSE
         .    
 
     RUN pValidateOutboundAPI (
@@ -1154,8 +1174,14 @@ DO:
 
     IF lookupField NE "" THEN DO:
         ASSIGN
-            fiTriggerID:SCREEN-VALUE = lookupField
+            fiAPIID:SCREEN-VALUE     = DYNAMIC-FUNCTION("sfDynLookupValue", "apiID", returnFields).
+            fiClientID:SCREEN-VALUE  = DYNAMIC-FUNCTION("sfDynLookupValue", "clientID", returnFields).
+            fiTriggerID:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "triggerID", returnFields).
             .
+        
+        APPLY "CHOOSE" TO btGo.
+        
+        APPLY "LEAVE" TO SELF.
     END.  
 END.
 
@@ -1244,14 +1270,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiAPIIDLabel fiAPIId fiClientIDlb fiClientID fiAPITriggerIDLabel 
-          fiTriggerID fiPrimaryKeyLabel fiPrimaryKey fiEventDescLabel 
-          edEventDesc fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel 
-          edRequestData fiResponseDataLabel edResponseData fiErrorMessageLabel 
-          edErrorMessage 
+  DISPLAY fiAPITriggerIDLabel fiTriggerID fiAPIIDLabel fiAPIId fiClientIDlb 
+          fiClientID fiPrimaryKeyLabel fiPrimaryKey fiEventDescLabel edEventDesc 
+          fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
+          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-1 RECT-2 RECT-3 Btn_Cancel btAPIIDLookup fiAPIId btClientIDLookup 
-         fiClientID btTriggerIDLookup btGo fiTriggerID 
+  ENABLE RECT-1 RECT-2 RECT-3 Btn_Cancel btTriggerIDLookup btGo fiTriggerID 
+         edRequestData 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
