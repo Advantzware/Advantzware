@@ -1333,9 +1333,7 @@ DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
    
 
-IF AVAILABLE ipbf-ar-inv THEN DO:
-
-    
+IF AVAILABLE ipbf-ar-inv AND ipbf-ar-inv.gross NE 0 THEN DO:   
     ASSIGN 
         cAPIID       = "SendInvoice"
         cTriggerID   = "PostInvoice"

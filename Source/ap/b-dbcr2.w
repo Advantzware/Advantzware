@@ -415,7 +415,6 @@ DO:
         ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
     ELSE
         ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -427,10 +426,6 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
     {src/adm/template/brsentry.i}
-    IF lAPInvoiceLength THEN
-        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
-    ELSE
-        ASSIGN ap-payl.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -3,5 +3,5 @@
 &Scoped-define TABLENAME tag
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
-
+ 
 {methods/triggers/delete.i}
