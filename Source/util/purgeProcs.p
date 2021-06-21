@@ -169,6 +169,7 @@ PROCEDURE outputGLaccountFile:
     DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
     DEFINE VARIABLE cWarning AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAmount AS DECIMAL NO-UNDO.
     
     OUTPUT STREAM sReport TO VALUE (ipcOutputDir + "\" + ipcFileName).
     
@@ -183,6 +184,7 @@ PROCEDURE outputGLaccountFile:
         IF first-of(ttGLHistList.cAccount) THEN
         DO:         
             cWarning = "".
+            cAmount = 0.
             FIND FIRST account NO-LOCK
                  WHERE account.company EQ ipcCompany 
                  AND account.actnum EQ ttGLHistList.cAccount NO-ERROR .
@@ -190,16 +192,19 @@ PROCEDURE outputGLaccountFile:
             cWarning = " Invalid Account number".
             ELSE IF account.inactive THEN
             cWarning = " Account is inactive".              
-        END.     
-             
-        PUT STREAM sReport UNFORMATTED
+        END. 
+        
+        cAmount = cAmount + ttGLHistList.deAmount.
+        IF LAST-OF(ttGLHistList.cAccount) THEN
+        DO:     
+         PUT STREAM sReport UNFORMATTED
             cWarning + "," +
             STRING(ttGLHistList.iYear,"9999") + "," +
             STRING(ttGLHistList.iPeriod,"99") + "," +
             ttGLHistList.cAccount + "," +
             ttGLHistList.cJournal + "," +
             STRING(ttGLHistList.daTxnDate,"99/99/99") + "," +
-            STRING(ttGLHistList.deAmount,"->>>>>>>>9.99") + "," +
+            STRING(cAmount,"->>>>>>>>9.99") + "," +
             ttGLHistList.cCurrency + "," +
             REPLACE(ttGLHistList.cDescription,","," ") + "," +
             ttGLHistList.cType + "," +
@@ -208,6 +213,7 @@ PROCEDURE outputGLaccountFile:
             ttGLHistList.cReckey + ","
             STRING(ttGLHistList.rRowID) +
             CHR(10).
+        END.    
     END.
     OUTPUT STREAM sReport CLOSE.
     EMPTY TEMP-TABLE ttFileList.
@@ -1167,7 +1173,7 @@ PROCEDURE purgeGLhistFromFile:
                                           STRING(TIME,"99999") + 
                                           STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
                     bglhist.sourceDate  = ?
-                    bglhist.tr-amt      = ttGLHistList.deAmount
+                    bglhist.tr-amt      = deSummaryAmount
                     bglhist.tr-date     = IF AVAIL period THEN period.pend ELSE ttGLHistList.daTxnDate
                     bglhist.tr-dscr     = "Balance Forward Total"
                     bglhist.tr-num      = INTEGER(STRING(bglhist.glYear,"9999") + STRING(ttGLHistList.iPeriod,"99"))
