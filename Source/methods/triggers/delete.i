@@ -16,11 +16,12 @@ FOR EACH mfvalues EXCLUSIVE-LOCK
     DELETE mfvalues.
 END. /* each mfvalues */
 
-IF CAN-FIND(FIRST tag WHERE tag.linkRecKey EQ {&TABLENAME}.rec_key) THEN
-FOR EACH tag EXCLUSIVE-LOCK WHERE
-    tag.linkRecKey EQ {&TABLENAME}.rec_key
+DEFINE BUFFER bf-tag FOR tag.
+/* IF CAN-FIND(FIRST tag WHERE tag.linkRecKey EQ {&TABLENAME}.rec_key) THEN */
+FOR EACH bf-tag EXCLUSIVE-LOCK WHERE
+    bf-tag.linkRecKey EQ {&TABLENAME}.rec_key
     :
-    DELETE tag.
+    DELETE bf-tag.
 END. /* each tag */
 
 &IF LOOKUP("{&TABLENAME}","pc-prdd,pc-prdh") NE 0 &THEN
