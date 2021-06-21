@@ -486,6 +486,12 @@ DO:
       op-rowid-list = op-rowid-list + STRING(ROWID(fg-bin)) + ",".
   END.
   op-rowid-list = TRIM(op-rowid-list, ",").
+  IF li-selected-qty LT fi_seq THEN
+  DO:
+    MESSAGE  "Tag Qty must be greater then Scheduled Release Qty" 
+    VIEW-AS ALERT-BOX INFO.
+    RETURN NO-APPLY.
+  END.
   IF ll-change-qty AND li-selected-qty GT v-qty THEN DO:
 
     /* value of ll-change-qty affects ll-update-qty-no below */
