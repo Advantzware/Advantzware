@@ -427,14 +427,14 @@ PROCEDURE ipInstallPatch:
     IF SEARCH("c:\tmp\hotfixlist.txt") NE ? THEN DO:
         INPUT FROM VALUE("c:\tmp\hotfixlist.txt").
         IMPORT UNFORMATTED cRawLine.
+        
         IF INDEX("0123456789",SUBSTRING(cRawLine,1,1)) EQ 0 THEN LEAVE.  /* cURL worked, but returned an error */
         SEARCH-BLOCK:
-        REPEAT:
+        DO:
             ASSIGN 
                 deNewVersion = DECIMAL(SUBSTRING(cRawLine,1,5)) 
                 iNewPatch = INTEGER(SUBSTRING(cRawLine,7,2)).             
-            IF deNewVersion LT deMyVersion THEN NEXT.
-            ELSE IF deNewVersion GT deMyVersion THEN DO:
+            IF deNewVersion GT deMyVersion THEN DO:
                 ASSIGN 
                     lCanUpgrade = TRUE.
                 /* Newer VERSION available */
