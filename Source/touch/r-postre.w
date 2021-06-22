@@ -93,7 +93,8 @@ def var v-rm-fg     as   log NO-UNDO.
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
 def TEMP-TABLE w-job field job like job.job.
 DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO. 
+RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "AUTOPOST" NO-LOCK NO-ERROR.
@@ -402,6 +403,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* RePos Touch Data to ASI Database */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE OBJECT hdJobProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -425,6 +427,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE OBJECT hdJobProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1240,6 +1243,8 @@ for each w-job,
     no-lock:
   run jc/job-cls2.p (recid(job)).
 end.
+
+RUN job_CloseJob_DCPost IN hdJobProcs(INPUT cocode, INPUT TABLE w-job).
 
 END PROCEDURE.
 

@@ -134,7 +134,7 @@ FORM btn-import AT ROW 10 COL 31
      btn-cancel AT ROW 10 COL 68
      SPACE(2.39) SKIP(0.46)
     WITH FRAME xyz SIZE-CHARS 90 BY 12
-    VIEW-AS DIALOG-BOX KEEP-TAB-ORDER
+    VIEW-AS DIALOG-BOX KEEP-TAB-ORDER  DEFAULT-BUTTON btn-import
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE.
 IF NOT ip-view-type = "yes-no-cancel" THEN
     ASSIGN btn-import:COL = 35 btn-cancel:COL = 55 btn-no:VISIBLE = NO.

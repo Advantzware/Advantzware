@@ -1658,7 +1658,7 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
   DEFINE BUFFER bf-inv-head FOR inv-head .
   
-  IF AVAIL inv-head THEN
+  IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
   DO:    
     FIND FIRST bf-inv-head NO-LOCK
          WHERE bf-inv-head.company EQ cocode

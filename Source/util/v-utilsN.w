@@ -256,16 +256,25 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun V-table-Win
 ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
 DO:
-    IF NOT AVAILABLE utilities THEN 
-        RETURN NO-APPLY.
-    IF SEARCH('util/' + utilities.programName) NE ? THEN
-        RUN VALUE('util/' + utilities.programName).
-    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
-        RUN VALUE('util/' + utilities.programName + '.r').
-    ELSE MESSAGE 
-        'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
-END.
+    DEF VAR cUnExtended AS CHAR NO-UNDO.
+    /* removes any extenstion from the value entered, if any */
+    ASSIGN 
+        cUnextended = REPLACE(utilities.programName:SCREEN-VALUE IN FRAME {&frame-name},".r","")
+        cUnextended = REPLACE(cUnextended,".w","")
+        cUnextended = REPLACE(cUnextended,".p","")
+        cUnextended = REPLACE(cUnextended,".","").
 
+    /* Searches for source code (and if found, runs it), THEN for r-code */
+    IF SEARCH('util/' + cUnextended + '.w') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.w').
+    ELSE IF SEARCH('util/' + cUnextended + '.p') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.p').
+    ELSE IF SEARCH('util/' + cUnextended + '.r') NE ? THEN
+        RUN VALUE('util/' + cUnextended + '.r').
+    ELSE MESSAGE 
+        'Program: util/' + cUnextended + ' does not exist with any extension.' VIEW-AS ALERT-BOX.
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -300,10 +309,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL utilities.programName V-table-Win
 ON LEAVE OF utilities.programName IN FRAME F-Main /* Program Name */
 DO:
-    IF INDEX(SELF:SCREEN-VALUE,'util/') NE 0 THEN ASSIGN 
+    
+    ASSIGN  
         SELF:SCREEN-VALUE = REPLACE(SELF:SCREEN-VALUE,'util/','').
     IF SEARCH('util/' + SELF:SCREEN-VALUE) EQ ? 
-    AND SEARCH('util/' + SELF:SCREEN-VALUE + ".r") EQ ? THEN DO:
+    AND SEARCH('util/' + SELF:SCREEN-VALUE + ".r") EQ ?
+    AND SEARCH('util/' + SELF:SCREEN-VALUE + "r") EQ ?
+    THEN DO:
         MESSAGE 
             "This program does not exist in the /util directory." SKIP 
             "Please correct this condition immediately."
@@ -642,7 +654,7 @@ PROCEDURE local-update-record :
             utilities.securityLevel:SCREEN-VALUE = STRING(iBaseLevel).
         RETURN NO-APPLY.
     END.
-    
+     
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN

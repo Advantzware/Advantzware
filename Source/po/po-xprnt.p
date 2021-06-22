@@ -81,7 +81,7 @@ DEF VAR v-printline AS INT NO-UNDO.
 DEF VAR v-qty LIKE po-ordl.ord-qty NO-UNDO.
 DEF VAR v-tot-sqft AS DEC NO-UNDO.
 DEF VAR v-vend-item AS cha NO-UNDO.
-def var v-adder AS cha FORM "x(15)" extent 5 no-undo.
+def var v-adder AS cha FORM "x(30)" extent 5 no-undo.
 def var v-num-add as int initial 0 no-undo.
 DEF VAR v-job-no AS cha NO-UNDO.
 DEF VAR v-cost AS DEC NO-UNDO.
@@ -400,11 +400,6 @@ v-printline = 0.
 
         IF v-job-no = "-" THEN v-job-no = "".
        
-        DO i = 1 TO 5:
-           IF v-adder[i] <> "" AND LENGTH(v-adder[i]) < 15 THEN
-              v-adder[i] = FILL(" ", 15 - LENGTH(v-adder[i])) + v-adder[i].
-        END.
-
         IF v-printline + 4 > 46 THEN DO:         
            PAGE.
            v-printline = 0.
@@ -443,25 +438,33 @@ v-printline = 0.
         END.
 
         IF NOT(lv-cost GT 9999.99 OR
-           po-ordl.t-cost GT 99999.99) THEN
+           po-ordl.t-cost GT 99999.99) THEN DO:
+           
            PUT po-ordl.LINE FORM ">>9"
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(2)
                lv-pr-qty-uom SPACE(1)
-               po-ordl.i-no FORM "x(20)" SPACE(1)
-               v-adder[1] 
-               v-job-no FORM "x(12)" SPACE(1)
+               po-ordl.i-no FORM "x(20)" .
+               
+           IF v-adder[1] NE "" THEN 
+           PUT "<C46>" "YES" .
+           
+           PUT "<C50.5>" v-job-no FORM "x(12)" SPACE(1)
                lv-cost FORM "->>>9.99<<"
                lv-pr-uom
                po-ordl.t-cost FORM "->>,>>9.99"          
                SKIP.
+        END.
         ELSE
         DO:
            PUT po-ordl.LINE FORM ">>9"
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(2)
                lv-pr-qty-uom SPACE(1)
-               po-ordl.i-no FORM "x(20)" SPACE(1)
-               v-adder[1] 
-               v-job-no FORM "x(12)" SPACE(1)
+               po-ordl.i-no FORM "x(20)" .
+               
+           IF v-adder[1] NE "" THEN 
+           PUT "<C46>" "YES" .
+           
+           PUT "<C50.5>"v-job-no FORM "x(12)" SPACE(1)
                SKIP
                SPACE(68)
                lv-cost FORM "->>>,>>9.99<<" SPACE(1)
@@ -476,36 +479,33 @@ v-printline = 0.
 
         PUT int(po-ordl.over-pct) FORM ">>9" AT 7 " / "
             int(po-ordl.under-pct) FORM ">>9" 
-            po-ordl.i-name AT 25 FORM "x(30)" SPACE(1)
-            v-adder[2] SPACE(12)
+            po-ordl.i-name AT 25 FORM "x(30)"
+            "<C50.5>"
+            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(1)
             v-change-dscr SKIP.
         
         ASSIGN
            v-printline = v-printline + 1
            v-line-number = v-line-number + 3.
         
-        if po-ordl.dscr[1] ne "" OR v-adder[3] <> "" then do:
-           put po-ordl.dscr[1] format "x(30)"  at 25 " "             
-               v-adder[3] 
-               skip.
+        if po-ordl.dscr[1] ne "" then do:
+           put po-ordl.dscr[1] format "x(30)"  at 25 SKIP.
 
            ASSIGN
               v-line-number = v-line-number + 1
               v-printline = v-printline + 1.
         end.
     
-        if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
-          put po-ordl.dscr[2] format "x(30)" at 25              
-              " " v-adder[4] skip.
+        if po-ordl.dscr[2] ne "" then do:
+          put po-ordl.dscr[2] format "x(30)" at 25 SKIP.
 
           ASSIGN
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1.
         end.
         
-        IF v-adder[5] <> "" OR v-vend-item <> "" THEN DO:
-            put v-vend-item  FORM "x(30)" AT 25              
-                " " v-adder[5] skip.
+        IF v-vend-item <> "" THEN DO:
+            put v-vend-item  FORM "x(30)" AT 25 SKIP.
             ASSIGN
             v-line-number = v-line-number + 1
             v-printline = v-printline + 1.
@@ -552,7 +552,6 @@ v-printline = 0.
                              po-ordl.ord-qty, OUTPUT v-qty).
         ASSIGN
         v-tot-sqft = v-tot-sqft + (v-qty * 1000)
-        v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
 
         dCoreDia = 0.
@@ -586,10 +585,10 @@ v-printline = 0.
         /* PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
         PUT cFlueTest .
         
-        IF v-cost GT 0 AND v-setup GT 0 THEN DO:
+        IF v-cost GT 0 THEN DO:
             /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
                STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
-            PUT "<FCourier New><C64>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
+            PUT "<FCourier New><C64>" v-cost FORM ">>,>>9.99<<" lv-pr-uom SKIP.
         END.
         ELSE
            PUT SKIP.
@@ -603,7 +602,12 @@ v-printline = 0.
         ELSE
            PUT SKIP.
      /* END.*/
-      
+         DO i = 1 TO 5:
+             IF v-adder[i] NE "" THEN DO: 
+                PUT "Adder: " AT 3 v-adder[i] SKIP.
+                v-printline = v-printline + 1.
+             END.
+         END.
 
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1

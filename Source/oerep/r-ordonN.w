@@ -58,19 +58,28 @@ DEF VAR lv-due-date2 LIKE oe-ordl.req-date NO-UNDO.
 DEF VAR tb_sch AS LOG NO-UNDO.
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
-    FIELD q-onh    LIKE itemfg.q-onh
-    FIELD q-shp    LIKE itemfg.q-onh
-    FIELD q-rel    LIKE itemfg.q-onh
-    FIELD q-wip    LIKE itemfg.q-onh
-    FIELD q-avl    LIKE itemfg.q-onh
-    FIELD po-no    LIKE oe-ord.po-no
-    FIELD inv      AS   LOG
-    FIELD inv-no   LIKE ar-invl.inv-no
-    FIELD cad-no   LIKE itemfg.cad-no
-    FIELD row-id   AS ROWID
-    FIELD due-date LIKE oe-ordl.req-date
-    FIELD unit-count LIKE eb.cas-cnt
+    FIELD q-onh        LIKE itemfg.q-onh
+    FIELD q-shp        LIKE itemfg.q-onh
+    FIELD q-rel        LIKE itemfg.q-onh
+    FIELD q-wip        LIKE itemfg.q-onh
+    FIELD q-avl        LIKE itemfg.q-onh
+    FIELD po-no        LIKE oe-ord.po-no
+    FIELD inv          AS   LOG
+    FIELD inv-no       LIKE ar-invl.inv-no
+    FIELD cad-no       LIKE itemfg.cad-no
+    FIELD row-id       AS ROWID
+    FIELD due-date     LIKE oe-ordl.req-date
+    FIELD unit-count   LIKE eb.cas-cnt
     FIELD units-pallet LIKE eb.cas-pal
+    FIELD job-no       AS CHARACTER
+    FIELD die          LIKE eb.die-no
+    FIELD styl         LIKE eb.style
+    FIELD due-dt       AS DATE
+    FIELD run-end-date AS DATE
+    FIELD sht          AS CHARACTER
+    FIELD prntd        AS CHARACTER
+    FIELD die-cut      AS CHARACTER
+    FIELD glue         AS CHARACTER
     INDEX row-id row-id.
 
 DEF TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin.
@@ -114,12 +123,14 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
-                           "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR"
+                           "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR," +
+                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
-                            "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr"
-       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c" 
+                            "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr," +
+                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue"
+       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "10,20,10,15,7,7,7,7,5"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1804,8 +1815,12 @@ PROCEDURE build-tt :
      IF AVAIL eb THEN
      DO:
         ASSIGN
-          tt-report.unit-count = eb.cas-cnt
-          tt-report.units-pallet = eb.cas-pal.
+          tt-report.unit-count   = eb.cas-cnt
+          tt-report.units-pallet = eb.cas-pal
+          tt-report.die          = eb.die-no
+          tt-report.styl         = eb.style
+          .
+          
         RELEASE eb.
      END.
   END.
@@ -2302,6 +2317,7 @@ PROCEDURE run-report :
 
 DEF BUFFER b-tt-report FOR tt-report.
 DEF BUFFER b-oe-rell FOR oe-rell.
+DEF BUFFER b-job-mch FOR job-mch.
 
 def var v-cust  like oe-ord.cust-no  extent 2 init ["","zzzzzzzz"].
 def var v-date  like ar-inv.inv-date format "99/99/9999"
@@ -2330,6 +2346,10 @@ def var v-q-rel   like v-q-onh NO-UNDO.
 def var v-q-wip   like v-q-onh NO-UNDO.
 def var v-q-avl   like v-q-onh NO-UNDO.
 DEF VAR lv-slsmn  AS CHAR NO-UNDO.
+def var v-rs      as   char format "x(7)" NO-UNDO.
+def var v-dc      as   char format "x(7)" NO-UNDO.
+def var v-pr      as   char format "x(7)" NO-UNDO.
+def var v-gl      as   char format "x(5)" NO-UNDO.
 
 def var v-time as int.
 v-time = time.

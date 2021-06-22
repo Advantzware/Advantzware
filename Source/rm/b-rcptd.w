@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
     cocode = g_company
@@ -127,6 +126,7 @@ RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lReturnError         AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -350,6 +350,7 @@ DEFINE BROWSE Browser-Table
   ENABLE
       rm-rctd.rct-date
       rm-rctd.po-no
+      rm-rctd.po-line
       rm-rctd.job-no
       rm-rctd.job-no2
       rm-rctd.s-num
@@ -477,7 +478,7 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[3]   > asi.rm-rctd.po-no
 "po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-rctd.po-line
-"po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.job-no
 "job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.job-no2
@@ -929,6 +930,59 @@ DO:
         IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
     {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} = "".
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rm-rctd.po-line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF rm-rctd.po-line IN BROWSE Browser-Table /* PO Line */
+DO:
+        IF v-copy-mode-dec-1 THEN
+        DO:
+            APPLY "TAB" TO rm-rctd.po-line IN BROWSE {&browse-name}.
+            RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.po-line Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.po-line IN BROWSE Browser-Table /* PO Line */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-po-line(OUTPUT lReturnError) NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY.            
+            
+            IF rm-rctd.po-line:MODIFIED IN BROWSE {&browse-name} AND INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0  THEN DO:
+                                                                        
+             
+              FIND FIRST po-ordl NO-LOCK
+                   WHERE po-ordl.company EQ cocode
+                   AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                   AND po-ordl.LINE      EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
+                   AND po-ordl.item-type EQ YES
+                    NO-ERROR.
+
+              IF AVAILABLE po-ordl THEN 
+              DO:         
+                 FIND FIRST tt-rm-rctd NO-LOCK NO-ERROR.
+                 IF avail tt-rm-rctd THEN
+                 ASSIGN                    
+                    tt-rm-rctd.i-no     = po-ordl.i-no
+                    tt-rm-rctd.po-no    = STRING(po-ordl.po-no)
+                    tt-rm-rctd.po-line  = po-ordl.LINE  
+                    tt-rm-rctd.po-rowid = ROWID(po-ordl). 
+                  lv-rowid = ROWID(po-ordl).
+                  RUN display-po-info.   
+              END.
+            END.        
+        END.   
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1804,6 +1858,7 @@ PROCEDURE create-from-po :
                 tt-rm-rctd.rct-date = DATE(rm-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name})
                 tt-rm-rctd.i-no     = po-ordl.i-no
                 tt-rm-rctd.po-no    = STRING(po-ordl.po-no)
+                tt-rm-rctd.po-line    = po-ordl.LINE
                 tt-rm-rctd.po-rowid = ROWID(po-ordl).
 
         /*ld = po-ordl.ord-qty.
@@ -3646,9 +3701,10 @@ PROCEDURE update-ttt :
     FIND FIRST tt-rm-rctd NO-ERROR.
     DEFINE BUFFER bff-item FOR ITEM .
     IF AVAILABLE tt-rm-rctd THEN 
-    DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}: 
         ASSIGN
             rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = tt-rm-rctd.po-no
+            rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = string(tt-rm-rctd.po-line)
             rm-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} = tt-rm-rctd.i-no
             rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(tt-rm-rctd.qty)
             tt-rm-rctd.tt-rowid                                 = ROWID(rm-rctd).
@@ -3682,6 +3738,9 @@ PROCEDURE valid-all :
 
     RUN valid-po-no (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+    
+     RUN valid-po-line(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN ERROR.
     
     IF glCheckClosedStatus THEN DO:      
         RUN CheckPOLineStatus IN hdPoProcs(
@@ -3941,6 +4000,36 @@ PROCEDURE valid-i-no :
         END.
     END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-line B-table-Win 
+PROCEDURE valid-po-line :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+      IF rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
+      DO:       
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company EQ cocode
+             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+             AND po-ordl.LINE      EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name})
+             NO-ERROR.
+        IF NOT AVAILABLE po-ordl THEN  
+        DO:
+            MESSAGE "Invalid PO Line" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO rm-rctd.po-line IN BROWSE {&browse-name}.
+            oplReturnError = YES.
+        END.
+      END.  
+    END.
 
 END PROCEDURE.
 

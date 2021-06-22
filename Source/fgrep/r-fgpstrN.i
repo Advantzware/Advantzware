@@ -42,7 +42,12 @@ for each tt-report where tt-report.term-id eq "" no-lock,
       ELSE put SKIP(1) "WHSE: " v-whse skip(1).
     end.
     
-    v-stnd-cost = 0.
+    ASSIGN
+        v-stnd-cost = 0
+        dBinMatCost = 0
+        dBinDLCost  = 0
+        dBinVOHCost = 0
+        dBinFOHCost = 0.
 
     if fg-rcpth.rita-code eq "S" then do:
       find first fg-bin
@@ -272,8 +277,15 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             AND fg-bin.tag     eq fg-rdtlh.tag
           use-index co-ino no-lock no-error.
 
-        IF AVAIL fg-bin THEN
-            ASSIGN v-stnd-cost = fg-bin.std-tot-cost.
+        IF AVAIL fg-bin THEN DO:
+            ASSIGN 
+                v-stnd-cost = fg-bin.std-tot-cost
+                dBinMatCost = fg-bin.std-mat-cost
+                dBinDLCost  = fg-bin.std-lab-cost
+                dBinVOHCost = fg-bin.std-var-cost
+                dBinFOHCost = fg-bin.std-fix-cost
+                .
+        END.
         ELSE IF AVAIL itemfg THEN
             ASSIGN v-stnd-cost = itemfg.total-std-cost.
         iBinQtyb = 0.
@@ -379,6 +391,10 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                   WHEN "Reason" THEN cVarValue =  string(cReason,"x(30)")      .
                   WHEN "Reason-cd" THEN cVarValue = IF AVAIL fg-rdtlh AND fg-rdtlh.reject-code[1] NE "" THEN string(fg-rdtlh.reject-code[1],"x(2)") ELSE ""    .
                   WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
+                  WHEN "bin-mat-cost" THEN cVarValue = IF dBinMatCost NE 0 THEN STRING(dBinMatCost,"->>>,>>9.99<<") ELSE "".
+                  WHEN "bin-dl-cost"  THEN cVarValue = IF dBinDLCost  NE 0 THEN STRING(dBinDLCost,"->>>,>>9.99<<") ELSE "".
+                  WHEN "bin-voh-cost" THEN cVarValue = IF dBinVOHCost NE 0 THEN STRING(dBinVOHCost,"->>>,>>9.99<<") ELSE "".
+                  WHEN "bin-foh-cost" THEN cVarValue = IF dBinFOHCost NE 0 THEN STRING(dBinFOHCost,"->>>,>>9.99<<") ELSE "".
             END CASE.
               
             cExcelVarValue = cVarValue.

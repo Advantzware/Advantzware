@@ -63,8 +63,7 @@ ASSIGN cocode = g_company
 {jc/jcgl-sh.i  NEW}
 {fg/invrecpt.i NEW}
 /* For fgpostBatch.p */
-{fg/fgPostBatch.i}
-{Inventory/ttInventory.i "NEW SHARED"}    
+{fg/fgPostBatch.i}  
 
 /*DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd                        */
 /*    FIELD row-id   AS ROWID                                          */
@@ -695,7 +694,6 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
     DEF VAR v-locbin AS cha NO-UNDO.
-    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
         INPUT  cocode,

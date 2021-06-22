@@ -41,7 +41,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
@@ -571,7 +571,8 @@ PROCEDURE ScanItem :
         INPUT  iplEmptyTags,
         OUTPUT opcConsUOM,
         OUTPUT oplError,
-        OUTPUT opcMessage
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
 
     {&OPEN-QUERY-{&BROWSE-NAME}}

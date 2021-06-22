@@ -380,6 +380,7 @@ if chosen eq 2 then DO:
                       cVarValue = STRING(w-ord.prom-date) .
                   ELSE cVarValue = "" .
                 END.
+                WHEN "dock-appointment" THEN cVarValue = IF v-dockTime NE ? THEN STRING(v-dockTime,"99/99/9999 HH:MM") ELSE "" .
             
             END CASE.
             cExcelVarValue = cVarValue.

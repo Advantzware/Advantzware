@@ -42,6 +42,9 @@ DEFINE VARIABLE iQuoteFirst AS INTEGER NO-UNDO .
 DEF VAR idx AS INT NO-UNDO.
 DEF VAR columnCounts AS INT NO-UNDO.
 DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER        NO-UNDO.
 
 {methods/template/brwcustomdef.i}
 
@@ -55,6 +58,13 @@ DEFINE TEMP-TABLE ttQuoteList
     FIELD rel LIKE quoteqty.rel
     FIELD rel-qty LIKE quoteqty.qty
     .
+    
+RUN sys/ref/nk1look.p (INPUT ipxCompany, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -413,6 +423,7 @@ FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
         AND quotehd.cust-no EQ ipxCustNo
         AND quotehd.quo-date LE TODAY 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+        AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) 
         AND (
              ipxEstNo EQ ""
              OR llAllEstimates

@@ -17,13 +17,10 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
 {system/TaxProcs.i}
 {api/ttAPIOutboundEvent.i}
-
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN FileSys_GetTempDirectory (
     OUTPUT cTempDir
@@ -59,6 +56,8 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.    
     DEFINE OUTPUT PARAMETER TABLE FOR ttAPIOutboundEvent.
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
         
     RUN pUpdateAccessToken (
         INPUT  ipcCompany,
@@ -67,6 +66,8 @@ PROCEDURE pCallOutboundAPI PRIVATE:
         ).
     IF NOT oplSuccess THEN
         RETURN.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
         
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipcCompany,                      /* Company Code (Mandatory) */
@@ -85,11 +86,13 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     
     IF oplSuccess THEN DO:
         RUN Outbound_GetEvents IN hdOutboundProcs (
-            OUTPUT TABLE ttAPIOutboundEvent
+            OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
             ).
     END.
     
     RUN Outbound_ResetContext IN hdOutboundProcs.
+    
+    DELETE PROCEDURE hdOutboundProcs.
 END PROCEDURE.
 
 PROCEDURE pUpdateAccessToken PRIVATE:

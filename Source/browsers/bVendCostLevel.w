@@ -150,7 +150,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U WIDTH 20
       vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To"   FORMAT "->>>>>>>>>9.999999":U WIDTH 20
-      vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
+      vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.9999":U  WIDTH 18
       fIsBestCost()                                       COLUMN-LABEL "B"        FORMAT "X(1)":U        WIDTH 2 
       vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15      
       vendItemCostLevel.costDeviation                     COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U WIDTH 15

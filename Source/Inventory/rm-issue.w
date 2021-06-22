@@ -82,8 +82,11 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 
-// {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{system/sysconst.i}
+{Inventory/ttInventory.i}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventoryStockDetails.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {methods/template/brwcustomdef.i}
@@ -560,7 +563,7 @@ DO:
         APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
 
     IF VALID-HANDLE(hdJobDetails) THEN
-        DELETE OBJECT hdInventoryProcs.
+        DELETE OBJECT hdJobDetails.
     
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     
@@ -1542,18 +1545,23 @@ PROCEDURE pRebuildBrowse :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
-        ipcRMItem
+        ipcRMItem,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
     
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockConsumed,
+        OUTPUT iScannedTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE 
+        ).
+
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockReceived,
+        OUTPUT iRemainTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE 
+        ).
+        
     ASSIGN
-        iScannedTags    = DYNAMIC-FUNCTION(
-                              'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockConsumed
-                              )
-        iRemainTags     = DYNAMIC-FUNCTION(
-                              'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockReceived
-                              ) 
         btTotal:LABEL   = "Total - " + STRING(iScannedTags + iRemainTags)
         btScanned:LABEL = "Scanned - " + STRING(iScannedTags)
         btRemain:LABEL  = "Remain - " + STRING(iRemainTags)
@@ -1627,7 +1635,7 @@ PROCEDURE pTagScan :
         ipcTag,
         OUTPUT lValidInv,
         OUTPUT cMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
   
     IF lValidInv THEN DO:
