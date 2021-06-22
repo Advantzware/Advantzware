@@ -153,7 +153,7 @@ DEFINE BROWSE brEstCostMaterial
              LABEL-BGCOLOR 14   FORMAT "x(10)"
       estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
-      estCostMaterial.quantityRequiredTotalInCUOM COLUMN-LABEL "Quantity UOM" 
+      estCostMaterial.quantityUOM COLUMN-LABEL "Quantity UOM" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
@@ -334,7 +334,7 @@ DO:
      INPUT  estCostMaterial.estimateNo, //ipcEstimateNo,
      INPUT  estCostMaterial.formNo, //ipiFormNo,
      INPUT  estCostMaterial.blankNo, //ipiBlankNo,
-     INPUT  estCostMaterial.quantityRequiredTotalInCUOM , //ipdQuantity ,
+     INPUT  estCostMaterial.quantityRequiredTotal , //ipdQuantity ,
      INPUT  estCostMaterial.quantityUOM, //ipcQuantityUOM ,
      INPUT  estCostMaterial.dimLength, //ipdDimLength ,
      INPUT  estCostMaterial.dimWidth, //ipdDimWidth ,
