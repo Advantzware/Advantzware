@@ -277,7 +277,7 @@ DEFINE BROWSE Browser-Table
     fg-rctd.cost-uom        COLUMN-LABEL "UOM"          FORMAT "x(3)":U         WIDTH 5     LABEL-BGCOLOR 14
     fg-rctd.t-qty           COLUMN-LABEL "Total!Qty"    FORMAT "->>>,>>>,>>9.99":U WIDTH 16 LABEL-BGCOLOR 14
     fg-rctd.frt-cost        COLUMN-LABEL "Freight Cost" FORMAT ">>>,>>9.99<<":U WIDTH 18    LABEL-BGCOLOR 14
-    fg-rctd.ext-cost        COLUMN-LABEL "Extended Cost" FORMAT "->,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
+    fg-rctd.ext-cost        COLUMN-LABEL "Extended Cost" FORMAT "->>>,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
     fg-rctd.stack-code      COLUMN-LABEL "FG Lot#"      FORMAT "X(20)":U        WIDTH 22  LABEL-BGCOLOR 14
     fg-rctd.tot-wt          COLUMN-LABEL "Tot. Wgt."    FORMAT ">>,>>9.99":U    WIDTH 13
     fg-rctd.created-by      COLUMN-LABEL "Created By"   FORMAT "x(8)":U         WIDTH 14    LABEL-BGCOLOR 14
@@ -452,7 +452,7 @@ use-index fg-rctd"
      _FldNameList[20]   > ASI.fg-rctd.frt-cost
 "fg-rctd.frt-cost" "Freight Cost" ? "decimal" ? ? ? 14 ? ? yes ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.fg-rctd.ext-cost
-"fg-rctd.ext-cost" "Extended Cost" "->,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.ext-cost" "Extended Cost" "->>>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.fg-rctd.stack-code
 "fg-rctd.stack-code" "FG Lot#" "X(20)" "character" ? ? ? 14 ? ? yes ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   = ASI.fg-rctd.tot-wt
@@ -1343,7 +1343,8 @@ gvcCurrentItem = fg-rctd.i-no.
        AND fg-bin.loc  EQ fg-rctd.loc
        AND fg-bin.loc-bin EQ fg-rctd.loc-bin
        NO-LOCK NO-ERROR.
-   
+     
+     RELEASE w-rowid.
      IF AVAIL fg-bin THEN
      FIND FIRST w-rowid WHERE w-rowid EQ STRING(ROWID(fg-bin)) NO-ERROR.
 
@@ -1440,8 +1441,9 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.r-no      = lv-rno
       bfFgRctd.rita-code = "R"
       bfFgRctd.trans-time   = TIME
+      bfFgRctd.SetHeaderRno = INTEGER(SUBSTRING(lv-linker, 10, 10)) 
       .   
-            
+         
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:
         FIND FIRST fg-rcpts WHERE fg-rcpts.r-no EQ bfFgRctd.r-no NO-ERROR.
@@ -1471,7 +1473,7 @@ gvcCurrentItem = fg-rctd.i-no.
 
       /* If total quantity was used for cost, update the other records with the new cost */  
       IF lv-cost-basis = "FULLQTY" THEN DO:  
-          RUN get-set-full-qty (INPUT bfFgRctd.std-cost, INPUT NO, OUTPUT full-qty).
+          RUN get-set-full-qty (INPUT bfFgRctd.i-no, INPUT bfFgRctd.std-cost, INPUT NO, OUTPUT full-qty).
       END.
       
       RUN copyBinInfo (INPUT ROWID(fg-bin), ROWID(bfFgRctd)).
@@ -1496,6 +1498,7 @@ PROCEDURE get-set-full-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ipItemNO AS CHARACTER NO-UNDO.
   DEF INPUT PARAMETER ip-cost-to-set AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-on-screen AS LOG NO-UNDO.
   DEF OUTPUT PARAMETER op-out-qty AS DEC NO-UNDO.
@@ -1522,13 +1525,13 @@ PROCEDURE get-set-full-qty :
         (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
         AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
         AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
-        AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
+        AND b-fg-rctd.i-no = ipItemNO //fg-rctd.i-no:SCREEN-VALUE 
         AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
         OR (adm-new-record AND NOT adm-adding-record))
         AND b-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10))
         AND b-fg-rctd.SetHeaderRno GT 0
         NO-LOCK:     
-
+           
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:
 
@@ -1625,18 +1628,18 @@ END.
 
 /* Obtain quantity of set header record */                        
 dMaxCompQty = maxComponentQty().
-
+ 
 IF AVAIL bfFgBin  THEN DO:
   
   /* dTotalQty is the qty in other lines with the same item number */
-  RUN get-selected-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
+  RUN get-set-full-qty (INPUT fg-rctd.i-no, INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
   
   dTotalQty = ABS(dTotalQty).
   IF iprFgRctd EQ ? THEN
     dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})).
   ELSE
     dTotalQty = dTotalQty - ABS(DEC(fg-rctd.t-qty)).
-  
+    
   /* dMaxCompQty is the max that can be used from bfFgBin */
   IF ABS(dMaxCompQty) GT 0 AND ABS(dTotalQty) GT 0 THEN DO:
     
@@ -1665,11 +1668,11 @@ IF AVAIL bfFgBin  THEN DO:
         fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * bfFgBin.qty).
     END.
     ELSE DO:
-      
+        
       ASSIGN            
         fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.i-no
         fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name} = "0" /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
-        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(dMaxCompQty)
+        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.case-count)
         fg-rctd.cases-unit:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(bfFgBin.cases-unit)
         fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty)
         fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(-1 * dMaxCompQty).
@@ -1687,11 +1690,11 @@ IF AVAIL bfFgBin  THEN DO:
         fg-rctd.t-qty = -1 * bfFgBin.qty.
     END.
     ELSE DO:
-    
+               
       ASSIGN            
         fg-rctd.i-no = bfFgBin.i-no
         fg-rctd.cases = 0 /* STRING(-1 * TRUNC(dMaxCompQty / bfFgBin.case-count,0)) */
-        fg-rctd.qty-case = dMaxCompQty
+        fg-rctd.qty-case = bfFgBin.case-count
         fg-rctd.cases-unit = bfFgBin.cases-unit
         fg-rctd.partial = -1 * dMaxCompQty
         fg-rctd.t-qty = -1 * dMaxCompQty.
@@ -2145,6 +2148,53 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetItemSetAll B-table-Win 
+PROCEDURE pGetItemSetAll :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplAlloc AS LOGICAL NO-UNDO . 
+  DEFINE VARIABLE dTotalQty AS DECIMAL NO-UNDO.
+  IF AVAIL fg-rctd THEN
+  DO:         
+    FIND itemfg WHERE itemfg.company EQ cocode
+                          AND itemfg.i-no  EQ fg-rctd.i-no
+                        USE-INDEX i-no NO-LOCK NO-ERROR.
+                        
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"linker-target",OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    RUN pGetReceiptQty IN WIDGET-HANDLE(char-hdl)(OUTPUT dTotalQty).                   
+                        
+    IF AVAIL itemfg AND itemfg.alloc EQ ? AND dTotalQty GT 0 THEN
+    oplAlloc = YES.    
+  END .                      
+                        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetReceiptQty B-table-Win 
+PROCEDURE pGetReceiptQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opdTotalQty AS DECIMAL NO-UNDO . 
+  
+  IF AVAIL fg-rctd THEN
+  DO:         
+     opdTotalQty = fg-rctd.t-qty.
+  END .                      
+                        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME                           
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-current-qty B-table-Win 
 PROCEDURE get-current-qty :

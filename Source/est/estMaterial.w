@@ -541,10 +541,10 @@ DO:
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( STRING(estMaterial.formNo)) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( STRING(estMaterial.blankNo))).
 
-      RUN Estimate_GetQuantities(INPUT cocode,
-        INPUT est-no:SCREEN-VALUE, 
+      RUN Estimate_GetQuantitiesForEstMaterial(
+        ROWID(estMaterial), 
         INPUT "|",
-        OUTPUT cQtyList ).
+        OUTPUT cQtyList).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostQtyList = ' + cQtyList ).
       RUN windows/vendcostmtx.w  PERSISTENT SET phandle  .
       /* Set the option frame size and colour to give blue background to icons and 
