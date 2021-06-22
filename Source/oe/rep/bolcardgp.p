@@ -4,6 +4,7 @@
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
+DEFINE INPUT PARAMETER ipcFormName AS CHAR NO-UNDO.
 
 DEFINE BUFFER xoe-bolh FOR oe-bolh.
 DEFINE BUFFER xoe-boll FOR oe-boll.
@@ -367,7 +368,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                     substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
             v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
-            IF v-print-fmt EQ "GPI2_I" THEN ASSIGN v-fob = "EXW".
+            IF ipcFormName EQ "GPI2_I" THEN ASSIGN v-fob = "EXW".
             LEAVE.
         END.
 
@@ -493,7 +494,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             "<=8><R+1> Total Pallets   :" /*v-tot-cases*/ v-tot-palls
             "<=8><R+2> Total Cases     :" v-tot-cases
             .
-        IF v-print-fmt EQ "GPI2_I" THEN
+        IF ipcFormName EQ "GPI2_I" THEN
         DO: 
             v-tot-wt2 = v-tot-wt * 0.453592 .
             PUT "<=8><R+3> Total Weight    :" "<C60>" v-tot-wt " Lbs/" "<C67>"v-tot-wt2 " Kg"  .
@@ -520,7 +521,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
         PAGE.
         
-        IF v-print-fmt EQ "GPI2_I" THEN
+        IF ipcFormName EQ "GPI2_I" THEN
         DO:
            v-printline = 0.
            PAGE.

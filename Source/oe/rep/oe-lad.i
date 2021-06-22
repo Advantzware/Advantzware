@@ -25,7 +25,6 @@ DEF {1} SHARED VAR v-footer AS log NO-UNDO.
 DEF {1} SHARED VARIABLE lPerBolLine AS LOG NO-UNDO.
 DEF {1} SHARED VARIABLE lPrintDetailPage AS LOG NO-UNDO.
 DEF {1} SHARED VARIABLE lSuppressName AS LOG NO-UNDO.
-DEF {1} SHARED VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 
 def var v-last-page         as   int.
 def var v-page-tot          as   dec format ">>9".

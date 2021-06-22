@@ -5,6 +5,8 @@
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
+DEFINE INPUT PARAMETER ipcFormName AS CHAR NO-UNDO.
+
 def buffer xoe-bolh     for oe-bolh.
 def buffer xoe-boll     for oe-boll.
 def buffer xitemfg      for itemfg.
@@ -392,7 +394,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
           substr(v-salesman,length(trim(v-salesman)),1) = "".
 
       v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
-      IF v-print-fmt EQ "CardedBC_I" THEN ASSIGN v-fob = "EXW".
+      IF ipcFormName EQ "CardedBC_I" THEN ASSIGN v-fob = "EXW".
       LEAVE.
     end.
 
@@ -523,7 +525,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<=8><R+1> Total Pallets   :" /*v-tot-cases*/ v-tot-palls
     "<=8><R+2> Total Cases     :" v-tot-cases
     .
-    IF v-print-fmt EQ "CardedBC_I" THEN
+    IF ipcFormName EQ "CardedBC_I" THEN
     DO: 
         v-tot-wt2 = v-tot-wt * 0.453592 .
         PUT "<=8><R+3> Total Weight    :" "<C60>" v-tot-wt " Lbs/" "<C67>"v-tot-wt2 " Kg"  .
@@ -550,7 +552,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   PAGE.
   
-  IF v-print-fmt EQ "CardedBC_I" THEN
+  IF ipcFormName EQ "CardedBC_I" THEN
   DO:
      v-printline = 0.
      PAGE.

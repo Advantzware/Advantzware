@@ -89,6 +89,7 @@ DEF TEMP-TABLE tt-packslip NO-UNDO
     
 DEFINE TEMP-TABLE ttPdfBOLs LIKE report.
 
+def var v-print-fmt     as char NO-UNDO.
 DEF VAR v-print-fmt-int AS INT  NO-UNDO.
 def var v-headers       as log  no-undo.
 def var v-print-coc     as log  no-undo.
@@ -5181,6 +5182,10 @@ PROCEDURE run-report :
               RUN oe/rep/coclanyork.p (?).
          ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
               RUN oe/rep/cocbolMex.p (?).
+         ELSE IF v-program = "oe/rep/bolcardgp.p" THEN
+              RUN oe/rep/bolcardgp.p (v-print-fmt).
+         ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
+              RUN oe/rep/bolcrdbc.p (v-print-fmt).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -5589,6 +5594,10 @@ PROCEDURE run-report-mail :
             RUN oe/rep/coclanyork.p (?).
          ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
             RUN oe/rep/cocbolMex.p (?).
+         ELSE IF v-program = "oe/rep/bolcardgp.p" THEN
+              RUN oe/rep/bolcardgp.p (v-print-fmt).
+         ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
+              RUN oe/rep/bolcrdbc.p (v-print-fmt).
          ELSE
                 RUN value(v-program).
       END.
