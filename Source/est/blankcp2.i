@@ -33,7 +33,7 @@ IF lv-copied NE ? THEN DO:
           AND bf-est.est-no  EQ bf-eb.est-no
         NO-LOCK NO-ERROR.
 
-    BUFFER-COPY bf-eb EXCEPT est-no e-num eqty est-type form-no blank-no cust-no ship-id rec_key ord-no TO eb.
+    BUFFER-COPY bf-eb EXCEPT est-no e-num eqty yld-qty est-type form-no blank-no cust-no ship-id rec_key ord-no TO eb.
 
     ll-copied-from-eb = YES.
 
