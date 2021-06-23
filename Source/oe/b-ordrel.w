@@ -881,17 +881,19 @@ DO:
                   hCurrentColumn = hColumnRowColor.
                   LEAVE GET-HANDLE.
               END.                 
-          END.
-          ASSIGN    
-              lv-sort-by                          = userColumn.sortByColumn
-              ll-sort-asc                         = (IF userColumn.sorted = 'A' THEN YES ELSE NO )
-              hCurrentColumn:LABEL-BGCOLOR        = 30
-              hCurrentColumn:SORT-ASCENDING       = ll-sort-asc
-              lsortBy                             = (IF userColumn.sorted = 'A' THEN YES ELSE NO ).
-              hPrevColumn                         = hCurrentColumn.
-      END.
-        RUN resort-query .
-        hCurrentColumn:LABEL-BGCOLOR = 30.
+            END.
+            ASSIGN    
+                lv-sort-by                          = userColumn.sortByColumn
+                ll-sort-asc                         = (IF userColumn.sorted = 'A' THEN YES ELSE NO )
+                hCurrentColumn:LABEL-BGCOLOR        = 30
+                hCurrentColumn:SORT-ASCENDING       = ll-sort-asc
+                lsortBy                             = (IF userColumn.sorted = 'A' THEN YES ELSE NO ).
+                hPrevColumn                         = hCurrentColumn.
+      
+            RUN resort-query .
+            hCurrentColumn:LABEL-BGCOLOR = 30.
+            
+        END.
       END.  
  
 END.
@@ -3610,7 +3612,7 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE hBrowse AS HANDLE NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   relh-recid = ?.
   
@@ -3623,8 +3625,12 @@ PROCEDURE local-open-query :
   
     /* Code placed here will execute AFTER standard behavior.    */
     /*RUN delete-phantoms.*/
-    APPLY 'start-search' TO BROWSE {&browse-name}. 
-    hCurrentColumn:LABEL-BGCOLOR = 30 NO-ERROR.
+    hBrowse = BROWSE {&browse-name}:HANDLE.
+    IF VALID-HANDLE(hBrowse) THEN
+    DO:
+        APPLY 'start-search' TO BROWSE {&browse-name} .
+        hCurrentColumn:LABEL-BGCOLOR = 30 NO-ERROR.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
