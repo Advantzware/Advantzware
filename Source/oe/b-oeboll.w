@@ -2190,7 +2190,7 @@ PROCEDURE local-destroy :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  DELETE OBJECT hFreightProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
