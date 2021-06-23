@@ -412,7 +412,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'c:/asigui/repository/source/browsers/apioutboundcontent.w':U ,
+             INPUT  'browsers/apioutboundcontent.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutboundcontent ).
@@ -420,7 +420,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_apioutboundcontent ( 10.95 , 122.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'c:/asigui/repository/source/viewers/apioutboundcontent.w':U ,
+             INPUT  'viewers/apioutboundcontent.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutboundcontent-2 ).
@@ -428,7 +428,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 4.76 , 112.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'c:/asigui/repository/source/adm/objects/p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
