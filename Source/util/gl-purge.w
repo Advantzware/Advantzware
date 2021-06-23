@@ -508,7 +508,7 @@ OUTPUT STREAM period-bak CLOSE.
 OUTPUT STREAM glhist-bak TO value(cTmpDir + "\glhist-bak-" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "-" + STRING(TIME) + ".d") .
 
 FOR EACH glhist
-    WHERE glhist.company EQ account.company
+    WHERE glhist.company EQ cocode
       AND glhist.actnum  GE fr-acct
       AND glhist.actnum  LE to-acct
       AND glhist.tr-date LE del_date
