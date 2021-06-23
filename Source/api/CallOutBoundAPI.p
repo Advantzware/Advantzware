@@ -50,12 +50,21 @@ DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
 
+RUN spGetSessionParam(
+    INPUT  "Company",
+    OUTPUT cCompany
+    ).
+    
 ASSIGN 
     scInstance           = SharedConfig:instance
     lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
@@ -221,84 +230,121 @@ IF gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" THEN DO:
     RETURN.
 END.
 
+RUN sys/ref/nk1look.p (
+    INPUT cCompany, 
+    INPUT "APIRequestMethod", 
+    INPUT "C", 
+    INPUT NO, 
+    INPUT NO, 
+    INPUT "", 
+    INPUT "",
+    OUTPUT cAPIRequestMethod, 
+    OUTPUT lFound
+    ).
+
+IF cAPIRequestMethod EQ "" THEN
+    cAPIRequestMethod = "cURL".
+    
 ASSIGN
-    gcRequestFile  = "request"     + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType). /* File Extentions */
-    gcResponseFile = "response"    + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType) /* File Extentions */
+    FIX-CODEPAGE(oplcResponseData) = 'utf-8'
+    FIX-CODEPAGE(glcResponseData)  = 'utf-8'.
     .
-
-gcCommand = SEARCH("curl.exe") 
-          + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
-             ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
-             ELSE "") + ' ' 
-          + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
-          + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
-          + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
-          + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-          + gcEndPoint.
-
-/* Put Request Data from a variable into a Temporary file */
-COPY-LOB glcRequestData TO FILE gcRequestFile.
-   
-/* execute CURL command with requiredif  parameters to call the API */
-RUN OS_RunCommand (
-    INPUT  gcCommand,             /* Command string to run */
-    INPUT  gcResponseFile,        /* File name to write the command output */
-    INPUT  TRUE,                  /* Run with SILENT option */
-    INPUT  FALSE,                 /* Run with NO-WAIT option */
-    OUTPUT oplSuccess,
-    OUTPUT opcMessage
-    ) NO-ERROR.
-IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-    ASSIGN
-        oplSuccess = FALSE
-        opcMessage = "Error excuting curl command"
-        .
-
-    /* delete temporary files */
-    OS-DELETE VALUE(gcRequestFile).
-    OS-DELETE VALUE(gcResponseFile).
         
-    RETURN.
-END.
-    
-/* Put Response Data from Temporary file into a variable */
-COPY-LOB FILE gcResponseFile TO glcResponseData NO-ERROR.
-
-IF ERROR-STATUS:ERROR THEN DO:
+IF cAPIRequestMethod EQ "cURL" THEN DO:
     ASSIGN
-        oplSuccess = FALSE
-        opcMessage = "Error reading the response"
+        gcRequestFile  = "request"     + "_"
+                       + gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType). /* File Extentions */
+        gcResponseFile = "response"    + "_"
+                       + gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType) /* File Extentions */
         .
-
-    /* delete temporary files */
-    OS-DELETE VALUE(gcRequestFile).
-    OS-DELETE VALUE(gcResponseFile).
-        
-    RETURN.
-END.
     
-oplcResponseData = glcResponseData.
+    gcCommand = SEARCH("curl.exe") 
+              + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
+                 ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
+                 ELSE "") + ' ' 
+              + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
+              + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
+              + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
+              + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
+              + gcEndPoint.
+    
+    /* Put Request Data from a variable into a Temporary file */
+    COPY-LOB glcRequestData TO FILE gcRequestFile.
+       
+    /* execute CURL command with requiredif  parameters to call the API */
+    RUN OS_RunCommand (
+        INPUT  gcCommand,             /* Command string to run */
+        INPUT  gcResponseFile,        /* File name to write the command output */
+        INPUT  TRUE,                  /* Run with SILENT option */
+        INPUT  FALSE,                 /* Run with NO-WAIT option */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error excuting curl command"
+            .
+            
+        RETURN.
+    END.
+        
+    /* Put Response Data from Temporary file into a variable */
+    COPY-LOB FILE gcResponseFile TO glcResponseData NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error reading the response"
+            .
+            
+        RETURN.
+    END.
+        
+    oplcResponseData = glcResponseData.
+END.
+ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
+    oAPIHandler = NEW API.APIHandler().
+    
+    oAPIHandler:ContentType = gcRequestDataType.
+    
+    IF gcAuthType EQ "Basic" THEN
+        oAPIHandler:SetBasicAuthentication(gcUserName, gcPassword).
+    ELSE IF gcAuthType EQ "Bearer" THEN
+        oAPIHandler:SetBearerAuthentication(gcPassword).
+
+    IF gcRequestVerb EQ "POST" THEN        
+        oplcResponseData = oAPIHandler:Post(gcEndPoint, iplcRequestData).
+    ELSE IF gcRequestDataType EQ "GET" THEN 
+        oplcResponseData = oAPIHandler:Get(gcEndPoint).
+                            
+    IF VALID-OBJECT(oAPIHandler) THEN
+        DELETE OBJECT oAPIHandler.    
+END.
 
 /* Read Response  */
 RUN pReadResponse (
-    INPUT  glcResponseData,
+    INPUT  oplcResponseData,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
 
-/* delete temporary files */
-OS-DELETE VALUE(gcRequestFile).
-OS-DELETE VALUE(gcResponseFile).
+FINALLY:
+    /* delete temporary files */
+    IF gcRequestType EQ "API" AND NOT glSaveFile THEN
+        OS-DELETE VALUE(gcRequestFile).
+    
+    IF gcRequestType NE "FTP" AND gcRequestType NE "SFTP" THEN
+        OS-DELETE VALUE(gcResponseFile).
+END FINALLY.
 
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------

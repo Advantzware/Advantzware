@@ -104,6 +104,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD orderLineOverridden      AS INTEGER
     FIELD taxRateFreight           AS DECIMAL 
     FIELD customerPONo             AS CHARACTER
+    FIELD customerPONoNoBlank      AS CHARACTER
     FIELD isMisc                   AS LOGICAL 
     FIELD charge                   AS CHARACTER
     FIELD chargeDescription        AS CHARACTER

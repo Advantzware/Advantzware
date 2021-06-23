@@ -317,7 +317,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Set Parts' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -440,6 +440,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'linker':U , h_b-rcptd-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updcdc , 'TableIO':U , h_b-rcptd-2 ).
        RUN add-link IN adm-broker-hdl ( h_vp-selbin , 'selbin':U , h_b-rcptd-2 ).
+       RUN add-link IN adm-broker-hdl ( h_vp-selbin , 'itemReceipt':U , h_b-rcptd ).
 
        /* Links to SmartViewer h_vp-selbin. */
        RUN add-link IN adm-broker-hdl ( h_b-rcptd-2 , 'Record':U , h_vp-selbin ).
