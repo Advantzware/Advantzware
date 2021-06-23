@@ -12,7 +12,7 @@
   ----------------------------------------------------------------------*/
 USING System.SharedConfig.
 
-DEFINE INPUT  PARAMETER ipcAPIOutboundID AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPrimaryID     AS CHARACTER NO-UNDO.
@@ -56,9 +56,13 @@ DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
+
+DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
 
 RUN spGetSessionParam(
     INPUT  "Company",
@@ -77,7 +81,7 @@ ASSIGN
     .
 
 FOR FIRST APIOutbound NO-LOCK
-    WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
+    WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
       AND (lAPIOutboundTestMode OR 
            APIOutbound.Inactive EQ FALSE):
     ASSIGN
@@ -103,7 +107,7 @@ END.
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
         opcMessage = "Config for Outbound API Sequence ID [" 
-                   + STRING(ipcAPIOutboundID) 
+                   + STRING(ipiAPIOutboundID) 
                    + "] not available or inactive in APIOutbound table"
         oplSuccess = NO
         .
@@ -265,13 +269,28 @@ IF cAPIRequestMethod EQ "cURL" THEN DO:
                        + gcDateTime               /* Date and Time */
                        + "." + lc(gcRequestDataType) /* File Extentions */
         .
-    
+
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID:
+        IF bf-APIOutboundContent.contentType EQ "Headers" THEN
+            cHeadersData = cHeadersData
+                         + ' -H "' + bf-APIOutboundContent.contentKey + ':'
+                         + bf-APIOutboundContent.contentValue + '" '.
+        ELSE IF bf-APIOutboundContent.contentType EQ "x-www-form-urlencoded" THEN
+            cUrlEncodedData = cUrlEncodedData
+                            + ' --data-urlencode "' + bf-APIOutboundContent.contentKey + '='
+                            + bf-APIOutboundContent.contentValue + '" '.
+        
+    END.
+
     gcCommand = SEARCH("curl.exe") 
               + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
                  ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
                  ELSE "") + ' ' 
               + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
               + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
+              + cHeadersData
+              + cUrlEncodedData
               + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
               + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
               + gcEndPoint.
@@ -315,7 +334,15 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
     oAPIHandler = NEW API.APIHandler().
     
     oAPIHandler:ContentType = gcRequestDataType.
-    
+
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID:
+        IF bf-APIOutboundContent.contentType EQ "Headers" THEN
+            oAPIHandler:AddHeaderData(bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).
+        ELSE IF bf-APIOutboundContent.contentType EQ "x-www-form-urlencoded" THEN
+            oAPIHandler:AddURLEncodeData(bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).        
+    END.
+        
     IF gcAuthType EQ "Basic" THEN
         oAPIHandler:SetBasicAuthentication(gcUserName, gcPassword).
     ELSE IF gcAuthType EQ "Bearer" THEN
@@ -325,6 +352,8 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
         oplcResponseData = oAPIHandler:Post(gcEndPoint, iplcRequestData).
     ELSE IF gcRequestDataType EQ "GET" THEN 
         oplcResponseData = oAPIHandler:Get(gcEndPoint).
+    ELSE IF gcRequestDataType EQ "DELETE" THEN 
+        oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
                             
     IF VALID-OBJECT(oAPIHandler) THEN
         DELETE OBJECT oAPIHandler.    
