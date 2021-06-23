@@ -51,6 +51,7 @@ DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFirstRow             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE dMaxQty               AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
@@ -60,7 +61,8 @@ IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 
-RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.    
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+dMaxQty = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity" IN hdVendorCostProcs).  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,7 +95,7 @@ DEFINE QUERY external_tables FOR vendItemCost.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.quantityFrom vendItemCostLevel.quantityTo vendItemCostLevel.costPerUom vendItemCostLevel.costSetup vendItemCostLevel.costDeviation vendItemCostLevel.leadTimeDays  
+&Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.costPerUom vendItemCostLevel.costSetup vendItemCostLevel.costDeviation vendItemCostLevel.leadTimeDays  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table    
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table vendItemCostLevel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table vendItemCostLevel
@@ -126,17 +128,16 @@ FUNCTION fIsBestCost RETURNS CHARACTER PRIVATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMaxQty B-table-Win
+FUNCTION fMaxQty RETURNS CHARACTER PRIVATE 
+  (ipdMaxQty AS DECIMAL) FORWARD.
 
-
-
-
-
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
-
 /* Definitions of the field level widgets                               */
-
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -148,19 +149,18 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U WIDTH 20
-      vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To"   FORMAT "->>>>>>>>>9.999999":U WIDTH 20
-      vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.9999":U  WIDTH 18
-      fIsBestCost()                                       COLUMN-LABEL "B"        FORMAT "X(1)":U        WIDTH 2 
-      vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15      
-      vendItemCostLevel.costDeviation                     COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.leadTimeDays                      COLUMN-LABEL "Lead"     FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.useForBestCost                    COLUMN-LABEL "Sel"      FORMAT "Y/N":U         WIDTH 5
+      vendItemCostLevel.quantityFrom          COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U         WIDTH 20
+      fMaxQty(vendItemCostLevel.quantityTo)   COLUMN-LABEL "Up To"    FORMAT "x(18)":U         WIDTH 20
+      vendItemCostLevel.costPerUom            COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.9999":U WIDTH 18
+      fIsBestCost()                           COLUMN-LABEL "B"        FORMAT "X(1)":U          WIDTH 2 
+      vendItemCostLevel.costSetup             COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U   WIDTH 15      
+      vendItemCostLevel.costDeviation         COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U   WIDTH 15
+      vendItemCostLevel.leadTimeDays          COLUMN-LABEL "Lead"     FORMAT "->>>>>>9.9<":U   WIDTH 15
+      vendItemCostLevel.useForBestCost        COLUMN-LABEL "Sel"      FORMAT "Y/N":U           WIDTH 5
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN NO-ROW-MARKERS SEPARATORS SIZE 86 BY 10.91
          FONT 2 ROW-HEIGHT-CHARS .76 .
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -171,7 +171,6 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 8 FGCOLOR 0 .
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -215,9 +214,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -243,7 +239,6 @@ IF NOT lVendItemUseDeviation THEN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
@@ -264,10 +259,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendI
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
-
-
-
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define BROWSE-NAME Browser-Table
@@ -286,7 +277,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
-   
    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
    DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -793,7 +783,6 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsBestCost B-table-Win
 FUNCTION fIsBestCost RETURNS CHARACTER PRIVATE
   (  ):
@@ -801,13 +790,24 @@ FUNCTION fIsBestCost RETURNS CHARACTER PRIVATE
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF vendItemCostLevel.useForBestCost THEN 
-        RETURN "*".
-    ELSE 
-        RETURN "".  
+    RETURN IF vendItemCostLevel.useForBestCost THEN "*" ELSE "".  
+
 END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMaxQty B-table-Win
+FUNCTION fMaxQty RETURNS CHARACTER PRIVATE
+  (ipdMaxQty AS DECIMAL):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	
+	RETURN IF ipdMaxQty EQ dMaxQty THEN "Unlimited" ELSE LEFT-TRIM(STRING(ipdMaxQty,">>>>>>>>>9.999999")).
 
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

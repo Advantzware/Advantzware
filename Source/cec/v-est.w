@@ -140,6 +140,9 @@ DEFINE VARIABLE hdArtiosProcs AS HANDLE.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
 RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -169,7 +172,7 @@ est.csrUser_id eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
 ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no ~
 eb.upc-no eb.style eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len ~
 eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid ~
-eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
 &Scoped-define ENABLED-TABLES est eb ef
 &Scoped-define FIRST-ENABLED-TABLE est
 &Scoped-define SECOND-ENABLED-TABLE eb
@@ -184,7 +187,7 @@ eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
 eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
 eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
 eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck ~
-eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
 &Scoped-define DISPLAYED-TABLES est eb est-qty ef
 &Scoped-define FIRST-DISPLAYED-TABLE est
 &Scoped-define SECOND-DISPLAYED-TABLE eb
@@ -512,6 +515,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
+     eb.lockLayout AT ROW 11.71 COL 115 COLON-ALIGNED 
+          VIEW-AS TOGGLE-BOX 
+          SIZE 30 BY 1     
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -2476,6 +2482,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
 PROCEDURE cad-image-update :
 /*------------------------------------------------------------------------------
@@ -3217,6 +3239,11 @@ PROCEDURE local-assign-record :
 
   IF ll-auto-calc-selected THEN DO:
 
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+        INPUT ROWID(eb)
+        ).
+
     RUN calc-blank-size.
     FIND CURRENT eb.
   END.
@@ -3597,6 +3624,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -4721,7 +4770,9 @@ PROCEDURE UpdatePOScores :
     IF AVAILABLE eb THEN
         RUN est/d-panelDetails.w (
             INPUT ROWID(eb),
-            INPUT "eb"
+            INPUT "eb",
+            INPUT "",
+            INPUT ""
             ).
 END PROCEDURE.
 

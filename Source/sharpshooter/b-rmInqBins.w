@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 &SCOPED-DEFINE exclude-brwCustom
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
@@ -532,7 +532,8 @@ PROCEDURE ScanItem :
         INPUT        iplEmptyTags,    /* Include empty tag bins */
         OUTPUT       opcConsUOM,
         OUTPUT       oplError,
-        OUTPUT       opcMessage
+        OUTPUT       opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
     
     IF oplError THEN

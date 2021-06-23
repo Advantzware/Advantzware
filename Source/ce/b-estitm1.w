@@ -1819,7 +1819,9 @@ PROCEDURE assign-qty :
       NO-ERROR.
 
   IF AVAIL bf-est-qty THEN DO:
-    ASSIGN bf-est-qty.qty[1] = est-qty.eqty
+    ASSIGN bf-est-qty.qty[1] = est-qty.eqty .
+    IF est.est-type NE 4 THEN
+         ASSIGN
            bf-est-qty.qty[2] = lv-copy-qty[2]
            bf-est-qty.qty[3] = lv-copy-qty[3]
            bf-est-qty.qty[4] = lv-copy-qty[4]
@@ -1904,7 +1906,9 @@ PROCEDURE assign-qty :
 
       FIND bf-est WHERE bf-est.company = bf-est-qty.company AND
                         bf-est.est-no = bf-est-qty.est-no.
-      ASSIGN bf-est.est-qty[1] = est-qty.eqty
+      ASSIGN bf-est.est-qty[1] = est-qty.eqty.
+      IF est.est-type NE 4 THEN
+         ASSIGN
              bf-est.est-qty[2] = bf-est-qty.qty[2]
              bf-est.est-qty[3] = bf-est-qty.qty[3]
              bf-est.est-qty[4] = bf-est-qty.qty[4].
@@ -3326,7 +3330,11 @@ FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
-IF bf-est.est-type NE 2 THEN bf-est.est-type = 4.
+IF bf-est.est-type NE 2 THEN
+DO:
+    bf-est.est-type = 4.
+    RUN pReSetEstQty(rowid(est-qty)). 
+END.
 
 FIND LAST bf 
     WHERE bf.company EQ est-qty.company
@@ -5243,6 +5251,8 @@ PROCEDURE reset-est-type :
     ASSIGN
      op-est-type = 4
      eb.yld-qty  = eb.bl-qty.
+     
+     RUN pReSetEstQty(rowid(est-qty)).
 
     FOR EACH bf-eb OF bf-est WHERE ROWID(eb) NE ROWID(bf-eb):
       RUN set-yld-qty (ROWID(bf-eb)).
@@ -5561,6 +5571,29 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
+PROCEDURE pReSetEstQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+ DEFINE BUFFER bf-est-qty FOR est-qty.
+ FIND FIRST bf-est-qty EXCLUSIVE-LOCK
+      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
+      
+ IF AVAIL bf-est-qty THEN
+     ASSIGN
+         bf-est-qty.qty = 0
+         bf-est-qty.qty[1] = est-qty.eqty.
+ RELEASE bf-est-qty.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

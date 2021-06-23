@@ -14,8 +14,8 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE hdInventoryProcs AS HANDLE.
+{Inventory/ttInventoryStockLoadtag.i}
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-{Inventory/ttInventory.i "NEW SHARED"}
 
 /* ********************  Preprocessor Definitions  ******************** */
 

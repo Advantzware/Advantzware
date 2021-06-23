@@ -27,6 +27,8 @@ DEFINE VARIABLE lRunForQuote AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRunMethods AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEffectiveDate AS DATE NO-UNDO.
+DEFINE VARIABLE cCustType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustCompareValue AS CHARACTER NO-UNDO.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -70,6 +72,7 @@ IF AVAIL itemfg THEN DO:
    w-matrix.uom   = ip-uom
    w-matrix.price = ip-prc.
 
+  cCustCompareValue = ip-cust-no. 
   RUN update-matrix.
 END.
 
@@ -95,9 +98,25 @@ RELEASE quoteitm.
 IF AVAIL quotehd THEN DO:
   ip-cust-no = quotehd.cust-no.
   iQuoteNo   = quotehd.q-no.
-  cRunMethods = quotehd.pricingMethod. 
-  cShipId = quotehd.ship-id.
+  cRunMethods = quotehd.pricingMethod.   
   dtEffectiveDate = quotehd.effectiveDate.
+  
+  IF cRunMethods EQ "Ship To" THEN
+  ASSIGN
+  cCustCompareValue = quotehd.cust-no
+  cShipId = quotehd.ship-id.  
+  ELSE IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
+  ASSIGN
+    cCustCompareValue = ""
+    cShipId = "". 
+  ELSE cCustCompareValue = quotehd.cust-no.
+  
+  FIND FIRST cust NO-LOCK
+       WHERE cust.company EQ quotehd.company
+       AND cust.cust-no EQ quotehd.cust-no NO-ERROR.
+  IF AVAIL cust THEN
+  cCustType = cust.type.
+  
   FOR EACH quoteitm
       WHERE quoteitm.company EQ quotehd.company
         AND quoteitm.loc     EQ quotehd.loc
@@ -131,7 +150,8 @@ IF AVAIL quotehd THEN DO:
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
-       quotehd.approved = YES.
+       quotehd.approved = YES
+       quotehd.expireDate = 12/31/2099.
        IF dtEffectiveDate EQ ? THEN
        quotehd.effectiveDate = TODAY.
        RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
@@ -156,12 +176,13 @@ RETURN.
 PROCEDURE update-matrix.
   FOR EACH oe-prmtx
       WHERE oe-prmtx.company            EQ itemfg.company
-        AND (oe-prmtx.cust-no            EQ ip-cust-no OR (cRunMethods EQ "Type"))
+        AND oe-prmtx.cust-no            EQ cCustCompareValue 
         AND oe-prmtx.i-no               BEGINS itemfg.i-no
-        AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
-        AND (oe-prmtx.quoteId           EQ iQuoteNo OR NOT lQuotePriceMatrix )
-/*         AND SUBSTR(oe-prmtx.i-no,101,8) LE lv-date */
-/*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
+        AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no                 
+        AND oe-prmtx.custShipID         EQ cShipId 
+        AND oe-prmtx.procat             EQ itemfg.procat 
+        AND oe-prmtx.custype            EQ cCustType
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)        
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -174,20 +195,13 @@ PROCEDURE update-matrix.
      oe-prmtx.i-no = itemfg.i-no.
      IF dtEffectiveDate NE ? THEN 
      oe-prmtx.eff-date = dtEffectiveDate.
+     
      IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
-     DO:
-         FIND FIRST cust NO-LOCK
-              WHERE cust.company EQ itemfg.company
-              AND cust.cust-no EQ ip-cust-no NO-ERROR.
-         IF AVAIL cust THEN
-          oe-prmtx.custype = cust.type.
-     END.
+     oe-prmtx.custype = cCustType.     
      ELSE IF lQuotePriceMatrix AND cRunMethods EQ "Ship To" THEN
-     DO:
-         ASSIGN
+     ASSIGN
           oe-prmtx.cust-no = ip-cust-no
           oe-prmtx.custShipID = cShipId.
-     END.
      ELSE
      ASSIGN     
      oe-prmtx.cust-no = ip-cust-no.
@@ -273,12 +287,13 @@ END PROCEDURE.
 PROCEDURE update-matrix-minus.
   FOR EACH oe-prmtx
       WHERE oe-prmtx.company            EQ itemfg.company
-        AND (oe-prmtx.cust-no            EQ ip-cust-no OR (cRunMethods EQ "Type"))
+        AND oe-prmtx.cust-no            EQ cCustCompareValue 
         AND oe-prmtx.i-no               BEGINS itemfg.i-no
-        AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
-        AND (oe-prmtx.quoteId           EQ iQuoteNo OR NOT lQuotePriceMatrix )
-/*         AND SUBSTR(oe-prmtx.i-no,101,8) LE lv-date */
-/*       BY SUBSTR(oe-prmtx.i-no,101,8) DESC:         */
+        AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no                 
+        AND oe-prmtx.custShipID         EQ cShipId 
+        AND oe-prmtx.procat             EQ itemfg.procat 
+        AND oe-prmtx.custype            EQ cCustType
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -293,19 +308,11 @@ PROCEDURE update-matrix-minus.
      oe-prmtx.eff-date = dtEffectiveDate.
      
      IF lQuotePriceMatrix AND cRunMethods EQ "Type" THEN
-     DO:
-         FIND FIRST cust NO-LOCK
-              WHERE cust.company EQ itemfg.company
-              AND cust.cust-no EQ ip-cust-no NO-ERROR.
-         IF AVAIL cust THEN
-          oe-prmtx.custype = cust.type.
-     END.
+     oe-prmtx.custype = cCustType.
      ELSE IF lQuotePriceMatrix AND cRunMethods EQ "Ship To" THEN
-     DO:
-         ASSIGN
+     ASSIGN
           oe-prmtx.cust-no = ip-cust-no
           oe-prmtx.custShipID = cShipId.
-     END.
      ELSE
      ASSIGN     
      oe-prmtx.cust-no = ip-cust-no.

@@ -71,7 +71,6 @@ DEFINE VARIABLE iWarehouseLength      AS INTEGER   NO-UNDO.
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 {fg/fgPostBatch.i}    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
     FIELD line-rowid  AS ROWID 

@@ -2820,9 +2820,7 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 
-    IF AVAILABLE ipbf-inv-head THEN 
-    DO:
-    
+    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 THEN DO:    
         ASSIGN 
             cAPIID       = "SendInvoice"
             cTriggerID   = "PostInvoice"
@@ -3065,7 +3063,6 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.ytd-msf          = bf-itemfg.ytd-msf + ttFGItemToUpdate.quantityInvoicedMSFTotal
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
-                bf-itemfg.q-alloc          = bf-itemfg.q-alloc + ttFGItemToUpdate.quantityShippedTotal
                 .
             
             DELETE ttFGItemToUpdate.

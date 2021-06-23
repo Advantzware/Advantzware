@@ -228,7 +228,6 @@
     DEFINE VARIABLE dSizeFactor                 AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cSizeFormat                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lDecimalLog                 AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lReftableFound              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cScoreSize16thsWestRock     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS2      AS CHARACTER NO-UNDO.
@@ -610,8 +609,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                        ELSE 
                            "Width".
 
-            lReftableFound = FALSE.
-            
             RUN PO_GetLineScoresAndTypes IN hdPOProcs (
                 INPUT  po-ordl.company,
                 INPUT  po-ordl.po-no,
@@ -619,19 +616,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 OUTPUT dScoreSizeArray,
                 OUTPUT cScoreTypeArray
                 ).
-
-            /* Scores not found on reftable. Find in panel tables */
-            IF dScoreSizeArray[1] EQ 0 THEN           
-                RUN GetPanelScoreAndTypeForPO IN hdFormulaProcs (
-                    INPUT  cCompany,
-                    INPUT  po-ordl.po-no,
-                    INPUT  po-ordl.line,
-                    INPUT  SUBSTRING(cScoreOn,1,1),
-                    OUTPUT dScoreSizeArray,
-                    OUTPUT cScoreTypeArray
-                    ).
-            ELSE
-                lReftableFound = TRUE.
 
             IF dScoreSizeArray[1] EQ 0 THEN
                 ASSIGN
@@ -1390,32 +1374,21 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                     
                     lcConcatLineScoresData = lcConcatLineScoresData + lcLineScoresData.
                 END.
+                 
+                RUN SwitchPanelSizeFormat IN hdFormulaProcs (
+                    INPUT  cSizeFormat,
+                    INPUT  "16th's",
+                    INPUT  dScoreSizeArray[iIndex],
+                    OUTPUT dScoreSize16ths
+                    ).
 
-                IF lReftableFound THEN DO:                    
-                    RUN SwitchPanelSizeFormat IN hdFormulaProcs (
-                        INPUT  cSizeFormat,
-                        INPUT  "16th's",
-                        INPUT  dScoreSizeArray[iIndex],
-                        OUTPUT dScoreSize16ths
-                        ).
-                        
-                    RUN SwitchPanelSizeFormat IN hdFormulaProcs (
-                        INPUT  cSizeFormat,
-                        INPUT  "Decimal",
-                        INPUT  dScoreSizeArray[iIndex],
-                        OUTPUT dScoreSizeDecimal
-                        ).
-                END.                
-                ELSE DO:
-                    RUN SwitchPanelSizeFormat IN hdFormulaProcs (
-                        INPUT  "Decimal",
-                        INPUT  "16th's",
-                        INPUT  dScoreSizeArray[iIndex],
-                        OUTPUT dScoreSize16ths
-                        ).
-                        
-                    dScoreSizeDecimal = dScoreSizeArray[iIndex].
-                END.
+                RUN SwitchPanelSizeFormat IN hdFormulaProcs (
+                    INPUT  cSizeFormat,
+                    INPUT  "Decimal",
+                    INPUT  dScoreSizeArray[iIndex],
+                    OUTPUT dScoreSizeDecimal
+                    ).
+                
                 IF AVAILABLE bf-APIOutboundDetail2 AND dScoreSize16ths NE 0 AND dScoreSizeArray[iIndex] NE 0 THEN DO:
                     lcLineScoresDataGP = STRING(bf-APIOutboundDetail2.data).
                     

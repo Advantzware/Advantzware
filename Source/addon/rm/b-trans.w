@@ -39,7 +39,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 def var ext-cost as decimal no-undo.
 def var lv-recid as recid no-undo.

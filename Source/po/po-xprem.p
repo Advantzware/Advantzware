@@ -427,7 +427,7 @@ v-printline = 0.
 
         IF lPrintPrice THEN
            PUT
-            "<C61.5>" po-ordl.cost FORM "->>>9.99"
+            "<C61.5>" po-ordl.cost FORM "->>>9.99<<"
             "<C69>" po-ordl.pr-uom
             "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99". 
 

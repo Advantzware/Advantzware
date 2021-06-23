@@ -395,6 +395,7 @@ DEFINE QUERY Browser-Table FOR
       fg-rcpth.b-no
       fg-rcpth.pur-uom
       fg-rcpth.post-date
+      fg-rcpth.r-no
       vend-no), 
       fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
@@ -1196,6 +1197,8 @@ END.
 {methods/browsers/setCellColumns.i}
 
 {sys/inc/f3help.i}  /* asi field contents help */
+{methods/ctrl-a_browser.i}
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 

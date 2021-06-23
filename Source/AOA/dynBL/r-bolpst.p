@@ -43,7 +43,6 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
 {custom/globdefs.i &NEW=NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 {oe/oe-bolp1.i NEW}
 {oe/d-selbin.i NEW} /* w-bin definition */

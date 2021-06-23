@@ -1228,6 +1228,19 @@ PROCEDURE pDeleteReceiptHistoryLinks PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE APInvoice_DeleteReceiptHistoryLinks :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcInventoryStocRecKey AS CHARACTER NO-UNDO.
+    
+    RUN pDeleteReceiptHistoryLinks (
+            INPUT ipcInventoryStocRecKey
+            ).              
+  
+END PROCEDURE.
+
 PROCEDURE APInvoice_UpdateReceiptsQty:
     /*------------------------------------------------------------------------------
      Purpose:

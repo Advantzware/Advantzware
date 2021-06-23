@@ -37,7 +37,6 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {methods/template/brwcustomdef.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.

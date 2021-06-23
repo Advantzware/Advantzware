@@ -1450,7 +1450,7 @@ PROCEDURE spGetDynParamValue:
         ipiSubjectID,
         USERID("ASI"),
         "",
-        0
+        -1 // set to a negative for a temporary subject
         ).    
     IF NOT AVAILABLE dynParamValue THEN
     opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".

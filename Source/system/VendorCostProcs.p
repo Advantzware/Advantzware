@@ -33,10 +33,16 @@ DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-
+DEFINE VARIABLE gcAutoSetMaximum    AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
+
+FUNCTION fGetSettingAutoSetMaximum RETURNS CHARACTER PRIVATE
+	(ipcCompany AS CHARACTER) FORWARD.
+
+FUNCTION VendCost_GetUnlimitedQuantity RETURNS DECIMAL 
+	(  ) FORWARD.
 
 FUNCTION VendCost_GetValidScopes RETURNS CHARACTER 
     (ipcContext AS CHARACTER) FORWARD.
@@ -757,6 +763,120 @@ PROCEDURE pExpirePriceByCust PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pSetMaxOrderValue PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given a vendItemCostLevel buffer, determine if the vendItemCost max order
+    quantity should be updated (NK1 VendItemCostMaximum = "AutoSetOnAdd" functionality)
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    IF gcAutoSetMaximum EQ "" THEN DO:
+        FIND FIRST bf-vendItemCost NO-LOCK 
+            WHERE bf-vendItemCost.vendItemCostID EQ ipbf-vendItemCostLevel.vendItemCostID
+            NO-ERROR. 
+        IF AVAILABLE bf-vendItemCost THEN  
+            gcAutoSetMaximum = fGetSettingAutoSetMaximum(bf-vendItemCost.company).
+    END. 
+    IF gcAutoSetMaximum EQ "AutoSetOnAdd" THEN DO:
+        IF NOT CAN-FIND(FIRST vendItemCostLevel 
+                        WHERE vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCostLevel.vendItemCostID
+                        AND vendItemCostLevel.quantityBase GT ipbf-vendItemCostLevel.quantityBase ) THEN DO:
+            FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK 
+                WHERE bf-vendItemCost.vendItemCostID EQ ipbf-vendItemCostLevel.vendItemCostID
+                NO-ERROR.
+            IF AVAILABLE bf-vendItemCost THEN 
+                ASSIGN 
+                    bf-vendItemCost.quantityMaximumOrder = ipbf-vendItemCostLevel.quantityBase
+                    .
+            RELEASE bf-vendItemCost.
+        END.    
+    END.
+
+END PROCEDURE.
+
+PROCEDURE VendCost_CreateVendItemCostLevel:
+/*------------------------------------------------------------------------------
+ Purpose:  Creates a vend item cost level
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityBase AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostSetup AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostDeviation AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLeadTimeDays AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplUseForBestCost AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriVendItemCostLevel AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+     
+    CREATE bf-vendItemCostLevel .
+    ASSIGN
+        bf-vendItemCostLevel.vendItemCostID = ipiVendItemCostID
+        bf-vendItemCostLevel.quantityBase   = ipdQuantityBase  
+        bf-vendItemCostLevel.costPerUOM     = ipdCostPerUOM 
+        bf-vendItemCostLevel.costSetup      = ipdCostSetup
+        bf-vendItemCostLevel.costDeviation  = ipdCostDeviation
+        bf-vendItemCostLevel.leadTimeDays   = ipiLeadTimeDays
+        bf-vendItemCostLevel.useForBestCost = iplUseForBestCost
+        . 
+    
+    opriVendItemCostLevel = ROWID(bf-vendItemCostLevel).
+    
+    RUN pSetMaxOrderValue (BUFFER bf-vendItemCostLevel).
+    
+    RUN RecalculateFromAndTo (ipiVendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ).
+    
+    RELEASE bf-vendItemCostLevel.
+    
+END PROCEDURE.
+
+PROCEDURE VendCost_UpdateVendItemCostLevel:
+    /*------------------------------------------------------------------------------
+     Purpose: Updates a given VendItemCostLevel given ROWID and inputs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriVendItemCostLevel AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityBase AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostSetup AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCostDeviation AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLeadTimeDays AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplUseForBestCost AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    
+    FIND bf-vendItemCostLevel EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-vendItemCostLevel) EQ ipriVendItemCostLevel
+        NO-ERROR.
+    IF NOT AVAILABLE bf-vendItemCostLevel THEN RETURN.
+     
+    ASSIGN 
+        bf-vendItemCostLevel.quantityBase   = ipdQuantityBase  
+        bf-vendItemCostLevel.costPerUOM     = ipdCostPerUOM 
+        bf-vendItemCostLevel.costSetup      = ipdCostSetup
+        bf-vendItemCostLevel.costDeviation  = ipdCostDeviation 
+        bf-vendItemCostLevel.leadTimeDays   = ipiLeadTimeDays
+        bf-vendItemCostLevel.useForBestCost = iplUseForBestCost
+        .
+    RUN pSetMaxOrderValue (BUFFER bf-vendItemCostLevel).    
+    
+    RUN RecalculateFromAndTo (bf-vendItemCostLevel.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ).
+
+    RELEASE bf-vendItemCostLevel.
+
+END PROCEDURE.
+
 PROCEDURE Vendor_CheckPriceHoldForPo:
     /*------------------------------------------------------------------------------
      Purpose: Given an oe-ord rowid, check all order lines to see if Price Hold criteria
@@ -786,6 +906,7 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
     DEFINE VARIABLE dCostTotal           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cPOPriceHold         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPOPriceHold         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iVendCostLevelID     AS INTEGER   NO-UNDO.
  
     FIND FIRST bf-po-ord NO-LOCK 
         WHERE ROWID(bf-po-ord) EQ ipriPoOrd
@@ -865,8 +986,10 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                     OUTPUT lError,
                     INPUT-OUTPUT cMessage
                     ).
-                 
-                IF dCostPerUOM NE bf-po-ordl.cost OR bf-po-ordl.cost EQ 0 THEN
+                
+                RUN pGetCostLevel(bf-vendItemCost.vendItemCostID, dQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+                     
+                IF dCostPerUOM NE bf-po-ordl.cost OR iVendCostLevelID EQ 0 THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -875,12 +998,14 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                         ttPriceHold.cShipID          = ""
                         ttPriceHold.dQuantity        = bf-po-ordl.ord-qty                
                         ttPriceHold.lPriceHold       = YES
-                        ttPriceHold.cPriceHoldDetail = ""
-                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table"
-                        .                                            
+                        ttPriceHold.cPriceHoldDetail = ""  .
+                        IF iVendCostLevelID EQ 0 THEN
+                        ttPriceHold.cPriceHoldReason = "No matrix exist ".
+                        ELSE
+                        ttPriceHold.cPriceHoldReason = "Item Cost for " + ttPriceHold.cFGItemID + " not matched in Vendor Cost table" .                                            
                 END. 
                 
-                IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder THEN
+                IF dQuantityInVendorUOM LT bf-vendItemCost.quantityMinimumOrder OR (dQuantityInVendorUOM GT bf-vendItemCost.quantityMaximumOrder AND bf-vendItemCost.quantityMaximumOrder NE 0) THEN
                 DO:
                     CREATE ttPriceHold.                 
                     ASSIGN                       
@@ -2642,6 +2767,39 @@ PROCEDURE Vendor_ExpirePriceByItem:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fGetSettingAutoSetMaximum RETURNS CHARACTER PRIVATE
+	( ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Get the NK1 VendItemCostMaximum
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, 
+        INPUT "VendItemCostMaximum", 
+        INPUT "C" /* Logical */, 
+        INPUT  NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, 
+        INPUT "" /* cust */, 
+        INPUT "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN cReturn.
+		
+END FUNCTION.
+
+FUNCTION VendCost_GetUnlimitedQuantity RETURNS DECIMAL 
+	(  ):
+    /*------------------------------------------------------------------------------
+    Purpose:  Returns the constant for Unlimited Value
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+		RETURN gdQuantityMax.
+		
+END FUNCTION.
 
 FUNCTION VendCost_GetValidScopes RETURNS CHARACTER 
     ( ipcContext AS CHARACTER ):

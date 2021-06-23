@@ -28,7 +28,6 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i "new shared" }
-{Inventory/ttInventory.i "NEW SHARED"}
 ASSIGN cocode = g_company
        locode = g_loc.
 

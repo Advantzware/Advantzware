@@ -11,7 +11,6 @@
     Notes       :
   ----------------------------------------------------------------------*/
 {api/inbound/ttItem.i}
-{inventory/ttinventory.i "NEW SHARED"}.
 
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcWareHouseID      AS CHARACTER NO-UNDO.

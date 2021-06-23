@@ -176,10 +176,8 @@ DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lBOLQtyPopup AS LOGICAL NO-UNDO.
-{inventory/ttInventory.i "NEW SHARED"}
 RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
@@ -731,7 +729,7 @@ END.
 
 ON 'value-changed':U OF tt-relbol.tag#
 DO:
-   lCheckTagHoldMessage = NO.    
+       
 END.
 
 
@@ -2498,7 +2496,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   lCheckTagHoldMessage = NO . 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3788,7 +3786,7 @@ PROCEDURE validate-tag-status :
     IF avail oe-relh THEN
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ cocode
-         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+         AND cust.cust-no EQ oe-relh.cust-no NO-ERROR.
     IF AVAIL cust AND AVAIL oe-relh THEN
     cTagStatus = cust.tagStatus.
     
@@ -3803,20 +3801,8 @@ PROCEDURE validate-tag-status :
        APPLY "ENTRY":U TO tt-relbol.tag# IN BROWSE {&browse-name}.
        oplReturnError = YES.
        RETURN .
-    END.                                         
-  
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
-    THEN DO:        
-        IF lTagStatusOnHold THEN do:
-          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
-          IF NOT lMessageValue then
-          do:
-              APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
-              oplReturnError = YES .
-          END.
-          ELSE lCheckTagHoldMessage = YES.
-        END.        
-    END.      
+    END.   
+       
   END.
 
   {methods/lValidateError.i NO}
