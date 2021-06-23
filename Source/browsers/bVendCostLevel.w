@@ -51,9 +51,8 @@ DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFirstRow             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE dMaxQty               AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE dMinQty               AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dMaxQty               AS DECIMAL   NO-UNDO INIT 9999999999.999999.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -62,7 +61,8 @@ IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
 
-RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.    
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+dMaxQty = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity" IN hdVendorCostProcs).  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -135,13 +135,6 @@ FUNCTION fMaxQty RETURNS CHARACTER PRIVATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMinQty B-table-Win
-FUNCTION fMinQty RETURNS CHARACTER PRIVATE 
-  (ipdMinQty AS DECIMAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Definitions of the field level widgets                               */
@@ -156,7 +149,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      fMinQty(vendItemCostLevel.quantityFrom) COLUMN-LABEL "From"     FORMAT "x(18)":U         WIDTH 20
+      vendItemCostLevel.quantityFrom          COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U         WIDTH 20
       fMaxQty(vendItemCostLevel.quantityTo)   COLUMN-LABEL "Up To"    FORMAT "x(18)":U         WIDTH 20
       vendItemCostLevel.costPerUom            COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.9999":U WIDTH 18
       fIsBestCost()                           COLUMN-LABEL "B"        FORMAT "X(1)":U          WIDTH 2 
@@ -811,21 +804,8 @@ FUNCTION fMaxQty RETURNS CHARACTER PRIVATE
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN IF ipdMaxQty EQ dMaxQty THEN "Max" ELSE LEFT-TRIM(STRING(ipdMaxQty,">>>>>>>>>9.999999")).
-
-END FUNCTION.
 	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fMinQty B-table-Win
-FUNCTION fMinQty RETURNS CHARACTER PRIVATE
-  (ipdMinQty AS DECIMAL):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RETURN IF ipdMinQty EQ dMinQty THEN "Min" ELSE LEFT-TRIM(STRING(ipdMinQty,">>>>>>>>>9.999999")).
+	RETURN IF ipdMaxQty EQ dMaxQty THEN "Unlimited" ELSE LEFT-TRIM(STRING(ipdMaxQty,">>>>>>>>>9.999999")).
 
 END FUNCTION.
 	

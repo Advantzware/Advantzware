@@ -39,7 +39,7 @@ DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
 DEFINE VARIABLE period_pos   AS INTEGER           NO-UNDO.
 DEFINE VARIABLE v-count      AS INTEGER           NO-UNDO.
 DEFINE VARIABLE k_frac       AS DECIMAL           NO-UNDO INIT 6.25.
-DEFINE VARIABLE dMaxQty      AS DECIMAL           NO-UNDO INIT 9999999999.999999.
+DEFINE VARIABLE dMaxQty      AS DECIMAL           NO-UNDO.
 
 DEFINE BUFFER bff-e-itemfg-vend FOR e-itemfg-vend .
 
@@ -79,32 +79,16 @@ DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cVendItemCostMaximum  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lVendItemCostMaximum  AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
-    
-RUN sys/ref/nk1look.p (INPUT cocode, 
-                       INPUT "VendItemCostMaximum", 
-                       INPUT "C" /* Logical */, 
-                       INPUT  NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, 
-                       INPUT "" /* cust */, 
-                       INPUT "" /* ship-to*/,
-                       OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-cVendItemCostMaximum = STRING(cRtnChar) NO-ERROR.   
- 
-RUN sys/ref/nk1look.p (INPUT cocode, "VendItemCostMaximum", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-lVendItemCostMaximum = LOGICAL(cRtnChar) NO-ERROR.      
- 
+      
 RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
+
+dMaxQty = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity" IN hdVendorCostProcs).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -133,8 +117,8 @@ RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_MaxQty Btn_Cancel Btn_OK tb_BestCost dFrom ~
-dBase dEaCost1 dSetup1 dDev1 dTo cDevLabel iLeadTime RECT-21 
+&Scoped-Define ENABLED-OBJECTS tb_MaxQty Btn_Cancel Btn_OK tb_BestCost ~
+dFrom dBase dEaCost1 dSetup1 dDev1 dTo cDevLabel iLeadTime RECT-21 
 &Scoped-Define DISPLAYED-OBJECTS tb_MaxQty tb_BestCost dFrom dBase dEaCost1 ~
 dSetup1 dDev1 dTo cDevLabel cPriceUom iLeadTime 
 
@@ -199,7 +183,7 @@ DEFINE VARIABLE dSetup1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0
      SIZE 18.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dTo AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0.000000 
+DEFINE VARIABLE dTo AS DECIMAL FORMAT "->,>>>,>>>,>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 24.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -218,17 +202,17 @@ DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 17.8 BY 2.29.
 
-DEFINE VARIABLE tb_MaxQty AS LOGICAL INITIAL no 
-     LABEL "Max Quantity" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .81
-     FONT 1 NO-UNDO.
-
 DEFINE VARIABLE tb_BestCost AS LOGICAL INITIAL no 
      LABEL "Use For Best Cost" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81
      FONT 6.
+
+DEFINE VARIABLE tb_MaxQty AS LOGICAL INITIAL no 
+     LABEL "Unlimited" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81
+     FONT 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -264,7 +248,7 @@ DEFINE FRAME D-Dialog
           SIZE 12 BY 1 AT ROW 8.05 COL 3 WIDGET-ID 384
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 82
      RECT-21 AT ROW 10.52 COL 63
-     SPACE(0.19) SKIP(0.00)
+     SPACE(0.20) SKIP(0.53)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -468,7 +452,7 @@ DO:
 
 &Scoped-define SELF-NAME tb_MaxQty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_MaxQty D-Dialog
-ON VALUE-CHANGED OF tb_MaxQty IN FRAME D-Dialog /* Max Quantity */
+ON VALUE-CHANGED OF tb_MaxQty IN FRAME D-Dialog /* Unlimited */
 DO:
     ASSIGN {&SELF-NAME}.
     IF {&SELF-NAME} THEN
@@ -598,23 +582,17 @@ PROCEDURE pAssignValues :
    
     FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
 
-    FIND FIRST vendItemCostLevel WHERE ROWID(vendItemCostLevel) EQ iprRowid2 EXCLUSIVE-LOCK NO-ERROR  .
-
-    DO WITH FRAME {&frame-name}:  
-        ASSIGN 
-            vendItemCostLevel.quantityBase    = DECIMAL(dBase:SCREEN-VALUE)  
-            vendItemCostLevel.costPerUOM    = DECIMAL(dEaCost1:SCREEN-VALUE) 
-            vendItemCostLevel.costSetup     = DECIMAL(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = DECIMAL(dDev1:SCREEN-VALUE) 
-            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE)
-            vendItemCostLevel.useForBestCost = LOGICAL(tb_BestCost:SCREEN-VALUE)
-            .
+    DO WITH FRAME {&frame-name}:
+        RUN VendCost_UpdateVendItemCostLevel IN hdVendorCostProcs (iprRowid2,
+                                                                   vendItemCost.vendItemCostID,
+                                                                   DECIMAL(dBase:SCREEN-VALUE),
+                                                                   DECIMAL(dEaCost1:SCREEN-VALUE),
+                                                                   DECIMAL(dSetup1:SCREEN-VALUE),
+                                                                   DECIMAL(dDev1:SCREEN-VALUE),
+                                                                   INTEGER(iLeadTime:SCREEN-VALUE),
+                                                                   LOGICAL(tb_BestCost:SCREEN-VALUE)).  
     END.
-    opRowid = ROWID(vendItemCostLevel) .
-    FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
-    RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
-    
-    RELEASE vendItemCostLevel.
+    opRowid = iprRowid2 .
     
 END PROCEDURE.
 
@@ -641,35 +619,17 @@ PROCEDURE pCreateValues :
      lNewRecordCreated = YES.
      
     DO WITH FRAME {&frame-name}:        
-        CREATE vendItemCostLevel .
-        ASSIGN
-            vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID
-            vendItemCostLevel.quantityBase   = DECIMAL(dBase:SCREEN-VALUE)  
-            vendItemCostLevel.costPerUOM     = DECIMAL(dEaCost1:SCREEN-VALUE) 
-            vendItemCostLevel.costSetup      = DECIMAL(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation  = DECIMAL(dDev1:SCREEN-VALUE)
-            vendItemCostLevel.leadTimeDays   = INTEGER(iLeadTime:SCREEN-VALUE)
-            vendItemCostLevel.useForBestCost = LOGICAL(tb_BestCost:SCREEN-VALUE)
-            . 
+        RUN VendCost_CreateVendItemCostLevel IN hdVendorCostProcs (vendItemCost.vendItemCostID,
+                                                                    DECIMAL(dBase:SCREEN-VALUE),
+                                                                    DECIMAL(dEaCost1:SCREEN-VALUE),
+                                                                    DECIMAL(dSetup1:SCREEN-VALUE),
+                                                                    DECIMAL(dDev1:SCREEN-VALUE),
+                                                                    INTEGER(iLeadTime:SCREEN-VALUE),
+                                                                    LOGICAL(tb_BestCost:SCREEN-VALUE),
+                                                                    OUTPUT opRowID).
+             
     END.
-    
-    FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
-    opRowid = ROWID(vendItemCostLevel) .
-    
-    DO WITH FRAME {&FRAME-NAME}:
-      IF lVendItemCostMaximum AND lNewRecordCreated THEN do:
-         CREATE bf-vendItemCostLevel .
-         ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID.
-         IF cVendItemCostMaximum EQ  "Unlimited" THEN
-           bf-vendItemCostLevel.quantityBase    = 9999999 .
-         ELSE bf-vendItemCostLevel.quantityBase    = DECIMAL(dBase:SCREEN-VALUE) + 0.01 .   
-         FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .     
-      END.
-    END.     
-    
-    RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 
-    RELEASE vendItemCostLevel.
 
 END PROCEDURE.
 
@@ -694,7 +654,8 @@ PROCEDURE pDisplayValue :
         
 
         FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
-        
+        IF AVAILABLE vendItemCost AND vendItemCost.useQuantityFromBase THEN 
+            tb_MaxQty:HIDDEN = TRUE.
         FIND FIRST vendItemCostLevel WHERE ROWID(vendItemCostLevel) EQ iprRowid2 NO-LOCK NO-ERROR  .
         IF AVAIL vendItemCostLevel THEN
              ASSIGN 
