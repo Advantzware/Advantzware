@@ -61,7 +61,7 @@ DEFINE VARIABLE giAttributeIDDieNumberUp      AS INTEGER NO-UNDO INITIAL 13.    
 DEFINE VARIABLE giAttributeIDFilmLen          AS INTEGER NO-UNDO INITIAL 14.    //Film Length
 DEFINE VARIABLE giAttributeIDFilmWid          AS INTEGER NO-UNDO INITIAL 15.    //Film Width
 DEFINE VARIABLE giAttributeIDGShtLen          AS INTEGER NO-UNDO INITIAL 16.    //Gross Sht Length
-DEFINE VARIABLE giAttributeIDGShtWi           AS INTEGER NO-UNDO INITIAL 17.    //Gross Sht Width
+DEFINE VARIABLE giAttributeIDGShtWid          AS INTEGER NO-UNDO INITIAL 17.    //Gross Sht Width
 DEFINE VARIABLE giAttributeIDEstQty           AS INTEGER NO-UNDO INITIAL 18.    //Estimate Qty
 DEFINE VARIABLE giAttributeIDDieLIIn          AS INTEGER NO-UNDO INITIAL 19.    //Die Lineal Inches
 DEFINE VARIABLE giAttributeIDEstSheets        AS INTEGER NO-UNDO INITIAL 20.    //Estimated Sheets
@@ -1031,12 +1031,12 @@ PROCEDURE pGetMRWaste PRIVATE:
             
     dMRWasteFromMach = ipbf-mach.mr-waste.
         
-    IF fIsDepartment(gcDeptsForPrinters, ipbf-mach.dept) THEN   
+    IF fIsDepartment(gcDeptsForPrinters, ipbf-mach.dept) OR fIsDepartment(gcDeptsForCoaters, ipbf-mach.dept) THEN   
     DO:      
-        RUN pGetAttribute(1, OUTPUT cColors, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
+        RUN pGetAttribute(giAttributeIDNoOfColors, OUTPUT cColors, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
         IF NOT oplError THEN 
             iColors = INTEGER(cColors).
-        IF fIsDepartment(gcDeptsForCoaters, ipbf-mach.dept) OR fIsDepartment(gcDeptsForPrinters, ipbf-mach.dept) THEN
+        IF iColors GT 0 THEN
             dMRWasteFromInks = ipbf-mach.col-wastesh * iColors.                       
     END.          
     opdMRWaste = dMRWasteFromMach + dMRWasteFromInks. 
@@ -1390,7 +1390,7 @@ PROCEDURE pSetAttributeForColors PRIVATE:
         END.
     END.
         
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  1, iColors).  //Maxco
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOfColors, iColors).  //Maxco
 
 END PROCEDURE.
 
@@ -1452,15 +1452,15 @@ PROCEDURE pSetAttributesBlank PRIVATE:
     
     RUN pSetAttribute(giAttributeIDStyle, "Style", ipbf-eb.style).
     RUN pSetAttribute(giAttributeIDBoxDepth, "Box Depth", STRING(ipbf-eb.dep)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  2, STRING(ipbf-eb.len)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  3, STRING(ipbf-eb.wid)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  4, STRING(ipbf-eb.t-len)). //refactor dBlankLen
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  5, STRING(ipbf-eb.t-wid)). //refactor dBlankWid
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  6, STRING(ipbf-eb.lin-in)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  7, STRING(fGetBlankSqFtArea(BUFFER ipbf-eb))).  //eb.t-sqFt
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  30, "0"). //none?
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  33, STRING(ipbf-eb.num-wid)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  34, STRING(ipbf-eb.num-len)).
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBoxLen, STRING(ipbf-eb.len)).
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBoxWid, STRING(ipbf-eb.wid)).
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankLen, STRING(ipbf-eb.t-len)). //refactor dBlankLen
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankWid, STRING(ipbf-eb.t-wid)). //refactor dBlankWid
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDGlueLapLen, STRING(ipbf-eb.lin-in)).
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankSqFt, STRING(fGetBlankSqFtArea(BUFFER ipbf-eb))).  //eb.t-sqFt
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDRoutingNoOut, "0"). //none?
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOnDieLen, STRING(ipbf-eb.num-wid)).
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOnDieWid, STRING(ipbf-eb.num-len)).
     RUN pSetAttribute(giAttributeIDBlankSqIn, "Blank Sq In", STRING(ipbf-eb.t-sqin)).  //eb.t-sqin
     
 END PROCEDURE.
@@ -1483,21 +1483,21 @@ PROCEDURE pSetAttributesForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
     
     RUN pSetAttribute(giAttributeIDBoardItemID, "Board ItemID", ipbf-ef.board).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  8, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  9, STRING(ipbf-ef.weight)). 
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  10, STRING(ipbf-ef.roll-wid)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  11, STRING(ipbf-ef.nsh-wid)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  12, STRING(ipbf-ef.nsh-len)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  14, STRING(ipbf-ef.leaf-l[1])).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  15, STRING(ipbf-ef.leaf-w[1])).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  16, STRING(ipbf-ef.gsh-len)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  17, STRING(ipbf-ef.gsh-wid)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  19, STRING(ipbf-ef.die-in)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  21, STRING(ipbf-ef.nsh-len * ipbf-ef.nsh-wid / 144)). //v-ssqft
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  22, STRING(ipbf-ef.f-col + ipbf-ef.f-coat)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  23, STRING(ipbf-ef.n-cuts)). //v-cut
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  24, STRING(ipbf-ef.blank-qty)).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  26, STRING(ipbf-ef.n-out-l)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliper, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDWeightperMSF, STRING(ipbf-ef.weight)). 
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDRollWid, STRING(ipbf-ef.roll-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNShtWid, STRING(ipbf-ef.nsh-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNShtLen, STRING(ipbf-ef.nsh-len)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDFilmLen, STRING(ipbf-ef.leaf-l[1])).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDFilmWid, STRING(ipbf-ef.leaf-w[1])).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDGShtLen, STRING(ipbf-ef.gsh-len)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDGShtWid, STRING(ipbf-ef.gsh-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDDieLIIn, STRING(ipbf-ef.die-in)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDSheetSqIn, STRING(ipbf-ef.nsh-len * ipbf-ef.nsh-wid / 144)). //v-ssqft
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNoOfPlates, STRING(ipbf-ef.f-col + ipbf-ef.f-coat)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNoOfCuts, STRING(ipbf-ef.n-cuts)). //v-cut
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNoOfItems, STRING(ipbf-ef.blank-qty)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNoOutGShtLen, STRING(ipbf-ef.n-out-l)).
     
 
 END PROCEDURE.
@@ -1713,15 +1713,15 @@ PROCEDURE SetAttributesFromJobMch:
     DO:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
-        RUN pSetAttributeFromStandard(bf-eb.company,  13, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  18, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  20, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
-        RUN pSetAttributeFromStandard(bf-eb.company,  25, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
-        RUN pSetAttributeFromStandard(bf-eb.company,  27, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
-        RUN pSetAttributeFromStandard(bf-eb.company,  28, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
-        RUN pSetAttributeFromStandard(bf-eb.company,  29, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,""))). //ld-parts[1]
-        RUN pSetAttributeFromStandard(bf-eb.company,  31, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"long"))). //v-long-qty-set
-        RUN pSetAttributeFromStandard(bf-eb.company,  32, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDInkCoverage, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDPartsperSet, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,""))). //ld-parts[1]
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetLongs, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"long"))). //v-long-qty-set
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetShorts, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set
         
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
