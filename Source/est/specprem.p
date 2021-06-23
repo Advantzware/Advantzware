@@ -252,7 +252,7 @@ FOR EACH gbf-report WHERE gbf-report.term-id EQ v-term-id:
     RUN BuildExcelDataSheet(34,2, eb.die-no).
     RUN BuildExcelDataSheet(35,2,STRING(glPrintPlate)).
     RUN BuildExcelDataSheet(36,2, eb.plate-no).
-    RUN CheckTabBoxes(eb.tab-in).
+    RUN CheckTabBoxes(eb.tab-in,eb.adhesive).
     IF gxMcode[1] NE "" THEN DO:
         RUN BuildExcelDataSheet(37,2, gxMCode[1]).
         RUN BuildExcelDataSheet(38,2, gxMDscr[1]).
@@ -384,7 +384,10 @@ END PROCEDURE.
 
 PROCEDURE CheckTabBoxes:
   DEFINE INPUT PARAMETER iplTabIn AS LOG NO-UNDO.
+  DEFINE INPUT PARAMETER ipcAdhesive AS CHAR NO-UNDO.
 
+  IF ipcAdhesive NE "NO JOINT"  THEN DO:
+  
   IF iplTabIn EQ YES THEN
     ASSIGN 
       ghExcelWorkbook:Sheets(1):CheckBoxes("cb_Inside"):VALUE = 1
@@ -397,6 +400,7 @@ PROCEDURE CheckTabBoxes:
       ghExcelWorkbook:Sheets(1):CheckBoxes("cb_Outside"):VALUE = 1
       ghExcelWorkbook:Sheets(1):CheckBoxes("cb_NA"):VALUE = 0
       .
+  END .
   ELSE
     ASSIGN
       ghExcelWorkbook:Sheets(1):CheckBoxes("cb_Inside"):VALUE = 0
