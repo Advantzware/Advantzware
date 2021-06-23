@@ -1138,6 +1138,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAssignARInvXNoSeq C-Win
+PROCEDURE ipAssignARInvXNoSeq PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Assigning arInvXNo_seq with last ar-inv x-no.").
+
+    DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
+        
+    IF AVAIL ar-inv THEN 
+        CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win 
 PROCEDURE ipAuditSysCtrl :
 /*------------------------------------------------------------------------------
@@ -3673,7 +3708,7 @@ END PROCEDURE.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210200 C-Win
-PROCEDURE ipDataFix210200 PRIVATE:
+PROCEDURE ipDataFix210200:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3683,6 +3718,7 @@ PROCEDURE ipDataFix210200 PRIVATE:
 
     RUN ipStatus ("  Data Fix 210200...").
 
+    RUN ipAssignARInvXNoSeq.
     RUN ipConvertPolScore.
 
 END PROCEDURE.
