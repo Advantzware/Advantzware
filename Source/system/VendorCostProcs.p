@@ -240,7 +240,8 @@ PROCEDURE CopyVendItemCost:
             bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.vendItemCostID.    
         END.          
     END. 
-
+    RELEASE bf-vendItemCost.
+    RELEASE bf-vendItemCostLevel.
 END PROCEDURE.
 
 PROCEDURE CreateVendItemCost:
