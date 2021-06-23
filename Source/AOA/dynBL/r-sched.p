@@ -101,6 +101,8 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
@@ -145,6 +147,7 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bw-ord     FOR w-ord.
     
     ASSIGN
+        cocode           = cCompany
         cTypes           = STRING(lScheduled,"S/")
                          + STRING(lLate,"L/")
                          + STRING(lPastLastShipDate,"I/")
