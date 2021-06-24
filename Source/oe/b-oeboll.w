@@ -74,6 +74,11 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
 DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+
+RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
 DEFINE TEMP-TABLE w-rowid FIELD w-rowid AS CHAR
           INDEX w-rowid IS PRIMARY w-rowid.
@@ -1724,6 +1729,7 @@ DEF VAR v-pallets AS DEC NO-UNDO.
 DEF VAR v-freight AS DEC NO-UNDO.
 DEF VAR v-freight-related-modified AS LOG NO-UNDO.
 DEF VAR dFreight AS DEC NO-UNDO.
+  
 DEF BUFFER bf-oe-boll FOR oe-boll.
 DEF BUFFER bf2-oe-boll FOR oe-boll.
 DEF BUFFER bf3-oe-boll FOR oe-boll.
@@ -1794,10 +1800,12 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
   FIND b-oe-bolh WHERE ROWID(b-oe-bolh) EQ ROWID(oe-bolh) NO-ERROR.
   IF AVAIL b-oe-bolh THEN DO:
     b-oe-bolh.tot-wt = 0.
+    IF cFreightCalculationValue EQ "ALL" THEN
     b-oe-bolh.freight = 0.
     FOR EACH b-oe-boll OF b-oe-bolh NO-LOCK:
       b-oe-bolh.tot-wt = b-oe-bolh.tot-wt + b-oe-boll.weight.
-      b-oe-bolh.freight = b-oe-bolh.freight + b-oe-boll.freight.      
+      IF cFreightCalculationValue EQ "ALL" THEN
+      b-oe-bolh.freight = b-oe-bolh.freight + b-oe-boll.freight.
     END.
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -1811,7 +1819,10 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
                             AND oe-ordl.i-no = oe-boll.i-no NO-LOCK NO-ERROR.
       IF AVAIL oe-ordl THEN oe-boll.LINE = oe-ordl.LINE.
     END.
-
+    
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
+    
     /* Task 04171407, only recalc freight if quantity is changed, */
     /* if weight or freight changed, just add up and display in header */ 
     IF (v-qty NE oe-boll.qty
@@ -1820,30 +1831,18 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       OR v-pallets  NE oe-boll.tot-pallets 
       OR adm-new-record)
       AND (v-freight EQ oe-boll.freight)
-      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
+      AND cFreightCalculationValue EQ "ALL" THEN DO:
     
       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
-    END.
-    ELSE DO:
-         RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
-         IF AVAIL(b-oe-bolh) THEN
-           dFreight = b-oe-bolh.freight.
-         ELSE
-           IF AVAIL(oe-bolh) THEN
-             dFreight = b-oe-bolh.freight.
-    END.
-     
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
-       RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
-       RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
-    END.
-     
-    /* RUN calc-all-freight. */
+      
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
+          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
+          RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
+      END.
+    END.            
   END. /* if freight modified or new record */
-
-
+    
   oe-bolh.tot-pallets = oe-boll.tot-pallets.
 
   FOR EACH b-oe-boll fields(tot-pallets freight) WHERE
@@ -2067,6 +2066,7 @@ PROCEDURE local-delete-record :
   DEF VAR li-ord-no LIKE oe-boll.ord-no NO-UNDO.
   DEF VAR li-boll-cnt AS INT NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
+   
   li-boll-cnt = 0.
   FOR EACH bf-boll 
     WHERE bf-boll.company = oe-boll.company
@@ -2136,6 +2136,9 @@ PROCEDURE local-delete-record :
 
   IF AVAIL oe-bolh THEN
   DO:
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).  
+    
     oe-bolh.tot-pallets = 0.
    
     FOR EACH b2-oe-boll WHERE b2-oe-boll.company EQ oe-bolh.company
@@ -2185,7 +2188,7 @@ PROCEDURE local-destroy :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  DELETE OBJECT hFreightProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2798,6 +2801,10 @@ DEF BUFFER bf-boll FOR oe-boll.
    /* gdm - */
    FIND CURRENT oe-bolh EXCLUSIVE-LOCK.
    RUN recalc-freight (OUTPUT dTotFreight).
+   
+   IF cFreightCalculationValue NE "ALL" THEN
+   RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
+   
 /*    ASSIGN oe-bolh.tot-pallets = 0                                                       */
 /*           dTotFreight         = 0                                                       */
 /*           tot-other-freight   = 0.                                                      */
