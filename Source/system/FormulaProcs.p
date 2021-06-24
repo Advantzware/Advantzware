@@ -175,6 +175,62 @@ PROCEDURE CalculatePanels:
         ).
 END PROCEDURE.
 
+PROCEDURE Formula_GetFormulaFromttPanel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER TABLE FOR ttPanel.
+    DEFINE OUTPUT PARAMETER opcFormulaLength AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFormulaWidth  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAddBraces               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iChar                    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFormula                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceLength AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceWidth  AS LOGICAL   NO-UNDO.
+    
+    FOR EACH ttPanel
+        BY ttPanel.iPanelNum:
+        lAddBraces = FALSE.
+        
+        DO iChar = 1 TO LENGTH(gcValidOperators):
+            IF INDEX(ttPanel.cPanelFormula, SUBSTRING(gcValidOperators, iChar, 1)) GT 0 THEN DO:
+                lAddBraces = TRUE.
+                LEAVE.
+            END.
+        END.
+        
+        cFormula = ttPanel.cPanelFormula.
+        IF lAddBraces THEN
+            cFormula = "(" + cFormula + ")".
+            
+        IF ttPanel.cPanelType EQ "W" THEN DO:
+            opcFormulaWidth = opcFormulaWidth + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceWidth = lAddScoreAllowanceWidth OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.
+        ELSE IF ttPanel.cPanelType EQ "L" THEN DO:
+            opcFormulaLength = opcFormulaLength + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceLength = lAddScoreAllowanceLength OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.  
+    END.
+    
+    IF lAddScoreAllowanceLength THEN
+        opcFormulaLength = opcFormulaLength + "+" + "S".
+
+    IF lAddScoreAllowanceWidth THEN
+        opcFormulaWidth = opcFormulaWidth + "+" + "S".
+
+    ASSIGN
+        opcFormulaLength = TRIM(opcFormulaLength, "+")
+        opcFormulaWidth  = TRIM(opcFormulaWidth, "+")
+        .        
+END PROCEDURE.
+
 PROCEDURE GetSizeFactor:
 /*------------------------------------------------------------------------------
  Purpose: Fetch the decimal factor from NK1 CECSCRN
