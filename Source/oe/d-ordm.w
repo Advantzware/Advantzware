@@ -694,7 +694,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             AND cust.cust-no EQ oe-ord.cust-no
             USE-INDEX cust  NO-ERROR.
         IF (oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt)
-            AND AVAILABLE cust AND cust.active NE "X" AND AVAILABLE oe-ord AND oe-ord.TYPE NE "T" THEN
+            AND AVAILABLE cust AND NOT cust.internal AND AVAILABLE oe-ord AND oe-ord.TYPE NE "T" THEN
             RUN oe/creditck.p (ROWID(oe-ord), YES).
   
         /* create reftable for prep */
