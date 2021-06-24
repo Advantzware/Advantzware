@@ -69,6 +69,18 @@
                 .
             RETURN.
         END.
+
+        FIND FIRST ttArgs
+             WHERE ttArgs.argType  = "ROWID"
+               AND ttArgs.argKey   = "Quantity" NO-ERROR.
+        IF AVAILABLE ttArgs THEN
+            cItemQuantity = ttArgs.argValue.
+            
+        FIND FIRST ttArgs
+             WHERE ttArgs.argType  = "ROWID"
+               AND ttArgs.argKey   = "QuantityUOM" NO-ERROR.
+        IF AVAILABLE ttArgs THEN
+            cItemUOM = ttArgs.argValue.
         
         IF AVAILABLE bf-rm-rcpth THEN DO:
             FIND FIRST bf-rm-rdtlh NO-LOCK
@@ -107,8 +119,14 @@
                 cReceiptTime     = STRING(bf-rm-rdtlh.upd-time)
                 cItemID          = bf-rm-rdtlh.i-no
                 cItemDescription = bf-rm-rcpth.i-name
-                cItemUOM         = bf-rm-rcpth.pur-uom
-                cItemQuantity    = STRING(bf-rm-rdtlh.qty)
+                cItemUOM         = IF cItemUOM EQ "" THEN 
+                                       bf-rm-rcpth.pur-uom
+                                   ELSE
+                                       cItemUOM
+                cItemQuantity    = IF DECIMAL(cItemQuantity) EQ 0 THEN
+                                       STRING(bf-rm-rdtlh.qty)
+                                   ELSE
+                                       cItemQuantity
                 cPOID            = STRING(bf-rm-rcpth.po-no)
                 cPOLineNumber    = STRING(bf-rm-rcpth.po-line)
                 . 
@@ -121,8 +139,15 @@
                 cReceiptTime     = STRING(bf-fg-rdtlh.upd-time)
                 cItemID          = bf-fg-rdtlh.i-no
                 cItemDescription = bf-fg-rcpth.i-name
-                cItemUOM         = bf-fg-rcpth.pur-uom
-                cItemQuantity    = STRING(bf-fg-rdtlh.qty)
+                cItemUOM         = IF cItemUOM EQ "" THEN 
+                                       bf-fg-rcpth.pur-uom
+                                   ELSE
+                                       cItemUOM
+                cItemQuantity    = IF DECIMAL(cItemQuantity) EQ 0 THEN
+                                       STRING(bf-fg-rdtlh.qty)
+                                   ELSE
+                                       cItemQuantity
+
                 cPOID            = STRING(bf-fg-rcpth.po-no)
                 cPOLineNumber    = STRING(bf-fg-rcpth.po-line)
                 . 
