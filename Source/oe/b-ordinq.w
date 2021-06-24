@@ -704,9 +704,9 @@ DEFINE BROWSE Browser-Table
       oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
-      getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
-      getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4 LABEL-BGCOLOR 14
-      getStat() @ cStatus COLUMN-LABEL "Status" FORMAT "x(16)":U LABEL-BGCOLOR 14
+      getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4
+      getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4
+      getStat() @ cStatus COLUMN-LABEL "Status" FORMAT "x(16)":U
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
             WIDTH 14.4 LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
