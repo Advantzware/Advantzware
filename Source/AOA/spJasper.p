@@ -1026,7 +1026,7 @@ PROCEDURE pJasperJSON:
     DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cDynFunc     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJSONFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJSONFile    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFirstRow    AS LOGICAL   NO-UNDO INITIAL YES.
     
@@ -1655,7 +1655,7 @@ PROCEDURE pJasperSubDataSet:
                     .
                 ELSE
                 PUT STREAM sJasper UNFORMATTED
-                    "                <reportElement key=~"~" style=~"" ipcType STRING(idx) "_CH~" isPrintRepeatedValues=~"false~" x=~"43~" y=~"14~" width=~"" iWidth "~" height=~"56~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    "                <reportElement key=~"~" style=~"" ipcType STRING(idx) "_CH~" isPrintRepeatedValues=~"false~" x=~"43~" y=~"" (idx - 1) * 42 + 14 "~" width=~"" iWidth "~" height=~"56~" isRemoveLineWhenBlank=~"true~">" SKIP
                     .
                 PUT STREAM sJasper UNFORMATTED
                     "                    <property name=~"com.jaspersoft.studio.layout~" value=~"com.jaspersoft.studio.editor.layout.VerticalRowLayout~"/>" SKIP
