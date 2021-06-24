@@ -80,6 +80,8 @@ PROCEDURE Outbound_CopyAPIDependencies:
     DEFINE BUFFER bf-Target-APIOutboundDetail  FOR APIOutboundDetail.
     DEFINE BUFFER bf-Source-APIOutboundTrigger FOR APIOutboundTrigger.
     DEFINE BUFFER bf-Target-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-Source-APIOutboundContent FOR APIOutboundContent.
+    DEFINE BUFFER bf-Target-APIOutboundContent FOR APIOutboundContent.
       
     FIND FIRST bf-Source-APIOutbound NO-LOCK
          WHERE bf-Source-APIOutbound.apiOutboundID EQ ipiSourceAPIOutboundID
@@ -148,6 +150,23 @@ PROCEDURE Outbound_CopyAPIDependencies:
                 .
         END.
     END.
+
+    FOR EACH bf-Source-APIOutboundContent NO-LOCK
+        WHERE bf-Source-APIOutboundContent.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundContent NO-LOCK
+             WHERE bf-Target-APIOutboundContent.apiOutboundID EQ bf-Target-APIOutbound.apiOutboundID
+               AND bf-Target-APIOutboundContent.contentType   EQ bf-Source-APIOutboundContent.contentType
+               AND bf-Target-APIOutboundContent.contentKey    EQ bf-Source-APIOutboundContent.contentKey
+             NO-ERROR.
+        IF NOT AVAILABLE bf-Target-APIOutboundContent THEN DO:
+            CREATE bf-Target-APIOutboundContent.
+            BUFFER-COPY bf-Source-APIOutboundContent 
+                EXCEPT bf-Source-APIOutboundContent.apiOutboundID 
+                       bf-Source-APIOutboundContent.rec_key                       
+                TO bf-Target-APIOutboundContent.
+            bf-Target-APIOutboundContent.apiOutboundID = bf-Target-APIOutbound.apiOutboundID.
+        END.
+    END.    
 END PROCEDURE.
 
 PROCEDURE Outbound_CreateAPIClient:
