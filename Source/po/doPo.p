@@ -885,7 +885,12 @@ PROCEDURE buildRptRecs :
 
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
-
+    
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNew AS LOGICAL NO-UNDO. //launch new VendorItemCost Selector
+    DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
+    DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+    
     FIND bf-w-job-mat WHERE ROWID(bf-w-job-mat) EQ iprWJobMat NO-ERROR.
     FIND bf-ordl WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-LOCK NO-ERROR.
 
@@ -964,30 +969,66 @@ PROCEDURE buildRptRecs :
                     OUTPUT lSuccess,
                     OUTPUT cMessage
                     ) NO-ERROR.
-            ELSE DO:                  
-                IF lNewVendorItemCost THEN 
-                    RUN po/d-vndcstN.w (
-                        INPUT v-term, 
-                        INPUT bf-w-job-mat.w-recid, 
-                        INPUT bf-w-job-mat.this-is-a-rm, 
-                        INPUT bf-w-job-mat.i-no, 
-                        INPUT v-qty-comp, 
-                        INPUT v-job-mat-uom
-                        ).   
-                ELSE 
-                    RUN po/d-vndcst.w (
-                        INPUT v-term, 
-                        INPUT bf-w-job-mat.w-recid, 
-                        INPUT bf-w-job-mat.this-is-a-rm, 
-                        INPUT bf-w-job-mat.i-no, 
-                        INPUT v-qty-comp, 
-                        INPUT v-job-mat-uom
-                        ).
+            ELSE 
+                DO:
+                    if lNew then   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
+                        RUN system/vendorcostSelector.w(
+                            INPUT  bf-w-job-mat.company, //ipcCompany ,
+                            INPUT  bf-w-job-mat.i-no , //ipcItemID
+                            INPUT  IF bf-w-job-mat.this-is-a-rm THEN "RM" ELSE "FG", //ipcItemType ,
+                            INPUT  IF bf-w-job-mat.this-is-a-rm THEN gcScopeRMOverride ELSE  gcScopeFGEstimated, //ipcScope ,
+                            INPUT  "Yes", //iplIncludeBlankVendor ,
+                            INPUT  job-hdr.e-num,  //ipcEstimateNo,
+                            INPUT  bf-w-job-mat.frm, //ipiFormNo,
+                            INPUT  bf-w-job-mat.blank-no, //ipiBlankNo,
+                            INPUT  bf-w-job-mat.qty-all , //ipdQuantity ,
+                            INPUT  bf-w-job-mat.qty-uom, //ipcQuantityUOM ,
+                            INPUT  bf-w-job-mat.len, //ipdDimLength ,
+                            INPUT  bf-w-job-mat.wid, //ipdDimWidth ,
+                            INPUT  bf-w-job-mat.dep, //ipdDimDepth ,
+                            INPUT  "",   //ipcDimUOM ,
+                            INPUT  bf-w-job-mat.basis-w, //ipdBasisWeight ,
+                            INPUT  "", //ipcBasisWeightUOM ,
+                            OUTPUT  TABLE ttVendItemCost,
+                            OUTPUT  lError ,
+                            OUTPUT  cMessage 
+                            ).  
+                    ELSE   //---------------------------------------------------------------------------
+                        DO:            
+                            IF lNewVendorItemCost THEN 
+                                RUN po/d-vndcstN.w (
+                                    INPUT v-term, 
+                                    INPUT bf-w-job-mat.w-recid, 
+                                    INPUT bf-w-job-mat.this-is-a-rm, 
+                                    INPUT bf-w-job-mat.i-no, 
+                                    INPUT v-qty-comp, 
+                                    INPUT v-job-mat-uom
+                                    ).                
+                            ELSE 
+                                RUN po/d-vndcst.w (
+                                    INPUT v-term, 
+                                    INPUT bf-w-job-mat.w-recid, 
+                                    INPUT bf-w-job-mat.this-is-a-rm, 
+                                    INPUT bf-w-job-mat.i-no, 
+                                    INPUT v-qty-comp, 
+                                    INPUT v-job-mat-uom
+                                    ).
+                        END.
+                END.
+            IF lNew THEN
+            DO: //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                FIND FIRST ttVendItemCost WHERE ttVendItemCost.isSelected NO-ERROR.
+                    IF AVAILABLE ttVendItemCost THEN          
+                        FIND report WHERE report.key-03 eq ttVendItemCost.vendorID NO-LOCK NO-ERROR.                       
+                    ELSE
+                    ll-canceled = YES.
             END.
-
-            IF fil_id EQ ? THEN ll-canceled = YES.
-            ELSE FIND report WHERE RECID(report) EQ fil_id NO-LOCK NO-ERROR.
-      
+            ELSE
+            DO: //------------------------------------------------------------------------   
+                IF fil_id EQ ? THEN ll-canceled = YES.
+                ELSE FIND report WHERE RECID(report) EQ fil_id NO-LOCK NO-ERROR.
+            END.
+            
             IF AVAILABLE report THEN 
             DO:
                 v-vendor-chosen-report = report.REC-ID.
