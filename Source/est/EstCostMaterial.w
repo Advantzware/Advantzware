@@ -154,7 +154,7 @@ DEFINE BROWSE brEstCostMaterial
       estCostMaterial.quantityRequiredTotal     COLUMN-LABEL "Quantity Required" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
       estCostMaterial.quantityUOM COLUMN-LABEL "Quantity UOM" 
-             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
+             LABEL-BGCOLOR 14   FORMAT "x(5)"  
       estCostMaterial.costPerUOM                COLUMN-LABEL "Per UOM Cost" 
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"
       estCostMaterial.costUOM                   COLUMN-LABEL "Cost UOM"        

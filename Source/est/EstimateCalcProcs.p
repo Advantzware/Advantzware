@@ -275,7 +275,7 @@ PROCEDURE ChangeSellPrice:
             /*Reset and calculate all cost summaries*/
             RUN pPurgeCostSummary(estCostHeader.estCostHeaderID).
             RUN pBuildCostSummary(estCostHeader.estCostHeaderID).
-            RUN pBuildProbe(BUFFER estCostHeader).
+            RUN pBuildProbe(estCostHeader.estCostHeaderID).
         END.
     END.
 

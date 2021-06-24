@@ -85,7 +85,7 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
