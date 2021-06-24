@@ -316,11 +316,12 @@ PROCEDURE pGetUserParamValue:
             dSize,
             dynValueColumn.calcFormula
             ).
-        ttColumn.isGroup = dynValueColumn.isGroup.
+        ASSIGN
+            ttColumn.isGroup      = dynValueColumn.isGroup
+            ttColumn.ttGroupLabel = dynValueColumn.groupLabel
+            .
         IF dynValueColumn.groupCalc NE "" THEN DO:
             DO jdx = 1 TO NUM-ENTRIES(dynValueColumn.groupCalc) BY 2:
-                IF dynValueColumn.groupLabel NE "" THEN
-                ttColumn.ttGroupLabel = dynValueColumn.groupLabel.
                 CREATE ttGroupCalc.
                 ASSIGN 
                     ttGroupCalc.ttField    = cField
