@@ -384,7 +384,9 @@ PROCEDURE pReadResponse PRIVATE:
     DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
-            
+    
+    DEFINE VARIABLE cResponseHandler AS CHARACTER NO-UNDO.
+                
     IF iplcResponseData EQ "" THEN DO:
         ASSIGN
             oplSuccess  = NO
@@ -402,7 +404,21 @@ PROCEDURE pReadResponse PRIVATE:
 
         RETURN.    
     END.
-    
+
+    ASSIGN
+        cResponseHandler = gcResponseHandler
+        cResponseHandler = ENTRY(1, cResponseHandler, ".")
+        .
+       
+    IF SEARCH(cResponseHandler + ".r") EQ ? AND SEARCH(cResponseHandler + ".p") EQ ? THEN DO:
+        ASSIGN
+            oplSuccess  = NO
+            opcMessage  = "Missing or invalid response handler in the API configuration"
+            .
+
+        RETURN.    
+    END.
+     
     RUN VALUE(gcResponseHandler) (
         INPUT  iplcResponseData,
         OUTPUT oplSuccess,
