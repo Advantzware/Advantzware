@@ -91,6 +91,10 @@ DEFINE TEMP-TABLE ttUsers
         INDEX iUserID   IS UNIQUE ttfUserID  ttfPdbName
         INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID
         .
+        
+DEFINE TEMP-TABLE ttModes
+    FIELD ttfMode AS CHAR.
+
 DEFINE BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1624,6 +1628,99 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanUsrFile V-table-Win
+PROCEDURE ipCleanUsrFile:
+/*------------------------------------------------------------------------------
+ Purpose:   Clean up old structure of advantzware.usr file (with per-database mode lists) into single list at master level
+ Notes:     The "old" structure contained a "master" record for each user that controlled environments and databases.
+     It also contained "per-database" records (keys userid/pdbname) that controlled valid modes per userid/database.
+     
+     What we want to do here is simplify that file and move the "per-database" mode limits up to the "master" record.
+     (A longer-term goal is to get this information into database data, rather than a filesystem file, but since the
+     asiLogin program, which uses this file, is not connected to a database when it is run, this is still problematic.)
+     
+     Note that we also have to be mindful of "two-version" installations, where the earlier version of this program will
+     still be able to create "per-database" records in this file, even though the asiLogin program will ignore them, 
+     regardless of version, as soon as this release (21.02) is installed.  For that reason, we need to continue this cleanup
+     process here (and in asiLogin.w) as long as there are active pre-21.02 versions in the field.
+     
+     Note also that this procedure is ONLY run if the program detects that there is a "bad" (i.e. per-database) record in advantzware.usr
+------------------------------------------------------------------------------*/
+    DEF VAR cModeTest AS CHAR NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR lCleaned AS LOG NO-UNDO.
+    
+    /* ttUsers is an internal image of the advantzware.usr file */
+    /* We're going to read each line (later in this block, we eliminate "per-db" lines) */
+    FOR EACH ttUsers:
+        
+        /* ...then empty our internal temp-table of the modes allowed */
+        EMPTY TEMP-TABLE ttModes.
+        
+        /* Now, IF the line is the "master" (where pdbnbame is "*"), AND there have been no mode limits set, keep going, 
+        otherwise skip this user, because the streamline process has already been run for him/her */
+        IF ttUsers.ttfPdbname EQ "*" THEN DO:                           /* Is this the master record? */
+            
+            IF ttUsers.ttfModeList NE "" THEN NEXT.                     /* SKIP user if the mode list been set at the master level already */
+            
+            ELSE DO:  
+                /* Look for any "per-database" lines that have limits set (this is where modes USED to be controlled) */
+                /* At the end of this loop, the ttModes table will contain all of the listed modes for all of the per-database lines */
+                FOR EACH bttUsers WHERE                                 /* buffer for same temp-table */
+                    bttUsers.ttfUserID EQ ttUsers.ttfUserID AND         /* userid matches */
+                    bttUsers.ttfPdbname NE "*" AND                      /* NOT the master record */
+                    bttUsers.ttfModeList NE "":                         /* per-database mode list has been set */
+                    
+                    DO iCtr = 1 TO NUM-ENTRIES(bttUsers.ttfModeList):   /* Loop through the mode entries for this database */
+                        IF NOT CAN-FIND(FIRST ttModes WHERE             /* skip any modes that were added from a previous database */
+                            ttModes.ttfMode EQ ENTRY(iCtr,bttUsers.ttfModeList)) THEN DO:
+                            CREATE ttModes.                             /* Create a ttModes record for each entry listed... */
+                            ASSIGN 
+                                ttModes.ttfMode = ENTRY(iCtr,bttUsers.ttfModeList).
+                        END.
+                    END.
+                    ASSIGN 
+                        lCleaned = TRUE.                                /* Set flag to notify mods made, and need to update the physical file */
+                END.
+            END.
+
+            /* Still in the same "per-user" loop, concatenate the ttModes entries into the single "master" limit for this user */
+            FOR EACH ttModes:
+                ASSIGN
+                    ttUsers.ttfModeList = ttUsers.ttfModeList + ttModes.ttfMode + ",".
+            END.
+            /* Just trimming the comma off the end of the list */
+            ASSIGN 
+                ttUsers.ttfModeList = TRIM(ttUsers.ttfModeList,",").
+
+        END.
+    END. 
+
+    /* Last, delete the "bad" ttUser records that contain per-database entries */
+    /* This will be written back out to advantzware.usr in ipWriteUserFile */
+    /* Note that this will NOT affect backward compatibility, as the display control is in the update asiLogin program */
+    FOR EACH ttUsers WHERE
+        ttUsers.ttfPdbname NE "*":
+        DELETE ttUsers.
+        ASSIGN
+            lCleaned = TRUE.
+    END.
+
+    /* If we cleaned the file and updated the ttUsers table, write advantzware.usr file with changes and re-read */
+    IF lCleaned EQ TRUE THEN DO:
+        RUN ipWriteUsrFile.
+        EMPTY TEMP-TABLE ttUsers.
+        RUN ipReadUsrFile.
+    END. 
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadIniFile V-table-Win 
 PROCEDURE ipReadIniFile :
 /*------------------------------------------------------------------------------
@@ -1679,6 +1776,12 @@ PROCEDURE ipReadUsrFile :
             END.
         END.
         INPUT CLOSE.
+        
+        /* IF detected "bad" line in advantzware.usr, run the cleanup procedure */
+        IF CAN-FIND(FIRST ttUsers WHERE 
+            ttUsers.ttfPdbname NE "*") THEN 
+            RUN ipCleanUsrFile.
+        
     END.
 
 END PROCEDURE.
@@ -1691,7 +1794,9 @@ PROCEDURE ipWriteUsrFile :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:    This is ONLY run if:
+                1 - a user is deleted, added, or modified 
+                2 - the ipClean procedure was run and found a bad record 
 ------------------------------------------------------------------------------*/
     DEF VAR cOutString AS CHAR.
     
@@ -1946,7 +2051,7 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     IF AVAIL users THEN DO WITH FRAME {&frame-name}:
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        /* "Limit" elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND FIRST ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id
@@ -1955,18 +2060,7 @@ PROCEDURE local-display-fields :
             CREATE ttUsers.
             ASSIGN
                 ttUsers.ttfPdbName = "*"
-                ttUsers.ttfUserID = users.user_id
-                .
-/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
-/*                IF ttUsers.ttfEnvlist EQ "" THEN                                                                  */
-/*                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".      */
-/*                IF ttUsers.ttfDbList EQ "" THEN                                                                   */
-/*                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".         */
-/*                IF ttUsers.ttfUserAlias EQ "" THEN                                                                */
-/*                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".*/
-/*                IF ttUsers.ttfModeList EQ "" THEN                                                                 */
-/*                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".   */
-            
+                ttUsers.ttfUserID = users.user_id.
         END.
 
         ASSIGN 
@@ -1975,6 +2069,7 @@ PROCEDURE local-display-fields :
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+            slModes:SCREEN-VALUE = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS 
             users.userAlias:SCREEN-VALUE = users.userAlias
             users.userAlias:modified = FALSE
             FGColor-1:BGCOLOR = users.menuFGColor[1]
@@ -1985,37 +2080,20 @@ PROCEDURE local-display-fields :
             BGColor-3:BGCOLOR = users.menuBGColor[3]
             .
 
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id
-                .
-/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
-/*            IF ttUsers.ttfModeList EQ "" THEN                                                                                */
-/*                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.*/
-        END.
-        slModes:SCREEN-VALUE = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
-
         FIND _user NO-LOCK WHERE 
             _user._userid = users.user_id
             NO-ERROR.
-        IF AVAIL _user THEN
-        ASSIGN
+        IF AVAIL _user THEN ASSIGN
             fiPassword:SCREEN-VALUE = _user._password
-            cOldPwd = _user._password
-            .
+            cOldPwd = _user._password.
+        
         ASSIGN
-            bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
+            bChgPwd:SENSITIVE = IF users.user_id EQ zusers.user_id OR zusers.securityLevel GE 700 THEN TRUE ELSE FALSE
             fiPassword:SENSITIVE = FALSE
             .
+        
         IF users.userImage[1]:SCREEN-VALUE NE "" THEN 
-        cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
+            cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
         
     END.
     
@@ -2293,7 +2371,7 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        /* "Limit" elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
@@ -2308,27 +2386,11 @@ PROCEDURE local-update-record :
             ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
             ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
             ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
-            ttUsers.ttfModeList = ""
+            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
             .
 
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
-        END.
-        ASSIGN
-            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
-            ttUsers.ttfEnvList = ""
-            ttUsers.ttfDbList = ""
-            ttUsers.ttfUserAlias = ""
-            .
          ASSIGN iSecLevel = INTEGER(users.securityLevel:SCREEN-VALUE) . 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
