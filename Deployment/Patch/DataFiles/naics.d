@@ -132,10 +132,10 @@
 132 "21" "Mining, Quarrying, and Oil and Gas Extraction                                                                      " no
 133 "211" "Oil and Gas Extraction                                                                                             " no
 134 "2111" "Oil and Gas Extraction                                                                                             " no
-135 "21112" "Crude Petroleum Extractionˇ                                                                                        " no
-136 "211120" "Crude Petroleum Extractionˇ                                                                                        " no
-137 "21113" "Natural Gas Extractionˇ                                                                                            " no
-138 "211130" "Natural Gas Extractionˇ                                                                                            " no
+135 "21112" "Crude Petroleum Extraction†                                                                                        " no
+136 "211120" "Crude Petroleum Extraction†                                                                                        " no
+137 "21113" "Natural Gas Extraction†                                                                                            " no
+138 "211130" "Natural Gas Extraction†                                                                                            " no
 139 "212" "Mining (except Oil and Gas)                                                                                        " no
 140 "2121" "Coal Mining                                                                                                        " no
 141 "21211" "Coal Mining                                                                                                        " no
@@ -404,10 +404,10 @@
 404 "3152" "Cut and Sew Apparel Manufacturing                                                                                  " no
 405 "31521" "Cut and Sew Apparel Contractors                                                                                    " no
 406 "315210" "Cut and Sew Apparel Contractors                                                                                    " no
-407 "31522" "Men s and Boys  Cut and Sew Apparel Manufacturing                                                                  " no
-408 "315220" "Men s and Boys  Cut and Sew Apparel Manufacturing                                                                  " no
-409 "31524" "Women s, Girls , and Infants  Cut and Sew Apparel Manufacturing                                                    " no
-410 "315240" "Women s, Girls , and Infants  Cut and Sew Apparel Manufacturing                                                    " no
+407 "31522" "Menís and Boysí Cut and Sew Apparel Manufacturing                                                                  " no
+408 "315220" "Menís and Boysí Cut and Sew Apparel Manufacturing                                                                  " no
+409 "31524" "Womenís, Girlsí, and Infantsí Cut and Sew Apparel Manufacturing                                                    " no
+410 "315240" "Womenís, Girlsí, and Infantsí Cut and Sew Apparel Manufacturing                                                    " no
 411 "31528" "Other Cut and Sew Apparel Manufacturing                                                                            " no
 412 "315280" "Other Cut and Sew Apparel Manufacturing                                                                            " no
 413 "3159" "Apparel Accessories and Other Apparel Manufacturing                                                                " no

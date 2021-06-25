@@ -70,3 +70,6 @@ or adding any field from a Release including:
 "65" "SS" 0 "BS" "" "Confirm RM Item Issue" "Confirm RM Item Issue" "" "Tag ""$Tag$"" belongs to a different item # ""$RMItemID$"". 
 Do you want to continue?" "" "" ? 0 900 no no "QUESTION-YN" "yes" "Tag,RMItemID" "202104124460907148308"
 "66" "FG" 0 "IF1" "" "Confirm FG Transactions Exist" "Confirm FG Transactions Exist" "" "There are unposted transactions for this item.  Do you want to recalculate before these are processed?" "" "" ? 0 900 no no "MESSAGE-ACTION" "No" "" "202104144541707155056"
+"67" "FG" 0 "BS" "" "Confirm Printing Loadtags" "Job is Closed" "" "This job is closed.  Are you sure you want to print loadtags for this closed job?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" "" "202105135818707285426"
+"68" "FG" 0 "BS" "" "No Records Found" "No Records Found" "" "There are no detail records found for this $Item$ in location $Loc$." "" "" ? 0 900 no no "MESSAGE" "" "Item, Loc" "202106062900607379006"
+"69" "FG" 0 "IF1" "" "Post Adjustment Entry" "Post inventory Adjustment" "" "This adjustment will create an adjustment in I-U-3.  Do you want to post this transaction now? " "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" "" "202106166124607438518"
