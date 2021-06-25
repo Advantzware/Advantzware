@@ -1102,7 +1102,7 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
             ).       
     END.
     
-    IF iplSave THEN
+    IF iplSave AND AVAILABLE bf-eb THEN
         RUN pUpdatePanelDetails (
             INPUT  gcPanelLinkTypePO,
             INPUT  bf-eb.company,

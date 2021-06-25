@@ -18,22 +18,10 @@ USING System.Net.Http.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS API.APIHandler: 
-    /* Saves form-data and x-www-form-unrlencoded key value pairs  */
-    DEFINE VARIABLE oURLEncodedData AS "System.Collections.Generic.Dictionary<String, String>" NO-UNDO.
+    DEFINE VARIABLE oClient AS HttpClient NO-UNDO.
     
-    /* Stores the authentication type. Currently supports only basic and bearer token authentications */
-	DEFINE PUBLIC PROPERTY AuthenticationType AS CHARACTER NO-UNDO 
-	GET.
-	SET(INPUT ipcAuthenticationType AS CHARACTER):
-        IF LOOKUP(ipcAuthenticationType, "basic,bearer") EQ 0 THEN
-            AuthenticationType = "none".           
-        ELSE
-            AuthenticationType = ipcAuthenticationType.   
-    END SET.
-
-	DEFINE PUBLIC PROPERTY BearerToken AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
+    /* Saves form-data and x-www-form-unrlencoded key value pairs  */
+    DEFINE VARIABLE oURLEncodedData AS "System.Collections.Generic.Dictionary<String, String>" NO-UNDO.   
 
     /* Stores the content type information. Set will internally convert to Rest specific content type */
 	DEFINE PUBLIC PROPERTY ContentType AS CHARACTER NO-UNDO INITIAL "text/plain" 
@@ -42,14 +30,6 @@ CLASS API.APIHandler:
         IF INDEX(ipcContentType, "application") EQ 0 THEN
             ContentType = "application/" + ipcContentType. 				
 	END SET.	 
-
-	DEFINE PRIVATE PROPERTY Password AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
-
-	DEFINE PRIVATE PROPERTY UserName AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
 
     /* Stores all the information related to the response from server */
     DEFINE PRIVATE PROPERTY ResponseMessage AS HttpResponseMessage  NO-UNDO
@@ -66,6 +46,8 @@ CLASS API.APIHandler:
 	    
 		oURLEncodedData = NEW "System.Collections.Generic.Dictionary<String, String>"().	
 
+        oClient = NEW HttpClient().
+        
         oProtocolType = CAST(Progress.Util.EnumHelper:Or(SecurityProtocolType:Tls12, SecurityProtocolType:Tls11), SecurityProtocolType).
         oProtocolType = CAST(Progress.Util.EnumHelper:Or(oProtocolType, SecurityProtocolType:Tls), SecurityProtocolType).
     
@@ -83,12 +65,30 @@ CLASS API.APIHandler:
 	END METHOD.
 
     /*------------------------------------------------------------------------------
+     Purpose: Method to add header data
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC VOID AddHeaderData( ipcKey AS CHARACTER, ipcValue AS CHARACTER ):
+        oClient:DefaultRequestHeaders:Add(ipcKey, ipcValue).
+    END METHOD.
+    
+    /*------------------------------------------------------------------------------
      Purpose: Method for GET request types
      Notes:
     ------------------------------------------------------------------------------*/
 
     METHOD PUBLIC LONGCHAR Get( ipcURL AS CHARACTER ):
         RETURN pGet(ipcURL).
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Method for DELETE request type
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC LONGCHAR Delete( ipcURL AS CHARACTER ):
+        RETURN pDelete(ipcURL).
     END METHOD.
     
 	/*------------------------------------------------------------------------------
@@ -116,28 +116,40 @@ CLASS API.APIHandler:
 	END METHOD.
 
 	/*------------------------------------------------------------------------------
+	 Purpose: Method to process DELETE request
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC LONGCHAR pDelete( ipcURL AS CHARACTER ):
+        DEFINE VARIABLE oContent AS HttpContent NO-UNDO.
+                
+        DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
+        
+        oClient:BaseAddress = NEW System.Uri(ipcURL).
+        oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
+
+        ResponseMessage = oClient:DeleteAsync(ipcURL):RESULT NO-ERROR.          
+        
+        FIX-CODEPAGE(lcResponseData) = 'utf-8'.
+        
+        IF VALID-OBJECT(ResponseMessage) THEN
+            lcResponseData = ResponseMessage:Content:ReadAsStringAsync():RESULT.
+        
+        RETURN lcResponseData.	
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
 	 Purpose: Private method for GET request type
 	 Notes:
 	------------------------------------------------------------------------------*/
 
     METHOD PRIVATE LONGCHAR pGet( ipcURL AS CHARACTER ):
-        DEFINE VARIABLE oClient          AS HttpClient           NO-UNDO.
-        DEFINE VARIABLE oContent         AS HttpContent          NO-UNDO.
-        DEFINE VARIABLE oCredentials     AS "System.Byte[]"      NO-UNDO.
-        
+        DEFINE VARIABLE oContent AS HttpContent NO-UNDO.
+                
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
         
-        oClient = NEW HttpClient().
         oClient:BaseAddress = NEW System.Uri(ipcURL).
         oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
-        
-        IF AuthenticationType EQ "Basic" THEN DO:
-            oCredentials = UTF8Encoding:UTF8:GetBytes(UserName + ":" + Password).       
-            oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Basic", System.Convert:ToBase64String(oCredentials)).      
-        END.
-        ELSE IF AuthenticationType EQ "Bearer" THEN DO:
-            oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", BearerToken).
-        END.
 
         ResponseMessage = oClient:GetAsync(ipcURL):RESULT NO-ERROR.          
         
@@ -145,8 +157,6 @@ CLASS API.APIHandler:
         
         IF VALID-OBJECT(ResponseMessage) THEN
             lcResponseData = ResponseMessage:Content:ReadAsStringAsync():RESULT.
-
-        oClient:Dispose().
         
         RETURN lcResponseData.
     END METHOD.
@@ -166,42 +176,29 @@ CLASS API.APIHandler:
 	------------------------------------------------------------------------------*/
 
 	METHOD PRIVATE LONGCHAR pPost( ipcURL AS CHARACTER, iplcRequestData AS LONGCHAR ):
-        DEFINE VARIABLE oClient          AS HttpClient           NO-UNDO.
         DEFINE VARIABLE oContent         AS HttpContent          NO-UNDO.
-        DEFINE VARIABLE oCredentials     AS "System.Byte[]"      NO-UNDO.
         
 		DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.	
 		
-		oClient = NEW HttpClient().
 		oClient:BaseAddress = NEW System.Uri(ipcURL).
-		oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
+		oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).       
         
-        IF AuthenticationType EQ "Basic" THEN DO:
-            oCredentials = UTF8Encoding:UTF8:GetBytes(UserName + ":" + Password). 		
-            oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Basic", System.Convert:ToBase64String(oCredentials)).		
-        END.
-        ELSE IF AuthenticationType EQ "Bearer" THEN DO:
-            oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", BearerToken).
-        END.
-
         IF ContentType EQ "application/x-www-form-urlencoded" AND iplcRequestData EQ "" THEN DO:
-            ResponseMessage = oClient:PostAsync(ipcURL, NEW FormUrlEncodedContent(oURLEncodedData)):RESULT NO-ERROR.
+            oContent = NEW FormUrlEncodedContent(oURLEncodedData).
         END.
         ELSE DO: 
-            oContent = NEW StringContent(iplcRequestData, System.Text.UTF8Encoding:UTF8, ContentType).
-            
-            oContent:Headers:ContentType:CharSet = "".
-            
-            ResponseMessage = oClient:PostAsync(ipcURL, oContent):RESULT NO-ERROR.          
+            oContent = NEW StringContent(iplcRequestData, System.Text.UTF8Encoding:UTF8, ContentType).            
         END.
+
+        oContent:Headers:ContentType:CharSet = "".
+        
+        ResponseMessage = oClient:PostAsync(ipcURL, oContent):RESULT NO-ERROR.          
         
         FIX-CODEPAGE(lcResponseData) = 'utf-8'.
         
         IF VALID-OBJECT(ResponseMessage) THEN
             lcResponseData = ResponseMessage:Content:ReadAsStringAsync():RESULT.
-        
-		oClient:Dispose().
-		
+        		
 		RETURN lcResponseData.
 	END METHOD.
 
@@ -210,14 +207,11 @@ CLASS API.APIHandler:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
-	METHOD PUBLIC VOID SetBasicAuthentication(ipcUserName AS CHARACTER, ipcPassword AS CHARACTER ):
-		
-		ASSIGN
-		    AuthenticationType = "Basic"
-		    UserName           = ipcUserName
-		    Password           = ipcPassword
-		    .
-
+	METHOD PUBLIC VOID SetBasicAuthentication(ipcUserName AS CHARACTER, ipcPassword AS CHARACTER ):		
+        DEFINE VARIABLE oCredentials AS "System.Byte[]" NO-UNDO.
+        
+        oCredentials = UTF8Encoding:UTF8:GetBytes(ipcUserName + ":" + ipcPassword).       
+        oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Basic", System.Convert:ToBase64String(oCredentials)).      
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -225,12 +219,17 @@ CLASS API.APIHandler:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    METHOD PUBLIC VOID SetBearerAuthentication(ipcBearerToke AS CHARACTER ):
-        
-        ASSIGN
-            AuthenticationType = "Bearer"
-            BearerToken        = ipcBearerToke
-            .
-
+    METHOD PUBLIC VOID SetBearerAuthentication(ipcBearerToken AS CHARACTER ):
+        oClient:DefaultRequestHeaders:Authorization = NEW System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ipcBearerToken).
     END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+	DESTRUCTOR PUBLIC APIHandler ( ):
+        oClient:Dispose().        
+	END DESTRUCTOR.
+
+
 END CLASS.
