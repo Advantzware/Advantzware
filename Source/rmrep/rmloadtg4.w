@@ -131,7 +131,6 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-{Inventory/ttInventory.i "NEW SHARED"}
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
@@ -2842,7 +2841,12 @@ PROCEDURE xprint-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+      DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
+      DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
+      DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
+      DEFINE VARIABLE cTagno AS CHARACTER NO-UNDO.
+      DEFINE VARIABLE cVendorTagno AS CHARACTER NO-UNDO.
+      DEFINE VARIABLE cSize AS CHARACTER NO-UNDO.
       {sys/inc/print1.i}
       {sys/inc/outprint.i value(85)}
  
@@ -2850,7 +2854,13 @@ PROCEDURE xprint-tag :
       RELEASE tt-po-print .
       FOR EACH tt-po-print  NO-LOCK
            BREAK BY tt-po-print.ord-no :
-           {rm/rep/rmtagxprnt.i}
+           IF scr-label-file EQ "Loadtag2.xpr" THEN
+           DO:           
+            {rm/rep/rmtagxprnt2.i}
+           END.
+           ELSE DO:
+            {rm/rep/rmtagxprnt.i}
+           END.
           IF NOT LAST(tt-po-print.ord-no) THEN PAGE .
       END.
 

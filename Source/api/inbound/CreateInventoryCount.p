@@ -52,7 +52,7 @@
         cJobID = iopcJobID
         .
 
-    {Inventory/ttInventory.i "NEW SHARED"}
+    {Inventory/ttInventory.i}
 
     DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE hdJobProcs       AS HANDLE NO-UNDO.

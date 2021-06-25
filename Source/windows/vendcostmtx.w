@@ -495,6 +495,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'bottom':U , h_venditemcost-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav2 , 'getPanel':U , h_venditemcost-2 ).
+       RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'reopenmain':U , h_venditemcost ).
        
        /* Links to SmartViewer h_vp-price. */
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'price-change':U , h_vp-price ).
@@ -774,8 +775,6 @@ PROCEDURE setUserExit:
   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = "" ' ).
   RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = "" ' ).
     
-  APPLY "window-close" TO CURRENT-WINDOW.
-  
 
 END PROCEDURE.
 	

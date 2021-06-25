@@ -88,6 +88,7 @@ END.
 
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyBgColor   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDebug            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaVersion      AS CHARACTER NO-UNDO.
@@ -137,6 +138,20 @@ IF g_company EQ "" OR g_loc EQ "" THEN DO:
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
     RETURN.
 END.
+
+/* Set BGColor for this company */
+FIND company NO-LOCK WHERE
+    company.company EQ g_company.
+IF company.cBgColor NE "" THEN DO:
+    ASSIGN 
+        cCompanyBgColor = company.cBgColor.
+        
+    COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+    COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
+    COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
+    COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
+END.
+     
 cEulaFile = SEARCH("{&EulaFile}").
 
 &Scoped-define isActive YES
@@ -2690,6 +2705,19 @@ PROCEDURE Set-Comp_Loc :
             g_company                 = ipcCompany
             g_loc                     = ipcLoc
             .
+
+        /* Set BGColor for this company */
+        FIND company NO-LOCK WHERE
+            company.company EQ g_company.
+        IF company.cBgColor NE "" THEN ASSIGN 
+            cCompanyBgColor = company.cBgColor.
+        ELSE ASSIGN 
+            cCompanyBgColor = "119,150,203".
+        COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
+        COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
+        COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
+
     END.
     RUN spSetSessionParam ("Company", g_company).
     RUN spSetSessionParam ("Location", g_loc).

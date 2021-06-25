@@ -40,8 +40,17 @@ DEF VAR lv-first-quote-date AS DATE NO-UNDO.
 DEF VAR columnCounts AS INT NO-UNDO.
 DEF VAR cellColumn AS HANDLE EXTENT 10 NO-UNDO.
 DEF VAR idx AS INT NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 
 {methods/template/brwcustomdef.i}
+
+RUN sys/ref/nk1look.p (INPUT ip-company, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
 
 &SCOPED-DEFINE sortby-phrase BY quoteqty.quote-date DESC BY quoteqty.qty
 
@@ -61,7 +70,7 @@ DEF VAR idx AS INT NO-UNDO.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES quoteitm quoteqty
+&Scoped-define INTERNAL-TABLES quotehd quoteitm quoteqty
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -70,25 +79,38 @@ DEF VAR idx AS INT NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 quoteitm.q-no quoteqty.quote-date ~
 quoteqty.qty quoteqty.price quoteqty.uom quoteqty.quote-user 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH quoteitm WHERE ~{&KEY-PHRASE} ~
-      AND quoteitm.company = ip-company ~
-and quoteitm.est-no = ip-est-no NO-LOCK, ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH quotehd WHERE  quotehd.company = ip-company  ~
+      AND quotehd.est-no = ip-est-no ~
+      AND quotehd.quo-date LE TODAY ~
+      AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ~
+      AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-LOCK , ~
+      EACH quoteitm WHERE ~{&KEY-PHRASE} ~
+      AND quoteitm.company = quotehd.company ~
+      AND quoteitm.est-no = quotehd.est-no ~
+      AND quoteitm.q-no = quotehd.q-no NO-LOCK , ~
       EACH quoteqty WHERE quoteqty.company = quoteitm.company ~
 and quoteqty.loc = quoteitm.loc ~
 and quoteqty.q-no = quoteitm.q-no ~
   AND quoteqty.line = quoteitm.line NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH quoteitm WHERE ~{&KEY-PHRASE} ~
-      AND quoteitm.company = ip-company ~
-and quoteitm.est-no = ip-est-no NO-LOCK, ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH quotehd WHERE  quotehd.company = ip-company  ~
+      AND quotehd.est-no = ip-est-no ~
+      AND quotehd.quo-date LE TODAY ~
+      AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ~
+      AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-LOCK , ~
+      EACH quoteitm WHERE ~{&KEY-PHRASE} ~
+      AND quoteitm.company = quotehd.company ~
+      AND quoteitm.est-no = quotehd.est-no ~
+      AND quoteitm.q-no = quotehd.q-no NO-LOCK , ~
       EACH quoteqty WHERE quoteqty.company = quoteitm.company ~
 and quoteqty.loc = quoteitm.loc ~
 and quoteqty.q-no = quoteitm.q-no ~
   AND quoteqty.line = quoteitm.line NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 quoteitm quoteqty
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 quoteitm
-&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 quoteqty
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 quotehd quoteitm quoteqty
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 quotehd
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 quoteitm
+&Scoped-define THIRD-TABLE-IN-QUERY-BROWSE-1 quoteqty
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -123,6 +145,7 @@ FUNCTION display-color RETURNS CHARACTER
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
+      quotehd,
       quoteitm, 
       quoteqty SCROLLING.
 &ANALYZE-RESUME
@@ -183,12 +206,18 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.quoteitm,ASI.quoteqty WHERE ASI.quoteitm ..."
+     _TblList          = "ASI.quotehd,ASI.quoteitm,ASI.quoteqty WHERE ASI.quoteitm ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = ","
-     _Where[1]         = "ASI.quoteitm.company = ip-company
-and quoteitm.est-no = ip-est-no"
-     _JoinCode[2]      = "asi.quoteqty.company = asi.quoteitm.company
+     _TblOptList       = ",,"
+     _Where[1]         = "ASI.quotehd.company = ip-company
+      and quotehd.est-no = ip-est-no 
+      AND quotehd.quo-date LE TODAY 
+      AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) 
+      AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix)"
+     _Where[2]         = "ASI.quoteitm.company = quotehd.company
+                          AND quoteitm.est-no = quotehd.est-no 
+                          AND quoteitm.q-no = quotehd.q-no "  
+     _Where[3]      = "asi.quoteqty.company = asi.quoteitm.company
 and asi.quoteqty.loc = asi.quoteitm.loc
 and ASI.quoteqty.q-no = ASI.quoteitm.q-no
   AND ASI.quoteqty.line = ASI.quoteitm.line"
@@ -279,8 +308,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     cellColumn[idx] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
   END.
   lv-first-quote-date = ?.
-  FOR EACH ASI.quoteitm WHERE ASI.quoteitm.company = ip-company
-              and quoteitm.est-no = ip-est-no NO-LOCK,
+  FOR EACH quotehd WHERE  quotehd.company = ip-company  
+      AND quotehd.est-no = ip-est-no 
+      AND quotehd.quo-date LE TODAY 
+      AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) ~
+      AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-LOCK,
+   EACH ASI.quoteitm WHERE ASI.quoteitm.company = quotehd.company
+              and quoteitm.est-no = quotehd.est-no
+              and quoteitm.q-no = quotehd.q-no NO-LOCK,
       EACH ASI.quoteqty WHERE ASI.quoteqty.q-no = ASI.quoteitm.q-no
             AND ASI.quoteqty.line = ASI.quoteitm.line NO-LOCK
        BY quoteqty.quote-date DESC :

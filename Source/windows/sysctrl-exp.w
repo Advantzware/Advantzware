@@ -72,8 +72,8 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default".
+    cTextListToDefault = "Company,Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Date Value," +
+                          "Decimal Value,Integer Value,Logical Value,User Sec Level".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -202,7 +202,7 @@ DEFINE VARIABLE fi_compare_company   AS CHARACTER FORMAT "X(8)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.    
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sysctrl.csv" 
+DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\NK1List.csv" 
     LABEL "If Yes, File Name" 
     VIEW-AS FILL-IN 
     SIZE 43 BY 1
@@ -657,6 +657,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
         begin_Company:SCREEN-VALUE = cocode 
         end_Company:SCREEN-VALUE   = cocode .
+        fi_file:SCREEN-VALUE = "c:~\tmp~\NK1List.csv".
 RUN DisplaySelectionList2.
 APPLY "entry" TO begin_Company.
 END.

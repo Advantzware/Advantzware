@@ -1605,8 +1605,7 @@ ON LEAVE OF eb.side[9] IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
     {&methods/lValidateError.i YES}
-      ASSIGN eb.side[9].
-
+     
       IF eb.side[9]:Screen-value NE "" AND LOOKUP(eb.side[9]:Screen-value,"F,B") EQ 0 THEN
       DO:
          MESSAGE "Invalid Value.  Valid Values are F or B."

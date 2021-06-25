@@ -395,6 +395,7 @@ DEFINE QUERY Browser-Table FOR
       fg-rcpth.b-no
       fg-rcpth.pur-uom
       fg-rcpth.post-date
+      fg-rcpth.r-no
       vend-no), 
       fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
@@ -719,8 +720,12 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.
   IF v-upd-perms AND AVAIL fg-rcpth THEN DO: 
+      dQty = fg-rdtlh.qty .
       RUN viewers/d-fg-rcpth.w (RECID(fg-rcpth),RECID(fg-rdtlh), "update", OUTPUT lv-rowid) .
+      IF dQty NE fg-rdtlh.qty THEN
+      RUN fg/d-reqtys.w (ROWID(itemfg), YES).
       RUN repo-query (lv-rowid).
   END.
 END.
@@ -909,9 +914,7 @@ DO:
                ASSIGN b-reftable.loc = STRING(v-rcpth-no,"9999999999").
             RELEASE b-reftable.
             FIND CURRENT reftable NO-LOCK NO-ERROR.
-         END.
-
-         RUN local-open-query.
+         END.           
 
     END. /* if op-all */
 
@@ -933,11 +936,16 @@ DO:
                 b-fg-rdtlh2.loc     =  fg-rdtlh.loc
                 b-fg-rdtlh2.loc-bin =  fg-rdtlh.loc-bin .
 
-        END.
-        RUN local-open-query.
+        END.          
 
     END. /* op whe */
-
+    
+    IF op-all OR op-whbn THEN DO:
+    
+      RUN fg/d-reqtys.w (ROWID(itemfg), YES).
+      
+      RUN local-open-query.
+    END.
 
    END.
 END.
@@ -975,7 +983,7 @@ DO:
               
           END.                     
           
-          RUN fg/d-reqtys.w (ROWID(itemfg), NO).
+          RUN fg/d-reqtys.w (ROWID(itemfg), YES).
 
           RUN local-open-query.
         END.
@@ -1189,6 +1197,8 @@ END.
 {methods/browsers/setCellColumns.i}
 
 {sys/inc/f3help.i}  /* asi field contents help */
+{methods/ctrl-a_browser.i}
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 

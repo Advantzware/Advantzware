@@ -1080,7 +1080,8 @@ PROCEDURE pGetParamValue :
             WHERE dynParamValue.module        BEGINS cPassedModule
               AND dynParamValue.securityLevel LE DYNAMIC-FUNCTION("sfUserSecurityLevel")
               AND dynParamValue.isLookup      EQ NO
-              AND dynParamValue.prgmName      LT "[",
+              AND dynParamValue.prgmName      LT "["
+              AND dynParamValue.paramValueID  GE 0,
             FIRST dynSubject NO-LOCK
             WHERE dynSubject.subjectID EQ dynParamValue.subjectID
             WITH FRAME filterFrame:

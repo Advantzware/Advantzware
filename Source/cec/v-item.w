@@ -61,8 +61,6 @@ DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
-
 {sys/inc/f16to32.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 

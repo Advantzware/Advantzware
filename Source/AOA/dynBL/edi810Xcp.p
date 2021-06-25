@@ -67,6 +67,7 @@ END FUNCTION.
 PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cStatus     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cstatusDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
 
     FOR EACH company NO-LOCK,
         EACH edmast NO-LOCK 
@@ -97,6 +98,9 @@ PROCEDURE pBusinessLogic:
                     ar-inv.inv-date,
                     cStatusDesc
                     ).
+                iCount = iCount + 1.
+                IF lProgressBar THEN
+                    RUN spProgressBar (cProgressBar, iCount, ?).
             END. /* if not snt */
         END. /* each ar-inv */
     END. /* each company */

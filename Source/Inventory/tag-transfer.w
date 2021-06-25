@@ -52,8 +52,11 @@ DEFINE VARIABLE cWarehouseID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iWarehouseLength    AS INTEGER   NO-UNDO.
 
-// {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{system/sysconst.i}
+{Inventory/ttInventory.i}
+{inventory/ttBrowseInventory.i}
+{inventory/ttInventoryStockDetails.i}
+
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -987,7 +990,7 @@ PROCEDURE pSubmitScan :
         ipcTag,
         OUTPUT lValidInvStock,
         OUTPUT cReturnMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
     
     IF NOT lValidInvStock THEN DO:
@@ -1087,7 +1090,7 @@ PROCEDURE pTagScan :
         ipcTag,
         OUTPUT lValidInvStock,
         OUTPUT cReturnMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
     
     IF NOT lValidInvStock THEN DO:

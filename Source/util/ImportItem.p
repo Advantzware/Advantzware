@@ -537,6 +537,8 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportItem.press-type = "O".
     ELSE IF ipbf-ttImportItem.press-type EQ "Silkscreen" THEN 
         ipbf-ttImportItem.press-type = "S".
+        
+        DELETE OBJECT hdValidator.
 
 END PROCEDURE.
 

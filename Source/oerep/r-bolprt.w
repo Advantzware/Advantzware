@@ -50,7 +50,6 @@ DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 {oe/closchk.i NEW}
 {custom/formtext.i NEW}
 {oerep/r-bolx.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
   cocode = gcompany
@@ -5182,6 +5181,10 @@ PROCEDURE run-report :
               RUN oe/rep/coclanyork.p (?).
          ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
               RUN oe/rep/cocbolMex.p (?).
+         ELSE IF v-program = "oe/rep/bolcardgp.p" THEN
+              RUN oe/rep/bolcardgp.p (v-print-fmt).
+         ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
+              RUN oe/rep/bolcrdbc.p (v-print-fmt).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -5590,6 +5593,10 @@ PROCEDURE run-report-mail :
             RUN oe/rep/coclanyork.p (?).
          ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
             RUN oe/rep/cocbolMex.p (?).
+         ELSE IF v-program = "oe/rep/bolcardgp.p" THEN
+              RUN oe/rep/bolcardgp.p (v-print-fmt).
+         ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
+              RUN oe/rep/bolcrdbc.p (v-print-fmt).
          ELSE
                 RUN value(v-program).
       END.

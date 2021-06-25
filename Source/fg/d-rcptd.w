@@ -77,7 +77,6 @@ DEFINE BUFFER b-tt FOR tt-fg-rctd.
 DEFINE TEMP-TABLE w-rowid 
     FIELD w-rowid AS CHARACTER
     INDEX w-rowid IS PRIMARY w-rowid.
-{Inventory/ttInventory.i "NEW SHARED"}
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {oe/d-selbin.i NEW}

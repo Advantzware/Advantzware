@@ -638,9 +638,9 @@ PROCEDURE pCheckIfModified:
 
     IF lModified THEN DO:
         RUN pSave (OUTPUT oplRunTask).
-        IF oplRunTask AND lModified EQ YES THEN
+        IF oplRunTask AND lModified EQ NO THEN
         MESSAGE 
-            "Auto Saved Parameter Setting Changes"
+            "Auto Saved Parameter Value Changes"
         VIEW-AS ALERT-BOX WARNING.
     END. /* if lmodified */
     ELSE

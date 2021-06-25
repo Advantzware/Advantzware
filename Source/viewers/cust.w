@@ -352,7 +352,7 @@ DEFINE RECTANGLE RECT-6
 DEFINE FRAME F-Main
      cust.pricingMethod AT ROW 21.48 COL 94 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "?","?","?","?" 
+          LIST-ITEMS " ","Type","Customer","Ship To" 
           DROP-DOWN-LIST
           SIZE 20 BY 1
      cbMatrixPrecision AT ROW 20.29 COL 20 COLON-ALIGNED WIDGET-ID 38
@@ -685,7 +685,7 @@ DEFINE FRAME F-Main
      stax_tax-dscr AT ROW 17.86 COL 28 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.tagStatus AT ROW 20.29 COL 94 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
-          LIST-ITEM-PAIRS "Only tags that are not on hold","",
+          LIST-ITEM-PAIRS "Only tags that are not on hold"," ",
                      "Only on Hold tags","H",
                      "Any tag status","A"
           DROP-DOWN-LIST
@@ -2165,6 +2165,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayTagStatus V-table-Win 
+PROCEDURE pDisplayTagStatus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+
+    if not avail cust then return.
+
+    case cust.tagStatus:
+      when "" THEN cust.tagStatus:screen-value in frame {&frame-name} = " ".
+      when "H" THEN cust.tagStatus:screen-value in frame {&frame-name} = "H".
+      when "A" then cust.tagStatus:screen-value in frame {&frame-name} = "A".           
+    end case.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-cust-no V-table-Win 
 PROCEDURE get-cust-no :
 /*------------------------------------------------------------------------------
@@ -2467,6 +2491,8 @@ PROCEDURE local-display-fields :
   END.
 
   RUN display-active.
+  
+  RUN pDisplayTagStatus.
 
   IF AVAIL cust THEN DO:
        ASSIGN

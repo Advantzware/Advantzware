@@ -1065,7 +1065,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */  
+  run scr-rpt-d.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1333,9 +1333,7 @@ DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
    
 
-IF AVAILABLE ipbf-ar-inv THEN DO:
-
-    
+IF AVAILABLE ipbf-ar-inv AND ipbf-ar-inv.gross NE 0 THEN DO:   
     ASSIGN 
         cAPIID       = "SendInvoice"
         cTriggerID   = "PostInvoice"
