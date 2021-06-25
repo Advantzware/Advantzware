@@ -1507,6 +1507,7 @@ PROCEDURE pPrepareAndExecuteQuery :
     DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iRecordCount          AS INTEGER   NO-UNDO.
     
     RUN pAssignCommonRecords(
         INPUT-OUTPUT cQueryBuffers,
@@ -1529,20 +1530,46 @@ PROCEDURE pPrepareAndExecuteQuery :
                      .  
                                  
     /* Limit the query if order no is 0 or cadd No is Blank */                    
-    IF fi_inv-no EQ 0 THEN             
-        RUN Browse_PrepareAndExecuteLimitingQuery(
-            INPUT  cLimitingQuery,   /* Query */
-            INPUT  cQueryBuffers,    /* Buffers Name */
-            INPUT  iRecordLimit,     /* Record Limit */
-            INPUT  dQueryTimeLimit,  /* Time Limit*/
-            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
-            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
-            INPUT  cFieldName,       /* Field Name*/
-            INPUT  iplInitialLoad,   /* Initial Query*/
-            INPUT  lIsBreakByUsed,   /* Is breakby used */
-            OUTPUT cResponse           
-            ).       
-  
+    IF fi_inv-no EQ 0 THEN DO:
+        IF iplInitialLoad THEN DO:                  
+            FOR EACH ar-invl NO-LOCK
+                WHERE ar-invl.company EQ cocode 
+                  AND ar-invl.posted EQ YES
+                USE-INDEX x-no,
+                FIRST ar-inv NO-LOCK
+                WHERE ar-inv.x-no EQ ar-invl.x-no
+                  AND (ar-inv.inv-date GE fi_bdate)
+                  AND (ar-inv.inv-date LE fi_edate)
+                  AND ((ar-inv.due NE 0 AND tb_open)
+                   OR  (ar-inv.due EQ 0 AND NOT tb_open)
+                   OR  (ar-inv.due EQ 0 AND tb_paid)
+                   OR  (ar-inv.due NE 0 AND NOT tb_paid)),
+                FIRST cust OF ar-inv NO-LOCK
+                BREAK BY ar-invl.x-no DESC:
+                IF FIRST-OF(ar-invl.x-no) THEN 
+                    iRecordCount = iRecordCount + 1.
+                
+                cResponse = STRING(ar-invl.x-no).
+                
+                IF iRecordCount GE 30 THEN 
+                    LEAVE.
+            END. 
+        END. 
+        ELSE DO:
+            RUN Browse_PrepareAndExecuteLimitingQuery(
+                INPUT  cLimitingQuery,   /* Query */
+                INPUT  cQueryBuffers,    /* Buffers Name */
+                INPUT  iRecordLimit,     /* Record Limit */
+                INPUT  dQueryTimeLimit,  /* Time Limit*/
+                INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+                INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+                INPUT  cFieldName,       /* Field Name*/
+                INPUT  iplInitialLoad,   /* Initial Query*/
+                INPUT  lIsBreakByUsed,   /* Is breakby used */
+                OUTPUT cResponse           
+                ). 
+        END.  
+    END.           
     ELSE 
         cResponse = "InvoiceNo". /* For identification purpose */
         
