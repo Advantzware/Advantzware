@@ -257,26 +257,34 @@ PROCEDURE pAddGLTransactionsForFG PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster     FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
     
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountDLCogs, ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountDLFG, - ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountFOCogs, ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountFOFG, - ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountVOCogs, ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+    IF ipbf-ttInvoiceLIneToPost.accountDLCogs NE ipbf-ttInvoiceLineToPost.accountDLFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountDLCogs, ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountDLFG, - ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountFOCogs NE ipbf-ttInvoiceLineToPost.accountFOFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountFOCogs, ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountFOFG, - ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountVOCogs NE ipbf-ttInvoiceLineToPost.accountVOFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountVOCogs, ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
         "FG", ipbf-ttInvoiceLineToPost.accountVOFG, - ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountDMCogs, ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountDMFG, - ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
-
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountDMCogs NE ipbf-ttInvoiceLineToPost.accountDMFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountDMCogs, ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountDMFG, - ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
@@ -2308,7 +2316,15 @@ PROCEDURE pPostGL PRIVATE:
         cTransactionType    = "FG"
         cConsolidateOn      = ipbf-ttPostingMaster.consolidateOnFG
         cConsolidateAccount = ipbf-ttPostingMaster.accountFG
-        .     
+        .  
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
+    
+    ASSIGN 
+        cTransactionType    = "COGS"
+        cConsolidateOn      = ipbf-ttPostingMaster.consolidateOnCogs
+        cConsolidateAccount = ipbf-ttPostingMaster.accountCogs
+        .  
     RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
         cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
     
@@ -2373,12 +2389,12 @@ PROCEDURE pPostGLType PRIVATE:
     
     DEFINE VARIABLE dAmountToPost AS DECIMAL NO-UNDO.
     DEFINE VARIABLE riGlTrans     AS ROWID   NO-UNDO.
-          
+     
     FOR EACH ttGLTransaction
-        WHERE (ttGLTransaction.transactionType EQ ipcTransactionType  OR (ipcTransactionType EQ "FG" AND ttGLTransaction.transactionType EQ "COGS"))
+        WHERE ttGLTransaction.transactionType EQ ipcTransactionType
         BREAK BY ttGLTransaction.account
         BY ttGLTransaction.invoiceID:
-                 
+        
         ASSIGN 
             dAmountToPost      = dAmountToPost + ttGLTransaction.amount
             iopdRunningBalance = iopdRunningBalance + ttGLTransaction.amount
