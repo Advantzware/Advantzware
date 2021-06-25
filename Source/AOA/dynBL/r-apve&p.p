@@ -10,10 +10,11 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttAPInvoicePosting 
-{aoa/tempTable/ttAPInvoicePosting.i}
-{aoa/tempTable/ttAPInvoicePostingGL.i}
-{aoa/tempTable/ttAPInvoicePostingSummary.i}
-{aoa/tempTable/ttAPInvoicePostingMsg.i}
+{AOA/tempTable/ttAPInvoicePosting.i}
+{AOA/tempTable/ttAPInvoicePostingGL.i}
+{AOA/tempTable/ttAPInvoicePostingSummary.i}
+{AOA/tempTable/ttAPInvoicePostingMsg.i}
+RUN spSetSessionParam ("SummaryTables", "3").
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD actnum   LIKE account.actnum

@@ -34,7 +34,7 @@ PROCEDURE pRunBusinessLogic:
         RUN pBusinessLogic.
     END. /* if avail */    
     ophTempTable = fGetTableHandle().
-    DELETE PROCEDURE hAppServerBin.
+    RUN pDeleteProcedure.
     IF lProgressBar THEN
     RUN spProgressBar (?, ?, 100).
 END PROCEDURE.
