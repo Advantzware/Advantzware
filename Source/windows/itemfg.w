@@ -19,6 +19,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
+USING system.SharedConfig.     
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -60,6 +62,7 @@ RUN methods/prgsecur.p
 DEF VAR li-current-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-prev-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1011,23 +1014,9 @@ PROCEDURE adm-create-objects :
              h_p-updimg , 'AFTER':U ).
     END. /* Page 10 */
     WHEN 11 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/itemfgpo.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_itemfgpo ).
-       RUN set-position IN h_itemfgpo ( 4.81 , 9.00 ) NO-ERROR.
-       RUN set-size IN h_itemfgpo ( 19.52 , 145.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_itemfgpo. */
-       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfgpo ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_itemfgpo ,
-             h_folder , 'AFTER':U ).
+        RUN browsers/itemfgpo.p.
+        IF li-prev-page NE 11 THEN
+        RUN select-page IN THIS-PROCEDURE ( li-prev-page ).        
     END. /* Page 11 */
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1465,6 +1454,12 @@ PROCEDURE local-change-page :
         RUN select-page (15).        
         
         RETURN.     
+    END.    
+    
+    IF li-current-page EQ 11 THEN 
+    DO:     
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("ItemFGPo",STRING(ROWID(itemfg))).
     END.
     
   /* Dispatch standard ADM method.                             */
@@ -1472,6 +1467,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+      
   
 END PROCEDURE.
 
