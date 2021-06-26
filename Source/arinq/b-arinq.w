@@ -1500,11 +1500,7 @@ PROCEDURE pPrepareAndExecuteQuery :
 /*------------------------------------------------------------------------------
  Purpose: Private procedure to prepare and execute query in browse
  Notes:
-------------------------------------------------------------------------------*/   
-/*------------------------------------------------------------------------------
- Purpose: Private procedure to prepare and execute query in browse
- Notes:
-------------------------------------------------------------------------------*/   
+------------------------------------------------------------------------------*/     
     DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
