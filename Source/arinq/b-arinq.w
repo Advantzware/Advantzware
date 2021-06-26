@@ -1501,13 +1501,16 @@ PROCEDURE pPrepareAndExecuteQuery :
  Purpose: Private procedure to prepare and execute query in browse
  Notes:
 ------------------------------------------------------------------------------*/   
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to prepare and execute query in browse
+ Notes:
+------------------------------------------------------------------------------*/   
     DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iRecordCount          AS INTEGER   NO-UNDO.
     
     RUN pAssignCommonRecords(
         INPUT-OUTPUT cQueryBuffers,
@@ -1531,7 +1534,7 @@ PROCEDURE pPrepareAndExecuteQuery :
                      .  
                                  
     /* Limit the query if order no is 0 or cadd No is Blank */                    
-    IF fi_inv-no EQ 0 THEN DO:
+    IF fi_inv-no EQ 0 THEN             
         RUN Browse_PrepareAndExecuteLimitingQuery(
             INPUT  cLimitingQuery,   /* Query */
             INPUT  cQueryBuffers,    /* Buffers Name */
@@ -1542,9 +1545,9 @@ PROCEDURE pPrepareAndExecuteQuery :
             INPUT  cFieldName,       /* Field Name*/
             INPUT  iplInitialLoad,   /* Initial Query*/
             INPUT  lIsBreakByUsed,   /* Is breakby used */
-            OUTPUT cResponse
-            ).
-    END.           
+            OUTPUT cResponse           
+            ).       
+  
     ELSE 
         cResponse = "InvoiceNo". /* For identification purpose */
         
