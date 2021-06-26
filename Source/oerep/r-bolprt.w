@@ -991,7 +991,9 @@ DO:
    DEF VAR ll          AS LOG NO-UNDO.
    DEF VAR v-format-str AS CHAR NO-UNDO.
    DEF VAR lv-exception AS LOG NO-UNDO.
-   DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.   
+   DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
@@ -1377,6 +1379,12 @@ DO:
                RUN oe/bolcheck.p(
                    INPUT ROWID(oe-bolh)
                    ). 
+                   
+           RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "L", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
+                                   OUTPUT cFGTagValidation, OUTPUT lRecFound).
+            lFGTagValidation = LOGICAL(cFGTagValidation).
+            RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "C", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
+                                   OUTPUT cFGTagValidation, OUTPUT lRecFound).        
                         
            FOR EACH oe-boll NO-LOCK
                WHERE oe-boll.company EQ oe-bolh.company
@@ -1561,6 +1569,33 @@ DO:
                        NEXT mainblock.
                    END.
                END.       
+               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" THEN
+               DO:
+                  IF lSingleBOL THEN
+                     MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
+                            VIEW-AS ALERT-BOX ERROR.  
+                  ELSE 
+                       RUN pCreatettExceptionBOL(
+                           INPUT "BOL Tag is Blank",
+                           INPUT  ROWID(oe-boll)
+                           ).
+                  DELETE tt-post.
+                  NEXT mainblock.         
+               END.
+               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no THEN 
+               DO:
+                  IF lSingleBOL THEN
+                     MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 
+                            VIEW-AS ALERT-BOX ERROR.  
+                  ELSE 
+                       RUN pCreatettExceptionBOL(
+                           INPUT "BOL Tag does not Match Item",
+                           INPUT  ROWID(oe-boll)
+                           ).
+                  DELETE tt-post.
+                  NEXT mainblock.         
+               END.
+               
            END. 
        END. 
    END.
