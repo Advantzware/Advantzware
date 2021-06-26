@@ -485,8 +485,9 @@ ASSIGN
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 3
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+ASSIGN 
+       btn_show:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_sortBy IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -1562,7 +1563,8 @@ PROCEDURE pPrepareAndExecuteQuery :
                        + " WHERE ar-invl.company EQ " + QUOTER(cocode)
                        + " AND ar-invl.posted EQ YES "
                        + cBrowseWhereClause   
-                       + pGetWhereCriteria("ar-invl",YES)             
+                       + pGetWhereCriteria("ar-invl",YES)
+                       + " USE-INDEX inv-no-desc"             
                        + " ,FIRST ar-inv  no-lock"
                        + " WHERE ar-inv.x-no EQ ar-invl.x-no "
                        + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
