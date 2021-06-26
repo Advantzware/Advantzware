@@ -3639,7 +3639,7 @@ PROCEDURE local-assign-record :
   IF NOT ll-is-copy-record THEN DO:
     {ce/uship-id.i ll-new-record}
   END.
-     MESSAGE "helllo " VIEW-AS ALERT-BOX ERROR .
+
   FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
     IF FIRST(tt-eb-set.company) THEN DO:
       CREATE bf-eb.
@@ -3656,7 +3656,7 @@ PROCEDURE local-assign-record :
     END.
     DELETE tt-eb-set.
   END.
-         MESSAGE "helllo 22222222222" VIEW-AS ALERT-BOX ERROR .
+
   RUN update-sb-qtys (ROWID(eb)).
 
   FIND FIRST est-qty
@@ -3706,15 +3706,15 @@ PROCEDURE local-assign-record :
                         bf-est.est-no = est-qty.est-no.
       bf-est.est-qty[1] = est-qty.eqty.
   END.
-     MESSAGE "helllo 3333333333333333" VIEW-AS ALERT-BOX ERROR .
+
   {ce/estitm1.i}
-        MESSAGE "helllo 44444444444444" VIEW-AS ALERT-BOX ERROR .
+
    IF v-shiptorep-log AND adm-new-record THEN DO:  /* task 05301401 */
       RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
       RUN sys/inc/getsmncm-2.p (eb.cust-no, INPUT-OUTPUT eb.sman, eb.procat, ld-markup,
                               OUTPUT eb.comm,eb.ship-id).
   END.   
-         MESSAGE "helllo 55555555555" VIEW-AS ALERT-BOX ERROR .
+
   IF NOT ll-is-copy-record             AND
      (ll-new-record OR is-first-record) THEN DO:
      ef.xgrain = "N".
@@ -3729,7 +3729,7 @@ PROCEDURE local-assign-record :
   END.  /* new not copy */
 
   FIND CURRENT eb.
-         MESSAGE "helllo 666666666666666" VIEW-AS ALERT-BOX ERROR .
+
   IF lv-hld-board NE ef.board THEN DO:
     FIND FIRST item NO-LOCK
         WHERE item.company EQ ef.company
@@ -3742,7 +3742,7 @@ PROCEDURE local-assign-record :
       FIND FIRST e-item OF item NO-LOCK NO-ERROR.
       IF AVAIL e-item THEN ef.cost-uom = e-item.std-uom.
     END.
-  END.    MESSAGE "helllo7777777777777 " VIEW-AS ALERT-BOX ERROR .
+  END.
   /*ELSE DO:
      RUN est/u2kinc1.p (RECID(eb)).
      RUN est/u2kinc2.p (RECID(eb)).
@@ -3788,7 +3788,7 @@ PROCEDURE local-assign-record :
      END.  
      ll-crt-itemfg = NO.
   END.
-      MESSAGE "helllo 8888888888888888" VIEW-AS ALERT-BOX ERROR .
+
   IF eb.stock-no NE "" AND eb.part-dscr2 EQ "" THEN DO:
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ eb.company
@@ -3800,12 +3800,12 @@ PROCEDURE local-assign-record :
 
   /*== Qty assignment ==*/
   RUN assign-qty.
-     MESSAGE "helllo 99999999999999" VIEW-AS ALERT-BOX ERROR .
+
   RUN reset-est-type (OUTPUT li-est-type).
 
   FIND CURRENT est.
   FIND CURRENT est-qty NO-LOCK.
-           MESSAGE "helllo 10 10 10" VIEW-AS ALERT-BOX ERROR .
+
   IF (li-est-type GE 1 AND li-est-type LE 2 AND eb.i-col + eb.i-coat EQ 0) OR
      (li-est-type GE 3 AND li-est-type LE 4 AND ef.f-col + ef.f-coat EQ 0) THEN DO:
     {ce/delplate.i}
@@ -3855,7 +3855,7 @@ PROCEDURE local-assign-record :
 
     {ce/updunit#.i eb}
   END.
-       MESSAGE "helllo 11 11 11 11 11" VIEW-AS ALERT-BOX ERROR .
+
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
 
   IF est.est-type GT 1 AND (adm-new-record OR eb.yld-qty NE eb.bl-qty) AND 
@@ -3863,7 +3863,7 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
-              MESSAGE "helllo 12 12 12 12 " VIEW-AS ALERT-BOX ERROR .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5963,6 +5963,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no B-table-Win 
 PROCEDURE valid-part-no :
 /*------------------------------------------------------------------------------
