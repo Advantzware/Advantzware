@@ -75,9 +75,7 @@ DEFINE VARIABLE ld-xfer-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEFINE VARIABLE search-return AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE v-rec-key-list AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lc-rs AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lc-mi AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
@@ -188,8 +186,8 @@ ll-sort-asc = NO /*oeinq*/.
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
     IF lv-sort-by EQ 'cStatus'   THEN oe-ord.stat ELSE ~
-    IF lv-sort-by EQ 'lc-rs'     THEN getRS() ELSE ~
-    IF lv-sort-by EQ 'lc-mi'     THEN getMI() ELSE ~
+    IF lv-sort-by EQ 'whsed'     THEN oe-ordl.whsed ELSE ~
+    IF lv-sort-by EQ 'managed'   THEN oe-ordl.managed ELSE ~
     IF lv-sort-by EQ 'ord-date'  THEN STRING(YEAR(oe-ord.ord-date),'9999') + STRING(MONTH(oe-ord.ord-date),'99') + STRING(DAY(oe-ord.ord-date),'99') ELSE ~
     IF lv-sort-by EQ 'cust-no'   THEN oe-ordl.cust-no ELSE ~
     IF lv-sort-by EQ 'cust-name' THEN oe-ord.cust-name ELSE ~
@@ -267,17 +265,17 @@ DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no oe-ordl.cust-no ~
-getRS() @ lc-rs getMI() @ lc-mi getstat() @ cstatus oe-ord.ord-date oe-ordl.req-date ~
-oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no oe-ordl.po-no ~
-oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no oe-ordl.qty ~
-get-prod(li-bal) @ li-prod oe-ordl.ship-qty get-inv-qty() @ iInvQty ~
-get-act-rel-qty() @ li-act-rel-qty get-pct(li-bal) @ li-pct oe-ordl.i-name ~
-oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
-getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
-oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost pGetSellPrice() @ dSellPrice ~
-pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
-pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance
+oe-ordl.whsed oe-ordl.managed getstat() @ cStatus oe-ord.ord-date ~
+oe-ordl.req-date oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ord.po-no ~
+oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no ~
+oe-ordl.qty get-prod(li-bal) @ li-prod oe-ordl.ship-qty ~
+get-inv-qty() @ iInvQty get-act-rel-qty() @ li-act-rel-qty ~
+get-pct(li-bal) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
+oe-ordl.e-num oe-ordl.whsed getTotalReturned() @ dTotQtyRet ~
+getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost ~
+pGetSellPrice() @ dSellPrice pGetExtendedPrice() @ dExtendedPrice ~
+pGetPriceUom() @ cPriceUom pGetCostUom() @ cCostUom oe-ord.entered-id ~
+itemfg.q-onh fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -310,8 +308,8 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cbType fiItemPo Browser-Table tbOther ~
-tbHold tbWeb fiOrderDate btSHowAll fi_ord-no fi_cust-no fi_i-no fi_part-no ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table cbType fiItemPo tbOther tbHold ~
+tbWeb fiOrderDate btSHowAll fi_ord-no fi_cust-no fi_i-no fi_part-no ~
 fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
 fi_i-name RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS cbType fiItemPo tbOther tbHold tbWeb ~
@@ -330,6 +328,20 @@ fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by fi_i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
 FUNCTION fget-qty-nothand RETURNS INTEGER
   (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder B-table-Win 
+FUNCTION fnPrevOrder RETURNS INTEGER
+  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnProdBalance B-table-Win 
+FUNCTION fnProdBalance RETURNS DECIMAL
+  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -357,6 +369,13 @@ FUNCTION get-bal RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fgitem B-table-Win 
 FUNCTION get-fgitem RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-inv-qty B-table-Win 
+FUNCTION get-inv-qty RETURNS INT
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,13 +409,6 @@ FUNCTION get-xfer-qty RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getMI B-table-Win 
-FUNCTION getMI RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getReturned B-table-Win 
 FUNCTION getReturned RETURNS DECIMAL
   (ipcValueNeeded AS CHARACTER) FORWARD.
@@ -407,13 +419,6 @@ FUNCTION getReturned RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getReturnedInv B-table-Win 
 FUNCTION getReturnedInv RETURNS DECIMAL
     (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getRS B-table-Win 
-FUNCTION getRS RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -439,104 +444,61 @@ FUNCTION isFilterBlank RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder B-table-Win 
-FUNCTION fnPrevOrder RETURNS INTEGER
-  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-inv-qty B-table-Win 
-FUNCTION get-inv-qty RETURNS INT
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetCostUom B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetCostUom B-table-Win 
 FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetExtenedPrice B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetExtendedPrice B-table-Win 
 FUNCTION pGetExtendedPrice RETURNS DECIMAL PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetInvoiceLineCost B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetInvoiceLineCost B-table-Win 
 FUNCTION pGetInvoiceLineCost RETURNS DECIMAL PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetPriceUom B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetPriceUom B-table-Win 
 FUNCTION pGetPriceUom RETURNS CHARACTER PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSellPrice B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSellPrice B-table-Win 
 FUNCTION pGetSellPrice RETURNS DECIMAL PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
-FUNCTION pGetSortCondition RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win 
+FUNCTION pGetSortCondition RETURNS CHARACTER
   (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win
-FUNCTION pGetWhereCriteria RETURNS CHARACTER 
-  (ipcTable AS CHARACTER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win 
+FUNCTION pGetWhereCriteria RETURNS CHARACTER
+  ( ipcTable AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pIsValidSearch B-table-Win 
 FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnProductionBalance B-table-Win 
-FUNCTION fnProdBalance RETURNS DECIMAL
-  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -595,7 +557,7 @@ DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U
 
 DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
-     SIZE 34.5 BY 1
+     SIZE 34.6 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U 
@@ -612,11 +574,6 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
-
-/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 22 NO-UNDO.*/
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -647,19 +604,19 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 168 BY 3.33.
 
-DEFINE VARIABLE tbOther AS LOGICAL INITIAL YES 
-     LABEL "Other" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 13.2 BY .81
-     BGCOLOR 15 FGCOLOR 9  NO-UNDO.
-
-DEFINE VARIABLE tbHold AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tbHold AS LOGICAL INITIAL yes 
      LABEL "Hold" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .81
      BGCOLOR 15 FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE tbWeb AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tbOther AS LOGICAL INITIAL yes 
+     LABEL "Other" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.2 BY .81
+     BGCOLOR 15 FGCOLOR 9  NO-UNDO.
+
+DEFINE VARIABLE tbWeb AS LOGICAL INITIAL yes 
      LABEL "Web" 
      VIEW-AS TOGGLE-BOX
      SIZE 7.6 BY .81
@@ -668,31 +625,7 @@ DEFINE VARIABLE tbWeb AS LOGICAL INITIAL YES
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      oe-ordl
-
-    FIELDS(oe-ordl.company
-      oe-ordl.ord-no
-      oe-ordl.cust-no
-      oe-ordl.req-date
-      oe-ordl.i-no
-      oe-ordl.part-no
-      oe-ordl.po-no
-      oe-ordl.est-no
-      oe-ordl.job-no
-      oe-ordl.job-no2
-      oe-ordl.qty
-      oe-ordl.ship-qty
-      oe-ordl.inv-qty
-      oe-ordl.i-name
-      oe-ordl.line
-      oe-ordl.po-no-po
-      oe-ordl.e-num
-      oe-ordl.whsed
-      oe-ordl.s-man[1]
-      oe-ordl.managed
-      oe-ordl.est-no
-      oe-ordl.ord-no
-      oe-ordl.cost), 
+      oe-ordl, 
       oe-ord, 
       itemfg SCROLLING.
 &ANALYZE-RESUME
@@ -704,9 +637,9 @@ DEFINE BROWSE Browser-Table
       oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
-      getRS() @ lc-rs COLUMN-LABEL "R&S" FORMAT "X":U WIDTH 4
-      getMI() @ lc-mi COLUMN-LABEL "MI" FORMAT "X":U WIDTH 4
-      getStat() @ cStatus COLUMN-LABEL "Status" FORMAT "x(16)":U
+      oe-ordl.whsed COLUMN-LABEL "R&S" FORMAT "X/":U LABEL-BGCOLOR 14
+      oe-ordl.managed COLUMN-LABEL "MI" FORMAT "X/":U LABEL-BGCOLOR 14
+      getstat() @ cStatus COLUMN-LABEL "Status" FORMAT "X(16)":U
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
             WIDTH 14.4 LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
@@ -748,9 +681,8 @@ DEFINE BROWSE Browser-Table
       pGetCostUom() @ cCostUom COLUMN-LABEL "Cost!Uom" FORMAT "x(4)":U
       oe-ord.entered-id COLUMN-LABEL "Entered By" FORMAT "x(8)":U
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
-            WIDTH 16 LABEL-BGCOLOR 14
+            WIDTH 16
       fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
-            WIDTH 16 LABEL-BGCOLOR 14
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -772,10 +704,10 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbType AT ROW 1.95 COL 146.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     cbType AT ROW 1.95 COL 146.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiItemPo AT ROW 3.14 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      tbOther AT ROW 3.14 COL 154.6 WIDGET-ID 28
      tbHold AT ROW 3.14 COL 146.4 WIDGET-ID 26
      tbWeb AT ROW 3.14 COL 138.6 WIDGET-ID 24
@@ -799,6 +731,15 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 16
+          FGCOLOR 9 FONT 22
+     "FG Item#/Name" VIEW-AS TEXT
+          SIZE 19 BY .71 AT ROW 1.24 COL 30
+          FGCOLOR 9 FONT 22
+     "Cust Part#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 50
+          FGCOLOR 9 FONT 22
      "Open" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 150.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
@@ -811,26 +752,11 @@ DEFINE FRAME F-Main
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 90
           FGCOLOR 9 FONT 22
-   /*  "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 3.14 COL 115 WIDGET-ID 6
-          FONT 6*/
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 22
-    /* "Sorted By:" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 3.14 COL 76 WIDGET-ID 18
-          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 2
-          FGCOLOR 9 FONT 22
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 16
-          FGCOLOR 9 FONT 22
-     "FG Item#/Name" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 1.24 COL 30
-          FGCOLOR 9 FONT 22
-     "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -890,7 +816,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
-/* BROWSE-TAB Browser-Table FI_moveCol F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -906,8 +832,6 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_ord-no IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
@@ -922,7 +846,7 @@ ASSIGN
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.oe-ordl,ASI.oe-ord OF ASI.oe-ordl,ASI.itemfg OF ASI.oe-ordl"
      _Options          = "NO-LOCK SORTBY-PHRASE"
-     _TblOptList       = "USED,, FIRST OUTER, FIRST"
+     _TblOptList       = ",, FIRST OUTER"
      _Where[1]         = "oe-ordl.company EQ g_company
 AND oe-ordl.ord-no EQ 999999"
      _Where[3]         = "itemfg.company EQ oe-ordl.company
@@ -931,12 +855,12 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-ordl.cust-no
 "oe-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"getRS() @ lc-rs" "R&S" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > "_<CALC>"
-"getMI() @ lc-mi" "MI" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.oe-ordl.whsed
+"oe-ordl.whsed" "R&S" "X/" "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.oe-ordl.managed
+"oe-ordl.managed" "MI" "X/" "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"getstat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"getstat() @ cStatus" "Status" "X(16)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ord.ord-date
 "oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.req-date
@@ -1001,7 +925,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[37]   > ASI.oe-ord.entered-id
 "oe-ord.entered-id" "Entered By" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[38]   > "ASI.itemfg.q-onh"
+     _FldNameList[38]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[39]   > "_<CALC>"
 "fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -1029,7 +953,6 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
   DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
-
 
   {methods/run_link.i "container-source" "select-page" "(2)"}
 END.
@@ -1146,7 +1069,6 @@ DO:
   IF AVAILABLE b-cust THEN
      RUN pushpin-image-proc(INPUT b-cust.rec_key).
 
-
 /* 08291305 - move this to b-ordrel.w */
 /*   IF AVAIL oe-ordl THEN                                                            */
 /*      FOR EACH b-oe-rel WHERE                                                       */
@@ -1189,7 +1111,6 @@ DO:
       fi_i-no
       fi_i-name
       fi_part-no
-      fi_cust-no
       fi_ord-no
       fi_po-no1
       fi_est-no
@@ -1307,7 +1228,7 @@ END.
 
 &Scoped-define SELF-NAME cbType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbType B-table-Win
-ON VALUE-CHANGED OF cbType IN FRAME F-Main /* Combo 3 */
+ON VALUE-CHANGED OF cbType IN FRAME F-Main
 DO:
     ASSIGN {&SELF-NAME}.
     IF cbType EQ "Open" THEN DO:
@@ -1330,6 +1251,22 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_cad-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cad-no B-table-Win
+ON HELP OF fi_cad-no IN FRAME F-Main
+DO:
+    DEFINE VARIABLE char-val AS cha NO-UNDO.
+    RUN windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, OUTPUT char-val). 
+    IF char-val <> "" THEN 
+        {&SELF-NAME}:screen-value = ENTRY(1,char-val).
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
@@ -1483,24 +1420,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fi_cad-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cad-no B-table-Win
-ON HELP OF fi_cad-no IN FRAME F-Main
-DO:
-    DEFINE VARIABLE char-val AS cha NO-UNDO.
-    RUN windows/l-itemfc.w  (g_company,fi_cad-no:screen-value, OUTPUT char-val). 
-    IF char-val <> "" THEN 
-        {&SELF-NAME}:screen-value = ENTRY(1,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
@@ -2136,9 +2055,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win
-PROCEDURE pAssignCommonRecords PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win 
+PROCEDURE pAssignCommonRecords PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Assign Common Records for the query
  Notes:
@@ -2164,11 +2082,9 @@ PROCEDURE pAssignCommonRecords PRIVATE:
         ioplIsBreakByUsed = YES 
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
 PROCEDURE pPrepareAndExecuteQuery :
@@ -2394,9 +2310,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaults B-table-Win
-PROCEDURE pSetDefaults PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaults B-table-Win 
+PROCEDURE pSetDefaults PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Set the toggle box defaults based on screen type
  Notes:
@@ -2415,11 +2330,9 @@ PROCEDURE pSetDefaults PRIVATE:
             tbHold  = YES
             .                        
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pushpin-image-proc B-table-Win 
 PROCEDURE pushpin-image-proc :
@@ -2464,7 +2377,6 @@ PROCEDURE record-added :
      fi_cust-no
      fi_i-no
      fi_part-no
-     fi_cust-no
      fi_ord-no
      fi_po-no1
      fi_est-no
@@ -2524,6 +2436,42 @@ PROCEDURE reopen-query1 :
     RUN repo-query (ip-rowid).
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query2 B-table-Win 
+PROCEDURE reopen-query2 :
+/*------------------------------------------------------------------------------
+  Purpose:   This procedure is a copy of reopen-query1 without open-query call. 
+             Rebuild of jobstuds was taking long time because of executing 
+             open-query. So, that call has been removed in this procedure and 
+             reopen-query1 call replaced with this Procedures's call to improve 
+             performance while Rebuilding jobstuds
+             
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE ROWID(bf-oe-ord) EQ ipRowID  
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ord THEN DO:
+        FIND FIRST bf-oe-ordl OF bf-oe-ord NO-LOCK.
+        ipRowID = ROWID(bf-oe-ordl).
+    END.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN repo-query (ipRowID).
+    END.
+    
+    RELEASE bf-oe-ordl.
+    RELEASE bf-oe-ord.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2808,42 +2756,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query1 B-table-Win 
-PROCEDURE reopen-query2 :
-/*------------------------------------------------------------------------------
-  Purpose:   This procedure is a copy of reopen-query1 without open-query call. 
-             Rebuild of jobstuds was taking long time because of executing 
-             open-query. So, that call has been removed in this procedure and 
-             reopen-query1 call replaced with this Procedures's call to improve 
-             performance while Rebuilding jobstuds
-             
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipRowID AS ROWID NO-UNDO.
-
-    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
-    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
-
-    FIND FIRST bf-oe-ord NO-LOCK
-         WHERE ROWID(bf-oe-ord) EQ ipRowID  
-         NO-ERROR.
-    IF AVAILABLE bf-oe-ord THEN DO:
-        FIND FIRST bf-oe-ordl OF bf-oe-ord NO-LOCK.
-        ipRowID = ROWID(bf-oe-ordl).
-    END.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        RUN repo-query (ipRowID).
-    END.
-    
-    RELEASE bf-oe-ordl.
-    RELEASE bf-oe-ord.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
@@ -2859,6 +2771,51 @@ FUNCTION fget-qty-nothand RETURNS INTEGER
 
 
   RETURN irtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder B-table-Win 
+FUNCTION fnPrevOrder RETURNS INTEGER
+  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
+     DEF BUFFER bf-oe-ordl FOR oe-ordl.
+        IF ipcEstNo GT "" THEN 
+        DO:
+            FIND LAST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ cocode
+                  AND bf-oe-ordl.est-no  EQ ipcEstNo
+                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
+                NO-ERROR.
+            IF AVAILABLE bf-oe-ordl THEN
+                iResult = (bf-oe-ordl.ord-no).
+        END.
+            RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnProdBalance B-table-Win 
+FUNCTION fnProdBalance RETURNS DECIMAL
+  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
+     
+     ASSIGN
+        iResult = ( ipOrderQty - ipProdQty ) .
+     
+            RETURN iResult.
 
 END FUNCTION.
 
@@ -2978,6 +2935,27 @@ FUNCTION get-fgitem RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
 
   RETURN oe-ordl.i-no.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-inv-qty B-table-Win 
+FUNCTION get-inv-qty RETURNS INT
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/  
+
+  DEF VAR lp-inv-qty AS INT NO-UNDO.
+
+  ASSIGN lp-inv-qty = oe-ordl.inv-qty - int(getReturned("ReturnedInv")) NO-ERROR .   
+
+  RETURN lp-inv-qty.
+
+  /* Function return value. */
 
 END FUNCTION.
 
@@ -3160,26 +3138,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getMI B-table-Win 
-FUNCTION getMI RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-
-    lc-result = "".
-        IF oe-ordl.managed = TRUE THEN
-            lc-result = "X".
-        RETURN lc-result.   /* Function return value. */
-
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getReturned B-table-Win 
 FUNCTION getReturned RETURNS DECIMAL
   (ipcValueNeeded AS CHARACTER):
@@ -3228,9 +3186,7 @@ FUNCTION getReturned RETURNS DECIMAL
      ELSE
        dResult = dTotRetInv.
 
-
     RETURN dResult.
-
 
 END FUNCTION.
 
@@ -3252,25 +3208,6 @@ FUNCTION getReturnedInv RETURNS DECIMAL
 
     RETURN dResult.
 
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getRS B-table-Win 
-FUNCTION getRS RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
-    lc-result = "".
-    IF oe-ordl.whsed THEN lc-result = "X".
-
-    RETURN lc-result.   /* Function return value. */
-
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3287,10 +3224,10 @@ FUNCTION getstat RETURNS CHARACTER
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     
     IF AVAILABLE oe-ord THEN DO: 
-        lc-result = oe-ord.stat .
-        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        lc-result = oe-ord.stat.
+        RUN oe/getStatusDesc.p (oe-ord.stat, OUTPUT cResult).
         IF cResult NE "" THEN
-            lc-result  = cResult .
+        lc-result = cResult.
     END.
     RETURN lc-result.   /* Function return value. */
     
@@ -3309,7 +3246,6 @@ FUNCTION getTotalReturned RETURNS DECIMAL
     DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dResult    AS DECIMAL NO-UNDO.
-
 
     dResult = getReturned("TotalREturned"). 
 
@@ -3352,77 +3288,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder B-table-Win 
-FUNCTION fnPrevOrder RETURNS INTEGER
-  ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
-     DEF BUFFER bf-oe-ordl FOR oe-ordl.
-        IF ipcEstNo GT "" THEN 
-        DO:
-            FIND LAST bf-oe-ordl NO-LOCK
-                WHERE bf-oe-ordl.company EQ cocode
-                  AND bf-oe-ordl.est-no  EQ ipcEstNo
-                  AND bf-oe-ordl.ord-no  LT ipiOrdNo
-                NO-ERROR.
-            IF AVAILABLE bf-oe-ordl THEN
-                iResult = (bf-oe-ordl.ord-no).
-        END.
-	    RETURN iResult.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnProdBalance B-table-Win 
-FUNCTION fnProdBalance RETURNS DECIMAL
-  ( ipOrderQty AS DECIMAL, ipProdQty AS INTEGER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
-     
-     ASSIGN
-        iResult = ( ipOrderQty - ipProdQty ) .
-     
-	    RETURN iResult.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-inv-qty B-table-Win 
-FUNCTION get-inv-qty RETURNS INT
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/  
-
-  DEF VAR lp-inv-qty AS INT NO-UNDO.
-
-  ASSIGN lp-inv-qty = oe-ordl.inv-qty - int(getReturned("ReturnedInv")) NO-ERROR .   
-
-  RETURN lp-inv-qty.
-
-  /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetCostUom B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetCostUom B-table-Win 
 FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3446,14 +3312,11 @@ FUNCTION pGetCostUom RETURNS CHARACTER PRIVATE
        RETURN "M".
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetExtenedPrice B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetExtendedPrice B-table-Win 
 FUNCTION pGetExtendedPrice RETURNS DECIMAL PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3515,14 +3378,11 @@ FUNCTION pGetExtendedPrice RETURNS DECIMAL PRIVATE
     */
     RETURN dExtendedPrice.
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetInvoiceLineCost B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetInvoiceLineCost B-table-Win 
 FUNCTION pGetInvoiceLineCost RETURNS DECIMAL PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3539,13 +3399,11 @@ FUNCTION pGetInvoiceLineCost RETURNS DECIMAL PRIVATE
          
     RETURN IF AVAILABLE bf-ar-invl THEN bf-ar-invl.cost ELSE 0.  
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetPriceUom B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetPriceUom B-table-Win 
 FUNCTION pGetPriceUom RETURNS CHARACTER PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3573,13 +3431,11 @@ FUNCTION pGetPriceUom RETURNS CHARACTER PRIVATE
     RETURN cPriceUom.
     
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSellPrice B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSellPrice B-table-Win 
 FUNCTION pGetSellPrice RETURNS DECIMAL PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3606,14 +3462,12 @@ FUNCTION pGetSellPrice RETURNS DECIMAL PRIVATE
     END.
     RETURN dSellPrice.
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
-FUNCTION pGetSortCondition RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win 
+FUNCTION pGetSortCondition RETURNS CHARACTER
   (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose: Retuns the sort condition based on the input 
@@ -3622,8 +3476,8 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
     
     RETURN (IF ipcSortBy EQ 'ord-no'    THEN "oe-ordl.ord-no"                        ELSE ~
             IF ipcSortBy EQ 'cStatus'   THEN "oe-ord.stat"                           ELSE ~
-            IF ipcSortBy EQ 'lc-rs'     THEN "getRS()"                               ELSE ~
-            IF ipcSortBy EQ 'lc-mi'     THEN "getMI()"                               ELSE ~
+            IF ipcSortBy EQ 'whsed'     THEN "oe-ordl.whsed"                         ELSE ~
+            IF ipcSortBy EQ 'managed'   THEN "oe-ordl.managed"                       ELSE ~
             IF ipcSortBy EQ 'ord-date'  THEN "STRING(YEAR(oe-ord.ord-date),'9999')   
                                              + STRING(MONTH(oe-ord.ord-date),'99')   
                                              + STRING(DAY(oe-ord.ord-date),'99')"    ELSE ~
@@ -3653,15 +3507,12 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
                                              + STRING(DAY(oe-ordl.req-date),'99')"
             ).
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win
-FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win 
+FUNCTION pGetWhereCriteria RETURNS CHARACTER
   ( ipcTable AS CHARACTER ):
 /*------------------------------------------------------------------------------
  Purpose: Prepares and returns the where clause criteria based on table name
@@ -3734,11 +3585,11 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
     END.     
     RETURN cWhereCriteria.      
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pIsValidSearch B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pIsValidSearch B-table-Win 
 FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
   (  ):
 /*------------------------------------------------------------------------------
@@ -3754,11 +3605,7 @@ FUNCTION pIsValidSearch RETURNS LOGICAL PRIVATE
     ELSE 
         RETURN YES.        
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
 
