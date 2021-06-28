@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+DEF INPUT PARAM ip-type AS CHARACTER NO-UNDO.
 DEF OUTPUT PARAM op-cancel AS LOG NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -156,7 +157,7 @@ DO:
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR li-ship-qty LIKE inv-line.ship-qty NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-
+  DEFINE BUFFER bf-itemfg FOR itemfg.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-target", OUTPUT char-hdl).
 
@@ -175,6 +176,39 @@ DO:
 
     li-ship-qty = li-ship-qty + oe-boll.qty.
   END.
+  
+  IF inv-line.ord-no EQ 0 AND ip-type EQ "Add" THEN DO: 
+     FOR EACH oe-rell
+         WHERE oe-rell.company EQ oe-relh.company
+         AND oe-rell.r-no    EQ oe-relh.r-no:          
+                   
+         FIND FIRST fg-bin
+              WHERE fg-bin.company  EQ oe-rell.company
+              AND fg-bin.job-no   EQ oe-rell.job-no
+              AND fg-bin.job-no2  EQ oe-rell.job-no2
+              AND fg-bin.i-no     EQ oe-rell.i-no
+              AND fg-bin.loc      EQ oe-rell.loc
+              AND fg-bin.loc-bin  EQ oe-rell.loc-bin
+              AND fg-bin.tag      EQ oe-rell.tag
+              AND (fg-bin.cust-no EQ "" OR oe-rell.s-code NE "I")
+              USE-INDEX i-no NO-ERROR.
+              
+         IF AVAIL fg-bin THEN
+         DO:
+         
+            FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+                 WHERE bf-itemfg.company EQ fg-bin.company
+                 and bf-itemfg.i-no eq inv-line.i-no no-error.
+            IF AVAIL bf-itemfg THEN
+            DO:
+              ASSIGN
+                 bf-itemfg.q-onh   = bf-itemfg.q-onh - inv-line.ship-qty
+                 bf-itemfg.q-avail = bf-itemfg.q-onh + bf-itemfg.q-ono - bf-itemfg.q-alloc.
+            END.
+            RUN fg/cre-pchr.p (ROWID(fg-bin), "S", inv-line.ship-qty, oe-rell.partial,"").          
+         END.
+     END.
+  END. 
 
   IF li-ship-qty NE inv-line.ship-qty THEN DO:
     ll = NO.

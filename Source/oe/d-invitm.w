@@ -618,7 +618,7 @@ DO:
         DELETE oe-bolh.
       END. */
 
-      RUN oe/d-invbol.w (ROWID(inv-line), OUTPUT ll-canceled).
+      RUN oe/d-invbol.w (ROWID(inv-line), ip-type, OUTPUT ll-canceled).
 
       IF ll-canceled THEN DO WITH FRAME {&FRAME-NAME}:
         IF TRUE THEN UNDO upd-blok.
