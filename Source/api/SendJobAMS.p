@@ -53,6 +53,7 @@ DEFINE TEMP-TABLE ttPart NO-UNDO
     FIELD comboHdr     AS LOGICAL
     FIELD comboPart    AS LOGICAL
     FIELD setAssembly  AS LOGICAL
+    FIELD dieInches    AS DECIMAL
     FIELD requestData  AS CLOB
     . 
 
@@ -66,6 +67,15 @@ DEFINE TEMP-TABLE ttTask NO-UNDO
     FIELD lineID       AS INTEGER
     FIELD requestData  AS CLOB
     . 
+
+DEFINE TEMP-TABLE ttMaterial NO-UNDO
+    FIELD formNo       AS INTEGER 
+    FIELD blankNo      AS INTEGER
+    FIELD passNo       AS INTEGER
+    FIELD partID       AS CHARACTER
+    FIELD lineID       AS INTEGER
+    FIELD requestData  AS CLOB
+    .
     
 /* Variables to job's request data */
 DEFINE VARIABLE lcJobsData                    AS LONGCHAR  NO-UNDO.
@@ -173,7 +183,6 @@ DEFINE VARIABLE cWasteQuantity                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDepth                        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPONumber                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCrossGrain                   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobMatSequence               AS INTEGER   NO-UNDO.
     
 /*Job Machine variables*/
     
@@ -335,122 +344,12 @@ DO:
         lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData. 
     END.
                 
-    FIND FIRST bf-APIOutboundDetail NO-LOCK
-         WHERE bf-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
-           AND bf-APIOutboundDetail.detailID      EQ "JobMaterial"
-           AND bf-APIOutboundDetail.parentID      EQ APIOutboundDetail.detailID
-         NO-ERROR. 
-    IF AVAILABLE bf-APIOutboundDetail THEN 
-    DO:  
-        FOR EACH job-mat NO-LOCK
-            WHERE job-mat.company EQ job.company
-              AND job-mat.job     EQ job.job
-              AND job-mat.job-no  EQ job.job-no
-              AND job-mat.job-no2 EQ job.job-no2
-            USE-INDEX seq-idx:
-                
-            ASSIGN 
-                cBoardCode = ""
-                cCylinder  = ""
-                cTray      = ""
-                cGrain     = ""
-                .
+    FOR EACH ttMaterial:        
+        lcJobMatData = ttMaterial.requestData.
                         
-            FOR EACH job-hdr 
-                WHERE job-hdr.company EQ job-mat.company
-                  AND job-hdr.job     EQ job.job
-                  AND job-hdr.job-no  EQ job-mat.job-no
-                  AND job-hdr.job-no2 EQ job-mat.job-no2
-                  AND job-hdr.frm     EQ job-mat.frm,
-                EACH ef
-                WHERE ef.company EQ job-hdr.company
-                  AND ef.est-no   EQ job-hdr.est-no
-                  AND ef.form-no  EQ job-hdr.frm,
-                EACH eb NO-LOCK
-                WHERE eb.company    EQ ef.company
-                  AND eb.est-no     EQ ef.est-no
-                  AND eb.form-no    EQ ef.form-no
-                BREAK BY ef.est-no
-                BY ef.form-no
-                BY eb.form-no 
-                BY eb.blank-no:
-                IF LAST-OF(eb.form-no) THEN 
-                DO:
-                    FOR EACH bf-job-mat NO-LOCK
-                        WHERE bf-job-mat.company  EQ job-hdr.company
-                          AND bf-job-mat.job      EQ job-hdr.job
-                          AND bf-job-mat.frm      EQ ef.form-no,
-                        FIRST ITEM NO-LOCK 
-                        WHERE item.company EQ job-hdr.company
-                          AND item.i-no    EQ bf-job-mat.i-no
-                          AND INDEX("BPR",item.mat-type) GT 0  
-                        :
-                        ASSIGN 
-                            cBoardCode = TRIM(item.i-name)
-                            cGrain     = TRIM(ef.xgrain)
-                            cCylinder  = TRIM(STRING(ef.gsh-len)) 
-                            .       
-                    END. /* End of for each job-mat */ 
-                    cTray = TRIM(eb.layer-pad).      
-                END. /* End of last-of(eb.form-no)*/ 
-            END.  /* End of for each eb */
-            ASSIGN
-                lcJobMatData            = bf-APIOutboundDetail.data
-                iJobMatSequence         = iJobMatSequence + 1
-                cItemNumber             = job-mat.i-no
-                cJobMatItemStandardCost = TRIM(STRING(job-mat.std-cost,">>>,>>9.99<<"))
-                cStandardCostUOM        = job-mat.sc-uom
-                cCostPerUOM             = TRIM(STRING(job-mat.cost-m,"->,>>9.9999"))
-                cQtyToOrder             = TRIM(STRING(job-mat.qty,">,>>>,>>9.9<<<<<"))
-                cQuantityUOM            = job-mat.qty-uom
-                cLength                 = TRIM(STRING(job-mat.len,">>9.99<<"))
-                cWidth                  = TRIM(STRING(job-mat.wid,">>9.99<<"))
-                cBasisWeight            = TRIM(STRING(job-mat.basis-w,">>9.99"))
-                cLineNumber             = TRIM(STRING(job-mat.line,"99"))
-                cRMItem                 = job-mat.rm-i-no
-                cJobMatBlank            = TRIM(STRING(job-mat.blank-no,">9"))
-                cJobMatForm             = TRIM(STRING(job-mat.frm,">>9"))
-                cAllocated              = STRING(all-flg)
-                cQuantityAllocated      = TRIM(STRING(job-mat.qty-all,">>>,>>9.99<<<<"))
-                cQuantityIssued         = TRIM(STRING(job-mat.qty-iss,"->>,>>9.99<<<<"))
-                cMRQuantity             = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
-                cWasteQuantity          = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
-                cDepth                  = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
-                cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>9"))
-                cCrossGrain             = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
-                                                    ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
-                .
-            
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "MaterialSequence", STRING(iJobMatSequence)).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Allocated", cAllocated).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "BasisWeight", cBasisWeight).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Blank", cJobMatBlank).     
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "CostPerM", cCostPerUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Depth", cDepth).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Form",cJobMatForm ).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Item",cItemNumber).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Length",cLength).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Line",cLineNumber).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "PoNumber",cPONumber).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "TotMRP",cQtyToOrder).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityAllocated",cQuantityAllocated).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityIssued",cQuantityIssued).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "MRQuantity",cMRQuantity).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityUOM",cQuantityUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "WasteQuantity",cWasteQuantity).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "StandardCostUOM",cStandardCostUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "ItemStandardCost",cJobMatItemStandardCost).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Width",cWidth).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "RawMaterialItem",cRMItem).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain",cCrossGrain).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode",cBoardCode).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
-            RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
-                
-            lcConcatJobMatData  = lcConcatJobMatData  + "~n" + lcJobMatData.                                              
-        END.
+        lcConcatJobMatData  = lcConcatJobMatData + lcJobMatData.                                              
     END.
+    
     FIND FIRST bf-APIOutboundDetail NO-LOCK
          WHERE bf-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail.detailID      EQ "JobMachine"
@@ -819,6 +718,138 @@ PROCEDURE pCreateLinks PRIVATE:
     END. 
 END PROCEDURE.
 
+PROCEDURE pCreateMaterials PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job. 
+
+    DEFINE BUFFER bf-job-mat-APIOutboundDetail FOR APIOutboundDetail.
+    
+    FIND FIRST bf-job-mat-APIOutboundDetail NO-LOCK
+         WHERE bf-job-mat-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+           AND bf-job-mat-APIOutboundDetail.detailID      EQ "JobMaterial"
+           AND bf-job-mat-APIOutboundDetail.parentID      EQ APIOutboundDetail.detailID
+         NO-ERROR. 
+
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company EQ ipbf-job.company
+          AND job-mat.job     EQ ipbf-job.job
+          AND job-mat.job-no  EQ ipbf-job.job-no
+          AND job-mat.job-no2 EQ ipbf-job.job-no2
+        USE-INDEX seq-idx:
+            
+        ASSIGN 
+            cBoardCode = ""
+            cCylinder  = ""
+            cTray      = ""
+            cGrain     = ""
+            .
+                    
+        FOR EACH job-hdr 
+            WHERE job-hdr.company EQ job-mat.company
+              AND job-hdr.job     EQ job-mat.job
+              AND job-hdr.job-no  EQ job-mat.job-no
+              AND job-hdr.job-no2 EQ job-mat.job-no2
+              AND job-hdr.frm     EQ job-mat.frm,
+            EACH ef
+            WHERE ef.company EQ job-hdr.company
+              AND ef.est-no   EQ job-hdr.est-no
+              AND ef.form-no  EQ job-hdr.frm,
+            EACH eb NO-LOCK
+            WHERE eb.company    EQ ef.company
+              AND eb.est-no     EQ ef.est-no
+              AND eb.form-no    EQ ef.form-no
+            BREAK BY ef.est-no
+            BY ef.form-no
+            BY eb.form-no 
+            BY eb.blank-no:
+            IF LAST-OF(eb.form-no) THEN 
+            DO:
+                FOR EACH bf-job-mat NO-LOCK
+                    WHERE bf-job-mat.company  EQ job-hdr.company
+                      AND bf-job-mat.job      EQ job-hdr.job
+                      AND bf-job-mat.frm      EQ ef.form-no,
+                    FIRST ITEM NO-LOCK 
+                    WHERE item.company EQ job-hdr.company
+                      AND item.i-no    EQ bf-job-mat.i-no
+                      AND INDEX("BPR",item.mat-type) GT 0  
+                    :
+                    ASSIGN 
+                        cBoardCode = TRIM(item.i-name)
+                        cGrain     = TRIM(ef.xgrain)
+                        cCylinder  = TRIM(STRING(ef.gsh-len)) 
+                        .       
+                END. /* End of for each job-mat */ 
+                cTray = TRIM(eb.layer-pad).      
+            END. /* End of last-of(eb.form-no)*/ 
+        END.  /* End of for each eb */
+
+        IF AVAILABLE bf-job-mat-APIOutboundDetail THEN
+            lcJobMatData = bf-job-mat-APIOutboundDetail.data. 
+
+        ASSIGN
+            cItemNumber             = job-mat.i-no
+            cJobMatItemStandardCost = TRIM(STRING(job-mat.std-cost,">>>,>>9.99<<"))
+            cStandardCostUOM        = job-mat.sc-uom
+            cCostPerUOM             = TRIM(STRING(job-mat.cost-m,"->,>>9.9999"))
+            cQtyToOrder             = TRIM(STRING(job-mat.qty,">,>>>,>>9.9<<<<<"))
+            cQuantityUOM            = job-mat.qty-uom
+            cLength                 = TRIM(STRING(job-mat.len,">>9.99<<"))
+            cWidth                  = TRIM(STRING(job-mat.wid,">>9.99<<"))
+            cBasisWeight            = TRIM(STRING(job-mat.basis-w,">>9.99"))
+            cLineNumber             = TRIM(STRING(job-mat.line,"99"))
+            cRMItem                 = job-mat.rm-i-no
+            cJobMatBlank            = TRIM(STRING(job-mat.blank-no,">9"))
+            cJobMatForm             = TRIM(STRING(job-mat.frm,">>9"))
+            cAllocated              = STRING(job-mat.all-flg)
+            cQuantityAllocated      = TRIM(STRING(job-mat.qty-all,">>>,>>9.99<<<<"))
+            cQuantityIssued         = TRIM(STRING(job-mat.qty-iss,"->>,>>9.99<<<<"))
+            cMRQuantity             = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
+            cWasteQuantity          = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
+            cDepth                  = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
+            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>9"))
+            cCrossGrain             = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
+                                                ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
+            .
+        
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Allocated", cAllocated).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "BasisWeight", cBasisWeight).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Blank", cJobMatBlank).     
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "CostPerM", cCostPerUOM).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Depth", cDepth).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Form",cJobMatForm ).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Item",cItemNumber).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Length",cLength).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Line",cLineNumber).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "PoNumber",cPONumber).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "TotMRP",cQtyToOrder).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityAllocated",cQuantityAllocated).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityIssued",cQuantityIssued).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "MRQuantity",cMRQuantity).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "QuantityUOM",cQuantityUOM).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "WasteQuantity",cWasteQuantity).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "StandardCostUOM",cStandardCostUOM).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "ItemStandardCost",cJobMatItemStandardCost).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Width",cWidth).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "RawMaterialItem",cRMItem).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain",cCrossGrain).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode",cBoardCode).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
+            
+        CREATE ttMaterial.
+        ASSIGN
+            ttMaterial.formNo      = job-mat.frm
+            ttMaterial.blankNo     = job-mat.blank-no
+            ttMaterial.passNo      = job-mat.pass
+            ttMaterial.requestData = lcJobMatData
+            .                                              
+    END.
+END PROCEDURE.
+
 PROCEDURE pIsACombottPart PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -845,11 +876,16 @@ PROCEDURE pProcessAMSData PRIVATE:
     DEFINE VARIABLE lcPartData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcTaskData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatTaskData AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcDieInchesData  AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE iTaskID          AS INTEGER  NO-UNDO.
     DEFINE VARIABLE lTaskAvailable   AS LOGICAL  NO-UNDO.
     DEFINE VARIABLE iTaskCounter     AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE iMaterialCount   AS INTEGER  NO-UNDO.
     
     DEFINE VARIABLE lIsNewCalculationMethod AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-ttMaterial FOR ttMaterial.
+    DEFINE BUFFER bf-die-cut-APIOutboundDetail FOR APIOutboundDetail.
     
     lIsSet = CAN-FIND(FIRST est NO-LOCK
                       WHERE est.company EQ ipbf-job.company
@@ -873,6 +909,10 @@ PROCEDURE pProcessAMSData PRIVATE:
         BUFFER ipbf-job
         ).
 
+    RUN pCreateMaterials(
+        BUFFER ipbf-job
+        ).
+    
     /* If a set, then find the last blank of last form */
     IF lIsSet THEN DO:
         FOR EACH ttTask:
@@ -966,7 +1006,15 @@ PROCEDURE pProcessAMSData PRIVATE:
                 ttPart.taskIDs  = STRING(ttTask.taskID)
                 .                    
     END.
-    
+
+    FIND FIRST bf-die-cut-APIOutboundDetail NO-LOCK
+         WHERE bf-die-cut-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+           AND bf-die-cut-APIOutboundDetail.detailID      EQ "AttributeDieInches"
+           AND bf-die-cut-APIOutboundDetail.parentID      EQ "JobMachine"
+         NO-ERROR.
+    IF AVAILABLE bf-die-cut-APIOutboundDetail THEN
+        lcDieInchesData = bf-die-cut-APIOutboundDetail.data.
+        
     FOR EACH ttPart:
         IF ttPart.taskIDs EQ "" THEN
             NEXT.
@@ -983,20 +1031,114 @@ PROCEDURE pProcessAMSData PRIVATE:
             FIND FIRST ttTask
                  WHERE ttTask.taskID EQ INTEGER(ENTRY(iTaskCounter, ttPart.taskIDs))
                  NO-ERROR.
-            IF AVAILABLE ttTask THEN
+            IF AVAILABLE ttTask THEN DO:
                 ASSIGN
                     ttTask.location  = ttPart.location
                     ttTask.partID    = ttPart.partID
                     lcTaskData       = ttTask.requestData            
-                    lcConcatTaskData = lcConcatTaskData + lcTaskData
-                    .            
+                    .
+                /* If die cut value existis and first task of blank and form */
+                IF ttPart.dieInches NE 0 AND iTaskCounter EQ 1 THEN
+                    lcTaskData = REPLACE(lcTaskData, "$AttributeDieInches$", lcDieInchesData).
+                ELSE     
+                    lcTaskData = REPLACE(lcTaskData, "$AttributeDieInches$", "").
+
+                lcConcatTaskData = lcConcatTaskData + lcTaskData.
+            END.
         END.
 
         lcPartData = REPLACE(lcPartData, "$JobMachine$", lcConcatTaskData).
+        RUN updateRequestData(INPUT-OUTPUT lcPartData, "DieInches", STRING(ttPart.dieInches)).
         
         ttPart.requestData = lcPartData.        
     END.
+
+    /* Code to add Part information in Materials */
+    FOR EACH ttMaterial
+        WHERE ttMaterial.partID EQ ""
+        BY ttMaterial.formNo
+        BY ttMaterial.blankNo:
+        /* Link all the form 0 and blank 0 to assembly part */
+        IF ttMaterial.formNo EQ 0 AND ttMaterial.blankNo EQ 0 THEN DO:
+            FIND FIRST ttPart
+                 WHERE ttPart.setAssembly
+                 NO-ERROR.
+            IF AVAILABLE ttPart THEN
+                ttMaterial.partID = ttPart.partID.
+            
+            NEXT.
+        END.    
+        
+        IF ttMaterial.blankNo EQ 0 THEN DO:             
+            /* If blank 0 and the part is a combo, then create a materail for all the applicable combo parts */
+            IF CAN-FIND(FIRST ttPart
+                     WHERE ttPart.formNo EQ ttMaterial.formNo
+                       AND ttPart.comboPart) THEN DO:
+                FOR EACH ttPart
+                    WHERE ttPart.formNo    EQ ttMaterial.formNo
+                      AND ttPart.comboPart EQ TRUE
+                      AND ttPart.comboHdr  EQ FALSE:
+                    CREATE bf-ttMaterial.
+                    BUFFER-COPY ttMaterial TO bf-ttMaterial.
+                    
+                    bf-ttMaterial.partID = ttPart.partID.
+                END. 
+                
+                DELETE ttMaterial.
+            
+                NEXT.
+            END.
+            /* Link the 0 blank material to the part that matches it's form (Single) */
+            ELSE DO:
+                FIND FIRST ttPart
+                     WHERE ttPart.formNo  EQ ttMaterial.formNo
+                     NO-ERROR.
+                IF AVAILABLE ttPart THEN DO:
+                    ttMaterial.partID = ttPart.partID.
+                    
+                    NEXT. 
+                END.          
+            END.
+        END.
+        
+        /* Link corresponding blank and form part */
+        FIND FIRST ttPart
+             WHERE ttPart.formNo  EQ ttMaterial.formNo
+               AND ttPart.blankNo EQ ttMaterial.blankNo
+             NO-ERROR.
+        IF AVAILABLE ttPart THEN DO:
+            ttMaterial.partID = ttPart.partID.
+            
+            NEXT.
+        END.    
+        
+        /* If still there is no applicable part, it means that job is a set and
+           the materail is for last blank of last form which is replaced by set assembly part */
+           /* Reveiw required */
+/*        FIND FIRST ttPart                     */
+/*             WHERE ttPart.setAssembly         */
+/*             NO-ERROR.                        */
+/*        IF AVAILABLE ttPart THEN              */
+/*            ttMaterial.partID = ttPart.partID.*/
+    END.
     
+    /* Apply the sequences and part to the request data */
+    FOR EACH ttMaterial
+        BY ttMaterial.formNo
+        BY ttMaterial.blankNo:
+        
+        ASSIGN
+            lcJobMatData      = ttMaterial.requestData
+            iMaterialCount    = iMaterialCount + 1
+            ttMaterial.lineID = iMaterialCount
+            .
+            
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "MaterialSequence", STRING(ttMaterial.lineID)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "JobHeaderPart", ttMaterial.partID).        
+        
+        ttMaterial.requestData = lcJobMatData.
+    END.
+      
     RUN pCreateLinks (
         INPUT lIsSet
         ).    
@@ -1014,6 +1156,7 @@ PROCEDURE pCreateParts PRIVATE:
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
     DEFINE BUFFER bf-itemfg                    FOR itemfg.
     DEFINE BUFFER bf-combo-APIOutboundDetail   FOR APIOutboundDetail.
+    DEFINE BUFFER bf-ef                        FOR ef.
     
     DEFINE VARIABLE lIsNewCalculationMethod AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lIsACombo               AS LOGICAL   NO-UNDO.
@@ -1107,6 +1250,7 @@ PROCEDURE pCreateParts PRIVATE:
                 ttPart.blankNo     = eb.blank-no
                 ttPart.partID      = eb.stock-no
                 ttPart.location    = eb.loc
+                ttPart.dieInches   = ef.die-in
                 ttPart.requestData = lcJobHeaderData
                 ttPart.comboPart   = lIsACombo
                 .
@@ -1181,6 +1325,12 @@ PROCEDURE pCreateParts PRIVATE:
                   BY job-hdr.blank-no:
             lIsACombo = FALSE.
 
+            FIND FIRST bf-ef NO-LOCK
+                 WHERE bf-ef.company EQ ipbf-job.company
+                   AND bf-ef.est-no  EQ ipbf-job.est-no
+                   AND bf-ef.form-no EQ job-hdr.frm
+                 NO-ERROR.
+                 
             RUN pIsAComboJob (
                 BUFFER  job-hdr,
                 OUTPUT lIsACombo
@@ -1220,7 +1370,10 @@ PROCEDURE pCreateParts PRIVATE:
                 ttPart.requestData = lcJobHeaderData
                 ttPart.comboPart   = lIsACombo
                 .
-
+            
+            IF AVAILABLE bf-ef THEN
+                ttPart.dieInches = bf-ef.die-in.
+                
             IF LAST-OF(job-hdr.frm) THEN DO:
                 IF lIsACombo AND AVAILABLE bf-combo-APIOutboundDetail THEN DO:
                     lcComboFormData = bf-combo-APIOutboundDetail.data.
@@ -1309,33 +1462,32 @@ PROCEDURE pCreateTasks PRIVATE:
            AND bf-job-mch-APIOutboundDetail.detailID      EQ "JobMachine"
            AND bf-job-mch-APIOutboundDetail.parentID      EQ "JobHeader"
          NO-ERROR.
-    IF AVAILABLE bf-job-mch-APIOutboundDetail THEN 
-    DO:       
-        FOR EACH job-mch NO-LOCK
-            WHERE job-mch.company   EQ ipbf-job.company
-              AND job-mch.job       EQ ipbf-job.job
-              AND job-mch.job-no    EQ ipbf-job.job-no
-              AND job-mch.job-no2   EQ ipbf-job.job-no2
-            USE-INDEX line-idx:
-            lcJobMachineData = bf-job-mch-APIOutboundDetail.data.
-            
-            CREATE ttTask.
-            ASSIGN
-                ttTask.formNo  = job-mch.frm
-                ttTask.blankNo = job-mch.blank-no
-                ttTask.lineID  = job-mch.line
-                ttTask.passNo  = job-mch.pass
-                ttTask.taskID  = job-mch.job-mchID
-                .
-                            
-            RUN pUpdateMachineDetails(
-                BUFFER job-mch,
-                INPUT  lcJobMachineData,
-                OUTPUT lcJobMachineData
-                ).
 
-            ttTask.requestData = lcJobMachineData.               
-        END.
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company   EQ ipbf-job.company
+          AND job-mch.job       EQ ipbf-job.job
+          AND job-mch.job-no    EQ ipbf-job.job-no
+          AND job-mch.job-no2   EQ ipbf-job.job-no2
+        USE-INDEX line-idx:
+        IF AVAILABLE bf-job-mch-APIOutboundDetail THEN
+            lcJobMachineData = bf-job-mch-APIOutboundDetail.data.
+        
+        CREATE ttTask.
+        ASSIGN
+            ttTask.formNo  = job-mch.frm
+            ttTask.blankNo = job-mch.blank-no
+            ttTask.lineID  = job-mch.line
+            ttTask.passNo  = job-mch.pass
+            ttTask.taskID  = job-mch.job-mchID
+            .
+                        
+        RUN pUpdateMachineDetails(
+            BUFFER job-mch,
+            INPUT  lcJobMachineData,
+            OUTPUT lcJobMachineData
+            ).
+
+        ttTask.requestData = lcJobMachineData.               
     END.
 END PROCEDURE.
 
