@@ -630,7 +630,7 @@ v-printline = 0.
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
             END.
             ELSE DO:
-               if not v-test-scr AND (AVAIL ITEM AND ITEM.mat-type = "B") then do:
+               if not v-test-scr AND v-score-types AND (AVAIL ITEM AND ITEM.mat-type = "B") then do:
                   put 
                       "Score: " AT 3
                       len-score format "x(80)" SKIP .
@@ -641,7 +641,7 @@ v-printline = 0.
                end.
           
                else
-               if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(len-score)) ne v-wid then do:
+               if v-test-scr AND v-score-types AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(len-score)) ne v-wid then do:
                   put "Score: " AT 3
                       len-score format "x(80)"  SKIP.
                       
