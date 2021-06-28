@@ -2862,11 +2862,19 @@ PROCEDURE validate-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT job.start-date:SCREEN-VALUE,
-                                 OUTPUT ll-valid).
+                                 OUTPUT cMessage).
+        ll-valid = YES.                         
+        IF cMessage NE "" THEN
+        DO:
+           MESSAGE cMessage 
+                 VIEW-AS ALERT-BOX ERROR.
+           ll-valid = NO.      
+        END.  
+        
         IF NOT ll-valid THEN
             APPLY "entry" TO job.start-date.
     END.

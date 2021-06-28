@@ -382,6 +382,7 @@ DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
 DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lShowWarning AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -1775,6 +1776,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_jobStartDate d-oeitem
+ON VALUE-CHANGED OF fi_jobStartDate IN FRAME d-oeitem /* Job Start Date */
+DO:
+    lShowWarning = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+              
 
 &Scoped-define SELF-NAME fi_qty-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
@@ -10715,11 +10725,17 @@ PROCEDURE validate-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT fi_jobStartDate:SCREEN-VALUE,
-                                 OUTPUT ll-valid).
-        IF NOT ll-valid THEN
-            APPLY "entry" TO fi_jobStartDate.
+                                 OUTPUT cMessage).
+         ll-valid = YES.                         
+        IF cMessage NE "" AND NOT lShowWarning THEN
+        DO:
+           MESSAGE cMessage 
+                 VIEW-AS ALERT-BOX WARNING.
+           lShowWarning = YES.       
+        END.       
     END.
 END PROCEDURE.
 
