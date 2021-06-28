@@ -152,6 +152,7 @@ FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
 FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
+    ipcLocationID AS CHARACTER,
     ipiPass AS INTEGER) FORWARD.   
      
 FUNCTION fGetDieNumberUp RETURNS DECIMAL PRIVATE
@@ -1364,7 +1365,7 @@ PROCEDURE pSetAttributeForColors PRIVATE:
     RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
     
     IF AVAILABLE bf-mach THEN
-        cFeedType = mach.p-type. 
+        cFeedType = bf-mach.p-type. 
     
     /* For Printers; get colors for specific Blank and Specific Pass */
     IF ipcDeptt = "PR" THEN
@@ -1714,7 +1715,7 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, iPass))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -2002,15 +2003,24 @@ END FUNCTION.
 FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
+    ipcLocationID AS CHARACTER,
     ipiPass AS INTEGER):
     /*------------------------------------------------------------------------------
     Purpose: 
     Notes:
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount       AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNumUp       as INTEGER NO-UNDO.
-    DEFINE VARIABLE dNumOutCal   AS DECIMAL NO-UNDO.      
+    DEFINE VARIABLE dReturnValue AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCount       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumUp       as INTEGER   NO-UNDO.
+    DEFINE VARIABLE dNumOutCal   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQtyCalc     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dOpMRWaste   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dOpRunSpoil  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSpoilDeduct AS DECIMAL   NO-UNDO INITIAL 1.   
+         
+    DEFINE BUFFER bf-mach    for mach.
     
     FIND FIRST ef NO-LOCK
         WHERE ef.company EQ ipbf-eb.company
@@ -2029,7 +2039,31 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
         AND est-op.op-pass EQ ipiPass 
         and est-op.line    lt 500 NO-ERROR.      
     IF AVAIL est-op THEN
-        dReturnValue    = est-op.num-sh * (iNumUp * dNumOutCal).        
+        dReturnValue    = est-op.num-sh * (iNumUp * dNumOutCal). 
+    
+    /* Est-op record is not available that means its a new machine that is not on Estimate.
+       Now, We have calculate the field on-fly */
+    ELSE
+    DO:
+        /* Use Original Estimate Quantity*/
+        dQtyCalc = ef.eqty.
+               
+        RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcMachine, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
+        
+        IF AVAILABLE bf-mach THEN 
+        DO:           
+            RUN pGetMRWaste(BUFFER bf-mach, OUTPUT dOpMRWaste, OUTPUT cError, OUTPUT cMessage).
+            RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT dOpRunSpoil, OUTPUT cError, OUTPUT cMessage).
+            
+            IF dOpRunSpoil NE 0 THEN
+                dSpoilDeduct = (1 - (dOpRunSpoil / 100)).
+            
+            ASSIGN
+                dQtyCalc = dQtyCalc / dSpoilDeduct
+                dQtyCalc = dQtyCalc + dOpMRWaste.
+        END.
+        dReturnValue = dQtyCalc. 
+    END.
     
     RETURN dReturnValue.
 		
@@ -2076,11 +2110,16 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
     Notes:
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dReturnValue  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iOperationQty AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dOperationQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iYldQty       as INTEGER NO-UNDO.
-    DEFINE VARIABLE iNOut         AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE iNOut         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cQtyValue     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAttrName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
-    iOperationQty = fGetOperationsQty(BUFFER ipbf-eb, ipcMachine, ipiPass).      
+    RUN pGetAttribute(giAttributeIDEstQty, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT cError, OUTPUT cMessage). //Get colors attribute
+    ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
     FIND FIRST mach NO-LOCK
         WHERE mach.company EQ ipbf-eb.company
@@ -2119,7 +2158,7 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
         END.        
     END.
     
-    dReturnValue = (iOperationQty * iYldQty / ipbf-eb.num-up / iNOut) .         
+    dReturnValue = (dOperationQty * iYldQty / ipbf-eb.num-up / iNOut) .         
     
     RETURN dReturnValue.
 		
