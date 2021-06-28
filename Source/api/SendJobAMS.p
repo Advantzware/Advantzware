@@ -65,6 +65,7 @@ DEFINE TEMP-TABLE ttTask NO-UNDO
     FIELD location     AS CHARACTER
     FIELD taskID       AS INTEGER
     FIELD lineID       AS INTEGER
+    FIELD runQuantity  AS DECIMAL
     FIELD requestData  AS CLOB
     . 
 
@@ -876,7 +877,6 @@ PROCEDURE pProcessAMSData PRIVATE:
     DEFINE VARIABLE lcPartData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcTaskData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatTaskData AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcDieInchesData  AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE iTaskID          AS INTEGER  NO-UNDO.
     DEFINE VARIABLE lTaskAvailable   AS LOGICAL  NO-UNDO.
     DEFINE VARIABLE iTaskCounter     AS INTEGER  NO-UNDO.
@@ -885,7 +885,6 @@ PROCEDURE pProcessAMSData PRIVATE:
     DEFINE VARIABLE lIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ttMaterial FOR ttMaterial.
-    DEFINE BUFFER bf-die-cut-APIOutboundDetail FOR APIOutboundDetail.
     
     lIsSet = CAN-FIND(FIRST est NO-LOCK
                       WHERE est.company EQ ipbf-job.company
@@ -1007,14 +1006,6 @@ PROCEDURE pProcessAMSData PRIVATE:
                 .                    
     END.
 
-    FIND FIRST bf-die-cut-APIOutboundDetail NO-LOCK
-         WHERE bf-die-cut-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
-           AND bf-die-cut-APIOutboundDetail.detailID      EQ "AttributeDieInches"
-           AND bf-die-cut-APIOutboundDetail.parentID      EQ "JobMachine"
-         NO-ERROR.
-    IF AVAILABLE bf-die-cut-APIOutboundDetail THEN
-        lcDieInchesData = bf-die-cut-APIOutboundDetail.data.
-        
     FOR EACH ttPart:
         IF ttPart.taskIDs EQ "" THEN
             NEXT.
@@ -1037,18 +1028,18 @@ PROCEDURE pProcessAMSData PRIVATE:
                     ttTask.partID    = ttPart.partID
                     lcTaskData       = ttTask.requestData            
                     .
+
                 /* If die cut value existis and first task of blank and form */
                 IF ttPart.dieInches NE 0 AND iTaskCounter EQ 1 THEN
-                    lcTaskData = REPLACE(lcTaskData, "$AttributeDieInches$", lcDieInchesData).
-                ELSE     
-                    lcTaskData = REPLACE(lcTaskData, "$AttributeDieInches$", "").
+                    ttTask.runQuantity = ttTask.runQuantity * ttPart.dieInches.
 
-                lcConcatTaskData = lcConcatTaskData + lcTaskData.
+                RUN updateRequestData(INPUT-OUTPUT lcTaskData, "RunQuantityWithCountMultiplier", STRING(ttTask.runQuantity)).
+
+                lcConcatTaskData = lcConcatTaskData + lcTaskData.                    
             END.
         END.
 
         lcPartData = REPLACE(lcPartData, "$JobMachine$", lcConcatTaskData).
-        RUN updateRequestData(INPUT-OUTPUT lcPartData, "DieInches", STRING(ttPart.dieInches)).
         
         ttPart.requestData = lcPartData.        
     END.
@@ -1474,13 +1465,14 @@ PROCEDURE pCreateTasks PRIVATE:
         
         CREATE ttTask.
         ASSIGN
-            ttTask.formNo  = job-mch.frm
-            ttTask.blankNo = job-mch.blank-no
-            ttTask.lineID  = job-mch.line
-            ttTask.passNo  = job-mch.pass
-            ttTask.taskID  = job-mch.job-mchID
+            ttTask.formNo      = job-mch.frm
+            ttTask.blankNo     = job-mch.blank-no
+            ttTask.lineID      = job-mch.line
+            ttTask.passNo      = job-mch.pass
+            ttTask.taskID      = job-mch.job-mchID
+            ttTask.runQuantity = job-mch.run-qty
             .
-                        
+
         RUN pUpdateMachineDetails(
             BUFFER job-mch,
             INPUT  lcJobMachineData,
