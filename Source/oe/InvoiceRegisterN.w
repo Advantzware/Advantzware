@@ -2128,7 +2128,7 @@ PROCEDURE output-to-screen :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+    RUN scr-rpt-d.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
 
@@ -2291,9 +2291,7 @@ PROCEDURE pRunApiOutboundTrigger :
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
    
 
-    IF AVAILABLE ipbf-inv-head THEN 
-    DO:
-    
+    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 THEN DO:    
         ASSIGN 
             cAPIID       = "SendInvoice"
             cTriggerID   = "PostInvoice"

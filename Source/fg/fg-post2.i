@@ -51,12 +51,12 @@
         .
         /* Instead of 0 at 500 with -300 partial, make it */
         /* 1 at -500 with 0 partial 12101418 */
-        IF {1}w-fg-rctd.cases EQ 0 AND {1}w-fg-rctd.partial NE 0 THEN
-          ASSIGN 
-              {1}w-fg-rctd.cases = (IF  {1}w-fg-rctd.partial LT 0 THEN -1 ELSE 1)
-              {1}w-fg-rctd.qty-case = (IF {1}w-fg-rctd.partial LT 0 THEN - {1}w-fg-rctd.partial ELSE {1}w-fg-rctd.partial)
-              {1}w-fg-rctd.partial = 0
-              .
+        /*IF {1}w-fg-rctd.cases EQ 0 AND {1}w-fg-rctd.partial NE 0 THEN                                                        */
+        /*  ASSIGN                                                                                                             */ 
+        /*      {1}w-fg-rctd.cases = (IF  {1}w-fg-rctd.partial LT 0 THEN -1 ELSE 1)                                            */
+        /*      {1}w-fg-rctd.qty-case = (IF {1}w-fg-rctd.partial LT 0 THEN - {1}w-fg-rctd.partial ELSE {1}w-fg-rctd.partial)   */
+        /*      {1}w-fg-rctd.partial = 0                                                                                       */
+        /*      .                                                                                                              */
         IF {1}w-fg-rctd.cost-uom EQ "EA" THEN
           v-cost = {1}w-fg-rctd.std-cost.
         ELSE

@@ -58,6 +58,10 @@ DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lReturnError      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdValidateProcs AS HANDLE NO-UNDO.
+
+RUN util/Validate.p PERSISTENT SET hdValidateProcs .
 
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -646,6 +650,21 @@ DO:
     
   
   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-prmtx.custShipID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.custShipID V-table-Win
+ON LEAVE OF oe-prmtx.custShipID IN FRAME F-Main /* ship Id */
+DO:
+   IF LASTKEY <> -1 THEN DO:
+    IF  oe-prmtx.custShipID:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
+         RUN valid-shipid(OUTPUT lReturnError) NO-ERROR.
+         IF lReturnError THEN RETURN NO-APPLY.
+     END.
+  END.         
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1243,7 +1262,10 @@ PROCEDURE local-update-record :
       RUN valid-cust-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  IF  oe-prmtx.custShipID:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
+     RUN valid-shipid(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
+  END.
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
@@ -1564,6 +1586,43 @@ PROCEDURE valid-i-no :
       MESSAGE "Invalid Item#. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-prmtx.i-no.
       RETURN ERROR.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-shipid V-table-Win 
+PROCEDURE valid-shipid :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  {methods/lValidateError.i YES}
+  IF oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE ""
+  THEN DO:
+  
+     RUN pIsValidShiptoID IN hdValidateProcs (
+            INPUT  oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            INPUT  oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            INPUT  TRUE, /* Is required */
+            INPUT  cocode,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ) NO-ERROR.
+      IF NOT lSuccess THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-prmtx.custShipID.
+          oplReturnError = YES.           
+      END.
+      
   END.
 
   {methods/lValidateError.i NO}

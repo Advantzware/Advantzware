@@ -722,15 +722,16 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         opiCount = opiCount + 1.
         
         cArgsValue = STRING(ROWID(ar-inv)) + "," + ipcInvSuffix + "," + STRING(ipdtInvoiceDate). 
-               
-        RUN pCallOutboundAPI(
-            INPUT ar-inv.company,
-            INPUT locode,
-            INPUT ar-inv.cust-no,
-            INPUT ar-inv.inv-no,
-            INPUT "ar-inv,Suffix,InvoiceDate",
-            INPUT cArgsValue
-            ).
+
+        IF ar-inv.gross NE 0 THEN               
+            RUN pCallOutboundAPI(
+                INPUT ar-inv.company,
+                INPUT locode,
+                INPUT ar-inv.cust-no,
+                INPUT ar-inv.inv-no,
+                INPUT "ar-inv,Suffix,InvoiceDate",
+                INPUT cArgsValue
+                ).
         RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate, ipcInvSuffix).   
     
     END.

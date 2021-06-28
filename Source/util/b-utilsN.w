@@ -61,8 +61,8 @@ DEFINE VARIABLE ll-first                AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE ll-show-all             AS LOG  NO-UNDO.
 DEFINE VARIABLE ll-sort-asc             AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE lv-cust-no              AS CHAR NO-UNDO.
-DEFINE VARIABLE lv-sort-by              AS CHAR INIT "ProgramName" NO-UNDO.
-DEFINE VARIABLE lv-sort-by-lab          AS CHAR INIT "Program Name" NO-UNDO.
+DEFINE VARIABLE lv-sort-by              AS CHAR INIT "Description" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab          AS CHAR INIT "Description" NO-UNDO.
 DEFINE VARIABLE lvFirstRowID            AS ROWID NO-UNDO.
 DEFINE VARIABLE lvLastRowID             AS ROWID NO-UNDO.
 DEFINE VARIABLE phandle                 AS HANDLE NO-UNDO.
@@ -89,7 +89,7 @@ IF AVAILABLE users THEN ASSIGN
           AND (IF fi_pro-name BEGINS '*' THEN  utilities.programName MATCHES (fi_pro-name + "*") ~
               ELSE utilities.programName BEGINS fi_pro-name) ~
           AND utilities.module           BEGINS fi_module ~
-          AND (utilities.hotkey          BEGINS fi_hotkey OR fi_hotkey EQ "ALL") ~
+          AND (utilities.hotkey          BEGINS fi_hotkey OR fi_hotkey EQ "*") ~
           AND (IF fi_desc BEGINS '*'     THEN utilities.description MATCHES (fi_desc + "*") ~
               ELSE utilities.description BEGINS fi_desc) ~
           AND (IF fi_notes BEGINS '*'    THEN utilities.notes MATCHES (fi_notes + "*") ~
@@ -158,10 +158,10 @@ utilities.securityLevel
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnRun fi_pro-name fi_module fi_hotkey ~
-fi_desc fi_notes fi_seclevel btn_go btn_show Browser-Table 
-&Scoped-Define DISPLAYED-OBJECTS fi_pro-name fi_module fi_hotkey fi_desc ~
-fi_notes fi_seclevel fi_sort-by 
+&Scoped-Define ENABLED-OBJECTS fi_desc fi_module fi_hotkey fi_notes ~
+fi_seclevel cPrgmNameLabel btn_go btn_show Browser-Table 
+&Scoped-Define DISPLAYED-OBJECTS fi_desc fi_module fi_hotkey fi_notes ~
+fi_seclevel fi_sort-by fi_pro-name cPrgmNameLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -217,10 +217,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Run" 
-     SIZE 7 BY 1.91.
 
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
@@ -232,11 +228,10 @@ DEFINE BUTTON btn_show
      SIZE 12 BY 1
      FONT 6.
 
-DEFINE VARIABLE fi_hotkey AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All" 
-     DROP-DOWN-LIST
-     SIZE 10 BY 1 TOOLTIP "Select Hot Key Filter" NO-UNDO.
+DEFINE VARIABLE fi_hotkey AS CHARACTER FORMAT "X(5)":U  
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_desc AS CHARACTER FORMAT "X(48)":U 
      VIEW-AS FILL-IN 
@@ -250,10 +245,10 @@ DEFINE VARIABLE fi_module AS CHARACTER FORMAT "X(4)":U
 
 DEFINE VARIABLE fi_notes AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.4 BY 1
+     SIZE 59 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_pro-name AS CHARACTER FORMAT "X(32)":U 
+DEFINE VARIABLE fi_pro-name AS CHARACTER FORMAT "X(32)":U
      VIEW-AS FILL-IN 
      SIZE 31 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -267,6 +262,11 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 34.6 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
+     
+DEFINE VARIABLE cPrgmNameLabel AS CHARACTER FORMAT "x(12)":U INITIAL "Program Name" 
+     VIEW-AS TEXT 
+     SIZE 18 BY .71
+     FGCOLOR 9 FONT 6 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -278,15 +278,15 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      utilities.programName COLUMN-LABEL "Program Name" FORMAT "x(32)":U
-            WIDTH 29.8 LABEL-BGCOLOR 14
+      utilities.description FORMAT "x(48)":U WIDTH 35.2 LABEL-BGCOLOR 14
       utilities.module FORMAT "x(3)":U LABEL-BGCOLOR 14
       utilities.hotkey FORMAT "x(3)":U WIDTH 9 LABEL-BGCOLOR 14
-      utilities.description FORMAT "x(48)":U WIDTH 35.2 LABEL-BGCOLOR 14
-      utilities.notes COLUMN-LABEL "Notes" FORMAT "x(256)":U WIDTH 31.2
-            LABEL-BGCOLOR 14
       utilities.securityLevel COLUMN-LABEL "Sec. Lvl." FORMAT ">999":U
             WIDTH 13.2 LABEL-BGCOLOR 14
+      utilities.notes COLUMN-LABEL "Notes" FORMAT "x(256)":U WIDTH 31.2
+            LABEL-BGCOLOR 14
+      utilities.programName COLUMN-LABEL "Program Name" FORMAT "x(32)":U
+            WIDTH 29.8 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 135.6 BY 14.05
@@ -296,37 +296,32 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnRun AT ROW 3.38 COL 40
-     fi_pro-name AT ROW 2.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fi_module AT ROW 2.19 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fi_hotkey AT ROW 2.19 COL 44.4 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     fi_desc AT ROW 2.19 COL 55.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fi_notes AT ROW 2.19 COL 91.6 COLON-ALIGNED NO-LABEL
+     fi_desc AT ROW 2.19 COL 2.8 NO-LABEL WIDGET-ID 16
+     fi_module AT ROW 2.19 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fi_hotkey AT ROW 2.19 COL 49.2 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     fi_notes AT ROW 2.19 COL 61.8 COLON-ALIGNED NO-LABEL
      fi_seclevel AT ROW 2.19 COL 124 COLON-ALIGNED NO-LABEL
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
-     fi_sort-by AT ROW 3.62 COL 56 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fi_sort-by AT ROW 3.62 COL 48.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fi_pro-name AT ROW 3.81 COL 105.6 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     cPrgmNameLabel AT ROW 3.91 COL 87.6 COLON-ALIGNED NO-LABEL WIDGET-ID 42
      Browser-Table AT ROW 5.52 COL 2.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "Module" VIEW-AS TEXT
-          SIZE 11 BY .71 AT ROW 1.24 COL 35.2 WIDGET-ID 24
-          FGCOLOR 9 FONT 6
-     "Description" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 1.24 COL 57.6 WIDGET-ID 38
-          FGCOLOR 9 FONT 6
-     "Notes" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 1.24 COL 93.6
-          FGCOLOR 9 FONT 6
      "Sec. Lvl" VIEW-AS TEXT
           SIZE 10.4 BY .71 AT ROW 1.24 COL 126.2
           FGCOLOR 9 FONT 6
-     "Hot Key" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 47.2 WIDGET-ID 34
+     "Notes" VIEW-AS TEXT
+          SIZE 20 BY .71 AT ROW 1.24 COL 63.8
           FGCOLOR 9 FONT 6
-    /* "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14 */
-     "Program Name" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
+     "Description" VIEW-AS TEXT
+          SIZE 20 BY .71 AT ROW 1.24 COL 2.8 WIDGET-ID 38
+          FGCOLOR 9 FONT 6
+     "Module" VIEW-AS TEXT
+          SIZE 11 BY .71 AT ROW 1.24 COL 39.8 WIDGET-ID 24
+          FGCOLOR 9 FONT 6
+     "Hot Key" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 51.6 WIDGET-ID 34
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -385,7 +380,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table fi_sort-by F-Main */
+/* BROWSE-TAB Browser-Table fi_pro-name F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -396,6 +391,8 @@ ASSIGN
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
        Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
 
+/* SETTINGS FOR FILL-IN fi_desc IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -409,18 +406,18 @@ ASSIGN
      _TblList          = "asi.utilities"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "utilities"
-     _FldNameList[1]   > asi.utilities.programName
-"utilities.programName" "Program Name" "x(32)" "character" ? ? ? 14 ? ? no ? no no "29.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > asi.utilities.description
+"utilities.description" ? ? "character" ? ? ? 14 ? ? no ? no no "35.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.utilities.module
 "utilities.module" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.utilities.hotkey
 "utilities.hotkey" ? ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > asi.utilities.description
-"utilities.description" ? ? "character" ? ? ? 14 ? ? no ? no no "35.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > asi.utilities.securityLevel
+"utilities.securityLevel" "Sec. Lvl." ? "integer" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.utilities.notes
 "utilities.notes" "Notes" ? "character" ? ? ? 14 ? ? no ? no no "31.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > asi.utilities.securityLevel
-"utilities.securityLevel" "Sec. Lvl." ? "integer" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > asi.utilities.programName
+"utilities.programName" "Program Name" "x(32)" "character" ? ? ? 14 ? ? no ? no no "29.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -494,7 +491,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-		{methods/template/sortindicator.i} 
+                {methods/template/sortindicator.i} 
         /*RUN startSearch.*/
         DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
         DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
@@ -513,7 +510,7 @@ DO:
 
         APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
         RUN dispatch ("open-query").
-		{methods/template/sortindicatorend.i} 
+                {methods/template/sortindicatorend.i} 
   
     END.
 
@@ -531,24 +528,6 @@ DO:
   
   
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnRun
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
-ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
-DO:
-    IF NOT AVAILABLE utilities THEN 
-        RETURN NO-APPLY.
-    IF SEARCH('util/' + utilities.programName) NE ? THEN
-        RUN VALUE('util/' + utilities.programName).
-    ELSE IF SEARCH('util/' + utilities.programName + '.r') NE ? THEN
-        RUN VALUE('util/' + utilities.programName + '.r').
-    ELSE MESSAGE 
-        'Program: util/' + utilities.programName + ' does not exist!' VIEW-AS ALERT-BOX.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -608,7 +587,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 {methods/winReSize.i}
 
-&SCOPED-DEFINE cellColumnDat browsers-util
 
 {methods/browsers/setCellColumns.i}
 /* Ticket# : 92946
@@ -742,7 +720,9 @@ PROCEDURE local-display-fields :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
+    DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+    DEF VAR lResult AS LOG NO-UNDO.
+    
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -753,6 +733,25 @@ PROCEDURE local-display-fields :
     DO WITH FRAME {&FRAME-NAME}:
         fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
             TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    
+        RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+        RUN epCanAccess IN hPgmSecurity ("util/b-utilsN.w", "", OUTPUT lResult).
+        DELETE OBJECT hPgmSecurity.
+        
+        IF lResult THEN DO:
+        
+            ASSIGN 
+                fi_pro-name:SENSITIVE = YES
+                fi_pro-name:HIDDEN = NO.
+                cPrgmNameLabel:HIDDEN = NO.
+        END.
+        ELSE DO: 
+            ASSIGN 
+                fi_pro-name:SENSITIVE = NO
+                fi_pro-name:HIDDEN = YES.
+                cPrgmNameLabel:HIDDEN = YES.
+        END.
+
     END.
                     
  
@@ -852,15 +851,15 @@ PROCEDURE local-initialize :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN setCellColumns.
     /* Code placed here will execute AFTER standard behavior.    */
-
-    fi_hotkey:LIST-ITEMS IN FRAME {&FRAME-NAME} = "All".
+    ASSIGN 
+        utilities.description:WIDTH IN BROWSE {&browse-name} = 60
+        utilities.notes:WIDTH IN BROWSE {&browse-name} = 86.
+        
     FOR EACH bf-utilities WHERE utilities.securityLevel LE iSecurityLevel :
         ilogic = fi_hotkey:ADD-LAST (bf-utilities.hotkey) IN FRAME {&frame-name}.
     END. /* each bf-utilities */
         
-    fi_hotkey:SCREEN-VALUE = fi_hotkey:ENTRY(1) .
-
-    APPLY 'ENTRY':U TO fi_pro-name IN FRAME {&FRAME-NAME}.
+    APPLY 'ENTRY':U TO fi_desc IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1105,7 +1104,7 @@ PROCEDURE set-defaults :
     
             fi_pro-name:SCREEN-VALUE = ""
             fi_module:SCREEN-VALUE   = ""
-            fi_hotkey:SCREEN-VALUE   = "ALL"
+            fi_hotkey:SCREEN-VALUE   = ""
             fi_desc:SCREEN-VALUE     = ""
             fi_notes:SCREEN-VALUE    = ""
             fi_seclevel:SCREEN-VALUE = "0"

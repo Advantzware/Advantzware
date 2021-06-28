@@ -17,3 +17,14 @@ DEFINE TEMP-TABLE ttRecapProductCategory NO-UNDO
     FIELD dscr            AS CHARACTER LABEL "Description"          FORMAT "x(20)"
         INDEX ttRecapProductCategory IS PRIMARY rowType proCat
         .
+RUN spSetSessionParam ("SummaryTables", "1").
+RUN spSetSessionParam ("SummaryHandle1", TEMP-TABLE ttRecapProductCategory:HANDLE).
+RUN spSetSessionParam ("SummaryTitle1", "Recap Product Category").
+
+/*DEFINE TEMP-TABLE ttDetail NO-UNDO                                        */
+/*    {AOA/tempTable/ttFields.i}                                            */
+/*    FIELD proCat  AS CHARACTER LABEL "Cat"                  FORMAT "x(5)" */
+/*    FIELD catDscr AS CHARACTER LABEL "Category Description" FORMAT "x(20)"*/
+/*    .                                                                     */
+/*RUN spSetSessionParam ("DetailTables", "1").                              */
+/*RUN spSetSessionParam ("DetailHandle1", TEMP-TABLE ttDetail:HANDLE).      */

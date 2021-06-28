@@ -76,7 +76,6 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 
 

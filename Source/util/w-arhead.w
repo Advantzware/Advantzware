@@ -792,13 +792,6 @@ PROCEDURE build-ar-inv :
   Notes:       
 ------------------------------------------------------------------------------*/
 
- DO WHILE TRUE :
-        FIND ar-inv WHERE ar-inv.x-no = v-ref-ar NO-LOCK NO-ERROR.
-        IF AVAILABLE ar-inv THEN 
-            v-ref-ar = v-ref-ar + 1.
-        ELSE LEAVE.
-    END.
-
     find first period where 
          period.company eq cocode
      and period.pst     LE v-tr-date
@@ -806,8 +799,7 @@ PROCEDURE build-ar-inv :
      NO-LOCK NO-ERROR.
 
     CREATE ar-inv .
-    ASSIGN ar-inv.x-no           = v-ref-ar
-           ar-inv.company        = inv-head.company
+    ASSIGN ar-inv.company        = inv-head.company
            ar-inv.ord-no         = oe-bolh.b-ord-no
            ar-inv.ord-date       = oe-bolh.bol-date
            ar-inv.inv-no         = v-invno
@@ -861,6 +853,8 @@ PROCEDURE build-ar-inv :
            ar-inv.t-sales        = inv-head.t-inv-rev - inv-head.t-inv-tax
            ar-inv.net            = inv-head.t-inv-rev - inv-head.t-inv-tax
            ar-inv.freight        = inv-head.t-inv-freight.
+           
+           v-ref-ar = ar-inv.x-no.
            
            RUN CopyShipNote (inv-head.rec_key, ar-inv.rec_key).        
            
@@ -1965,11 +1959,6 @@ IF AVAIL ar-ctrl THEN
 /*FIND LAST ar-inv WHERE 
      ar-inv.inv-no GT 3237 and
      ar-inv.inv-no LT 4207 NO-LOCK USE-INDEX x-no.*/
-
-find last ar-inv use-index x-no no-lock no-error.
-
-v-ref-ar = ar-inv.x-no + 1.
-
 
 v-ref-inv = next-value(inv_r_no_seq).
 

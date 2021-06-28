@@ -322,7 +322,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-qtitm ( 7.86 , 130.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-addupd.w':U ,
+             INPUT  'panels/p-qtitem.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -385,7 +385,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 11.43 , 143.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-qtqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -446,7 +446,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 34.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-qtmisc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,

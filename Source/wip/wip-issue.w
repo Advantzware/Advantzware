@@ -67,8 +67,8 @@ DEFINE VARIABLE iTotOnHand              AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount                  AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
-// {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventory.i}
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1271,7 +1271,8 @@ PROCEDURE rebuildTempTable :
         ipiFormno,
         ipiBlankno,
         OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        OUTPUT iTotOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
 
     {&OPEN-BROWSERS-IN-QUERY-F-Main}

@@ -56,6 +56,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dbalanceDue              AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCreditHoldStatus        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lbalUpdated              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCount                   AS INTEGER   NO-UNDO.
 
     RUN system/CreditProcs.p PERSISTENT SET hCreditProcs.
 
@@ -196,7 +197,10 @@ PROCEDURE pBusinessLogic:
             ttCustAging.creditAvailable    = cust.cr-lim - dOrderBalance - dbalanceDue 
             ttCustAging.creditHoldStatus   = REPLACE(cCreditHoldStatus,","," | ")
             ttCustAging.balUpdated         = lbalUpdated
-            .        
+            iCount = iCount + 1
+                .
+            IF lProgressBar THEN
+                RUN spProgressBar (cProgressBar, iCount, ?).     
         END.       
     END. /* each cust */     
 

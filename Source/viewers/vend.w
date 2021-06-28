@@ -56,6 +56,9 @@ DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
+DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 &SCOPED-DEFINE vend-maint enable-vend-fields
 
 &SCOPED-DEFINE where-poexport                  ~
@@ -1463,6 +1466,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1514,6 +1539,9 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 DEF VAR lNewRec AS LOG NO-UNDO.
 DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
+
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   IF adm-new-record THEN
     lNewRec = TRUE.
@@ -1578,6 +1606,23 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
 
       run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output container-hdl).
       run passNewVend IN widget-handle(container-hdl) (vend.vend-no:SCREEN-VALUE).
+  END.
+
+  IF AVAILABLE vend THEN DO:
+      RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+          INPUT  vend.company,                                                         /* Company Code (Mandatory) */
+          INPUT  vend.loc,                                                             /* Location Code (Mandatory) */
+          INPUT  "SendVendor",                                                         /* API ID (Mandatory) */
+          INPUT  vend.vend-no,                                                         /* Scope ID */
+          INPUT  "Vendor",                                                             /* Scope Type */
+          INPUT  IF lNewRec THEN "AddVendor" ELSE "UpdateVendor",                      /* Trigger ID (Mandatory) */
+          INPUT  "vend",                                                               /* Comma separated list of table names for which data being sent (Mandatory) */
+          INPUT  STRING(ROWID(vend)),                                                  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */
+          INPUT  STRING(vend.vend-no),                                                 /* Primary ID for which API is called for (Mandatory) */
+          INPUT  "Create vendor from VF1",                                             /* Event's description (Optional) */
+          OUTPUT lSuccess,                                                             /* Success/Failure flag */
+          OUTPUT cMessage                                                              /* Status message */
+          ) NO-ERROR.
   END.
 END PROCEDURE.
 

@@ -16,7 +16,6 @@ ASSIGN
     {&TABLENAME}.dimLengthMaximum = 99999.99
     {&TABLENAME}.dimWidthOver = 99999.99
     {&TABLENAME}.dimLengthOver = 99999.99
-    {&TABLENAME}.quantityMaximumOrder = 99999.99
     {&TABLENAME}.itemType = "FG" 
     .
  

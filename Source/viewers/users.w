@@ -77,6 +77,7 @@ DEFINE VARIABLE lMenuChanges    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hColorWidget    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE iBGColor        AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE cSysTemp AS CHAR.
     
 DEFINE TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
@@ -90,6 +91,10 @@ DEFINE TEMP-TABLE ttUsers
         INDEX iUserID   IS UNIQUE ttfUserID  ttfPdbName
         INDEX iDatabase IS UNIQUE ttfPdbName ttfUserID
         .
+        
+DEFINE TEMP-TABLE ttModes
+    FIELD ttfMode AS CHAR.
+
 DEFINE BUFFER bttUsers FOR ttUsers.
 
 /* _UIB-CODE-BLOCK-END */
@@ -118,21 +123,20 @@ DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS users.AMPM users.user_name users.phone-cnty ~
 users.isManager users.isLocked users.mobile users.image_filename ~
-users.user_program[1] users.user_program[2] users.user_program[3] ~
-users.userImage[1] users.use_colors users.use_fonts users.menuSize ~
-users.userLanguage users.showMenuImages users.showCueCards ~
-users.showMnemonic users.positionMnemonic 
+users.user_program[2] users.user_program[3] users.userImage[1] ~
+users.use_colors users.use_fonts users.menuSize users.userLanguage ~
+users.showMenuImages users.showCueCards users.showMnemonic ~
+users.positionMnemonic 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define DISPLAYED-FIELDS users.AMPM users.user_id users.user_name ~
 users.userAlias users.department users.phone-cnty users.phone ~
 users.securityLevel users.isActive users.isManager users.isLocked ~
-users.mobile users.fax users.image_filename users.user_program[1] ~
-users.user_program[2] users.user_program[3] users.userImage[1] ~
-users.use_colors users.manager users.use_fonts users.menuSize ~
-users.purchaseLimit users.userLanguage users.showMenuImages ~
-users.showCueCards users.showMnemonic users.positionMnemonic ~
-users.sessionLimit 
+users.mobile users.fax users.image_filename users.user_program[2] ~
+users.user_program[3] users.userImage[1] users.use_colors users.manager ~
+users.use_fonts users.menuSize users.purchaseLimit users.userLanguage ~
+users.showMenuImages users.showCueCards users.showMnemonic ~
+users.positionMnemonic users.sessionLimit 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
@@ -356,10 +360,6 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 100 BY 3.57.
 
-DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 142 BY 20.71.
-
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 53 BY 12.38.
@@ -389,12 +389,12 @@ DEFINE FRAME F-Main
      users.AMPM AT ROW 19.1 COL 23 WIDGET-ID 534
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY 1
-     users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
+     users.user_id AT ROW 1.24 COL 23 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.user_name AT ROW 1.24 COL 46 COLON-ALIGNED
+     users.user_name AT ROW 1.24 COL 48 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
@@ -403,25 +403,25 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
-     fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
+     fiPassword AT ROW 2.43 COL 23 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
      users.department AT ROW 2.43 COL 80 COLON-ALIGNED
           LABEL "Dept"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
-     bChgPwd AT ROW 2.43 COL 61 WIDGET-ID 82 NO-TAB-STOP 
-     users.phone-cnty AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     bChgPwd AT ROW 2.43 COL 63 WIDGET-ID 82 NO-TAB-STOP 
+     users.phone-cnty AT ROW 3.62 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     fi_phone-area AT ROW 3.62 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     users.phone AT ROW 3.62 COL 77 COLON-ALIGNED HELP
+     fi_phone-area AT ROW 3.62 COL 48 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     users.phone AT ROW 3.62 COL 79 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     lv-phone-num AT ROW 3.62 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     lv-phone-num AT ROW 3.62 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
@@ -437,79 +437,74 @@ DEFINE FRAME F-Main
      users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     users.mobile AT ROW 4.81 COL 21 COLON-ALIGNED HELP
+     users.mobile AT ROW 4.81 COL 23 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 18 FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
           BGCOLOR 15 FONT 4
-     users.fax AT ROW 4.81 COL 77 COLON-ALIGNED HELP
+     users.fax AT ROW 4.81 COL 79 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
-     users.image_filename AT ROW 6 COL 21 COLON-ALIGNED HELP
+     users.image_filename AT ROW 6 COL 23 COLON-ALIGNED HELP
           "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
           LABEL "Email" FORMAT "X(40)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[1] AT ROW 7.19 COL 21 COLON-ALIGNED
-          LABEL "Image Viewer" FORMAT "x(80)"
-          VIEW-AS FILL-IN 
-          SIZE 60 BY 1
-          BGCOLOR 15 FONT 4
-     users.user_program[2] AT ROW 8.38 COL 21 COLON-ALIGNED HELP
+     users.user_program[2] AT ROW 7.67 COL 23 COLON-ALIGNED HELP
           "" WIDGET-ID 8
-          LABEL "Report Path" FORMAT "x(100)"
+          LABEL "Report Output Folder" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
-          LABEL "Document Path" FORMAT "x(100)"
+     users.user_program[3] AT ROW 8.86 COL 23 COLON-ALIGNED WIDGET-ID 36
+          LABEL "Label Print Folder" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.userImage[1] AT ROW 10.76 COL 21 COLON-ALIGNED WIDGET-ID 116
+     users.userImage[1] AT ROW 10.52 COL 23 COLON-ALIGNED WIDGET-ID 116
           LABEL "User Image" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
           BGCOLOR 15 
+     users.use_colors AT ROW 11.91 COL 25
+          VIEW-AS TOGGLE-BOX
+          SIZE 27 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     users.use_colors AT ROW 11.91 COL 23
-          VIEW-AS TOGGLE-BOX
-          SIZE 27 BY 1
-     users.manager AT ROW 13.38 COL 65 COLON-ALIGNED
+     users.manager AT ROW 13.38 COL 67 COLON-ALIGNED
           LABEL "Manager"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     users.use_fonts AT ROW 12.86 COL 23
+     users.use_fonts AT ROW 12.86 COL 25
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     users.menuSize AT ROW 14.57 COL 65 COLON-ALIGNED WIDGET-ID 112
+     users.menuSize AT ROW 14.57 COL 67 COLON-ALIGNED WIDGET-ID 112
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEMS "Small","Medium","Large" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     users.purchaseLimit AT ROW 15.71 COL 21 COLON-ALIGNED
+     users.purchaseLimit AT ROW 15.71 COL 23 COLON-ALIGNED
           LABEL "PO Limit"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 
-     users.userLanguage AT ROW 15.76 COL 61 COLON-ALIGNED WIDGET-ID 114
+     users.userLanguage AT ROW 15.76 COL 63 COLON-ALIGNED WIDGET-ID 114
           VIEW-AS COMBO-BOX INNER-LINES 10
           LIST-ITEM-PAIRS "Englist","EN"
           DROP-DOWN-LIST
           SIZE 20 BY 1
-     users.showMenuImages AT ROW 13.76 COL 23 WIDGET-ID 528
+     users.showMenuImages AT ROW 13.76 COL 25 WIDGET-ID 528
           VIEW-AS TOGGLE-BOX
           SIZE 22 BY 1
-     users.showCueCards AT ROW 14.71 COL 23 WIDGET-ID 532
+     users.showCueCards AT ROW 14.71 COL 25 WIDGET-ID 532
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
      users.showMnemonic AT ROW 16.71 COL 23 NO-LABEL WIDGET-ID 120
@@ -541,6 +536,10 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
      "BG Color:" VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
      "FG Color:" VIEW-AS TEXT
@@ -557,15 +556,15 @@ DEFINE FRAME F-Main
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
-          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 42 WIDGET-ID 96
+          BGCOLOR 15 
      "HotKey (Mnemonic):" VIEW-AS TEXT
           SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
      "Options:" VIEW-AS TEXT
@@ -579,19 +578,15 @@ DEFINE FRAME F-Main
           SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
      "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
+          SIZE 4 BY 1 AT ROW 3.62 COL 58 WIDGET-ID 106
           BGCOLOR 15 
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 18.14 COL 69 WIDGET-ID 512
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
-     cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
+     cUserImage AT ROW 10.52 COL 74 WIDGET-ID 118
      colorChoice-0 AT ROW 18.86 COL 84 WIDGET-ID 472
      colorChoice-1 AT ROW 18.86 COL 91 WIDGET-ID 474
      colorChoice-2 AT ROW 18.86 COL 98 WIDGET-ID 488
@@ -616,7 +611,6 @@ DEFINE FRAME F-Main
      BGColor-2 AT ROW 20.05 COL 60 WIDGET-ID 468
      BGColor-3 AT ROW 20.05 COL 67 WIDGET-ID 470
      RECT-1 AT ROW 17.91 COL 41 WIDGET-ID 524
-     RECT-2 AT ROW 1 COL 1 WIDGET-ID 526
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -847,8 +841,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
@@ -869,8 +861,6 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN users.user_name IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN users.user_program[1] IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN users.user_program[2] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN users.user_program[3] IN FRAME F-Main
@@ -1299,6 +1289,9 @@ DO:
         IF INDEX(users.user_id:SCREEN-VALUE,",") NE 0 THEN
            users.user_id:SCREEN-VALUE = REPLACE(users.user_id:SCREEN-VALUE,",","") .
         users.user_id:SCREEN-VALUE = TRIM(users.user_id:SCREEN-VALUE) .
+        
+        IF users.user_program[3]:SCREEN-VALUE  EQ "" THEN ASSIGN 
+            users.user_program[3]:SCREEN-VALUE = cSysTemp + "\" + SELF:SCREEN-VALUE.
     END.
   
 END.
@@ -1307,58 +1300,16 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME users.user_program[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
-ON HELP OF users.user_program[1] IN FRAME F-Main /* Image Viewer */
-DO:
-    DEF VAR ls-filename AS CHAR NO-UNDO.
-    DEF VAR ll-ok AS LOG NO-UNDO.
-
-    SYSTEM-DIALOG GET-FILE ls-filename 
-        TITLE "Select Image Viewer File to insert"
-        FILTERS "Application Files    (*.exe)" "*.exe",
-                "All Files    (*.*) " "*.*"
-        INITIAL-DIR '"c:\program files\"'
-        MUST-EXIST
-        USE-FILENAME
-        UPDATE ll-ok.
-
-     IF INDEX(ls-filename,"/") > 0 THEN ASSIGN
-        SELF:SCREEN-VALUE = SUBSTRING(ls-filename,R-INDEX(ls-filename,"/") + 1).
-     ELSE IF INDEX(ls-filename,"\") > 0 THEN ASSIGN
-        SELF:SCREEN-VALUE = SUBSTRING(ls-filename,R-INDEX(ls-filename,"\") + 1).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
-ON LEAVE OF users.user_program[1] IN FRAME F-Main /* Image Viewer */
-DO:
-
-    IF INDEX(SELF:SCREEN-VALUE,"/") > 0 THEN ASSIGN
-        SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"/") + 1).
-    ELSE IF INDEX(SELF:SCREEN-VALUE,"\") > 0 THEN ASSIGN
-        SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"\") + 1).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME users.user_program[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[3] V-table-Win
-ON HELP OF users.user_program[3] IN FRAME F-Main /* Document Path */
+&Scoped-define SELF-NAME users.user_program[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[2] V-table-Win
+ON HELP OF users.user_program[2] IN FRAME F-Main /* Report Output Folder */
 DO:
     DEF VAR ls-filename AS CHAR NO-UNDO.
     DEF VAR ll-ok AS LOG NO-UNDO.
 
     SYSTEM-DIALOG GET-DIR ls-filename 
         TITLE "Select Path to save"
-        INITIAL-DIR users.USER_program[3]
+        INITIAL-DIR users.USER_program[2]
         UPDATE ll-ok.
 
     IF ll-ok THEN ASSIGN
@@ -1370,16 +1321,16 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME users.user_program[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[2] V-table-Win
-ON HELP OF users.user_program[2] IN FRAME F-Main /* Document Path */
+&Scoped-define SELF-NAME users.user_program[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[3] V-table-Win
+ON HELP OF users.user_program[3] IN FRAME F-Main /* Label Print Folder */
 DO:
     DEF VAR ls-filename AS CHAR NO-UNDO.
     DEF VAR ll-ok AS LOG NO-UNDO.
 
     SYSTEM-DIALOG GET-DIR ls-filename 
         TITLE "Select Path to save"
-        INITIAL-DIR users.USER_program[2]
+        INITIAL-DIR users.USER_program[3]
         UPDATE ll-ok.
 
     IF ll-ok THEN ASSIGN
@@ -1404,6 +1355,9 @@ END.
     DO TRANSACTION:
         {sys/inc/webroot.i}
     END.
+
+    ASSIGN 
+        cSysTemp = OS-GETENV("temp").
     
     FIND FIRST usercontrol NO-LOCK NO-ERROR.
     IF NOT AVAIL usercontrol THEN DO:
@@ -1674,6 +1628,99 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanUsrFile V-table-Win
+PROCEDURE ipCleanUsrFile:
+/*------------------------------------------------------------------------------
+ Purpose:   Clean up old structure of advantzware.usr file (with per-database mode lists) into single list at master level
+ Notes:     The "old" structure contained a "master" record for each user that controlled environments and databases.
+     It also contained "per-database" records (keys userid/pdbname) that controlled valid modes per userid/database.
+     
+     What we want to do here is simplify that file and move the "per-database" mode limits up to the "master" record.
+     (A longer-term goal is to get this information into database data, rather than a filesystem file, but since the
+     asiLogin program, which uses this file, is not connected to a database when it is run, this is still problematic.)
+     
+     Note that we also have to be mindful of "two-version" installations, where the earlier version of this program will
+     still be able to create "per-database" records in this file, even though the asiLogin program will ignore them, 
+     regardless of version, as soon as this release (21.02) is installed.  For that reason, we need to continue this cleanup
+     process here (and in asiLogin.w) as long as there are active pre-21.02 versions in the field.
+     
+     Note also that this procedure is ONLY run if the program detects that there is a "bad" (i.e. per-database) record in advantzware.usr
+------------------------------------------------------------------------------*/
+    DEF VAR cModeTest AS CHAR NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR lCleaned AS LOG NO-UNDO.
+    
+    /* ttUsers is an internal image of the advantzware.usr file */
+    /* We're going to read each line (later in this block, we eliminate "per-db" lines) */
+    FOR EACH ttUsers:
+        
+        /* ...then empty our internal temp-table of the modes allowed */
+        EMPTY TEMP-TABLE ttModes.
+        
+        /* Now, IF the line is the "master" (where pdbnbame is "*"), AND there have been no mode limits set, keep going, 
+        otherwise skip this user, because the streamline process has already been run for him/her */
+        IF ttUsers.ttfPdbname EQ "*" THEN DO:                           /* Is this the master record? */
+            
+            IF ttUsers.ttfModeList NE "" THEN NEXT.                     /* SKIP user if the mode list been set at the master level already */
+            
+            ELSE DO:  
+                /* Look for any "per-database" lines that have limits set (this is where modes USED to be controlled) */
+                /* At the end of this loop, the ttModes table will contain all of the listed modes for all of the per-database lines */
+                FOR EACH bttUsers WHERE                                 /* buffer for same temp-table */
+                    bttUsers.ttfUserID EQ ttUsers.ttfUserID AND         /* userid matches */
+                    bttUsers.ttfPdbname NE "*" AND                      /* NOT the master record */
+                    bttUsers.ttfModeList NE "":                         /* per-database mode list has been set */
+                    
+                    DO iCtr = 1 TO NUM-ENTRIES(bttUsers.ttfModeList):   /* Loop through the mode entries for this database */
+                        IF NOT CAN-FIND(FIRST ttModes WHERE             /* skip any modes that were added from a previous database */
+                            ttModes.ttfMode EQ ENTRY(iCtr,bttUsers.ttfModeList)) THEN DO:
+                            CREATE ttModes.                             /* Create a ttModes record for each entry listed... */
+                            ASSIGN 
+                                ttModes.ttfMode = ENTRY(iCtr,bttUsers.ttfModeList).
+                        END.
+                    END.
+                    ASSIGN 
+                        lCleaned = TRUE.                                /* Set flag to notify mods made, and need to update the physical file */
+                END.
+            END.
+
+            /* Still in the same "per-user" loop, concatenate the ttModes entries into the single "master" limit for this user */
+            FOR EACH ttModes:
+                ASSIGN
+                    ttUsers.ttfModeList = ttUsers.ttfModeList + ttModes.ttfMode + ",".
+            END.
+            /* Just trimming the comma off the end of the list */
+            ASSIGN 
+                ttUsers.ttfModeList = TRIM(ttUsers.ttfModeList,",").
+
+        END.
+    END. 
+
+    /* Last, delete the "bad" ttUser records that contain per-database entries */
+    /* This will be written back out to advantzware.usr in ipWriteUserFile */
+    /* Note that this will NOT affect backward compatibility, as the display control is in the update asiLogin program */
+    FOR EACH ttUsers WHERE
+        ttUsers.ttfPdbname NE "*":
+        DELETE ttUsers.
+        ASSIGN
+            lCleaned = TRUE.
+    END.
+
+    /* If we cleaned the file and updated the ttUsers table, write advantzware.usr file with changes and re-read */
+    IF lCleaned EQ TRUE THEN DO:
+        RUN ipWriteUsrFile.
+        EMPTY TEMP-TABLE ttUsers.
+        RUN ipReadUsrFile.
+    END. 
+            
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadIniFile V-table-Win 
 PROCEDURE ipReadIniFile :
 /*------------------------------------------------------------------------------
@@ -1729,6 +1776,12 @@ PROCEDURE ipReadUsrFile :
             END.
         END.
         INPUT CLOSE.
+        
+        /* IF detected "bad" line in advantzware.usr, run the cleanup procedure */
+        IF CAN-FIND(FIRST ttUsers WHERE 
+            ttUsers.ttfPdbname NE "*") THEN 
+            RUN ipCleanUsrFile.
+        
     END.
 
 END PROCEDURE.
@@ -1741,7 +1794,9 @@ PROCEDURE ipWriteUsrFile :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
-  Notes:       
+  Notes:    This is ONLY run if:
+                1 - a user is deleted, added, or modified 
+                2 - the ipClean procedure was run and found a bad record 
 ------------------------------------------------------------------------------*/
     DEF VAR cOutString AS CHAR.
     
@@ -1769,7 +1824,7 @@ PROCEDURE local-add-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+        
     {methods/template/local/create.i}
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
@@ -1784,6 +1839,8 @@ PROCEDURE local-add-record :
         lv-phone-num:SCREEN-VALUE = ""
         cbUserType:SCREEN-VALUE = "Full User"
         users.securityLevel:SCREEN-VALUE = "100".
+        
+        
         
     APPLY 'entry' to users.user_id IN FRAME {&FRAME-NAME}.
 
@@ -1994,7 +2051,7 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     IF AVAIL users THEN DO WITH FRAME {&frame-name}:
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        /* "Limit" elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND FIRST ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id
@@ -2003,18 +2060,7 @@ PROCEDURE local-display-fields :
             CREATE ttUsers.
             ASSIGN
                 ttUsers.ttfPdbName = "*"
-                ttUsers.ttfUserID = users.user_id
-                .
-/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
-/*                IF ttUsers.ttfEnvlist EQ "" THEN                                                                  */
-/*                  ttUsers.ttfEnvList = IF users.envList GT "" THEN REPLACE(users.envList, "|", ",") ELSE "".      */
-/*                IF ttUsers.ttfDbList EQ "" THEN                                                                   */
-/*                  ttUsers.ttfDbList = IF users.dbList GT "" THEN REPLACE(users.dbList, "|", ",") ELSE "".         */
-/*                IF ttUsers.ttfUserAlias EQ "" THEN                                                                */
-/*                  ttUsers.ttfUserAlias = IF users.userAlias GT "" THEN REPLACE(users.userAlias, "|", ",") ELSE "".*/
-/*                IF ttUsers.ttfModeList EQ "" THEN                                                                 */
-/*                  ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE "".   */
-            
+                ttUsers.ttfUserID = users.user_id.
         END.
 
         ASSIGN 
@@ -2023,6 +2069,7 @@ PROCEDURE local-display-fields :
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+            slModes:SCREEN-VALUE = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS 
             users.userAlias:SCREEN-VALUE = users.userAlias
             users.userAlias:modified = FALSE
             FGColor-1:BGCOLOR = users.menuFGColor[1]
@@ -2033,37 +2080,20 @@ PROCEDURE local-display-fields :
             BGColor-3:BGCOLOR = users.menuBGColor[3]
             .
 
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND FIRST ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id
-                .
-/* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
-/*            IF ttUsers.ttfModeList EQ "" THEN                                                                                */
-/*                ttUsers.ttfModeList = IF users.modeList GT "" THEN REPLACE(users.modeList, "|", ",") ELSE slModes:list-items.*/
-        END.
-        slModes:SCREEN-VALUE = IF ttUsers.ttfModeList NE "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
-
         FIND _user NO-LOCK WHERE 
             _user._userid = users.user_id
             NO-ERROR.
-        IF AVAIL _user THEN
-        ASSIGN
+        IF AVAIL _user THEN ASSIGN
             fiPassword:SCREEN-VALUE = _user._password
-            cOldPwd = _user._password
-            .
+            cOldPwd = _user._password.
+        
         ASSIGN
-            bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
+            bChgPwd:SENSITIVE = IF users.user_id EQ zusers.user_id OR zusers.securityLevel GE 700 THEN TRUE ELSE FALSE
             fiPassword:SENSITIVE = FALSE
             .
+        
         IF users.userImage[1]:SCREEN-VALUE NE "" THEN 
-        cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
+            cUserImage:LOAD-IMAGE(users.userImage[1]:SCREEN-VALUE).
         
     END.
     
@@ -2139,17 +2169,6 @@ PROCEDURE local-update-record :
 
     RUN validate-userid NO-ERROR.
     IF error-status:error THEN RETURN.
-
-    IF users.user_program[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
-        FILE-INFO:FILE-NAME = users.USER_program[1].
-        IF FILE-INFO:FILE-type eq ? then do:
-            MESSAGE 
-                "Image Viewer file does not exist. Please change it to an existing file." 
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY 'entry' TO users.user_program[1].
-            RETURN.
-        END.
-    END.
 
     IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
         IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" 
@@ -2352,7 +2371,7 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
-        /* Most elements come from the 'generic' ttUser (ttfPdbname = '*') */
+        /* "Limit" elements come from the 'generic' ttUser (ttfPdbname = '*') */
         FIND ttUsers WHERE
             ttUsers.ttfPdbName = "*" AND
             ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
@@ -2367,27 +2386,11 @@ PROCEDURE local-update-record :
             ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
             ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
             ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
-            ttUsers.ttfModeList = ""
+            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
             .
 
-        /* But mode-list has a by-db component (ttfPdbname = pdbname(1)) */
-        FIND ttUsers WHERE
-            ttUsers.ttfPdbName = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbName = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
-        END.
-        ASSIGN
-            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
-            ttUsers.ttfEnvList = ""
-            ttUsers.ttfDbList = ""
-            ttUsers.ttfUserAlias = ""
-            .
          ASSIGN iSecLevel = INTEGER(users.securityLevel:SCREEN-VALUE) . 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 

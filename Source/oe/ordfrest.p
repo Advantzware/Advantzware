@@ -127,6 +127,9 @@ DEFINE VARIABLE v-cost-2           LIKE oe-ordl.cost.
 DEFINE VARIABLE blk-fact           LIKE blk.fact         NO-UNDO.
 DEFINE VARIABLE v-rowid-list       AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -135,6 +138,12 @@ DEF BUFFER b-eb2 FOR eb.
 DEF BUFFER bf-blk FOR blk.
 
 DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                      AND sys-ctrl.NAME    EQ "SCHEDULE" NO-LOCK NO-ERROR.
@@ -282,7 +291,9 @@ PROCEDURE new-order:
       WHERE quotehd.company EQ xest.company AND
       quotehd.est-no EQ xest.est-no AND 
       quotehd.quo-date LE TODAY AND
-      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?),
+      (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
+      ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix)
+      ,
     EACH quoteitm OF quotehd NO-LOCK ,
           EACH quoteqty OF quoteitm NO-LOCK BREAK BY quoteqty.LINE BY quoteqty.quote-date DESC 
               BY quoteqty.qty :
@@ -875,6 +886,7 @@ PROCEDURE create-order-lines.
             AND quotehd.est-no  EQ cPriceEst
             AND quotehd.quo-date LE TODAY 
             AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            AND ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix)  
             USE-INDEX quote NO-LOCK,
             
             EACH quoteitm OF quotehd

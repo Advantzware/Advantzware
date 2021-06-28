@@ -34,7 +34,6 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 /*{sys/inc/var.i new shared} */
 def new shared var cocode as cha no-undo.

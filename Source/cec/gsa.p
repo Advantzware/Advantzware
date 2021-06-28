@@ -588,7 +588,7 @@ DO:
   RUN update-pcts.
 
   RUN update-probe.
-
+  FIND CURRENT probe NO-LOCK NO-ERROR.
   ASSIGN
      iop-update-qtys = ld-update-qty
      iop-gsa-brd = ld-gsa-brd
@@ -729,11 +729,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   DEF BUFFER b-probe FOR probe.
+  DEF BUFFER bf-probe FOR probe.
 
   DEF VAR li-qty AS INT NO-UNDO.
-
+  RELEASE probe.
   FIND probe NO-LOCK WHERE ROWID(probe) EQ ip-rowid NO-ERROR.
-
+  
   IF AVAIL probe THEN
   FIND FIRST est NO-LOCK
       WHERE est.company EQ probe.company
@@ -899,23 +900,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              calcpcts.val[1] = iop-gsa-brd.
              FIND CURRENT calcpcts NO-LOCK NO-ERROR.
   
-             FIND CURRENT probe NO-ERROR.
+             FIND CURRENT probe NO-LOCK NO-ERROR.
 
-             IF AVAIL probe THEN DO:
+             FIND FIRST bf-probe EXCLUSIVE-LOCK
+                  WHERE rowid(bf-probe) EQ ROWID(probe) NO-ERROR.
+                  
+             IF AVAIL bf-probe THEN DO:
                 ASSIGN
-                 probe.gsa-mat      = iop-gsa-mat
-                 probe.gsa-lab      = iop-gsa-lab
-                 probe.gsa-war      = v-orig-ld-gsa-war
-                 probe.gsa-war-amt  = v-orig-ld-gsa-war-amt
-                 probe.gsa-war-hdl  = v-orig-ld-gsa-war-hdl
-                 probe.gsa-war-tot  = v-orig-ld-gsa-war-tot
-                 probe.gsa-war-u-c  = v-orig-ld-gsa-war-u-c
-                 probe.gsa-war-cnt  = v-orig-ld-gsa-war-cnt
-                 probe.gsa-war-uni  = v-orig-ld-gsa-war-uni
-                 probe.gsa-war-pal  = v-orig-ld-gsa-war-pal
-                 probe.gsa-war-per  = v-orig-ld-gsa-war-per
-                 probe.gsa-war-u-p  = v-orig-ld-gsa-war-u-p
-                 probe.gsa-fm       = string(v-orig-ld-gsa-fm).
+                 bf-probe.gsa-mat      = iop-gsa-mat
+                 bf-probe.gsa-lab      = iop-gsa-lab
+                 bf-probe.gsa-war      = v-orig-ld-gsa-war
+                 bf-probe.gsa-war-amt  = v-orig-ld-gsa-war-amt
+                 bf-probe.gsa-war-hdl  = v-orig-ld-gsa-war-hdl
+                 bf-probe.gsa-war-tot  = v-orig-ld-gsa-war-tot
+                 bf-probe.gsa-war-u-c  = v-orig-ld-gsa-war-u-c
+                 bf-probe.gsa-war-cnt  = v-orig-ld-gsa-war-cnt
+                 bf-probe.gsa-war-uni  = v-orig-ld-gsa-war-uni
+                 bf-probe.gsa-war-pal  = v-orig-ld-gsa-war-pal
+                 bf-probe.gsa-war-per  = v-orig-ld-gsa-war-per
+                 bf-probe.gsa-war-u-p  = v-orig-ld-gsa-war-u-p
+                 bf-probe.gsa-fm       = string(v-orig-ld-gsa-fm).
              
                 FIND FIRST probe-ref
                     WHERE probe-ref.reftable EQ "probe-ref"
@@ -935,7 +939,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 END.
              
                 probe-ref.val[1] = iop-gsa-brd.             
-                
+                FIND CURRENT bf-probe NO-LOCK NO-ERROR.
+                FIND CURRENT probe NO-LOCK NO-ERROR.
+                FIND CURRENT probe-ref NO-LOCK NO-ERROR.
               END.
           END.
        END.
@@ -945,9 +951,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE RUN update-pcts.
   END.
 END.
-
+    
 RUN disable_UI.
-
+      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1151,43 +1157,47 @@ PROCEDURE update-probe :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  FIND CURRENT probe NO-ERROR.
+  FIND CURRENT probe NO-LOCK NO-ERROR.
 
-  IF AVAIL probe THEN DO:
+  FIND FIRST bf-probe EXCLUSIVE-LOCK
+       WHERE rowid(bf-probe) EQ ROWID(probe) NO-ERROR.
+  IF AVAIL bf-probe THEN DO:
     ASSIGN
-     probe.gsa-mat      = ld-gsa-mat
-     probe.gsa-lab      = ld-gsa-lab
-     probe.gsa-war      = ld-gsa-war
-     probe.gsa-war-amt  = ld-gsa-war-amt
-     probe.gsa-war-hdl  = ld-gsa-war-hdl
-     probe.gsa-war-tot  = ld-gsa-war-tot
-     probe.gsa-war-u-c  = ld-gsa-war-u-c
-     probe.gsa-war-cnt  = ld-gsa-war-cnt
-     probe.gsa-war-uni  = ld-gsa-war-uni
-     probe.gsa-war-pal  = ld-gsa-war-pal
-     probe.gsa-war-per  = ld-gsa-war-per
-     probe.gsa-war-u-p  = ld-gsa-war-u-p
-     probe.gsa-fm       = string(ld-gsa-fm).
+     bf-probe.gsa-mat      = ld-gsa-mat
+     bf-probe.gsa-lab      = ld-gsa-lab
+     bf-probe.gsa-war      = ld-gsa-war
+     bf-probe.gsa-war-amt  = ld-gsa-war-amt
+     bf-probe.gsa-war-hdl  = ld-gsa-war-hdl
+     bf-probe.gsa-war-tot  = ld-gsa-war-tot
+     bf-probe.gsa-war-u-c  = ld-gsa-war-u-c
+     bf-probe.gsa-war-cnt  = ld-gsa-war-cnt
+     bf-probe.gsa-war-uni  = ld-gsa-war-uni
+     bf-probe.gsa-war-pal  = ld-gsa-war-pal
+     bf-probe.gsa-war-per  = ld-gsa-war-per
+     bf-probe.gsa-war-u-p  = ld-gsa-war-u-p
+     bf-probe.gsa-fm       = string(ld-gsa-fm).
 
     FIND FIRST probe-ref
         WHERE probe-ref.reftable EQ "probe-ref"
-          AND probe-ref.company  EQ probe.company
+          AND probe-ref.company  EQ bf-probe.company
           AND probe-ref.loc      EQ ""
-          AND probe-ref.code     EQ probe.est-no
+          AND probe-ref.code     EQ bf-probe.est-no
           AND probe-ref.code2    EQ STRING(probe.line,"9999999999")
         NO-ERROR.
     IF NOT AVAIL probe-ref THEN DO:
       CREATE probe-ref.
       ASSIGN
        probe-ref.reftable = "probe-ref"
-       probe-ref.company  = probe.company
+       probe-ref.company  = bf-probe.company
        probe-ref.loc      = ""
-       probe-ref.code     = probe.est-no
-       probe-ref.code2    = STRING(probe.line,"9999999999").
+       probe-ref.code     = bf-probe.est-no
+       probe-ref.code2    = STRING(bf-probe.line,"9999999999").
     END.
 
     probe-ref.val[1] = ld-gsa-brd.
-    
+    FIND CURRENT bf-probe NO-LOCK NO-ERROR.
+    FIND CURRENT probe NO-LOCK NO-ERROR.
+    FIND CURRENT probe-ref NO-LOCK NO-ERROR.
   END.
 
 END PROCEDURE.

@@ -158,6 +158,9 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
             RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPriceMatrix.ShipTo NE "" THEN 
+            RUN pIsValidShiptoID IN hdValidator (ipbf-ttImportPriceMatrix.CustomerID,ipbf-ttImportPriceMatrix.ShipTo, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).    
         
         IF oplValid THEN 
         RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).

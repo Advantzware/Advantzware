@@ -90,6 +90,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lc-return AS CHARACTER FORMAT "x(100)"       NO-UNDO.
     DEFINE VARIABLE test      AS INTEGER   FORMAT "->>>,>>>,>>9" NO-UNDO.
     DEFINE VARIABLE cTypelist AS CHARACTER FORMAT "x(30)"        NO-UNDO EXTENT 14.
+    DEFINE VARIABLE iCount    AS INTEGER                         NO-UNDO.
 
     ASSIGN
         cTypelist[1]  = "I,V"
@@ -280,6 +281,9 @@ PROCEDURE pBusinessLogic:
             ttRmItemCorrugated.sqin-lb  = 0
             ttRmItemCorrugated.density  = 0
             ttRmItemCorrugated.color-1  = ""
-            .               
+            . 
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).             
     END. /* each item */
 END PROCEDURE.
