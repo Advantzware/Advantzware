@@ -54,14 +54,13 @@ DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd-dest td-show-parm ~
+tbAutoClose btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS rd-dest td-show-parm tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -111,19 +110,22 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+"To CSV", 3,
+"To Email", 5
+     SIZE 14 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 92 BY 8.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 92 BY 5.29.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 8.1.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
@@ -134,24 +136,26 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     lv-font-name AT ROW 10.48 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-no AT ROW 10.67 COL 34 COLON-ALIGNED
+     lines-per-page AT ROW 10.81 COL 84 COLON-ALIGNED
      rd-dest AT ROW 11 COL 5 NO-LABEL
      lv-ornt AT ROW 11.24 COL 31 NO-LABEL
-     lines-per-page AT ROW 11.24 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 12.67 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 13.62 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 15.29 COL 30
-     btn-ok AT ROW 19.81 COL 20
-     btn-cancel AT ROW 19.81 COL 58
+     td-show-parm AT ROW 13.76 COL 23.6
+     tbAutoClose AT ROW 15.95 COL 30.2 WIDGET-ID 16
+     btn-ok AT ROW 16.95 COL 30
+     btn-cancel AT ROW 16.95 COL 50.6
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.29 COL 3
+          SIZE 18 BY .62 AT ROW 9.71 COL 2.8
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-     RECT-6 AT ROW 9.81 COL 2
+          SIZE 21 BY .71 AT ROW 1.14 COL 2.8
+     RECT-6 AT ROW 10 COL 2
      RECT-7 AT ROW 1.48 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 21.57.
+         SIZE 95.2 BY 21.57
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -171,7 +175,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Control File"
-         HEIGHT             = 21.81
+         HEIGHT             = 18.29
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -204,26 +208,42 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -471,10 +491,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
+  DISPLAY rd-dest td-show-parm tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 rd-dest td-show-parm tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
