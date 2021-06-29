@@ -530,35 +530,36 @@ PROCEDURE pCreateLinks PRIVATE:
     END.
 
     /* Create a link between tasks of same form, blank but different pass */
-    FOR EACH bf-from-ttTask:
-        FIND FIRST bf-to-ttTask
-             WHERE bf-to-ttTask.formNo  EQ bf-from-ttTask.formNo
-               AND bf-to-ttTask.blankNo EQ bf-from-ttTask.blankNo
-               AND bf-to-ttTask.lineID  GT bf-from-ttTask.lineID
-             NO-ERROR.             
-        IF AVAILABLE bf-to-ttTask THEN DO:
-            FIND FIRST ttLink 
-                 WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)
-                   AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)
-                 NO-ERROR.
-            IF NOT AVAILABLE ttLink THEN
-                CREATE ttLink.
-
-            ASSIGN
-                iLinkSeqNo          = iLinkSeqNo + 1
-                ttLink.toPart       = bf-to-ttTask.partID
-                ttLink.toTask       = STRING(bf-to-ttTask.taskID)
-                ttLink.toLocation   = bf-to-ttTask.location
-                ttLink.fromPart     = bf-from-ttTask.partID
-                ttLink.fromTask     = STRING(bf-from-ttTask.taskID)
-                ttLink.fromLocation = bf-from-ttTask.location
-                ttLink.formNo       = bf-from-ttTask.formNo
-                ttLink.blankNo      = bf-from-ttTask.blankNo
-                ttLink.passNo       = bf-from-ttTask.passNo
-                ttLink.seqNo        = (ttLink.formNo * 1000) + ttLink.blankNo + ttLink.passNo + iLinkSeqNo
-                .
-        END.            
-    END.
+/*    FOR EACH bf-from-ttTask:                                                                              */
+/*        FIND FIRST bf-to-ttTask                                                                           */
+/*             WHERE bf-to-ttTask.formNo  EQ bf-from-ttTask.formNo                                          */
+/*               AND bf-to-ttTask.blankNo EQ bf-from-ttTask.blankNo                                         */
+/*               AND bf-to-ttTask.passNo  GT bf-from-ttTask.passNo                                          */
+/*               AND bf-to-ttTask.lineID  GT bf-from-ttTask.lineID                                          */
+/*             NO-ERROR.                                                                                    */
+/*        IF AVAILABLE bf-to-ttTask THEN DO:                                                                */
+/*            FIND FIRST ttLink                                                                             */
+/*                 WHERE ttLink.fromTask EQ STRING(bf-from-ttTask.taskID)                                   */
+/*                   AND ttLink.toTask   EQ STRING(bf-to-ttTask.taskID)                                     */
+/*                 NO-ERROR.                                                                                */
+/*            IF NOT AVAILABLE ttLink THEN                                                                  */
+/*                CREATE ttLink.                                                                            */
+/*                                                                                                          */
+/*            ASSIGN                                                                                        */
+/*                iLinkSeqNo          = iLinkSeqNo + 1                                                      */
+/*                ttLink.toPart       = bf-to-ttTask.partID                                                 */
+/*                ttLink.toTask       = STRING(bf-to-ttTask.taskID)                                         */
+/*                ttLink.toLocation   = bf-to-ttTask.location                                               */
+/*                ttLink.fromPart     = bf-from-ttTask.partID                                               */
+/*                ttLink.fromTask     = STRING(bf-from-ttTask.taskID)                                       */
+/*                ttLink.fromLocation = bf-from-ttTask.location                                             */
+/*                ttLink.formNo       = bf-from-ttTask.formNo                                               */
+/*                ttLink.blankNo      = bf-from-ttTask.blankNo                                              */
+/*                ttLink.passNo       = bf-from-ttTask.passNo                                               */
+/*                ttLink.seqNo        = (ttLink.formNo * 1000) + ttLink.blankNo + ttLink.passNo + iLinkSeqNo*/
+/*                .                                                                                         */
+/*        END.                                                                                              */
+/*    END.                                                                                                  */
 
     /* Create ttLinks for non-combo forms */
     FOR EACH ttPart
@@ -572,10 +573,11 @@ PROCEDURE pCreateLinks PRIVATE:
             IF NOT AVAILABLE bf-from-ttTask THEN
                 NEXT.
             
-            /* Find the first task of the combo part and create a link */
+            /* Find the next task of the part and create a link */
             FIND FIRST bf-to-ttTask
                  WHERE bf-to-ttTask.formNo  EQ bf-from-ttTask.formNo
-                   AND bf-to-ttTask.blankNo GT bf-from-ttTask.blankNo
+/*                   AND bf-to-ttTask.blankNo GT bf-from-ttTask.blankNo*/
+                   AND bf-to-ttTask.lineID  GT bf-from-ttTask.lineID
                  NO-ERROR.
             IF AVAILABLE bf-to-ttTask THEN DO:
                 FIND FIRST ttLink 
