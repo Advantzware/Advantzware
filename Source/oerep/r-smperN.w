@@ -78,6 +78,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 
 ASSIGN cTextListToSelect = "No,Sales Rep Name,Daily Sq Ft/M,Amount1,PTD Sq Ft/M,Amount2," +
@@ -179,7 +180,7 @@ DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-smperf.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-smperf.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1.
@@ -211,7 +212,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
           "To Printer", 1,
 "To Screen", 2,
 "To Email", 5,
-"To File", 3
+"To CSV", 3
      SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -492,7 +493,10 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
+  fi_file:SCREEN-VALUE = "c:\tmp\r-smperf.csv" .
+  assign fi_file.
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  fi_file:SCREEN-VALUE = cFileName.
   SESSION:SET-WAIT-STATE ("general").
 
   assign rd-dest.
@@ -504,7 +508,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+       //run output-to-file.
        when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &type= " "
@@ -533,9 +539,12 @@ DO:
 
            END.
        END. 
+       
       WHEN 6 THEN RUN output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
+  IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -625,7 +634,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* To Sales Rep# */
 DO:
-     assign {&self-name}.
+   //  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,7 +645,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+   //  assign {&self-name}.
+   fi_file = ''.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1227,7 +1237,6 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1265,7 +1274,7 @@ assign
  fsman = begin_slsmn
  tsman = end_slsmn.
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:

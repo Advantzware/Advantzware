@@ -87,6 +87,7 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
                             "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF," +
@@ -238,7 +239,7 @@ DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cusitm.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-cusitm.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1.
@@ -652,14 +653,19 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
+  assign fi_file.
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  fi_file:SCREEN-VALUE =  cFileName.
   RUN GetSelectionList.
   run run-report. 
   STATUS DEFAULT "Processing Complete". 
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+       //run output-to-file.
        when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer "
@@ -690,6 +696,8 @@ DO:
        END.
       WHEN 6 THEN RUN OUTPUT-TO-PORT.
   end case. 
+  IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -779,7 +787,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    fi_file = ''.
+   //  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1448,10 +1457,10 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER bar-inv FOR ar-inv.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
 DEFINE VARIABLE dMsfCalc AS DECIMAL NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*FORMAT HEADER
        v-head[1] SKIP
