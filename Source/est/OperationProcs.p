@@ -22,8 +22,8 @@ DEFINE TEMP-TABLE ttOperation NO-UNDO
     FIELD quantityMaster    AS DECIMAL 
     .
 DEFINE TEMP-TABLE ttEstBlank NO-UNDO 
-    FIELD estCostBlankID      AS INT64
-    FIELD estCostFormID       AS INT64
+    FIELD BlankID             AS INTEGER
+    FIELD FormID              AS INTEGER
     FIELD iOut                AS INTEGER
     FIELD dQtyInOut           AS DECIMAL
     FIELD dQtyInOutRunWaste   AS DECIMAL
@@ -41,6 +41,10 @@ DEFINE TEMP-TABLE ttJobMch NO-UNDO LIKE job-mch
     FIELD riJobMch    AS ROWID
     FIELD isExtraCopy AS LOGICAL
     .
+    
+DEFINE TEMP-TABLE ttEstOp NO-UNDO LIKE est-op
+    FIELD machSeq AS INTEGER
+    .    
 
 
 /* Define Globals - Machine Attributes */
@@ -87,12 +91,15 @@ DEFINE VARIABLE giAttributeIDBoardItemID      AS INTEGER NO-UNDO INITIAL 102.   
 DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   //Box Depth
  
 
-DEFINE VARIABLE gcDeptsForPrinters       AS CHARACTER NO-UNDO INITIAL "PR".
-DEFINE VARIABLE gcDeptsForGluers         AS CHARACTER NO-UNDO INITIAL "GL,QS".
-DEFINE VARIABLE gcDeptsForLeafers        AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
-DEFINE VARIABLE gcDeptsForSheeters       AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
-DEFINE VARIABLE gcDeptsForCoaters        AS CHARACTER NO-UNDO INITIAL "PR,CT".
-DEFINE VARIABLE glOpRatesSeparate        AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/   
+DEFINE VARIABLE gcDeptsForPrinters                   AS CHARACTER NO-UNDO INITIAL "PR".
+DEFINE VARIABLE gcDeptsForGluers                     AS CHARACTER NO-UNDO INITIAL "GL,QS".
+DEFINE VARIABLE gcDeptsForLeafers                    AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
+DEFINE VARIABLE gcDeptsForSheeters                   AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
+DEFINE VARIABLE gcDeptsForCoaters                    AS CHARACTER NO-UNDO INITIAL "PR,CT".
+DEFINE VARIABLE glOpRatesSeparate                    AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
+DEFINE VARIABLE glApplyOperationMinimumCharge        AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
+DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly AS LOGICAL   NO-UNDO.
+   
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -180,6 +187,9 @@ FUNCTION fGetOperationsInkCoverage RETURNS DECIMAL PRIVATE
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER) FORWARD.    
 
+FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job for job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
+
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER) FORWARD.      
 
@@ -190,7 +200,16 @@ FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
 
 FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb) FORWARD. 
+    (BUFFER ipbf-eb FOR eb) FORWARD.
+    
+FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb) FORWARD.
+    
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
+    (ipcEstType AS CHARACTER) FORWARD.
+     
+FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
+    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -305,6 +324,8 @@ PROCEDURE GetOperationStandardsForJobMch:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriJobMch AS ROWID.
+    DEFINE INPUT  PARAMETER ipcAction      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcExistingOps AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-job-mch FOR job-mch.
     DEFINE BUFFER bf-job     FOR job.
@@ -330,6 +351,9 @@ PROCEDURE GetOperationStandardsForJobMch:
             AND bf-eb.blank-no EQ MAX(bf-job-mch.blank-no,1)
             NO-ERROR.
             
+        /* Re-build the Est-op and Operations Data */ 
+        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttEstOp, OUTPUT TABLE ttOperation, OUTPUT lError, OUTPUT cMessage)).
+        
         RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, OUTPUT lError, OUTPUT cMessage).
         IF NOT lError THEN 
         DO:
@@ -384,55 +408,61 @@ END PROCEDURE.
 
 PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Creates an estCostOperation based on est-op and form
+     Purpose: Creates an ttOperation (~estCostOperation) based on est-op and form
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-est-op        FOR est-op.
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttEstOp       FOR ttEstOp.
+    DEFINE PARAMETER BUFFER ipbf-est           FOR est.
+    DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
     DEFINE PARAMETER BUFFER opbf-ttOperation   FOR ttOperation.
+    DEFINE INPUT  PARAMETER ipcEstType         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE inumOutBlanksOnNet AS INTEGER NO-UNDO.
+    DEFINE VARIABLE inumOutNet         AS INTEGER NO-UNDO.
 
     DEFINE           BUFFER bf-mach            FOR mach.
-    DEFINE           BUFFER bf-est-op          FOR est-op.
+    DEFINE           BUFFER bf-eb              FOR eb.
+    DEFINE           BUFFER bf-ttEstOP          FOR ttEstOp.
 
+    
+    FOR EACH bf-eb NO-LOCK
+        OF ipbf-ef:
+        inumOutBlanksOnNet = inumOutBlanksOnNet + (MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1)).
+    END.
+    
     FIND FIRST bf-mach NO-LOCK 
-        WHERE bf-mach.company EQ ipbf-est-op.company
-        AND bf-mach.m-code EQ ipbf-est-op.m-code
+        WHERE bf-mach.company EQ ipbf-ttEstOp.company
+        AND bf-mach.m-code EQ ipbf-ttEstOp.m-code
         NO-ERROR.
     IF AVAILABLE bf-mach THEN 
     DO:
         CREATE opbf-ttOperation.
         ASSIGN 
-            opbf-ttOperation.estCostFormID                = ipbf-estCostForm.estCostFormID
-            opbf-ttOperation.estCostHeaderID              = ipbf-estCostForm.estCostHeaderID
-            opbf-ttOperation.estimateNo                   = ipbf-estCostForm.estimateNo
-            opbf-ttOperation.estType                      = ipbf-estCostHeader.estType
-            opbf-ttOperation.quantityMaster               = ipbf-estCostHeader.quantityMaster
-            opbf-ttOperation.formNo                       = ipbf-est-op.s-num
-            opbf-ttOperation.blankNo                      = ipbf-est-op.b-num
-            //opbf-ttOperation.estCostBlankID               = fGetEstBlankID(opbf-ttOperation.estCostBlankID, opbf-ttOperation.estCostFormID, opbf-ttOperation.blankNo)
-            opbf-ttOperation.company                      = ipbf-est-op.company
-            opbf-ttOperation.operationID                  = ipbf-est-op.m-code
-            opbf-ttOperation.pass                         = MAX(ipbf-est-op.op-pass, 1)
-            opbf-ttOperation.sequenceOfOperation          = ipbf-est-op.line
-            opbf-ttOperation.numOutDivisor                = ipbf-est-op.n_out_div
-                       
-            opbf-ttOperation.quantityInSetupWaste         = ipbf-est-op.op-waste
-            opbf-ttOperation.hoursSetup                   = ipbf-est-op.op-mr
-            opbf-ttOperation.speed                        = ipbf-est-op.op-speed
-            opbf-ttOperation.quantityInRunWastePercent    = ipbf-est-op.op-spoil
-            opbf-ttOperation.isLocked                     = ipbf-est-op.isLocked
-            opbf-ttOperation.crewSizeSetup                = ipbf-est-op.op-crew[1]
-            opbf-ttOperation.crewSizeRun                  = ipbf-est-op.op-crew[2]
-            opbf-ttOperation.countInks                    = ipbf-est-op.num-col
-            opbf-ttOperation.countCoats                   = ipbf-est-op.num-coat
-            opbf-ttOperation.countFountainChanges         = ipbf-est-op.fountains
-            opbf-ttOperation.countPlateChanges            = ipbf-est-op.plates
-            
+            opbf-ttOperation.estimateNo                   = ipbf-est.est-no
+            opbf-ttOperation.estType                      = ipcEstType
+            opbf-ttOperation.quantityMaster               = ipbf-ttEstOp.qty
+            opbf-ttOperation.formNo                       = ipbf-ttEstOp.s-num
+            opbf-ttOperation.blankNo                      = ipbf-ttEstOp.b-num
+            opbf-ttOperation.company                      = ipbf-ttEstOp.company
+            opbf-ttOperation.operationID                  = ipbf-ttEstOp.m-code
+            opbf-ttOperation.pass                         = MAX(ipbf-ttEstOp.op-pass, 1)
+            opbf-ttOperation.sequenceOfOperation          = ipbf-ttEstOp.line
+            opbf-ttOperation.numOutDivisor                = ipbf-ttEstOp.n_out_div
+            opbf-ttOperation.quantityInSetupWaste         = ipbf-ttEstOp.op-waste
+            opbf-ttOperation.hoursSetup                   = ipbf-ttEstOp.op-mr
+            opbf-ttOperation.speed                        = ipbf-ttEstOp.op-speed
+            opbf-ttOperation.quantityInRunWastePercent    = ipbf-ttEstOp.op-spoil
+            opbf-ttOperation.isLocked                     = ipbf-ttEstOp.isLocked
+            opbf-ttOperation.crewSizeSetup                = ipbf-ttEstOp.op-crew[1]
+            opbf-ttOperation.crewSizeRun                  = ipbf-ttEstOp.op-crew[2]
+            opbf-ttOperation.countInks                    = ipbf-ttEstOp.num-col
+            opbf-ttOperation.countCoats                   = ipbf-ttEstOp.num-coat
+            opbf-ttOperation.countFountainChanges         = ipbf-ttEstOp.fountains
+            opbf-ttOperation.countPlateChanges            = ipbf-ttEstOp.plates
             opbf-ttOperation.isSpeedInLF                  = bf-mach.therm
             opbf-ttOperation.operationName                = bf-mach.m-dscr
             opbf-ttOperation.feedType                     = bf-mach.p-type
-            opbf-ttOperation.outputType                   = opbf-ttOperation.feedType
+            opbf-ttOperation.outputType                   = bf-mach.p-type
             opbf-ttOperation.departmentIDPrimary          = bf-mach.dept[1]
             opbf-ttOperation.departmentID                 = bf-mach.dept
             opbf-ttOperation.quantityInSetupWastePerColor = bf-mach.col-wastesh
@@ -464,11 +494,10 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttOperation.isCoater = YES.
         IF fIsDepartment(gcDeptsForSheeters, opbf-ttOperation.departmentID) THEN 
         DO: 
-            IF NOT CAN-FIND(FIRST estCostOperation 
-                WHERE estCostOperation.estCostHeaderID EQ opbf-ttOperation.estCostHeaderID
-                AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostOperation.isNetSheetMaker
-                AND estCostOperation.estCostOperationID NE opbf-ttOperation.estCostOperationID) THEN   
+            IF NOT CAN-FIND(FIRST ttOperation 
+                WHERE ttOperation.formNo EQ opbf-ttOperation.formNo 
+                AND ttOperation.isNetSheetMaker
+                AND ttOperation.estCostOperationID NE opbf-ttOperation.estCostOperationID) THEN   
                 opbf-ttOperation.isNetSheetMaker = YES.
             
             opbf-ttOperation.outputType      = "S".
@@ -480,17 +509,17 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         
         IF CAN-DO("R,S,A,P",opbf-ttOperation.feedType) THEN 
         DO:
-            FOR EACH bf-est-op NO-LOCK 
-                WHERE bf-est-op.company EQ ipbf-est-op.company
-                AND bf-est-op.est-no EQ ipbf-est-op.est-no
-                AND bf-est-op.s-num EQ ipbf-est-op.s-num
-                AND bf-est-op.qty EQ ipbf-est-op.qty
-                AND bf-est-op.line GT ipbf-est-op.line
-                AND bf-est-op.line LT 500,
+            FOR EACH bf-ttEstOP NO-LOCK 
+                WHERE bf-ttEstOP.company EQ ipbf-ttEstOp.company
+                AND bf-ttEstOP.est-no EQ ipbf-ttEstOp.est-no
+                AND bf-ttEstOP.s-num EQ ipbf-ttEstOp.s-num
+                AND bf-ttEstOP.qty EQ ipbf-ttEstOp.qty
+                AND bf-ttEstOP.line GT ipbf-ttEstOp.line
+                AND bf-ttEstOP.line LT 500,
                 FIRST bf-mach NO-LOCK 
-                WHERE bf-mach.company EQ bf-est-op.company
-                AND bf-mach.m-code EQ bf-est-op.m-code 
-                BY bf-est-op.line:
+                WHERE bf-mach.company EQ bf-ttEstOP.company
+                AND bf-mach.m-code EQ bf-ttEstOP.m-code 
+                BY bf-ttEstOP.line:
                 IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
                     ASSIGN 
                         opbf-ttOperation.isBlankMaker = YES
@@ -498,7 +527,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                         .
                 LEAVE.
             END.
-            IF NOT AVAILABLE bf-est-op THEN /*Last Machine*/  
+            IF NOT AVAILABLE bf-ttEstOP THEN /*Last Machine*/  
                 ASSIGN 
                     opbf-ttOperation.isBlankMaker = YES
                     opbf-ttOperation.outputType   = "B"
@@ -507,35 +536,27 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         
         CASE opbf-ttOperation.feedType:
             WHEN "R" THEN 
-                opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-estCostForm.grossLength, ipbf-estCostForm.dimUOM).
+                opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-ef.gsh-len, "IN").
             WHEN "S" THEN 
                 DO:
                     IF opbf-ttOperation.isNetSheetMaker THEN 
-                        opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-estCostForm.grossLength, ipbf-estCostForm.dimUOM).
+                        opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-ef.gsh-len, "IN").
                     ELSE
-                        opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-estCostForm.netLength, ipbf-estCostForm.dimUOM).
+                        opbf-ttOperation.linealFeetPerFeed = fGetFeet(ipbf-ef.nsh-len, "IN").
                 END.
         END CASE.
+
+        inumOutNet = MAX(ipbf-ef.n-out-l, 1) * MAX(ipbf-ef.n-out, 1) * MAX(ipbf-ef.n-out-d, 1).
+        
         
         opbf-ttOperation.numOutForOperation = 1.
         IF opbf-ttOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-ttOperation.numOutForOperation = fGetNetSheetOut(opbf-ttOperation.company, opbf-ttOperation.estimateNo, opbf-ttOperation.formNo, opbf-ttOperation.pass, ipbf-estCostForm.numOutNet)
+                opbf-ttOperation.numOutForOperation = fGetNetSheetOut(opbf-ttOperation.company, opbf-ttOperation.estimateNo, opbf-ttOperation.formNo, opbf-ttOperation.pass, inumOutNet)
                 .
         IF opbf-ttOperation.isBlankMaker THEN 
             ASSIGN 
-                opbf-ttOperation.numOutForOperation = opbf-ttOperation.numOutForOperation * ipbf-estCostForm.numOutBlanksOnNet.
-                
-        IF opbf-ttOperation.blankNo NE 0 THEN 
-        DO:
-            FIND FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostHeaderID EQ opbf-ttOperation.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ opbf-ttOperation.estCostFormID
-                AND estCostBlank.blankNo EQ opbf-ttOperation.blankNo
-                NO-ERROR.
-            IF AVAILABLE estCostBlank THEN 
-                opbf-ttOperation.estCostBlankID = estCostBlank.estCostBlankID. 
-        END.
+                opbf-ttOperation.numOutForOperation = opbf-ttOperation.numOutForOperation * inumOutBlanksOnNet.
     END.
     
 END PROCEDURE.
@@ -559,30 +580,34 @@ END PROCEDURE.
 PROCEDURE pGetEffectiveEstOpQuantity PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  For a given estimate (company, estimate) and master quantity,
-        find the appropriate est-op (routing definition) record
+        find the appropriate est-op (routing definition) record and applicable Quantity
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantityMaster AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityMaster  AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdQuantityTarget AS DECIMAL NO-UNDO.
-  
-    FOR EACH est-op NO-LOCK 
-        WHERE est-op.company EQ ipcCompany
-        AND est-op.est-no  EQ ipcEstimateID 
-        AND est-op.line    LT 500
-        BREAK BY est-op.qty:
     
-        IF FIRST-OF(est-op.qty) THEN 
+    DEFINE BUFFER bf-est-op  FOR est-op.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    
+    
+    FOR EACH bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ ipcCompany
+        AND bf-est-op.est-no  EQ ipcEstimateID 
+        AND bf-est-op.line    LT 500
+        BREAK BY bf-est-op.qty:
+    
+        IF FIRST-OF(bf-est-op.qty) THEN 
         DO:
             /*Refactor - Qty in Ops must match one of the est-qty?*/
-            IF FIRST(est-op.qty) OR
-                CAN-FIND(FIRST est-qty
-                WHERE est-qty.company EQ est-op.company
-                AND est-qty.est-no  EQ est-op.est-no
-                AND est-qty.eqty    EQ est-op.qty)
-                THEN opdQuantityTarget = est-op.qty.
-            IF est-op.qty GE ipdQuantityMaster THEN LEAVE.
+            IF FIRST(bf-est-op.qty) OR
+                CAN-FIND(FIRST bf-est-qty
+                WHERE bf-est-qty.company EQ bf-est-op.company
+                AND bf-est-qty.est-no  EQ bf-est-op.est-no
+                AND bf-est-qty.eqty    EQ bf-est-op.qty)
+                THEN opdQuantityTarget = bf-est-op.qty.
+            IF bf-est-op.qty GE ipdQuantityMaster THEN LEAVE.
         END.
     END.
 
@@ -1126,7 +1151,7 @@ PROCEDURE pOperationChangeAddDepartment PRIVATE:
         bf-job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
         .
        
-    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch)).
+    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch), "AddDept","").
     
 END PROCEDURE.
 
@@ -1138,6 +1163,8 @@ PROCEDURE pOperationChangeAddMachine PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
     DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cOldMach AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-job-mch FOR job-mch.
     
     CREATE bf-job-mch.
@@ -1145,7 +1172,8 @@ PROCEDURE pOperationChangeAddMachine PRIVATE:
     ASSIGN
         bf-job-mch.m-code = ipcOperationID
         .
-    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch)).
+    cOldMach = ipbf-job-mch.m-code.
+    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch), "Add",cOldMach).
         
 END PROCEDURE.
 
@@ -1200,10 +1228,13 @@ PROCEDURE pOperationChangeReplaceMachine PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
     DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cExistingMach AS CHARACTER NO-UNDO.
+    
     FIND CURRENT ipbf-job-mch EXCLUSIVE-LOCK.
+    cExistingMach = ipbf-job-mch.m-code.
     ipbf-job-mch.m-code = ipcOperationID.
     FIND CURRENT ipbf-job-mch NO-LOCK.
-    RUN GetOperationStandardsForJobMch(ROWID(ipbf-job-mch)).    
+    RUN GetOperationStandardsForJobMch(ROWID(ipbf-job-mch), "Replace", cExistingMach).    
 
 END PROCEDURE.
 
@@ -1212,8 +1243,6 @@ PROCEDURE pProcessOperation PRIVATE:
      Purpose:
      Notes: should replace ce/prokalk.i and ce/pr4-mch.p
     ------------------------------------------------------------------------------*/
-    //DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
-    //DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-ttOperation FOR ttOperation.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOut AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOutSetupWaste AS DECIMAL NO-UNDO.
@@ -1235,17 +1264,6 @@ PROCEDURE pProcessOperation PRIVATE:
         iopdQtyInOutSetupWaste             = fRoundUp(iopdQtyInOutSetupWaste)
         iopdQtyInOutRunWaste               = fRoundUp(iopdQtyInOutRunWaste)
         .
-    
-    /*Recalc from standards off right now*/
-    IF NOT ipbf-ttOperation.isLocked THEN 
-    DO:
-        FIND FIRST bf-mach NO-LOCK 
-            WHERE bf-mach.company EQ ipbf-ttOperation.company
-            AND bf-mach.m-code EQ ipbf-ttOperation.operationID
-            NO-ERROR.
-        //RUN pRecalcEstOperationFromStandardsSetupWaste(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER ipbf-ttOperation, BUFFER bf-mach).
-       
-    END.
     
     ASSIGN 
         ipbf-ttOperation.quantityInRunWaste        = (ipbf-ttOperation.quantityInNoWaste / 
@@ -1519,15 +1537,19 @@ END PROCEDURE.
 
 
 
-PROCEDURE GetRecalculatedRouting:
+PROCEDURE pRecalcOperations:
     /*------------------------------------------------------------------------------
-    Purpose: given a estCostHeader, build all estCostOperations
-    Notes:
+    Purpose: build all estimate Operations
+    Notes: Firstly get applicable est-ops and then recalculate the Operations TT
    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
-    
-    DEFINE           BUFFER bf-ttOperation     FOR ttOperation.
+    DEFINE PARAMETER BUFFER ipbf-eb      FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT  PARAMETER ipcAction AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOrgMachine AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE   FOR ttEstOp.
+    DEFINE OUTPUT PARAMETER TABLE   FOR ttOperation.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dQtyFormsRequiredForBlanks    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyFormsRequiredForBlanksMax AS DECIMAL NO-UNDO.
@@ -1535,49 +1557,118 @@ PROCEDURE GetRecalculatedRouting:
     DEFINE VARIABLE dQtyInOutRunWaste             AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOutSetupWaste           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyTarget                    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyRequired                  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyYield                     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyFGOnFormYielded           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cEstimateType                 AS CHARACTER NO-UNDO.
+    
+    
+    DEFINE BUFFER bf-est         FOR est.
+    DEFINE BUFFER bf-job         FOR job.
+    DEFINE BUFFER bf-eb          FOR eb.
+    DEFINE BUFFER bf-ef          FOR ef.
+    DEFINE BUFFER bf-ttOperation FOR ttOperation.
+    
+    FIND FIRST bf-ef NO-LOCK
+        OF bf-eb NO-ERROR.
+    
+    IF NOT AVAILABLE bf-ef THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "EF Record not found"
+            .
+        RETURN.
+    END.
+    
+    FIND FIRST bf-job NO-LOCK 
+        WHERE bf-job.company EQ ipbf-job-mch.company
+        AND bf-job.job EQ ipbf-job-mch.job
+        NO-ERROR.
+    
+    IF NOT AVAILABLE bf-job THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Job Record not found"
+            .
+        RETURN.
+    END.
+    
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = bf-ef.company
+        AND bf-est.est-no = bf-ef.est-no NO-ERROR.
+    
+    IF NOT AVAILABLE bf-est THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Est Record not found"
+            .
+        RETURN.
+    END.
+    
+    cEstimateType = fGetEstimateType (INPUT bf-est.est-type, INPUT bf-est.estimateTypeID).
+    
+    dQtyRequired = fGetRequiredQty (BUFFER ipbf-eb, BUFFER bf-job, INPUT cEstimateType, INPUT "").
         
-    RUN pGetEffectiveEstOpQuantity (ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo, ipbf-estCostHeader.quantityMaster, OUTPUT dQtyTarget).
+    RUN pGetEffectiveEstOpQuantity (bf-est.company, bf-est.est-no, dQtyRequired, OUTPUT dQtyTarget).
+    
+    IF dQtyTarget EQ 0 THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Operation's effective Quantity not found"
+            .
+        RETURN.
+    END.
+    
+    RUN pGetEstOPData (BUFFER bf-ef, BUFFER ipbf-job-mch, bf-job.loc, ipcAction, ipcOrgMachine, dQtyTarget,OUTPUT TABLE ttEstOp).
+    
+    FOR EACH bf-eb NO-LOCK
+        OF bf-ef:
+            
+        dQtyYield = fGetRequiredQty (BUFFER ipbf-eb, BUFFER bf-job, cEstimateType ,"YieldQty").
+        dQtyFGOnFormYielded = dQtyFGOnFormYielded + dQtyYield.
+    END.
+    
     EMPTY TEMP-TABLE ttEstBlank.
+    
     /*Process each est-op for the right quantity*/
-    FOR EACH est-op NO-LOCK 
-        WHERE est-op.company EQ ipbf-estCostHeader.company
-        AND est-op.est-no EQ ipbf-estCostHeader.estimateNo
-        AND est-op.s-num EQ ipbf-estCostForm.formNo
-        AND est-op.line LT 500
-        AND est-op.qty EQ dQtyTarget
-        GROUP BY est-op.line DESCENDING:
+    FOR EACH ttEstop NO-LOCK 
+        WHERE ttEstop.company EQ bf-ef.company
+        AND ttEstop.est-no EQ bf-ef.est-no
+        AND ttEstop.s-num EQ bf-ef.form-no
+        AND ttEstop.line LT 500
+        AND ttEstop.qty EQ dQtyTarget
+        GROUP BY ttEstop.line DESCENDING:
 
-    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-ttOperation).                    
+    RUN pAddEstOperationFromEstOp(BUFFER ttEstop, BUFFER bf-est, BUFFER bf-ef, BUFFER bf-ttOperation, cEstimateType).
+                        
     IF AVAILABLE bf-ttOperation THEN 
     DO:
         /*REFACTOR to calculate quantities for combos*/        
-        IF est-op.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
+        IF ttEstop.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
         DO:  /*Calculate for Combo*/
-            FIND FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostBlank.blankNo EQ est-op.b-num
+            
+            FIND FIRST ttEstBlank
+                WHERE ttEstBlank.FormID  EQ ttEstop.s-num
+                  AND ttEstBlank.BlankID EQ ttEstop.b-num
                 NO-ERROR.
-            IF AVAILABLE estCostBlank THEN 
+            IF NOT AVAILABLE ttEstBlank THEN 
             DO:
-                FIND FIRST ttEstBlank
-                    WHERE ttEstBlank.estCostBlankID EQ estCostBlank.estCostBlankID
-                    NO-ERROR.
-                IF NOT AVAILABLE ttEstBlank THEN 
-                DO:
-                    CREATE ttEstBlank.
-                    ASSIGN 
-                        ttEstBlank.estCostBlankID = estCostBlank.estCostBlankID
-                        ttEstBlank.estCostFormID  = estCostBlank.estCostFormID
-                        ttEstBlank.iOut           = estCostBlank.numOut.
-                END.
-                IF NOT ttEstBlank.lOutputInitialized THEN 
-                    ASSIGN 
-                        ttEstBlank.dQtyInOut          = estCostBlank.quantityRequired
-                        ttEstBlank.lOutputInitialized = YES
-                        .
-            END. /*estCostBlank Avail*/
-            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-ttOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
+                CREATE ttEstBlank.
+                ASSIGN 
+                    ttEstBlank.BlankID = ttEstop.b-num
+                    ttEstBlank.FormID  = ttEstop.s-num
+                    ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1).
+            END.
+            IF NOT ttEstBlank.lOutputInitialized THEN 
+                ASSIGN 
+                    ttEstBlank.dQtyInOut          = dQtyRequired
+                    ttEstBlank.lOutputInitialized = YES
+                    .
+            RUN pProcessOperation(BUFFER bf-ttOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                 INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
         END. /*BlankNo not 0*/
         ELSE 
@@ -1586,7 +1677,7 @@ PROCEDURE GetRecalculatedRouting:
             DO:
                 /*Find the most forms required to support each blank operations*/
                 FOR EACH ttEstBlank NO-LOCK 
-                    WHERE ttEstBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
+                    WHERE ttEstBlank.FormID EQ ttEstop.s-num:
                     dQtyFormsRequiredForBlanks = fRoundUp(ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut,1)).
                     IF dQtyFormsRequiredForBlanksMax LT dQtyFormsRequiredForBlanks THEN 
                         ASSIGN 
@@ -1603,21 +1694,16 @@ PROCEDURE GetRecalculatedRouting:
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = ipbf-estCostForm.quantityFGOnFormYielded.
-            RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-ttOperation, INPUT-OUTPUT dQtyInOut, 
+                dQtyInOut = dQtyFGOnFormYielded.
+            
+            RUN pProcessOperation(BUFFER bf-ttOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
         END.
-        RUN pCalcEstOperation(BUFFER ipbf-estCostHeader, BUFFER bf-ttOperation, BUFFER ipbf-estCostForm).                    
+        RUN pCalcEstOperation(BUFFER bf-ttOperation).                    
     END.
                     
-END. /*Each est-op*/
-ASSIGN 
-    ipbf-estCostForm.grossQtyRequiredSetupWaste = dQtyInOutSetupWaste
-    ipbf-estCostForm.grossQtyRequiredRunWaste   = dQtyInOutRunWaste
-    ipbf-estCostForm.grossQtyRequiredNoWaste    = dQtyInOut - (dQtyInOutSetupWaste + dQtyInOutRunWaste)
-    ipbf-estCostForm.grossQtyRequiredTotal      = dQtyInOut
-    .
+END. /*Each ttEstop*/
 
 END PROCEDURE.
 
@@ -2353,6 +2439,40 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
        
 END FUNCTION.
 
+FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job for job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER):
+        
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyPerSet   AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr for job-hdr.
+    
+    
+    dQtyPerSet = fGetQuantityPerSet(BUFFER ipbf-eb).
+    
+    IF fIsComboType(ipcEstType) THEN
+    DO: 
+        IF ipcQtyType EQ "" THEN
+            dReturnValue  = ipbf-eb.bl-qty * dQtyPerSet.
+        ELSE
+            dReturnValue  = ipbf-eb.yld-qt * dQtyPerSet.
+    END.
+    ELSE
+    DO:
+        FIND FIRST bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ ipbf-job.company
+            AND bf-job-hdr.job EQ ipbf-job.job
+            AND bf-job-hdr.job-no EQ ipbf-job.job-no
+            AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+            NO-ERROR.
+            
+        IF AVAILABLE bf-job-hdr THEN
+            dReturnValue = bf-job-hdr.qty * dQtyPerSet.
+    END. 
+    
+    RETURN dReturnValue.
+END.   
+
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER):
     /*------------------------------------------------------------------------------
@@ -2438,3 +2558,35 @@ FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
     RETURN dReturnValue.
     
 END FUNCTION.
+
+FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the quantity per set in decimal form for an eb 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_GetQuantityPerSet", BUFFER ipbf-eb).
+        
+END FUNCTION.
+
+FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Combo Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", ipcEstType).
+    
+END FUNCTION.
+
+FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
+    (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given estimate qualifiers, return the Estimate Type Description
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstType, ipcEstimateTypeID).
+    
+END FUNCTION.
+
