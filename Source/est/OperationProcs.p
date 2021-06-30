@@ -191,7 +191,7 @@ FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job for job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
-    (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER) FORWARD.      
+    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER) FORWARD.      
 
 FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
     (ipcType AS CHARACTER) FORWARD.
@@ -350,7 +350,8 @@ PROCEDURE GetOperationStandardsForJobMch:
             AND bf-eb.form-no EQ bf-job-mch.frm
             AND bf-eb.blank-no EQ MAX(bf-job-mch.blank-no,1)
             NO-ERROR.
-            
+        IF NOT AVAILABLE bf-eb THEN RETURN.
+           
         /* Re-build the Est-op and Operations Data */ 
         RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttEstOp, OUTPUT TABLE ttOperation, OUTPUT lError, OUTPUT cMessage)).
         
@@ -372,7 +373,7 @@ PROCEDURE GetOperationStandardsForJobMch:
                 OUTPUT bf-job-mch.speed, 
                 OUTPUT bf-job-mch.wst-prct, 
                 OUTPUT lError, OUTPUT cMessage).
-            bf-job-mch.run-qty =  fGetJobMachRunQty(bf-job-mch.company, bf-job-mch.job, bf-job-mch.frm).
+            bf-job-mch.run-qty =  fGetJobMachRunQty(BUFFER bf-eb, bf-job-mch.m-code,bf-job-mch.pass).
         END.
     END.
 
@@ -2257,68 +2258,44 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dOpRunSpoil  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dSpoilDeduct AS DECIMAL   NO-UNDO INITIAL 1.   
          
-    DEFINE BUFFER bf-mach    for mach.
-    DEFINE BUFFER bf-ttEstOp        for ttEstOp.
-    DEFINE BUFFER bf-ttOperation    for ttOperation.
+    DEFINE BUFFER bf-mach    FOR mach.
+    DEFINE BUFFER bf-ttEstOp        FOR ttEstOp.
+    DEFINE BUFFER bf-ttOperation    FOR ttOperation.
     
+    /* get Quantity from Operations Data*/
+    FIND FIRST bf-ttOperation
+        WHERE bf-ttOperation.company    EQ ipbf-eb.company
+        AND bf-ttOperation.estimateNo   EQ ipbf-eb.est-no
+        AND bf-ttOperation.operationID  EQ ipcMachine
+        AND bf-ttOperation.formNo       EQ ipbf-eb.form-no
+        AND bf-ttOperation.blankNo      EQ MAX(ipbf-eb.blank-no, 1)
+        AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR.
+            
+    IF AVAILABLE bf-ttOperation THEN     
+        dReturnValue = bf-ttOperation.quantityIn. 
     
-    
-    FIND FIRST ef NO-LOCK
-        WHERE ef.company EQ ipbf-eb.company
-        AND ef.est-no EQ ipbf-eb.est-no
-        AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
-          
-    run sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, output iNumUp).     
-    dNumOutCal = ef.n-out * ef.n-out-l .
-         
-    FIND FIRST bf-ttEstOp NO-LOCK
-        WHERE bf-ttEstOp.company EQ ipbf-eb.company
-        AND bf-ttEstOp.m-code EQ ipcMachine
-        AND bf-ttEstOp.est-no EQ ipbf-eb.est-no
-        AND bf-ttEstOp.s-num EQ ipbf-eb.form-no
-        AND (bf-ttEstOp.b-num EQ ipbf-eb.blank-no OR bf-ttEstOp.b-num EQ 0 )
-        AND bf-ttEstOp.op-pass EQ ipiPass 
-        and bf-ttEstOp.line    lt 500 NO-ERROR.      
-    IF AVAIL bf-ttEstOp THEN
-        dReturnValue    = bf-ttEstOp.num-sh * (iNumUp * dNumOutCal). 
-    
-    /* Est-op record is not available that means its a new machine that is not on Estimate.
-       Now, We have calculate the field on-fly */
     ELSE
     DO:
-        
-        FIND FIRST bf-ttOperation
-            WHERE bf-ttOperation.company         = ipbf-eb.company
-              AND bf-ttOperation.estimateNo      = ipbf-est.est-no
-              AND bf-ttOperation.estType         = ipcEstType
-              AND bf-ttOperation.quantityMaster  = ipbf-ttEstOp.qty
-              AND bf-ttOperation.formNo          = ipbf-ttEstOp.s-num
-            bf-ttOperation.blankNo                      = ipbf-ttEstOp.b-num
-            
-            bf-ttOperation.operationID                  = ipbf-ttEstOp.m-code
-            bf-ttOperation.pass                         = MAX(ipbf-ttEstOp.op-pass, 1)
-            
-            
-        /* Use Original Estimate Quantity*/
-        dQtyCalc = ef.eqty.
-               
-        RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcMachine, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
-        
-        IF AVAILABLE bf-mach THEN 
-        DO:           
-            RUN pGetMRWaste(BUFFER bf-mach, OUTPUT dOpMRWaste, OUTPUT cError, OUTPUT cMessage).
-            RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT dOpRunSpoil, OUTPUT cError, OUTPUT cMessage).
-            
-            IF dOpRunSpoil NE 0 THEN
-                dSpoilDeduct = (1 - (dOpRunSpoil / 100)).
-            
-            ASSIGN
-                dQtyCalc = dQtyCalc / dSpoilDeduct
-                dQtyCalc = dQtyCalc + dOpMRWaste.
-        END.
-        dReturnValue = dQtyCalc. 
+        FIND FIRST ef NO-LOCK
+            WHERE ef.company EQ ipbf-eb.company
+            AND ef.est-no EQ ipbf-eb.est-no
+            AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
+          
+        run sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, output iNumUp).     
+        dNumOutCal = ef.n-out * ef.n-out-l .
+         
+        FIND FIRST bf-ttEstOp NO-LOCK
+            WHERE bf-ttEstOp.company EQ ipbf-eb.company
+            AND bf-ttEstOp.m-code EQ ipcMachine
+            AND bf-ttEstOp.est-no EQ ipbf-eb.est-no
+            AND bf-ttEstOp.s-num EQ ipbf-eb.form-no
+            AND (bf-ttEstOp.b-num EQ ipbf-eb.blank-no OR bf-ttEstOp.b-num EQ 0 )
+            AND bf-ttEstOp.op-pass EQ ipiPass 
+            and bf-ttEstOp.line    lt 500 NO-ERROR.      
+        IF AVAIL bf-ttEstOp THEN
+            dReturnValue    = bf-ttEstOp.num-sh * (iNumUp * dNumOutCal). 
     END.
-    
+        
     RETURN dReturnValue.
 		
 END FUNCTION.
@@ -2642,7 +2619,7 @@ FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
 END.   
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
-    (ipcCompany AS CHARACTER, ipiJob AS INTEGER, ipiFormNo AS INTEGER):
+    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER):
     /*------------------------------------------------------------------------------
     Purpose: 
     Notes:
@@ -2651,35 +2628,20 @@ FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dQtyEach      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-           
-    FOR EACH job-mat NO-LOCK
-        WHERE job-mat.company EQ ipcCompany
-        AND job-mat.job       EQ ipiJob
-        AND job-mat.frm       EQ ipiFormNo,        
-        FIRST ITEM FIELDS(s-dep s-len basis-w r-wid)
-        WHERE item.company  EQ ipcCompany
-        AND item.i-no     EQ job-mat.i-no
-        AND item.mat-type EQ "B"
-        NO-LOCK:
-                              
-        IF job-mat.qty-uom NE "EA" THEN
-            RUN Conv_QuantityFromUOMtoUOM( INPUT ipcCompany,
-                INPUT job-mat.i-no, 
-                INPUT "RM",
-                INPUT job-mat.qty,
-                INPUT job-mat.qty-uom,
-                INPUT "EA",
-                INPUT item.basis-w,
-                INPUT IF item.r-wid EQ 0 THEN item.s-len ELSE 12,
-                INPUT IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid, 
-                INPUT item.s-dep,
-                INPUT 0, 
-                OUTPUT dQtyEach,
-                OUTPUT lError,
-                OUTPUT cErrorMessage).
-                    
-        dReturnValue = dReturnValue + ( IF job-mat.qty-uom EQ "EA" THEN job-mat.qty ELSE dQtyEach) .
-    END.
+    
+    DEFINE BUFFER bf-ttOperation FOR ttOperation.
+    
+    /* get Quantity from Operations Data*/
+    FIND FIRST bf-ttOperation
+        WHERE bf-ttOperation.company    EQ ipbf-eb.company
+        AND bf-ttOperation.estimateNo   EQ ipbf-eb.est-no
+        AND bf-ttOperation.operationID  EQ ipcMachCode
+        AND bf-ttOperation.formNo       EQ ipbf-eb.form-no
+        AND bf-ttOperation.blankNo      EQ MAX(ipbf-eb.blank-no, 1)
+        AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR.
+            
+   IF AVAILABLE bf-ttOperation THEN
+        dReturnValue = bf-ttOperation.quantityInAfterSetupWaste.
     
     RETURN dReturnValue.
 		
