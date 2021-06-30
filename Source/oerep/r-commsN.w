@@ -653,10 +653,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
-  assign fi_file.
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  fi_file:SCREEN-VALUE =  cFileName.
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   RUN GetSelectionList.
   run run-report. 
   STATUS DEFAULT "Processing Complete". 
@@ -1523,7 +1526,7 @@ END.*/
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM st-excell TO VALUE(cFileName).
   PUT STREAM st-excell UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1537,7 +1540,7 @@ if td-show-parm then run show-param.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
    OUTPUT STREAM st-excell CLOSE.
    IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).

@@ -715,10 +715,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  fi_file:SCREEN-VALUE = "c:\tmp\r-backl.csv".
-  assign fi_file.
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  fi_file:SCREEN-VALUE = cFileName.
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-backl.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE = cFileName.
+  end.
   RUN GetSelectionList.
 
   run run-report.
@@ -1751,7 +1754,7 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1831,7 +1834,7 @@ EMPTY TEMP-TABLE tt-report.
 
 {oerep/r-backlN.i} 
 
-IF tb_excel THEN 
+IF rd-dest = 3 THEN 
 DO:
   OUTPUT STREAM excel CLOSE.
 

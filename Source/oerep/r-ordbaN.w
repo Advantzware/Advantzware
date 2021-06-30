@@ -912,11 +912,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
-  fi_file:SCREEN-VALUE = "c:\tmp\r-ordbal.csv" .
-  assign fi_file.
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  fi_file:SCREEN-VALUE =  cFileName.
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-ordbal.csv" .
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   ASSIGN
     lv-pdf-file = init-dir + "\OrderBal"
     is-xprint-form = NO.
@@ -2455,7 +2457,7 @@ IF td-show-parm THEN RUN show-param.
 
 STATUS DEFAULT "Processing...".
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   /*IF tb_break THEN
      excelheader = "Sales Rep ID,Sales Rep Name,".*/
@@ -2478,7 +2480,7 @@ EMPTY TEMP-TABLE tt-fg-bin.
 
 {oerep/r-ordbalN.i}
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
