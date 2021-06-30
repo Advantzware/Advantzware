@@ -823,7 +823,7 @@ DO:
                find first cust where cust.company = gcompany and
                                      cust.cust-no = itemfg.cust-no
                                      no-lock no-error.
-               if avail cust and cust.active <> "X" then do:                      
+               if avail cust and NOT cust.internal then do:                      
                   message "This item exists for a different customer!. Do you want to continue?"
                           view-as alert-box question button yes-no update ll-ans as log.
                   if not ll-ans then  return no-apply.       

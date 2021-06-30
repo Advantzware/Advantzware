@@ -3372,7 +3372,7 @@ PROCEDURE produce-report :
         DEF VAR v-buck AS INT.
 
         v-sales-rep = "" .
-        IF AVAIL cust AND cust.ACTIVE NE "X" THEN do:
+        IF AVAIL cust AND NOT cust.internal THEN do:
           FOR EACH cust-part WHERE cust-part.company = itemfg.company   
               AND cust-part.i-no = itemfg.i-no
               AND cust-part.cust-no EQ cust.cust-no

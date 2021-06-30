@@ -2048,6 +2048,31 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertCustomerX C-Win
+PROCEDURE ipConvertCustomerX PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Sets existing customer X to internal
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FOR EACH company NO-LOCK,
+        EACH bf-cust EXCLUSIVE-LOCK
+        WHERE bf-cust.company EQ company.company
+        AND bf-cust.active EQ 'X':
+            
+            ASSIGN 
+                bf-cust.internal = YES.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertGLTrans C-Win
 PROCEDURE ipConvertGLTrans:
     /*------------------------------------------------------------------------------
@@ -3720,7 +3745,8 @@ PROCEDURE ipDataFix210200:
 
     RUN ipAssignARInvXNoSeq.
     RUN ipConvertPolScore.
-
+    RUN ipConvertCustomerX.
+    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

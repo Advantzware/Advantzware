@@ -2154,11 +2154,11 @@ DO:
             FIND FIRST cust WHERE cust.company = oe-ord.company
                               AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
             IF itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-               AVAIL cust AND cust.active NE "X"                         THEN DO:
+               AVAIL cust AND NOT cust.internal                         THEN DO:
                FIND FIRST cust WHERE cust.company = g_company AND
                                      cust.cust-no = itemfg.cust-no
                                      NO-LOCK NO-ERROR.
-               IF AVAIL cust AND cust.active NE "X" THEN DO:                      
+               IF AVAIL cust AND NOT cust.internal THEN DO:                      
                   MESSAGE "This item exists for a different customer!. Do you want to continue?"
                           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
                   IF NOT ll-ans THEN  RETURN NO-APPLY.       
@@ -2799,7 +2799,7 @@ DO:
    IF SELF:SCREEN-VALUE EQ "T" AND
       CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                             AND cust.cust-no EQ oe-ord.cust-no
-                            AND cust.active  EQ "X") THEN DO:
+                            AND cust.internal EQ YES) THEN DO:
      APPLY "leave" TO SELF.
      RETURN NO-APPLY.
    END.
@@ -7632,7 +7632,7 @@ PROCEDURE OnSaveButton :
             WHERE cust.company EQ cocode
             AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
         IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
-            AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN 
+            AND AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN 
         DO:
             RUN oe/creditck.p (ROWID(oe-ord), YES).  
         END.
@@ -10151,7 +10151,7 @@ PROCEDURE valid-type :
        (oe-ordl.type-code:SCREEN-VALUE EQ "T" AND
         NOT CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                                   AND cust.cust-no EQ oe-ord.cust-no
-                                  AND cust.active  EQ "X")) THEN DO:
+                                  AND cust.internal EQ YES)) THEN DO:
       MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-ordl.type-code.
       RETURN ERROR.
@@ -10670,10 +10670,10 @@ DO WITH FRAME {&frame-name} :
                         AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
       IF cp-part-no EQ "" AND
          itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-         AVAIL cust AND cust.active NE "X"                         THEN DO:
+         AVAIL cust AND NOT cust.internal                         THEN DO:
          FIND FIRST cust WHERE cust.company = oe-ord.company
                            AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
-         IF AVAIL cust AND cust.active NE "X" THEN DO:
+         IF AVAIL cust AND NOT cust.internal THEN DO:
             choice = NO.
             FIND FIRST sys-ctrl WHERE sys-ctrl.company = oe-ord.company AND
                                       sys-ctrl.NAME = "OEITEM" NO-LOCK NO-ERROR.
