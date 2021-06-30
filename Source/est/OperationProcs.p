@@ -1533,9 +1533,84 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
     
+    RUN sys/ref/nk1look.p (ipcCompany, "CEPrice", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glApplyOperationMinimumCharge = cReturn EQ "YES".
+    
+    IF lFound AND glApplyOperationMinimumCharge THEN 
+    DO: 
+        RUN sys/ref/nk1look.p (ipcCompany, "CEPrice", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+        IF lFound THEN glApplyOperationMinimumChargeRunOnly = cReturn EQ "RunOnly".
+    END.
+    
 END PROCEDURE.
 
+PROCEDURE pGetEstOPData:
+    /*------------------------------------------------------------------------------
+     Purpose: Builds applicable Est-OP data into temp-table
+     Notes: If action is Add/Replace Machine then we'll use Est-op for existing machine
+    ------------------------------------------------------------------------------*/ 
+    
+    DEFINE PARAMETER BUFFER ipbf-ef      FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAction           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOriginalMachine  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTargetQty        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER                     TABLE FOR ttEstOp.
+    
+    DEFINE VARIABLE cError   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-est-op FOR est-op.
+    DEFINE BUFFER bf-mach   FOR mach.
+    
+    /* Create Data into TT */
+    FOR EACH bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ ipbf-ef.company
+        AND bf-est-op.est-no EQ ipbf-ef.est-no
+        AND bf-est-op.s-num EQ ipbf-ef.form-no
+        AND bf-est-op.qty   EQ ipdTargetQty :
+    
+        CREATE ttEstOp.
+        BUFFER-COPY bf-est-op to ttEstOp.
+        
+        IF (ipcAction EQ "Add" OR ipcAction EQ "Change") AND bf-est-op.m-code = ipcOriginalMachine THEN
+        DO:
+            RUN pGetMachineBuffer(ipbf-ef.company, ipcLocation, job-mch.m-code, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
+            ASSIGN
+                ttEstOp.m-code  = bf-mach.m-code
+                ttEstOp.m-dscr  = bf-mach.m-dscr
+                ttEstOp.dept    = job-mch.dept
+                ttEstOp.machSeq = bf-mach.m-seq.
+        END.
+    END.
+    
+    RUN pGetOpsSequencing( INPUT-OUTPUT TABLE ttEstOp).
+    
+END PROCEDURE.    
 
+PROCEDURE pGetOpsSequencing:
+    DEFINE INPUT-OUTPUT  PARAMETER TABLE FOR ttEstOp.
+    
+    DEFINE VARIABLE iSeqNo  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLineNo AS INTEGER NO-UNDO.
+    
+    FOR EACH ttEstOp
+        BREAK BY ttEstOp.s-num
+        BY ttEstOp.b-num
+        BY ttEstOp.dept
+        BY ttEstOp.machSeq:
+            
+        IF FIRST-OF(ttEstOp.dept) THEN 
+            iSeqNo = 0.
+    
+        ASSIGN
+            iSeqNo          = iSeqNo + 1
+            ttEstOp.op-pass = iSeqNo
+            iLineNo         = iLineNo + 1
+            ttEstOp.line    = iLineNo.
+    END.
+END PROCEDURE.      
 
 PROCEDURE pRecalcOperations:
     /*------------------------------------------------------------------------------
@@ -1706,6 +1781,82 @@ PROCEDURE pRecalcOperations:
 END. /*Each ttEstop*/
 
 END PROCEDURE.
+
+
+PROCEDURE pCalcEstOperation PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a estCostOperation buffer, calculate simple calculated fields
+     Notes: Should replace end if pr4-mch.p
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttOperation FOR ttOperation.
+    
+    DEFINE VARIABLE dCostMinimumDiff       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffFactor AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffSetup  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffRun    AS DECIMAL NO-UNDO.
+    
+        
+    IF ipbf-ttOperation.speed NE 0 THEN
+        IF ipbf-ttOperation.isSpeedInLF THEN
+            ipbf-ttOperation.hoursRun = ipbf-ttOperation.quantityInAfterSetupWasteLF / ipbf-ttOperation.speed. 
+        ELSE 
+            ipbf-ttOperation.hoursRun = ipbf-ttOperation.quantityInAfterSetupWaste / ipbf-ttOperation.speed.
+    ELSE 
+        ipbf-ttOperation.hoursRun = 0.
+    
+    IF ipbf-ttOperation.numOutDivisor GT 0 THEN
+        ipbf-ttOperation.hoursRun = ipbf-ttOperation.hoursRun / ipbf-ttOperation.numOutDivisor.
+        
+    IF ipbf-ttOperation.hoursRun LT ipbf-ttOperation.hoursRunMinimum THEN 
+        ipbf-ttOperation.hoursRun = ipbf-ttOperation.hoursRunMinimum.
+    
+    ASSIGN    
+        ipbf-ttOperation.costPerHourTotalRun   = ipbf-ttOperation.costPerManHourDLRun * ipbf-ttOperation.crewSizeRun + 
+                                                     ipbf-ttOperation.costPerHourFORun + ipbf-ttOperation.costPerHourVORun
+        ipbf-ttOperation.costPerHourTotalSetup = ipbf-ttOperation.costPerManHourDLSetup * ipbf-ttOperation.crewSizeSetup + 
+                                                     ipbf-ttOperation.costPerHourFOSetup + ipbf-ttOperation.costPerHourVOSetup
+        ipbf-ttOperation.costTotalDLSetup      = ipbf-ttOperation.hoursSetup * ipbf-ttOperation.crewSizeSetup * ipbf-ttOperation.costPerManHourDLSetup
+        ipbf-ttOperation.costTotalVOSetup      = ipbf-ttOperation.hoursSetup * ipbf-ttOperation.costPerHourVOSetup
+        ipbf-ttOperation.costTotalFOSetup      = ipbf-ttOperation.hoursSetup * ipbf-ttOperation.costPerHourFOSetup
+        ipbf-ttOperation.costTotalDLRun        = ipbf-ttOperation.hoursRun * ipbf-ttOperation.crewSizeRun * ipbf-ttOperation.costPerManHourDLRun
+        ipbf-ttOperation.costTotalVORun        = ipbf-ttOperation.hoursRun * ipbf-ttOperation.costPerHourVORun
+        ipbf-ttOperation.costTotalFORun        = ipbf-ttOperation.hoursRun * ipbf-ttOperation.costPerHourFORun
+        ipbf-ttOperation.costTotalSetup        = ipbf-ttOperation.costTotalDLSetup + ipbf-ttOperation.costTotalVOSetup + ipbf-ttOperation.costTotalFOSetup
+        ipbf-ttOperation.costTotalRun          = ipbf-ttOperation.costTotalDLRun + ipbf-ttOperation.costTotalVORun + ipbf-ttOperation.costTotalFORun
+        ipbf-ttOperation.costTotal             = ipbf-ttOperation.costTotalRun + ipbf-ttOperation.costTotalSetup
+        .
+    
+    /*Apply minimum Charge*/
+    IF glApplyOperationMinimumCharge AND ipbf-ttOperation.costTotal GT 0 THEN 
+    DO:
+        IF glApplyOperationMinimumChargeRunOnly THEN 
+        DO:
+            IF ipbf-ttOperation.costMinimum GT ipbf-ttOperation.costTotalRun THEN 
+                ASSIGN 
+                    dCostMinimumDiffRun = ipbf-ttOperation.costMinimum - ipbf-ttOperation.costTotalRun.
+        END.
+        ELSE 
+        DO:
+            IF ipbf-ttOperation.costMinimum GT ipbf-ttOperation.costTotal THEN 
+                ASSIGN 
+                    dCostMinimumDiff       = ipbf-ttOperation.costMinimum - ipbf-ttOperation.costTotal
+                    dCostMinimumDiffFactor = ipbf-ttOperation.costTotalSetup / ipbf-ttOperation.costTotal
+                    dCostMinimumDiffSetup  = dCostMinimumDiff * dCostMinimumDiffFactor
+                    dCostMinimumDiffRun    = dCostMinimumDiff - dCostMinimumDiffSetup
+                    .
+        END.
+        ASSIGN 
+            ipbf-ttOperation.costTotalDlRun   = ipbf-ttOperation.costTotalDLRun + dCostMinimumDiffRun
+            ipbf-ttOperation.costTotalDlSetup = ipbf-ttOperation.costTotalDLSetup + dCostMinimumDiffSetup
+            ipbf-ttOperation.costTotalSetup   = ipbf-ttOperation.costTotalDLSetup + ipbf-ttOperation.costTotalVOSetup + ipbf-ttOperation.costTotalFOSetup
+            ipbf-ttOperation.costTotalRun     = ipbf-ttOperation.costTotalDLRun + ipbf-ttOperation.costTotalVORun + ipbf-ttOperation.costTotalFORun
+            ipbf-ttOperation.costTotal        = ipbf-ttOperation.costTotalRun + ipbf-ttOperation.costTotalSetup
+            .
+                    
+    END. 
+                        
+END PROCEDURE.
+
 
 PROCEDURE SetAttribute:
     /*------------------------------------------------------------------------------
@@ -2107,6 +2258,10 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dSpoilDeduct AS DECIMAL   NO-UNDO INITIAL 1.   
          
     DEFINE BUFFER bf-mach    for mach.
+    DEFINE BUFFER bf-ttEstOp        for ttEstOp.
+    DEFINE BUFFER bf-ttOperation    for ttOperation.
+    
+    
     
     FIND FIRST ef NO-LOCK
         WHERE ef.company EQ ipbf-eb.company
@@ -2116,21 +2271,34 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     run sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, output iNumUp).     
     dNumOutCal = ef.n-out * ef.n-out-l .
          
-    FIND FIRST est-op NO-LOCK
-        WHERE est-op.company EQ ipbf-eb.company
-        AND est-op.m-code EQ ipcMachine
-        AND est-op.est-no EQ ipbf-eb.est-no
-        AND est-op.s-num EQ ipbf-eb.form-no
-        AND (est-op.b-num EQ ipbf-eb.blank-no OR est-op.b-num EQ 0 )
-        AND est-op.op-pass EQ ipiPass 
-        and est-op.line    lt 500 NO-ERROR.      
-    IF AVAIL est-op THEN
-        dReturnValue    = est-op.num-sh * (iNumUp * dNumOutCal). 
+    FIND FIRST bf-ttEstOp NO-LOCK
+        WHERE bf-ttEstOp.company EQ ipbf-eb.company
+        AND bf-ttEstOp.m-code EQ ipcMachine
+        AND bf-ttEstOp.est-no EQ ipbf-eb.est-no
+        AND bf-ttEstOp.s-num EQ ipbf-eb.form-no
+        AND (bf-ttEstOp.b-num EQ ipbf-eb.blank-no OR bf-ttEstOp.b-num EQ 0 )
+        AND bf-ttEstOp.op-pass EQ ipiPass 
+        and bf-ttEstOp.line    lt 500 NO-ERROR.      
+    IF AVAIL bf-ttEstOp THEN
+        dReturnValue    = bf-ttEstOp.num-sh * (iNumUp * dNumOutCal). 
     
     /* Est-op record is not available that means its a new machine that is not on Estimate.
        Now, We have calculate the field on-fly */
     ELSE
     DO:
+        
+        FIND FIRST bf-ttOperation
+            WHERE bf-ttOperation.company         = ipbf-eb.company
+              AND bf-ttOperation.estimateNo      = ipbf-est.est-no
+              AND bf-ttOperation.estType         = ipcEstType
+              AND bf-ttOperation.quantityMaster  = ipbf-ttEstOp.qty
+              AND bf-ttOperation.formNo          = ipbf-ttEstOp.s-num
+            bf-ttOperation.blankNo                      = ipbf-ttEstOp.b-num
+            
+            bf-ttOperation.operationID                  = ipbf-ttEstOp.m-code
+            bf-ttOperation.pass                         = MAX(ipbf-ttEstOp.op-pass, 1)
+            
+            
         /* Use Original Estimate Quantity*/
         dQtyCalc = ef.eqty.
                
@@ -2431,7 +2599,7 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
         AND bf-eb.est-no EQ ipcEstimateID
         AND bf-eb.form-no NE 0:
         
-        dParts = dParts + DYNAMIC-FUNCTION("fEstimate_GetQuantityPerSet", BUFFER bf-eb).
+        dParts = dParts + fGetQuantityPerSet(BUFFER bf-eb).
     END.
     
     RETURN dParts.
