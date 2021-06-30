@@ -97,7 +97,7 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pSetDynParamValue.i "dyn"}
 {api/CommonAPIProcs.i}
 {sys/ref/CustList.i NEW}
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

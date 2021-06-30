@@ -176,7 +176,7 @@ FUNCTION fAgedReceivables RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttAgedReceivablesTotals.
     
     /* subject business logic */
-    RUN aoa/BL/r-araged.p (OUTPUT TABLE ttAgedReceivables, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-araged.p (OUTPUT TABLE ttAgedReceivables, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttAgedReceivables:HANDLE .
 
@@ -199,7 +199,7 @@ FUNCTION fAgedReceivablesTotals RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttAgedReceivablesTotals.
     
     /* subject business logic */
-    RUN aoa/BL/agedtot.p (OUTPUT TABLE ttAgedReceivablesTotals, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/agedtot.p (OUTPUT TABLE ttAgedReceivablesTotals, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttAgedReceivablesTotals:HANDLE .
 
@@ -221,7 +221,7 @@ FUNCTION fCashReceiptBySalesRepName RETURNS HANDLE ( {aoa/includes/fInputVars.i}
     EMPTY TEMP-TABLE ttCashReceiptBySalesRepName.
     
     /* subject business logic */
-    RUN aoa/BL/r-cashs2.p (OUTPUT TABLE ttCashReceiptBySalesRepName, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-cashs2.p (OUTPUT TABLE ttCashReceiptBySalesRepName, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttCashReceiptBySalesRepName:HANDLE .
 
@@ -243,7 +243,7 @@ FUNCTION fCommissionCashReceipt RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCommissionCashReceipt.
 
     /* subject business logic */
-    RUN aoa/BL/r-commcr.p (OUTPUT TABLE ttCommissionCashReceipt, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-commcr.p (OUTPUT TABLE ttCommissionCashReceipt, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCommissionCashReceipt:HANDLE .
 
@@ -265,7 +265,7 @@ FUNCTION fCRMContacts RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCRMContacts.
 
     /* subject business logic */
-    RUN aoa/BL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/crmContacts.p (OUTPUT TABLE ttCRMContacts, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCRMContacts:HANDLE .
 
@@ -287,7 +287,7 @@ FUNCTION fCRMCustomers RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCRMCustomers.
 
     /* subject business logic */
-    RUN aoa/BL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/crmCustomers.p (OUTPUT TABLE ttCRMCustomers, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCRMCustomers:HANDLE .
 

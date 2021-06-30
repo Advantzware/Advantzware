@@ -1,4 +1,4 @@
-/* exportTempTable.i */
+/* AOA/dynBL/exportTempTable.i */
 
 /* export sub-report data */
 cTmpFile = "AOA.{1}."

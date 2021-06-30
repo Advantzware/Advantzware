@@ -1,4 +1,4 @@
-/* r-booked.i - used in aoa/BL/r-booked.p & aoa/BL/recappc.p */
+/* AOA/dynBL/r-booked.i - used in AOA/dynBL/r-booked.p & AOA/dynBL/recappc.p */
 
 /* local variables */
 DEFINE VARIABLE c-result AS CHARACTER NO-UNDO.
@@ -658,7 +658,7 @@ PROCEDURE pOrdersBooked2:
     END.  /* for each tt-report */
 END PROCEDURE.
 
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 
 /* ************************  Function Implementations ***************** */
 FUNCTION fGetRoutingForJob RETURNS CHARACTER 

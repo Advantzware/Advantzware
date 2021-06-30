@@ -1,4 +1,4 @@
-/* r-araged.i - used in aoa/BL/r-araged.p & aoa/BL/agedtot.p */
+/* AOA/dynBL/r-araged.i - used in AOA/dynBL/r-araged.p & AOA/dynBL/agedtot.p */
 
 &SCOPED-DEFINE for-each-arinv ~
 FOR EACH ar-inv ~
@@ -1175,4 +1175,4 @@ PROCEDURE pGetTrendDays:
     ASSIGN opiTrendDays = (cust.avg-pay - dAvgDays).
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

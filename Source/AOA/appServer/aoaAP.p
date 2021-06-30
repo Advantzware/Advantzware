@@ -151,7 +151,7 @@ Notes:
     EMPTY TEMP-TABLE ttAPInvoicePostingSummary.
     
     /* subject business logic */
-    RUN aoa/BL/r-apve&p.p (OUTPUT TABLE ttAPInvoicePosting,
+    RUN AOA/dynBL/r-apve&p.p (OUTPUT TABLE ttAPInvoicePosting,
                            OUTPUT TABLE ttAPInvoicePostingGL,
                            OUTPUT TABLE ttAPInvoicePostingSummary,
                            ipcCompany, ipiBatch, ipcUserID).
@@ -176,7 +176,7 @@ Notes:
     EMPTY TEMP-TABLE ttAPInvoicePostingGL.
     
     /* subject business logic */
-    RUN aoa/BL/r-apve&pGL.p (OUTPUT TABLE ttAPInvoicePostingGL, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-apve&pGL.p (OUTPUT TABLE ttAPInvoicePostingGL, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttAPInvoicePostingGL:HANDLE.
 
@@ -200,7 +200,7 @@ Notes:
     EMPTY TEMP-TABLE ttAPInvoicePostingMsg.
     
     /* subject business logic */
-    RUN aoa/BL/r-apve&pMsg.p (OUTPUT TABLE ttAPInvoicePostingMsg, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-apve&pMsg.p (OUTPUT TABLE ttAPInvoicePostingMsg, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttAPInvoicePostingMsg:HANDLE.
 
@@ -224,7 +224,7 @@ Notes:
     EMPTY TEMP-TABLE ttAPInvoicePostingSummary.
     
     /* subject business logic */
-    RUN aoa/BL/r-apve&pSummary.p (OUTPUT TABLE ttAPInvoicePostingSummary, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-apve&pSummary.p (OUTPUT TABLE ttAPInvoicePostingSummary, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttAPInvoicePostingSummary:HANDLE.
 
