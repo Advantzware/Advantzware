@@ -7520,36 +7520,44 @@ PROCEDURE OnSaveButton :
             END.
         END.
         
-        IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+        IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:
             IF NOT cPromManualChanged AND cDueManualChanged THEN 
             DO:
-                
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "DueDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-      
-            oe-ordl.prom-date = dCalcPromDate.
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
             END.
-            ELSE IF NOT cDueManualChanged AND cPromManualChanged THEN 
+            ELSE
+            IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
-                
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "PromiseDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-      
-            oe-ordl.req-date = dCalcDueDate.
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "PromiseDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.req-date = dCalcDueDate.
+            END.
+            ELSE
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
         END.
-        END.
-  
   
         IF lv-change-cst-po THEN 
         DO:  
@@ -7595,11 +7603,8 @@ PROCEDURE OnSaveButton :
         RUN itemfg-sman.
         ASSIGN oe-ordl.s-man[1].
     END.
-     
   
     DO  TRANSACTION :
-  
-  
         IF ll-new-record AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
         DO:
             RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
@@ -7837,9 +7842,9 @@ PROCEDURE OnSaveButton :
 
         FIND CURRENT oe-ord NO-LOCK NO-ERROR.
     END.
-   
+
     /* Done after oe-ord.due-date is updated */
-    IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+    IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
     DO TRANSACTION:
    
         FOR EACH oe-rel 
