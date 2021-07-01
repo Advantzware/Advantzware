@@ -108,6 +108,11 @@ PROCEDURE pFromPendingByDueDate:
         pendingLastDay = 365
         .
     FOR EACH bPendingJob
+        WHERE bPendingJob.dueDate LT TODAY
+        :
+        bPendingJob.dueDate = TODAY.
+    END. /* each bpendingjob */
+    FOR EACH bPendingJob
         BREAK BY bPendingJob.dueDate
               BY bPendingJob.job
               BY bPendingJob.resourceSeq
@@ -496,6 +501,12 @@ PROCEDURE pLoadDowntime:
 END PROCEDURE.
 
 PROCEDURE pMoveJobsToPending:
+    FOR EACH ttblJob
+        WHERE ttblJob.dueDate LT TODAY
+        :
+        ttblJob.dueDate = TODAY.
+    END. /* each ttbljob */
+
     FOR EACH ttblJob:
         iCount = iCount + 1.
         IF iplProgressBar THEN
