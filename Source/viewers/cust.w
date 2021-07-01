@@ -58,6 +58,8 @@ DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -123,6 +125,14 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT g_company, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2537,10 +2547,12 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lError         AS LOGICAL NO-UNDO.
 
   def buffer bf-cust for cust.
-  /*def buffer bf-shipto for shipto.
-  def buffer bf-soldto for soldto.*/
+  DEFINE BUFFER bf-shipto for shipto.
+  /*def buffer bf-soldto for soldto.*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
@@ -2731,6 +2743,23 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   RUN disable-fields.
+  
+  IF lInterCompanyBilling THEN
+  DO:
+      FOR EACH bf-shipto NO-LOCK
+          WHERE bf-shipto.company EQ cust.company
+          AND bf-shipto.cust-no EQ cust.cust-no:
+      
+        RUN Customer_InterCompanyTrans IN hdCustomerProcs(
+                                           INPUT cocode,
+                                           INPUT cust.cust-no,
+                                           INPUT bf-shipto.ship-id,
+                                           OUTPUT lError,
+                                           OUTPUT cMessage
+                                           ).
+      END.                                  
+  END.
+  
   IF cust.cr-hold NE ll-prev-cr-hold THEN DO:
       RUN ClearTagsHold (cust.rec_key).
       CASE cust.cr-hold:

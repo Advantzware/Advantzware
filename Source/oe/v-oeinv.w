@@ -46,9 +46,25 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-new-shipto AS LOGICAL  INIT NO  NO-UNDO.
 DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTransCompany AS CHARACTER INIT "002" NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
 {oe/ttCombInv.i NEW}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+
+lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).  
+    
+cTransCompany = STRING(cRtnChar) NO-ERROR. 
 
 &SCOPED-DEFINE other-enable enable-other
 
@@ -1656,10 +1672,14 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
   DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iInterCompanyBolNo AS INTEGER NO-UNDO.  
   DEFINE BUFFER bf-inv-head FOR inv-head .
+  DEFINE BUFFER bf-ar-inv FOR ar-inv.
+  DEFINE BUFFER bf-ar-invl FOR ar-invl.
   
   IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
-  DO:    
+  DO: 
+    iInterCompanyBolNo = inv-head.bol-no.
     FIND FIRST bf-inv-head NO-LOCK
          WHERE bf-inv-head.company EQ cocode
          AND bf-inv-head.bol-no EQ inv-head.bol-no 
@@ -1691,7 +1711,19 @@ PROCEDURE local-delete-record :
       DELETE  bf-inv-head. 
     END.
   END.
+  IF lInterCompanyBilling THEN 
+  do:
+      FIND FIRST bf-ar-invl NO-LOCK
+           WHERE bf-ar-invl.company EQ cTransCompany
+           AND bf-ar-invl.bol-no EQ iInterCompanyBolNo NO-ERROR.
+      FIND FIRST bf-ar-inv EXCLUSIVE-LOCK
+           WHERE bf-ar-inv.company EQ cTransCompany
+           AND bf-ar-inv.x-no EQ bf-ar-invl.x-no NO-ERROR.
+      IF avail bf-ar-inv THEN     
+      DELETE  bf-ar-inv. 
+  END.
   RELEASE bf-inv-head.
+  RELEASE bf-ar-inv.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

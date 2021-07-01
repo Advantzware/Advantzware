@@ -190,3 +190,132 @@ PROCEDURE Customer_IsActiveShipToAvailable:
                          
 END PROCEDURE.
 
+PROCEDURE Customer_InterCompanyTrans:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    RUN pInterCompanyTrans(
+                  INPUT ipcCompany,
+                  INPUT ipcCustomer,
+                  INPUT ipcShipID,
+                  OUTPUT oplError,
+                  OUTPUT opcMessage
+                  ).
+END PROCEDURE.
+
+PROCEDURE pInterCompanyTrans:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cTransCompany AS CHARACTER INIT "002" NO-UNDO.
+    DEFINE VARIABLE lCustExist    AS LOGICAL   NO-UNDO.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-shipto  FOR shipto. 
+    DEFINE BUFFER bf-soldto  FOR soldto.
+    DEFINE BUFFER bff-shipto FOR shipto.
+    DEFINE BUFFER bff-soldto FOR soldto.
+    
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company  EQ ipcCompany 
+        AND shipto.cust-no    EQ ipcCustomer
+        AND shipto.ship-id    EQ ipcShipID           
+        NO-ERROR.
+       
+    RUN pGetNk1Settings (
+        ipcCompany,
+        ipcCustomer,
+        OUTPUT lCustExist,
+        INPUT-OUTPUT cTransCompany
+        ).
+    IF NOT lCustExist THEN RETURN .
+    
+    IF AVAIL shipto THEN
+    DO:
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cTransCompany
+            AND cust.active = "X"
+            NO-ERROR.  
+        IF AVAIL cust THEN
+        DO:
+            FIND FIRST bf-cust NO-LOCK 
+                WHERE bf-cust.company EQ cust.company 
+                AND bf-cust.cust-no EQ ipcShipID NO-ERROR .
+            IF NOT AVAIL bf-cust THEN
+            DO:           
+                CREATE bf-cust.
+                BUFFER-COPY cust EXCEPT cust-no tax-gr TO bf-cust.
+                ASSIGN
+                    bf-cust.cust-no = ipcShipID.
+                    
+                FIND LAST bff-shipto
+                    WHERE bff-shipto.company EQ cust.company
+                    AND bff-shipto.cust-no EQ cust.cust-no                      
+                    USE-INDEX ship-no NO-LOCK NO-ERROR.
+                     
+                CREATE bf-shipto .
+                BUFFER-COPY shipto EXCEPT company cust-no ship-id TO bf-shipto.
+                ASSIGN
+                    bf-shipto.company   = cTransCompany
+                    bf-shipto.cust-no   = ipcShipID                     
+                    bf-shipto.ship-id   = ipcCustomer
+                    bf-shipto.isDefault = YES
+                    bf-shipto.ship-no   = (IF AVAIL bff-shipto THEN bff-shipto.ship-no ELSE 0) + 1.
+                     
+                FIND LAST bff-soldto
+                    WHERE bff-soldto.company EQ soldto.company
+                    AND bff-soldto.cust-no EQ soldto.cust-no
+                    USE-INDEX sold-no NO-LOCK NO-ERROR.
+    
+                CREATE bf-soldto .                
+                ASSIGN
+                    bf-soldto.company = cTransCompany
+                    bf-soldto.cust-no = ipcShipID                     
+                    bf-soldto.sold-id = ipcCustomer
+                    bf-soldto.sold-no = (IF AVAIL bff-soldto THEN bff-soldto.sold-no ELSE 0) + 1.                        
+            END.      
+        END.         
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pGetNk1Settings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomer       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnCustomer AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplReturnCompany  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.  
+    
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+        WHERE sys-ctrl-shipto.company EQ ipcCompany 
+        AND sys-ctrl-shipto.NAME EQ "InterCompanyBilling" 
+        AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
+        AND sys-ctrl-shipto.cust-vend EQ YES NO-ERROR.
+    oplReturnCustomer = AVAILABLE sys-ctrl-shipto.  
+    
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lRecFound).
+    ioplReturnCompany = IF cReturn NE "" THEN cReturn ELSE ioplReturnCompany.
+    
+END PROCEDURE.
+

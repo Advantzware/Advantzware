@@ -56,6 +56,7 @@ DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lIsActiveShipToAvailable AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs          AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
  
 {sys/inc/var.i NEW SHARED}
 
@@ -123,6 +124,11 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /*                                                                                                    */
 /*    ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.                                                 */
     
+RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR.    
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
@@ -1596,6 +1602,7 @@ DEFINE VARIABLE cOldShipnotes  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUpdated       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckError    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lError         AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   
   
@@ -1678,6 +1685,17 @@ ASSIGN
       iOldvalueDock  = iOldvalueDock - shipto.spare-int-2.
 
   RUN update-date (iOldvalueTrans,iOldvalueDock).
+  
+  IF lInterCompanyBilling THEN
+  DO:  
+      RUN Customer_InterCompanyTrans IN hdCustomerProcs(
+                                       INPUT cocode,
+                                       INPUT cust.cust-no,
+                                       INPUT shipto.ship-id,
+                                       OUTPUT lError,
+                                       OUTPUT cMessage
+                                       ).      
+  END.
   
   IF shipto.isDefault:CHECKED THEN DO:
       RUN pChangeDefaultShipTo(
