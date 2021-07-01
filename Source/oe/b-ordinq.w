@@ -271,11 +271,11 @@ oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 itemfg.cad-no ~
 oe-ordl.qty get-prod(li-bal) @ li-prod oe-ordl.ship-qty ~
 get-inv-qty() @ iInvQty get-act-rel-qty() @ li-act-rel-qty ~
 get-pct(li-bal) @ li-pct oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
-oe-ordl.e-num oe-ordl.whsed getTotalReturned() @ dTotQtyRet ~
-getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] oe-ordl.managed oe-ordl.cost ~
-pGetSellPrice() @ dSellPrice pGetExtendedPrice() @ dExtendedPrice ~
-pGetPriceUom() @ cPriceUom pGetCostUom() @ cCostUom oe-ord.entered-id ~
-itemfg.q-onh fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance 
+oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
+oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
+pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
+pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
+fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -668,11 +668,9 @@ DEFINE BROWSE Browser-Table
       oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
       oe-ordl.e-num FORMAT ">>>>>9":U LABEL-BGCOLOR 14
-      oe-ordl.whsed FORMAT "yes/no":U
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U
       oe-ordl.s-man[1] COLUMN-LABEL "Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      oe-ordl.managed FORMAT "yes/no":U
       oe-ordl.cost COLUMN-LABEL "Order Line Cost" FORMAT "->>>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
       pGetSellPrice() @ dSellPrice COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<":U
@@ -731,6 +729,12 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "CAD#" VIEW-AS TEXT
+          SIZE 8 BY .71 AT ROW 1.24 COL 119
+          FGCOLOR 9 FONT 22
+     "Order#" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 2
+          FGCOLOR 9 FONT 22
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 16
           FGCOLOR 9 FONT 22
@@ -751,12 +755,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 22
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 90
-          FGCOLOR 9 FONT 22
-     "CAD#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COL 119
-          FGCOLOR 9 FONT 22
-     "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 2
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -826,9 +824,7 @@ ASSIGN
 
 ASSIGN 
        oe-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
-       oe-ordl.po-no-po:VISIBLE IN BROWSE Browser-Table = FALSE
-       oe-ordl.whsed:VISIBLE IN BROWSE Browser-Table = FALSE
-       oe-ordl.managed:VISIBLE IN BROWSE Browser-Table = FALSE.
+       oe-ordl.po-no-po:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* SETTINGS FOR BUTTON btn_next IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -903,31 +899,27 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-ordl.e-num
 "oe-ordl.e-num" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[27]   > ASI.oe-ordl.whsed
-"oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > "_<CALC>"
+     _FldNameList[27]   > "_<CALC>"
 "getTotalReturned() @ dTotQtyRet" "Tot Returned" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[29]   > "_<CALC>"
+     _FldNameList[28]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[30]   > ASI.oe-ordl.s-man[1]
+     _FldNameList[29]   > ASI.oe-ordl.s-man[1]
 "oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[31]   > ASI.oe-ordl.managed
-"oe-ordl.managed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[32]   > ASI.oe-ordl.cost
+     _FldNameList[30]   > ASI.oe-ordl.cost
 "oe-ordl.cost" "Order Line Cost" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[33]   > "_<CALC>"
+     _FldNameList[31]   > "_<CALC>"
 "pGetSellPrice() @ dSellPrice" "Sell Price" ">>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[34]   > "_<CALC>"
+     _FldNameList[32]   > "_<CALC>"
 "pGetExtendedPrice() @ dExtendedPrice" "Extended! Price" "->>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[35]   > "_<CALC>"
+     _FldNameList[33]   > "_<CALC>"
 "pGetPriceUom() @ cPriceUom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[36]   > "_<CALC>"
+     _FldNameList[34]   > "_<CALC>"
 "pGetCostUom() @ cCostUom" "Cost!Uom" "x(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[37]   > ASI.oe-ord.entered-id
+     _FldNameList[35]   > ASI.oe-ord.entered-id
 "oe-ord.entered-id" "Entered By" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[38]   > ASI.itemfg.q-onh
+     _FldNameList[36]   > ASI.itemfg.q-onh
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[39]   > "_<CALC>"
+     _FldNameList[37]   > "_<CALC>"
 "fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
