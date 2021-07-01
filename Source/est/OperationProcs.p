@@ -150,9 +150,11 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     
 FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
     (BUFFER ipbf-eb FOR eb,
-    ipcMachine AS CHARACTER,
-    ipiPass AS INTEGER) FORWARD.  
-     
+    ipcLocationID AS CHARACTER,
+    ipcOperationID AS CHARACTER,
+    ipcDeptt AS CHARACTER,
+    ipiPass AS INTEGER) FORWARD.
+         
 FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
     (BUFFER ipbf-ef FOR ef) FORWARD.
     
@@ -352,10 +354,8 @@ PROCEDURE GetOperationStandardsForJobMch:
             NO-ERROR.
         IF NOT AVAILABLE bf-eb THEN RETURN.
            
-        /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttEstOp, OUTPUT TABLE ttOperation, OUTPUT lError, OUTPUT cMessage)).
-        
-        RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, OUTPUT lError, OUTPUT cMessage).
+                
+        RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, ipcAction, ipcExistingOps, OUTPUT lError, OUTPUT cMessage).
         IF NOT lError THEN 
         DO:
             FIND CURRENT bf-job-mch EXCLUSIVE-LOCK.
@@ -439,6 +439,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     DO:
         CREATE opbf-ttOperation.
         ASSIGN 
+            opbf-ttOperation.estCostOperationID           = ipbf-ttEstOp.line
             opbf-ttOperation.estimateNo                   = ipbf-est.est-no
             opbf-ttOperation.estType                      = ipcEstType
             opbf-ttOperation.quantityMaster               = ipbf-ttEstOp.qty
@@ -1373,43 +1374,9 @@ PROCEDURE pSetAttributeForColors PRIVATE:
     DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE iColors   AS INTEGER.
-    DEFINE VARIABLE cFeedType AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cError    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.        
+          
+     iColors = fGetOperationsColor(BUFFER ipbf-eb,ipcLocationID,ipcOperationID, ipcDeptt, ipiPass).
             
-    DEFINE BUFFER bf-eb   FOR eb.
-    DEFINE BUFFER bf-ef   FOR ef.
-    DEFINE BUFFER bf-mach FOR mach.
-    
-    RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
-    
-    IF AVAILABLE bf-mach THEN
-        cFeedType = bf-mach.p-type. 
-    
-    /* For Printers; get colors for specific Blank and Specific Pass */
-    IF ipcDeptt = "PR" THEN
-        iColors = fGetColorsForBlankPass(BUFFER ipbf-eb, ipiPass).
-    
-    /* For a Blank Fed machine; get Colors for a specific BlankNo, Passes-All */
-    ELSE IF cFeedType EQ "B" THEN
-            iColors = fGetColorsForBlankPass(BUFFER ipbf-eb, 0).
-        
-    /* For Other cases; get Colors for a Form, Blanks-All, Passes-All */       
-    ELSE
-    DO:
-        FOR FIRST bf-ef NO-LOCK
-            WHERE bf-ef.company EQ ipbf-eb.company
-            AND bf-ef.est-no EQ ipbf-eb.est-no
-            AND bf-ef.form-no EQ ipbf-eb.form-no,
-            EACH bf-eb NO-LOCK 
-            WHERE bf-eb.company EQ bf-ef.company
-            AND bf-eb.est-no EQ bf-ef.est-no
-            AND bf-eb.form-no EQ bf-ef.form-no:
-                
-            iColors = iColors + fGetColorsForBlankPass(BUFFER bf-eb, 0).
-        END.
-    END.
-        
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOfColors, iColors).  //Maxco
 
 END PROCEDURE.
@@ -1522,6 +1489,20 @@ PROCEDURE pSetAttributesForm PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pSetAttributesFromEstOps PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given the ttEstOP and ttOperations, sets attributes that are Operations dependent
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT  PARAMETER ipcOperationId AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationId AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass AS INTEGER NO-UNDO.
+    
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass))).  
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))). 
+    
+END PROCEDURE.    
 PROCEDURE pSetGlobalSettings PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to th
@@ -1545,13 +1526,14 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pGetEstOPData:
+PROCEDURE pGetEstOPData PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Builds applicable Est-OP data into temp-table
      Notes: If action is Add/Replace Machine then we'll use Est-op for existing machine
     ------------------------------------------------------------------------------*/ 
     
     DEFINE PARAMETER BUFFER ipbf-ef      FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb      FOR eb.
     DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
     DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcAction           AS CHARACTER NO-UNDO.
@@ -1564,6 +1546,7 @@ PROCEDURE pGetEstOPData:
     
     DEFINE BUFFER bf-est-op FOR est-op.
     DEFINE BUFFER bf-mach   FOR mach.
+    DEFINE BUFFER bf-est    FOR est.
     
     /* Create Data into TT */
     FOR EACH bf-est-op NO-LOCK 
@@ -1575,14 +1558,55 @@ PROCEDURE pGetEstOPData:
         CREATE ttEstOp.
         BUFFER-COPY bf-est-op to ttEstOp.
         
-        IF (ipcAction EQ "Add" OR ipcAction EQ "Change") AND bf-est-op.m-code = ipcOriginalMachine THEN
+        IF (ipcAction EQ "Add" OR ipcAction EQ "Replace") AND bf-est-op.m-code = ipcOriginalMachine THEN
         DO:
-            RUN pGetMachineBuffer(ipbf-ef.company, ipcLocation, job-mch.m-code, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
+            RUN pGetMachineBuffer(ipbf-ef.company, ipcLocation, ipbf-job-mch.m-code, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
             ASSIGN
-                ttEstOp.m-code  = bf-mach.m-code
-                ttEstOp.m-dscr  = bf-mach.m-dscr
-                ttEstOp.dept    = job-mch.dept
-                ttEstOp.machSeq = bf-mach.m-seq.
+                ttEstOp.m-code     = bf-mach.m-code
+                ttEstOp.m-dscr     = bf-mach.m-dscr
+                ttEstOp.dept       = ipbf-job-mch.dept
+                ttEstOp.machSeq    = bf-mach.m-seq
+                ttEstOp.op-spoil   = bf-mach.run-spoil
+                ttEstOp.op-crew[1] = bf-mach.mr-crusiz
+                ttEstOp.op-crew[2] = bf-mach.run-crusiz
+                .
+             
+            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER bf-mach, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
+        END.
+      
+    END.  //FOR EACH bf-est-op
+    
+    IF ipcAction = "AddDept" THEN
+    DO:
+        RUN pGetMachineBuffer(ipbf-ef.company, ipcLocation, ipbf-job-mch.m-code, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
+    
+        FIND FIRST bf-est NO-LOCK
+            WHERE bf-est.company = ipbf-ef.company
+            AND bf-est.est-no = ipbf-ef.est-no NO-ERROR.
+          
+        IF AVAILABLE bf-est AND AVAILABLE bf-mach THEN 
+        DO:
+            CREATE ttEstOp.
+            ASSIGN
+                ttEstOp.company    = bf-est.company
+                ttEstOp.e-num      = bf-est.e-num
+                ttEstOp.est-no     = bf-est.est-no
+                ttEstOp.qty        = IF bf-est.est-type EQ 8 THEN 0 ELSE ipdTargetQty
+                ttEstOp.s-num      = ipbf-job-mch.frm
+                ttEstOp.b-num      = IF bf-est.est-type EQ 5 THEN 1 ELSE ipbf-job-mch.blank-no
+                ttEstOp.op-pass    = ipbf-job-mch.pass
+                ttEstOp.op-sb      = YES
+                ttEstOp.m-code     = bf-mach.m-code
+                ttEstOp.m-dscr     = bf-mach.m-dscr
+                ttEstOp.dept       = ipbf-job-mch.dept
+                ttEstOp.d-seq      = bf-mach.d-seq
+                ttEstOp.n-out      = ipbf-ef.n-out
+                ttEstOp.op-spoil   = bf-mach.run-spoil
+                ttEstOp.op-crew[1] = bf-mach.mr-crusiz
+                ttEstOp.op-crew[2] = bf-mach.run-crusiz
+                .
+                
+            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
         END.
     END.
     
@@ -1590,7 +1614,7 @@ PROCEDURE pGetEstOPData:
     
 END PROCEDURE.    
 
-PROCEDURE pGetOpsSequencing:
+PROCEDURE pGetOpsSequencing PRIVATE:
     DEFINE INPUT-OUTPUT  PARAMETER TABLE FOR ttEstOp.
     
     DEFINE VARIABLE iSeqNo  AS INTEGER NO-UNDO.
@@ -1599,10 +1623,10 @@ PROCEDURE pGetOpsSequencing:
     FOR EACH ttEstOp
         BREAK BY ttEstOp.s-num
         BY ttEstOp.b-num
-        BY ttEstOp.dept
+        BY ttEstOp.d-seq
         BY ttEstOp.machSeq:
             
-        IF FIRST-OF(ttEstOp.dept) THEN 
+        IF FIRST-OF(ttEstOp.d-seq) THEN 
             iSeqNo = 0.
     
         ASSIGN
@@ -1613,7 +1637,32 @@ PROCEDURE pGetOpsSequencing:
     END.
 END PROCEDURE.      
 
-PROCEDURE pRecalcOperations:
+PROCEDURE pGetEstOpCalcFields PRIVATE:
+     /*------------------------------------------------------------------------------
+     Purpose: Return the calculated fields of EstOP
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-Mach FOR mach.
+    DEFINE PARAMETER BUFFER ipbf-ttEstOP FOR ttEstOp.
+    DEFINE INPUT  PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDeptt        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetMRWaste(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-waste, OUTPUT lError, OUTPUT cMessage).
+    RUN pGetRunSpeed(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOp.op-speed, OUTPUT lError, OUTPUT cMessage).
+    RUN pGetMRHours(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-mr, OUTPUT lError, OUTPUT cMessage).
+    RUN pGetRunSpoil(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-spoil, OUTPUT lError, OUTPUT cMessage).
+            
+END.            
+           
+
+PROCEDURE pRecalcOperations PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: build all estimate Operations
     Notes: Firstly get applicable est-ops and then recalculate the Operations TT
@@ -1646,7 +1695,7 @@ PROCEDURE pRecalcOperations:
     DEFINE BUFFER bf-ttOperation FOR ttOperation.
     
     FIND FIRST bf-ef NO-LOCK
-        OF bf-eb NO-ERROR.
+        OF ipbf-eb NO-ERROR.
     
     IF NOT AVAILABLE bf-ef THEN
     DO:
@@ -1699,12 +1748,12 @@ PROCEDURE pRecalcOperations:
         RETURN.
     END.
     
-    RUN pGetEstOPData (BUFFER bf-ef, BUFFER ipbf-job-mch, bf-job.loc, ipcAction, ipcOrgMachine, dQtyTarget,OUTPUT TABLE ttEstOp).
+    RUN pGetEstOPData (BUFFER bf-ef, BUFFER ipbf-eb, BUFFER ipbf-job-mch, bf-job.loc, ipcAction, ipcOrgMachine, dQtyTarget,OUTPUT TABLE ttEstOp).
     
     FOR EACH bf-eb NO-LOCK
         OF bf-ef:
             
-        dQtyYield = fGetRequiredQty (BUFFER ipbf-eb, BUFFER bf-job, cEstimateType ,"YieldQty").
+        dQtyYield = fGetRequiredQty (BUFFER bf-eb, BUFFER bf-job, cEstimateType ,"YieldQty").
         dQtyFGOnFormYielded = dQtyFGOnFormYielded + dQtyYield.
     END.
     
@@ -1737,7 +1786,7 @@ PROCEDURE pRecalcOperations:
                 ASSIGN 
                     ttEstBlank.BlankID = ttEstop.b-num
                     ttEstBlank.FormID  = ttEstop.s-num
-                    ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1).
+                    ttEstBlank.iOut    = MAX(ipbf-eb.num-wid, 1) * MAX(ipbf-eb.num-len, 1) * MAX(ipbf-eb.num-dep, 1).
             END.
             IF NOT ttEstBlank.lOutputInitialized THEN 
                 ASSIGN 
@@ -1903,6 +1952,8 @@ PROCEDURE SetAttributesFromJobMch:
     DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipcMchCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipipass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAction      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcExistingOps AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
@@ -1953,8 +2004,8 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass))).  //qty
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
+        //RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass))).  //qty
+        //RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDInkCoverage, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
@@ -1965,6 +2016,14 @@ PROCEDURE SetAttributesFromJobMch:
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
             RUN pSetAttributesForm(BUFFER bf-ef).
+            
+        /* Re-build the Est-op and Operations Data */ 
+        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttEstOp, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT opcMessage).
+        
+        /* Calculate Attribute from Operations */
+        IF NOT oplError THEN
+            RUN pSetAttributesFromEstOps (BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass).
+         
     END.
     ELSE 
         ASSIGN 
@@ -2184,41 +2243,58 @@ FUNCTION fIsOperationFound RETURNS LOGICAL PRIVATE
 		
 END FUNCTION.
 
-
 FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
     (BUFFER ipbf-eb FOR eb,
-    ipcMachine AS CHARACTER,
+    ipcLocationID AS CHARACTER,
+    ipcOperationID AS CHARACTER,
+    ipcDeptt AS CHARACTER,
     ipiPass AS INTEGER):
     /*------------------------------------------------------------------------------
-    Purpose: Given eb buffer, determine if there is data collected for it
-    Notes:
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE iReturnPass AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iCount      AS INTEGER NO-UNDO.
+     Purpose: Given an estimate blank buffer and pass, set the 
+        # of colors attribute.
+     Notes: If Blank NO specific then return colors for that Blank otherwsie for whole Form
+            If Department is Press then count for specific Pass number Otherwise All
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iReturnColors AS INTEGER.
+    DEFINE VARIABLE cFeedType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.        
+            
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-ef   FOR ef.
+    DEFINE BUFFER bf-mach FOR mach.
     
-    FIND FIRST est-op NO-LOCK
-        WHERE est-op.company EQ ipbf-eb.company
-        AND est-op.m-code EQ ipcMachine
-        AND est-op.est-no EQ ipbf-eb.est-no
-        AND est-op.s-num EQ ipbf-eb.form-no
-        AND (est-op.b-num EQ ipbf-eb.blank-no OR est-op.b-num EQ 0 )
-        AND est-op.op-pass EQ ipiPass 
-        and est-op.line    LT 500 NO-ERROR.
+    RUN pGetMachineBuffer(ipbf-eb.company, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT cError, OUTPUT cMessage).
     
-    IF AVAIL est-op AND est-op.dept EQ "PR" THEN
-    DO iCount = 1 TO 10:
-        IF ipbf-eb.i-ps[iCount] NE est-op.op-pass THEN NEXT.
-        FIND FIRST item NO-LOCK
-            where (item.company EQ ipbf-eb.company) 
-            AND item.i-no EQ ipbf-eb.i-code[iCount]
-            AND INDEX("IV",item.mat-type) GT 0
-            AND item.ink-type NE "A"
-            NO-ERROR.
-        IF AVAIL item THEN iReturnPass = iReturnPass + 1. /* iReturnPass now = # colors/coating this machine/this pass */
-    END.        
-    RETURN iReturnPass.
-		
-END FUNCTION.
+    IF AVAILABLE bf-mach THEN
+        cFeedType = bf-mach.p-type. 
+    
+    /* For Printers; get colors for specific Blank and Specific Pass */
+    IF ipcDeptt = "PR" THEN
+        iReturnColors = fGetColorsForBlankPass(BUFFER ipbf-eb, ipiPass).
+    
+    /* For a Blank Fed machine; get Colors for a specific BlankNo, Passes-All */
+    ELSE IF cFeedType EQ "B" THEN
+            iReturnColors = fGetColorsForBlankPass(BUFFER ipbf-eb, 0).
+        
+    /* For Other cases; get Colors for a Form, Blanks-All, Passes-All */       
+    ELSE
+    DO:
+        FOR FIRST bf-ef NO-LOCK
+            WHERE bf-ef.company EQ ipbf-eb.company
+            AND bf-ef.est-no EQ ipbf-eb.est-no
+            AND bf-ef.form-no EQ ipbf-eb.form-no,
+            EACH bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ bf-ef.company
+            AND bf-eb.est-no EQ bf-ef.est-no
+            AND bf-eb.form-no EQ bf-ef.form-no:
+                
+            iReturnColors = iReturnColors + fGetColorsForBlankPass(BUFFER bf-eb, 0).
+        END.
+    END.
+        
+    RETURN iReturnColors.
+END.
 
 
 FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
