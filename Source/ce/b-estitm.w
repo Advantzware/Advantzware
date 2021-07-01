@@ -1492,6 +1492,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME eb.dep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep br-estitm _BROWSE-COLUMN B-table-Win
+ON LEAVE OF eb.dep IN BROWSE br-estitm /* Depth */
+DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-dep(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME eb.cust-%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-% br-estitm _BROWSE-COLUMN B-table-Win
@@ -4430,6 +4443,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+     RUN valid-dep(OUTPUT lCheckError) NO-ERROR.
+     IF lCheckError THEN RETURN NO-APPLY.
   END.
   
   /* ====== end validation =======*/
@@ -4973,14 +4988,18 @@ PROCEDURE pEstimateCleanUp:
                 bf-eb.comm         = eb.comm
                 .
         END. 
-
+       
     IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
         FIND FIRST cust NO-LOCK
              WHERE cust.company EQ gcompany
                AND cust.cust-no EQ eb.cust-no
              NO-ERROR.
-        IF AVAILABLE cust THEN
+        IF AVAILABLE cust THEN 
+        do:
+            FIND CURRENT est EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
             est.csrUser_id = cust.csrUser_id.
+            FIND CURRENT est NO-LOCK NO-ERROR .
+        END.    
     END.
 
     IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
@@ -5914,6 +5933,32 @@ PROCEDURE valid-eb-reckey :
 
    END.
  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dep B-table-Win 
+PROCEDURE valid-dep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+
+  DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    
+     IF DECIMAL(eb.dep:screen-value IN BROWSE {&browse-name}) = 0 THEN DO:
+        MESSAGE "Depth can not be 0. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO eb.dep IN BROWSE {&browse-name}.
+        oplReturnError = YES.        
+     END.    
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
