@@ -49,7 +49,7 @@ PROCEDURE pUpdateRequestDataType PRIVATE:
          NO-ERROR.
     IF AVAILABLE bf-APIOutbound THEN
         RUN pSetRequestDataType (
-            INPUT gcRequestDataType
+            INPUT bf-APIOutbound.requestDataType
             ).
          
 END PROCEDURE.
