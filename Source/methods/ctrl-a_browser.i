@@ -14,7 +14,18 @@ PROCEDURE pCallAudit:
     DEFINE VARIABLE hExternal AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable    AS HANDLE    NO-UNDO.
     
-    &IF DEFINED(EXTERNAL-TABLES) NE 0 &THEN
+    &IF DEFINED(useRowID) NE 0 &THEN
+    DEFINE BUFFER {&rowIDTable} FOR {&rowIDTable}.
+
+    DEFINE QUERY rowIDTable FOR {&rowIDTable}.
+
+    FIND FIRST {&rowIDTable} NO-LOCK
+         WHERE ROWID({&rowIDTable}) EQ {&useRowID}
+         NO-ERROR.
+    IF AVAILABLE {&rowIDTable} THEN
+    hExternal = QUERY rowIDTable:HANDLE.
+    ELSE RETURN.
+    &ELSEIF DEFINED(EXTERNAL-TABLES) NE 0 &THEN
     hExternal = QUERY external_tables:HANDLE.
     &ENDIF
 

@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE TEMP-TABLE ttInventoryLoc NO-UNDO
@@ -523,7 +523,8 @@ PROCEDURE ScanItem :
         INPUT  TRUE,  /* Include empty tags */
         OUTPUT cConsUOM,
         OUTPUT oplError,
-        OUTPUT opcMessage    
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE    
         ). 
 
     IF NOT oplError THEN DO:

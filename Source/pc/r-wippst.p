@@ -47,6 +47,7 @@ def var v-autopost  as   log NO-UNDO.
 def var v-auto-bin  like sys-ctrl.char-fld no-undo.
 def var v-rm-fg     as   log NO-UNDO.
 DEFINE VARIABLE lInvalid AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
 
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report.
 
@@ -67,6 +68,8 @@ DO TRANSACTION:
 END.
 
 DEF STREAM excel.
+
+RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -457,6 +460,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Production Control Edit List */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE OBJECT hdJobProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -552,6 +556,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+        DELETE OBJECT hdJobProcs. 
         apply "close" to this-procedure.
     END.
 
@@ -922,7 +927,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RETURN .
     END.
     
-   
     ASSIGN
         begin_date  = TODAY
         end_date    = TODAY
@@ -1112,7 +1116,7 @@ PROCEDURE output-to-screen :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+    run scr-rpt-d.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1503,6 +1507,8 @@ PROCEDURE post-wip :
         no-lock:
         run jc/job-cls2.p (recid(job)).
     end.
+    
+    RUN job_CloseJob_DCPost IN hdJobProcs(INPUT cocode, INPUT TABLE w-job).    
  
 END PROCEDURE.
 

@@ -10,7 +10,6 @@
     Created     : Tue Apr 02 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-{inventory/ttinventory.i "NEW SHARED"}.
 
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipiPONo             AS INTEGER   NO-UNDO.

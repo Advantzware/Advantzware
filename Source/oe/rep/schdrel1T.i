@@ -25,6 +25,7 @@ def var v-rel-no like oe-rel.rel-no no-undo.
 def var v-shipfrom as char no-undo.
 def var v-ship-id like oe-rel.ship-id no-undo.
 def var v-carrier like oe-rel.carrier no-undo.  
+def var v-dockTime like oe-relh.releaseDockTime no-undo.  
 def var v-type as char no-undo.
 def var v-tot-qty as int format "->>>,>>>,>>9" EXTENT 2 no-undo.
 def var v-tot-val as int format "->>>,>>>,>>9" extent 2 no-undo.

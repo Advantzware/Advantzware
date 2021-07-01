@@ -1744,6 +1744,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstHeaderToCalc.
     FIND FIRST bf-est NO-LOCK 
@@ -1765,16 +1766,19 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
             AND bf-est-qty.est-no  EQ bf-est.est-no
             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
-        DO iQtyCount = 1 TO 20:
-            IF bf-est-qty.qty[iQtyCount] NE 0 THEN 
-            DO:
-                RUN pAddHeader(BUFFER bf-est, bf-est-qty.qty[iQtyCount], MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
-                    ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-                CREATE ttEstHeaderToCalc.
-                ASSIGN 
-                    ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+            DO iQtyCount = 1 TO 20:
+                IF IsComboType(ENTRY(bf-est.est-type, gcTypeList)) AND iQtyCount GT 1 THEN LEAVE.
+                
+                iQty = IF bf-est-qty.qty[iQtyCount] EQ 0 AND iQtyCount EQ 1 THEN bf-est-qty.eqty ELSE bf-est-qty.qty[iQtyCount].
+                IF iQty NE 0 THEN 
+                DO:
+                    RUN pAddHeader(BUFFER bf-est, iQty, MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
+                        ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
+                    CREATE ttEstHeaderToCalc.
+                    ASSIGN 
+                        ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                END.
             END.
-        END.
     END.
 
 END PROCEDURE.
@@ -3222,6 +3226,7 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE BUFFER bf-estMaterial FOR estMaterial.
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bfUnitize-estCostForm FOR estCostForm.
     
     DEFINE VARIABLE dSqFtPerEA AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCases AS INTEGER NO-UNDO.
@@ -3229,13 +3234,21 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE VARIABLE iQuantityInEA AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
     
+    IF ipbf-estCostHeader.isUnitizedSet  THEN 
+    DO:
+        /*Establish unitization form (Form 1)*/
+        FIND FIRST bfUnitize-estCostForm NO-LOCK 
+            WHERE bfUnitize-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            AND bfUnitize-estCostForm.formNo EQ 1
+            NO-ERROR.
+    END.
     
     FOR EACH bf-estMaterial NO-LOCK 
         WHERE bf-estMaterial.company EQ ipbf-estCostHeader.company
         AND bf-estMaterial.estimateNo EQ ipbf-estCostHeader.estimateNo,
         FIRST bf-estCostForm NO-LOCK 
-        WHERE bf-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostheaderID
-        AND bf-estCostForm.formNo EQ bf-estMaterial.formNo:
+            WHERE bf-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostheaderID
+            AND bf-estCostForm.formNo EQ bf-estMaterial.formNo:
         ASSIGN 
             iCases = 0
             iPallets = 0
@@ -3300,7 +3313,17 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-estCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-estCostMaterial.quantityRequiredNoWaste
             bf-estCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-estCostMaterial.quantityRequiredNoWaste
             .
-        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+        IF bf-estCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-estCostForm THEN 
+        DO:
+            /*Associate Form 0 materials to the unitize form (Form 1)*/
+            ASSIGN 
+                bf-estCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
+                bf-estCostMaterial.estCostBlankID = 0
+                .
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm).
+        END. 
+        ELSE     
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
         
     END.
     

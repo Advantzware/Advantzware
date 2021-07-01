@@ -16,6 +16,9 @@
 
 DEFINE VARIABLE iJobFormatLength AS INTEGER NO-UNDO INITIAL 6.
 
+DEFINE TEMP-TABLE w-job NO-UNDO 
+    FIELD job like job.job.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -402,6 +405,79 @@ PROCEDURE GetFormnoForJob:
     RELEASE bf-job-mat.
 END PROCEDURE.
 
+PROCEDURE job_CloseJob_DCPost:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+      
+    RUN CloseJob_DCPost(INPUT ipcCompany,TABLE w-job).
+   
+    
+END PROCEDURE.
+
+
+PROCEDURE CloseJob_DCPost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+    DEFINE VARIABLE close_date AS DATE    NO-UNDO.
+    DEFINE VARIABLE v-fin-qty  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cCloseJob AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cocode    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLastOpAllRunComplete AS LOGICAL NO-UNDO.
+    
+    cocode = ipcCompany.
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "CLOSEJOB", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cCloseJob, 
+        OUTPUT lRecFound
+        ).
+        
+    IF cCloseJob EQ "DCPost" THEN
+    DO:
+       close_date = TODAY.  
+        FOR EACH w-job,
+        FIRST job
+        WHERE job.company eq ipcCompany
+        and job.job     eq w-job.job       
+        NO-LOCK,
+        EACH job-hdr
+        WHERE job-hdr.company eq ipcCompany
+          AND job-hdr.job     eq job.job
+          AND job-hdr.job-no  eq job.job-no
+          AND job-hdr.job-no2 eq job.job-no2          
+        USE-INDEX job 
+        TRANSACTION:
+        
+            RUN pGetMachRunComplete(INPUT ipcCompany, INPUT job.job-no, INPUT job.job-no2,  OUTPUT lLastOpAllRunComplete).
+           
+            IF lLastOpAllRunComplete THEN
+            DO:         
+               {jc/job-clos.i}
+
+               FIND CURRENT reftable NO-LOCK NO-ERROR.
+
+               job-hdr.opened = job.opened.
+            END.
+        END.         
+    END. 
+    
+END PROCEDURE.
+
+
 PROCEDURE GetBlanknoForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns blank no list for a given jobID
@@ -462,8 +538,8 @@ PROCEDURE GetOperationsForJob:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
-              AND bf-job-mch.frm     EQ ipiFormNo
-              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0)
+              AND (bf-job-mch.frm     EQ ipiFormNo OR ipiFormNo EQ ?)
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0 OR ipiBlankNO EQ ?)
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 
                              STRING(bf-job-mch.m-code)
@@ -886,6 +962,36 @@ PROCEDURE GetRecalcJobCostForJobHdr:
     END.
 
 END PROCEDURE.
+
+PROCEDURE pGetMachRunComplete PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  get job machine is completed or not (job-mch.run-complete)
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLastOpAllRunComplete AS LOGICAL NO-UNDO.
+    
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job-no EQ ipcJobNo
+        AND job-mch.job-no2 EQ ipiJobNo2
+        BREAK BY job-mch.frm
+        BY job-mch.line:
+        
+        IF LAST-OF(job-mch.frm) THEN DO:
+          IF job-mch.run-complete THEN
+              oplLastOpAllRunComplete = YES.
+          ELSE DO:
+              oplLastOpAllRunComplete = NO.
+              LEAVE.
+          END.    
+        END.    
+    END.
+       
+END PROCEDURE.
+
 
 PROCEDURE RecalcJobCostForJob:
     /*------------------------------------------------------------------------------

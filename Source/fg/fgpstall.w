@@ -3427,7 +3427,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN scr-rpt.w (list-name,FRAME {&frame-name}:title,int(lv-font-no),lv-ornt). /* open file-name, title */
+  RUN scr-rpt-d.w (list-name,FRAME {&frame-name}:title,int(lv-font-no),lv-ornt). /* open file-name, title */
 
 END PROCEDURE.
 

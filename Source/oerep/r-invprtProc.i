@@ -1340,7 +1340,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE lv-copy#       AS INTEGER NO-UNDO.      
     DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBol           AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE dAmount        AS DECIMAL NO-UNDO.
     {sys/form/r-top.i}
 
     ASSIGN                   
@@ -1733,7 +1733,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
         PUT CONTROL CHR(18).
     END.
 
-    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
+    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,Carded2") > 0 THEN 
         DO:
             RUN value(v-program) (""). 
             v-reprint = YES.
@@ -1783,8 +1783,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF vcInvNums MATCHES '*-*' THEN
         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
             SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
+           
+    RUN pCheckInvoiceAmount(INPUT ROWID({&head}), OUTPUT dAmount).
     
-    IF NOT tb_PdfOnly THEN
+    IF NOT tb_PdfOnly AND dAmount NE 0 THEN
         RUN pRunAPIOutboundTrigger (
             INPUT  ROWID({&head}),
             INPUT  LOGICAL(report.key-04)
@@ -2253,7 +2255,8 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invcfgl3.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "Carded" THEN
+        WHEN "Carded" OR
+        WHEN "Carded2" THEN
             ASSIGN
                 v-program      = "oe/rep/invcardx.p"
                 lines-per-page = 66
@@ -2872,7 +2875,8 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invcfgl3.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "Carded" THEN
+        WHEN "Carded" OR
+        WHEN "Carded2" THEN
             ASSIGN
                 v-program      = "ar/rep/invcardx.p"
                 lines-per-page = 66
@@ -3443,6 +3447,38 @@ PROCEDURE undo-save-line :
     RELEASE bf-inv-misc.
     
 END PROCEDURE.    
+
+
+PROCEDURE pCheckInvoiceAmount PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prepares the request data for the invoice to call the API
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE INPUT PARAMETER ipriRowID  AS ROWID   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAmount AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ar-inv   FOR ar-inv.
+    
+    FIND FIRST bf-inv-head NO-LOCK
+         WHERE ROWID(bf-inv-head) EQ ipriRowID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN
+        FIND FIRST bf-ar-inv NO-LOCK
+             WHERE ROWID(bf-ar-inv) EQ ipriRowID
+             NO-ERROR.
+
+    IF NOT AVAILABLE bf-inv-head AND NOT AVAILABLE bf-ar-inv THEN
+        RETURN.
+    
+    IF AVAIL bf-inv-head THEN
+    opdAmount = bf-inv-head.t-inv-rev.
+    ELSE IF AVAILABLE bf-ar-inv THEN
+    opdAmount = bf-ar-inv.gross.
+    
+END PROCEDURE.   
+    
 
 PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     /*------------------------------------------------------------------------------

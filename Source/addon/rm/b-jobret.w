@@ -69,7 +69,6 @@ DEF VAR ll-casetag AS LOG NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength  AS INTEGER   NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
 RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */

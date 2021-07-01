@@ -974,7 +974,6 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR X AS INT NO-UNDO.
   DEF VAR Y AS INT NO-UNDO.
 
   DEF BUFFER b-ar-inv FOR ar-inv.
@@ -987,11 +986,8 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
-     x = 0
      y = 0.
 
-  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
-  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
   Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
 
@@ -1012,7 +1008,6 @@ PROCEDURE local-create-record :
   assign
    ar-inv.company  = g_company
    ar-inv.inv-date = today
-   ar-inv.x-no     = x 
    ar-inv.inv-no   = y 
    .
 
@@ -1301,7 +1296,6 @@ PROCEDURE pCreateCredit :
 DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO .  
 
 DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-DEFINE VARIABLE X AS INTEGER NO-UNDO.
 DEFINE VARIABLE Y AS INTEGER NO-UNDO.
 
   DEF BUFFER b-ar-inv FOR ar-inv.
@@ -1310,11 +1304,8 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
   DEFINE BUFFER bf-invl FOR ar-invl .
 
   ASSIGN
-     x = 0
      y = 0.
 
-  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
-  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
   Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
 
@@ -1335,7 +1326,6 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
   assign
    ar-inv.company  = g_company
    ar-inv.inv-date = today
-   ar-inv.x-no     = x 
    ar-inv.inv-no   = y 
    ar-inv.posted   = FALSE 
    ar-inv.USER-ID  = USERID(LDBNAME(1)) 
@@ -1384,7 +1374,7 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
        
        CREATE bf-invl .
        ASSIGN bf-invl.company = g_company
-              bf-invl.x-no    = X
+              bf-invl.x-no    = ar-inv.x-no
               bf-invl.inv-no  = Y 
               bf-invl.b-no    = 0
               bf-invl.upd-date = TODAY 
@@ -1441,7 +1431,6 @@ PROCEDURE pCreateDuplicate :
   DEFINE INPUT PARAMETER cType AS CHARACTER NO-UNDO . 
 
 
- DEF VAR X AS INT NO-UNDO.
   DEF VAR Y AS INT NO-UNDO.
 
   DEF BUFFER b-ar-inv FOR ar-inv.
@@ -1450,11 +1439,8 @@ PROCEDURE pCreateDuplicate :
   DEFINE BUFFER bf-invl FOR ar-invl .
 
   ASSIGN
-     x = 0
      y = 0.
 
-  FIND LAST bf-inv USE-INDEX x-no NO-LOCK NO-ERROR.
-  X = IF AVAIL bf-inv THEN bf-inv.x-no + 1 ELSE 1.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
   Y = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
 
@@ -1475,7 +1461,6 @@ PROCEDURE pCreateDuplicate :
   assign
    ar-inv.company  = g_company
    ar-inv.inv-date = today
-   ar-inv.x-no     = x 
    ar-inv.inv-no   = y 
    ar-inv.posted   = FALSE 
    ar-inv.USER-ID  = USERID(LDBNAME(1)) 
@@ -1512,7 +1497,7 @@ PROCEDURE pCreateDuplicate :
        
        CREATE bf-invl .
        ASSIGN bf-invl.company = g_company
-              bf-invl.x-no    = X
+              bf-invl.x-no    = ar-inv.x-no
               bf-invl.inv-no  = Y 
               bf-invl.b-no    = 0
               bf-invl.upd-date = TODAY 

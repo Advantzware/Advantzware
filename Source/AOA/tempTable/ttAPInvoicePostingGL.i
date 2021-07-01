@@ -10,3 +10,5 @@ DEFINE TEMP-TABLE ttAPInvoicePostingGL NO-UNDO
         INDEX ID IS PRIMARY
               xxID
     .
+RUN spSetSessionParam ("SummaryHandle1", TEMP-TABLE ttAPInvoicePostingGL:HANDLE).
+RUN spSetSessionParam ("SummaryTitle1", "AP Invoice Posting GL").

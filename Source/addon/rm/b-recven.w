@@ -36,7 +36,6 @@ CREATE WIDGET-POOL.
 {methods/defines/winReSize.i}
 
 {sys/inc/var.i NEW SHARED} 
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company

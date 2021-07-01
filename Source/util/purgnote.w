@@ -40,12 +40,14 @@
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_spec end_spec Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_spec begin_desc end_spec end_desc 
+&Scoped-Define ENABLED-OBJECTS begin_spec end_spec begin_fgitem end_fgitem ~
+begin_date end_date Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_spec begin_desc end_spec end_desc ~
+begin_fgitem end_fgitem begin_date end_date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -70,18 +72,38 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1 NO-UNDO.
+
+DEFINE VARIABLE begin_fgitem AS CHARACTER FORMAT "X(15)":U 
+     LABEL "From FG Item" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_spec AS CHARACTER FORMAT "X(3)":U 
      LABEL "From Spec Code" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_fgitem AS CHARACTER FORMAT "X(15)":U 
+     LABEL "To FG Item" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_spec AS CHARACTER FORMAT "X(3)":U 
      LABEL "To" 
@@ -96,9 +118,13 @@ DEFINE FRAME Dialog-Frame
      begin_desc AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL
      end_spec AT ROW 2.91 COL 22 COLON-ALIGNED
      end_desc AT ROW 2.91 COL 33 COLON-ALIGNED NO-LABEL
-     Btn_OK AT ROW 5.05 COL 17
-     Btn_Cancel AT ROW 5.05 COL 51
-     SPACE(14.19) SKIP(0.99)
+     begin_fgitem AT ROW 4.05 COL 22 COLON-ALIGNED
+     end_fgitem AT ROW 5.14 COL 22 COLON-ALIGNED
+     begin_date AT ROW 6.24 COL 22 COLON-ALIGNED
+     end_date AT ROW 7.38 COL 22 COLON-ALIGNED
+     Btn_OK AT ROW 9.38 COL 17
+     Btn_Cancel AT ROW 9.38 COL 51
+     SPACE(14.19) SKIP(1.47)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -122,7 +148,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -146,17 +172,40 @@ ON HELP OF FRAME Dialog-Frame /* Purge FG item spec notes */
 DO:
     DEF VAR char-val AS cha NO-UNDO.
     case FOCUS:NAME :
-        WHEN "begin_spec" OR WHEN "end_spec" THEN DO:
-           run cec/l-itspec.w (g_company, focus:screen-value, output char-val).
-           if char-val <> "" then DO:
-              assign focus:screen-value = entry(1,char-val).
-              IF FOCUS:NAME = "begin_spec" THEN
-                      begin_desc:screen-value = entry(2,char-val).
-              ELSE end_desc:screen-value = entry(2,char-val).
+        WHEN "begin_spec" THEN DO:
+           RUN cec/l-itspec.w (g_company, begin_spec:SCREEN-VALUE, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              ASSIGN begin_spec:SCREEN-VALUE = ENTRY(1,char-val).
+              begin_desc:SCREEN-VALUE = ENTRY(2,char-val).
            END.
         END.
-    END.
-    END.
+        WHEN "end_spec" THEN DO:
+           RUN cec/l-itspec.w (g_company, end_spec:SCREEN-VALUE, OUTPUT char-val).
+           IF char-val <> "" THEN DO:
+              ASSIGN end_spec:SCREEN-VALUE = ENTRY(1,char-val).
+              end_desc:SCREEN-VALUE = ENTRY(2,char-val).
+           END.
+        END.
+        WHEN "begin_fgitem" THEN DO:
+            RUN windows/l-itmfg2.w (g_company, "", INPUT begin_fgitem:SCREEN-VALUE, INPUT 1, OUTPUT char-val).
+            IF char-val <> "" THEN 
+            DO:
+                ASSIGN 
+                    begin_fgitem:SCREEN-VALUE = ENTRY(1,char-val).
+                APPLY "entry" TO begin_fgitem.
+            END.                           
+        END.     
+        WHEN "end_fgitem" THEN DO:
+            RUN windows/l-itmfg2.w (g_company, "", INPUT end_fgitem:SCREEN-VALUE, INPUT 1, OUTPUT char-val).
+            IF char-val <> "" THEN 
+            DO:
+                ASSIGN 
+                    end_fgitem:SCREEN-VALUE = ENTRY(1,char-val).
+                APPLY "entry" TO end_fgitem.
+            END.                           
+        END.
+    END CASE.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -194,14 +243,19 @@ DO:
    IF ll-ans THEN DO:
       SESSION:SET-WAIT-STATE("general").
       DISABLE TRIGGERS FOR LOAD OF notes.
-      OUTPUT TO value("c:\tmp\specnote." + STRING(TIME)).
-      FOR EACH itemfg NO-LOCK WHERE itemfg.company = g_company,
+      OUTPUT TO value("c:\tmp\specnote" + STRING(TIME) + ".txt").
+      FOR EACH itemfg NO-LOCK WHERE itemfg.company = g_company
+                    AND itemfg.i-no >= begin_fgitem
+                    AND itemfg.i-no<= end_fgitem,
           EACH notes WHERE notes.rec_key = itemfg.rec_key
                     AND notes.note_code >= begin_spec
-                    AND notes.note_code <= END_spec:
+                    AND notes.note_code <= END_spec
+                    AND notes.note_date >= begin_date
+                    AND notes.note_date <= end_date:
           EXPORT notes.
           DELETE notes.
       END.
+      OUTPUT CLOSE.
       SESSION:SET-WAIT-STATE("").
       MESSAGE "FG Item spec note purge is completed." VIEW-AS ALERT-BOX INFORMATION.
    END.
@@ -301,9 +355,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_spec begin_desc end_spec end_desc 
+  DISPLAY begin_spec begin_desc end_spec end_desc begin_fgitem end_fgitem 
+          begin_date end_date 
       WITH FRAME Dialog-Frame.
-  ENABLE begin_spec end_spec Btn_OK Btn_Cancel 
+  ENABLE begin_spec end_spec begin_fgitem end_fgitem begin_date end_date Btn_OK 
+         Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

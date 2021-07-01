@@ -23,6 +23,7 @@
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     FOR EACH oe-bolh NO-LOCK
         WHERE oe-bolh.company  EQ cCompany
           AND oe-bolh.bol-no   GE iStartBOL
@@ -94,7 +95,10 @@ PROCEDURE pBusinessLogic:
             RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT ttBOLPackingList.msfPrice).
             ttBOLPackingList.msfPrice = ttBOLPackingList.msfPrice * (ttBOLPackingList.qtyCase * ttBOLPackingList.caseBundle + ttBOLPackingList.partial ).
         END.
-        
+        iCount = iCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     END. /* each oe-bolh */
 END PROCEDURE.
 

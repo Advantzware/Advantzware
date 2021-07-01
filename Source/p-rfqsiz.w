@@ -89,7 +89,7 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel btn-auto-calc 
+&Scoped-Define ENABLED-OBJECTS btPOScores Btn-Save Btn-Cancel btn-auto-calc 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -195,8 +195,6 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btPOScores IN FRAME Panel-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
        btPOScores:HIDDEN IN FRAME Panel-Frame           = TRUE.
 
@@ -225,6 +223,17 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-auto-calc C-WIn
 ON CHOOSE OF btn-auto-calc IN FRAME Panel-Frame /* Auto-Calculate */
 DO:
+    DEFINE VARIABLE source-str as CHARACTER no-undo.
+    DEFINE VARIABLE lAutoLock AS LOGICAL NO-UNDO.
+     RUN get-link-handle IN adm-broker-hdl 
+       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+    run pCheckAutoLock in widget-handle(source-str) (OUTPUT lAutoLock).
+    IF lAutoLock THEN
+    DO:
+       MESSAGE "Layout is locked and must be unlocked before auto calc is available " 
+                VIEW-AS ALERT-BOX INFO.
+       RETURN NO-APPLY.         
+    END.
 
     IF ceAuto-calc-msg = YES THEN do:
         MESSAGE
@@ -235,12 +244,11 @@ DO:
     END.
      
   DO WITH FRAME Panel-Frame:
-     def var source-str as cha no-undo.
-     RUN get-link-handle IN adm-broker-hdl 
-       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+     
      enable btn-cancel with frame {&frame-name}.
      btn-save:label = "&Save" .
      btn-auto-calc:sensitive = no.
+     btPOScores:SENSITIVE = FALSE.
      run auto-calc in widget-handle(source-str). 
   END.
 
@@ -257,6 +265,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       btn-auto-calc:sensitive = yes.
+      btPOScores:SENSITIVE = TRUE.
       RUN notify ('cancel-record':U).
    END.
 END.
@@ -288,11 +297,13 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
+           btPOScores:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
            btn-auto-calc:sensitive = yes.
+           btPOScores:SENSITIVE = TRUE.
         END.                              
      END.
      ELSE 

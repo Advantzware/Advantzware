@@ -20,7 +20,7 @@ DEFINE INPUT  PARAMETER iplExportOnly AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttBrowseInventory.i}
 
 DEFINE TEMP-TABLE ttRMToProcess NO-UNDO 
     FIELD company         AS CHARACTER 
@@ -483,7 +483,8 @@ PROCEDURE pProcessTransactions PRIVATE:
         FOR EACH ttRMTransaction
             WHERE ttRMTransaction.transactionStatus EQ "Pending":
             RUN Inventory_BuildRawMaterialToPost IN hdInventoryProcs (
-                INPUT  ttRMTransaction.rmRctdRowID
+                INPUT  ttRMTransaction.rmRctdRowID,
+                INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
                 ).    
             
             ttRMTransaction.transactionStatus = "Processing".
@@ -493,7 +494,8 @@ PROCEDURE pProcessTransactions PRIVATE:
             INPUT  cCompany,
             INPUT  TODAY,
             OUTPUT lSuccess,
-            OUTPUT opcMessage
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
             ).
        
         oplError = NOT lSuccess.

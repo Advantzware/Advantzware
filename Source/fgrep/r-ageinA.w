@@ -2745,7 +2745,14 @@ FOR EACH tt-file WHERE
    tt-days = tt-file.tt-days
    lv-last-fld = IF rd_show2 BEGINS "Day" THEN STRING(tt-days,">>>9")
                                                ELSE ""
-   v-shipdt = IF v-sdate THEN v-shipdt ELSE "" .  
+   .
+  
+  IF NOT v-sdate THEN               
+            ASSIGN
+               v-shipdt[1]     = ""
+               v-shipdt[2]     = ""  .
+        
+  
 
    RUN reduce_negatives.
 
@@ -3153,7 +3160,7 @@ PROCEDURE produce-report :
                   FIND cust WHERE cust.cust-no = itemfg.cust-no
                       AND cust.company = cocode NO-LOCK NO-ERROR.
 
-              IF (AVAIL cust AND cust.ACTIVE NE "X" AND cust.sman GT ""
+              IF (AVAIL cust AND NOT cust.internal AND cust.sman GT ""
                   AND cust.sman GE fslm AND cust.sman LE tslm)
                   OR (itemfg.spare-char-3 GE fslm 
                   AND itemfg.spare-char-3 LE tslm) THEN 

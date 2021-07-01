@@ -45,7 +45,6 @@ DEFINE VARIABLE dExtCost           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dFrtCost           AS DECIMAL   NO-UNDO.
 
 {sys/inc/var.i "new shared"}
-{inventory/ttinventory.i "NEW SHARED"}.
 {jc/jcgl-sh.i  NEW}
 
 /* ********************  Preprocessor Definitions  ******************** */

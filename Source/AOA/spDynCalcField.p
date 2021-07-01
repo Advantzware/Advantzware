@@ -365,6 +365,17 @@ PROCEDURE calcBlankDate:
     opcCalcValue = STRING(DATE(ipdtDate)).
 END PROCEDURE.
 
+PROCEDURE calcBlankField:
+    DEFINE INPUT  PARAMETER ipcField1    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcField2    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   IF ipcField1 NE "" THEN
+        ASSIGN opcCalcValue = ipcField1.
+   ELSE 
+        ASSIGN opcCalcValue = ipcField2.
+END PROCEDURE.
+
 PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
@@ -480,6 +491,11 @@ PROCEDURE spDynCalcField:
         WHEN "calcBlankDate" THEN
         RUN VALUE(ipcCalcProc) (
             DATE(ipcCalcParam),
+            OUTPUT opcCalcValue).
+        WHEN "calcBlankField" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
             OUTPUT opcCalcValue).
     END CASE.
 END PROCEDURE.

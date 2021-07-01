@@ -1658,7 +1658,7 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
   DEFINE BUFFER bf-inv-head FOR inv-head .
   
-  IF AVAIL inv-head THEN
+  IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
   DO:    
     FIND FIRST bf-inv-head NO-LOCK
          WHERE bf-inv-head.company EQ cocode
@@ -1909,7 +1909,7 @@ PROCEDURE valid-cust-no :
       IF cust.active eq "I" THEN v-msg = "Orders may not be processed for inactive customers...".
 
      IF v-msg EQ "" THEN
-      IF cust.active eq "X" THEN v-msg = "Orders may not be processed for Inhouse customers...".
+      IF cust.internal THEN v-msg = "Orders may not be processed for Inhouse customers...".
 
     IF v-msg EQ "" THEN
       IF ll-cred-lim AND inv-status:SCREEN-VALUE NE "ON HOLD" THEN DO:

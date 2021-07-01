@@ -447,14 +447,73 @@ PROCEDURE CreateReleaseTag :
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.   
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO. 
 
+    DEFINE VARIABLE lBOLQtyPopup        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnChar            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidateQtyExceed  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSelectReleaseQty   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPromptQtySelection AS LOGICAL   NO-UNDO.
+    
+    RUN sys/ref/nk1look.p(
+        INPUT  ipcCompany,
+        INPUT  "BOLQtyPopup", 
+        INPUT  "L",     /* Logical */
+        INPUT  NO,      /* check by cust */
+        INPUT  NO,      /* use cust not vendor */
+        INPUT  "",      /* cust */
+        INPUT  "",      /* ship-to*/
+        OUTPUT cRtnChar,
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lBOLQtyPopup = cRtnChar EQ "YES". 
+
+    IF lBOLQtyPopup THEN
+        ASSIGN
+            lValidateQtyExceed = TRUE
+            lSelectReleaseQty  = FALSE
+            .
+    ELSE
+        ASSIGN
+            lValidateQtyExceed = FALSE
+            lSelectReleaseQty  = TRUE
+            .
+                    
     RUN CreateReleaseTag IN hdReleaseProcs (
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcTag,
         INPUT  ipcTrailerID,
+        INPUT  lValidateQtyExceed,
+        INPUT  lSelectReleaseQty,
         OUTPUT oplError,   
         OUTPUT opcMessage
-        ).
+        ).    
+    
+    /* Prompt only if NK1 BOLQtyPopop is yes and scanned quantity exceeded release quantity */
+    lPromptQtySelection = system.SharedConfig:Instance:ConsumeValue("ReleaseProcs_QuantityExceededPrompt") EQ "TRUE" AND oplError AND lBOLQtyPopup.
+    
+    /* Have to send a prompt to user to choose a full pallet quantity or release quantity */
+    IF lPromptQtySelection THEN DO:
+        MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
+                 "YES to import entire Pallet Quantity for the Selected Tag#." SKIP
+                 "NO to import just the Release Quantity for the Selected Tag#."
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lQtySelection AS LOGICAL.
+        
+        lSelectReleaseQty = NOT lQtySelection.
+            
+        RUN CreateReleaseTag IN hdReleaseProcs (
+            INPUT  ipcCompany,
+            INPUT  ipiReleaseID,
+            INPUT  ipcTag,
+            INPUT  ipcTrailerID,
+            INPUT  FALSE, /* Validate if quantity exceeded */
+            INPUT  lSelectReleaseQty,
+            OUTPUT oplError,   
+            OUTPUT opcMessage
+            ).
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

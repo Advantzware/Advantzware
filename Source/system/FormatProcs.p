@@ -70,7 +70,7 @@ PROCEDURE Format_Date:
         YY      - Displays last two digits of the year ( Eg. 03/14/2020 - 20)
         DD      - Displays day of the date in two digits ( Eg. 03/04/2020 - 04)
         D       - Displays day of the date in single digit for days between 1 and 9 ( Eg. 03/04/2020 - 4)
-        TH      - Displays the ordinals of the day (Eg. 03/04/2020 - 4th, 03/01/2020 - 1st)
+        TH/th   - Displays the ordinals of the day (Eg. 03/04/2020 - 4th, 03/01/2020 - 1st). Case Sensitive
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipdtDate      AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFormat     AS CHARACTER NO-UNDO.
@@ -123,28 +123,11 @@ PROCEDURE Format_Date:
             gcReplaceDay  = TRIM(STRING(iDay,">9"))
             .
 
-    IF INDEX(opcDateString, "th") GT 0 THEN DO:
-        IF iDay EQ 1 OR iDay EQ 21 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "st"
-                .
-        ELSE IF iDay EQ 2 OR iDay EQ 22 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "nd"
-                .
-        ELSE IF iDay EQ 3 OR iDay EQ 23 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "rd"
-                .
-        ELSE
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "th"
-                .
-    END.
+    RUN pFormatOrdinal (
+        INPUT  iDay,
+        INPUT  opcDateString,
+        OUTPUT opcDateString
+        ).
     
     RUN pFormatAll (
         INPUT-OUTPUT opcDateString
@@ -421,6 +404,64 @@ PROCEDURE pFormatMinutes PRIVATE:
             opcTimeString    = REPLACE(opcTimeString, "m", fGetReplaceString(7))
             gcReplaceMinutes = TRIM(STRING(ipiMinutes,">9"))
             .
+END PROCEDURE.
+
+PROCEDURE pFormatOrdinal PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiDay        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDateString AS CHARACTER NO-UNDO CASE-SENSITIVE.
+
+    opcDateString  = ipcFormat.
+    
+    IF INDEX(opcDateString, "th") GT 0 THEN DO:
+        IF ipiDay EQ 1 OR ipiDay EQ 21 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "st"
+                .
+        ELSE IF ipiDay EQ 2 OR ipiDay EQ 22 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "nd"
+                .
+        ELSE IF ipiDay EQ 3 OR ipiDay EQ 23 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "rd"
+                .
+        ELSE
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "th"
+                .
+    END.
+    
+    IF INDEX(opcDateString, "TH") GT 0 THEN DO:
+        IF ipiDay EQ 1 OR ipiDay EQ 21 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "st"
+                .
+        ELSE IF ipiDay EQ 2 OR ipiDay EQ 22 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "nd"
+                .
+        ELSE IF ipiDay EQ 3 OR ipiDay EQ 23 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "rd"
+                .
+        ELSE
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "th"
+                .
+    END.    
 END PROCEDURE.
 
 PROCEDURE pFormatMonth PRIVATE:

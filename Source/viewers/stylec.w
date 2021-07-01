@@ -58,6 +58,9 @@ ASSIGN cocode = g_company
        locode = g_loc.
 {sys/inc/f16to32.i}
 
+DEFINE VARIABLE hdFormulaProcs     AS HANDLE    NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
@@ -106,8 +109,9 @@ style.m-dscr[7]
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
-&Scoped-Define DISPLAYED-OBJECTS ld-joint-tab ld-blank-width ld-glue-in ~
-ld-glue-out ld-stitch-in ld-stitch-out ld-tape-score 
+&Scoped-Define DISPLAYED-OBJECTS fiPOBlankWidthScore ld-joint-tab ~
+ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out ~
+ld-tape-score 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -146,6 +150,12 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiPOBlankWidthScore AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     LABEL "PO Blank Width Score" 
+     VIEW-AS FILL-IN 
+     SIZE 11.6 BY 1
+     BGCOLOR 15 FONT 4.
+
 DEFINE VARIABLE ld-blank-width AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
      LABEL "Blank Width Score" 
      VIEW-AS FILL-IN 
@@ -190,11 +200,11 @@ DEFINE VARIABLE ld-tape-score AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 142 BY 12.86.
+     SIZE 142 BY 13.81.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 38 BY 10.48.
+     SIZE 40 BY 11.43.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -208,6 +218,7 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiPOBlankWidthScore AT ROW 13.24 COL 27 COLON-ALIGNED WIDGET-ID 8 NO-TAB-STOP 
      style.style AT ROW 1.48 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -232,78 +243,71 @@ DEFINE FRAME F-Main
           LABEL "Flute"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     ld-joint-tab AT ROW 3.62 COL 25 COLON-ALIGNED
-     ld-blank-width AT ROW 4.57 COL 25 COLON-ALIGNED
-     ld-glue-in AT ROW 5.52 COL 25 COLON-ALIGNED
-     ld-glue-out AT ROW 6.48 COL 25 COLON-ALIGNED
-     ld-stitch-in AT ROW 7.43 COL 25 COLON-ALIGNED
-     ld-stitch-out AT ROW 8.38 COL 25 COLON-ALIGNED
-     ld-tape-score AT ROW 9.33 COL 25 COLON-ALIGNED
-     style.dim-tk AT ROW 10.29 COL 25 COLON-ALIGNED FORMAT ">>>>9.99"
+     ld-joint-tab AT ROW 3.62 COL 27 COLON-ALIGNED
+     ld-blank-width AT ROW 4.57 COL 27 COLON-ALIGNED
+     ld-glue-in AT ROW 5.52 COL 27 COLON-ALIGNED
+     ld-glue-out AT ROW 6.48 COL 27 COLON-ALIGNED
+     ld-stitch-in AT ROW 7.43 COL 27 COLON-ALIGNED
+     ld-stitch-out AT ROW 8.38 COL 27 COLON-ALIGNED
+     ld-tape-score AT ROW 9.33 COL 27 COLON-ALIGNED
+     style.dim-tk AT ROW 10.29 COL 27 COLON-ALIGNED FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     style.dim-pan5 AT ROW 11.24 COL 25 COLON-ALIGNED FORMAT ">>>>9.99"
+     style.dim-pan5 AT ROW 11.24 COL 27 COLON-ALIGNED FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     style.dim-fit AT ROW 12.24 COL 25 COLON-ALIGNED
+     style.dim-fit AT ROW 12.24 COL 27 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     style.material[1] AT ROW 3.62 COL 62 COLON-ALIGNED
+     style.material[1] AT ROW 3.62 COL 63 COLON-ALIGNED
           LABEL "Board"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[2] AT ROW 4.57 COL 62 COLON-ALIGNED
+     style.material[2] AT ROW 4.57 COL 63 COLON-ALIGNED
           LABEL "Ink"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[3] AT ROW 5.52 COL 62 COLON-ALIGNED
+     style.material[3] AT ROW 5.52 COL 63 COLON-ALIGNED
           LABEL "Ink Cov %"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[4] AT ROW 6.48 COL 62 COLON-ALIGNED
+     style.material[4] AT ROW 6.48 COL 63 COLON-ALIGNED
           LABEL "Adder"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[5] AT ROW 7.43 COL 62 COLON-ALIGNED
+     style.material[5] AT ROW 7.43 COL 63 COLON-ALIGNED
           LABEL "Label"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[6] AT ROW 8.38 COL 62 COLON-ALIGNED
+     style.material[6] AT ROW 8.38 COL 63 COLON-ALIGNED
           LABEL "Coating"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.material[7] AT ROW 9.33 COL 62 COLON-ALIGNED
+     style.material[7] AT ROW 9.33 COL 63 COLON-ALIGNED
           LABEL "Joint Glue"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.qty-per-set AT ROW 10.29 COL 62 COLON-ALIGNED
+     style.qty-per-set AT ROW 10.29 COL 63 COLON-ALIGNED
           LABEL "Qty/Set" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
+     style.spare-char-5 AT ROW 11.24 COL 63 COLON-ALIGNED WIDGET-ID 6
           LABEL "Packing Code"
-          FORMAT "X(10)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
-     style.dim-df AT ROW 12.43 COL 62 COLON-ALIGNED HELP
-          "" WIDGET-ID 4
-          LABEL "# Slots" FORMAT ">9"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -311,6 +315,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     style.dim-df AT ROW 12.43 COL 63 COLON-ALIGNED HELP
+          "" WIDGET-ID 4
+          LABEL "# Slots" FORMAT ">9"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
+          BGCOLOR 15 FONT 4
      style.m-code[1] AT ROW 3.62 COL 91 COLON-ALIGNED
           LABEL "1"
           VIEW-AS FILL-IN 
@@ -375,7 +385,7 @@ DEFINE FRAME F-Main
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
      "  Default Material Codes" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 2.91 COL 51
+          SIZE 28 BY .62 AT ROW 2.91 COL 52
           FGCOLOR 9 
      "  Default Flute Dimensions" VIEW-AS TEXT
           SIZE 30 BY .62 AT ROW 2.91 COL 7
@@ -385,7 +395,7 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      RECT-19 AT ROW 1 COL 1
      RECT-7 AT ROW 3.14 COL 3
-     RECT-8 AT ROW 3.14 COL 45
+     RECT-8 AT ROW 3.14 COL 46
      RECT-9 AT ROW 3.14 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -458,6 +468,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN style.dim-tk IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN fiPOBlankWidthScore IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-blank-width IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-glue-in IN FRAME F-Main
@@ -736,6 +748,34 @@ DO:
         RETURN NO-APPLY.
      END.                  
      {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPOBlankWidthScore
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOBlankWidthScore V-table-Win
+ON ENTRY OF fiPOBlankWidthScore IN FRAME F-Main /* PO Blank Width Score */
+DO:
+    DEFINE VARIABLE dTotalScoreAllowance AS DECIMAL NO-UNDO.
+
+    RUN est/d-paneldetails.w (
+        INPUT ROWID(style), 
+        INPUT "style",
+        INPUT flute.code, 
+        INPUT "POBlankWidth"
+        ).  
+
+    RUN pGetTotalScoreAllowance (
+        INPUT  style.company,
+        INPUT  style.style, 
+        INPUT  flute.code,
+        INPUT  "POBlankWidth",
+        OUTPUT dTotalScoreAllowance
+        ).
+
+    fiPOBlankWidthScore:SCREEN-VALUE = STRING(dTotalScoreAllowance).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1318,7 +1358,7 @@ PROCEDURE enable-style-field :
   /* called from methods/viewers/enable/style.i */
 
   ENABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
 END PROCEDURE.
 
@@ -1544,7 +1584,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"scores-source", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1579,10 +1619,12 @@ PROCEDURE local-create-record :
             ld-glue-out = 0 
             ld-stitch-in = 0
             ld-stitch-out = 0
-          ld-tape-score = 0.
+          ld-tape-score = 0
+          fiPOBlankWidthScore = 0
+          .
 
      DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
   END.
 
@@ -1688,6 +1730,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
@@ -1733,6 +1794,7 @@ PROCEDURE local-display-fields :
          ASSIGN
             ld-joint-tab:FORMAT = "->>,>>9.999999"
             ld-blank-width:FORMAT = "->>,>>9.999999"
+            fiPOBlankWidthScore:FORMAT = "->>,>>9.999999"
             ld-glue-in:FORMAT = "->>,>>9.999999"
             ld-glue-out:FORMAT = "->>,>>9.999999"
             ld-stitch-in:FORMAT = "->>,>>9.999999"
@@ -1784,11 +1846,21 @@ PROCEDURE local-display-fields :
    ld-total = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632",cocode, ld-total).
    ld-tape-score = (ld-total).
 
+   RUN pGetTotalScoreAllowance (
+       INPUT  style.company,
+       INPUT  style.style, 
+       INPUT  flute.code,
+       INPUT  "POBlankWidth",
+       OUTPUT ld-total
+       ).
+
+   fiPOBlankWidthScore = (ld-total).
+       
   DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
   DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
   FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = style.style
                         AND reftable.loc = flute.code
@@ -1844,7 +1916,7 @@ PROCEDURE local-reset-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
    ENABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
 
 END PROCEDURE.
@@ -1953,7 +2025,7 @@ PROCEDURE local-update-record :
   IF ll-new-record THEN RUN reset-browse (ROWID(style)).
 
   DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score WITH FRAME {&frame-name}.
+          ld-tape-score fiPOBlankWidthScore WITH FRAME {&frame-name}.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
   DO i = 1 TO NUM-ENTRIES(char-hdl):
@@ -1963,6 +2035,37 @@ PROCEDURE local-update-record :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"scores-source", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN enable-disable IN WIDGET-HANDLE(char-hdl) ("ENABLE") .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
+PROCEDURE pGetTotalScoreAllowance PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
+    
+    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcStyle, 
+        INPUT  ipcFlute,
+        INPUT  ipcScoreSet,
+        OUTPUT opdTotalScoreAllowance
+        ).
+
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+        INPUT-OUTPUT opdTotalScoreAllowance
+        ).
+       
+    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
 
 END PROCEDURE.
 
