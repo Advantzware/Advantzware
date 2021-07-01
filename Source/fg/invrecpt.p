@@ -161,7 +161,7 @@ IF AVAILABLE oe-ord THEN DO TRANSACTION:
           /*IF lInvFrt THEN */
             bf-fg-rctd.EmailBOL           = lEmailBol .
             
-        IF ll AND bf-fg-rctd.spare-char-1 EQ "" THEN DO:
+        IF bf-fg-rctd.spare-char-1 EQ "" THEN DO:
           li-tag-no = 0.
     
           FOR EACH loadtag
@@ -196,20 +196,7 @@ IF AVAILABLE oe-ord THEN DO TRANSACTION:
            loadtag.tag-date     = TODAY
            loadtag.tag-time     = TIME
            bf-fg-rctd.tag       = bf-fg-rctd.spare-char-1.
-        END.
-        ELSE
-        IF NOT ll AND bf-fg-rctd.spare-char-1 NE "" THEN DO:
-          FIND FIRST loadtag
-              WHERE loadtag.company   EQ bf-oe-ordl.company
-                AND loadtag.item-type EQ NO
-                AND loadtag.tag-no    EQ bf-fg-rctd.spare-char-1
-              NO-ERROR.
-          IF AVAIL loadtag THEN DELETE loadtag.
-          ASSIGN
-           bf-fg-rctd.spare-char-1    = ""
-           bf-fg-rctd.tag = bf-fg-rctd.spare-char-1
-           .
-        END.
+        END.         
     END.
     /* FIND CURRENT bf-ref NO-LOCK NO-ERROR. */
     FIND itemfg WHERE itemfg.company = bf-oe-ordl.company

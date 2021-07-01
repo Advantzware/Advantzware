@@ -1,3 +1,4 @@
+USING system.SharedConfig.
 DISABLE TRIGGERS FOR LOAD OF oe-boll.
 DISABLE TRIGGERS FOR LOAD OF oe-bolh.
 
@@ -20,17 +21,29 @@ DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dRatePerPallet AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lForceFreight AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCarrier AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
 
  FIND  oe-bolh WHERE ROWID(oe-bolh) EQ iprBolhRow EXCLUSIVE-LOCK NO-ERROR.
  IF NOT AVAIL oe-bolh THEN
    RETURN.
-
+   
+ ASSIGN 
+      scInstance  = SharedConfig:instance
+      cLocation   =  STRING(scInstance:GetValue("BolScreenValueOfLocation")) 
+      cCarrier    =  STRING(scInstance:GetValue("BolScreenValueOfCarrier")) NO-ERROR.  
+        
  ASSIGN oe-bolh.tot-pallets = 0
         dTotFreight         = 0
-        tot-other-freight   = 0.
-        
+        tot-other-freight   = 0 .
+ IF cLocation EQ "" THEN
+    ASSIGN
+        cLocation           = oe-bolh.loc
+        cCarrier            = oe-bolh.carrier.
+           
 IF oe-bolh.cwt NE 0 THEN
 DO:
   lForceFreight = YES.
@@ -51,7 +64,7 @@ DO:
    RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
                INPUT cCustID,
                INPUT oe-bolh.ship-id,
-               INPUT oe-bolh.carrier,
+               INPUT cCarrier,
                INPUT rowid(bf-oe-boll), 
                OUTPUT v-other-freight). 
    tot-other-freight = tot-other-freight + v-other-freight.
@@ -75,7 +88,7 @@ DO:
    RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
                INPUT cCustID,
                INPUT oe-bolh.ship-id,
-               INPUT oe-bolh.carrier,
+               INPUT cCarrier,
                INPUT rowid(bf-oe-boll), 
                OUTPUT v-other-freight). 
   
@@ -91,7 +104,7 @@ DO:
     IF AVAIL(itemfg) AND itemfg.frt-class GT "" THEN DO:
       FIND FIRST carr-mtx WHERE carr-mtx.company  EQ oe-bolh.company
                             AND carr-mtx.loc      EQ shipto.loc
-                            AND carr-mtx.carrier  EQ oe-bolh.carrier
+                            AND carr-mtx.carrier  EQ cCarrier
                             AND carr-mtx.del-zone EQ itemfg.frt-class
                           NO-LOCK NO-ERROR.
       IF AVAIL carr-mtx THEN
@@ -101,8 +114,8 @@ DO:
 
 
    RUN oe/getLineFrt.p (oe-bolh.company, 
-                        oe-bolh.loc, 
-                        oe-bolh.carrier, 
+                        cLocation, 
+                        cCarrier, 
                         v-del-zone,
                         shipto.ship-zip, 
                         v-other-freight, 
@@ -136,7 +149,7 @@ DO:
      RUN oe/getLineFrtBasis.p (INPUT oe-bolh.company,
                INPUT cCustID,
                INPUT oe-bolh.ship-id,
-               INPUT oe-bolh.carrier,
+               INPUT cCarrier,
                INPUT rowid(bf-oe-boll), 
                OUTPUT v-other-freight). 
  
@@ -156,16 +169,16 @@ DO:
  
  FIND FIRST carrier NO-LOCK
       WHERE carrier.company EQ oe-bolh.company
-      AND carrier.carrier EQ oe-bolh.carrier
-      AND carrier.loc EQ oe-bolh.loc NO-ERROR .
+      AND carrier.carrier EQ cCarrier
+      AND carrier.loc EQ cLocation NO-ERROR .
  IF AVAIL carrier THEN
  DO:    
    IF carrier.chg-method EQ "P" THEN
-   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Pallet, Zone = " + v-del-zone + ", Pallet = " +  string(oe-bolh.tot-pallet) + " @ $" + string(dRatePerPallet) + "/Pallet".
+   cTagDescription = "Loc = " + cLocation + ", Carrier = Pallet, Zone = " + v-del-zone + ", Pallet = " +  string(oe-bolh.tot-pallet) + " @ $" + string(dRatePerPallet) + "/Pallet".
    ELSE IF carrier.chg-method EQ "W" THEN
-   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(oe-bolh.tot-wt) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
+   cTagDescription = "Loc = " + cLocation + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(oe-bolh.tot-wt) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
    ELSE IF carrier.chg-method EQ "M" THEN
-   cTagDescription = "Loc = " + oe-bolh.loc + ", Carrier = Msf, Zone = " + v-del-zone + ", MSF = @ $" + string(dRatePerPallet) + "/Msf".
+   cTagDescription = "Loc = " + cLocation + ", Carrier = Msf, Zone = " + v-del-zone + ", MSF = @ $" + string(dRatePerPallet) + "/Msf".
    
    IF dTotFreight LT ldMinRate THEN 
     cTagDescription = cTagDescription + ", Minimum applied @ $" + STRING(ldMinRate) .

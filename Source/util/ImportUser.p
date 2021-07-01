@@ -34,7 +34,6 @@ DEFINE TEMP-TABLE ttImportUsers
     FIELD cFax               AS CHARACTER FORMAT "xxx-xxxx" COLUMN-LABEL "Fax #" HELP "Optional - Character - Size:7"
     FIELD iSecurityLevel     AS INTEGER   FORMAT ">999" COLUMN-LABEL "Security Level" HELP "Optional - Integer - Size:4" 
     FIELD cUserType          AS CHARACTER FORMAT "X(20)" COLUMN-LABEL "User Type" HELP "Optional - Character - Size:20"
-    FIELD cImageViewer       AS CHARACTER FORMAT "X(80)" COLUMN-LABEL "Image Viewer" HELP "Optional - Character - Size:80"
     FIELD cReportPath        AS CHARACTER FORMAT "X(100)" COLUMN-LABEL "Report Path" HELP "Optional - Character - Size:80"
     FIELD cDocumentPath      AS CHARACTER FORMAT "X(100)" COLUMN-LABEL "Document Path" HELP "Optional - Character - Size:80"
     FIELD cIsDeveloper       AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Developer" HELP "Optional - Yes or N0"
@@ -222,7 +221,6 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportUsers.cUserType EQ "" THEN
         ipbf-ttImportUsers.cUserType = "Full User".
     RUN pAssignValueC (ipbf-ttImportUsers.cUserType, iplIgnoreBlanks, INPUT-OUTPUT bf-users.userType).
-    RUN pAssignValueC (ipbf-ttImportUsers.cImageViewer, iplIgnoreBlanks, INPUT-OUTPUT bf-users.user_program[1]).
     RUN pAssignValueC (ipbf-ttImportUsers.cReportPath, iplIgnoreBlanks, INPUT-OUTPUT  bf-users.user_program[2]).
     RUN pAssignValueC (ipbf-ttImportUsers.cDocumentPath, iplIgnoreBlanks, INPUT-OUTPUT   bf-users.user_program[3]).
     RUN pAssignValueC (ipbf-ttImportUsers.cIsDeveloper, YES, INPUT-OUTPUT bf-users.developer).

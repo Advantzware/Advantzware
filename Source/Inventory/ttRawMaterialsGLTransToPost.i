@@ -6,5 +6,6 @@ DEFINE TEMP-TABLE ttRawMaterialsGLTransToPost NO-UNDO
     FIELD errorDesc     AS CHARACTER
     FIELD debitsAmount  AS DECIMAL
     FIELD creditsAmount AS DECIMAL
+    FIELD memo          AS CHARACTER
     INDEX accountNo accountNo
     .

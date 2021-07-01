@@ -1386,17 +1386,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN
        v-auto-print   = sys-ctrl.log-fld
-       scr-auto-print:SCREEN-VALUE = STRING(sys-ctrl.log-fld)
-       scr-label-file:SCREEN-VALUE = sys-ctrl.char-fld
-       v-casflg = asi.sys-ctrl.log-fld.
+       scr-auto-print = sys-ctrl.log-fld
+       scr-label-file = sys-ctrl.char-fld
+       v-casflg       = asi.sys-ctrl.log-fld
+       .
 
     IF rd_print:SCREEN-VALUE NE "R" THEN DISABLE begin_date end_date.
     ELSE DO:
          ASSIGN begin_date = DATE(1,1,YEAR(TODAY))
-                END_date = DATE(12,31,YEAR(TODAY)).
-         DISPLAY begin_date END_date.
+                end_date = DATE(12,31,YEAR(TODAY)).
+         DISPLAY begin_date end_date.
     END.
-    DISPLAY lbl_po-no.
+    DISPLAY lbl_po-no scr-auto-print scr-label-file.
     APPLY "entry" TO fi_cas-lab.
 
     IF begin_filename:SCREEN-VALUE = "" THEN

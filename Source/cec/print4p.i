@@ -627,10 +627,13 @@
     v-brd-cost = dm-tot[5].
 
     /* adders   */  run cec/pr4-add.p (v-vend-list).
-
-    FIND CURRENT probe NO-ERROR.
-    IF AVAIL probe THEN
-      probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
+    
+    /* Enclosing in DO TRANSACTION as this update raises the transaction scope to entire (internal) procedure */
+    DO TRANSACTION:
+        FIND CURRENT probe NO-ERROR.
+        IF AVAILABLE probe THEN
+            probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
+    END.
     FIND CURRENT probe NO-LOCK NO-ERROR.
 
     /* i n k s  */  run cec/pr4-ink.p (v-vend-no).

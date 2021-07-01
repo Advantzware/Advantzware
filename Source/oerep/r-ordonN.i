@@ -41,8 +41,85 @@
             IF (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .        
         
       {oerep/r-ordo1N.i}
-    END.
+      FIND FIRST job WHERE
+                job.company EQ cocode AND
+                job.job-no  EQ oe-ordl.job-no AND
+                job.job-no2 EQ oe-ordl.job-no2
+                NO-LOCK NO-ERROR.
 
+      IF AVAIL job THEN
+      DO:
+          ASSIGN tt-report.due-dt = job.start-date.
+          IF AVAIL oe-ordl  THEN 
+                    tt-report.due-dt = if oe-ordl.req-date  ne ? then oe-ordl.req-date
+                    ELSE if oe-ordl.prom-date ne ? then oe-ordl.prom-date
+                    else tt-report.due-dt.
+                        
+          FOR EACH job-hdr NO-LOCK 
+                WHERE job-hdr.company  EQ oe-ordl.company
+                AND job-hdr.ord-no   EQ oe-ordl.ord-no
+                AND job-hdr.i-no     EQ oe-ordl.i-no
+                AND job-hdr.job-no   EQ oe-ordl.job-no
+                AND job-hdr.job-no2  EQ oe-ordl.job-no2
+                BREAK BY job-hdr.job-no
+                      BY job-hdr.job-no2
+                      BY job-hdr.frm
+                      BY job-hdr.blank-no
+                transaction:
+                
+                IF job-hdr.job-no NE "" THEN
+                 tt-report.job-no   = fill(" ",6 - length(trim(job-hdr.job-no))) +
+                                      trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
+                                      .
+                
+                ASSIGN tt-report.sht     = " "
+                       tt-report.prntd   = " "
+                       tt-report.die-cut = " "
+                       tt-report.glue    = " "
+                       .  
+                
+                IF LAST-OF(job-hdr.blank-no) THEN DO:
+
+                  FIND LAST b-job-mch WHERE
+                       b-job-mch.company EQ cocode AND
+                       b-job-mch.job-no  EQ job-hdr.job-no AND
+                       b-job-mch.job-no2 EQ job-hdr.job-no2
+                       USE-INDEX seq-idx
+                       NO-LOCK NO-ERROR.
+
+                  IF AVAIL b-job-mch THEN
+                  DO:
+                     tt-report.run-end-date = b-job-mch.end-date.
+                     RELEASE b-job-mch.
+                  END.
+                  ELSE
+                     tt-report.run-end-date = ?.
+                  
+                  FIND FIRST b-job-mch WHERE
+                       b-job-mch.company EQ cocode AND
+                       b-job-mch.job-no  EQ job-hdr.job-no AND
+                       b-job-mch.job-no2 EQ job-hdr.job-no2
+                       USE-INDEX seq-idx
+                       NO-LOCK NO-ERROR.
+                  
+                  IF AVAIL b-job-mch AND b-job-mch.dept  eq "GL" AND b-job-mch.run-complete then 
+                     ASSIGN tt-report.glue = "  X".
+                  IF AVAIL b-job-mch AND (b-job-mch.dept  eq "RS" OR b-job-mch.dept  eq "AA") AND b-job-mch.run-complete then 
+                     ASSIGN tt-report.sht = "  X".
+                  IF AVAIL b-job-mch AND b-job-mch.dept  eq "PR" AND b-job-mch.run-complete then 
+                     ASSIGN tt-report.prntd = "  X".
+                  IF AVAIL b-job-mch AND b-job-mch.dept  eq "DC" AND b-job-mch.run-complete then 
+                     ASSIGN tt-report.die-cut = "  X".
+                  
+                  RELEASE b-job-mch.
+                END.
+                
+          END. /* FOR EACH job-hdr */      
+      END. /* IF AVAIL job */     
+    
+    END. /* FOR EACH oe-ord */
+    
+    
     FOR EACH tt-report WHERE tt-report.term-id EQ "",
         FIRST oe-ordl WHERE ROWID(oe-ordl) EQ tt-report.row-id NO-LOCK,
         FIRST oe-ord OF oe-ordl NO-LOCK
@@ -376,6 +453,15 @@
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
                    WHEN "tag"      THEN cVarValue = STRING(v-tab,"x(8)")              .
                    WHEN "qty"      THEN cVarValue = STRING(v-qty,">>>,>>>,>>9")              . */
+                   WHEN "job"         THEN cVarValue =  STRING(tt-report.job-no,"x(10)") .
+                   WHEN "die"         THEN cVarValue =  STRING(tt-report.die) .
+                   WHEN "due-dt"      THEN cVarValue =  IF tt-report.due-dt NE ? THEN STRING(tt-report.due-dt) ELSE ""  .
+                   WHEN "comp-dt"     THEN cVarValue =  IF tt-report.run-end-date NE ? THEN STRING(tt-report.run-end-date) ELSE ""     .
+                   WHEN "styl"        THEN cVarValue =  STRING(tt-report.styl) .
+                   WHEN "sht"         THEN cVarValue =  STRING(tt-report.sht).
+                   WHEN "prntd"       THEN cVarValue =  STRING(tt-report.prntd).
+                   WHEN "die-cut"     THEN cVarValue =  STRING(tt-report.die-cut).
+                   WHEN "glue"        THEN cVarValue =  STRING(tt-report.glue).
                END CASE.                                                                 
                 
               cExcelVarValue = cVarValue.

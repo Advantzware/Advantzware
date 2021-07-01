@@ -7,3 +7,4 @@ DEFINE TEMP-TABLE ttScheduledReleasesStats NO-UNDO
     FIELD xxItemFGRecKey AS CHARACTER LABEL "Item FG Rec Key" FORMAT "x(20)" INITIAL "Z"
         INDEX itemRecKey IS PRIMARY xxItemFGRecKey
         .
+RUN spSetSessionParam ("DetailHandle2", TEMP-TABLE ttScheduledReleasesStats:HANDLE).

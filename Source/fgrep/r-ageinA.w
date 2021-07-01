@@ -3160,7 +3160,7 @@ PROCEDURE produce-report :
                   FIND cust WHERE cust.cust-no = itemfg.cust-no
                       AND cust.company = cocode NO-LOCK NO-ERROR.
 
-              IF (AVAIL cust AND cust.ACTIVE NE "X" AND cust.sman GT ""
+              IF (AVAIL cust AND NOT cust.internal AND cust.sman GT ""
                   AND cust.sman GE fslm AND cust.sman LE tslm)
                   OR (itemfg.spare-char-3 GE fslm 
                   AND itemfg.spare-char-3 LE tslm) THEN 
