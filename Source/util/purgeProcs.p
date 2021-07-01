@@ -1127,7 +1127,7 @@ PROCEDURE purgeGLhistFromFile:
     
     ASSIGN 
         cOutputDir = REPLACE(ipcFileName,"\" + ipcFileNameExt ,"").
-    EMPTY TEMP-TABLE ttGLHistList.
+    
     IF SEARCH (ipcFileName) EQ ? THEN 
     DO:
         ASSIGN 
@@ -1143,30 +1143,7 @@ PROCEDURE purgeGLhistFromFile:
     END.
     ELSE DO:
         OUTPUT STREAM sDump TO VALUE (cOutputDir + "\glhist.d").
-        INPUT FROM VALUE(ipcFileName).
-        IMPORT UNFORMATTED cRawRow. /* Get rid of Title row */
-        REPEAT:
-            IMPORT UNFORMATTED cRawRow.
-            CREATE ttGLHistList.
-            ASSIGN 
-                ttGLHistList.lPosted        = IF ENTRY(1,cRawRow,",") = "POSTED" THEN TRUE ELSE FALSE 
-                ttGLHistList.iYear          = INT(ENTRY(2,cRawRow,","))
-                ttGLHistList.iPeriod        = INT(ENTRY(3,cRawRow,","))
-                ttGLHistList.cAccount       = ENTRY(4,cRawRow,",")
-                ttGLHistList.cJournal       = ENTRY(5,cRawRow,",")
-                ttGLHistList.daTxnDate      = DATE(ENTRY(6,cRawRow,","))
-                ttGLHistList.deAmount       = DECIMAL(ENTRY(7,cRawRow,","))
-                ttGLHistList.cCurrency      = ENTRY(8,cRawRow,",")
-                ttGLHistList.cDescription   = ENTRY(9,cRawRow,",")
-                ttGLHistList.cType          = ENTRY(10,cRawRow,",")
-                ttGLHistList.cCreatedBy     = ENTRY(11,cRawRow,",")
-                ttGLHistList.cFileName      = ENTRY(12,cRawRow,",")
-                ttGLHistList.cReckey        = ENTRY(13,cRawRow,",")
-                ttGLHistList.rRowID         = TO-ROWID(ENTRY(14,cRawRow,","))                
-                .
-        END.
-        INPUT CLOSE.
-        
+                   
         FOR EACH ttGLHistList 
             BREAK BY ttGLHistList.iYear
             BY ttGLHistList.iPeriod
