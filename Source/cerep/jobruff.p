@@ -331,7 +331,7 @@ END.
 
 {cerep/jobkeyst.i NO-LOCK}
 ,
-EACH tt-reftable WHERE (tt-reftable.val[12] EQ job-hdr.frm OR est.est-type EQ 2) NO-LOCK
+EACH tt-reftable WHERE (tt-reftable.val[12] EQ job-hdr.frm OR est.est-type EQ 2 ) NO-LOCK
 BREAK BY job-hdr.job
 BY job-hdr.job-no
 BY job-hdr.job-no2
@@ -471,12 +471,12 @@ DO:
             v-del-date = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
             LEAVE.
         END.
-
-    IF NOT FIRST(job-hdr.job-no) THEN 
-    DO:
-        PAGE.
+           
+    IF NOT FIRST(job-hdr.job-no) AND NOT(est.est-type EQ 2 AND tt-reftable.val[12] EQ 1) THEN 
+    DO:       
+         PAGE.
     END.
-    
+        
     IF FIRST-OF(job-hdr.job-no2) THEN 
         v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
     cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
@@ -941,7 +941,7 @@ FOR EACH ef
                           IF AVAILABLE oe-ord  THEN oe-ord.over-pct  ELSE 1
             dUnderPct  = IF AVAILABLE oe-ordl THEN oe-ordl.under-pct ELSE
                           IF AVAILABLE oe-ord  THEN oe-ord.under-pct  ELSE 1
-            v-prt-up   = v-tot-up * ef.n-out-l.
+            v-prt-up   = v-up * ef.n-out-l .
         IF AVAILABLE po-ord THEN
             FIND FIRST po-ordl WHERE
                 po-ordl.company EQ po-ord.company AND
@@ -1042,12 +1042,12 @@ PROCEDURE pPrintData:
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
         
-          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) FORM "x(10)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP          
-            v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
-            v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
-            v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>LAST JOB: <FGCOLOR=BLACK>"   v-last-order FORM "X(6)"        SKIP
-            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP
+          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99")) FORM "x(14)" "<P10>" SKIP
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  job-hdr.ord-no  FORMAT ">>>>>9"  SKIP          
+            v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP
+            v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
+            v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
+            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP 
             v-fill SKIP
             "<R-0.5><C1><FGCOLOR=GREEN>Item On Job:" SKIP
             "<C4><P9>ITEM#  <C16>CUST PART# <C28>DESCRIPTION  <C50>FORM <C54>BLANK <C59>#UP <C64>ORDER QTY <C72>OVERS <C77>UNDERS <FGCOLOR=BLACK>" SKIP .
@@ -1182,7 +1182,7 @@ PROCEDURE pPrintData:
             v-skip          = NO
             v-plate-printed = NO.
         iCount = 1 .
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(i - 1) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         
@@ -1205,12 +1205,11 @@ PROCEDURE pPrintData:
               AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
         PUT  SKIP(1)
             "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " bf-xeb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
-            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP(3)
             "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
-            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
+            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP(5)
+                            
             "<R-1>" v-fill  SKIP.
          
             lv-line-chars = 80.
@@ -1333,10 +1332,10 @@ PROCEDURE pPrintDetail:
                   
 
         PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP          
-            v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
-            v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
-            v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Last Job: <FGCOLOR=BLACK>"    v-last-order FORM "X(6)"       SKIP
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  job-hdr.ord-no  FORMAT ">>>>>9"  SKIP        
+            v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP 
+            v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
+            v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
             "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP
             v-fill SKIP
             "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" v-ord-qty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
@@ -1454,12 +1453,11 @@ PROCEDURE pPrintDetail:
               AND prep.CODE EQ bf-xeb.die-no AND bf-xeb.die-no NE "" NO-ERROR .
         PUT  SKIP(1)
             "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " bf-xeb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
-            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP(3)
             "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " bf-xeb.die-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
-            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
+            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP(5)
+                           
             "<R-1>" v-fill  SKIP.
         PUT "<C2>" v-cust-name FORMAT "x(30)" SKIP .     
         PUT "<C2><FGCOLOR=GREEN>---------------------------------------- LABEL INFO ----------------------------------------<FGCOLOR=BLACK>"  SKIP.
