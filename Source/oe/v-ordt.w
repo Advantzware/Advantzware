@@ -617,7 +617,7 @@ PROCEDURE local-assign-statement :
          cust.cr-hold = YES
          oe-ord.stat = "H".
       END.*/
-        IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+        IF AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
       RUN oe/creditck.p (ROWID(oe-ord), NO).
     END.
 

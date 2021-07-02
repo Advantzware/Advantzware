@@ -14,7 +14,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttInventory.i}
 {fg/ttFGBins.i "SHARED"}
 {fg/ttInventoryTables.i}
 
@@ -460,7 +460,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
     DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcExportPath AS CHARACTER NO-UNDO.
     
-    EMPTY TEMP-TABLE ttFGBins.
+/*    EMPTY TEMP-TABLE ttFGBins.*/
     EMPTY TEMP-TABLE ttHistDelete.
     IF iplPurge THEN DO:
         RUN pInitializeOutput(ipcExportPath, ipdtAsOf).

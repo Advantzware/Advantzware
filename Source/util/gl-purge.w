@@ -49,6 +49,9 @@ CREATE WIDGET-POOL.
 assign
  cocode = gcompany
  locode = gloc.
+ 
+ DEFINE STREAM period-bak.
+ DEFINE STREAM glHist-bak.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -287,7 +290,7 @@ DO:
   MESSAGE "Are you sure you want to delete " +
           (IF tb_del-all THEN "ALL GL History"
                          ELSE ("GL History for Acct#: " + TRIM(del_number))) +
-          "up to and including the date specified?"
+          " up to and including the date specified?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
@@ -428,10 +431,25 @@ DEF VAR fr-acct AS CHAR INIT "" NO-UNDO.
 DEF VAR to-acct LIKE fr-acct INIT "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-fisc-yr LIKE period.yr NO-UNDO.
+DEFINE VARIABLE iPastCountDay AS INTEGER INIT 1095 NO-UNDO.
+DEFINE VARIABLE cTmpDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 
 DEF BUFFER b-retain FOR account.
 DEF BUFFER b-contra FOR account.
+DEFINE BUFFER bf-period FOR period.
 
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1))
+     NO-ERROR.
+DISABLE TRIGGERS FOR LOAD OF period.
+DISABLE TRIGGERS FOR LOAD OF glhist.
+
+IF AVAIL users AND users.user_program[2] NE "" THEN
+  cTmpDir = users.user_program[2].
+ELSE
+  cTmpDir = "c:\tmp".
 
 SESSION:SET-WAIT-STATE("general").
 
@@ -460,94 +478,69 @@ IF NOT tb_del-all THEN
   ASSIGN
    fr-acct = del_number
    to-acct = del_number.
+   
+RUN FileSys_CreateDirectory(
+            INPUT  cTmpDir ,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).    
+   
+OUTPUT STREAM period-bak TO value(cTmpDir + "\period-bak-" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "-" + STRING(TIME) + ".d") .
+
+FOR EACH bf-period EXCLUSIVE-LOCK
+    WHERE bf-period.company EQ cocode
+    AND bf-period.pstat EQ NO
+    AND bf-period.pend LE (del_date - iPastCountDay) :
+    FIND FIRST glhist NO-LOCK
+         WHERE glhist.company EQ cocode
+         AND glhist.tr-date  GE bf-period.pst
+         AND glhist.tr-date  LE bf-period.pend
+         NO-ERROR.
+     IF NOT AVAIL glhist THEN
+     DO:
+        EXPORT STREAM period-bak bf-period.
+        DELETE bf-period.         
+     END.
+END.
+RELEASE bf-period.
+OUTPUT STREAM period-bak CLOSE.   
+
+OUTPUT STREAM glhist-bak TO value(cTmpDir + "\glhist-bak-" + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "-" + STRING(TIME) + ".d") .
 
 FOR EACH glhist
     WHERE glhist.company EQ cocode
       AND glhist.actnum  GE fr-acct
       AND glhist.actnum  LE to-acct
       AND glhist.tr-date LE del_date
-      AND glhist.posted EQ NO:
-  DELETE glhist.
-END.
-
-FOR EACH account
-    WHERE account.company EQ cocode
-      AND account.actnum  GE fr-acct
-      AND account.actnum  LE to-acct,
-
-    EACH glhist
-    WHERE glhist.company EQ account.company
-      AND glhist.actnum  EQ account.actnum
-      AND glhist.tr-date LE del_date
-      AND glhist.posted EQ YES,
-
-    FIRST period
-    WHERE period.company EQ glhist.company
-      AND period.pst     LE glhist.tr-date
-      AND period.pend    GE glhist.tr-date
-    NO-LOCK
-
-    BREAK BY glhist.actnum:
-
-  IF period.yr EQ lv-fisc-yr THEN
-    account.cyr[period.pnum] = account.cyr[period.pnum] - glhist.tr-amt.
-
-  ELSE
-  IF period.yr EQ lv-fisc-yr - 1 THEN
-    account.lyr[period.pnum] = account.lyr[period.pnum] - glhist.tr-amt.
-
-  IF INDEX("RE",account.type) EQ 0 THEN DO:
-    IF period.yr LT lv-fisc-yr - 1 THEN
-      account.lyr-open = account.lyr-open - glhist.tr-amt.
-
-    IF LAST-OF(glhist.actnum) THEN DO:
-      account.cyr-open = account.lyr-open.
-
-      DO li = 1 TO EXTENT(account.lyr):
-        account.cyr-open = account.cyr-open + account.lyr[li].
-      END.
-    END.
-  END.
-
-  ELSE
-  IF AVAIL b-retain AND AVAIL b-contra THEN DO:
-    IF period.yr EQ lv-fisc-yr THEN
-      ASSIGN
-       b-retain.cyr[period.pnum] = b-retain.cyr[period.pnum] - glhist.tr-amt
-       b-contra.cyr[period.pnum] = b-contra.cyr[period.pnum] + glhist.tr-amt.
-
-    ELSE
-    IF period.yr EQ lv-fisc-yr - 1 THEN
-      ASSIGN
-       b-retain.lyr[period.pnum] = b-retain.lyr[period.pnum] - glhist.tr-amt
-       b-contra.lyr[period.pnum] = b-contra.lyr[period.pnum] + glhist.tr-amt.
-
-    ELSE
-    IF period.yr LT lv-fisc-yr - 1 THEN
-      b-retain.lyr-open = b-retain.lyr-open - glhist.tr-amt.
-  END.
-
-  IF LAST(glhist.actnum) THEN DO:
-    b-retain.cyr-open = b-retain.lyr-open.
-
-    DO li = 1 TO EXTENT(b-retain.lyr):
-      b-retain.cyr-open = b-retain.cyr-open + b-retain.lyr[li].
-    END.
-  END.
-
-  DELETE glhist.
+      AND glhist.posted EQ YES USE-INDEX glhist       
+    BREAK BY glhist.actnum: 
+    
+    IF FIRST-OF(glhist.actnum) THEN
+    {custom/statusMsg.i " 'Processing Account#  '  + glhist.actnum "}
+    
+      EXPORT STREAM glhist-bak glhist.
+      DELETE glhist.
 END.
 
 FOR EACH glhist
     WHERE glhist.company EQ cocode
       AND glhist.actnum  GE fr-acct
-      AND glhist.actnum  LE to-acct
-      AND glhist.tr-date LE del_date
-      AND glhist.posted EQ YES :
+      AND glhist.actnum  LE to-acct      
+      AND glhist.tr-amt  EQ 0 USE-INDEX glhist
+      BREAK BY glhist.actnum:
+      
+  IF FIRST-OF(glhist.actnum) THEN
+    {custom/statusMsg.i " 'Processing Account#  '  + glhist.actnum "}    
+      
+  EXPORT STREAM glhist-bak glhist.    
   DELETE glhist.
 END.
+
+OUTPUT STREAM glhist-bak CLOSE.
+RELEASE glhist.
 
 SESSION:SET-WAIT-STATE("").
+STATUS DEFAULT "Processing Complete".
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.

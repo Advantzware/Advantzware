@@ -816,7 +816,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estop , 'Record':U , h_p-estop ).
        
        /* Links to SmartViewer h_vi-est-4. */
-       RUN add-link IN adm-broker-hdl ( h_b-estq , 'Record':U , h_vi-est-4 ).
+       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est-4 ).
 
        /* Links to SmartBrowser h_b-estprp. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estprp ).

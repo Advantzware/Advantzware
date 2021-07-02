@@ -20,3 +20,5 @@ DEFINE TEMP-TABLE ttAPInvoicePostingSummary NO-UNDO
               xxID
               xxOrder
     .
+RUN spSetSessionParam ("SummaryHandle2", TEMP-TABLE ttAPInvoicePostingSummary:HANDLE).
+RUN spSetSessionParam ("SummaryTitle2", "AP Invoice Posting Summary").

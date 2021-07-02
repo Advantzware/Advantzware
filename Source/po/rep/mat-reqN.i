@@ -214,6 +214,9 @@ for each {1}report where {1}report.term-id eq v-term,
         and item.i-no    eq v-itm
       no-lock no-error.
 
+  IF AVAILABLE item THEN 
+     ASSIGN cItemDesc = item.i-dscr .
+      
   if first-of({1}report.key-02) OR v-sort-by-size then do:
     v-qty[1] = 0.
     ASSIGN
@@ -253,7 +256,20 @@ for each {1}report where {1}report.term-id eq v-term,
   release po-ordl.
   release po-ord.
   release vend.
-
+  
+  FIND FIRST job-hdr 
+       WHERE job-hdr.company EQ job.company
+         AND job-hdr.job     EQ job.job
+         AND job-hdr.job-no  EQ job.job-no
+         AND job-hdr.job-no2 EQ job.job-no2
+         NO-LOCK NO-ERROR.
+  
+  IF AVAILABLE job-hdr THEN
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ job-hdr.company
+        AND   oe-ord.ord-no  EQ job-hdr.ord-no
+        NO-ERROR.
+  
   find first po-ordl
       where po-ordl.company eq job.company
         and po-ordl.po-no   eq int({1}report.key-03)
@@ -277,6 +293,7 @@ for each {1}report where {1}report.term-id eq v-term,
      v-qty[2] = po-ordl.cons-qty
      v-qty[3] = po-ordl.t-rec-qty.
 
+     
     if po-ordl.cons-uom ne v-uom then do:
       ASSIGN
        v-bwt = item.basis-w.
@@ -313,24 +330,26 @@ for each {1}report where {1}report.term-id eq v-term,
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
-                     WHEN "job"   THEN cVarValue = string(v-job)  .
-                     WHEN "ino"   THEN cVarValue = IF v-itm EQ "" THEN "PendingJob" ELSE v-itm  .
-                     WHEN "uom"   THEN cVarValue = IF v-itm ne "" THEN v-uom ELSE "" .
-                     WHEN "reqr"  THEN cVarValue = IF v-itm ne "" THEN STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "ord"   THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "rece"  THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "vend"  THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
-                     WHEN "wid"   THEN cVarValue = STRING(v-wid,">>9.9999")  .
-                     WHEN "len"   THEN cVarValue = STRING(v-len,">>9.9999") .
-                     WHEN "scr"   THEN cVarValue = STRING(len-score) .
-                     WHEN "bal"   THEN cVarValue = IF v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "dt"    THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
-                     WHEN "cmtd"   THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
-                     WHEN "po"    THEN cVarValue = IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "" .
-                     WHEN "job-qty"    THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
-                     WHEN "rm-qty"   THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") .
-                     WHEN "job-due-date"   THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
-                     
+                     WHEN "job"             THEN cVarValue = string(v-job)  .
+                     WHEN "ino"             THEN cVarValue = IF v-itm EQ "" THEN "PendingJob" ELSE v-itm  .
+                     WHEN "uom"             THEN cVarValue = IF v-itm ne "" THEN v-uom ELSE "" .
+                     WHEN "reqr"            THEN cVarValue = IF v-itm ne "" THEN STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "ord"             THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "rece"            THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "vend"            THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
+                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>9.9999")  .
+                     WHEN "len"             THEN cVarValue = STRING(v-len,">>9.9999") .
+                     WHEN "scr"             THEN cVarValue = STRING(len-score) .
+                     WHEN "bal"             THEN cVarValue = IF v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "dt"              THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
+                     WHEN "cmtd"            THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
+                     WHEN "po"              THEN cVarValue = IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "" .
+                     WHEN "job-qty"         THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
+                     WHEN "rm-qty"          THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") .
+                     WHEN "job-due-date"    THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
+                     WHEN "item-desc"       THEN cVarValue = STRING(cItemDesc).
+                     WHEN "cust"            THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
+                     WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
                 cExcelVarValue = cVarValue.
@@ -359,24 +378,27 @@ for each {1}report where {1}report.term-id eq v-term,
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
-                     WHEN "job"   THEN cVarValue = /*IF first-of({1}report.key-01) THEN*/ string(v-job) /* ELSE "" */ .
-                     WHEN "ino"   THEN cVarValue = IF v-itm EQ "" THEN "PendingJob" ELSE IF first-of({1}report.key-02) THEN v-itm ELSE ""  .
-                     WHEN "uom"   THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN v-uom ELSE "" .
-                     WHEN "reqr"  THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "ord"   THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "rece"  THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "vend"  THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
-                     WHEN "wid"   THEN cVarValue = STRING(v-wid,">>9.9999")  .
-                     WHEN "len"   THEN cVarValue = STRING(v-len,">>9.9999") .
-                     WHEN "scr"   THEN cVarValue = STRING(len-score) .
-                     WHEN "dt"    THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
-                     WHEN "bal"   THEN cVarValue = IF LAST-OF({1}report.key-02) AND v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
-                     WHEN "po"    THEN cVarValue = IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "" .
-                     WHEN "name"  THEN cVarValue = IF AVAIL vend THEN STRING(vend.NAME,"x(20)") ELSE ""  .
-                     WHEN "cmtd"   THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
-                     WHEN "job-qty"    THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
-                     WHEN "rm-qty"   THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN  STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") . 
-                     WHEN "job-due-date"   THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
+                     WHEN "job"             THEN cVarValue = /*IF first-of({1}report.key-01) THEN*/ string(v-job) /* ELSE "" */ .
+                     WHEN "ino"             THEN cVarValue = IF v-itm EQ "" THEN "PendingJob" ELSE IF first-of({1}report.key-02) THEN v-itm ELSE ""  .
+                     WHEN "uom"             THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN v-uom ELSE "" .
+                     WHEN "reqr"            THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "ord"             THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "rece"            THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "vend"            THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
+                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>9.9999")  .
+                     WHEN "len"             THEN cVarValue = STRING(v-len,">>9.9999") .
+                     WHEN "scr"             THEN cVarValue = STRING(len-score) .
+                     WHEN "dt"              THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
+                     WHEN "bal"             THEN cVarValue = IF LAST-OF({1}report.key-02) AND v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
+                     WHEN "po"              THEN cVarValue = IF AVAIL po-ord THEN STRING(po-ord.po-no) ELSE "" .
+                     WHEN "name"            THEN cVarValue = IF AVAIL vend THEN STRING(vend.NAME,"x(20)") ELSE ""  .
+                     WHEN "cmtd"            THEN cVarValue = IF v-itm ne "" THEN STRING(v-cmtd)  ELSE "" .
+                     WHEN "job-qty"         THEN cVarValue = IF v-job-all NE ? AND v-cmtd THEN STRING(v-job-all,"->>>>,>>>,>>9.99") ELSE STRING(0,"->>>>,>>>,>>9.99")  .
+                     WHEN "rm-qty"          THEN cVarValue = IF v-job-all ne ? AND v-cmtd THEN  STRING(v-rm-all,"->>>,>>>,>>9.99") ELSE STRING(0,"->>>,>>>,>>9.99") . 
+                     WHEN "job-due-date"    THEN cVarValue = IF avail job and job.due-date ne ? then string(job.due-date,"99/99/9999") else "" .
+                     WHEN "item-desc"       THEN cVarValue = STRING(cItemDesc).
+                     WHEN "cust"            THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
+                     WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
                 cExcelVarValue = cVarValue.

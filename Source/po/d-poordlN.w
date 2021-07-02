@@ -1630,7 +1630,8 @@ DO:
                     END. /* If a finished good */
 
                 END.  
-                                
+                
+                RUN pGetAccountForJobCat.
                 cFirstMach = "" .
                 RUN GetFirstMach(OUTPUT cFirstMach) .
                 ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
@@ -1678,8 +1679,9 @@ DO:
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
             DO:
-
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                      
                     FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
@@ -2011,9 +2013,10 @@ DO:
             RUN valid-s-num NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
-            DO:
-
+            DO:                 
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                 
                     FIND FIRST itemfg WHERE itemfg.company EQ g_company
@@ -5128,6 +5131,46 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAccountForJobCat Dialog-Frame
+PROCEDURE pGetAccountForJobCat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAccountNo AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-job-hdr  FOR job-hdr.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+      /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+      IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
+      DO:
+        ASSIGN 
+        cAccountNo = "".
+        FIND FIRST b-job-hdr WHERE 
+             b-job-hdr.company EQ g_company AND
+             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+             b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
+             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
+        IF AVAILABLE b-job-hdr THEN
+        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
+        IF cAccountNo <> "" THEN 
+        DO:
+            ASSIGN 
+                po-ordl.actnum:SCREEN-VALUE = cAccountNo.
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ g_company
+                 AND account.actnum   EQ cAccountNo NO-ERROR.
+            v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+        END.
+        RELEASE b-job-hdr.
+      END.
+    END.        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
 PROCEDURE replace-job-mat :
@@ -6449,8 +6492,17 @@ PROCEDURE valid-uom :
         IF LOOKUP(lv-uom,uom-list) LE 0 THEN 
         DO:
             MESSAGE "UOM must be " + TRIM(uom-list) VIEW-AS ALERT-BOX ERROR.
-            IF ip-field EQ "pr-uom" THEN APPLY "entry" TO po-ordl.pr-uom.
-            ELSE APPLY "entry" TO po-ordl.pr-qty-uom.
+            IF ip-field EQ "pr-uom" THEN 
+            DO: 
+               IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-uom:SCREEN-VALUE = "EA".
+               APPLY "entry" TO po-ordl.pr-uom.
+            END.
+            ELSE DO:
+               IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-qty-uom:SCREEN-VALUE = "EA".
+              APPLY "entry" TO po-ordl.pr-qty-uom.
+            END.
             RETURN ERROR.
         END.
     END.

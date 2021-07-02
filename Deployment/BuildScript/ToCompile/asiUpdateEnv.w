@@ -176,7 +176,11 @@ DEF TEMP-TABLE ttResTemplateFiles
 DEF TEMP-TABLE ttledger 
     FIELD cType as CHAR 
     FIELD rRowid as ROWID.
-    
+
+DEFINE TEMP-TABLE ttJobMch NO-UNDO
+    FIELD d-seq LIKE mach.d-seq
+    FIELD rowID AS ROWID.
+        
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -1138,6 +1142,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAssignARInvXNoSeq C-Win
+PROCEDURE ipAssignARInvXNoSeq PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Assigning arInvXNo_seq with last ar-inv x-no.").
+
+    DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
+        
+    IF AVAIL ar-inv THEN 
+        CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win 
 PROCEDURE ipAuditSysCtrl :
 /*------------------------------------------------------------------------------
@@ -2013,6 +2052,31 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertCustomerX C-Win
+PROCEDURE ipConvertCustomerX PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Sets existing customer X to internal
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FOR EACH company NO-LOCK,
+        EACH bf-cust EXCLUSIVE-LOCK
+        WHERE bf-cust.company EQ company.company
+        AND bf-cust.active EQ 'X':
+            
+            ASSIGN 
+                bf-cust.internal = YES.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertGLTrans C-Win
 PROCEDURE ipConvertGLTrans:
     /*------------------------------------------------------------------------------
@@ -2024,7 +2088,7 @@ PROCEDURE ipConvertGLTrans:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN ipStatus ("    Convert GLTrans to GLHist...").
@@ -2067,7 +2131,7 @@ PROCEDURE ipConvertJcCtrl :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
 
     FOR EACH bf-company NO-LOCK:
@@ -2151,6 +2215,163 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPolScore C-Win
+PROCEDURE ipConvertPolScore PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cScoreOn       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPanelSize     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cScoreType     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-reftable1   FOR reftable.
+    DEFINE BUFFER bf-reftable2   FOR reftable.
+    DEFINE BUFFER bf-po-ordl     FOR po-ordl.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    DEFINE BUFFER bf-company     FOR company.
+
+    RUN ipStatus ("    Creating panelHeader and panelDetail records.").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+    
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    FOR EACH bf-company NO-LOCK 
+        WHERE bf-company.company = "001":
+        RUN sys/ref/nk1look.p (
+            INPUT bf-company.company,     /* Company Code */ 
+            INPUT "CECSCRN",      /* sys-ctrl name */
+            INPUT "C",            /* Output return value */
+            INPUT NO,             /* Use ship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cSizeFormat, 
+            OUTPUT lRecFound
+            ).
+        
+        FOR EACH bf-po-ordl NO-LOCK 
+            WHERE bf-po-ordl.company = bf-company.company:
+    
+            FIND FIRST bf-reftable1 NO-LOCK
+                WHERE bf-reftable1.reftable EQ "POLSCORE"
+                  AND bf-reftable1.company  EQ bf-po-ordl.company
+                  AND bf-reftable1.loc      EQ "1"
+                  AND bf-reftable1.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable1.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            
+            FIND FIRST bf-reftable2 NO-LOCK
+                WHERE bf-reftable2.reftable EQ "POLSCORE"
+                  AND bf-reftable2.company  EQ bf-po-ordl.company
+                  AND bf-reftable2.loc      EQ "2"
+                  AND bf-reftable2.code     EQ string(bf-po-ordl.po-no,"9999999999")
+                  AND bf-reftable2.code2    EQ string(bf-po-ordl.line, "9999999999")
+                NO-ERROR.
+            IF NOT AVAILABLE bf-reftable1 AND NOT AVAILABLE bf-reftable2 THEN
+                NEXT.
+            
+            FIND FIRST bf-panelHeader NO-LOCK
+                WHERE bf-panelHeader.company  EQ bf-po-ordl.company
+                  AND bf-panelHeader.linkType EQ "P"
+                  AND bf-panelHeader.poID     EQ bf-po-ordl.po-no
+                  AND bf-panelHeader.poLine   EQ bf-po-ordl.line
+                NO-ERROR.
+            IF AVAILABLE bf-panelHeader THEN
+                NEXT.
+            
+            CREATE bf-panelHeader.
+            ASSIGN
+                bf-panelHeader.company  = bf-po-ordl.company
+                bf-panelHeader.linkType = "P"
+                bf-panelHeader.poID     = bf-po-ordl.po-no
+                bf-panelHeader.poLine   = bf-po-ordl.line
+                .   
+        
+            cScoreOn = IF bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+                           "L"
+                       ELSE
+                           "W".
+    
+            DO iIndex = 1 TO 20:
+                ASSIGN
+                    dPanelSize = 0
+                    cScoreType = ""
+                    .
+            
+                IF iIndex LE 12 THEN DO:
+                    IF NOT AVAILABLE bf-reftable1 THEN
+                        NEXT.
+                
+                    IF bf-reftable1.val[iIndex] EQ 0 AND TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable1.val[iIndex]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable1.dscr, iIndex, 1))
+                            .
+                END.
+                ELSE IF iIndex LE 20 THEN DO:
+                    IF NOT AVAILABLE bf-reftable2 THEN
+                        NEXT.
+    
+                    IF bf-reftable2.val[iIndex - 12] EQ 0 AND TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1)) EQ "" THEN
+                        NEXT.
+                    ELSE
+                        ASSIGN
+                            dPanelSize = bf-reftable2.val[iIndex - 12]
+                            cScoreType = TRIM(SUBSTRING(bf-reftable2.dscr, iIndex - 12, 1))
+                            .
+                END.
+        
+                IF cSizeFormat EQ "16th's" THEN 
+                    RUN Convert16thsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+                ELSE IF cSizeFormat EQ "32nd's" THEN 
+                    RUN Convert32ndsToDecimal IN hdFormulaProcs (
+                        INPUT-OUTPUT dPanelSize
+                        ).
+    
+                CREATE bf-panelDetail.
+                ASSIGN
+                    bf-panelDetail.company              = bf-panelHeader.company
+                    bf-panelDetail.panelHeaderID        = bf-panelHeader.panelHeaderID
+                    bf-panelDetail.panelType            = cScoreOn
+                    bf-panelDetail.panelNo              = iIndex
+                    bf-panelDetail.panelFormula         = ""
+                    bf-panelDetail.scoringAllowance     = 0
+                    bf-panelDetail.scoreType            = cScoreType
+                    bf-panelDetail.panelSize            = dPanelSize
+                    bf-panelDetail.panelSizeFromFormula = dPanelSize
+                    .               
+            END.
+        END.
+    END.
+    
+    DELETE PROCEDURE hdFormulaProcs.
+
+    PROPATH = cOrigPropath.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
@@ -2343,7 +2564,7 @@ PROCEDURE ipConvertVendorCosts:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     
         IF NOT VALID-HANDLE(hSession) THEN DO:
@@ -2744,6 +2965,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210003.
     IF iCurrentVersion LT 21010000 THEN
         RUN ipDataFix210100.
+	IF iCurrentVersion LT 21020000 THEN
+		RUN ipDataFix210200.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3507,6 +3730,30 @@ PROCEDURE ipDataFix210100:
     
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210200 C-Win
+PROCEDURE ipDataFix210200:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210200...").
+
+    RUN ipAssignARInvXNoSeq.
+    RUN ipConvertPolScore.
+    RUN ipJobMchSequenceFix.
+    RUN ipConvertCustomerX.
+    
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5058,6 +5305,14 @@ PROCEDURE ipLoadDAOAData :
             emailConfig.configID = 1
             emailConfig.description = "DAOA Report Config".
     END.
+    
+/* 100844 Error in dAOA - Invalid Entry with odd symbol */
+    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
+    FOR EACH dynValueParam EXCLUSIVE WHERE 
+        dynValueParam.paramvalue EQ CHR(231):
+        ASSIGN 
+            dynValueParam.paramvalue = CHR(254).
+    END.    
 
 END PROCEDURE.
 
@@ -6041,7 +6296,7 @@ PROCEDURE ipRefTableConv :
     ASSIGN
         lSuccess = FALSE 
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
     RUN ipStatus ("   ReftableConvert for " + fiEnvironment:{&SV}).
     RUN 
@@ -6425,7 +6680,7 @@ PROCEDURE ipResetCostGroups:
     
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN est/ResetCostGroupsAndCategories.p.   
@@ -7145,7 +7400,7 @@ PROCEDURE ipUpdateSurchargeAccounts:
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
     RUN ipStatus ("    Updating surcharge accounts").
@@ -7386,6 +7641,115 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipJobMchSequenceFix C-Win
+PROCEDURE ipJobMchSequenceFix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
+    
+    FOR EACH job NO-LOCK WHERE job.company = "001":
+        lResequence = FALSE.
+        FOR EACH job-mch NO-LOCK WHERE job-mch.company = job.company
+            AND job-mch.job = job.job BY job-mchid:
+            FIND FIRST bf-job-mch NO-LOCK 
+                WHERE bf-job-mch.company EQ job-mch.company
+                AND bf-job-mch.job EQ job-mch.job
+                AND bf-job-mch.job-mchID EQ job-mch.job-mchID
+                AND ROWID(bf-job-mch) NE ROWID(job-mch)
+                NO-ERROR.
+            IF AVAILABLE bf-job-mch THEN 
+            DO:
+                RUN ipUpdateJobMchID(BUFFER bf-job-mch).
+                IF NOT lResequence THEN
+                    lResequence = bf-job-mch.line EQ job-mch.line.
+            END.
+        END.
+        
+        IF lResequence THEN
+            RUN ipUpdateJobMchLines(BUFFER job).
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateJobMchID C-Win
+PROCEDURE ipUpdateJobMchID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    
+    IF NOT AVAILABLE ipbf-job-mch THEN
+        RETURN.
+        
+    FIND CURRENT ipbf-job-mch EXCLUSIVE-LOCK NO-ERROR.
+    
+    ipbf-job-mch.job-mchID = NEXT-VALUE(job-mch_seq,ASI).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateJobMchLines C-Win
+PROCEDURE ipUpdateJobMchLines PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    
+    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    EMPTY TEMP-TABLE ttJobMch.
+
+    FOR EACH bf-job-mch
+        WHERE bf-job-mch.company EQ  ipbf-job.company
+          AND bf-job-mch.job     EQ  ipbf-job.job
+          AND bf-job-mch.job-no  EQ  ipbf-job.job-no
+          AND bf-job-mch.job-no2 EQ  ipbf-job.job-no2
+        USE-INDEX line-idx:
+
+        FIND FIRST mach NO-LOCK
+             WHERE mach.company EQ bf-job-mch.company
+               AND mach.m-code EQ bf-job-mch.m-code
+             NO-ERROR.
+        CREATE ttJobMch.
+        ASSIGN
+            ttJobMch.d-seq = IF AVAILABLE mach THEN mach.d-seq ELSE 0
+            ttJobMch.rowID = ROWID(bf-job-mch)
+            .
+    END.
+
+    iLine = 0.
+    FOR EACH ttJobMch, 
+        FIRST bf-job-mch EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-job-mch) EQ ttJobMch.rowID
+
+        BY bf-job-mch.frm
+        BY ttJobMch.d-seq
+        BY bf-job-mch.blank-no
+        BY bf-job-mch.pass:
+  
+        iLine = iLine + 1.
+        bf-job-mch.line = iLine.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ************************  Function Implementations ***************** */

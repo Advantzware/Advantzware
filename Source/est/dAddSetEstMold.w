@@ -1275,7 +1275,8 @@ PROCEDURE create-ttfrmout :
         tt-eb-set.len              = len 
         tt-eb-set.wid              = wid 
         tt-eb-set.dep              = dep        
-        tt-eb-set.procat           = fg-cat .
+        tt-eb-set.procat           = fg-cat
+        tt-eb-set.eqty             = quantity.
         IF cType EQ "No" THEN
         ASSIGN 
           tt-eb-set.set-is-assembled = FALSE

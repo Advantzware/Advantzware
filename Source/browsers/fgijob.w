@@ -38,12 +38,13 @@ assign
     cocode = g_company
     locode = g_loc.
 
-DEF VAR ll-show-zero-bins AS LOG NO-UNDO.
-DEF VAR lShowRecalcFields AS LOG NO-UNDO.
-DEFINE VARIABLE lcReturn   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE llRecFound AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE ll-secure  AS LOGICAL   NO-UNDO.
-DEF VAR iConsumeThisTag AS INT NO-UNDO.
+DEFINE VARIABLE ll-show-zero-bins AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowRecalcFields AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lcReturn          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ll-secure         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iConsumeThisTag   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-col-move        AS LOGICAL   NO-UNDO INIT TRUE.
 
 RUN sys/ref/nk1look.p (cocode, "FgItemHideCalcFields", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -52,9 +53,7 @@ IF llRecFound THEN
     lShowRecalcFields = NOT LOGICAL(lcReturn) NO-ERROR.  
     
 {sys/inc/oeinq.i}
- 
 {fg/w-jobs.i "NEW SHARED"}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE TEMP-TABLE w-jobs LIKE w-job.
 
@@ -295,7 +294,7 @@ DEFINE BROWSE br_table
     w-job.po-no                LABEL "PO#"                    FORMAT "x(9)"        WIDTH 13   LABEL-BGCOLOR 14
     w-job.loc                  LABEL "Whse"                                        WIDTH 10   LABEL-BGCOLOR 14
     w-job.loc-bin              LABEL "Bin"                                         WIDTH 14   LABEL-BGCOLOR 14
-    w-job.tag                  LABEL "Tag"                    FORMAT "x(22)"       WIDTH 30   LABEL-BGCOLOR 14
+    w-job.tag                  LABEL "Tag"                    FORMAT "x(22)"       WIDTH 52   LABEL-BGCOLOR 14
     w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
     w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
     w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
@@ -562,6 +561,9 @@ ON CHOOSE OF btnLocationDetails IN FRAME F-Main /* View Location Details */
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
+&Scoped-define useRowID w-job.rRowID
+&Scoped-define rowIDTable fg-bin
+{methods/ctrl-a_browser.i}
 
 RUN set-read-only(YES).
 
@@ -587,6 +589,9 @@ ASSIGN
     w-job.rel-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
     w-job.bol-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
     .
+
+&SCOPED-DEFINE cellColumnDat fgijob.w 
+ {methods/browsers/setCellColumns.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -821,6 +826,7 @@ PROCEDURE build-table :
             w-job.tagStatusDescription = w-jobs.tagStatusDescription
             w-job.onHold               = w-jobs.onHold
             w-job.ship-default         = w-jobs.ship-default
+            w-job.rRowID               = w-jobs.rRowID
             .
 
         IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
@@ -883,7 +889,8 @@ PROCEDURE create-table :
             w-jobs.std-fix-cost = ip-fix
             w-jobs.std-tot-cost = w-jobs.std-lab-cost + w-jobs.std-mat-cost +
                            w-jobs.std-var-cost + w-jobs.std-fix-cost
-            w-jobs.sell-uom     = "M"  .
+            w-jobs.sell-uom     = "M"
+            .
     END.
 
 END PROCEDURE.
@@ -939,6 +946,7 @@ PROCEDURE createWJobs :
         w-jobs.tagStatusDescription = cStatusDescription
         w-jobs.onHold               = fg-bin.onHold
         w-jobs.ship-default         = fg-bin.ship-default
+        w-jobs.rRowID               = ROWID(fg-bin)
         .
       
     FIND FIRST job-hdr NO-LOCK
@@ -1025,6 +1033,8 @@ PROCEDURE local-initialize :
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
+    RUN setCellColumns.
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
@@ -1048,7 +1058,8 @@ PROCEDURE local-initialize :
         w-job.std-mat-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
         w-job.std-lab-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
         w-job.std-var-cost:READ-ONLY IN BROWSE {&browse-name} = YES 
-        w-job.std-fix-cost:READ-ONLY IN BROWSE {&browse-name} = YES.
+        w-job.std-fix-cost:READ-ONLY IN BROWSE {&browse-name} = YES
+        w-job.tag:WIDTH-CHAR       IN BROWSE {&browse-name} = 52.
 
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
     {methods/winReSizeLocInit.i}
@@ -1084,6 +1095,26 @@ PROCEDURE local-open-query :
 
 /* Code placed here will execute AFTER standard behavior.    */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+      {&BROWSE-NAME}:COLUMN-MOVABLE = v-col-move
+         {&BROWSE-NAME}:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

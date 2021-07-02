@@ -56,7 +56,7 @@ if xef.board ne "" then do with frame aaxx no-labels no-box:
    zzz   = qty / (xeb.num-up * xef.n-out * xef.n-out-l)
    b-qty = (if v-corr then (xef.gsh-len * xef.gsh-wid * .007)
                       else (xef.gsh-len * xef.gsh-wid / 144)) *
-           est-op.num-sh / 1000.  /* total msf including waste */
+           ( IF AVAIL est-op THEN est-op.num-sh / 1000 ELSE 1 ).  /* total msf including waste */
 
   {sys/inc/roundup.i zzz}
 
@@ -72,7 +72,7 @@ if xef.board ne "" then do with frame aaxx no-labels no-box:
    qty    = qty - ((spo + r-spo[1]) * xeb.num-up * xef.n-out * xef.n-out-l)
    b-qty  = (if v-corr then (xef.gsh-len * xef.gsh-wid * .007)
                        else (xef.gsh-len * xef.gsh-wid / 144)) *
-            est-op.num-sh / 1000.  /* total msf including waste */
+            (IF AVAIL est-op THEN est-op.num-sh / 1000 ELSE 1).  /* total msf including waste */
 
   if b-uom eq "REM" then
      b-msh = b-msh * IF NOT((ceboard-log EQ NO OR v-vend-no EQ "") AND xef.cost-msh gt 0) then (xef.gsh-wid / 26) else 1.

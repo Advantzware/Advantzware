@@ -3106,6 +3106,8 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
             .
+        
+        IF lExportXML THEN
         RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
             INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
             INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
@@ -3119,6 +3121,22 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             OUTPUT lSuccess,                   /* Success/Failure flag */
             OUTPUT cMessage                    /* Status message */
             ).
+        
+        cAPIId = "SendJobAMS".
+        
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
+            INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "",                         /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-Job)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).            
         /* Reset context at the end of API calls to clear temp-table 
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs. 
@@ -3137,7 +3155,7 @@ PROCEDURE pRunFormatValueChanged :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         
-        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,Fluted,jobcardf 1,jobcardf 2,Henry,Soule") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE = YES.
         ELSE  ASSIGN tb_fgimage:SENSITIVE = NO.
         IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2,Henry") > 0 THEN

@@ -242,6 +242,7 @@ PROCEDURE pValidate PRIVATE:
          ipbf-ttImportWarehouse.cActive = "Y".
     ELSE ipbf-ttImportWarehouse.cActive = "N".
 
+    DELETE OBJECT hdValidator.
 
 END PROCEDURE.
 

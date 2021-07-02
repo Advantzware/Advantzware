@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 
 {sys/ref/sys-ctrl.i}
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEF VAR v-secure AS LOG INIT NO NO-UNDO.
 DEF VAR v-secur  AS LOG INIT NO NO-UNDO.

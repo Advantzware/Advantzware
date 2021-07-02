@@ -403,8 +403,8 @@ FOR EACH tt-report NO-LOCK
         .
     IF LAST-OF(tt-report.row-id) THEN DO:
         IF NOT CAN-FIND(FIRST ttOpenOrderReportDetail
-                        WHERE ttOpenOrderReportDetail.company EQ ipcCompany
-                          AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no) THEN
+                        WHERE ttOpenOrderReportDetail.xxcompany EQ ipcCompany
+                          AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no) THEN
         RUN pCalcQOH (ipcCompany).
 
         ASSIGN
@@ -412,15 +412,15 @@ FOR EACH tt-report NO-LOCK
             tt-report.key-08 = STRING(iIndex)
             .
         FOR EACH ttOpenOrderReportDetail
-            WHERE ttOpenOrderReportDetail.company EQ oe-ordl.company
-              AND ttOpenOrderReportDetail.i-no    EQ oe-ordl.i-no
-              AND ttOpenOrderReportDetail.job-no  EQ oe-ordl.job-no
-              AND ttOpenOrderReportDetail.job-no2 EQ oe-ordl.job-no2
+            WHERE ttOpenOrderReportDetail.xxcompany EQ oe-ordl.company
+              AND ttOpenOrderReportDetail.xxi-no    EQ oe-ordl.i-no
+              AND ttOpenOrderReportDetail.job-no    EQ oe-ordl.job-no
+              AND ttOpenOrderReportDetail.job-no2   EQ oe-ordl.job-no2
             :
             ASSIGN
                 tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                ttOpenOrderReportDetail.xxIndex = iIndex
+                ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                ttOpenOrderReportDetail.xxIndex  = iIndex
                 .
         END. /*  end of for each ttOpenOrderReportDetail */
 
@@ -437,15 +437,15 @@ FOR EACH tt-report NO-LOCK
             :
             IF FIRST-OF(job-hdr.i-no) THEN
             FOR EACH ttOpenOrderReportDetail 
-                WHERE ttOpenOrderReportDetail.company EQ job-hdr.company
-                  AND ttOpenOrderReportDetail.i-no    EQ job-hdr.i-no
-                  AND ttOpenOrderReportDetail.job-no  EQ job-hdr.job-no
-                  AND ttOpenOrderReportDetail.job-no2 EQ job-hdr.job-no2
+                WHERE ttOpenOrderReportDetail.xxcompany EQ job-hdr.company
+                  AND ttOpenOrderReportDetail.xxi-no    EQ job-hdr.i-no
+                  AND ttOpenOrderReportDetail.job-no    EQ job-hdr.job-no
+                  AND ttOpenOrderReportDetail.job-no2   EQ job-hdr.job-no2
                 :
                 ASSIGN
                     tt-report.q-onh = tt-report.q-onh + ttOpenOrderReportDetail.qty
-                    ttOpenOrderReportDetail.ord-no = oe-ord.ord-no
-                    ttOpenOrderReportDetail.xxIndex = iIndex
+                    ttOpenOrderReportDetail.xxord-no = oe-ord.ord-no
+                    ttOpenOrderReportDetail.xxIndex  = iIndex
                     .
             END. /* each ttOpenOrderReportDetail */
         END. /* each job-hdr */

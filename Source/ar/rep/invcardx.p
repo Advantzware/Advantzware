@@ -133,7 +133,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
    if ar-inv.fob-code begins "ORIG" THEN assign v-fob = "Origin".
    ELSE assign v-fob = "Destination".
-
+   IF v-print-fmt EQ "Carded2" THEN ASSIGN v-fob = "EXW".
+   
    find FIRST carrier where carrier.company = ar-inv.company and
                             carrier.carrier = ar-inv.carrier no-lock no-error.
    if avail carrier THEN assign v-shipvia = carrier.dscr.

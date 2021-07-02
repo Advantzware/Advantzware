@@ -612,15 +612,18 @@ PROCEDURE update-probe :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  FIND CURRENT probe NO-ERROR.
+  DEFINE BUFFER bf-probe FOR probe. 
+  FIND CURRENT probe NO-LOCK NO-ERROR.
 
-  IF AVAIL probe THEN DO:
+  FIND FIRST bf-probe EXCLUSIVE-LOCK
+       WHERE ROWID(bf-probe) EQ ROWID(probe) NO-ERROR.
+       
+  IF AVAIL bf-probe THEN DO:
     ASSIGN
-     probe.gsa-mat = ld-gsa-mat
-     probe.gsa-lab = ld-gsa-lab
-     probe.gsa-war = ld-gsa-war
-     probe.gsa-fm = string(ld-gsa-fm).
+     bf-probe.gsa-mat = ld-gsa-mat
+     bf-probe.gsa-lab = ld-gsa-lab
+     bf-probe.gsa-war = ld-gsa-war
+     bf-probe.gsa-fm = string(ld-gsa-fm).
 
     FIND FIRST probe-ref
         WHERE probe-ref.reftable EQ "probe-ref"
@@ -640,6 +643,8 @@ PROCEDURE update-probe :
     END.
     probe-ref.val[1] = ld-gsa-brd.
   END.
+  FIND CURRENT bf-probe NO-LOCK NO-ERROR.
+  FIND CURRENT probe-ref NO-LOCK NO-ERROR.
 
 END PROCEDURE.
 

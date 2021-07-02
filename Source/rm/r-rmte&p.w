@@ -55,7 +55,6 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = gcompany
@@ -119,6 +118,17 @@ DEF TEMP-TABLE tt-email NO-UNDO
     FIELD undovr       AS CHAR
     INDEX po-no po-no ASC item-no ASC.
 
+DEFINE TEMP-TABLE ttReceipt NO-UNDO
+    FIELD company      AS CHARACTER
+    FIELD location     AS CHARACTER
+    FIELD receiptRowID AS ROWID
+    FIELD poID         AS INTEGER
+    FIELD poLine       AS INTEGER
+    FIELD itemID       AS CHARACTER
+    FIELD quantity     AS DECIMAL
+    FIELD quantityUOM  AS CHARACTER    
+    .
+    
 {rm/ttBoardToWIP.i}
     
 FIND FIRST sys-ctrl
@@ -1759,7 +1769,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+ RUN scr-rpt-d.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
 
@@ -1828,6 +1838,8 @@ DEF BUFFER b-item       FOR item.
 DEF BUFFER b-po-ordl    FOR po-ordl.
 DEF BUFFER b-job-mat    FOR job-mat.
 
+DEFINE BUFFER bf-po-ordl FOR po-ordl.
+
 DEF VAR v-avg-cst   AS LOG.
 DEF VAR v-next_r-no LIKE rm-rctd.r-no.
 DEF VAR v_r-no LIKE rm-rctd.r-no.
@@ -1849,12 +1861,17 @@ DEF VAR v-dep       LIKE item.s-dep             NO-UNDO.
 DEF VAR v-recid     AS   RECID                  NO-UNDO.
 DEF VAR li          AS   INT                    NO-UNDO.
 
+DEFINE VARIABLE dQuantity AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    
 DEF VAR v-rmemail-file AS cha NO-UNDO.
 
 FIND FIRST rm-ctrl WHERE rm-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 v-avg-cst = rm-ctrl.avg-lst-cst.
 
 EMPTY TEMP-TABLE ttBoardToWIP.
+EMPTY TEMP-TABLE ttReceipt.
 
     SESSION:SET-WAIT-STATE ("general").
     transblok:
@@ -2207,6 +2224,54 @@ EMPTY TEMP-TABLE ttBoardToWIP.
               .
       END.
       
+      IF AVAILABLE rm-rcpth AND AVAILABLE rm-rdtlh AND rm-rcpth.rita-code EQ "R" AND rm-rcpth.po-no NE "" THEN DO:
+          FIND FIRST bf-po-ordl NO-LOCK
+               WHERE bf-po-ordl.company EQ rm-rcpth.company
+                 AND bf-po-ordl.po-no   EQ INTEGER(rm-rcpth.po-no)
+                 AND bf-po-ordl.line    EQ rm-rcpth.po-line
+               NO-ERROR.
+          IF AVAILABLE bf-po-ordl THEN DO:   
+              FIND FIRST ttReceipt
+                   WHERE ttReceipt.poID   EQ bf-po-ordl.po-no
+                     AND ttReceipt.poLine EQ bf-po-ordl.line
+                   NO-ERROR.
+              IF NOT AVAILABLE ttReceipt THEN DO:
+                      CREATE ttReceipt.
+                      ASSIGN
+                          ttReceipt.company      = bf-po-ordl.company
+                          ttReceipt.location     = rm-rcpth.loc
+                          ttReceipt.receiptRowID = ROWID(rm-rcpth)
+                          ttReceipt.poID         = bf-po-ordl.po-no
+                          ttReceipt.poLine       = bf-po-ordl.line
+                          ttReceipt.itemID       = rm-rcpth.i-no
+                          ttReceipt.quantityUOM  = bf-po-ordl.pr-uom
+                          .
+              END.
+              
+              dQuantity = rm-rdtlh.qty.
+              
+              IF ttReceipt.quantityUOM EQ "" OR ttReceipt.quantityUOM NE rm-rcpth.pur-uom THEN DO:
+                  RUN Conv_QuantityFromUOMToUOM (
+                      INPUT  rm-rcpth.company,
+                      INPUT  rm-rcpth.i-no,
+                      INPUT  "RM",
+                      INPUT  dQuantity,
+                      INPUT  rm-rcpth.pur-uom, 
+                      INPUT  ttReceipt.quantityUOM,
+                      INPUT  0,
+                      INPUT  bf-po-ordl.s-len,
+                      INPUT  bf-po-ordl.s-wid,
+                      INPUT  bf-po-ordl.s-dep,
+                      INPUT  0,
+                      OUTPUT dQuantity,
+                      OUTPUT lError,
+                      OUTPUT cMessage
+                      ).          
+              END. 
+              
+              ttReceipt.quantity = ttReceipt.quantity + dQuantity.
+          END.
+      END.
     END. /* for each rm-rctd */
 
     v-dunne = YES.
@@ -2245,17 +2310,67 @@ EMPTY TEMP-TABLE ttBoardToWIP.
       END. /* REPEAT */
       /* gdm - 11050906 */
     END. /* IF rmpostgl */
-    IF CAN-FIND(FIRST tt-email) THEN 
-      RUN send-rmemail (v-rmemail-file).    
+    IF CAN-FIND(FIRST tt-email) THEN
+      RUN send-rmemail (v-rmemail-file).
 
     RUN pCreateWIPInventoryStock.
-        
+   
+    RUN pRunAPIOutboundTrigger.
+       
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cDataList       AS CHARACTER NO-UNDO.
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    FOR EACH ttReceipt:
+        cDataList = STRING(ttReceipt.receiptRowID) + ","
+                  + STRING(ttReceipt.quantity, ">>>>>>>>9.99<<<<") + ","
+                  + ttReceipt.quantityUOM.
+        
+        System.SharedConfig:Instance:SetValue("APIOutboundEvent_UserField1", STRING(ttReceipt.poID)).
+        System.SharedConfig:Instance:SetValue("APIOutboundEvent_UserField2", STRING(ttReceipt.poLine)).
+                          
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+            INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+            INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+            INPUT  "",                                                 /* Scope ID */
+            INPUT  "",                                                 /* Scoped Type */
+            INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
+            INPUT  "rm-rcpth,Quantity,QuantityUOM",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cDataList,                                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  ttReceipt.itemID,                                   /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+            OUTPUT lSuccess,                                           /* Success/Failure flag */
+            OUTPUT cMessage                                            /* Status message */
+            ) NO-ERROR.
+        
+        DELETE ttReceipt.
+    END.    
+    
+    DELETE PROCEDURE hdOutboundProcs.    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :

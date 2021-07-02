@@ -107,6 +107,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iOrdNo           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iQty             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lComponent       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCount           AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bARCashl FOR ar-cashl.
     DEFINE BUFFER bARInvl  FOR ar-invl.
@@ -671,6 +672,9 @@ PROCEDURE pBusinessLogic:
             ttCommissions.splitType     = cust.splitType
             ttCommissions.naicsCode     = cust.naicsCode
             ttCommissions.naicsDescrip  = IF AVAILABLE naics THEN naics.description ELSE "" 
+            iCount = iCount + 1
             .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
     END. /* each ttReport */
 END PROCEDURE.

@@ -22,6 +22,7 @@
 "APIInboundDetail" no no no no no no no no 0 0
 "APIInboundEvent" no no no no no no no no 0 0
 "APIOutbound" no no no no no no no no 0 0
+"APIOutboundContent" no no no no no no no no 0 0
 "APIOutboundDetail" no no no no no no no no 0 0
 "APIOutboundEvent" no no no no no no no no 0 0
 "APIOutboundTrigger" no no no no no no no no 0 0
@@ -174,7 +175,7 @@
 "fg-act" yes no no no no no no no 0 0
 "fg-bin" yes yes yes yes no no no no 0 0
 "fg-ctrl" yes no no no no no no no 0 0
-"fg-hist" yes no no no no no no no 0 0
+"fg-hist" yes yes yes yes no no no no 0 0
 "fg-rcpth" yes yes yes yes no no no no 0 0
 "fg-rcpts" yes yes yes yes no no no no 0 0
 "fg-rctd" yes yes yes yes no no no no 0 0

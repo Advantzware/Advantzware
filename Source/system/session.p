@@ -1312,6 +1312,29 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spDeleteSessionParam) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spDeleteSessionParam Procedure
+PROCEDURE spDeleteSessionParam:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF AVAILABLE ttSessionParam THEN
+    DELETE ttSessionParam.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spDynAuditField) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spDynAuditField Procedure
@@ -1450,7 +1473,7 @@ PROCEDURE spGetDynParamValue:
         ipiSubjectID,
         USERID("ASI"),
         "",
-        0
+        -1 // set to a negative for a temporary subject
         ).    
     IF NOT AVAILABLE dynParamValue THEN
     opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
@@ -2240,10 +2263,9 @@ PROCEDURE spSetSessionParam:
         CREATE ttSessionParam.
         ttSessionParam.sessionParam = ipcSessionParam.
     END. /* if not avail */
-    IF ttSessionParam.sessionParam EQ "Company" AND ttSessionParam.sessionValue NE ipcSessionValue THEN
-        RUN pSetCompanyContexts(
-            ipcSessionValue
-            ).
+    IF ttSessionParam.sessionParam EQ "Company" AND
+       ttSessionParam.sessionValue NE ipcSessionValue THEN
+    RUN pSetCompanyContexts (ipcSessionValue).
     ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.

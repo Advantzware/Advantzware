@@ -12,7 +12,7 @@
   ----------------------------------------------------------------------*/
 USING System.SharedConfig.
 
-DEFINE INPUT  PARAMETER ipcAPIOutboundID AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPrimaryID     AS CHARACTER NO-UNDO.
@@ -50,12 +50,25 @@ DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
 
+DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+
+RUN spGetSessionParam(
+    INPUT  "Company",
+    OUTPUT cCompany
+    ).
+    
 ASSIGN 
     scInstance           = SharedConfig:instance
     lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
@@ -68,7 +81,7 @@ ASSIGN
     .
 
 FOR FIRST APIOutbound NO-LOCK
-    WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
+    WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
       AND (lAPIOutboundTestMode OR 
            APIOutbound.Inactive EQ FALSE):
     ASSIGN
@@ -94,7 +107,7 @@ END.
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
         opcMessage = "Config for Outbound API Sequence ID [" 
-                   + STRING(ipcAPIOutboundID) 
+                   + STRING(ipiAPIOutboundID) 
                    + "] not available or inactive in APIOutbound table"
         oplSuccess = NO
         .
@@ -221,84 +234,146 @@ IF gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" THEN DO:
     RETURN.
 END.
 
+RUN sys/ref/nk1look.p (
+    INPUT cCompany, 
+    INPUT "APIRequestMethod", 
+    INPUT "C", 
+    INPUT NO, 
+    INPUT NO, 
+    INPUT "", 
+    INPUT "",
+    OUTPUT cAPIRequestMethod, 
+    OUTPUT lFound
+    ).
+
+IF cAPIRequestMethod EQ "" THEN
+    cAPIRequestMethod = "cURL".
+    
 ASSIGN
-    gcRequestFile  = "request"     + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType). /* File Extentions */
-    gcResponseFile = "response"    + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType) /* File Extentions */
+    FIX-CODEPAGE(oplcResponseData) = 'utf-8'
+    FIX-CODEPAGE(glcResponseData)  = 'utf-8'.
     .
-
-gcCommand = SEARCH("curl.exe") 
-          + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
-             ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
-             ELSE "") + ' ' 
-          + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
-          + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
-          + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
-          + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-          + gcEndPoint.
-
-/* Put Request Data from a variable into a Temporary file */
-COPY-LOB glcRequestData TO FILE gcRequestFile.
-   
-/* execute CURL command with requiredif  parameters to call the API */
-RUN OS_RunCommand (
-    INPUT  gcCommand,             /* Command string to run */
-    INPUT  gcResponseFile,        /* File name to write the command output */
-    INPUT  TRUE,                  /* Run with SILENT option */
-    INPUT  FALSE,                 /* Run with NO-WAIT option */
-    OUTPUT oplSuccess,
-    OUTPUT opcMessage
-    ) NO-ERROR.
-IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+        
+IF cAPIRequestMethod EQ "cURL" THEN DO:
     ASSIGN
-        oplSuccess = FALSE
-        opcMessage = "Error excuting curl command"
+        gcRequestFile  = "request"     + "_"
+                       + gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType). /* File Extentions */
+        gcResponseFile = "response"    + "_"
+                       + gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType) /* File Extentions */
         .
 
-    /* delete temporary files */
-    OS-DELETE VALUE(gcRequestFile).
-    OS-DELETE VALUE(gcResponseFile).
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID:
+        IF bf-APIOutboundContent.contentType EQ "Headers" THEN
+            cHeadersData = cHeadersData
+                         + ' -H "' + bf-APIOutboundContent.contentKey + ':'
+                         + bf-APIOutboundContent.contentValue + '" '.
+        ELSE IF bf-APIOutboundContent.contentType EQ "x-www-form-urlencoded" THEN
+            cUrlEncodedData = cUrlEncodedData
+                            + ' --data-urlencode "' + bf-APIOutboundContent.contentKey + '='
+                            + bf-APIOutboundContent.contentValue + '" '.
         
-    RETURN.
-END.
+    END.
+
+    gcCommand = SEARCH("curl.exe") 
+              + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
+                 ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
+                 ELSE "") + ' ' 
+              + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
+              + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
+              + cHeadersData
+              + cUrlEncodedData
+              + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
+              + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
+              + gcEndPoint.
     
-/* Put Response Data from Temporary file into a variable */
-COPY-LOB FILE gcResponseFile TO glcResponseData NO-ERROR.
-
-IF ERROR-STATUS:ERROR THEN DO:
-    ASSIGN
-        oplSuccess = FALSE
-        opcMessage = "Error reading the response"
-        .
-
-    /* delete temporary files */
-    OS-DELETE VALUE(gcRequestFile).
-    OS-DELETE VALUE(gcResponseFile).
+    /* Put Request Data from a variable into a Temporary file */
+    COPY-LOB glcRequestData TO FILE gcRequestFile.
+       
+    /* execute CURL command with requiredif  parameters to call the API */
+    RUN OS_RunCommand (
+        INPUT  gcCommand,             /* Command string to run */
+        INPUT  gcResponseFile,        /* File name to write the command output */
+        INPUT  TRUE,                  /* Run with SILENT option */
+        INPUT  FALSE,                 /* Run with NO-WAIT option */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error excuting curl command"
+            .
+            
+        RETURN.
+    END.
         
-    RETURN.
-END.
+    /* Put Response Data from Temporary file into a variable */
+    COPY-LOB FILE gcResponseFile TO glcResponseData NO-ERROR.
     
-oplcResponseData = glcResponseData.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error reading the response"
+            .
+            
+        RETURN.
+    END.
+        
+    oplcResponseData = glcResponseData.
+END.
+ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
+    oAPIHandler = NEW API.APIHandler().
+    
+    oAPIHandler:ContentType = gcRequestDataType.
+
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID:
+        IF bf-APIOutboundContent.contentType EQ "Headers" THEN
+            oAPIHandler:AddHeaderData(bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).
+        ELSE IF bf-APIOutboundContent.contentType EQ "x-www-form-urlencoded" THEN
+            oAPIHandler:AddURLEncodeData(bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).        
+    END.
+        
+    IF gcAuthType EQ "Basic" THEN
+        oAPIHandler:SetBasicAuthentication(gcUserName, gcPassword).
+    ELSE IF gcAuthType EQ "Bearer" THEN
+        oAPIHandler:SetBearerAuthentication(gcPassword).
+
+    IF gcRequestVerb EQ "POST" THEN        
+        oplcResponseData = oAPIHandler:Post(gcEndPoint, iplcRequestData).
+    ELSE IF gcRequestDataType EQ "GET" THEN 
+        oplcResponseData = oAPIHandler:Get(gcEndPoint).
+    ELSE IF gcRequestDataType EQ "DELETE" THEN 
+        oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
+                            
+    IF VALID-OBJECT(oAPIHandler) THEN
+        DELETE OBJECT oAPIHandler.    
+END.
 
 /* Read Response  */
 RUN pReadResponse (
-    INPUT  glcResponseData,
+    INPUT  oplcResponseData,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
 
-/* delete temporary files */
-OS-DELETE VALUE(gcRequestFile).
-OS-DELETE VALUE(gcResponseFile).
+FINALLY:
+    /* delete temporary files */
+    IF gcRequestType EQ "API" AND NOT glSaveFile THEN
+        OS-DELETE VALUE(gcRequestFile).
+    
+    IF gcRequestType NE "FTP" AND gcRequestType NE "SFTP" THEN
+        OS-DELETE VALUE(gcResponseFile).
+END FINALLY.
 
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------
@@ -309,7 +384,9 @@ PROCEDURE pReadResponse PRIVATE:
     DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
-            
+    
+    DEFINE VARIABLE cResponseHandler AS CHARACTER NO-UNDO.
+                
     IF iplcResponseData EQ "" THEN DO:
         ASSIGN
             oplSuccess  = NO
@@ -327,7 +404,21 @@ PROCEDURE pReadResponse PRIVATE:
 
         RETURN.    
     END.
-    
+
+    ASSIGN
+        cResponseHandler = gcResponseHandler
+        cResponseHandler = ENTRY(1, cResponseHandler, ".")
+        .
+       
+    IF SEARCH(cResponseHandler + ".r") EQ ? AND SEARCH(cResponseHandler + ".p") EQ ? THEN DO:
+        ASSIGN
+            oplSuccess  = NO
+            opcMessage  = "Missing or invalid response handler in the API configuration"
+            .
+
+        RETURN.    
+    END.
+     
     RUN VALUE(gcResponseHandler) (
         INPUT  iplcResponseData,
         OUTPUT oplSuccess,

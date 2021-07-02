@@ -188,7 +188,7 @@ DEFINE VARIABLE carrier_desc AS CHARACTER FORMAT "X(256)":U
      SIZE 35 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ls-status AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Order Status" 
+     LABEL "Status" 
      VIEW-AS FILL-IN 
      SIZE 13.6 BY 1 NO-UNDO.
 
@@ -230,10 +230,11 @@ DEFINE FRAME F-Main
      quotehd.est-no AT ROW 1.19 COL 69.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     quotehd.expireDate AT ROW 1.19 COL 96.8 COLON-ALIGNED
+     quotehd.expireDate AT ROW 1.19 COL 97.2 COLON-ALIGNED
+          LABEL "Expire Date"   FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     btnCalendar-1 AT ROW 1.19 COL 110.6
+          SIZE 15.4 BY 1
+     btnCalendar-1 AT ROW 1.19 COL 114.6
      ls-status AT ROW 1.19 COL 129 COLON-ALIGNED
      quotehd.del-date AT ROW 2.29 COL 18.4 COLON-ALIGNED
           LABEL "Delivery Date"
@@ -419,6 +420,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN quotehd.q-no IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN quotehd.expireDate IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR FILL-IN quotehd.shipto[1] IN FRAME F-Main
    5                                                                    */
 /* SETTINGS FOR FILL-IN quotehd.shipto[2] IN FRAME F-Main
@@ -903,6 +906,10 @@ PROCEDURE copy-proc :
 ------------------------------------------------------------------------------*/  
  
       quotehd.approved:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Unapproved".
+      quotehd.quo-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
+      quotehd.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ?.
+      IF lQuoteExpirationDays THEN      
+      quotehd.expireDate:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(TODAY + iQuoteExpirationDays).            
  
 END PROCEDURE.
 
@@ -1043,11 +1050,11 @@ PROCEDURE enable-detail :
               quotehd.billto[3] quotehd.billto[4]
               quotehd.ship-id quotehd.shipto[1 FOR 4]*/
               {&list-5}
-              quotehd.est-no quotehd.expireDate quotehd.sman quotehd.terms
+              quotehd.est-no quotehd.sman quotehd.terms
               quotehd.carrier quotehd.del-zone
        WITH FRAME {&FRAME-NAME}.
  IF lQuotePriceMatrix AND quotehd.approved AND NOT adm-new-record THEN
- DO:
+ DO:            
      DISABLE {&list-5}
               quotehd.est-no quotehd.quo-date quotehd.del-date quotehd.sman quotehd.terms
               quotehd.contact quotehd.carrier quotehd.del-zone quotehd.ship-id 

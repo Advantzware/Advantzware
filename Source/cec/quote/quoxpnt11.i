@@ -39,13 +39,13 @@ PUT "<FArial><=4><R+1> Quote Date         FOB                     Ship Via      
 PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
     "<R28><C7><FROM><R30><C7><LINE>"   SKIP
     "<R28><C20><FROM><R30><C20><LINE>" SKIP
-    "<R28><C41><FROM><R30><C41><LINE>" SKIP
-    "<R28><C49><FROM><R30><C49><LINE>" SKIP
+    "<R28><C46><FROM><R30><C46><LINE>" SKIP
+    "<R28><C53><FROM><R30><C53><LINE>" SKIP
     "<R28><C56><FROM><R30><C56><LINE>" SKIP
     "<R28><C64><FROM><R30><C64><LINE>" SKIP
     "<R28><C69><FROM><R30><C69><LINE>" SKIP.
   
-PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board             Quantity      Rel                Price       UOM        Extended" SKIP.
+PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                     Quantity     Rel         Price       UOM        Extended" SKIP.
 PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUMBER.

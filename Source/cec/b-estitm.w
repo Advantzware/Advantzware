@@ -2001,9 +2001,13 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR dep-num AS INT NO-UNDO.
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
    IF LASTKEY <> -1 THEN
    DO:
+      RUN valid-dep(OUTPUT lReturnError) NO-ERROR.
+      IF lReturnError THEN RETURN NO-APPLY.
+      
       v-dec = DECIMAL(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0).
       IF v-dec >= v-16-or-32 THEN DO:
          MESSAGE "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
@@ -2363,7 +2367,10 @@ PROCEDURE assign-qty :
   DEF BUFFER bf-est FOR est.
   DEF BUFFER bf-est-qty FOR est-qty.
   FIND bf-est-qty WHERE RECID(bf-est-qty) = recid(est-qty).
-  ASSIGN      bf-est-qty.qty[1] = est-qty.eqty
+  ASSIGN      bf-est-qty.qty[1] = est-qty.eqty  .
+  
+  IF est.est-type LE 6 AND est.est-type NE 4 THEN 
+          ASSIGN  
               bf-est-qty.qty[2] = lv-copy-qty[2]
               bf-est-qty.qty[3] = lv-copy-qty[3]
               bf-est-qty.qty[4] = lv-copy-qty[4]
@@ -2403,8 +2410,8 @@ PROCEDURE assign-qty :
               bf-est-qty.qty-date[8] = lv-copy-date[8]  
               bf-est-qty.qty-date[9] = lv-copy-date[9]  
               bf-est-qty.qty-date[10] = lv-copy-date[10]  
-              .  
-       ASSIGN bf-est-qty.qty[11] = lv-copy-qty[11]
+               
+              bf-est-qty.qty[11] = lv-copy-qty[11]
               bf-est-qty.qty[12] = lv-copy-qty[12]
               bf-est-qty.qty[13] = lv-copy-qty[13]
               bf-est-qty.qty[14] = lv-copy-qty[14]
@@ -2447,7 +2454,9 @@ PROCEDURE assign-qty :
               .  
       FIND bf-est WHERE bf-est.company = bf-est-qty.company AND
                         bf-est.est-no = bf-est-qty.est-no.
-      ASSIGN bf-est.est-qty[1] = est-qty.eqty
+      ASSIGN bf-est.est-qty[1] = est-qty.eqty .
+      IF est.est-type LE 6 AND est.est-type NE 4 THEN 
+          ASSIGN
              bf-est.est-qty[2] = bf-est-qty.qty[2]
              bf-est.est-qty[3] = bf-est-qty.qty[3]
              bf-est.est-qty[4] = bf-est-qty.qty[4]
@@ -6512,6 +6521,9 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+     
+     RUN valid-dep(OUTPUT lCheckError) NO-ERROR.
+     IF lCheckError THEN RETURN NO-APPLY.
 
      IF DECIMAL(eb.wid:screen-value) - trunc(DECIMAL(eb.wid:screen-value),0) >= v-16-or-32 
      THEN DO:
@@ -7316,6 +7328,8 @@ PROCEDURE reset-est-type :
       ASSIGN
        op-est-type = 8
        eb.yld-qty  = eb.bl-qty.
+       
+      RUN pReSetEstQty(rowid(est-qty)).
 
       FOR EACH bf-eb OF bf-est WHERE ROWID(eb) NE ROWID(bf-eb):
         RUN set-yld-qty (ROWID(bf-eb)).
@@ -7328,7 +7342,7 @@ PROCEDURE reset-est-type :
    MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE ll.
-   IF ll THEN op-est-type = 1.           
+   IF ll THEN op-est-type = 5.           
   END.  
   ELSE IF (op-est-type EQ 6 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 5 AND eb.quantityPerSet GE 2) THEN DO:
@@ -7832,6 +7846,7 @@ PROCEDURE set-or-combo :
            ld          = est-qty.eqty / b-eb.num-up.
           {sys/inc/roundup.i ld}
           b-eb.yld-qty = ld * b-eb.num-up.
+          RUN pReSetEstQty(rowid(est-qty)).                   
         END.
         ELSE
         IF est.est-type EQ 6 THEN b-eb.quantityPerSet = 1.
@@ -8429,6 +8444,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dep B-table-Win 
+PROCEDURE valid-dep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+
+  DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    
+     IF DECIMAL(eb.dep:screen-value IN BROWSE {&browse-name}) = 0 THEN DO:
+        MESSAGE eb.dep:LABEL IN BROWSE {&browse-name} +  " can not be 0. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO eb.dep IN BROWSE {&browse-name}.
+        oplReturnError = YES.        
+     END.    
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no B-table-Win 
 PROCEDURE valid-part-no :
 /*------------------------------------------------------------------------------
@@ -8690,6 +8731,30 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
+PROCEDURE pReSetEstQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+ DEFINE BUFFER bf-est-qty FOR est-qty.
+ FIND FIRST bf-est-qty EXCLUSIVE-LOCK
+      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
+      
+ IF AVAIL bf-est-qty THEN
+     ASSIGN
+         bf-est-qty.qty = 0
+         bf-est-qty.qty[1] = est-qty.eqty.
+ RELEASE bf-est-qty.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

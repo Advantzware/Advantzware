@@ -221,7 +221,8 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cFGColor        AS CHARACTER NO-UNDO EXTENT 10 FORMAT "x(10)".
     DEFINE VARIABLE cFGColorDesc    AS CHARACTER NO-UNDO EXTENT 10 FORMAT "x(10)".
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
-    
+    DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
+
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ cCompany
           AND itemfg.i-no    GE cStartFGItem
@@ -258,7 +259,7 @@ PROCEDURE pBusinessLogic:
             cCoat           = ""
             cFGColor        = ""
             cFGColorDesc    = ""
-            iCount          = 0
+            idx             = 0
             cSpecGroup      = ""
             cSpecTitle      = ""
             cSpecNote       = ""
@@ -269,12 +270,12 @@ PROCEDURE pBusinessLogic:
                   AND CAN-DO(cSpecCode,notes.note_code)
                 :              
                 ASSIGN 
-                    iCount             = iCount + 1
-                    cSpecGroup[iCount] = notes.note_code
-                    cSpecTitle[iCount] = notes.note_title
-                    cSpecNote[iCount]  = notes.note_text
+                    idx             = idx + 1
+                    cSpecGroup[idx] = notes.note_code
+                    cSpecTitle[idx] = notes.note_title
+                    cSpecNote[idx]  = notes.note_text
                     .
-                IF iCount GE 6 THEN LEAVE.
+                IF idx GE 6 THEN LEAVE.
             END. /* each notes */
         END. /* if lallspecnote */
         FIND FIRST est NO-LOCK
@@ -338,41 +339,41 @@ PROCEDURE pBusinessLogic:
                 iInkCnt  = 1
                 iCoatCnt = 1
                 .     
-            DO iCount = 1 TO 10:
+            DO idx = 1 TO 10:
                 IF eb.est-type LE 4 THEN DO:
-                    IF eb.i-code2[iCount] NE "" THEN DO:
+                    IF eb.i-code2[idx] NE "" THEN DO:
                         FIND FIRST item NO-LOCK
                              WHERE item.company EQ cCompany
-                               AND item.i-no    EQ eb.i-code2[iCount]
+                               AND item.i-no    EQ eb.i-code2[idx]
                              NO-ERROR.
                         IF AVAILABLE item AND item.mat-type EQ "V" THEN 
                         ASSIGN
-                            cCoat[iCoatCnt] = eb.i-code2[iCount]                           
+                            cCoat[iCoatCnt] = eb.i-code2[idx]                           
                             iCoatCnt        = iCoatCnt + 1
                             .
                         ELSE
                         ASSIGN
-                            cInks[iInkCnt]     = eb.i-code2[iCount]
-                            cInksDesc[iInkCnt] = eb.i-dscr2[iCount]
+                            cInks[iInkCnt]     = eb.i-code2[idx]
+                            cInksDesc[iInkCnt] = eb.i-dscr2[idx]
                             iInkCnt            = iInkCnt + 1
                             .
                     END.
                 END.
                 ELSE DO:
-                    IF eb.i-code[iCount] NE "" THEN DO:
+                    IF eb.i-code[idx] NE "" THEN DO:
                         FIND FIRST item NO-LOCK
                              WHERE item.company EQ cCompany
-                               AND item.i-no    EQ eb.i-code[iCount]
+                               AND item.i-no    EQ eb.i-code[idx]
                              NO-ERROR.
                         IF AVAILABLE item AND item.mat-type EQ "V" THEN 
                         ASSIGN
-                            cCoat[iCoatCnt] = eb.i-code[iCount]
+                            cCoat[iCoatCnt] = eb.i-code[idx]
                             iCoatCnt        = iCoatCnt + 1
                             .
                         ELSE
                         ASSIGN
-                            cInks[iInkCnt]     = eb.i-code[iCount]
-                            cInksDesc[iInkCnt] = eb.i-dscr[iCount]
+                            cInks[iInkCnt]     = eb.i-code[idx]
+                            cInksDesc[iInkCnt] = eb.i-dscr[idx]
                             iInkCnt            = iInkCnt + 1
                             .
                     END.
@@ -471,6 +472,9 @@ PROCEDURE pBusinessLogic:
             ttFinishGoods.dfuncAlloc = "Assembled w/Part Receipts".
         END CASE.          
         IF g_period NE 0 THEN
-        ttFinishGoods.dfuncTotMSFPTD = itemfg.ptd-msf[g_period].        
+        ttFinishGoods.dfuncTotMSFPTD = itemfg.ptd-msf[g_period].    
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, iCount, ?).    
     END. /* each item */
 END PROCEDURE.

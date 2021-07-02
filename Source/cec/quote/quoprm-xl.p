@@ -93,6 +93,9 @@ DEFINE VARIABLE AdobePrinter     AS CHAR NO-UNDO.
 define variable CommandString    AS CHAR NO-UNDO.
 define variable WshNetwork as com-handle.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
+DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE iQuoPrint AS INTEGER NO-UNDO.
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -102,6 +105,12 @@ IF AVAIL users AND users.user_program[2] NE "" THEN
    v-dir = users.user_program[2] + "\".
 ELSE
    v-dir = "c:\tmp\".
+   
+RUN sys/ref/nk1look.p (INPUT cocode, "QUOPRINT", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cReturn, OUTPUT lRecFound).
+IF lRecFound THEN
+    iQuoPrint = INTEGER(cReturn) NO-ERROR.   
 
 /* Capture the current active printer */
 CREATE "WScript.Network" WshNetwork.
@@ -166,7 +175,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[4] = ""
      ship[5] = "SAME".
 
-  IF AVAIL est AND est.estimateTypeID NE "Misc" THEN
+  IF iQuoPrint EQ 1 THEN
   RUN sys/ref/getFileFullPathName.p ("Template\QuotePremWaterMark.xlt", OUTPUT chFile).
   ELSE RUN sys/ref/getFileFullPathName.p ("Template\QuotePrem.xlt", OUTPUT chFile). 
   IF chFile = ? THEN  

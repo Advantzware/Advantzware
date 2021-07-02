@@ -97,21 +97,21 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158.6 BY 23.81
+         SIZE 160.6 BY 23.81
          BGCOLOR 15 .
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 2.91
-         SIZE 135 BY 1.43
+         AT COL 23 ROW 2.71
+         SIZE 135 BY 1.10
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
-         SIZE 148 BY 1.91
+         SIZE 160 BY 1.91
          BGCOLOR 15 .
 
 
@@ -134,13 +134,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG On-Hand Inquiry"
-         HEIGHT             = 23.81
-         WIDTH              = 158.6
+         HEIGHT             = 29.5
+         WIDTH              = 160.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
+         RESIZE             = YES
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -261,7 +261,7 @@ FIND itemfg WHERE ROWID(itemfg) EQ ip-rowid NO-LOCK NO-ERROR.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{custom/initializeprocs.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -288,7 +288,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
+       RUN set-position IN h_options ( 1.00 , 55.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -297,7 +297,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.81 , 7.80 ) */   
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
@@ -305,8 +305,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'FG Bins' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 158.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 2.74 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 1.67 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -324,7 +324,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 31.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+       /* Size in UIB:  ( 1.14 , 32.00 ) */ 
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/fgijob.w':U ,
@@ -335,7 +335,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_fgijob ).
-       RUN set-position IN h_fgijob ( 5.29 , 19.00 ) NO-ERROR.
+       RUN set-position IN h_fgijob ( 4.19 , 19.00 ) NO-ERROR.
        /* Size in UIB:  ( 5.00 , 118.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -343,8 +343,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_fgijob-2 ).
-       RUN set-position IN h_fgijob-2 ( 11.00 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_fgijob-2 ( 12.86 , 155.00 ) NO-ERROR.
+       RUN set-position IN h_fgijob-2 ( 9.15 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_fgijob-2 ( 12.86 , 160.00 ) NO-ERROR.
 
        /* Links to SmartViewer h_fgijob. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Record':U , h_fgijob ).

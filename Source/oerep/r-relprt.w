@@ -1347,7 +1347,7 @@ END.
 ON VALUE-CHANGED OF tb_p-bin IN FRAME FRAME-A /* Print Bin Locations? */
 DO:
   ASSIGN {&self-name}.
-  IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN DO:
+  IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 THEN DO:
      IF tb_p-bin THEN
      DO:
         IF v-relprint = "PremierX" OR v-relprint = "Relprint 10" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
@@ -2309,7 +2309,7 @@ PROCEDURE pRunFormatValueChanged :
               begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
               END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
     ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
+    IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 THEN   /* NSTOCK,*/
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
               END_loc:SENSITIVE = begin_loc:SENSITIVE
@@ -2400,7 +2400,7 @@ ASSIGN
  lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
 
-IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,PremTarget,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
+IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,PremTarget,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
    ASSIGN s-print-loc-from = begin_loc
           s-print-loc-to = END_loc
@@ -2637,7 +2637,7 @@ PROCEDURE set-report :
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
 
-  ELSE IF v-relprint EQ "CardedX" THEN
+  ELSE IF v-relprint EQ "CardedX" OR v-relprint EQ "CardedX2" THEN
    ASSIGN
     lv-program     = "oe/rep/relcardx.p"
     lines-per-page = 120

@@ -408,7 +408,6 @@ PROCEDURE bill-finance :
 ------------------------------------------------------------------------------*/
   SESSION:SET-WAIT-STATE("general").
 
-  DEF VAR X AS INT NO-UNDO.
   ASSIGN v-date = tran-date
          v-pct = fin-apr.
 
@@ -516,9 +515,6 @@ PROCEDURE bill-finance :
     end. /* for each ar-cashl record */
 
     if v-amt * (v-pct / 100 / 12) gt 0 then do transaction:
-      find last ar-inv use-index x-no no-lock no-error.
-      if avail ar-inv then x = ar-inv.x-no + 1.
-
       find first shipto
           where shipto.company eq cocode
             and shipto.cust-no eq cust.cust-no
@@ -535,7 +531,6 @@ PROCEDURE bill-finance :
        ar-inv.type     = "FC"
        ar-inv.terms    = "FCHG"
        ar-inv.terms-d  = "Finance Charge"
-       ar-inv.x-no     = x
        ar-inv.company  = cocode
        ar-inv.inv-date = v-date
        ar-inv.due-date = v-date

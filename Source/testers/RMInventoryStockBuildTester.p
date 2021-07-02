@@ -1,5 +1,3 @@
-{inventory/ttinventory.i "NEW SHARED"}
-
 DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 DEFINE VARIABLE iCount           AS INTEGER NO-UNDO.
 DEFINE VARIABLE totCount         AS INTEGER NO-UNDO.

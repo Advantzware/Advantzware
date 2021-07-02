@@ -202,7 +202,7 @@ DO:
    
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
    
-   RUN CheckUpdate IN WIDGET-HANDLE(char-hdl)(OUTPUT lDisableUpdate).
+   RUN CheckUpdate IN WIDGET-HANDLE(char-hdl)(INPUT YES,OUTPUT lDisableUpdate).
    IF lDisableUpdate THEN
        RETURN.
    RUN reprice-quote IN WIDGET-HANDLE(char-hdl).
