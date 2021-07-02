@@ -307,8 +307,11 @@ DO:
         fg-rdtlh.tag eq fg-rctd.tag
         BY fg-rdtlh.receiver DESCENDING.
         
-
-    browse-2:REFRESH().
+    IF QUERY browse-2:NUM-RESULTS NE 0 THEN 
+        browse-2:REFRESH(). 
+    ELSE MESSAGE 
+        "No receivers found for this PO."
+        VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
