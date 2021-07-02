@@ -493,10 +493,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  fi_file:SCREEN-VALUE = "c:\tmp\r-smperf.csv" .
-  assign fi_file.
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  fi_file:SCREEN-VALUE = cFileName.
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-smperf.csv" .
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE = cFileName.
+  end.
   SESSION:SET-WAIT-STATE ("general").
 
   assign rd-dest.
@@ -1300,7 +1303,7 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1459,7 +1462,7 @@ display "" with frame r-top.
          with frame itemx down.
       down with frame itemx.
 
-      IF tb_excel THEN 
+      IF rd-dest = 3 THEN 
         EXPORT STREAM excel DELIMITER "," w-sman-no w-sname w-sqft 
                                           w-amt w-ptd-sqft w-ptd-amt 
                                           w-ytd-sqft w-ytd-amt. */
@@ -1490,7 +1493,7 @@ display "" with frame r-top.
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -1558,7 +1561,7 @@ display "" with frame r-top.
           v-gtot-ytd-sqft = 0
           v-gtot-ytd-amt = 0.
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel CLOSE.  
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).

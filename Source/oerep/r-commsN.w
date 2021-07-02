@@ -376,16 +376,16 @@ DEFINE FRAME FRAME-A
      tb_prep AT ROW 12.38 COL 13.6
      tgCatSum AT ROW 12.38 COL 45 WIDGET-ID 4
      tgFullCost AT ROW 12.38 COL 68.8 WIDGET-ID 10
-     sl_avail AT ROW 13.95 COL 2 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 14.1 COL 39.4 HELP
+     sl_avail AT ROW 13.95 COL 3.4 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 14.1 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 14.1 COL 58.8 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 15.19 COL 39.4 HELP
+     sl_selected AT ROW 14.1 COL 59.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 15.19 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 16.29 COL 39.4 HELP
+     Btn_Remove AT ROW 16.29 COL 40.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 17.38 COL 39.4 WIDGET-ID 40
-     btn_down AT ROW 18.48 COL 39.4 WIDGET-ID 42
+     btn_Up AT ROW 17.38 COL 40.4 WIDGET-ID 40
+     btn_down AT ROW 18.48 COL 40.4 WIDGET-ID 42
      lines-per-page AT ROW 20.43 COL 84 COLON-ALIGNED
      lv-font-name AT ROW 20.52 COL 28 COLON-ALIGNED NO-LABEL
      rd-dest AT ROW 20.62 COL 6 NO-LABEL
@@ -402,11 +402,11 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.19 COL 4.2
           BGCOLOR 15 
-     "(Leave Blank For all Categories)" VIEW-AS TEXT
-          SIZE 31 BY .71 AT ROW 11.29 COL 46
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 19.86 COL 4
           BGCOLOR 15 
+     "(Leave Blank For all Categories)" VIEW-AS TEXT
+          SIZE 31 BY .71 AT ROW 11.29 COL 46
      RECT-6 AT ROW 20.29 COL 3.4
      RECT-7 AT ROW 1.48 COL 3.4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 

@@ -592,10 +592,13 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&DISPLAYED-OBJECTS}.
-  fi_file:SCREEN-VALUE = "c:\tmp\r-joblog.csv" .
-  assign fi_file.
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  fi_file:SCREEN-VALUE = cFileName.
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-joblog.csv" .
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE = cFileName.
+  end.
 SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -1642,7 +1645,7 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1804,7 +1807,7 @@ DISPLAY "" WITH FRAME r-top.
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -1951,7 +1954,7 @@ DISPLAY "" WITH FRAME r-top.
 
     end.  /* for each */
 
-    IF tb_excel THEN 
+    IF rd-dest = 3 THEN 
     DO:
        OUTPUT STREAM excel CLOSE.
        IF tb_runExcel THEN
