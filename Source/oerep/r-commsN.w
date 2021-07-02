@@ -376,43 +376,47 @@ DEFINE FRAME FRAME-A
      tb_prep AT ROW 12.38 COL 13.6
      tgCatSum AT ROW 12.38 COL 45 WIDGET-ID 4
      tgFullCost AT ROW 12.38 COL 68.8 WIDGET-ID 10
-     sl_avail AT ROW 13.95 COL 3.4 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 14.1 COL 40.4 HELP
+     sl_avail AT ROW 14.71 COL 3.4 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 14.86 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 14.1 COL 59.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 15.19 COL 40.4 HELP
+     sl_selected AT ROW 14.86 COL 59.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 15.95 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 16.29 COL 40.4 HELP
+     Btn_Remove AT ROW 17.05 COL 40.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 17.38 COL 40.4 WIDGET-ID 40
-     btn_down AT ROW 18.48 COL 40.4 WIDGET-ID 42
-     lines-per-page AT ROW 20.43 COL 84 COLON-ALIGNED
-     lv-font-name AT ROW 20.52 COL 28 COLON-ALIGNED NO-LABEL
-     rd-dest AT ROW 20.62 COL 6 NO-LABEL
-     lv-ornt AT ROW 20.67 COL 31 NO-LABEL
-     td-show-parm AT ROW 20.76 COL 30
-     lv-font-no AT ROW 20.81 COL 34 COLON-ALIGNED
-     tb_excel AT ROW 20.86 COL 67.8 RIGHT-ALIGNED
-     fi_file AT ROW 23.38 COL 28 COLON-ALIGNED HELP
+     btn_Up AT ROW 18.14 COL 40.4 WIDGET-ID 40
+     btn_down AT ROW 19.24 COL 40.4 WIDGET-ID 42
+     lines-per-page AT ROW 21.19 COL 84 COLON-ALIGNED
+     lv-font-name AT ROW 21.29 COL 28 COLON-ALIGNED NO-LABEL
+     rd-dest AT ROW 21.38 COL 6 NO-LABEL
+     lv-ornt AT ROW 21.43 COL 31 NO-LABEL
+     td-show-parm AT ROW 21.52 COL 30
+     lv-font-no AT ROW 21.57 COL 34 COLON-ALIGNED
+     tb_excel AT ROW 21.62 COL 67.8 RIGHT-ALIGNED
+     fi_file AT ROW 24.14 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_runExcel AT ROW 23.43 COL 87.4 RIGHT-ALIGNED
-     tbAutoClose AT ROW 25.33 COL 28.4 WIDGET-ID 16
-     btn-ok AT ROW 26.29 COL 28.4
-     btn-cancel AT ROW 26.29 COL 52
+     tb_runExcel AT ROW 24.19 COL 87.4 RIGHT-ALIGNED
+     tbAutoClose AT ROW 26.1 COL 28.4 WIDGET-ID 16
+     btn-ok AT ROW 27.05 COL 28.4
+     btn-cancel AT ROW 27.05 COL 52
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 14.19 COL 60.2 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 18.4 BY .62 AT ROW 14.1 COL 12 WIDGET-ID 38
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.19 COL 4.2
           BGCOLOR 15 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.86 COL 4
-          BGCOLOR 15 
      "(Leave Blank For all Categories)" VIEW-AS TEXT
           SIZE 31 BY .71 AT ROW 11.29 COL 46
-     RECT-6 AT ROW 20.29 COL 3.4
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.62 COL 4
+          BGCOLOR 15 
+     RECT-6 AT ROW 21.05 COL 3.4
      RECT-7 AT ROW 1.48 COL 3.4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
-         SIZE 95.2 BY 28.29
+         SIZE 95.2 BY 28.71
          BGCOLOR 15 .
 
 
@@ -433,7 +437,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Commission Report"
-         HEIGHT             = 27
+         HEIGHT             = 28.91
          WIDTH              = 96.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
