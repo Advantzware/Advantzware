@@ -2061,6 +2061,9 @@ PROCEDURE ipConvertCustomerX PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-cust FOR cust.
     
+    DISABLE TRIGGERS FOR LOAD OF cust.
+    DISABLE TRIGGERS FOR LOAD OF bf-cust.
+
     FOR EACH company NO-LOCK,
         EACH bf-cust EXCLUSIVE-LOCK
         WHERE bf-cust.company EQ company.company
