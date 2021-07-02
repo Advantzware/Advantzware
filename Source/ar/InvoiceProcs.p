@@ -752,15 +752,23 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCustExist    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipto       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iInterCompanyBilling AS INTEGER NO-UNDO.
     
     FIND FIRST oe-bolh NO-LOCK 
         WHERE ROWID(oe-bolh) EQ ipriOeBolh NO-ERROR.
     IF NOT AVAILABLE oe-bolh THEN RETURN.
      
     RUN pGetNk1TransCompany(
-        INPUT oe-bolh.company,                       
-        INPUT-OUTPUT cTransCompany
+        INPUT oe-bolh.company,
+        INPUT oe-bolh.cust-no,
+        INPUT-OUTPUT cTransCompany,
+        OUTPUT iInterCompanyBilling
         ). 
+        
+    cCustomer = IF iInterCompanyBilling EQ 1 THEN oe-bolh.cust-no ELSE oe-bolh.ship-id.   
+    cShipto   = IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no.    
      
     FIND FIRST bf-period NO-LOCK 
         WHERE bf-period.company EQ oe-bolh.company
@@ -770,7 +778,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 
     FIND FIRST bf-cust NO-LOCK
         WHERE bf-cust.company EQ cTransCompany 
-        AND bf-cust.cust-no EQ oe-bolh.ship-id NO-ERROR.
+        AND bf-cust.cust-no EQ cCustomer NO-ERROR.
                 
     FOR EACH bf-inv-head NO-LOCK
         WHERE bf-inv-head.company EQ oe-bolh.company
@@ -797,7 +805,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
             bf-ar-inv.zip            = bf-cust.zip
             bf-ar-inv.city           = bf-cust.city
             bf-ar-inv.bill-to        = bf-inv-head.bill-to
-            bf-ar-inv.sold-id        = oe-bolh.cust-no
+            bf-ar-inv.sold-id        = cShipto
             bf-ar-inv.sold-name      = bf-inv-head.sold-name
             bf-ar-inv.sold-addr[1]   = bf-inv-head.sold-addr[1]
             bf-ar-inv.sold-addr[2]   = bf-inv-head.sold-addr[2]
@@ -875,7 +883,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.inv-no             = bf-ar-inv.inv-no
                 bf-ar-invl.bol-no             = oe-bolh.bol-no                         
                 bf-ar-invl.ord-no             = bf-inv-line.ord-no
-                bf-ar-invl.cust-no            = bf-inv-line.cust-no
+                bf-ar-invl.cust-no            = bf-cust.cust-no
                 bf-ar-invl.est-no             = bf-inv-line.est-no
                 bf-ar-invl.est-type           = bf-inv-line.est-type
                 bf-ar-invl.form-no            = bf-inv-line.form-no
@@ -905,18 +913,13 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.ship-qty           = bf-inv-line.ship-qty
                 bf-ar-invl.inv-qty            = bf-inv-line.inv-qty
                 bf-ar-invl.qty                = bf-inv-line.qty                         
-                bf-ar-invl.sman[1]            = bf-inv-line.sman[1]
-                bf-ar-invl.sman[2]            = bf-inv-line.sman[2]
-                bf-ar-invl.sman[3]            = bf-inv-line.sman[3]
+                bf-ar-invl.sman[1]            = bf-cust.sman                 
                 bf-ar-invl.s-pct[1]           = bf-inv-line.s-pct[1]
                 bf-ar-invl.s-pct[2]           = bf-inv-line.s-pct[2]
                 bf-ar-invl.s-pct[3]           = bf-inv-line.s-pct[3]
                 bf-ar-invl.s-comm[1]          = bf-inv-line.s-comm[1]
                 bf-ar-invl.s-comm[2]          = bf-inv-line.s-comm[2]
-                bf-ar-invl.s-comm[3]          = bf-inv-line.s-comm[3]
-                bf-ar-invl.sname[1]           = bf-inv-line.sname[1]
-                bf-ar-invl.sname[2]           = bf-inv-line.sname[2]
-                bf-ar-invl.sname[3]           = bf-inv-line.sname[3]
+                bf-ar-invl.s-comm[3]          = bf-inv-line.s-comm[3]                                  
                 bf-ar-invl.s-commbasis[1]     = bf-inv-line.s-commbasis[1]
                 bf-ar-invl.s-commbasis[2]     = bf-inv-line.s-commbasis[2]
                 bf-ar-invl.s-commbasis[3]     = bf-inv-line.s-commbasis[3]
@@ -958,7 +961,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.INV-NO         = bf-ar-inv.inv-no
                 bf-ar-invl.ord-no         = bf-inv-misc.ord-no
                 bf-ar-invl.bol-no         = oe-bolh.bol-no
-                bf-ar-invl.cust-no        = bf-ar-inv.cust-no
+                bf-ar-invl.cust-no        = bf-cust.cust-no
                 bf-ar-invl.est-no         = bf-inv-misc.est-no
                 bf-ar-invl.tax            = bf-inv-misc.tax
                 bf-ar-invl.actnum         = bf-inv-misc.actnum
@@ -976,9 +979,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.i-dscr         = bf-inv-misc.dscr
                 bf-ar-invl.po-no          = bf-inv-misc.po-no
                 bf-ar-invl.po-no-po       = bf-inv-misc.po-no-po
-                bf-ar-invl.sman[1]        = bf-inv-misc.s-man[1]
-                bf-ar-invl.sman[2]        = bf-inv-misc.s-man[2]
-                bf-ar-invl.sman[3]        = bf-inv-misc.s-man[3]
+                bf-ar-invl.sman[1]        = bf-cust.sman                
                 bf-ar-invl.s-pct[1]       = bf-inv-misc.s-pct[1]
                 bf-ar-invl.s-pct[2]       = bf-inv-misc.s-pct[2]
                 bf-ar-invl.s-pct[3]       = bf-inv-misc.s-pct[3]
@@ -1011,11 +1012,12 @@ PROCEDURE pGetNk1TransCompany:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcReturnValue AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInterCompanyBilling AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.    
-    
     
     RUN sys/ref/nk1look.p (
                     INPUT ipcCompany,
@@ -1027,7 +1029,15 @@ PROCEDURE pGetNk1TransCompany:
                     INPUT "" /* ship-to*/,
                     OUTPUT cReturnValue,
                     OUTPUT lRecFound).    
-     iopcReturnValue = IF cReturnValue NE "" THEN cReturnValue ELSE iopcReturnValue.    
+    iopcReturnValue = IF cReturnValue NE "" THEN cReturnValue ELSE iopcReturnValue.
+     
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+        WHERE sys-ctrl-shipto.company EQ ipcCompany 
+        AND sys-ctrl-shipto.NAME EQ "InterCompanyBilling" 
+        AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
+        AND sys-ctrl-shipto.cust-vend EQ YES NO-ERROR.
+    opiInterCompanyBilling = IF AVAILABLE sys-ctrl-shipto THEN sys-ctrl-shipto.int-fld ELSE 0.  
+    
 END PROCEDURE.
 
 

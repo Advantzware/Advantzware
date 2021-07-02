@@ -575,8 +575,7 @@ DO:
                                 oe-bolh.bol-no = INTEGER(ar-invl.bol-no:SCREEN-VALUE)
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-bolh THEN DO:
-          MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN.
+          MESSAGE "Invalid BOL Number." VIEW-AS ALERT-BOX WARNING.          
        END.
        ELSE DO:
         find FIRST oe-boll no-lock 
@@ -666,18 +665,8 @@ DO:
              AND oe-boll.bol-no  EQ INTEGER(ar-invl.bol-no:SCREEN-VALUE)
              AND oe-boll.i-no    EQ ar-invl.i-no:SCREEN-VALUE
            NO-ERROR.
-       IF NOT AVAIL oe-boll THEN DO:
-          MESSAGE "Invalid Bol # for item#." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ar-invl.bol-no.
-          RETURN NO-APPLY.
-       END.
        
-       IF INTEGER(ar-invl.ord-no:SCREEN-VALUE) NE oe-boll.ord-no THEN DO:
-          MESSAGE "Invalid Bol # for item#." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO ar-invl.bol-no.
-          RETURN NO-APPLY.       
-       END.
-       IF ar-invl.po-no:SCREEN-VALUE NE oe-boll.po-no THEN DO:
+       IF AVAIL oe-boll AND ar-invl.po-no:SCREEN-VALUE NE oe-boll.po-no THEN DO:
           MESSAGE "Invalid PO# for this BOL." VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO ar-invl.bol-no.
           RETURN NO-APPLY.       
@@ -849,8 +838,7 @@ DO:
                                 oe-ord.ord-no = INTEGER(ar-invl.ord-no:SCREEN-VALUE)
                                 NO-LOCK NO-ERROR.
        IF NOT AVAIL oe-ord THEN DO:
-          MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX ERROR.
-          RETURN.
+          MESSAGE "Invalid Order Number." VIEW-AS ALERT-BOX WARNING.           
        END.
        
     END.
