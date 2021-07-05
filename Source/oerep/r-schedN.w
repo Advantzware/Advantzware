@@ -121,18 +121,16 @@ end_cat begin_shipfrom end_shipfrom begin_csr end_csr tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes begin_spec ~
 end_spec tb_stats sl_avail Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
-sl_selected rd-dest lv-ornt lv-font-no lines-per-page td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel RECT-6 RECT-7 RECT-8 RECT-11 RECT-42 ~
-rd_printed 
+sl_selected rd-dest tb_excel fi_file btn-ok btn-cancel rd_printed RECT-6 ~
+RECT-7 RECT-8 RECT-11 tbAutoClose 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-no end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn ~
 end_slsmn begin_date end_date begin_carr end_carr begin_cat end_cat ~
 begin_shipfrom end_shipfrom begin_csr end_csr tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes begin_spec ~
-end_spec tb_stats sl_avail sl_selected lv-font-name rd-dest lv-ornt ~
-lv-font-no lines-per-page td-show-parm tb_excel tb_runExcel fi_file ~
-lbl-print-2 rd_printed 
+end_spec tb_stats sl_avail sl_selected rd-dest tb_excel fi_file lbl-print-2 ~
+rd_printed tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -159,11 +157,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
@@ -299,11 +297,10 @@ DEFINE VARIABLE end_spec AS CHARACTER FORMAT "X(3)":U INITIAL "zzzzz"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sched.csv" 
-     LABEL "File Name" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-sched.csv" 
+     LABEL "Name" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1
-     FGCOLOR 9 .
+     SIZE 43 BY 1.
 
 DEFINE VARIABLE lbl-print AS CHARACTER FORMAT "X(14)":U INITIAL "Print Options:" 
       VIEW-AS TEXT 
@@ -325,7 +322,7 @@ DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
      VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+     SIZE 9 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -335,15 +332,13 @@ DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P"
      SIZE 28.6 BY .95 NO-UNDO.
 
 DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 87 BY 1.91 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.29 NO-UNDO.
 
 DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Item Name" 
      VIEW-AS RADIO-SET VERTICAL
@@ -368,7 +363,7 @@ DEFINE VARIABLE rd_printOnhand AS CHARACTER
 "Qty OH < Order Qty", "N",
 "Qty OH > Order Qty", "P",
 "All", "A"
-     SIZE 77 BY .95 NO-UNDO.
+     SIZE 72.8 BY .91 NO-UNDO.
 
 DEFINE VARIABLE rd_rel AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -387,7 +382,7 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer#"
 "Territory", "Territory",
 "Carrier", "Carrier",
 "Credit", "Credit Rating"
-     SIZE 90 BY 1.33 NO-UNDO.
+     SIZE 90 BY .91 NO-UNDO.
 
 DEFINE VARIABLE rs-item-option AS CHARACTER 
      VIEW-AS RADIO-SET VERTICAL
@@ -406,46 +401,47 @@ DEFINE VARIABLE rs_qty AS CHARACTER INITIAL "Job#"
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 25 BY 3.81.
-
-DEFINE RECTANGLE RECT-42
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 72 BY 7.76.
+     SIZE 25 BY 3.48.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 132 BY 6.76.
+     SIZE 112 BY 3.71.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 132 BY 21.67.
+     SIZE 112 BY 17.81.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 1.2 BY 8.71.
+     SIZE 49 BY 3.48.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 27 BY 6.19 NO-UNDO.
+     SIZE 41 BY 5.52 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 25 BY 6.19 NO-UNDO.
+     SIZE 41 BY 5.52 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_actual AS LOGICAL INITIAL yes 
      LABEL "Actual" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_backordered AS LOGICAL INITIAL yes 
      LABEL "Backorder" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_completed AS LOGICAL INITIAL no 
      LABEL "Completed" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -453,40 +449,40 @@ DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no
      SIZE 30.8 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
-     LABEL "Export To Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_invoice AS LOGICAL INITIAL no 
      LABEL "Invoice Unposted" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .48 NO-UNDO.
+     SIZE 21 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_invoiceable AS LOGICAL INITIAL yes 
      LABEL "Past Last Ship Date" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23.4 BY .48 NO-UNDO.
+     SIZE 23.4 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_late AS LOGICAL INITIAL yes 
      LABEL "Late" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_neg-avail AS LOGICAL INITIAL yes 
      LABEL "Only Negative Available?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 28 BY .95 NO-UNDO.
+     SIZE 28 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_notes AS LOGICAL INITIAL no 
      LABEL "Print Spec Notes?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .95 NO-UNDO.
+     SIZE 22 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_oh-rlqty AS LOGICAL INITIAL yes 
      LABEL "Only Neg OH-RelQty?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 28 BY .95 NO-UNDO.
+     SIZE 28 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_po-no AS LOGICAL INITIAL yes 
      LABEL "Print PO#?" 
@@ -496,7 +492,7 @@ DEFINE VARIABLE tb_po-no AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Bill of Lading" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -507,17 +503,17 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_scheduled AS LOGICAL INITIAL yes 
      LABEL "Scheduled" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .48 NO-UNDO.
+     SIZE 18 BY .6 NO-UNDO.
 
 DEFINE VARIABLE tb_stats AS LOGICAL INITIAL no 
      LABEL "Print Schedule Stats?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24.6 BY .95 NO-UNDO.
+     SIZE 24.6 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_subt AS LOGICAL INITIAL no 
      LABEL "Subtotal By Customer#?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .95 NO-UNDO.
+     SIZE 27 BY .62 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -536,126 +532,128 @@ DEFINE FRAME FRAME-A
      tb_cust-list AT ROW 1.62 COL 45 WIDGET-ID 6
      btnCustList AT ROW 1.62 COL 80
      lbl-print AT ROW 10.05 COL 140 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     begin_cust-no AT ROW 2.57 COL 40 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 2.62 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 2.57 COL 90 COLON-ALIGNED HELP
+     end_cust-no AT ROW 2.62 COL 83 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_ord-no AT ROW 3.52 COL 40 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 3.67 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_ord-no AT ROW 3.52 COL 90 COLON-ALIGNED HELP
+     end_ord-no AT ROW 3.67 COL 83 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     begin_i-no AT ROW 4.48 COL 40 COLON-ALIGNED HELP
+     begin_i-no AT ROW 4.71 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_i-no AT ROW 4.48 COL 90 COLON-ALIGNED HELP
+     end_i-no AT ROW 4.71 COL 83 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_loc AT ROW 5.43 COL 40 COLON-ALIGNED HELP
+     begin_loc AT ROW 5.76 COL 33 COLON-ALIGNED HELP
           "Enter From (Qty On Hand Whse)"
-     end_loc AT ROW 5.43 COL 90 COLON-ALIGNED HELP
+     end_loc AT ROW 5.76 COL 83 COLON-ALIGNED HELP
           "Enter To  (Qty On Hand Whse)"
-     begin_slsmn AT ROW 6.38 COL 40 COLON-ALIGNED HELP
+     begin_slsmn AT ROW 6.81 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
-     end_slsmn AT ROW 6.38 COL 90 COLON-ALIGNED HELP
+     end_slsmn AT ROW 6.81 COL 83 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
-     begin_date AT ROW 7.33 COL 40 COLON-ALIGNED HELP
+     begin_date AT ROW 7.86 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 7.33 COL 90 COLON-ALIGNED HELP
+     end_date AT ROW 7.86 COL 83 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_carr AT ROW 8.24 COL 40 COLON-ALIGNED HELP
+     begin_carr AT ROW 8.86 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number"
-     end_carr AT ROW 8.24 COL 90 COLON-ALIGNED HELP
+     end_carr AT ROW 8.86 COL 83 COLON-ALIGNED HELP
           "Enter Ending Carrier Number"
-     begin_cat AT ROW 9.19 COL 40 COLON-ALIGNED HELP
+     begin_cat AT ROW 9.91 COL 33 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_cat AT ROW 9.19 COL 90 COLON-ALIGNED HELP
+     end_cat AT ROW 9.91 COL 83 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     begin_shipfrom AT ROW 10.14 COL 40 COLON-ALIGNED HELP
+     begin_shipfrom AT ROW 10.95 COL 33 COLON-ALIGNED HELP
           "Enter starting ship from location." WIDGET-ID 158
-     end_shipfrom AT ROW 10.14 COL 90 COLON-ALIGNED HELP
+     end_shipfrom AT ROW 10.95 COL 83 COLON-ALIGNED HELP
           "Enter ending ship from location." WIDGET-ID 160
-     begin_csr AT ROW 11 COL 40 COLON-ALIGNED HELP
+     begin_csr AT ROW 12 COL 33 COLON-ALIGNED HELP
           "Enter starting CSR." WIDGET-ID 164
-     end_csr AT ROW 11 COL 90 COLON-ALIGNED HELP
+     end_csr AT ROW 12 COL 83 COLON-ALIGNED HELP
           "Enter ending CSR." WIDGET-ID 166
-     tb_scheduled AT ROW 12.81 COL 2.6 WIDGET-ID 78
-     tb_late AT ROW 13.76 COL 2.6 WIDGET-ID 68
-     tb_invoiceable AT ROW 14.71 COL 2.6 WIDGET-ID 66
-     tb_actual AT ROW 15.91 COL 2.6 WIDGET-ID 56
-     tb_backordered AT ROW 16.86 COL 2.6 WIDGET-ID 58
-     tb_posted AT ROW 18.05 COL 2.6 WIDGET-ID 74
-     tb_invoice AT ROW 19 COL 2.6 WIDGET-ID 64
-     tb_completed AT ROW 20.05 COL 2.6 WIDGET-ID 60
-     rd_printOnhand AT ROW 12.29 COL 47 NO-LABEL WIDGET-ID 128
-     rd_sort AT ROW 13.05 COL 42 NO-LABEL WIDGET-ID 32
+     tb_scheduled AT ROW 15.95 COL 69 WIDGET-ID 78
+     tb_late AT ROW 16.71 COL 69 WIDGET-ID 68
+     tb_invoiceable AT ROW 17.43 COL 69 WIDGET-ID 66
+     tb_actual AT ROW 18.19 COL 69 WIDGET-ID 56
+     tb_backordered AT ROW 15.95 COL 91 WIDGET-ID 58
+     tb_posted AT ROW 16.71 COL 91 WIDGET-ID 74
+     tb_invoice AT ROW 17.43 COL 91 WIDGET-ID 64
+     tb_completed AT ROW 18.19 COL 91 WIDGET-ID 60
+     rd_printOnhand AT ROW 13.1 COL 25.2 NO-LABEL WIDGET-ID 128
+     rd_sort AT ROW 13.86 COL 25 NO-LABEL WIDGET-ID 32
      rd_print AT ROW 17.57 COL 138 NO-LABEL WIDGET-ID 24
      rs-item-option AT ROW 21.71 COL 136 NO-LABEL WIDGET-ID 48
      rs_qty AT ROW 24.33 COL 137 NO-LABEL WIDGET-ID 52
      tg-print-due AT ROW 11 COL 143 WIDGET-ID 94
      tb_po-no AT ROW 11.71 COL 143 WIDGET-ID 72
-     tb_subt AT ROW 14.43 COL 102.6 WIDGET-ID 82
-     tb_neg-avail AT ROW 15.19 COL 102.6 WIDGET-ID 162
-     tb_oh-rlqty AT ROW 16 COL 102.6 WIDGET-ID 156
-     tb_notes AT ROW 17.52 COL 104 WIDGET-ID 70
-     begin_spec AT ROW 18.71 COL 119 COLON-ALIGNED HELP
+     tb_subt AT ROW 15.95 COL 6.8 WIDGET-ID 82
+     tb_neg-avail AT ROW 16.71 COL 6.8 WIDGET-ID 162
+     tb_oh-rlqty AT ROW 17.43 COL 6.8 WIDGET-ID 156
+     tb_notes AT ROW 15.95 COL 38.4 WIDGET-ID 70
+     begin_spec AT ROW 16.71 COL 53.4 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number" WIDGET-ID 2
-     end_spec AT ROW 19.67 COL 119 COLON-ALIGNED HELP
+     end_spec AT ROW 17.81 COL 53.4 COLON-ALIGNED HELP
           "Enter Ending Carrier Number" WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.67.
+         SIZE 227.2 BY 30.86
+         BGCOLOR 15 .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     tb_stats AT ROW 21.33 COL 103 WIDGET-ID 80
+     tb_stats AT ROW 18.19 COL 6.8 WIDGET-ID 80
      rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
-     sl_avail AT ROW 15.62 COL 30 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 15.81 COL 59 HELP
+     sl_avail AT ROW 20 COL 5 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 20.19 COL 54.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 17 COL 59 HELP
+     Btn_Add AT ROW 21.19 COL 54.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 18.19 COL 59 HELP
+     Btn_Remove AT ROW 22.19 COL 54.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 19.38 COL 59 WIDGET-ID 144
-     btn_down AT ROW 20.57 COL 59 WIDGET-ID 140
-     sl_selected AT ROW 15.62 COL 75 NO-LABEL WIDGET-ID 148
-     lv-font-name AT ROW 28.24 COL 2.4 NO-LABEL WIDGET-ID 96
-     rd-dest AT ROW 23.81 COL 2.2 NO-LABEL WIDGET-ID 16
-     lv-ornt AT ROW 25.67 COL 2.2 NO-LABEL WIDGET-ID 12
-     lv-font-no AT ROW 26.86 COL 5.8 COLON-ALIGNED WIDGET-ID 10
-     lines-per-page AT ROW 26.86 COL 30.8 COLON-ALIGNED WIDGET-ID 8
-     td-show-parm AT ROW 24.29 COL 93.4 WIDGET-ID 84
-     tb_excel AT ROW 26.33 COL 100 RIGHT-ALIGNED WIDGET-ID 62
-     tb_runExcel AT ROW 26.33 COL 121.6 RIGHT-ALIGNED WIDGET-ID 76
-     fi_file AT ROW 27.43 COL 77.6 COLON-ALIGNED HELP
+     btn_Up AT ROW 23.19 COL 54.2 WIDGET-ID 144
+     btn_down AT ROW 24.19 COL 54.2 WIDGET-ID 140
+     sl_selected AT ROW 20 COL 75.8 NO-LABEL WIDGET-ID 148
+     lv-font-name AT ROW 26.48 COL 42 NO-LABEL WIDGET-ID 96
+     rd-dest AT ROW 26.19 COL 10 NO-LABEL WIDGET-ID 16
+     lv-ornt AT ROW 26.24 COL 43 NO-LABEL WIDGET-ID 12
+     lv-font-no AT ROW 26.24 COL 49 COLON-ALIGNED WIDGET-ID 10
+     lines-per-page AT ROW 26.24 COL 54 COLON-ALIGNED WIDGET-ID 8
+     td-show-parm AT ROW 26.71 COL 61 WIDGET-ID 84
+     tb_excel AT ROW 28.38 COL 97.8 RIGHT-ALIGNED WIDGET-ID 62
+     tb_runExcel AT ROW 26.48 COL 71 RIGHT-ALIGNED WIDGET-ID 76
+     fi_file AT ROW 28.33 COL 32 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 30.05 COL 32
-     btn-cancel AT ROW 29.86 COL 87
-     lbl-print-2 AT ROW 13.38 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 124
-     rd_printed AT ROW 21.71 COL 4.4 NO-LABEL WIDGET-ID 170
+     btn-ok AT ROW 30.52 COL 41
+     btn-cancel AT ROW 30.52 COL 66
+     lbl-print-2 AT ROW 13.95 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+     rd_printed AT ROW 14.76 COL 25 NO-LABEL WIDGET-ID 170
+     tbAutoClose AT ROW 29.91 COL 41.4 WIDGET-ID 174
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
+          SIZE 21 BY .71 AT ROW 1.14 COL 5.8
+          BGCOLOR 15 
      "Print OH Qty?" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 12.38 COL 29 WIDGET-ID 136
+          SIZE 14 BY .62 AT ROW 13.33 COL 9.6 WIDGET-ID 136
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 14.57 COL 31 WIDGET-ID 150
+          SIZE 20 BY .62 AT ROW 19.38 COL 6.8 WIDGET-ID 150
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 14.57 COL 67 WIDGET-ID 152
+          SIZE 34 BY .62 AT ROW 19.38 COL 79.6 WIDGET-ID 152
      "Release Types:" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 11.91 COL 2 WIDGET-ID 86
+          SIZE 15 BY .71 AT ROW 15.19 COL 66 WIDGET-ID 86
      "Output Destination" VIEW-AS TEXT
-          SIZE 18.8 BY .76 AT ROW 23 COL 2.2 WIDGET-ID 88
+          SIZE 18.8 BY .76 AT ROW 25.52 COL 5.8 WIDGET-ID 88
      "Printed Status?" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 20.95 COL 4 WIDGET-ID 168
-     RECT-6 AT ROW 22.81 COL 1 WIDGET-ID 40
-     RECT-7 AT ROW 1 COL 1 WIDGET-ID 42
-     RECT-8 AT ROW 12.05 COL 26 WIDGET-ID 44
-     RECT-11 AT ROW 17.05 COL 103 WIDGET-ID 100
-     RECT-42 AT ROW 14.43 COL 29 WIDGET-ID 154
+          SIZE 15 BY .62 AT ROW 14.67 COL 8.4 WIDGET-ID 168
+     RECT-6 AT ROW 26 COL 4.8 WIDGET-ID 40
+     RECT-7 AT ROW 1.48 COL 4.8 WIDGET-ID 42
+     RECT-8 AT ROW 15.62 COL 65 WIDGET-ID 44
+     RECT-11 AT ROW 15.62 COL 37.4 WIDGET-ID 100
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.67.
+         SIZE 227.2 BY 30.86
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -675,11 +673,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Scheduled Releases"
-         HEIGHT             = 30.67
-         WIDTH              = 132.4
-         MAX-HEIGHT         = 30.67
+         HEIGHT             = 30.86
+         WIDTH              = 119.4
+         MAX-HEIGHT         = 32.1
          MAX-WIDTH          = 230
-         VIRTUAL-HEIGHT     = 30.67
+         VIRTUAL-HEIGHT     = 32.1
          VIRTUAL-WIDTH      = 230
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -822,8 +820,23 @@ ASSIGN
        lbl-print-2:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_sort".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE ALIGN-L                                                    */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 /* SETTINGS FOR RADIO-SET rd_print IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -908,8 +921,9 @@ ASSIGN
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_runExcel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -924,6 +938,11 @@ ASSIGN
 ASSIGN 
        tb_subt:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tg-print-due IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
@@ -1404,7 +1423,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
      assign {&self-name}.
 END.
@@ -1615,7 +1634,7 @@ END.
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
-ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -2056,9 +2075,8 @@ PROCEDURE enable_UI :
           end_shipfrom begin_csr end_csr tb_scheduled tb_late tb_invoiceable 
           tb_actual tb_backordered tb_posted tb_invoice tb_completed 
           rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes 
-          begin_spec end_spec tb_stats sl_avail sl_selected lv-font-name rd-dest 
-          lv-ornt lv-font-no lines-per-page td-show-parm tb_excel tb_runExcel 
-          fi_file lbl-print-2 rd_printed 
+          begin_spec end_spec tb_stats sl_avail sl_selected rd-dest tb_excel 
+          fi_file lbl-print-2 rd_printed tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tb_cust-list btnCustList begin_cust-no end_cust-no begin_ord-no 
          end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn 
@@ -2067,9 +2085,8 @@ PROCEDURE enable_UI :
          tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice 
          tb_completed rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty 
          tb_notes begin_spec end_spec tb_stats sl_avail Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down sl_selected rd-dest lv-ornt lv-font-no 
-         lines-per-page td-show-parm tb_excel tb_runExcel fi_file btn-ok 
-         btn-cancel RECT-6 RECT-7 RECT-8 RECT-11 RECT-42 rd_printed 
+         Btn_Remove btn_Up btn_down sl_selected rd-dest tb_excel fi_file btn-ok 
+         btn-cancel rd_printed RECT-6 RECT-7 RECT-8 RECT-11 tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2233,6 +2250,111 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorPOInfo C-Win 
+PROCEDURE pGetVendorPOInfo :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendor AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVendorPo AS INTEGER NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opdtPoDueDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMItemName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdOrdQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRecQty AS DECIMAL NO-UNDO.
+  
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    FIND FIRST po-ordl NO-LOCK USE-INDEX po-no
+        WHERE po-ordl.company EQ cocode
+        AND po-ordl.po-no     EQ ipiPoNo
+        AND po-ordl.job-no    EQ ipcJobNo
+        AND po-ordl.job-no2   EQ ipiJobNo2
+        AND po-ordl.item-type EQ YES
+        NO-ERROR.
+    IF AVAILABLE po-ordl THEN
+    DO:
+        FIND FIRST po-ord NO-LOCK
+            WHERE po-ord.company EQ po-ordl.company
+            AND po-ord.po-no     EQ po-ordl.po-no
+            NO-ERROR.
+        IF AVAILABLE po-ord THEN
+        DO:
+            ASSIGN
+                opcVendor     = po-ord.vend-no           
+                opiVendorPo   = po-ord.po-no
+                opdtPoDueDate = po-ord.due-date
+                opcRMItem     = po-ordl.i-no 
+                opcRMItemName = po-ordl.i-name
+                opcUom        = "EA"
+                .           
+            FIND FIRST item NO-LOCK
+                WHERE item.company EQ job.company
+                AND item.i-no      EQ po-ordl.i-no
+                NO-ERROR.                
+            ASSIGN
+                opdOrdQty = po-ordl.cons-qty
+                opdRecQty = po-ordl.t-rec-qty
+                .           
+            IF po-ordl.cons-uom NE opcUom THEN 
+            DO:                      
+                IF po-ordl.cons-qty NE 0 THEN               
+                    RUN Conv_QuantityFromUOMtoUOM (
+                        cocode,
+                        po-ordl.i-no,
+                        "RM",
+                        po-ordl.cons-qty,
+                        po-ordl.cons-uom,
+                        opcUom,
+                        IF AVAILABLE item THEN item.basis-w ELSE 0,
+                        po-ordl.s-len,
+                        po-ordl.s-wid,
+                        IF AVAILABLE item THEN item.s-dep ELSE 0,
+                        0,
+                        OUTPUT opdOrdQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).     
+                IF po-ordl.t-rec-qty NE 0 THEN             
+                    RUN Conv_QuantityFromUOMtoUOM (
+                        cocode,
+                        po-ordl.i-no,
+                        "RM",
+                        po-ordl.t-rec-qty,
+                        po-ordl.cons-uom,
+                        opcUom,
+                        IF AVAILABLE item THEN item.basis-w ELSE 0,
+                        po-ordl.s-len,
+                        po-ordl.s-wid,
+                        IF AVAILABLE item THEN item.s-dep ELSE 0,
+                        0,
+                        OUTPUT opdRecQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).                  
+            END.
+            FIND FIRST vend NO-LOCK
+                WHERE vend.company EQ cocode
+                AND vend.vend-no EQ po-ord.vend-no
+                NO-ERROR.
+            IF AVAILABLE vend THEN     
+                opcVendorName = vend.name.
+        END. 
+    END.  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 /* -------------------------------------------------oe/rep/schdrel.p 8/93 rd */
@@ -2380,111 +2502,6 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorPOInfo C-Win 
-PROCEDURE pGetVendorPOInfo :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcVendor AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiVendorPo AS INTEGER NO-UNDO.   
-    DEFINE OUTPUT PARAMETER opdtPoDueDate AS DATE NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcRMItem AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcRMItemName AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdOrdQty AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdRecQty AS DECIMAL NO-UNDO.
-  
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-
-    FIND FIRST po-ordl NO-LOCK USE-INDEX po-no
-        WHERE po-ordl.company EQ cocode
-        AND po-ordl.po-no     EQ ipiPoNo
-        AND po-ordl.job-no    EQ ipcJobNo
-        AND po-ordl.job-no2   EQ ipiJobNo2
-        AND po-ordl.item-type EQ YES
-        NO-ERROR.
-    IF AVAILABLE po-ordl THEN
-    DO:
-        FIND FIRST po-ord NO-LOCK
-            WHERE po-ord.company EQ po-ordl.company
-            AND po-ord.po-no     EQ po-ordl.po-no
-            NO-ERROR.
-        IF AVAILABLE po-ord THEN
-        DO:
-            ASSIGN
-                opcVendor     = po-ord.vend-no           
-                opiVendorPo   = po-ord.po-no
-                opdtPoDueDate = po-ord.due-date
-                opcRMItem     = po-ordl.i-no 
-                opcRMItemName = po-ordl.i-name
-                opcUom        = "EA"
-                .           
-            FIND FIRST item NO-LOCK
-                WHERE item.company EQ job.company
-                AND item.i-no      EQ po-ordl.i-no
-                NO-ERROR.                
-            ASSIGN
-                opdOrdQty = po-ordl.cons-qty
-                opdRecQty = po-ordl.t-rec-qty
-                .           
-            IF po-ordl.cons-uom NE opcUom THEN 
-            DO:                      
-                IF po-ordl.cons-qty NE 0 THEN               
-                    RUN Conv_QuantityFromUOMtoUOM (
-                        cocode,
-                        po-ordl.i-no,
-                        "RM",
-                        po-ordl.cons-qty,
-                        po-ordl.cons-uom,
-                        opcUom,
-                        IF AVAILABLE item THEN item.basis-w ELSE 0,
-                        po-ordl.s-len,
-                        po-ordl.s-wid,
-                        IF AVAILABLE item THEN item.s-dep ELSE 0,
-                        0,
-                        OUTPUT opdOrdQty,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).     
-                IF po-ordl.t-rec-qty NE 0 THEN             
-                    RUN Conv_QuantityFromUOMtoUOM (
-                        cocode,
-                        po-ordl.i-no,
-                        "RM",
-                        po-ordl.t-rec-qty,
-                        po-ordl.cons-uom,
-                        opcUom,
-                        IF AVAILABLE item THEN item.basis-w ELSE 0,
-                        po-ordl.s-len,
-                        po-ordl.s-wid,
-                        IF AVAILABLE item THEN item.s-dep ELSE 0,
-                        0,
-                        OUTPUT opdRecQty,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).                  
-            END.
-            FIND FIRST vend NO-LOCK
-                WHERE vend.company EQ cocode
-                AND vend.vend-no EQ po-ord.vend-no
-                NO-ERROR.
-            IF AVAILABLE vend THEN     
-                opcVendorName = vend.name.
-        END. 
-    END.  
 
 END PROCEDURE.
 
