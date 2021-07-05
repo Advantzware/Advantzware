@@ -398,7 +398,10 @@ PROCEDURE add-rel-for-qty:
         RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
         
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
-
+         
+        IF AVAIL bf-oe-ordl THEN
+        oe-rel.tot-qty = (oe-ordl.qty - v-qty-sum) .
+        ELSE
         oe-rel.tot-qty = oe-rel.qty.
 
         IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
