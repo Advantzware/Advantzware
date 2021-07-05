@@ -189,12 +189,12 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort tb_prt-acc ~
 tb_void rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile ~
-fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no td-show-parm ~
-tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+fiTransmitFile tbXmlFile lv-ornt rd-dest lines-per-page lv-font-no tb_excel ~
+td-show-parm tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
 tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile ~
-tbTransmitFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+tbTransmitFile tbXmlFile lv-ornt rd-dest lines-per-page lv-font-no ~
+lv-font-name tb_excel td-show-parm tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -297,10 +297,15 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 10.71.
+     SIZE 94 BY 11.91.
 
 DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL no 
      LABEL "Transmit File" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbXmlFile AS LOGICAL INITIAL no 
+     LABEL "XML File" 
      VIEW-AS TOGGLE-BOX
      SIZE 15.8 BY 1 NO-UNDO.
 
@@ -353,29 +358,30 @@ DEFINE FRAME FRAME-A
      tbTransmitFile AT ROW 10.48 COL 20.2 WIDGET-ID 12
      fiTransmitFile AT ROW 10.67 COL 36 COLON-ALIGNED HELP
           "Enter File Name" NO-LABEL WIDGET-ID 10
-     lv-ornt AT ROW 12.1 COL 29 NO-LABEL
-     rd-dest AT ROW 13 COL 8 NO-LABEL
-     lines-per-page AT ROW 13.24 COL 82 COLON-ALIGNED
-     lv-font-no AT ROW 13.52 COL 32 COLON-ALIGNED
-     lv-font-name AT ROW 14.48 COL 26 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 15.62 COL 28
+     tbXmlFile AT ROW 11.71 COL 20.2 WIDGET-ID 14     
+     lv-ornt AT ROW 13.14 COL 29 NO-LABEL
+     rd-dest AT ROW 14.05 COL 8 NO-LABEL
+     lines-per-page AT ROW 14.29 COL 82 COLON-ALIGNED
+     lv-font-no AT ROW 14.57 COL 32 COLON-ALIGNED
+     lv-font-name AT ROW 15.52 COL 26 COLON-ALIGNED NO-LABEL
      tb_excel AT ROW 16.62 COL 48.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 16.62 COL 69.2 RIGHT-ALIGNED
-     fi_file AT ROW 17.43 COL 26 COLON-ALIGNED HELP
+     td-show-parm AT ROW 16.67 COL 28
+     tb_runExcel AT ROW 17.67 COL 69.2 RIGHT-ALIGNED
+     fi_file AT ROW 18.48 COL 26 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 19.19 COL 24
-     btn-cancel AT ROW 19.43 COL 58
+     btn-ok AT ROW 20.24 COL 24
+     btn-cancel AT ROW 20.48 COL 58
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.05 COL 3
-     RECT-6 AT ROW 11.95 COL 1
+          SIZE 18 BY .62 AT ROW 13.1 COL 3
+     RECT-6 AT ROW 13 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 20.24.
+         SIZE 95.2 BY 21.19.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -395,7 +401,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "A/P Checks Register"
-         HEIGHT             = 20.71
+         HEIGHT             = 21.67
          WIDTH              = 95.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -795,6 +801,17 @@ END.
 ON VALUE-CHANGED OF tbTransmitFile IN FRAME FRAME-A /* Transmit File */
 DO:
     fiTransmitFile:HIDDEN = NOT SELF:CHECKED.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbXmlFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbXmlFile C-Win
+ON VALUE-CHANGED OF tbXmlFile IN FRAME FRAME-A /* XML File */
+DO:
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1394,14 +1411,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void 
-          rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt 
-          rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile tbXmlFile 
+          lv-ornt rd-dest lines-per-page lv-font-no lv-font-name tb_excel 
+          td-show-parm tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void rd_print-apfile 
-         tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile lv-ornt 
-         rd-dest lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile tbXmlFile 
+         lv-ornt rd-dest lines-per-page lv-font-no tb_excel td-show-parm 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2058,6 +2075,39 @@ PROCEDURE run-report :
 
     DELETE OBJECT hdFTPProcs.    
 /* End bank transmittal file generation */
+
+IF tbXmlFile:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        
+    DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDataList       AS CHARACTER NO-UNDO.
+    
+    ASSIGN 
+            cAPIID       = "SendCitiBankCheck"
+            cTriggerID   = "PrintCheck"
+            cPrimaryID   = "Check " 
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
+            cDataList = STRING(post-manual) + ","
+                        + STRING(cocode)
+            .
+           
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  cocode,                     /* Company Code (Mandatory) */
+            INPUT  locode,                     /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "_ANY_",                    /* Scope ID */
+            INPUT  "_ANY_",                    /* Scope Type */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "post-manual,cocode",       /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ) NO-ERROR.     
+    
+           .       
+END.            
 
 ASSIGN
 time_stamp = STRING(TIME, "hh:mmam")
