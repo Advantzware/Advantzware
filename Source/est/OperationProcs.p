@@ -1489,15 +1489,16 @@ PROCEDURE pSetAttributesForm PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pSetAttributesFromEstOps PRIVATE:
+PROCEDURE pSetAttributesFromQty PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:  Given the ttEstOP and ttOperations, sets attributes that are Operations dependent
+     Purpose:  Given the ttEstOP and ttOperations, set attributes that are Operations Qty dependent
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
     DEFINE INPUT  PARAMETER ipcOperationId AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocationId AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER TABLE FOR ttOperation.
     
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass))).  
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))). 
@@ -1610,7 +1611,7 @@ PROCEDURE pGetEstOPData PRIVATE:
         END.
     END.
     
-    RUN pGetOpsSequencing( INPUT-OUTPUT TABLE ttEstOp).
+    RUN pGetOpsSequencing( INPUT-OUTPUT TABLE ttEstOp BY-REFERENCE).
     
 END PROCEDURE.    
 
@@ -1671,7 +1672,6 @@ PROCEDURE pRecalcOperations PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
     DEFINE INPUT  PARAMETER ipcAction AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcOrgMachine AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER TABLE   FOR ttEstOp.
     DEFINE OUTPUT PARAMETER TABLE   FOR ttOperation.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1766,7 +1766,7 @@ PROCEDURE pRecalcOperations PRIVATE:
         AND ttEstop.s-num EQ bf-ef.form-no
         AND ttEstop.line LT 500
         AND ttEstop.qty EQ dQtyTarget
-        GROUP BY ttEstop.line DESCENDING:
+        BY ttEstop.line DESCENDING:
 
     RUN pAddEstOperationFromEstOp(BUFFER ttEstop, BUFFER bf-est, BUFFER bf-ef, BUFFER bf-ttOperation, cEstimateType).
                         
@@ -2018,11 +2018,12 @@ PROCEDURE SetAttributesFromJobMch:
             RUN pSetAttributesForm(BUFFER bf-ef).
             
         /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttEstOp, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT opcMessage).
         
+        RUN pLogTT.
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
-            RUN pSetAttributesFromEstOps (BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass).
+            RUN pSetAttributesFromQty (BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass, INPUT TABLE ttOperation BY-REFERENCE).
          
     END.
     ELSE 
@@ -2483,28 +2484,14 @@ FUNCTION fGetOperationsGrsShtWid RETURNS DECIMAL PRIVATE
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iOut         AS INTEGER NO-UNDO.            
     
-    FIND FIRST est-op NO-LOCK
-        WHERE est-op.company EQ ipbf-eb.company
-        AND est-op.m-code EQ ipcMachine
-        AND est-op.est-no EQ ipbf-eb.est-no
-        AND est-op.s-num EQ ipbf-eb.form-no
-        AND (est-op.b-num EQ ipbf-eb.blank-no OR est-op.b-num EQ 0 )
-        AND est-op.op-pass EQ ipiPass 
-        and est-op.line    lt 500 NO-ERROR.
     
-    IF AVAIL est-op AND est-op.n-out NE 0 THEN
-        iOut = est-op.n-out.
-    ELSE
-    Do:
-        FIND FIRST ef NO-LOCK
-            WHERE ef.company EQ ipbf-eb.company
-            AND ef.est-no EQ ipbf-eb.est-no
-            AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
+    FIND FIRST ef NO-LOCK
+        WHERE ef.company EQ ipbf-eb.company
+        AND ef.est-no EQ ipbf-eb.est-no
+        AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
         
-        IF avail ef THEN
-            iOut = ef.n-out.
-            
-    END.          
+    IF avail ef THEN
+        iOut = ef.n-out.
         
     dReturnValue = iOut .         
     
