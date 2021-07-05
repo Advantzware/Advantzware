@@ -82,6 +82,7 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 
 ASSIGN cTextListToSelect = "Customer,Ship-To,FOB,City,St,Zip,Customer PO,Order,R#," +
@@ -117,13 +118,13 @@ begin_date end_date tb_scheduled tb_actual tb_late tb_backordered ~
 tb_invoiceable tb_posted tb_invoice tb_completed rd_sort tgl_notes fl_spcCd ~
 rd_qty tg_set-comp-order sl_avail Btn_Def sl_selected Btn_Add Btn_Remove ~
 btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list ~
-btnCustList RECT-6 RECT-7 RECT-9 RECT-10 
+btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 RECT-10 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ship ~
 end_ship begin_ord-no end_ord-no begin_i-no end_i-no begin_slsmn end_slsmn ~
 begin_date end_date tb_scheduled tb_actual tb_late tb_backordered ~
 tb_invoiceable tb_posted tb_invoice tb_completed rd_sort tgl_notes fl_spcCd ~
 rd_qty tg_set-comp-order sl_avail sl_selected rd-dest tb_runExcel fi_file ~
-tb_cust-list 
+tb_cust-list tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -150,11 +151,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
@@ -240,11 +241,10 @@ DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sched2.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-sched2.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1
-     FGCOLOR 9 .
+     SIZE 43 BY 1.
 
 DEFINE VARIABLE fl_spcCd AS CHARACTER FORMAT "X(3)":U 
      LABEL "Spec Code" 
@@ -278,7 +278,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
           "To Printer", 1,
 "To Screen", 2,
 "To Email", 5,
-"To File", 3
+"To CSV", 3
      SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_qty AS CHARACTER INITIAL "JobQty" 
@@ -301,7 +301,7 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer#"
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE .5 BY 6.
+     SIZE .6 BY 6.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -313,7 +313,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE .5 BY 6.
+     SIZE .6 BY 6.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -322,6 +322,11 @@ DEFINE VARIABLE sl_avail AS CHARACTER
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_actual AS LOGICAL INITIAL yes 
      LABEL "Actual" 
@@ -388,12 +393,12 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE VARIABLE tgl_notes AS LOGICAL INITIAL no 
      LABEL "Notes/FOB/Qty on Hand" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31 BY .6 NO-UNDO.
+     SIZE 31 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tg_set-comp-order AS LOGICAL INITIAL no 
      LABEL "Set Comp. Use Header Price" 
      VIEW-AS TOGGLE-BOX
-     SIZE 31.2 BY .6 NO-UNDO.
+     SIZE 31.2 BY .62 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -424,18 +429,18 @@ DEFINE FRAME FRAME-A
      end_date AT ROW 8.33 COL 70 COLON-ALIGNED HELP
           "Enter Ending Date"
      tb_scheduled AT ROW 11.05 COL 5.2
-     tb_actual AT ROW 11.81 COL 5.2
-     tb_late AT ROW 12.62 COL 5.2
-     tb_backordered AT ROW 13.43 COL 5.2
-     tb_invoiceable AT ROW 14.24 COL 5.2
+     tb_actual AT ROW 11.86 COL 5.2
+     tb_late AT ROW 12.71 COL 5.2
+     tb_backordered AT ROW 13.57 COL 5.2
+     tb_invoiceable AT ROW 14.43 COL 5.2
      tb_posted AT ROW 11.05 COL 20.2
-     tb_invoice AT ROW 11.81 COL 20.2
-     tb_completed AT ROW 12.62 COL 20.2
+     tb_invoice AT ROW 11.86 COL 20.2
+     tb_completed AT ROW 12.71 COL 20.2
      rd_sort AT ROW 10.81 COL 37.8 NO-LABEL
      tgl_notes AT ROW 11.05 COL 61.2
-     fl_spcCd AT ROW 12.81 COL 71 COLON-ALIGNED
-     rd_qty AT ROW 13.76 COL 61 NO-LABEL
-     tg_set-comp-order AT ROW 11.81 COL 61.2 WIDGET-ID 2
+     fl_spcCd AT ROW 12.95 COL 71 COLON-ALIGNED
+     rd_qty AT ROW 13.91 COL 61 NO-LABEL
+     tg_set-comp-order AT ROW 11.86 COL 61.2 WIDGET-ID 2
      sl_avail AT ROW 17.19 COL 3.8 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 17.19 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -453,13 +458,14 @@ DEFINE FRAME FRAME-A
      lv-font-name AT ROW 24.76 COL 25 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 24.91 COL 33
      tb_excel AT ROW 24.91 COL 56 RIGHT-ALIGNED
-     tb_runExcel AT ROW 26.81 COL 87.4 RIGHT-ALIGNED
-     fi_file AT ROW 26.57 COL 26.6 COLON-ALIGNED HELP
+     tb_runExcel AT ROW 26.57 COL 87.4 RIGHT-ALIGNED
+     fi_file AT ROW 26.48 COL 26.6 COLON-ALIGNED HELP
           "Enter File Name"
      btn-ok AT ROW 29.29 COL 30.2
      btn-cancel AT ROW 29.29 COL 51.8
      tb_cust-list AT ROW 1.71 COL 28 WIDGET-ID 6
      btnCustList AT ROW 1.81 COL 61.6 WIDGET-ID 8
+     tbAutoClose AT ROW 28.38 COL 30.4 WIDGET-ID 16
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 16.48 COL 11.8 WIDGET-ID 38
      "Print Options:" VIEW-AS TEXT
@@ -469,7 +475,7 @@ DEFINE FRAME FRAME-A
      "Release Types:" VIEW-AS TEXT
           SIZE 15 BY .71 AT ROW 10 COL 9.6
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 22.76 COL 4.8
+          SIZE 18 BY .62 AT ROW 22.67 COL 4.8
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
@@ -808,6 +814,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+    IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-sched2.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
@@ -822,7 +835,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
@@ -853,6 +868,8 @@ DO:
        END. 
       WHEN 6 THEN RUN output-to-port.
   end case.
+    IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1020,7 +1037,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    fi_file = ''.
+    // assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1420,6 +1438,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   begin_date = today.
   RUN DisplaySelectionList.
+          btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -1689,7 +1714,7 @@ PROCEDURE enable_UI :
           tb_scheduled tb_actual tb_late tb_backordered tb_invoiceable tb_posted 
           tb_invoice tb_completed rd_sort tgl_notes fl_spcCd rd_qty 
           tg_set-comp-order sl_avail sl_selected rd-dest tb_runExcel fi_file 
-          tb_cust-list 
+          tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ship end_ship begin_ord-no end_ord-no 
          begin_i-no end_i-no begin_slsmn end_slsmn begin_date end_date 
@@ -1697,7 +1722,7 @@ PROCEDURE enable_UI :
          tb_invoice tb_completed rd_sort tgl_notes fl_spcCd rd_qty 
          tg_set-comp-order sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
          btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel 
-         tb_cust-list btnCustList RECT-6 RECT-7 RECT-9 RECT-10 
+         tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 RECT-10 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1925,9 +1950,9 @@ DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      lv-slsmn-info FORMAT "x(30)"
@@ -2066,7 +2091,7 @@ FORM HEADER
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2080,7 +2105,7 @@ END.
 
   {oerep/r-sched2N.i}
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
