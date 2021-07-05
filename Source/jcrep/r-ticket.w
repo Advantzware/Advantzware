@@ -39,6 +39,7 @@ DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+{api/ttAPIOutboundEvent.i}
 
 assign
  cocode = gcompany
@@ -3095,6 +3096,8 @@ PROCEDURE pCallOutboundAPI PRIVATE :
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
+    
     IF AVAILABLE ipbf-job THEN DO:
         IF iplReprint THEN 
             cTriggerID = "RePrintJob".
@@ -3137,6 +3140,21 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             OUTPUT lSuccess,                   /* Success/Failure flag */
             OUTPUT cMessage                    /* Status message */
             ).            
+
+        IF lExportXML THEN DO:
+            RUN Outbound_GetEvents IN hdOutboundProcs (
+                OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
+                ).
+            FIND FIRST ttAPIOutboundEvent NO-ERROR.            
+            IF AVAILABLE ttAPIOutboundEvent THEN DO:
+                FIND FIRST bf-APIOutboundEvent NO-LOCK
+                     WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
+                     NO-ERROR.
+                IF AVAILABLE bf-APIOutboundEvent AND bf-APIOutboundEvent.apiID EQ "SendJob" THEN 
+                    STATUS DEFAULT "XML Export complete" IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+            END.
+        END.
+                        
         /* Reset context at the end of API calls to clear temp-table 
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs. 
