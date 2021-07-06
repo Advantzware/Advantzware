@@ -1715,7 +1715,13 @@ PROCEDURE pInit :
             INPUT  iPOID,
             INPUT  iPOLine,
             OUTPUT TABLE ttPanel
-            ).        
+            ).     
+        
+        RUN Formula_GetFormulaFromttPanel IN hdFormulaProcs (
+            INPUT  TABLE ttPanel BY-REFERENCE,
+            OUTPUT cFormulaLength,
+            OUTPUT cFormulaWidth
+            ).               
     END.
 
     IF cCurrentSizeFormat NE cSizeFormatDecimal THEN DO:
