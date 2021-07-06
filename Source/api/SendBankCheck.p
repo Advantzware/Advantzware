@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/SendCitiBankCheck.p
+    File        : api/SendBankCheck.p
     Purpose     : Returns the request data for xml check
 
     Syntax      :
@@ -20,38 +20,23 @@ DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
 DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.  
 
-DEFINE VARIABLE iMessageId                              AS INTEGER      NO-UNDO.
-DEFINE VARIABLE cCreateDateTime                         AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE iNumberOfTransactions                   AS INTEGER      NO-UNDO.
-DEFINE VARIABLE dControlSum                             AS DECIMAL      NO-UNDO.
-DEFINE VARIABLE cCompanyName                            AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE iPaymentInformationIdentification       AS INTEGER      NO-UNDO.
-DEFINE VARIABLE cPaymentMethod                          AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cCode                                   AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cProprietary                            AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cTransactionDate                        AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE dControlSum                             AS DECIMAL      NO-UNDO. 
 DEFINE VARIABLE cCountry                                AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cCompanyId                              AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cTransactionId                          AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE cCompanyId                              AS CHARACTER    NO-UNDO. 
 DEFINE VARIABLE cCountryOfResidence                     AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cCurrencyType                           AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cBankIdentifierCode                     AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cMemberIdentification                   AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cVendorCountry                          AS CHARACTER    NO-UNDO.
-
-DEFINE VARIABLE iInstructionIdentification              AS INTEGER      NO-UNDO.
-DEFINE VARIABLE cChequeMaturityDate                     AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE cVendorCountry                          AS CHARACTER    NO-UNDO. 
 DEFINE VARIABLE lcVendorName                            AS LONGCHAR     NO-UNDO.
 DEFINE VARIABLE cVendorPostCode                         AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cVendorTownName                         AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cVendorCountrySubDivision               AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE lcVendorPostalAddress1                  AS LONGCHAR     NO-UNDO.
 DEFINE VARIABLE lcVendorPostalAddress2                  AS LONGCHAR     NO-UNDO.
-DEFINE VARIABLE cRemittanceIdentification               AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cUnstructured                           AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cVendorCode                             AS CHARACTER    NO-UNDO.
+
 DEFINE VARIABLE iInvoiceNumber                          AS INTEGER      NO-UNDO.
 DEFINE VARIABLE dtInvoiceDate                           AS DATE         NO-UNDO.
 DEFINE VARIABLE cCreditDebitIndicator                   AS CHARACTER    NO-UNDO.
@@ -138,12 +123,6 @@ FIND FIRST bf-line-APIOutboundDetail NO-LOCK
 
 cRequestDataType = bf-APIOutbound.requestDataType. 
 
-FIND FIRST company NO-LOCK
-     WHERE company.company EQ cCompany 
-     NO-ERROR.
-IF AVAILABLE company THEN
-    cCompanyName = company.name.
-
 FOR EACH ap-sel NO-LOCK
     WHERE ap-sel.company      EQ cCompany 
       AND ap-sel.check-no     NE ?
@@ -213,23 +192,7 @@ FOR EACH ttPaymentData
         iNumberOfTransactions = iNumberOfTransactions + 1.
         dControlSum = dControlSum +  ttPaymentData.amt .
         
-END. 
-
-ASSIGN  iMessageId                         = 0119
-        iPaymentInformationIdentification  = 100001
-        cPaymentMethod                     = "CHK"
-        iInstructionIdentification         = 056502
-        cRemittanceIdentification          = "/ADVCD///TMP01"
-        cUnstructured                      = "/NAVC/PAT01U"
-        cVendorCode                        = "CINV"
-        cCode                              = "NURG"
-        cProprietary                       = "CITI19"
-        cTransactionId                     = "TXID"
-        cMemberIdentification              = "031100209"
-        cCreateDateTime                    = STRING(YEAR(TODAY),"9999") + "-" + STRING(MONTH(TODAY),"99") + "-" + STRING(DAY(TODAY),"99") + " " + STRING(TIME, "HH:MM")
-        cChequeMaturityDate                = STRING(YEAR(TODAY),"9999") + "-" + STRING(MONTH(TODAY),"99") + "-" + STRING(DAY(TODAY),"99") 
-        cTransactionDate                   = STRING(YEAR(TODAY),"9999") + "-" + STRING(MONTH(TODAY),"99") + "-" + STRING(DAY(TODAY),"99") 
-        .
+END.  
         
 FOR EACH ttPaymentData
     BREAK BY ttPaymentData.checkNo:
@@ -267,22 +230,17 @@ FOR EACH ttPaymentData
                 cCurrencyType  = bank.curr-code[1]
                 .
         lcLineItemsData = STRING(bf-line-APIOutboundDetail.data).         
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InstructionIdentification", STRING(iInstructionIdentification)).
+        
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionReferenceNumber", STRING(ttPaymentData.checkNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionAmount", STRING(dCheckAmount)).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeMaturityDate", cChequeMaturityDate).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).         
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", lcVendorName).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostCode", cVendorPostCode).    
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorTownName", cVendorTownName).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCountrySubDivision", cVendorCountrySubDivision).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCountry", cVendorCountry).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostalAddress1", lcVendorPostalAddress1).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostalAddress2", lcVendorPostalAddress2).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "RemittanceIdentification", cRemittanceIdentification).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "Unstructured", cUnstructured).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCode", cVendorCode).    
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "Code", cCode).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostalAddress2", lcVendorPostalAddress2).                 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceNumber", STRING(ttPaymentData.invNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceDate", STRING(ttPaymentData.invDate)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DuePayableAmount", STRING(dCheckAmount)).
@@ -296,25 +254,15 @@ FOR EACH ttPaymentData
     END.
     IF LAST(ttPaymentData.checkNo) THEN DO:  
     
-        ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", lcConcatLineItemsData).
+        ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", lcConcatLineItemsData).                   
         
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "MessageId", STRING(iMessageId)).  
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CreateDateTime", cCreateDateTime).                   
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NumberOfTransactions", STRING(iNumberOfTransactions)).        
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ControlSum", STRING(dControlSum)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName", cCompanyName).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PaymentInformationIdentification", STRING(iPaymentInformationIdentification)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PaymentMethod", cPaymentMethod).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Code", cCode).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Proprietary", cProprietary).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TransactionDate",cTransactionDate). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ControlSum", STRING(dControlSum)).         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country",cCountry). 
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyId",cCompanyId).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TransactionId",cTransactionId).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyId",cCompanyId).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CountryOfResidence", cCountryOfResidence).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyType",cCurrencyType).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "MemberIdentification",cMemberIdentification).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorCountry",cVendorCountry).
     END.
 END. /* FOR EACH ttPaymentData */  

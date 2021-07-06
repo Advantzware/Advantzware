@@ -2083,7 +2083,7 @@ IF tbXmlFile:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
     DEFINE VARIABLE cDataList       AS CHARACTER NO-UNDO.
     
     ASSIGN 
-            cAPIID       = "SendCitiBankCheck"
+            cAPIID       = "SendBankCheck"
             cTriggerID   = "PrintCheck"
             cPrimaryID   = "Check " 
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
