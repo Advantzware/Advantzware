@@ -2871,12 +2871,10 @@ PROCEDURE validate-start-date :
         IF cMessage NE "" THEN
         DO:
            MESSAGE cMessage 
-                 VIEW-AS ALERT-BOX ERROR.
-           ll-valid = NO.      
+                 VIEW-AS ALERT-BOX WARNING.
+           ll-valid = YES.      
         END.  
-        
-        IF NOT ll-valid THEN
-            APPLY "entry" TO job.start-date.
+
     END.
 /*   DEF VAR lv-msg AS CHAR NO-UNDO.                            */
 /*                                                              */
