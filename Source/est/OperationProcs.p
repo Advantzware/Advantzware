@@ -14,37 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est\ttOperationAttribute.i}
-
-DEFINE TEMP-TABLE ttOperation NO-UNDO
-    LIKE estCostOperation
-    FIELD linealFeetPerFeed AS DECIMAL
-    FIELD estType           AS CHARACTER
-    FIELD quantityMaster    AS DECIMAL 
-    .
-DEFINE TEMP-TABLE ttEstBlank NO-UNDO 
-    FIELD BlankID             AS INTEGER
-    FIELD FormID              AS INTEGER
-    FIELD iOut                AS INTEGER
-    FIELD dQtyInOut           AS DECIMAL
-    FIELD dQtyInOutRunWaste   AS DECIMAL
-    FIELD dQtyInOutSetupWaste AS DECIMAL
-    FIELD lOutputInitialized  AS LOGICAL /*Truly a temp-table field and not a db field*/
-    .
-DEFINE TEMP-TABLE ttAxis NO-UNDO
-    FIELD axisType       AS CHARACTER 
-    FIELD axisCoordinate AS INTEGER 
-    FIELD axisValue      AS DECIMAL
-    FIELD axisPage       AS INTEGER
-    .
-
-DEFINE TEMP-TABLE ttJobMch NO-UNDO LIKE job-mch 
-    FIELD riJobMch    AS ROWID
-    FIELD isExtraCopy AS LOGICAL
-    .
-    
-DEFINE TEMP-TABLE ttEstOp NO-UNDO LIKE est-op
-    FIELD machSeq AS INTEGER
-    .    
+{est\OperationProcsTT.i}
 
 
 /* Define Globals - Machine Attributes */
@@ -157,7 +127,11 @@ FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
          
 FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
     (BUFFER ipbf-ef FOR ef) FORWARD.
-    
+
+FUNCTION fGetQtyfromEst RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb,
+    BUFFER ipbf-job FOR job) FORWARD.
+        
 FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
@@ -407,7 +381,7 @@ PROCEDURE pAddAxis PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pAddEstOperationFromEstOp PRIVATE:
+PROCEDURE pAddOperationFromEstOp PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Creates an ttOperation (~estCostOperation) based on est-op and form
      Notes:
@@ -451,9 +425,6 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttOperation.sequenceOfOperation          = ipbf-ttEstOp.line
             opbf-ttOperation.numOutDivisor                = ipbf-ttEstOp.n_out_div
             opbf-ttOperation.quantityInSetupWaste         = ipbf-ttEstOp.op-waste
-            opbf-ttOperation.hoursSetup                   = ipbf-ttEstOp.op-mr
-            opbf-ttOperation.speed                        = ipbf-ttEstOp.op-speed
-            opbf-ttOperation.quantityInRunWastePercent    = ipbf-ttEstOp.op-spoil
             opbf-ttOperation.isLocked                     = ipbf-ttEstOp.isLocked
             opbf-ttOperation.crewSizeSetup                = ipbf-ttEstOp.op-crew[1]
             opbf-ttOperation.crewSizeRun                  = ipbf-ttEstOp.op-crew[2]
@@ -1246,6 +1217,7 @@ PROCEDURE pProcessOperation PRIVATE:
      Notes: should replace ce/prokalk.i and ce/pr4-mch.p
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttOperation FOR ttOperation.
+    DEFINE PARAMETER BUFFER ipbf-eb          FOR eb.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOut AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOutSetupWaste AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQtyInOutRunWaste AS DECIMAL NO-UNDO.
@@ -1256,6 +1228,14 @@ PROCEDURE pProcessOperation PRIVATE:
     DEFINE VARIABLE dQty          AS DECIMAL NO-UNDO. 
     DEFINE VARIABLE dLFPerFeed    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartCount    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    
+    FIND FIRST bf-mach NO-LOCK 
+        WHERE bf-mach.company EQ ipbf-ttOperation.company
+        AND bf-mach.m-code EQ ipbf-ttOperation.OperationId
+        NO-ERROR.
+    
     
     ASSIGN 
         ipbf-ttOperation.quantityOut       = iopdQtyInOut  /*This machines out is last machines in*/  
@@ -1266,6 +1246,13 @@ PROCEDURE pProcessOperation PRIVATE:
         iopdQtyInOutSetupWaste             = fRoundUp(iopdQtyInOutSetupWaste)
         iopdQtyInOutRunWaste               = fRoundUp(iopdQtyInOutRunWaste)
         .
+
+    /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQty, iopdQtyInOut).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
+    
+    /* Now calculate spoilage for this pass based upon Qty set above */
+    RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT ipbf-ttOperation.quantityInRunWastePercent, OUTPUT lError, OUTPUT cMessage).
     
     ASSIGN 
         ipbf-ttOperation.quantityInRunWaste        = (ipbf-ttOperation.quantityInNoWaste / 
@@ -1301,6 +1288,14 @@ PROCEDURE pProcessOperation PRIVATE:
             ipbf-ttOperation.quantityIn                = fRoundUp(ipbf-ttOperation.quantityIn)            
             .
     END.
+    
+    /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQty, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
+    
+    /* Calculate Run parameters based upon QtyIn calculated for this machine */
+    RUN pGetMRHours(BUFFER bf-mach, OUTPUT ipbf-ttOperation.hoursSetup, OUTPUT lError, OUTPUT cMessage).
+    RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT ipbf-ttOperation.speed, OUTPUT lError, OUTPUT cMessage).
     
 END PROCEDURE.
 
@@ -1500,9 +1495,16 @@ PROCEDURE pSetAttributesFromQty PRIVATE:
     DEFINE INPUT  PARAMETER ipiPass AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER TABLE FOR ttOperation.
     
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass))).  
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))). 
+    DEFINE VARIABLE dCalcQty AS DECIMAL NO-UNDO.
     
+    dCalcQty = fGetOperationsQty(BUFFER ipbf-eb, ipcOperationId, ipcLocationId, ipiPass).
+    
+    IF dCalcQty NE 0 THEN
+    DO:
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQty, STRING(dCalcQty)).  
+        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))).
+    END. 
+        
 END PROCEDURE.    
 PROCEDURE pSetGlobalSettings PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1570,7 +1572,10 @@ PROCEDURE pGetEstOPData PRIVATE:
                 ttEstOp.op-spoil   = bf-mach.run-spoil
                 ttEstOp.op-crew[1] = bf-mach.mr-crusiz
                 ttEstOp.op-crew[2] = bf-mach.run-crusiz
+                ttEstOp.op-rate[1] = (bf-mach.lab-rate[bf-mach.lab-drate] * ttEstOp.op-crew[1]) + bf-mach.mr-varoh  + bf-mach.mr-fixoh
+                ttEstOp.op-rate[2] = (bf-mach.lab-rate[bf-mach.lab-drate] * ttEstOp.op-crew[2]) + bf-mach.mr-varoh  + bf-mach.mr-fixoh
                 .
+                
              
             RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER bf-mach, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
         END.
@@ -1656,10 +1661,7 @@ PROCEDURE pGetEstOpCalcFields PRIVATE:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     RUN pGetMRWaste(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-waste, OUTPUT lError, OUTPUT cMessage).
-    RUN pGetRunSpeed(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOp.op-speed, OUTPUT lError, OUTPUT cMessage).
-    RUN pGetMRHours(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-mr, OUTPUT lError, OUTPUT cMessage).
-    RUN pGetRunSpoil(BUFFER ipbf-Mach, OUTPUT ipbf-ttEstOP.op-spoil, OUTPUT lError, OUTPUT cMessage).
-            
+      
 END.            
            
 
@@ -1760,75 +1762,92 @@ PROCEDURE pRecalcOperations PRIVATE:
     EMPTY TEMP-TABLE ttEstBlank.
     
     /*Process each est-op for the right quantity*/
-    FOR EACH ttEstop NO-LOCK 
+    FOR EACH ttEstop 
         WHERE ttEstop.company EQ bf-ef.company
         AND ttEstop.est-no EQ bf-ef.est-no
         AND ttEstop.s-num EQ bf-ef.form-no
         AND ttEstop.line LT 500
         AND ttEstop.qty EQ dQtyTarget
         BY ttEstop.line DESCENDING:
+            
+        FIND FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company = bf-ef.company
+            AND bf-eb.est-no = bf-ef.est-no
+            AND bf-eb.form-no = bf-ef.form-no
+            AND bf-eb.blank-no = ttEstop.b-num NO-ERROR.
+        
+        IF NOT AVAILABLE bf-eb THEN
+            RETURN.
 
-    RUN pAddEstOperationFromEstOp(BUFFER ttEstop, BUFFER bf-est, BUFFER bf-ef, BUFFER bf-ttOperation, cEstimateType).
+        RUN pAddOperationFromEstOp(BUFFER ttEstop, BUFFER bf-est, BUFFER bf-ef, BUFFER bf-ttOperation, cEstimateType).
                         
-    IF AVAILABLE bf-ttOperation THEN 
-    DO:
-        /*REFACTOR to calculate quantities for combos*/        
-        IF ttEstop.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
-        DO:  /*Calculate for Combo*/
+        IF AVAILABLE bf-ttOperation THEN 
+        DO:
+            /*REFACTOR to calculate quantities for combos*/        
+            IF ttEstop.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
+            DO:  /*Calculate for Combo*/
             
-            FIND FIRST ttEstBlank
-                WHERE ttEstBlank.FormID  EQ ttEstop.s-num
-                  AND ttEstBlank.BlankID EQ ttEstop.b-num
-                NO-ERROR.
-            IF NOT AVAILABLE ttEstBlank THEN 
-            DO:
-                CREATE ttEstBlank.
-                ASSIGN 
-                    ttEstBlank.BlankID = ttEstop.b-num
-                    ttEstBlank.FormID  = ttEstop.s-num
-                    ttEstBlank.iOut    = MAX(ipbf-eb.num-wid, 1) * MAX(ipbf-eb.num-len, 1) * MAX(ipbf-eb.num-dep, 1).
-            END.
-            IF NOT ttEstBlank.lOutputInitialized THEN 
-                ASSIGN 
-                    ttEstBlank.dQtyInOut          = dQtyRequired
-                    ttEstBlank.lOutputInitialized = YES
-                    .
-            RUN pProcessOperation(BUFFER bf-ttOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
-                INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
-        END. /*BlankNo not 0*/
-        ELSE 
-        DO:                  
-            IF bf-ttOperation.isBlankMaker THEN 
-            DO:
-                /*Find the most forms required to support each blank operations*/
-                FOR EACH ttEstBlank NO-LOCK 
-                    WHERE ttEstBlank.FormID EQ ttEstop.s-num:
-                    dQtyFormsRequiredForBlanks = fRoundUp(ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut,1)).
-                    IF dQtyFormsRequiredForBlanksMax LT dQtyFormsRequiredForBlanks THEN 
-                        ASSIGN 
-                            dQtyFormsRequiredForBlanksMax = dQtyFormsRequiredForBlanks
-                            dQtyInOutSetupWaste           = fRoundUp(ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut,1))
-                            dQtyInOutRunWaste             = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
-                            .
+                FIND FIRST ttEstBlank
+                    WHERE ttEstBlank.FormID  EQ ttEstop.s-num
+                    AND ttEstBlank.BlankID EQ ttEstop.b-num
+                    NO-ERROR.
+                IF NOT AVAILABLE ttEstBlank THEN 
+                DO:
+                    CREATE ttEstBlank.
+                    ASSIGN 
+                        ttEstBlank.BlankID = ttEstop.b-num
+                        ttEstBlank.FormID  = ttEstop.s-num
+                        ttEstBlank.iOut    = MAX(ipbf-eb.num-wid, 1) * MAX(ipbf-eb.num-len, 1) * MAX(ipbf-eb.num-dep, 1).
                 END.
+                IF NOT ttEstBlank.lOutputInitialized THEN 
+                    ASSIGN 
+                        ttEstBlank.dQtyInOut          = dQtyRequired
+                        ttEstBlank.lOutputInitialized = YES
+                        .
+                RUN pProcessOperation(BUFFER bf-ttOperation, BUFFER bf-eb, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
+                    INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
+            END. /*BlankNo not 0*/
+            ELSE 
+            DO:                  
+                IF bf-ttOperation.isBlankMaker THEN 
+                DO:
+                    /*Find the most forms required to support each blank operations*/
+                    FOR EACH ttEstBlank NO-LOCK 
+                        WHERE ttEstBlank.FormID EQ ttEstop.s-num:
+                        dQtyFormsRequiredForBlanks = fRoundUp(ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut,1)).
+                        IF dQtyFormsRequiredForBlanksMax LT dQtyFormsRequiredForBlanks THEN 
+                            ASSIGN 
+                                dQtyFormsRequiredForBlanksMax = dQtyFormsRequiredForBlanks
+                                dQtyInOutSetupWaste           = fRoundUp(ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut,1))
+                                dQtyInOutRunWaste             = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
+                                .
+                    END.
                 
-                /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
-                ASSIGN 
-                    dQtyInOut           = dQtyFormsRequiredForBlanksMax * bf-ttOperation.numOutForOperation
-                    dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-ttOperation.numOutForOperation
-                    dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttOperation.numOutForOperation.
-            END.
-            IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = dQtyFGOnFormYielded.
+                    /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
+                    ASSIGN 
+                        dQtyInOut           = dQtyFormsRequiredForBlanksMax * bf-ttOperation.numOutForOperation
+                        dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-ttOperation.numOutForOperation
+                        dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttOperation.numOutForOperation.
+                END.
+                IF dQtyInOut EQ 0 THEN 
+                    dQtyInOut = dQtyFGOnFormYielded.
             
-            RUN pProcessOperation(BUFFER bf-ttOperation, INPUT-OUTPUT dQtyInOut, 
-                INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
+                RUN pProcessOperation(BUFFER bf-ttOperation, BUFFER bf-eb, INPUT-OUTPUT dQtyInOut, 
+                    INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
+            END.
+        
+            /* Copy calculated values on Est OP for any reference purpose */
+            ASSIGN
+                ttEstop.op-mr    = bf-ttOperation.hoursSetup                   
+                ttEstop.op-speed = bf-ttOperation.speed
+                ttEstop.op-spoil = bf-ttOperation.quantityInRunWastePercent
+                .  
+            
+            RUN pCalcEstOperation(BUFFER bf-ttOperation).                    
         END.
-        RUN pCalcEstOperation(BUFFER bf-ttOperation).                    
-    END.
                     
-END. /*Each ttEstop*/
+    END. /*Each ttEstop*/
 
 END PROCEDURE.
 
@@ -1907,6 +1926,11 @@ PROCEDURE pCalcEstOperation PRIVATE:
                         
 END PROCEDURE.
 
+PROCEDURE pGetOperationTT:
+   
+   DEFINE OUTPUT PARAMETER TABLE FOR ttOperation BIND.
+   
+END.
 
 PROCEDURE SetAttribute:
     /*------------------------------------------------------------------------------
@@ -2004,8 +2028,8 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        //RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOperationsQty(BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass))).  //qty
-        //RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDInkCoverage, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
@@ -2020,7 +2044,6 @@ PROCEDURE SetAttributesFromJobMch:
         /* Re-build the Est-op and Operations Data */ 
         RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT opcMessage).
         
-        RUN pLogTT.
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
             RUN pSetAttributesFromQty (BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass, INPUT TABLE ttOperation BY-REFERENCE).
@@ -2315,6 +2338,42 @@ FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
 		
 END FUNCTION.
 
+FUNCTION fGetQtyfromEst RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb,
+    BUFFER ipbf-job FOR job):
+    /*------------------------------------------------------------------------------
+    Purpose: Set Quantity from Estimate. 
+    Notes: It don't consider Spoilage while calculating from Estimate
+    ------------------------------------------------------------------------------*/    
+    
+    DEFINE VARIABLE dReturnValue  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyRequired  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyTarget    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cEstimateType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-est FOR est.
+        
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = ipbf-eb.company
+        AND bf-est.est-no = ipbf-eb.est-no NO-ERROR.
+    
+    IF AVAILABLE bf-est THEN
+        cEstimateType = fGetEstimateType (INPUT bf-est.est-type, INPUT bf-est.estimateTypeID).
+        
+       dQtyRequired = fGetRequiredQty (BUFFER ipbf-eb, BUFFER ipbf-job, INPUT cEstimateType, INPUT "").
+        
+    RUN pGetEffectiveEstOpQuantity (ipbf-eb.company, ipbf-eb.est-no, dQtyRequired, OUTPUT dQtyTarget).
+    
+    IF dQtyTarget NE 0 THEN 
+        dReturnValue = dQtyTarget.
+    ELSE
+        dReturnValue = dQtyRequired.
+     
+    RETURN dReturnValue.
+END.
+
 FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipcMachine AS CHARACTER,
@@ -2350,28 +2409,6 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
             
     IF AVAILABLE bf-ttOperation THEN     
         dReturnValue = bf-ttOperation.quantityIn. 
-    
-    ELSE
-    DO:
-        FIND FIRST ef NO-LOCK
-            WHERE ef.company EQ ipbf-eb.company
-            AND ef.est-no EQ ipbf-eb.est-no
-            AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
-          
-        run sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, output iNumUp).     
-        dNumOutCal = ef.n-out * ef.n-out-l .
-         
-        FIND FIRST bf-ttEstOp NO-LOCK
-            WHERE bf-ttEstOp.company EQ ipbf-eb.company
-            AND bf-ttEstOp.m-code EQ ipcMachine
-            AND bf-ttEstOp.est-no EQ ipbf-eb.est-no
-            AND bf-ttEstOp.s-num EQ ipbf-eb.form-no
-            AND (bf-ttEstOp.b-num EQ ipbf-eb.blank-no OR bf-ttEstOp.b-num EQ 0 )
-            AND bf-ttEstOp.op-pass EQ ipiPass 
-            and bf-ttEstOp.line    lt 500 NO-ERROR.      
-        IF AVAIL bf-ttEstOp THEN
-            dReturnValue    = bf-ttEstOp.num-sh * (iNumUp * dNumOutCal). 
-    END.
         
     RETURN dReturnValue.
 		
