@@ -124,13 +124,7 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
-    
-RUN sys/ref/nk1look.p (INPUT g_company, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-    lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR.
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
     
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
@@ -2743,6 +2737,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   RUN disable-fields.
+  RUN pGetInterCompanyBilling(INPUT cocode, INPUT cust.cust-no, OUTPUT lInterCompanyBilling).
   
   IF lInterCompanyBilling THEN
   DO:
@@ -2871,6 +2866,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnValue AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+      
+  RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+      INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+      OUTPUT cReturn, OUTPUT lRecFound).
+  oplReturnValue = INTEGER(cReturn) NO-ERROR.       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

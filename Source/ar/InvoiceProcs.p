@@ -798,7 +798,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
             bf-ar-inv.printed        = NO        
             bf-ar-inv.cust-no        = bf-cust.cust-no 
             bf-ar-inv.cust-name      = bf-cust.NAME 
-            bf-ar-inv.ship-id        = oe-bolh.cust-no
+            bf-ar-inv.ship-id        = cShipto
             bf-ar-inv.addr[1]        = bf-cust.addr[1]
             bf-ar-inv.addr[2]        = bf-cust.addr[2]
             bf-ar-inv.state          = bf-cust.state
@@ -1023,20 +1023,25 @@ PROCEDURE pGetNk1TransCompany:
                     INPUT ipcCompany,
                     INPUT "InterCompanyBilling",
                     INPUT "C" /* Logical */,
-                    INPUT NO /* check by cust */,
+                    INPUT YES /* check by cust */,
                     INPUT YES /* use cust not vendor */, 
-                    INPUT "" /* cust */,
+                    INPUT ipcCustomer /* cust */,
                     INPUT "" /* ship-to*/,
                     OUTPUT cReturnValue,
                     OUTPUT lRecFound).    
     iopcReturnValue = IF cReturnValue NE "" THEN cReturnValue ELSE iopcReturnValue.
-     
-    FIND FIRST sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ ipcCompany 
-        AND sys-ctrl-shipto.NAME EQ "InterCompanyBilling" 
-        AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
-        AND sys-ctrl-shipto.cust-vend EQ YES NO-ERROR.
-    opiInterCompanyBilling = IF AVAILABLE sys-ctrl-shipto THEN sys-ctrl-shipto.int-fld ELSE 0.  
+    
+    RUN sys/ref/nk1look.p (
+                    INPUT ipcCompany,
+                    INPUT "InterCompanyBilling",
+                    INPUT "I" /* Logical */,
+                    INPUT YES /* check by cust */,
+                    INPUT YES /* use cust not vendor */, 
+                    INPUT ipcCustomer /* cust */,
+                    INPUT "" /* ship-to*/,
+                    OUTPUT cReturnValue,
+                    OUTPUT lRecFound).    
+    opiInterCompanyBilling = INTEGER(cReturnValue) NO-ERROR.     
     
 END PROCEDURE.
 

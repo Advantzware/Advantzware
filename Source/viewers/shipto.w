@@ -123,12 +123,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /*OUTPUT cRtnChar, OUTPUT lRecFound).                                                                 */
 /*                                                                                                    */
 /*    ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.                                                 */
-    
-RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-    lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR.    
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
@@ -1686,6 +1680,8 @@ ASSIGN
 
   RUN update-date (iOldvalueTrans,iOldvalueDock).
   
+  RUN pGetInterCompanyBilling(INPUT cocode, INPUT cust.cust-no, OUTPUT lInterCompanyBilling).
+  
   IF lInterCompanyBilling THEN
   DO:  
       RUN Customer_InterCompanyTrans IN hdCustomerProcs(
@@ -1780,6 +1776,30 @@ PROCEDURE pDeDupe :
     IF VALID-HANDLE(hBrowse) THEN
         RUN dispatch IN hBrowse  ('open-query':U).
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnValue AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+      
+  RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+      INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+      OUTPUT cReturn, OUTPUT lRecFound).
+  oplReturnValue = INTEGER(cReturn) NO-ERROR.       
 
 END PROCEDURE.
 

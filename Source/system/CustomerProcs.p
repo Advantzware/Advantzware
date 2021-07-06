@@ -347,18 +347,20 @@ PROCEDURE pGetNk1Settings PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER ioplReturnCompany  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.  
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+      
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "I" /* Logical */, YES /* check by cust */, 
+        INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lRecFound).
+    opiInterCompany = INTEGER(cReturn) NO-ERROR.
     
-    FIND FIRST sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ ipcCompany 
-        AND sys-ctrl-shipto.NAME EQ "InterCompanyBilling" 
-        AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
-        AND sys-ctrl-shipto.cust-vend EQ YES NO-ERROR.
-    oplReturnCustomer = AVAILABLE sys-ctrl-shipto.
-    opiInterCompany   = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.int-fld ELSE 0.
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+        INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lRecFound).
+    oplReturnCustomer = LOGICAL(cReturn) NO-ERROR.
     
-    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "C" /* Logical */, YES /* check by cust */, 
+        INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
         OUTPUT cReturn, OUTPUT lRecFound).
     ioplReturnCompany = IF cReturn NE "" THEN cReturn ELSE ioplReturnCompany.
     

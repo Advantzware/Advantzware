@@ -103,7 +103,6 @@ DEFINE VARIABLE lFirstReportKey3   AS LOG       NO-UNDO.
 DEFINE VARIABLE lLastReportKey3    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUseLogs           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cDebugLog          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lInterCompanyBilling AS LOGICAL NO-UNDO.
 DEFINE VARIABLE scInstance         AS CLASS system.SharedConfig NO-UNDO.
 DEFINE STREAM sDebug.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
@@ -222,8 +221,7 @@ DO TRANSACTION:
     RUN ipProcessBackorders.
     RUN ipUpdateReleaseStat. 
     
-    /* InterCompanyBilling AU1 */
-    IF lInterCompanyBilling THEN 
+    /* InterCompanyBilling AU1 */     
     RUN ipCreateInterCompanyBilling.
 
 END. /* Do trans */
@@ -622,14 +620,16 @@ PROCEDURE ipGetNk1ForCustomer:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER  ipcCustomer AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplReturn   AS LOGICAL NO-UNDO.     
+    DEFINE OUTPUT PARAMETER oplReturn   AS LOGICAL NO-UNDO. 
     
-    FIND FIRST sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ ipcCompany 
-        AND sys-ctrl-shipto.NAME EQ "InterCompanyBilling" 
-        AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
-        AND sys-ctrl-shipto.cust-vend EQ YES NO-ERROR.
-    oplReturn = AVAILABLE sys-ctrl-shipto.             
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+        
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnValue, OUTPUT lRecFound).
+    IF lRecFound THEN
+      oplReturn = LOGICAL(cReturnValue) NO-ERROR.           
 
 END PROCEDURE.
 
@@ -1524,13 +1524,8 @@ PROCEDURE ipSetNK1Values:
         OUTPUT invstatus-char, OUTPUT v-rec-found).
     /* UPSFILE to for CSV creation in oe-bolh.trailer = "UPS"  */
     RUN sys/ref/nk1look.p (cocode, "UPSFILE", "C", NO, NO, "", "", 
-        OUTPUT upsFile, OUTPUT v-rec-found).
-        
-    RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
-       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-       OUTPUT v-rtn-char, OUTPUT v-rec-found).    
-      lInterCompanyBilling = LOGICAL(v-rtn-char).
-
+        OUTPUT upsFile, OUTPUT v-rec-found).          
+   
     FIND FIRST sys-ctrl
         WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "INVPRINT"
