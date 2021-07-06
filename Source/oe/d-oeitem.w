@@ -5608,6 +5608,7 @@ PROCEDURE display-item :
             fi_s-pct-lbl
             fi_s-comm-lbl
             oe-ordl.SourceEstimateID            
+            oe-ordl.managed
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
