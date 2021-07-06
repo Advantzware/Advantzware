@@ -72,6 +72,7 @@ DEFINE VAR v-m-code AS CHAR NO-UNDO.
 DEFINE VAR v-lst-m-code AS CHAR NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Order#,Rel#,Item,Description," +  /*9*/
                            "Rel Qty,Rel Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Rel Stat,Cust#,Customer Part#," + /*12*/
@@ -121,8 +122,8 @@ end_cat begin_shipfrom end_shipfrom begin_csr end_csr tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes begin_spec ~
 end_spec tb_stats sl_avail Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
-sl_selected rd-dest tb_excel fi_file btn-ok btn-cancel rd_printed RECT-6 ~
-RECT-7 RECT-8 RECT-11 tbAutoClose 
+sl_selected rd-dest tb_excel fi_file btn-ok btn-cancel rd_printed ~
+tbAutoClose RECT-6 RECT-7 RECT-8 RECT-11 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-no end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn ~
 end_slsmn begin_date end_date begin_carr end_carr begin_cat end_cat ~
@@ -417,31 +418,31 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 41 BY 5.52 NO-UNDO.
+     SIZE 41 BY 5.3 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 41 BY 5.52 NO-UNDO.
+     SIZE 41 BY 5.3 NO-UNDO.
 
 DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .6 NO-UNDO.
+     SIZE 16 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_actual AS LOGICAL INITIAL yes 
      LABEL "Actual" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_backordered AS LOGICAL INITIAL yes 
      LABEL "Backorder" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_completed AS LOGICAL INITIAL no 
      LABEL "Completed" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -457,17 +458,17 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_invoice AS LOGICAL INITIAL no 
      LABEL "Invoice Unposted" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .6 NO-UNDO.
+     SIZE 21 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_invoiceable AS LOGICAL INITIAL yes 
      LABEL "Past Last Ship Date" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23.4 BY .6 NO-UNDO.
+     SIZE 23.4 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_late AS LOGICAL INITIAL yes 
      LABEL "Late" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_neg-avail AS LOGICAL INITIAL yes 
      LABEL "Only Negative Available?" 
@@ -477,7 +478,7 @@ DEFINE VARIABLE tb_neg-avail AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_notes AS LOGICAL INITIAL no 
      LABEL "Print Spec Notes?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .6 NO-UNDO.
+     SIZE 22 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_oh-rlqty AS LOGICAL INITIAL yes 
      LABEL "Only Neg OH-RelQty?" 
@@ -492,7 +493,7 @@ DEFINE VARIABLE tb_po-no AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Bill of Lading" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -503,7 +504,7 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_scheduled AS LOGICAL INITIAL yes 
      LABEL "Scheduled" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .6 NO-UNDO.
+     SIZE 18 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_stats AS LOGICAL INITIAL no 
      LABEL "Print Schedule Stats?" 
@@ -595,26 +596,26 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Carrier Number" WIDGET-ID 2
      end_spec AT ROW 17.81 COL 53.4 COLON-ALIGNED HELP
           "Enter Ending Carrier Number" WIDGET-ID 4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.86
+         SIZE 227.2 BY 31
          BGCOLOR 15 .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
      tb_stats AT ROW 18.19 COL 6.8 WIDGET-ID 80
      rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
-     sl_avail AT ROW 20 COL 5 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 20.19 COL 54.2 HELP
+     sl_avail AT ROW 20.1 COL 5 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 20.29 COL 54.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 21.19 COL 54.2 HELP
+     Btn_Add AT ROW 21.29 COL 54.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 22.19 COL 54.2 HELP
+     Btn_Remove AT ROW 22.29 COL 54.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 23.19 COL 54.2 WIDGET-ID 144
-     btn_down AT ROW 24.19 COL 54.2 WIDGET-ID 140
-     sl_selected AT ROW 20 COL 75.8 NO-LABEL WIDGET-ID 148
+     btn_Up AT ROW 23.29 COL 54.2 WIDGET-ID 144
+     btn_down AT ROW 24.29 COL 54.2 WIDGET-ID 140
+     sl_selected AT ROW 20.1 COL 75.8 NO-LABEL WIDGET-ID 148
      lv-font-name AT ROW 26.48 COL 42 NO-LABEL WIDGET-ID 96
      rd-dest AT ROW 26.19 COL 10 NO-LABEL WIDGET-ID 16
      lv-ornt AT ROW 26.24 COL 43 NO-LABEL WIDGET-ID 12
@@ -625,20 +626,20 @@ DEFINE FRAME FRAME-A
      tb_runExcel AT ROW 26.48 COL 71 RIGHT-ALIGNED WIDGET-ID 76
      fi_file AT ROW 28.33 COL 32 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 6
-     btn-ok AT ROW 30.52 COL 41
-     btn-cancel AT ROW 30.52 COL 66
+     btn-ok AT ROW 30.48 COL 41
+     btn-cancel AT ROW 30.48 COL 66
      lbl-print-2 AT ROW 13.95 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 124
      rd_printed AT ROW 14.76 COL 25 NO-LABEL WIDGET-ID 170
-     tbAutoClose AT ROW 29.91 COL 41.4 WIDGET-ID 174
+     tbAutoClose AT ROW 29.86 COL 41.4 WIDGET-ID 174
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.14 COL 5.8
           BGCOLOR 15 
      "Print OH Qty?" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 13.33 COL 9.6 WIDGET-ID 136
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 19.38 COL 6.8 WIDGET-ID 150
+          SIZE 20 BY .62 AT ROW 19.48 COL 6.8 WIDGET-ID 150
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 19.38 COL 79.6 WIDGET-ID 152
+          SIZE 34 BY .62 AT ROW 19.48 COL 79.6 WIDGET-ID 152
      "Release Types:" VIEW-AS TEXT
           SIZE 15 BY .71 AT ROW 15.19 COL 66 WIDGET-ID 86
      "Output Destination" VIEW-AS TEXT
@@ -649,10 +650,10 @@ DEFINE FRAME FRAME-A
      RECT-7 AT ROW 1.48 COL 4.8 WIDGET-ID 42
      RECT-8 AT ROW 15.62 COL 65 WIDGET-ID 44
      RECT-11 AT ROW 15.62 COL 37.4 WIDGET-ID 100
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 227.2 BY 30.86
+         SIZE 227.2 BY 31
          BGCOLOR 15 .
 
 
@@ -673,8 +674,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Scheduled Releases"
-         HEIGHT             = 30.86
-         WIDTH              = 119.4
+         HEIGHT             = 31
+         WIDTH              = 119.2
          MAX-HEIGHT         = 32.1
          MAX-WIDTH          = 230
          VIRTUAL-HEIGHT     = 32.1
@@ -837,6 +838,9 @@ ASSIGN
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR RADIO-SET rd_print IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -1140,7 +1144,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
+  IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-sched.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
 
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -1157,7 +1167,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
@@ -1189,6 +1201,9 @@ DO:
       WHEN 6 THEN RUN output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
+    SESSION:SET-WAIT-STATE ("").
+      IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1425,7 +1440,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    fi_file = ''.
+    //     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1819,6 +1835,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   begin_date = today.
    RUN DisplaySelectionList.
+             btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -2086,7 +2109,7 @@ PROCEDURE enable_UI :
          tb_completed rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty 
          tb_notes begin_spec end_spec tb_stats sl_avail Btn_Def Btn_Add 
          Btn_Remove btn_Up btn_down sl_selected rd-dest tb_excel fi_file btn-ok 
-         btn-cancel rd_printed RECT-6 RECT-7 RECT-8 RECT-11 tbAutoClose 
+         btn-cancel rd_printed tbAutoClose RECT-6 RECT-7 RECT-8 RECT-11 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

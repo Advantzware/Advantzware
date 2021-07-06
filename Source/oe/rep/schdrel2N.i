@@ -32,7 +32,7 @@ DEF VAR v-ship-zip AS CHAR NO-UNDO .
 DEF VAR v-ship-name AS CHAR NO-UNDO .
 DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
 DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE cRelDueDate AS CHARACTER NO-UNDO.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -49,7 +49,7 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   /*{sys/form/r-top5DL.f} */
   {sys/form/r-top.i}
 {sys/inc/ctrtext.i str-tit 112}.
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header 
      skip(1)
@@ -159,7 +159,7 @@ form header
 
   if td-show-parm then run show-param.
 
-  IF tb_excel THEN 
+  IF rd-dest = 3 THEN 
   DO:
   
     OUTPUT STREAM excel TO VALUE(cFileName).
@@ -725,7 +725,7 @@ form header
 
   SESSION:SET-WAIT-STATE ("").
 
-  IF tb_excel THEN DO:
+  IF rd-dest = 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
