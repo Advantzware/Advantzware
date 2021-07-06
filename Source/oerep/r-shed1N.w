@@ -113,7 +113,7 @@ begin_date end_date begin_carr end_carr begin_cat end_cat sl_avail Btn_Def ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 tb_subt rd_sort rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list ~
-btnCustList RECT-6 RECT-7 RECT-16 tbAutoClose 
+btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-no ~
 end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn ~
 begin_date end_date begin_carr end_carr begin_cat end_cat sl_avail ~
@@ -300,7 +300,7 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer#"
 "Item Name", "Item Name",
 "Territory", "Territory",
 "Carrier", "Carrier"
-     SIZE 85 BY .8 NO-UNDO.
+     SIZE 85 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -330,17 +330,17 @@ DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_actual AS LOGICAL INITIAL yes 
      LABEL "Actual" 
      VIEW-AS TOGGLE-BOX
-     SIZE 11 BY .6 NO-UNDO.
+     SIZE 11 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_backordered AS LOGICAL INITIAL yes 
      LABEL "Backorder" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .6 NO-UNDO.
+     SIZE 15 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_completed AS LOGICAL INITIAL no 
      LABEL "Completed" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .6 NO-UNDO.
+     SIZE 15 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -356,22 +356,22 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_invoice AS LOGICAL INITIAL no 
      LABEL "Invoice" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .6 NO-UNDO.
+     SIZE 15 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_invoiceable AS LOGICAL INITIAL yes 
      LABEL "Past Last Ship Date" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22.4 BY .6 NO-UNDO.
+     SIZE 22.4 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_late AS LOGICAL INITIAL yes 
      LABEL "Late" 
      VIEW-AS TOGGLE-BOX
-     SIZE 9 BY .6 NO-UNDO.
+     SIZE 9 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Posted" 
      VIEW-AS TOGGLE-BOX
-     SIZE 11 BY .6 NO-UNDO.
+     SIZE 11 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Open CSV?" 
@@ -382,12 +382,12 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_scheduled AS LOGICAL INITIAL yes 
      LABEL "Scheduled" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .6 NO-UNDO.
+     SIZE 15 BY .62 NO-UNDO.
 
 DEFINE VARIABLE tb_subt AS LOGICAL INITIAL no 
      LABEL "Subtotal By Customer#?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26.8 BY .6 NO-UNDO.
+     SIZE 26.8 BY .62 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -467,7 +467,7 @@ DEFINE FRAME FRAME-A
      tbAutoClose AT ROW 28 COL 37 WIDGET-ID 16
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 15.95 COL 13.6 WIDGET-ID 38
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 113.6 BY 29.33
@@ -489,7 +489,7 @@ DEFINE FRAME FRAME-A
      RECT-6 AT ROW 23.19 COL 4.4
      RECT-7 AT ROW 1.38 COL 4.4
      RECT-16 AT ROW 13.48 COL 19.8 WIDGET-ID 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 113.6 BY 29.33
@@ -848,7 +848,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-      IF rd-dest = 3 THEN
+  IF rd-dest = 3 THEN
   do:
     fi_file:SCREEN-VALUE = "c:\tmp\r-sched2.csv".
     assign fi_file.
@@ -1433,6 +1433,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_date = today
    rd_sort    = "Release Date".
 RUN DisplaySelectionList.
+          btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -1702,7 +1709,7 @@ PROCEDURE enable_UI :
          Btn_Remove btn_Up btn_down tb_scheduled tb_late tb_invoiceable 
          tb_actual tb_backordered tb_posted tb_invoice tb_completed tb_subt 
          rd_sort rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list 
-         btnCustList RECT-6 RECT-7 RECT-16 tbAutoClose 
+         btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
