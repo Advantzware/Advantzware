@@ -1164,7 +1164,7 @@ PROCEDURE ipAssignARInvXNoSeq PRIVATE:
 
     FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
         
-    IF AVAIL ar-inv THEN 
+    IF AVAIL bf-ar-inv THEN 
         CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
 
     ASSIGN 
