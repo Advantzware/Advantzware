@@ -54,18 +54,6 @@ DEFINE BUFFER bff-head FOR inv-head.
 
 {oe/ttCombInv.i NEW}
 
-RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-
-lInterCompanyBilling = LOGICAL(cRtnChar) NO-ERROR. 
-
-RUN sys/ref/nk1look.p (INPUT cocode, "InterCompanyBilling", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).  
-    
-cTransCompany = STRING(cRtnChar) NO-ERROR. 
-
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -1672,6 +1660,7 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
   DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cCustomerNo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iInterCompanyBolNo AS INTEGER NO-UNDO.  
   DEFINE BUFFER bf-inv-head FOR inv-head .
   DEFINE BUFFER bf-ar-inv FOR ar-inv.
@@ -1680,6 +1669,7 @@ PROCEDURE local-delete-record :
   IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
   DO: 
     iInterCompanyBolNo = inv-head.bol-no.
+    cCustomerNo = inv-head.cust-no.
     FIND FIRST bf-inv-head NO-LOCK
          WHERE bf-inv-head.company EQ cocode
          AND bf-inv-head.bol-no EQ inv-head.bol-no 
@@ -1711,6 +1701,11 @@ PROCEDURE local-delete-record :
       DELETE  bf-inv-head. 
     END.
   END.
+  
+  RUN pGetInterCompanyBilling(INPUT cocode,
+                              INPUT cCustomerNo, 
+                              OUTPUT lInterCompanyBilling,
+                              INPUT-OUTPUT cTransCompany).
   IF lInterCompanyBilling THEN 
   do:
       FIND FIRST bf-ar-invl NO-LOCK
@@ -1756,6 +1751,50 @@ PROCEDURE pGetInvHead :
   IF AVAIL inv-head THEN
   ASSIGN oplCheckData = TRUE .
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnLogValue AS LOGICAL NO-UNDO.
+  DEFINE INPUT-OUTPUT PARAMETER iopcReturnCharValue AS CHARACTER NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+  
+  RUN sys/ref/nk1look.p (INPUT ipcCompany,
+                         INPUT "InterCompanyBilling",
+                         INPUT "L" /* Logical */,
+                         INPUT YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */,
+                         INPUT ipcCustomer /* cust */,
+                         INPUT "" /* ship-to*/,
+                         OUTPUT cRtnChar,
+                         OUTPUT lRecFound).
+
+  oplReturnLogValue = LOGICAL(cRtnChar) NO-ERROR. 
+
+  RUN sys/ref/nk1look.p (INPUT ipcCompany,
+                         INPUT "InterCompanyBilling",
+                         INPUT "C" /* Logical */,
+                         INPUT YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */,
+                         INPUT ipcCustomer /* cust */,
+                         INPUT "" /* ship-to*/,
+                         OUTPUT cRtnChar,
+                         OUTPUT lRecFound). 
+    
+  iopcReturnCharValue = IF cRtnChar NE "" THEN STRING(cRtnChar) ELSE iopcReturnCharValue NO-ERROR. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
