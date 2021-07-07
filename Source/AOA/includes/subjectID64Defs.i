@@ -1,4 +1,4 @@
-/* subjectID64Defs.i - auto generated 11.28.2019 @  2:44:42 am */
+/* subjectID64Defs.i - auto generated 07.06.2021 @  7:15:24 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
@@ -6,4 +6,6 @@
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
+    ASSIGN
+        .
 END PROCEDURE.

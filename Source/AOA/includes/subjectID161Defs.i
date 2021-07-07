@@ -1,10 +1,10 @@
-/* subjectID161Defs.i - auto generated 02.18.2021 @  4:07:57 pm */
+/* subjectID161Defs.i - auto generated 07.06.2021 @  7:19:35 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAllCustNo AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cStartCustNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartCustName AS CHARACTER NO-UNDO.
@@ -34,6 +34,7 @@ DEFINE VARIABLE cEndProCatDescriptn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIncludePrepMiscChg AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lExcludeSetComponents AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lExcludeTransferReleasesOrders AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lLOrdWithNoRel AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lPrintOrderUnderPct AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iUnderValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE lPrintOrderOverPct AS LOGICAL NO-UNDO.
@@ -43,13 +44,12 @@ DEFINE VARIABLE cStartShipFromNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartShipFromName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndShipFromNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndShipFromName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lOrdWithNoRel AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
     ASSIGN
-        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
         lCustList = DYNAMIC-FUNCTION("fGetDynParamValue","custList") EQ "YES"
+        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
         lAllCustNo = DYNAMIC-FUNCTION("fGetDynParamValue","allCustNo") EQ "YES"
         cStartCustNo = DYNAMIC-FUNCTION("fGetDynParamValue","startCustNo")
         cStartCustName = DYNAMIC-FUNCTION("fGetDynParamValue","startCustName")
@@ -83,6 +83,7 @@ PROCEDURE pAssignParamVariables:
         lIncludePrepMiscChg = DYNAMIC-FUNCTION("fGetDynParamValue","IncludePrepMiscChg") EQ "YES"
         lExcludeSetComponents = DYNAMIC-FUNCTION("fGetDynParamValue","ExcludeSetComponents") EQ "YES"
         lExcludeTransferReleasesOrders = DYNAMIC-FUNCTION("fGetDynParamValue","ExcludeTransferReleasesOrders") EQ "YES"
+        lLOrdWithNoRel = DYNAMIC-FUNCTION("fGetDynParamValue","lOrdWithNoRel") EQ "YES"
         lPrintOrderUnderPct = DYNAMIC-FUNCTION("fGetDynParamValue","PrintOrderUnderPct") EQ "YES"
         iUnderValue = DYNAMIC-FUNCTION("fGetDynParamValue","UnderValue")
         lPrintOrderOverPct = DYNAMIC-FUNCTION("fGetDynParamValue","PrintOrderOverPct") EQ "YES"
