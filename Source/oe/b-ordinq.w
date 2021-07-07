@@ -1463,7 +1463,13 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
 
-fiOrderDate = TODAY - 365.
+{sys/inc/browser.i "OEBROWSE"}
+    IF sys-ctrl.date-fld NE ? THEN
+        ASSIGN
+        fiOrderDate = sys-ctrl.date-fld .
+    ELSE
+        fiOrderDate = TODAY - 365.
+        
 IF lEnableShowAll THEN 
     btSHowAll:SENSITIVE = lEnableShowAll.
 
