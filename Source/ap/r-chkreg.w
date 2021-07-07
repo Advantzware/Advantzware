@@ -2095,10 +2095,10 @@ IF tbXmlFile:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
             INPUT  cocode,                     /* Company Code (Mandatory) */
             INPUT  locode,                     /* Location Code (Mandatory) */
             INPUT  cAPIID,                     /* API ID (Mandatory) */
-            INPUT  "_ANY_",                    /* Scope ID */
-            INPUT  "_ANY_",                    /* Scope Type */
+            INPUT  "",                         /* Scope ID */
+            INPUT  "",                         /* Scope Type */
             INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
-            INPUT  "post-manual,cocode",       /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  "PostManual,Company",       /* Comma separated list of table names for which data being sent (Mandatory) */
             INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
             INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
             INPUT  cDescription,               /* Event's description (Optional) */

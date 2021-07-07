@@ -23,9 +23,9 @@ DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.  
 
 DEFINE VARIABLE iNumberOfTransactions                   AS INTEGER      NO-UNDO.
-DEFINE VARIABLE dControlSum                             AS DECIMAL      NO-UNDO. 
+DEFINE VARIABLE dTotalSum                             AS DECIMAL      NO-UNDO. 
 DEFINE VARIABLE cCountry                                AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cCompanyId                              AS CHARACTER    NO-UNDO. 
+DEFINE VARIABLE cBankAccount                              AS CHARACTER    NO-UNDO. 
 DEFINE VARIABLE cCountryOfResidence                     AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cCurrencyType                           AS CHARACTER    NO-UNDO.
 DEFINE VARIABLE cBankIdentifierCode                     AS CHARACTER    NO-UNDO.
@@ -96,14 +96,14 @@ END.
 
 FIND FIRST ttArgs
      WHERE ttArgs.argType  EQ "ROWID"
-       AND ttArgs.argKey   EQ "post-manual"
+       AND ttArgs.argKey   EQ "PostManual"
     NO-ERROR.
     
 lPostManual = IF AVAIL ttArgs THEN logical(ttArgs.argValue) ELSE NO. 
 
 FIND FIRST ttArgs
      WHERE ttArgs.argType  EQ "ROWID"
-       AND ttArgs.argKey   EQ "cocode"
+       AND ttArgs.argKey   EQ "Company"
     NO-ERROR.
   
 cCompany = IF AVAIL ttArgs THEN ttArgs.argValue ELSE "".
@@ -190,7 +190,7 @@ FOR EACH ttPaymentData
     BREAK BY ttPaymentData.checkNo:
         IF FIRST-OF(ttPaymentData.checkNo) THEN
         iNumberOfTransactions = iNumberOfTransactions + 1.
-        dControlSum = dControlSum +  ttPaymentData.amt .
+        dTotalSum = dTotalSum +  ttPaymentData.amt .
         
 END.  
         
@@ -216,7 +216,7 @@ FOR EACH ttPaymentData
                 lcVendorPostalAddress1             = vend.r-add1
                 lcVendorPostalAddress2             = vend.r-add2
                 cVendorCountrySubDivision          = vend.r-state
-                cCompanyId                         = vend.bank-acct
+                cBankAccount                       = vend.bank-acct
                 cCreditDebitIndicator              = vend.tax-gr
                 cCountry                           = vend.country
                 .
@@ -230,8 +230,7 @@ FOR EACH ttPaymentData
                 cCurrencyType  = bank.curr-code[1]
                 .
         lcLineItemsData = STRING(bf-line-APIOutboundDetail.data).         
-        
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionReferenceNumber", STRING(ttPaymentData.checkNo)).
+                
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionAmount", STRING(dCheckAmount)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).         
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", lcVendorName).
@@ -257,31 +256,20 @@ FOR EACH ttPaymentData
         ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", lcConcatLineItemsData).                   
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NumberOfTransactions", STRING(iNumberOfTransactions)).        
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ControlSum", STRING(dControlSum)).         
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalSum", STRING(dTotalSum)).         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country",cCountry). 
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyId",cCompanyId).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankAccount",cBankAccount).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CountryOfResidence", cCountryOfResidence).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyType",cCurrencyType).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorCountry",cVendorCountry).
     END.
-END. /* FOR EACH ttPaymentData */  
-   
-ASSIGN 
-    iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   
-    /* Subtract lines before ST and after SE segments */
-    iSECount = iSECount - 4
-    .
-    
-RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SECount", STRING(iSECount)).
+END. /* FOR EACH ttPaymentData */     
 
 RUN pUpdateDelimiter(
     INPUT-OUTPUT ioplcRequestData,
     INPUT        cRequestDataType
     ).                
-
-/* To remove any unwanted blank lines */
-ioplcRequestData = REPLACE(ioplcRequestData, "~n~n", "~n").
 
 ASSIGN
     opcMessage = ""
