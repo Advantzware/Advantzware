@@ -70,7 +70,7 @@ DEFINE VARIABLE glOpRatesSeparate                    AS LOGICAL   NO-UNDO INITIA
 DEFINE VARIABLE glApplyOperationMinimumCharge        AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly AS LOGICAL   NO-UNDO.
    
-
+DEFINE VARIABLE gcErrorString AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -330,6 +330,9 @@ PROCEDURE GetOperationStandardsForJobMch:
            
                 
         RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, ipcAction, ipcExistingOps, OUTPUT lError, OUTPUT cMessage).
+        
+        RUN pBuildMessage("", INPUT-OUTPUT cMessage).
+        
         IF NOT lError THEN 
         DO:
             FIND CURRENT bf-job-mch EXCLUSIVE-LOCK.
@@ -341,12 +344,18 @@ PROCEDURE GetOperationStandardsForJobMch:
                 OUTPUT bf-job-mch.run-fixoh,
                 OUTPUT bf-job-mch.run-varoh,
                 OUTPUT lError, OUTPUT cMessage).
+                
+            RUN pBuildMessage("", INPUT-OUTPUT cMessage).
+        
             RUN GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code,
                 OUTPUT bf-job-mch.mr-waste, 
                 OUTPUT bf-job-mch.mr-hr, 
                 OUTPUT bf-job-mch.speed, 
                 OUTPUT bf-job-mch.wst-prct, 
                 OUTPUT lError, OUTPUT cMessage).
+            
+            RUN pBuildMessage("", INPUT-OUTPUT cMessage).
+            
             bf-job-mch.run-qty =  fGetJobMachRunQty(BUFFER bf-eb, bf-job-mch.m-code,bf-job-mch.pass).
         END.
     END.
@@ -542,12 +551,17 @@ PROCEDURE pBuildMessage PRIVATE:
     DEFINE INPUT PARAMETER ipcMessageAdd AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
     
-    IF ipcMessageAdd NE "" THEN 
+    IF ipcMessageAdd NE "" THEN
+    DO: 
         IF iopcMessage NE "" THEN
             iopcMessage = iopcMessage + CHR(13) + ipcMessageAdd.
         ELSE 
             iopcMessage = ipcMessageAdd.
-
+    END.
+    
+    /* Build Global Error Variable */
+    ASSIGN 
+        gcErrorString = gcErrorString + CHR(13) + (IF ipcMessageAdd NE "" THEN ipcMessageAdd ELSE iopcMessage).
 END PROCEDURE.
 
 PROCEDURE pGetEffectiveEstOpQuantity PRIVATE:
@@ -1928,7 +1942,10 @@ END PROCEDURE.
 
 PROCEDURE pGetOperationTT:
    
-   DEFINE OUTPUT PARAMETER TABLE FOR ttOperation BIND.
+   DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
+   DEFINE OUTPUT PARAMETER opcError AS CHARACTER NO-UNDO.
+   
+   ASSIGN opcError = gcErrorString.
    
 END.
 

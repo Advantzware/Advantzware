@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cEstNum AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ghSession        AS HANDLE NO-UNDO.
 DEFINE VARIABLE ghOperationProcs AS HANDLE NO-UNDO.
 RUN est\OperationProcs.p PERSISTENT SET ghOperationProcs.
@@ -48,6 +49,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
 {src/adm2/widgetprto.i}
 
 {est\ttOperationAttribute.i}
+{est\OperationProcsTT.i }
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,7 +71,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttAttribute
+&Scoped-define INTERNAL-TABLES ttAttribute ttOperation
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttAttribute.attributeID ttAttribute.attributeName ttAttribute.attributeValue   
@@ -83,15 +85,27 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttAttribute
 
 
+/* Definitions for BROWSE BROWSE-4                                      */
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 ttOperation.estimateNo ttOperation.operationID ttOperation.departmentID[1] ttOperation.hoursRun ttOperation.hoursSetup ttOperation.speed ttOperation.quantityIn ttOperation.quantityInSetupWaste ttOperation.quantityInRunWastePercent ttOperation.quantityInRunWaste ttOperation.quantityOut ttOperation.crewSizeRun ttOperation.crewSizeSetup ttOperation.costTotal ttOperation.feedType ttOperation.outputType   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4   
+&Scoped-define SELF-NAME BROWSE-4
+&Scoped-define QUERY-STRING-BROWSE-4 FOR EACH ttOperation
+&Scoped-define OPEN-QUERY-BROWSE-4 OPEN QUERY {&SELF-NAME} FOR EACH ttOperation.
+&Scoped-define TABLES-IN-QUERY-BROWSE-4 ttOperation
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-4 ttOperation
+
+
 /* Definitions for DIALOG-BOX wOperationsTester                         */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-wOperationsTester ~
-    ~{&OPEN-QUERY-BROWSE-1}
+    ~{&OPEN-QUERY-BROWSE-1}~
+    ~{&OPEN-QUERY-BROWSE-4}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS company JobNo formNo blankNo Pass ~
-operationID btnGo fi_file tb_excel BROWSE-1 btnDon btnAssess 
+&Scoped-Define ENABLED-OBJECTS company btnReset btnDon JobNo formNo blankNo ~
+Pass operationID btnProcessOps fi_FileOps tb_FileOps BROWSE-4 btnGo fi_file ~
+tb_excel BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS company JobNo formNo blankNo Pass ~
-operationID fi_file tb_excel 
+operationID fi_FileOps tb_FileOps fi_file tb_excel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -115,10 +129,6 @@ FUNCTION fValidateInputs RETURNS LOGICAL PRIVATE
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnAssess 
-     LABEL "Show Standards for Attributes" 
-     SIZE 46 BY 1.14.
-
 DEFINE BUTTON btnDon AUTO-GO 
      LABEL "Done" 
      SIZE 15 BY 1.14.
@@ -126,6 +136,14 @@ DEFINE BUTTON btnDon AUTO-GO
 DEFINE BUTTON btnGo 
      LABEL "Get Attributes" 
      SIZE 46 BY 1.14.
+
+DEFINE BUTTON btnProcessOps 
+     LABEL "Process Operations" 
+     SIZE 26 BY 1.14.
+
+DEFINE BUTTON btnReset 
+     LABEL "Reset" 
+     SIZE 15 BY 1.14.
 
 DEFINE VARIABLE blankNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
      LABEL "Blank" 
@@ -137,7 +155,13 @@ DEFINE VARIABLE company AS CHARACTER FORMAT "X(6)":U INITIAL "001"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\OperationsTester.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\OpsTester_Attribute.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1
+     FGCOLOR 9 .
+
+DEFINE VARIABLE fi_FileOps AS CHARACTER FORMAT "X(35)" INITIAL "c:~\tmp~\OpsTester_Operations.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 41 BY 1
@@ -148,7 +172,7 @@ DEFINE VARIABLE formNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE JobNo AS CHARACTER FORMAT "X(6)":U INITIAL "400176" 
+DEFINE VARIABLE JobNo AS CHARACTER FORMAT "X(6)":U INITIAL "400178" 
      LABEL "Job" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
@@ -168,10 +192,18 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_FileOps AS LOGICAL INITIAL yes 
+     LABEL "Export To File?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
       ttAttribute SCROLLING.
+
+DEFINE QUERY BROWSE-4 FOR 
+      ttOperation SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -185,7 +217,30 @@ DEFINE BROWSE BROWSE-1
         ttAttribute.attributeValue
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 11.67 ROW-HEIGHT-CHARS .75 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 133 BY 7.1 ROW-HEIGHT-CHARS .76 FIT-LAST-COLUMN.
+
+DEFINE BROWSE BROWSE-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-4 wOperationsTester _FREEFORM
+  QUERY BROWSE-4 DISPLAY
+      ttOperation.estimateNo COLUMN-LABEL 'estimateNo' WIDTH 10  
+   ttOperation.operationID COLUMN-LABEL 'Machine Code' WIDTH 10
+   ttOperation.departmentID[1] COLUMN-LABEL 'Deptt' WIDTH 10
+   ttOperation.hoursRun COLUMN-LABEL 'Hrs Run' WIDTH 10
+   ttOperation.hoursSetup COLUMN-LABEL 'MR Hrs' WIDTH 10
+   ttOperation.speed COLUMN-LABEL 'Speed' WIDTH 10
+   ttOperation.quantityIn COLUMN-LABEL 'Qty In' WIDTH 10
+   ttOperation.quantityInSetupWaste COLUMN-LABEL 'Qty SetupWaste ' WIDTH 10
+   ttOperation.quantityInRunWastePercent COLUMN-LABEL 'RunWaste %' WIDTH 10
+   ttOperation.quantityInRunWaste COLUMN-LABEL 'Qty RunWaste' WIDTH 10
+   ttOperation.quantityOut COLUMN-LABEL 'Qty Out' WIDTH 10
+   ttOperation.crewSizeRun COLUMN-LABEL 'CrewSize Run' WIDTH 10
+   ttOperation.crewSizeSetup COLUMN-LABEL 'Crew SizeSetup' WIDTH 10
+   ttOperation.costTotal COLUMN-LABEL 'CostTotal' WIDTH 10
+   ttOperation.feedType  COLUMN-LABEL 'FeedType' WIDTH 10
+   ttOperation.outputType COLUMN-LABEL 'Output Type' WIDTH 10
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 136 BY 7 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -193,6 +248,8 @@ DEFINE BROWSE BROWSE-1
 DEFINE FRAME wOperationsTester
      company AT ROW 1.24 COL 24 COLON-ALIGNED HELP
           "Enter Company" WIDGET-ID 36
+     btnReset AT ROW 1.52 COL 105.6 WIDGET-ID 64
+     btnDon AT ROW 1.52 COL 122
      JobNo AT ROW 2.43 COL 24 COLON-ALIGNED HELP
           "Enter Job#" WIDGET-ID 46
      formNo AT ROW 2.43 COL 51 COLON-ALIGNED HELP
@@ -203,14 +260,17 @@ DEFINE FRAME wOperationsTester
           "Enter Pass" WIDGET-ID 54
      operationID AT ROW 3.86 COL 24 COLON-ALIGNED HELP
           "Enter Machine#" WIDGET-ID 52
-     btnGo AT ROW 5.24 COL 5.6 WIDGET-ID 10
-     fi_file AT ROW 5.24 COL 95 COLON-ALIGNED HELP
+     btnProcessOps AT ROW 5.52 COL 5 WIDGET-ID 58
+     fi_FileOps AT ROW 5.52 COL 75.6 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 60
+     tb_FileOps AT ROW 5.67 COL 57 RIGHT-ALIGNED WIDGET-ID 62
+     BROWSE-4 AT ROW 7.67 COL 5 WIDGET-ID 300
+     btnGo AT ROW 16 COL 6 WIDGET-ID 10
+     fi_file AT ROW 16 COL 95.4 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 40
-     tb_excel AT ROW 5.38 COL 76.6 RIGHT-ALIGNED WIDGET-ID 42
-     BROWSE-1 AT ROW 6.71 COL 5 WIDGET-ID 200
-     btnDon AT ROW 19.1 COL 122
-     btnAssess AT ROW 19.33 COL 26 WIDGET-ID 44
-     SPACE(69.99) SKIP(0.66)
+     tb_excel AT ROW 16.14 COL 77 RIGHT-ALIGNED WIDGET-ID 42
+     BROWSE-1 AT ROW 17.91 COL 5 WIDGET-ID 200
+     SPACE(3.99) SKIP(0.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Operations Tester"
@@ -244,6 +304,7 @@ DEFINE FRAME wOperationsTester
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX wOperationsTester
    FRAME-NAME                                                           */
+/* BROWSE-TAB BROWSE-4 tb_FileOps wOperationsTester */
 /* BROWSE-TAB BROWSE-1 tb_excel wOperationsTester */
 ASSIGN 
        FRAME wOperationsTester:SCROLLABLE       = FALSE
@@ -253,10 +314,20 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME wOperationsTester     = 
                 "parm".
 
+ASSIGN 
+       fi_FileOps:PRIVATE-DATA IN FRAME wOperationsTester     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME wOperationsTester
    ALIGN-R                                                              */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME wOperationsTester     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_FileOps IN FRAME wOperationsTester
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_FileOps:PRIVATE-DATA IN FRAME wOperationsTester     = 
                 "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -272,6 +343,15 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttAttribute.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-4
+/* Query rebuild information for BROWSE BROWSE-4
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttOperation.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE BROWSE-4 */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX wOperationsTester
@@ -310,28 +390,50 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnAssess
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAssess wOperationsTester
-ON CHOOSE OF btnAssess IN FRAME wOperationsTester /* Show Standards for Attributes */
+&Scoped-define SELF-NAME btnGo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGo wOperationsTester
+ON CHOOSE OF btnGo IN FRAME wOperationsTester /* Get Attributes */
 DO:
-        IF fValidateInputs() THEN 
-            RUN pAssessSelection(company, JobNo, operationID).  
-    END.
+    IF fValidateInputs() THEN          
+        RUN pBuildList (company, JobNo, formNo, blankNo,Pass,operationID).
+        
+    IF tb_excel THEN
+        RUN pRunReport (fi_file).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnGo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGo wOperationsTester
-ON CHOOSE OF btnGo IN FRAME wOperationsTester /* Get Attributes */
+&Scoped-define SELF-NAME btnProcessOps
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnProcessOps wOperationsTester
+ON CHOOSE OF btnProcessOps IN FRAME wOperationsTester /* Process Operations */
 DO:
+    IF fValidateInputs() THEN
+        RUN pRunOperation (company, JobNo, formNo, blankNo,Pass,operationID, OUTPUT cEstNum).
+    
+    IF tb_FileOps THEN
+        RUN pRunReportOpsLocal (fi_FileOps, company, JobNo, formNo, blankNo,Pass,operationID,cEstNum).
+        
+         
+END.
 
-        IF fValidateInputs() THEN          
-            RUN pBuildList (company, JobNo, formNo, blankNo,Pass,operationID).
-        IF tb_excel THEN
-            RUN pRunReport (fi_file).
-    END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset wOperationsTester
+ON CHOOSE OF btnReset IN FRAME wOperationsTester /* Reset */
+DO:
+    EMPTY TEMP-TABLE ttOperation.
+    EMPTY TEMP-TABLE ttAttribute.
+    {&CLOSE-QUERY-BROWSE-4}
+    {&OPEN-QUERY-BROWSE-4}
+    {&CLOSE-QUERY-BROWSE-1}
+    {&OPEN-QUERY-BROWSE-1}
+  
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -351,6 +453,17 @@ DO:
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file wOperationsTester
 ON LEAVE OF fi_file IN FRAME wOperationsTester /* If Yes, File Name */
+DO:
+        assign {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_FileOps
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_FileOps wOperationsTester
+ON LEAVE OF fi_FileOps IN FRAME wOperationsTester /* If Yes, File Name */
 DO:
         assign {&self-name}.
     END.
@@ -406,6 +519,17 @@ DO:
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel wOperationsTester
 ON VALUE-CHANGED OF tb_excel IN FRAME wOperationsTester /* Export To Excel? */
+DO:
+        assign {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_FileOps
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_FileOps wOperationsTester
+ON VALUE-CHANGED OF tb_FileOps IN FRAME wOperationsTester /* Export To File? */
 DO:
         assign {&self-name}.
     END.
@@ -475,10 +599,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY company JobNo formNo blankNo Pass operationID fi_file tb_excel 
+  DISPLAY company JobNo formNo blankNo Pass operationID fi_FileOps tb_FileOps 
+          fi_file tb_excel 
       WITH FRAME wOperationsTester.
-  ENABLE company JobNo formNo blankNo Pass operationID btnGo fi_file tb_excel 
-         BROWSE-1 btnDon btnAssess 
+  ENABLE company btnReset btnDon JobNo formNo blankNo Pass operationID 
+         btnProcessOps fi_FileOps tb_FileOps BROWSE-4 btnGo fi_file tb_excel 
+         BROWSE-1 
       WITH FRAME wOperationsTester.
   VIEW FRAME wOperationsTester.
   {&OPEN-BROWSERS-IN-QUERY-wOperationsTester}
@@ -559,59 +685,76 @@ PROCEDURE pBuildList PRIVATE :
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
+    RUN GetAttributes (OUTPUT TABLE ttAttribute).
+    STATUS DEFAULT "".
+    {&CLOSE-QUERY-BROWSE-1}   
+    {&OPEN-QUERY-BROWSE-1}
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunOperation wOperationsTester 
+PROCEDURE pRunOperation :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcEstNo     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cError AS CHARACTER NO-UNDO.
+
     FIND FIRST mach NO-LOCK
         WHERE mach.company EQ ipcCompany
-          AND mach.m-code  EQ ipcOperationID
+        AND mach.m-code  EQ ipcOperationID
         NO-ERROR.
         
     IF NOT AVAILable mach then
     DO:
         MESSAGE 'MACHINE DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
         RETURN.
-     END.
-     MESSAGE mach.dept[1]
-     VIEW-AS ALERT-BOX.
-     
-    /*Find machine from same department*/
-    FIND FIRST job-mch NO-LOCK
-        WHERE job-mch.company EQ ipcCompany
-        AND job-mch.job-no EQ ipcJobNo
-        AND job-mch.frm     EQ ipiFormNo
-        AND job-mch.blank-no EQ ipiBlankNo
-        AND job-mch.dept    EQ mach.dept[1]
-        and job-mch.m-code  = ipcOperationID
-        AND job-mch.pass    EQ ipiPass
+    END.
+        
+    FIND FIRST job NO-LOCK 
+        WHERE job.company EQ ipcCompany
+        AND job.job-no EQ ipcJobNo
+        AND job.job-no2 EQ 0
         NO-ERROR.
-        
-    if available job-mch then 
+            
+    IF NOT AVAILABLE job THEN
     DO:
-        RUN GetOperationStandardsForJobMch(ROWID(job-mch)).
-         
-    end.
-    /* New machine */
-    else
-    DO:
-        MESSAGE "job-mch Not Found-----WIP"
-        VIEW-AS ALERT-BOX.
-        return.
-        
-       /* RUN ProcessOperationChange 
-          ( INPUT ipcCompany,
-            INPUT mach.m-code,
-            INPUT ipcJobNo, 
-            INPUT ipiFormNo,
-            INPUT ipiBlankNo,
-            INPUT ipiPass,
-            INPUT mach.dept[1],
-            OUTPUT cMessage).
-            */
-    end.
+        MESSAGE 'JOB DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
     
-    RUN GetAttributes (OUTPUT TABLE ttAttribute).
-    STATUS DEFAULT "".
-    {&CLOSE-QUERY-BROWSE-1}   
-    {&OPEN-QUERY-BROWSE-1}
+    RUN ProcessOperationChange (job.company,operationID, job.job, ipiFormNo,ipiBlankNo,ipiPass,INPUT mach.dept[1], OUTPUT cAction).
+    
+    IF cAction = "" THEN
+    DO:
+        MESSAGE 'No Change:: Job-Mch already exists for ' + operationID + "." VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
+    
+    RUN pGetOperationTT ( OUTPUT TABLE ttOperation, OUTPUT cError).
+    
+    {&CLOSE-QUERY-BROWSE-4}   
+    {&OPEN-QUERY-BROWSE-4}
+    
+    ASSIGN
+        opcEstNo = job.est-no.
+        
+    /* **************DEV only for Debug************
+        IF cError NE  "" THEN
+        MESSAGE "ERROR::" skip cError VIEW-AS ALERT-BOX.
+        */
     
 END PROCEDURE.
 
@@ -638,6 +781,65 @@ PROCEDURE pRunReport PRIVATE :
     
     RUN Output_TempTableToCSV IN hdOutput (hdTempTable, ipcFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
   
+        
+END PROCEDURE.
+
+PROCEDURE pRunReportOpsLocal PRIVATE :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iFld AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lFirst AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hbfTT AS HANDLE NO-UNDO.
+  
+    OUTPUT to VALUE(ipcFile).
+    hbfTT = BUFFER ttOperation:HANDLE.
+        
+    DO iFld = 1 TO hbfTT:NUM-FIELDS:
+                        
+        IF hbfTT:BUFFER-FIELD (iFld):EXTENT > 0 THEN
+        DO iExt = 1 TO hbfTT:BUFFER-FIELD (iFld):EXTENT:
+            PUT UNFORMATTED hbfTT:BUFFER-FIELD (iFld):name + "[" + STRING(iExt) + "]" + ", " .
+        END.
+        ELSE
+            PUT UNFORMATTED  hbfTT:BUFFER-FIELD (iFld):name + ", " .
+    END.
+    PUT UNFORMATTED SKIP.
+    
+    PUT UNFORMATTED  "New Record" SKIP.
+        
+    FOR EACH ttOperation
+        BY ttOperation.sequenceOfOperation:
+                
+        EXPORT DELIMITER "," 
+            ttOperation.
+    END.
+    
+    PUT UNFORMATTED SKIP(2).
+    PUT UNFORMATTED  "Original Record" SKIP.
+    
+    FOR EACH estCostOperation
+        WHERE estCostOperation.company    = ipcCompany
+        AND estCostOperation.estimateNo = ipcEstNo
+        AND estCostOperation.formNo = ipiFormNo
+        AND estCostOperation.blankNo = ipiBlankNo
+        BY estCostOperation.sequenceOfOperation :
+        EXPORT DELIMITER "," 
+            estCostOperation.
+    END.
+    OUTPUT CLOSE.
         
 END PROCEDURE.
 
