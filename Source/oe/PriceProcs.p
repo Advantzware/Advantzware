@@ -117,6 +117,8 @@ DEFINE TEMP-TABLE tt-VendItemCost
 FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
+FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD.    
 
 /* ***************************  Main Block  *************************** */
 
@@ -1748,17 +1750,29 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
     DEFINE OUTPUT PARAMETER oplQtyDistinctMatch AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
+    
     ASSIGN 
         opiQtyLevel         = 0
         oplQtyDistinctMatch = NO 
         ipiLevelStart       = IF ipiLevelStart EQ 0 THEN 1 ELSE ipiLevelStart
         .
     IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
- 
+    
+    cPriceMatrixPricingMethod = fGetNk1PriceMatrixPricingMethod(ipbf-oe-prmtx.company).
+      
+    IF cPriceMatrixPricingMethod EQ "From" AND ipdQuantityTarget LT ipbf-oe-prmtx.minOrderQty THEN RETURN.        
+      
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
-        IF ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
+        IF cPriceMatrixPricingMethod EQ "From" AND ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
+        DO:
+            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+                oplQtyDistinctMatch = YES.
+            IF opiQtyLevel = 0 THEN 
+                opiQtyLevel = iLevel.
+        END. /*Qty GE oe-prmtx qty*/
+        ELSE IF cPriceMatrixPricingMethod EQ "Up To" AND ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
             IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
                 oplQtyDistinctMatch = YES.
@@ -1914,3 +1928,27 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 	
 END FUNCTION.
 
+FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns whether LastPrice is option set for NK1 SELLPRIC 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE lFound                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn                   AS CHARACTER NO-UNDO. 
+    
+    RUN sys/ref/nk1look.p (ipcCompany,
+        "PriceMatrixPricingMethod",
+        "C",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    cPriceMatrixPricingMethod = cReturn.
+    RETURN cPriceMatrixPricingMethod.
+	
+END FUNCTION.
