@@ -53,12 +53,16 @@ DEF VAR ip-rowid AS ROWID NO-UNDO.
 DEF VAR ll-foam AS LOG NO-UNDO.
 DEF VAR v-dep LIKE eb.dep NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE dEstQtytoProcess AS DECIMAL NO-UNDO.
 
 DEF BUFFER b-eb FOR eb.
 
 def TEMP-TABLE w-qty NO-UNDO
   field b-num  like est-op.b-num
   field num-sh as dec.
+  
+  
+ASSIGN dEstQtytoProcess = qty.  
 
 run sys/inc/numup.p (xef.company, xef.est-no, xef.form-no, output v-num-up).
 
@@ -140,6 +144,7 @@ for each est-op
       and est-op.s-num eq xef.form-no
       and est-op.line  ge v-line
       and est-op.line  lt v-line + 500
+      and est-op.qty   eq dEstQtytoProcess
     break by est-op.d-seq desc by est-op.line desc:
 
   find first xeb
