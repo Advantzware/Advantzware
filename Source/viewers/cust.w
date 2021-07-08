@@ -2888,7 +2888,7 @@ PROCEDURE pGetInterCompanyBilling :
   RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
       INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
       OUTPUT cReturn, OUTPUT lRecFound).
-  oplReturnValue = INTEGER(cReturn) NO-ERROR.       
+  oplReturnValue = LOGICAL(cReturn) NO-ERROR.       
 
 END PROCEDURE.
 
