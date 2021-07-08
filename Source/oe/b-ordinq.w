@@ -91,6 +91,8 @@ DEFINE VARIABLE cPriceUom        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCostUom         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceLineCost AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dProdBalance     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
@@ -1463,10 +1465,12 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
 
-{sys/inc/browser.i "OEBROWSE"}
-    IF sys-ctrl.date-fld NE ? THEN
+RUN sys/ref/nk1look.p (INPUT cocode,"OEBrowse", "DT" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/, 
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN 
         ASSIGN
-        fiOrderDate = sys-ctrl.date-fld .
+        fiOrderDate = DATE(cRtnChar) NO-ERROR.
     ELSE
         fiOrderDate = TODAY - 365.
         
