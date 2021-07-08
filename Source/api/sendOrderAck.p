@@ -323,6 +323,7 @@ DEFINE TEMP-TABLE ttLines
     .
 
 /* ***************************  Main Block  *************************** */
+RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
           
 /* This is to run client specific request handler to fetch request data */
 IF ipcRequestHandler NE "" THEN

@@ -29,6 +29,8 @@
     DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
     DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
     
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
