@@ -208,7 +208,7 @@ cust.cust-no cust.company
 fi_cust-no fi_i-name fi_city fi_stat fi_zip fi_type fi_sman fi_terr ~
 tb_in-act btn_prev btn_next btn_show Browser-Table fi_sort-by 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_cust-no fi_i-name fi_city ~
-fi_stat fi_zip fi_type fi_sman fi_terr fi_XCustomer tb_in-act fi_sort-by 
+fi_stat fi_zip fi_type fi_sman fi_terr tb_in-act fi_sort-by 
 //FI_moveCol 
 
 /* Custom List Definitions                                              */
@@ -338,11 +338,6 @@ DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X(8)":U
      SIZE 16 BY 1.1
      BGCOLOR 15 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fi_XCustomer AS CHARACTER FORMAT "X(30)":U
-     VIEW-AS FILL-IN 
-     SIZE 46 BY 1.3
-     BGCOLOR 15 FONT 22 NO-UNDO.     
-
 DEFINE VARIABLE fi_zip AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.1
@@ -445,7 +440,6 @@ DEFINE FRAME F-Main
      fi_type AT ROW 1.81 COL 93.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      fi_sman AT ROW 1.81 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      fi_terr AT ROW 1.81 COL 120.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fi_XCustomer AT ROW 3.35 COL 16 COLON-ALIGNED NO-LABEL NO-TAB-STOP
      tb_in-act AT ROW 2.24 COL 133.4 WIDGET-ID 50
      btn_prev AT ROW 3.52 COL 118.8 WIDGET-ID 8
      btn_next AT ROW 3.52 COL 130.2 WIDGET-ID 6
@@ -463,9 +457,6 @@ DEFINE FRAME F-Main
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.19 COL 3 WIDGET-ID 24
           BGCOLOR 23 FGCOLOR 24 FONT 22
-      "X Customer :" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 3.50 COL 3 WIDGET-ID 60
-          FGCOLOR 9 FONT 6
     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 3.86 COL 1.8 WIDGET-ID 30
           FONT 22 */
@@ -1117,17 +1108,7 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  DEF BUFFER bff-cust FOR cust .
-  FIND FIRST bff-cust
-        WHERE bff-cust.company EQ cocode
-          AND bff-cust.ACTIVE EQ "X"
-        NO-LOCK NO-ERROR.
-   IF AVAIL bff-cust THEN DO:
-        ASSIGN 
-            fi_XCustomer:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(bff-cust.cust-no) + "-" + STRING(bff-cust.NAME)
-            .
-   END.
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   /*IF v-called-setCellColumns = NO THEN DO:
      RUN setCellColumns.
