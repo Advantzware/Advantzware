@@ -22,34 +22,33 @@ DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.  
 
-DEFINE VARIABLE iNumberOfTransactions                   AS INTEGER      NO-UNDO.
-DEFINE VARIABLE dTotalSum                             AS DECIMAL      NO-UNDO. 
-DEFINE VARIABLE cCountry                                AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cBankAccount                              AS CHARACTER    NO-UNDO. 
-DEFINE VARIABLE cCountryOfResidence                     AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cCurrencyType                           AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cBankIdentifierCode                     AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cVendorCountry                          AS CHARACTER    NO-UNDO. 
-DEFINE VARIABLE lcVendorName                            AS LONGCHAR     NO-UNDO.
-DEFINE VARIABLE cVendorPostCode                         AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cVendorTownName                         AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cVendorCountrySubDivision               AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE lcVendorPostalAddress1                  AS LONGCHAR     NO-UNDO.
-DEFINE VARIABLE lcVendorPostalAddress2                  AS LONGCHAR     NO-UNDO.
+DEFINE VARIABLE iNumberOfTransactions            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dTotalSum                        AS DECIMAL   NO-UNDO. 
+DEFINE VARIABLE cCountry                         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankAccount                     AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cVendorRemitToCountry            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrencyType                    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankIdentifierCode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorCountry                   AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cVendorName                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToPostalCode         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToCity               AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToState              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToStreetAddress1     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToStreetAddress2     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE iInvoiceNumber                          AS INTEGER      NO-UNDO.
-DEFINE VARIABLE dtInvoiceDate                           AS DATE         NO-UNDO.
-DEFINE VARIABLE cCreditDebitIndicator                   AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE cAdditionalRemittanceInformation        AS CHARACTER    NO-UNDO.
+DEFINE VARIABLE iInvoiceNumber                   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dtInvoiceDate                    AS DATE      NO-UNDO.
+DEFINE VARIABLE cCreditDebitIndicator            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdditionalRemittanceInformation AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cRequestDataType                        AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE iSECount                                AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lcLineItemsData                         AS LONGCHAR     NO-UNDO.
-DEFINE VARIABLE lcConcatLineItemsData                   AS LONGCHAR     NO-UNDO.
-DEFINE VARIABLE iPaymentID                              AS INTEGER      NO-UNDO.
-DEFINE VARIABLE lPostManual                             AS LOGICAL      NO-UNDO.
-DEFINE VARIABLE cCompany                                AS CHARACTER    NO-UNDO.
-DEFINE VARIABLE dCheckAmount                            AS DECIMAL      NO-UNDO.
+DEFINE VARIABLE cRequestDataType                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcLineItemsData                  AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lcConcatLineItemsData            AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE iPaymentID                       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lPostManual                      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCompany                         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCheckAmount                     AS DECIMAL   NO-UNDO.
 
 DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD paymentID   AS INTEGER
@@ -208,14 +207,14 @@ FOR EACH ttPaymentData
              NO-ERROR.
         IF AVAILABLE vend THEN
             ASSIGN
-                lcVendorName                       = vend.name
-                cCountryOfResidence                = vend.r-country
-                cVendorPostCode                    = vend.r-zip
-                cVendorTownName                    = vend.r-city
+                cVendorName                        = vend.name
+                cVendorRemitToCountry              = vend.r-country
+                cVendorRemitToPostalCode           = vend.r-zip
+                cVendorRemitToCity                 = vend.r-city
                 cVendorCountry                     = vend.country
-                lcVendorPostalAddress1             = vend.r-add1
-                lcVendorPostalAddress2             = vend.r-add2
-                cVendorCountrySubDivision          = vend.r-state
+                cVendorRemitToStreetAddress1       = vend.r-add1
+                cVendorRemitToStreetAddress2       = vend.r-add2
+                cVendorRemitToState                = vend.r-state
                 cBankAccount                       = vend.bank-acct
                 cCreditDebitIndicator              = vend.tax-gr
                 cCountry                           = vend.country
@@ -233,13 +232,13 @@ FOR EACH ttPaymentData
                 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionAmount", STRING(dCheckAmount)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).         
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", lcVendorName).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostCode", cVendorPostCode).    
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorTownName", cVendorTownName).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCountrySubDivision", cVendorCountrySubDivision).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", cVendorName).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToPostalCode", cVendorRemitToPostalCode).    
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToCity", cVendorRemitToCity).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToState", cVendorRemitToState).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCountry", cVendorCountry).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostalAddress1", lcVendorPostalAddress1).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorPostalAddress2", lcVendorPostalAddress2).                 
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToStreetAddress1", cVendorRemitToStreetAddress1).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToStreetAddress2", cVendorRemitToStreetAddress2).                 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceNumber", STRING(ttPaymentData.invNo)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceDate", STRING(ttPaymentData.invDate)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DuePayableAmount", STRING(dCheckAmount)).
@@ -259,7 +258,7 @@ FOR EACH ttPaymentData
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalSum", STRING(dTotalSum)).         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country",cCountry). 
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankAccount",cBankAccount).        
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CountryOfResidence", cCountryOfResidence).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorRemitToCountry", cVendorRemitToCountry).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyType",cCurrencyType).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorCountry",cVendorCountry).
