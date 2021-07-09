@@ -161,7 +161,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus 
+cust.tagStatus cust.internal
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
@@ -178,7 +178,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus 
+cust.tagStatus cust.internal
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -524,6 +524,8 @@ DEFINE FRAME F-Main
      rd_inv-meth AT ROW 15.43 COL 19 NO-LABEL
      cust.cr-hold AT ROW 11.71 COL 47
           LABEL "Credit Hold"
+     cust.internal AT ROW 7.1 COL 47
+          LABEL "Internal"
           VIEW-AS TOGGLE-BOX
           SIZE 17 BY .81
      cust.fin-chg AT ROW 12.43 COL 47

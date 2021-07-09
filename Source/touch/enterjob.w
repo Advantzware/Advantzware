@@ -816,7 +816,7 @@ DEF VAR cAction AS CHAR NO-UNDO.
                RETURN.
              WHEN "Add" THEN DO:
                CREATE bf-job-mch.
-               BUFFER-COPY job-mch EXCEPT m-code frm blank-no pass TO bf-job-mch.
+               BUFFER-COPY job-mch EXCEPT job-mchID m-code frm blank-no pass TO bf-job-mch.
                ASSIGN
                bf-job-mch.m-code   = machine_code
                bf-job-mch.mr-rate  = mach.mr-rate

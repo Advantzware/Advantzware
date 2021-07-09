@@ -1523,7 +1523,7 @@ PROCEDURE delete-item :
       WHERE cust.company EQ cocode
       AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust  NO-ERROR.
-  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+  IF AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
 
   RUN refresh-releases.
@@ -1999,7 +1999,7 @@ PROCEDURE select-price :
           WHERE cust.company EQ cocode
           AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
    IF (ld-prev-t-price NE oe-ordl.t-price) 
-       AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
+       AND AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
    
 END PROCEDURE.
 

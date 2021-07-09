@@ -1,0 +1,5 @@
+         <Part Code="Combo $Form$" Description="Combo For Form $Form$" Quantity="0" Action="Create">
+            <Tasks>
+$JobMachine$
+            </Tasks>
+         </Part>
