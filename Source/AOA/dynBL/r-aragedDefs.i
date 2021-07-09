@@ -1,4 +1,4 @@
-/* r-aragedDefs.i - used in aoa/BL/r-araged.p & aoa/BL/agedtot.p */
+/* r-aragedDefs.i - used in AOA/dynBL/r-araged.p & AOA/dynBL/agedtot.p */
 
 /* Cash Receipt By SalesRep Name.rpa */
 {AOA/tempTable/ttAgedReceivables.i}

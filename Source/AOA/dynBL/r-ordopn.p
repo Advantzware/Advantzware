@@ -792,4 +792,4 @@ PROCEDURE pCalcQOH:
     END. /*FOR EACH itemfg*/
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

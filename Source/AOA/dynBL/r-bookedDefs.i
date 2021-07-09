@@ -1,4 +1,4 @@
-/* r-bookedDefs.i - used in AOA/BL/r-booked.p & AOA/BL/recappc.p */
+/* AOA/dynBL/r-bookedDefs.i - used in AOA/dynBL/r-booked.p & AOA/dynBL/recappc.p */
 /*            used in AOA/dynBL/r-booked.p & AOA/dynBL/recappc.p */
 
 {sys/ref/CustList.i NEW}

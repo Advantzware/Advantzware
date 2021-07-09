@@ -148,4 +148,4 @@ PROCEDURE pBusinessLogic:
     DELETE PROCEDURE hDynCalcField.
 END PROCEDURE.
 
-{aoa/BL/pGetCustInfo.i}
+{AOA/dynBL/pGetCustInfo.i}

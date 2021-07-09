@@ -1,4 +1,4 @@
-/* r-prodlys.i - used by aoa/BL/r-prodlys.p & aoa/BL/machprod.p */
+/* r-prodlys.i - used by AOA/dynBL/r-prodlys.p & AOA/dynBL/machprod.p */
 
 {aoa/includes/shiftStartEndTime.i}
 
@@ -622,4 +622,4 @@ PROCEDURE pProRateMR:
     END. /* each bmchact */
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

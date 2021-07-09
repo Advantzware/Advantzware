@@ -102,4 +102,4 @@ PROCEDURE pBusinessLogic:
     END. /* each oe-bolh */
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
