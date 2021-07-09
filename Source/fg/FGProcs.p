@@ -80,16 +80,17 @@ PROCEDURE FG_GetDefaultFG:
     DEFINE OUTPUT PARAMETER opcItemID        AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcItemName      AS CHARACTER   NO-UNDO.
     
-    DEFINE BUFFER opbf-itemfg FOR itemfg.    
+    DEFINE BUFFER bf-itemfg FOR itemfg.    
     
     RUN pGetDefaultFGBuffer(
         INPUT  ipcCompany,
-        buffer opbf-itemfg
+        BUFFER bf-itemfg
         ). 
-    IF AVAIL opbf-itemfg THEN
+    IF AVAIL bf-itemfg THEN
     ASSIGN
-        opcItemID = opbf-itemfg.i-no
-        opcItemName = opbf-itemfg.i-name.
+        opcItemID = bf-itemfg.i-no
+        opcItemName = bf-itemfg.i-name.
+        
 END PROCEDURE.
 
 PROCEDURE FG_HasMultipleFGItemsForCustPart:
@@ -181,11 +182,12 @@ PROCEDURE pGetDefaultFGBuffer PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE PARAMETER BUFFER ipbf-itemfg      FOR itemfg.
+    DEFINE PARAMETER BUFFER opbf-itemfg      FOR itemfg.
     
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound       AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-itemfg FOR itemfg.
+    
     RUN sys/ref/nk1Look.p(INPUT ipcCompany,
                         INPUT "FGMASTER",
                         INPUT "C",
@@ -196,9 +198,9 @@ PROCEDURE pGetDefaultFGBuffer PRIVATE:
                         OUTPUT cReturnValue,
                         OUTPUT lFound).
     IF lFound THEN 
-    FIND FIRST ipbf-itemfg NO-LOCK  
-         WHERE ipbf-itemfg.company = ipcCompany
-         AND ipbf-itemfg.i-no EQ cReturnValue 
+    FIND FIRST opbf-itemfg NO-LOCK  
+         WHERE opbf-itemfg.company = ipcCompany
+         AND opbf-itemfg.i-no EQ cReturnValue 
          NO-ERROR.
 
 END PROCEDURE.
