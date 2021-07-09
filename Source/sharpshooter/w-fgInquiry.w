@@ -41,9 +41,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{system/sysconst.i}
+// {system/sysconst.i}
 {wip/keyboardDefs.i}
-{inventory/ttInventory.i "NEW SHARED"}
 
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
@@ -1222,7 +1221,7 @@ PROCEDURE pInit :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLoc.
 
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.

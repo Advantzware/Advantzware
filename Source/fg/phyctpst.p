@@ -426,7 +426,7 @@ PROCEDURE output-to-screen :
 ------------------------------------------------------------------------------*/
 
 
-  run scr-rpt.w (list-name,pcTitle,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+  run scr-rpt-d.w (list-name,pcTitle,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
 

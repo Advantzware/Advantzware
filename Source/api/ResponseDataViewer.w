@@ -449,7 +449,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          NO-ERROR .
     IF AVAILABLE company THEN
     FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE
-                              + " - {&awversion}" + " - " 
+                              + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                               + STRING(company.name) + " - " + cLocation.
 
     RUN enable_UI.

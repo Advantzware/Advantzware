@@ -591,7 +591,9 @@ DO:
                     bf-ttInputEst.iMolds   = ttFGReorderSelection.multiplier 
                     bf-ttInputEst.iQuantityYield = dTotalCyclesRequired * ttFGReorderSelection.multiplier
                     bf-ttInputEst.lKeyItem = ttFGReorderSelection.KeyItem 
-                    lv-rowid               = ROWID(bf-ttInputEst).
+                    lv-rowid               = ROWID(bf-ttInputEst)
+                    bf-ttInputEst.iPalletRestore = ttFGReorderSelection.pallet
+                    bf-ttInputEst.iQtyRestore    = ttFGReorderSelection.quantityToOrder.
                     IF ttFGReorderSelection.dateDueDateEarliest NE ? AND (ttFGReorderSelection.dateDueDateEarliest LT date(dtDueDate:SCREEN-VALUE) OR date(dtDueDate:SCREEN-VALUE) EQ ?)
                        AND tb_runnow:SCREEN-VALUE NE "Yes" THEN                        
                     dtDueDate:SCREEN-VALUE = string(ttFGReorderSelection.dateDueDateEarliest) .

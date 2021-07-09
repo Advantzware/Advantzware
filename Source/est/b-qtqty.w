@@ -42,7 +42,26 @@ def var li-rels as int form ">9"no-undo.
 {custom/globdefs.i}
 
 {sys/inc/var.i NEW SHARED}
+{sys/inc/varasgn.i}
 
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    INPUT  cocode, 
+    INPUT  "QuotePriceMatrix", 
+    INPUT  "L" /* Logical */, 
+    INPUT  NO /* check by cust */, 
+    INPUT  YES /* use cust not vendor */, 
+    INPUT  "" /* cust */, 
+    INPUT  "" /* ship-to*/,
+    OUTPUT cRtnChar, 
+    OUTPUT lRecFound
+    ).
+IF lRecFound THEN
+    lQuotePriceMatrix = LOGICAL(cRtnChar) NO-ERROR. 
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -370,9 +389,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-ASSIGN
- cocode = g_company
- locode = g_loc.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -649,6 +665,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CheckUpdate B-table-Win
+PROCEDURE CheckUpdate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplAllowedMessage AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplNotAllowedUpdate AS LOGICAL NO-UNDO.
+   
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+    
+    IF AVAILABLE quoteitm THEN
+        FIND FIRST bf-quotehd OF quoteitm NO-LOCK NO-ERROR.
+
+    IF AVAILABLE bf-quotehd AND bf-quotehd.approved AND lQuotePriceMatrix THEN DO:
+        IF iplAllowedMessage THEN
+        MESSAGE "Quote is approved. Update not allowed." 
+            VIEW-AS ALERT-BOX INFO.
+        
+        oplNotAllowedUpdate = YES.     
+    END.                                                        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reprice-quote B-table-Win 
 PROCEDURE reprice-quote :

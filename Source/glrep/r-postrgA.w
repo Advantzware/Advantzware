@@ -865,67 +865,14 @@ IF v-export THEN DO:
    PUT STREAM s-temp UNFORMATTED 
       v-excel-hdr                 
    SKIP.
-END. 
-
-FOR EACH glhist WHERE 
-         glhist.company EQ cocode
-        AND glhist.tr-num  ge v-s-run
-        AND glhist.tr-num  le v-e-run
-        AND glhist.tr-date ge v-s-dat
-        AND glhist.tr-date le v-e-dat
-        AND glhist.posted  EQ YES
-      NO-LOCK
-      BREAK BY glhist.tr-num 
-            BY glhist.actnum:
-
-    {custom/statusMsg.i " 'Processing Run #  '  + string(glhist.tr-num) "}
-
-   ASSIGN
-      v-print = yes
-      tot-all = tot-all + glhist.tr-amt.
-
-   DISPLAY 
-      glhist.tr-num WHEN FIRST-OF(glhist.tr-num) FORMAT "9999999" SPACE(5) 
-      glhist.actnum SPACE(5)
-      glhist.jrnl SPACE(5)
-      glhist.tr-dscr
-      /* tmp-dscr*/
-      glhist.tr-date SPACE(6)
-      glhist.tr-amt
-      WITH FRAME yyy NO-LABELS STREAM-IO WIDTH 200 NO-BOX.
-
-   IF FIRST-OF(glhist.tr-num) THEN
-      v-tr-num = STRING(glhist.tr-num).
-   ELSE
-      v-tr-num = "".       
-
-   IF v-export THEN
-      PUT STREAM s-temp UNFORMATTED
-         '"' v-tr-num        '",'
-         '"' glhist.actnum   '",'
-         '"' glhist.jrnl     '",'
-         '"' glhist.tr-dscr  '",'
-         '"' glhist.tr-date  '",'
-         '"' glhist.tr-amt   '",'
-         SKIP .
-
-   IF LAST-OF(glhist.tr-num) THEN DO:
-      PUT "---------------------" TO 120 SKIP
-          "Total:" AT 81 tot-all  TO 120 SKIP(1).
-
-      ASSIGN
-         tot-tot = tot-tot + tot-all
-         tot-all = 0.
-   END.
-END.
+END.   
 
 FOR EACH glhist WHERE
          glhist.company EQ cocode
      AND glhist.tr-num   GE v-s-run
      AND glhist.tr-num   LE v-e-run
      AND glhist.tr-date GE v-s-dat
-     AND glhist.tr-date LE v-e-dat
-     AND glhist.posted  EQ NO
+     AND glhist.tr-date LE v-e-dat      
      NO-LOCK,
    FIRST account WHERE
          account.company EQ cocode 

@@ -270,8 +270,11 @@ PROCEDURE pUpdateEstimateQty:
           
      IF AVAIL bf-eb THEN
      DO:
-         bf-eb.bl-qty = ttInputEst.iQuantityYield.
-         bf-eb.eqty   = ttInputEst.iQuantityYield.
+         ASSIGN 
+            bf-eb.bl-qty = ttInputEst.iQuantityYield
+            bf-eb.yld-qty = ttInputEst.iQuantityYield
+            bf-eb.eqty   = ttInputEst.iQuantityYield
+            .
                   
          FIND FIRST est-qty
               WHERE est-qty.company EQ bf-est.company

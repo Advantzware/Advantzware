@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttBrowseInventory.i}
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
@@ -98,7 +98,7 @@ oItemFG  = NEW fg.ItemFG().
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 fiTag btExit fiLocation ~
+&Scoped-Define ENABLED-OBJECTS RECT-33 btReset fiTag btExit fiLocation ~
 btClearRecords BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation fiMessage 
 
@@ -145,6 +145,10 @@ DEFINE BUTTON btPost
      LABEL "Post" 
      SIZE 15 BY 2.62.
 
+DEFINE BUTTON btReset 
+     LABEL "Reset" 
+     SIZE 15 BY 1.48.
+
 DEFINE BUTTON btTransfer 
      LABEL "Transfer" 
      SIZE 28 BY 1.43.
@@ -165,7 +169,7 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-33
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 210 BY .05.
+     SIZE 186 BY .05.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -177,33 +181,34 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 W-Win _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      ttBrowseInventory.fgItemID WIDTH 40 COLUMN-LABEL "Item #"
+      ttBrowseInventory.fgItemID WIDTH 40 COLUMN-LABEL "Item #" FORMAT "X(30)"
       fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-      ttBrowseInventory.tag WIDTH 70 COLUMN-LABEL "Tag #" FORMAT "X(30)"
+      ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Quantity" FORMAT "->,>>>,>>9.99<<<<"
       fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(30)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 207 BY 23.33
+    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 185 BY 23.33
          FONT 17 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btReset AT ROW 1.43 COL 93.8 WIDGET-ID 32 NO-TAB-STOP 
      fiTag AT ROW 1.48 COL 19 COLON-ALIGNED WIDGET-ID 4
-     btPost AT ROW 1.57 COL 179.2 WIDGET-ID 20 NO-TAB-STOP 
-     btExit AT ROW 1.57 COL 200.2 WIDGET-ID 26 NO-TAB-STOP 
+     btPost AT ROW 1.57 COL 157 WIDGET-ID 20 NO-TAB-STOP 
+     btExit AT ROW 1.57 COL 178 WIDGET-ID 26 NO-TAB-STOP 
      btTransfer AT ROW 3.29 COL 64.2 WIDGET-ID 8
      fiLocation AT ROW 3.33 COL 19 COLON-ALIGNED WIDGET-ID 6
      fiMessage AT ROW 5 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     btClearRecords AT ROW 5.14 COL 188.4 WIDGET-ID 28 NO-TAB-STOP 
+     btClearRecords AT ROW 5.14 COL 166.2 WIDGET-ID 28 NO-TAB-STOP 
      BROWSE-2 AT ROW 7.05 COL 4 WIDGET-ID 200
-     RECT-33 AT ROW 6.57 COL 2.4 WIDGET-ID 24
+     RECT-33 AT ROW 6.71 COL 3 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 212.6 BY 29.62
+         SIZE 189.6 BY 29.62
          BGCOLOR 15 FONT 36 WIDGET-ID 100.
 
 
@@ -224,7 +229,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Finished Goods Receive/Transfer"
          HEIGHT             = 29.62
-         WIDTH              = 212.6
+         WIDTH              = 189.2
          MAX-HEIGHT         = 29.62
          MAX-WIDTH          = 212.6
          VIRTUAL-HEIGHT     = 29.62
@@ -356,6 +361,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
+ON CHOOSE OF btReset IN FRAME F-Main /* Reset */
+DO:
+    fiTag:SCREEN-VALUE = "".
+    
+    APPLY "ENTRY" TO fiTag.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
@@ -365,7 +383,7 @@ DO:
     DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
     
-    IF TRIM(fiTag:SCREEN-VALUE) EQ "" THEN
+    IF TRIM(fiTag:SCREEN-VALUE) EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
     
     ASSIGN
@@ -428,7 +446,7 @@ DO:
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIsTransfer AS LOGICAL   NO-UNDO.
     
-    IF SELF:SCREEN-VALUE EQ "" THEN
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
         
     RUN pTagScan (
@@ -542,7 +560,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTag fiLocation fiMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-33 fiTag btExit fiLocation btClearRecords BROWSE-2 
+  ENABLE RECT-33 btReset fiTag btExit fiLocation btClearRecords BROWSE-2 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -551,9 +569,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
-PROCEDURE local-enable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -568,11 +585,9 @@ PROCEDURE local-enable:
     RUN pInit.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
@@ -590,9 +605,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
-PROCEDURE pInit PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
+PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -606,11 +620,9 @@ PROCEDURE pInit PRIVATE:
         OUTPUT iWarehouseLength
         ).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLocationScan W-Win 
 PROCEDURE pLocationScan PRIVATE :
@@ -955,9 +967,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -967,11 +978,9 @@ PROCEDURE Set-Focus:
     
     APPLY "ENTRY" TO fiTag.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

@@ -62,7 +62,13 @@ DEFINE VARIABLE iCopies                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventoryStockDetails.i}
+{Inventory/ttPrintInventoryStockFG.i}
+{Inventory/ttPrintInventoryStockRM.i}
+{Inventory/ttPOOrderLineDetails.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -906,11 +912,13 @@ DO:
         
         IF ttBrowseInventory.itemType EQ gcItemTypeFG THEN
             RUN CreatePrintInventoryForFG IN hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
                 ).
         ELSE IF ttBrowseInventory.itemType EQ gcItemTypeRM THEN
             RUN CreatePrintInventoryForRM IN hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockRM BY-REFERENCE
                 ).
     END.
     
@@ -937,11 +945,13 @@ DO:
         
         IF ttBrowseInventory.itemType EQ gcItemTypeFG THEN
             RUN CreatePrintInventoryForFG in hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
                 ).
         ELSE IF ttBrowseInventory.itemType EQ gcItemTypeRM THEN
             RUN CreatePrintInventoryForRM in hdInventoryProcs (
-                INPUT ttBrowseInventory.inventoryStockID
+                INPUT ttBrowseInventory.inventoryStockID,
+                INPUT-OUTPUT TABLE ttPrintInventoryStockRM BY-REFERENCE
                 ).
     
         RUN pPrintLabels.
@@ -1549,7 +1559,7 @@ PROCEDURE pInit :
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.          
             
     RUN pGetSettings (
@@ -1705,7 +1715,8 @@ PROCEDURE pRebuildBrowse :
         ipiPONo,
         ipiLine,
         ipcItem,
-        ipcItemType
+        ipcItemType,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).    
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
@@ -1780,13 +1791,15 @@ PROCEDURE pTagScan :
             IF ttInventoryStockDetails.itemType EQ gcItemTypeFG THEN DO:
                 cItemType = gcItemTypeFG.
                 RUN CreatePrintInventoryForFG in hdInventoryProcs (
-                    INPUT ttInventoryStockDetails.inventoryStockID
+                    INPUT ttInventoryStockDetails.inventoryStockID,
+                    INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
                     ).
             END.
             ELSE IF ttInventoryStockDetails.itemType EQ gcItemTypeRM THEN DO:
                 cItemType = gcItemTypeRM.            
                 RUN CreatePrintInventoryForRM in hdInventoryProcs (
-                    INPUT ttInventoryStockDetails.inventoryStockID
+                    INPUT ttInventoryStockDetails.inventoryStockID,
+                    INPUT-OUTPUT TABLE ttPrintInventoryStockRM BY-REFERENCE
                     ).
             END.
                                 

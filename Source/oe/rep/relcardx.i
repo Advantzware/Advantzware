@@ -54,6 +54,7 @@ DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEFINE VARIABLE iRelPallet AS INTEGER NO-UNDO .
 DEFINE VARIABLE iRelCase AS INTEGER NO-UNDO .
 DEFINE VARIABLE TotOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO .
 
 format w-oe-rell.ord-no                 to 6
        w-par                            at 8    format "x(20)"
@@ -99,6 +100,38 @@ DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
 DEFINE VARIABLE lCheckRelQty AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
+
 ASSIGN tmpstore = fill("-",130).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -580,6 +613,13 @@ PUT "<FArial><P9><R56><C1>"
              
   PAGE.
 
+  IF v-relprint EQ "CardedX2" THEN
+  DO:
+     v-printline = 0.
+     PAGE.
+     {oe/rep/relcardedx2.i}
+     PAGE.
+  END.
   ASSIGN
      v-printline = 0
      oe-relh.printed = true.

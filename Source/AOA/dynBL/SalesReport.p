@@ -151,7 +151,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dOutQty     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPer        AS DECIMAL   NO-UNDO.      
-
+    DEFINE VARIABLE iCount      AS INTEGER   NO-UNDO.
     
     fdate      = dtStartInvoiceDate .
     tdate      = dtEndInvoiceDate .
@@ -593,8 +593,7 @@ PROCEDURE pBusinessLogic:
             IF AVAILABLE ar-inv AND AVAILABLE ar-ledger  THEN
                 FIND FIRST glhist NO-LOCK
                     WHERE  glhist.company EQ cocode 
-                    AND glhist.tr-num      EQ ar-ledger.tr-num 
-                    AND glhist.posted     EQ NO 
+                    AND glhist.tr-num      EQ ar-ledger.tr-num                     
                     NO-ERROR .   
              
             ASSIGN
@@ -688,7 +687,10 @@ PROCEDURE pBusinessLogic:
             dTotalSqft = 0.
             dProfit = 0.          
         END.         
-
+        iCount = iCount + 1
+            .
+        IF lProgressBar THEN
+            RUN spProgressBar (cProgressBar, iCount, ?).
         DELETE w-data. 
     END.
               

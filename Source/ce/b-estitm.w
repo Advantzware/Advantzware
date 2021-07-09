@@ -167,6 +167,7 @@ DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -179,15 +180,23 @@ RUN methods/prgsecur.p
              
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEAddCustomerOption = logical(cNK1Value) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1483,6 +1492,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME eb.dep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep br-estitm _BROWSE-COLUMN B-table-Win
+ON LEAVE OF eb.dep IN BROWSE br-estitm /* Depth */
+DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-dep(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME eb.cust-%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-% br-estitm _BROWSE-COLUMN B-table-Win
@@ -1784,7 +1806,9 @@ PROCEDURE assign-qty :
       NO-ERROR.
 
   IF AVAIL bf-est-qty THEN DO:
-    ASSIGN bf-est-qty.qty[1] = est-qty.eqty
+    ASSIGN bf-est-qty.qty[1] = est-qty.eqty  .
+    IF est.est-type NE 4 THEN
+         ASSIGN
            bf-est-qty.qty[2] = lv-copy-qty[2]
            bf-est-qty.qty[3] = lv-copy-qty[3]
            bf-est-qty.qty[4] = lv-copy-qty[4]
@@ -1867,7 +1891,9 @@ PROCEDURE assign-qty :
 
       FIND bf-est WHERE bf-est.company = bf-est-qty.company AND
                         bf-est.est-no = bf-est-qty.est-no.
-      ASSIGN bf-est.est-qty[1] = est-qty.eqty
+      ASSIGN bf-est.est-qty[1] = est-qty.eqty .
+      IF est.est-type NE 4 THEN
+         ASSIGN
              bf-est.est-qty[2] = bf-est-qty.qty[2]
              bf-est.est-qty[3] = bf-est-qty.qty[3]
              bf-est.est-qty[4] = bf-est-qty.qty[4].
@@ -3303,9 +3329,13 @@ DEF BUFFER bf-est FOR est.
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
-
-IF bf-est.est-type NE 2 THEN bf-est.est-type = 4.
-
+      
+IF bf-est.est-type NE 2 THEN
+DO:
+    bf-est.est-type = 4.
+    RUN pReSetEstQty(rowid(est-qty)). 
+END.
+           
 FIND LAST bf 
     WHERE bf.company EQ est-qty.company
       AND bf.est-no  EQ est-qty.est-no
@@ -3738,6 +3768,10 @@ PROCEDURE local-assign-record :
      FIND xeb WHERE RECID(xeb) = recid(eb) NO-LOCK NO-ERROR.
      FIND xef WHERE RECID(xef) = recid(ef) NO-LOCK NO-ERROR.
      RUN fg/ce-addfg.p (xeb.stock-no).
+    
+     IF lQuotePriceMatrix AND AVAIL xeb THEN
+     RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT cocode, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no). 
+     
      FIND FIRST xeb NO-LOCK
          WHERE xeb.company  EQ eb.company
            AND xeb.est-no   EQ eb.est-no
@@ -3747,7 +3781,11 @@ PROCEDURE local-assign-record :
                             WHERE itemfg.company EQ xeb.company
                               AND itemfg.i-no    EQ xeb.stock-no)
          NO-ERROR.
-     IF AVAIL xeb THEN RUN fg/ce-addfg.p (xeb.stock-no).
+     IF AVAIL xeb THEN
+     DO:
+       RUN fg/ce-addfg.p (xeb.stock-no).
+       RUN quote_CreatePriceMatrixForQuote IN hdQuoteProcs(INPUT cocode, INPUT xeb.est-no, INPUT xeb.part-no, INPUT xeb.stock-no).
+     END.  
      ll-crt-itemfg = NO.
   END.
 
@@ -4405,6 +4443,8 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+     RUN valid-dep(OUTPUT lCheckError) NO-ERROR.
+     IF lCheckError THEN RETURN NO-APPLY.
   END.
   
   /* ====== end validation =======*/
@@ -4835,6 +4875,18 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
+PROCEDURE pGetEstRowid :
+  DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+  IF AVAIL eb THEN iprwRowid = ROWID(eb).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOperation1 B-table-Win
 PROCEDURE pEstimateCleanUp:
 /*------------------------------------------------------------------------------
@@ -4936,14 +4988,18 @@ PROCEDURE pEstimateCleanUp:
                 bf-eb.comm         = eb.comm
                 .
         END. 
-
+       
     IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
         FIND FIRST cust NO-LOCK
              WHERE cust.company EQ gcompany
                AND cust.cust-no EQ eb.cust-no
              NO-ERROR.
-        IF AVAILABLE cust THEN
+        IF AVAILABLE cust THEN 
+        do:
+            FIND CURRENT est EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
             est.csrUser_id = cust.csrUser_id.
+            FIND CURRENT est NO-LOCK NO-ERROR .
+        END.    
     END.
 
     IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
@@ -5205,19 +5261,30 @@ PROCEDURE reset-est-type :
       li-blank-no = li-blank-no + 1.
     END.
   END.
-
+      
   IF op-est-type EQ 1                      AND
      (li-form-no NE 1 OR li-blank-no NE 1) THEN DO:
     ASSIGN
      op-est-type = 4
      eb.yld-qty  = eb.bl-qty.
+               
+     RUN pReSetEstQty(rowid(est-qty)).
 
     FOR EACH bf-eb OF bf-est WHERE ROWID(eb) NE ROWID(bf-eb):
       RUN set-yld-qty (ROWID(bf-eb)).
     END.
   END.
-
-  IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
+  
+  
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
+    AND eb.bl-qty EQ eb.yld-qty THEN do:
+  
+   MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll.
+   IF ll THEN op-est-type = 1.           
+  END.
+  ELSE IF (op-est-type EQ 2 AND li-form-no EQ 1 AND li-blank-no EQ 1) OR
      (op-est-type EQ 1 AND eb.cust-% GE 2) THEN DO:
     /*MESSAGE "Is this estimate a two piece box set?"
             VIEW-AS ALERT-BOX QUESTION
@@ -5527,6 +5594,29 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
+PROCEDURE pReSetEstQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+ DEFINE BUFFER bf-est-qty FOR est-qty.
+ FIND FIRST bf-est-qty EXCLUSIVE-LOCK
+      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
+      
+ IF AVAIL bf-est-qty THEN
+     ASSIGN
+         bf-est-qty.qty = 0
+         bf-est-qty.qty[1] = est-qty.eqty.
+ RELEASE bf-est-qty.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5843,6 +5933,32 @@ PROCEDURE valid-eb-reckey :
 
    END.
  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dep B-table-Win 
+PROCEDURE valid-dep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+
+  DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
+  DEF VAR lv-msg AS CHAR NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+    
+     IF DECIMAL(eb.dep:screen-value IN BROWSE {&browse-name}) = 0 THEN DO:
+        MESSAGE "Depth can not be 0. " VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO eb.dep IN BROWSE {&browse-name}.
+        oplReturnError = YES.        
+     END.    
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -56,9 +56,10 @@ DEFINE VARIABLE scFilterOnlyScanned      AS CHARACTER NO-UNDO INITIAL "1".
 DEFINE VARIABLE scFilterOnlyNotScanned   AS CHARACTER NO-UNDO INITIAL "2".
 DEFINE VARIABLE scFilterAllTags          AS CHARACTER NO-UNDO INITIAL "3".
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {wip/keyboardDefs.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
+{Inventory/ttPhysicalBrowseInventory.i}
 {methods/template/brwcustomdef.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1060,7 +1061,7 @@ PROCEDURE init :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
 
     RUN pEnableContext.
@@ -1181,7 +1182,8 @@ PROCEDURE pAdjustQuantity :
         ipcTag,
         ipdQuantity, /* Zeroing out */
         OUTPUT lCreated,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
             
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1208,14 +1210,16 @@ PROCEDURE pBuildBrowseTable :
         ipcCompany,
         ipcWarehouseID,
         ipcLocationID,
-        gcTransactionTypeCompare
+        gcTransactionTypeCompare,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
         
     RUN BuildPhyScanBrowseFromTransactionLocation IN hdInventoryProcs (
         ipcCompany,
         ipcWarehouseID,
         ipcLocationID,
-        gcTransactionTypeCompare
+        gcTransactionTypeCompare,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
             
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1241,7 +1245,8 @@ PROCEDURE pConfirmNotScanned :
         ipcTag,
         0, /* Zeroing out */
         OUTPUT lCreated,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).        
 END PROCEDURE.
 
@@ -1470,7 +1475,8 @@ PROCEDURE pSubmitScan :
         ipcTag,
         FALSE, /* Set input parameter location to record */
         OUTPUT lCreated,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttPhysicalBrowseInventory BY-REFERENCE
         ).
     
     IF NOT lCreated AND cMessage NE "" THEN DO:

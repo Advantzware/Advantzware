@@ -17,8 +17,11 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
+
+
 
 /* ***************************  Definitions  ************************** */
 
@@ -53,7 +56,7 @@ DEF TEMP-TABLE tt-glinq NO-UNDO
     FIELD actnum LIKE glhist.actnum LABEL "Account#"
     FIELD createdBy LIKE glhist.createdBy LABEL "Created By"
     FIELD createdDate LIKE glhist.createdDate LABEL "Created Date"
-    FIELD posted LIKE glhist.posted LABEL "Posted"
+    FIELD posted LIKE glhist.posted LABEL "Period Closed"
     FIELD tr-period LIKE glhist.period LABEL "Pd"
     FIELD tr-yr LIKE glhist.yr LABEL "Year"
     FIELD documentID LIKE glhist.documentID LABEL "Document Id"
@@ -75,6 +78,7 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE lAllowEdit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
     
 RUN methods/prgsecur.p
 	    (INPUT "GQEditSecurity.",
@@ -283,7 +287,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-glinq.actnum LABEL-BGCOLOR 14 
       tt-glinq.tr-date LABEL-BGCOLOR 14
-      tt-glinq.jrnl LABEL-BGCOLOR 14
+      tt-glinq.jrnl FORMAT "x(9)" LABEL-BGCOLOR 14
       tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 WIDTH 50
       tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
@@ -529,12 +533,52 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-   IF lAllowEdit AND AVAIL tt-glinq AND tt-glinq.posted THEN
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+   DEFINE BUFFER bf-period FOR period.
+   FIND LAST bf-period  no-lock
+        where bf-period.company eq cocode  
+        AND bf-period.pst LE tt-glinq.tr-date
+        AND bf-period.pend GE tt-glinq.tr-date         
+        no-error.
+        
+   FIND FIRST period  no-lock
+        WHERE period.company eq cocode           
+        AND period.pstat   EQ YES
+        no-error.     
+                 
+   IF lAllowEdit AND AVAIL tt-glinq AND NOT tt-glinq.posted  THEN
    DO:
-     MESSAGE "Record is posted and cannot be edited" VIEW-AS ALERT-BOX INFO .         
+      RUN pUpdate.    
    END.
-   ELSE IF lAllowEdit AND AVAIL tt-glinq THEN
-    RUN pUpdate.    
+   ELSE IF lAllowEdit AND year(tt-glinq.tr-date) GE period.yr  THEN
+   DO:
+       riRowid = tt-glinq.riRowid.
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("TransTrNumber",string(tt-glinq.tr-num)).
+       
+       RUN util/fixglhistory.w.
+       
+       scInstance = SharedConfig:instance.
+       scInstance:DeleteValue(INPUT "TransTrNumber").
+       
+       IF riRowid NE ? THEN
+       DO:    
+           RUN build-inquiry.
+           {&open-query-{&browse-name}} 
+           
+           FIND FIRST tt-glinq NO-LOCK
+             WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
+           reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .  
+           APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+       END.
+       
+   END.
+   IF AVAIL tt-glinq AND tt-glinq.posted AND year(tt-glinq.tr-date) LT period.yr THEN
+   DO:   
+     MESSAGE "This entry is in a previous year and cannot be edited until the year is reopened."
+     VIEW-AS ALERT-BOX INFO .               
+   END.  
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,7 +816,7 @@ FORM SKIP(1)
 
 format space(4)
        tt-glinq.tr-date column-label "Date"  space(2)
-       tt-glinq.jrnl    column-label "Ref#"  space(2)
+       tt-glinq.jrnl    column-label "Ref#" FORMAT "x(9)"  space(2)
        tt-glinq.tr-dscr label "Description" format "x(33)" space(2)
        tt-glinq.tr-period label "Period" format ">9" space(2)
        tt-glinq.tr-yr label "Year" format ">>>9" space(2)

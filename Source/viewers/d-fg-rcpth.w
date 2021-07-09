@@ -23,7 +23,7 @@ DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-recid2 AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO .   /* add,update,view */
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
-
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
@@ -45,6 +45,10 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lCostManualChange AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdAPInvoiceProcs  AS HANDLE  NO-UNDO.
+
+RUN ap/APInvoiceProcs.p PERSISTENT SET hdAPInvoiceProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -105,7 +109,8 @@ fg-rdtlh.reject-code[1] fg-rcpth.rita-code fg-rcpth.trans-date
 &Scoped-define FIRST-ENABLED-TABLE fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE fg-rdtlh
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK ~
-Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-42 RECT-43 
+Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-42 RECT-43 ~
+RECT-44 Btn_clear-link
 &Scoped-Define DISPLAYED-FIELDS fg-rcpth.i-no fg-rdtlh.tag fg-rcpth.job-no ~
 fg-rcpth.job-no2 fg-rcpth.po-no fg-rcpth.po-line fg-rdtlh.loc ~
 fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost fg-rdtlh.cases ~
@@ -117,7 +122,8 @@ fg-rdtlh.enteredDT fg-rcpth.rita-code fg-rcpth.trans-date
 &Scoped-define FIRST-DISPLAYED-TABLE fg-rcpth
 &Scoped-define SECOND-DISPLAYED-TABLE fg-rdtlh
 &Scoped-Define DISPLAYED-OBJECTS fi_pallet fi_qty-pallet fi_bol-ship ~
-fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
+fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no ~
+fi_invoice-link fi_invoice-qty
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -182,11 +188,21 @@ DEFINE BUTTON btnCalendar-1
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON Btn_Cancel 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
+     
+DEFINE BUTTON Btn_clear-link  
+     LABEL "&Clear Link" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .     
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
      LABEL "&Done" 
@@ -228,6 +244,19 @@ DEFINE VARIABLE fi_pallet AS INTEGER FORMAT "->>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
+     
+ 
+DEFINE VARIABLE fi_invoice-link AS CHARACTER FORMAT "x(20)":U 
+     LABEL "Invoice Link" 
+     VIEW-AS FILL-IN 
+     SIZE 22.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_invoice-qty AS DECIMAL FORMAT "->>>,>>>,>>9":U 
+     LABEL "Invoice Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 22.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.     
 
 DEFINE VARIABLE fi_qty-pallet AS INTEGER FORMAT "->>>>>>":U INITIAL 0 
      LABEL "Qty/Pallet" 
@@ -287,6 +316,11 @@ DEFINE RECTANGLE RECT-43
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 89 BY 3.19
      BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-44
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 41.4 BY 3.57
+     BGCOLOR 15 .     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -416,7 +450,9 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-
+     fi_invoice-link AT ROW 13.14 COL 106 COLON-ALIGNED
+     fi_invoice-qty AT ROW 14.33 COL 106 COLON-ALIGNED
+     Btn_clear-link AT ROW 15.38 COL 108.2 WIDGET-ID 44
      fi_bol-ship AT ROW 13.52 COL 16.6 COLON-ALIGNED
      fg-rcpth.post-date AT ROW 11.48 COL 106 COLON-ALIGNED
           LABEL "Posted" FORMAT "99/99/9999"
@@ -451,6 +487,7 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 18.19 COL 116
      Btn_Done AT ROW 18.48 COL 117
      Btn_Cancel AT ROW 18.19 COL 125
+     btnTags AT ROW 13.14 COL 86 WIDGET-ID 40
      "Scan Date/Time" VIEW-AS TEXT
           SIZE 20 BY .95 AT ROW 5.33 COL 107.6 WIDGET-ID 6
      RECT-21 AT ROW 17.95 COL 115
@@ -460,7 +497,8 @@ DEFINE FRAME Dialog-Frame
      RECT-41 AT ROW 10.81 COL 2 WIDGET-ID 8
      RECT-42 AT ROW 13.05 COL 51.2 WIDGET-ID 10
      RECT-43 AT ROW 16.95 COL 2 WIDGET-ID 12
-     SPACE(44.79) SKIP(0.76)
+     RECT-44 AT ROW 13.05 COL 91.6 WIDGET-ID 42      
+     SPACE(2.79) SKIP(4.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -499,6 +537,8 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cases IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cost IN FRAME Dialog-Frame
@@ -517,6 +557,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_pallet IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fi_invoice-link IN FRAME Dialog-Frame
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN fi_invoice-qty IN FRAME Dialog-Frame
+   NO-ENABLE EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN fi_qty-pallet IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_tr-time IN FRAME Dialog-Frame
@@ -685,6 +729,9 @@ ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* History Item Update */
 DO:
+        IF VALID-HANDLE(hdAPInvoiceProcs) THEN
+        DELETE PROCEDURE hdAPInvoiceProcs.
+         
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -702,6 +749,41 @@ DO:
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags Dialog-Frame
+ON CHOOSE OF btnTags IN FRAME Dialog-Frame
+DO:
+    
+    RUN system/d-TagViewer.w (
+        INPUT fg-rcpth.rec_key,
+        INPUT "",
+        INPUT "Cost"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME Btn_clear-link
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_clear-link Dialog-Frame
+ON CHOOSE OF Btn_clear-link IN FRAME Dialog-Frame /* Clear Link */
+DO:
+     RUN APInvoice_DeleteReceiptHistoryLinks IN hdAPInvoiceProcs (
+        INPUT  fg-rdtlh.rec_key
+        ). 
+     ASSIGN
+     fi_invoice-link = ""
+     fi_invoice-qty  = 0
+     fi_invoice-link:SCREEN-VALUE = ""
+     fi_invoice-qty:SCREEN-VALUE  = "0".
+     
+  END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME Btn_Cancel
@@ -767,8 +849,7 @@ DO:
     END.
     
     IF fg-rdtlh.tag:MODIFIED THEN 
-    DO:
-        MESSAGE "MOD" VIEW-AS ALERT-BOX.
+    DO:         
         RUN valid-tag NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         RUN valid-tag-no NO-ERROR.
@@ -821,6 +902,52 @@ END.
 
 
 &Scoped-define SELF-NAME fg-rdtlh.cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
+ON LEAVE OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
+DO:
+    IF LASTKEY NE -1 AND lCostManualChange THEN 
+    DO:      
+        RUN ClearTagsForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "Cost"
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "fg-rcpth",
+            INPUT "Cost manually changed.",
+            INPUT "",
+            INPUT "Cost"
+            ). /*From TagProcs Super Proc*/
+        RUN Tag_IsTagRecordAvailableForGroup(
+            INPUT fg-rcpth.rec_key,
+            INPUT "fg-rcpth",
+            INPUT "Cost",
+            OUTPUT lAvailable
+            ).
+
+        IF lAvailable THEN       
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+        ELSE     
+            btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
+
+    END.
+                
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
+ON VALUE-CHANGED OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
+DO:
+ lCostManualChange = YES. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fg-rdtlh.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cust-no Dialog-Frame
 ON LEAVE OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
@@ -1122,6 +1249,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             AND itemfg.i-no EQ fg-rcpth.i-no NO-ERROR .
     
 
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT fg-rcpth.rec_key,
+        INPUT "fg-rcpth",
+        INPUT "Cost",
+        OUTPUT lAvailable
+        ).
+
+    IF lAvailable THEN       
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = TRUE.
+    ELSE     
+        btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
     IF ip-type NE "view" THEN 
     DO: 
         RUN enable_UI.
@@ -1220,6 +1358,29 @@ PROCEDURE display-item :
         fi_ben-qty = get-fg-qty (2) .
 
         RUN build-type-list .
+        
+        RUN APInvoice_GetReceiptHistoryQtyInvoiced IN hdAPInvoiceProcs (
+        INPUT  fg-rdtlh.rec_key,
+        OUTPUT fi_invoice-qty
+        ).
+        
+        FIND FIRST POReceiptLink NO-LOCK
+             WHERE POReceiptLink.inventoryStockRecKey  EQ fg-rdtlh.rec_key NO-ERROR.
+               
+        IF AVAIL POReceiptLink THEN
+        DO:
+               FIND FIRST ap-invl NO-LOCK
+                    WHERE ap-invl.rec_key EQ POReceiptLink.apInvoiceLineRecKey NO-ERROR.
+                   
+               IF avail ap-invl THEN
+               do:
+                  FIND FIRST ap-inv NO-LOCK 
+                       WHERE ap-inv.company EQ cocode
+                       AND ap-inv.i-no EQ ap-invl.i-no NO-ERROR.
+                 IF avail ap-inv THEN
+                 fi_invoice-link = ap-inv.inv-no.
+               END.   
+        END.         
 
         /* This is unneccesary, and falsely sets the MODIFIED attribute to TRUE */
         DISPLAY  /* fg-rcpth.i-no fg-rcpth.po-no 
@@ -1235,7 +1396,7 @@ PROCEDURE display-item :
             fg-rdtlh.enteredDT fg-rcpth.po-line */ 
             fi_tr-time fi_bol-no fi_pallet fi_qty-pallet
             fi_bol-ship fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty
-            WITH FRAME Dialog-Frame.
+            fi_invoice-link fi_invoice-qty WITH FRAME Dialog-Frame.
     END.
 
 
@@ -1265,7 +1426,8 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fi_pallet fi_qty-pallet fi_bol-ship fi_vend-no fi_vend-name 
-          fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
+          fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no fi_invoice-link
+          fi_invoice-qty
       WITH FRAME Dialog-Frame.
   IF AVAILABLE fg-rcpth THEN 
     DISPLAY fg-rcpth.i-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.po-no 
@@ -1285,7 +1447,7 @@ PROCEDURE enable_UI :
          fg-rdtlh.stack-code fg-rdtlh.cust-no 
          fg-rdtlh.reject-code[1] fg-rcpth.rita-code fg-rcpth.trans-date 
          btnCalendar-1 Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
-         RECT-40 RECT-41 RECT-42 RECT-43 
+         RECT-40 RECT-41 RECT-42 RECT-43 Btn_clear-link RECT-44
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

@@ -32,7 +32,6 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwcustomdef.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
  cocode = g_company

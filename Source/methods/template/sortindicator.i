@@ -21,15 +21,20 @@
 
 {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 hCurrentColumn = {&BROWSE-NAME}:CURRENT-COLUMN.
-IF VALID-HANDLE(hPrevColumn) AND hPrevColumn:LABEL-BGCOLOR = 30 THEN
-hPrevColumn:LABEL-BGCOLOR                    = 14.
-IF hCurrentColumn:LABEL-BGCOLOR = 30 THEN
-hCurrentColumn:LABEL-BGCOLOR  = 14.
 
-IF hCurrentColumn EQ hPrevColumn THEN
-    ASSIGN
-        lsortBy                        = NOT lsortBy. 
-hCurrentColumn:SORT-ASCENDING = lsortBy.
+IF VALID-HANDLE(hPrevColumn) AND hPrevColumn:LABEL-BGCOLOR EQ 30 THEN
+    hPrevColumn:LABEL-BGCOLOR   = 14.
+    
+IF VALID-HANDLE(hCurrentColumn) AND hCurrentColumn:LABEL-BGCOLOR EQ 30 THEN
+    hCurrentColumn:LABEL-BGCOLOR  = 14.
 
-hPrevColumn = {&BROWSE-NAME}:CURRENT-COLUMN.
+IF VALID-HANDLE(hCurrentColumn) AND 
+    VALID-HANDLE(hPrevColumn) AND 
+    hCurrentColumn EQ hPrevColumn THEN
+ASSIGN
+    lsortBy = NOT lsortBy. 
+        
+hCurrentColumn:SORT-ASCENDING = lsortBy NO-ERROR.
+
+hPrevColumn = {&BROWSE-NAME}:CURRENT-COLUMN NO-ERROR.
 

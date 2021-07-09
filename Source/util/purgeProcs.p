@@ -40,7 +40,23 @@ DEF TEMP-TABLE ttPurgeList
     FIELD rRowid AS ROWID 
     FIELD lPurge AS LOG
     .     
-
+    
+DEF TEMP-TABLE ttGLHistList
+    FIELD lPosted AS LOG FORMAT "POSTED/UNPOSTED"
+    FIELD iYear AS INT
+    FIELD iPeriod AS INT 
+    FIELD cAccount AS CHAR 
+    FIELD cJournal AS CHAR 
+    FIELD daTxnDate AS DATE 
+    FIELD deAmount AS DECIMAL 
+    FIELD cCurrency AS CHAR 
+    FIELD cDescription AS CHAR 
+    FIELD cType AS CHAR 
+    FIELD cCreatedBy AS CHAR 
+    FIELD cFileName AS CHAR 
+    FIELD cReckey AS CHAR 
+    FIELD rRowID AS ROWID.        
+    
 DEF VAR cCompanyList AS CHAR NO-UNDO.
 DEF VAR cFieldName AS CHAR NO-UNDO.
 DEF VAR cLocList AS CHAR NO-UNDO.
@@ -59,6 +75,9 @@ DEF VAR hInvNoField AS HANDLE NO-UNDO.
 DEF VAR hLocField AS HANDLE NO-UNDO.
 DEF VAR hOrdNoField AS HANDLE NO-UNDO.
 DEF VAR hPoNoField AS HANDLE NO-UNDO.
+DEF VAR hJobField AS HANDLE NO-UNDO.
+DEF VAR hJobNoField AS HANDLE NO-UNDO.
+DEF VAR hJobNo2Field AS HANDLE NO-UNDO.
 DEF VAR hQuery AS HANDLE NO-UNDO.
 DEF VAR hRecKey AS HANDLE NO-UNDO.
 DEF VAR hRnoField AS HANDLE NO-UNDO.
@@ -141,6 +160,76 @@ FUNCTION dynExport RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-outputGLaccountFile) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE outputGLaccountFile Procedure
+PROCEDURE outputGLaccountFile:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+    DEFINE VARIABLE cWarning AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAmount AS DECIMAL NO-UNDO.
+    
+    OUTPUT STREAM sReport TO VALUE (ipcOutputDir + "\" + ipcFileName).
+    
+    PUT STREAM sReport UNFORMATTED 
+        "Warning,Year,Period,Account,Journal,Txn Date,Amount,Currency,Description,Type,Created By,FileName,RecKey,Rowid" + CHR(10).
+    FOR EACH ttGLHistList
+        BREAK BY ttGLHistList.iYear
+        BY ttGLHistList.iPeriod
+        BY ttGLHistList.cAccount
+        BY ttGLHistList.daTxnDate:
+        
+        IF first-of(ttGLHistList.cAccount) THEN
+        DO:         
+            cWarning = "".
+            cAmount = 0.
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ ipcCompany 
+                 AND account.actnum EQ ttGLHistList.cAccount NO-ERROR .
+            IF NOT AVAIL account THEN
+            cWarning = " Invalid Account number".
+            ELSE IF account.inactive THEN
+            cWarning = " Account is inactive".              
+        END. 
+        
+        cAmount = cAmount + ttGLHistList.deAmount.
+        IF LAST-OF(ttGLHistList.cAccount) THEN
+        DO:     
+         PUT STREAM sReport UNFORMATTED
+            cWarning + "," +
+            STRING(ttGLHistList.iYear,"9999") + "," +
+            STRING(ttGLHistList.iPeriod,"99") + "," +
+            ttGLHistList.cAccount + "," +
+            ttGLHistList.cJournal + "," +
+            STRING(ttGLHistList.daTxnDate,"99/99/99") + "," +
+            STRING(cAmount,"->>>>>>>>9.99") + "," +
+            ttGLHistList.cCurrency + "," +
+            REPLACE(ttGLHistList.cDescription,","," ") + "," +
+            ttGLHistList.cType + "," +
+            ttGLHistList.cCreatedBy + "," +
+            ttGLHistList.cFileName + "," +   
+            ttGLHistList.cReckey + ","
+            STRING(ttGLHistList.rRowID) +
+            CHR(10).
+        END.    
+    END.
+    OUTPUT STREAM sReport CLOSE.
+    EMPTY TEMP-TABLE ttFileList.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pDeleteRecordsByRowid) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteRecordsByRowid Procedure
@@ -207,6 +296,143 @@ PROCEDURE pGetFieldList:
     ASSIGN 
         opcFieldList = TRIM(opcFieldList,",").
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pTestGlhist) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTestGlhist Procedure
+PROCEDURE pTestGlhist:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipiYear AS INT NO-UNDO.
+    DEF INPUT PARAMETER ipiPeriod AS INT NO-UNDO.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    
+    DEF VAR daPeriodStartDate AS DATE NO-UNDO.
+    DEF VAR daPeriodEndDate AS DATE NO-UNDO.
+    DEF VAR cQueryString AS CHAR NO-UNDO.
+            
+    DEF BUFFER bglHist FOR glHist.
+    DEF BUFFER bPeriod FOR period.
+    DEF BUFFER cPeriod FOR period.
+    DEF BUFFER bf-glhist FOR glHist.
+    
+    FIND company NO-LOCK WHERE 
+        company.company EQ ipcCompany
+        NO-ERROR.
+        
+    FIND period NO-LOCK WHERE
+        period.company EQ ipcCompany AND 
+        period.yr EQ ipiYear AND 
+        period.pnum EQ ipiPeriod
+        NO-ERROR.
+    /* There's not a period record for this year/period, so create one based on
+       the latest year where this period number exists. Make sure the period we
+       create here is CLOSED, as are all subledgers.  Let the create.trg assign rec_key. */
+    IF NOT AVAIL period THEN DO:
+        FIND LAST bPeriod NO-LOCK WHERE 
+            bPeriod.company EQ ipcCompany AND 
+            bPeriod.pnum EQ ipiPeriod
+            NO-ERROR.
+        FIND LAST cPeriod NO-LOCK WHERE 
+            cPeriod.company EQ ipcCompany AND 
+            cPeriod.pnum EQ IF ipiPeriod NE company.num-per THEN ipiPeriod + 1 ELSE 1 
+            NO-ERROR.
+        CREATE period.
+        ASSIGN 
+            period.company = ipcCompany
+            period.yr = ipiYear
+            period.pnum = bperiod.pnum
+            period.pname = ""
+            period.pst = DATE(MONTH(bperiod.pst), DAY(bperiod.pst), ipiYear) 
+            /* This is tricky, because it has to account for Feb 29, so it gets the
+               start date for the NEXT month, then subtracts 1 */       
+            period.pend = DATE(MONTH(cperiod.pst), 1, ipiYear) - 1
+            period.pstat = FALSE 
+            period.subledgerAP = "C"
+            period.subledgerPO = "C"
+            period.subledgerOP = "C"
+            period.subledgerWIP = "C"
+            period.subledgerRM = "C"
+            period.subledgerFG = "C"
+            period.subledgerBR = "C"
+            period.subledgerAR = "C"
+            period.subledgerGL = "C"
+            period.apClosedBy = USERID(LDBNAME(1))
+            period.poClosedBy = USERID(LDBNAME(1))
+            period.opClosedBy = USERID(LDBNAME(1))
+            period.wipClosedBy = USERID(LDBNAME(1))
+            period.rmClosedBy = USERID(LDBNAME(1))
+            period.fgClosedBy = USERID(LDBNAME(1))
+            period.brClosedBy = USERID(LDBNAME(1))
+            period.arClosedBy = USERID(LDBNAME(1))
+            period.glClosedBy = USERID(LDBNAME(1))
+            period.apClosed = DATETIME(TODAY, MTIME)
+            period.poClosed = DATETIME(TODAY, MTIME)
+            period.opClosed = DATETIME(TODAY, MTIME)
+            period.wipClosed = DATETIME(TODAY, MTIME)
+            period.rmClosed = DATETIME(TODAY, MTIME)
+            period.fgClosed = DATETIME(TODAY, MTIME)
+            period.brClosed = DATETIME(TODAY, MTIME)
+            period.arClosed = DATETIME(TODAY, MTIME)
+            period.glClosed = DATETIME(TODAY, MTIME)
+            .
+    END.
+    ASSIGN 
+        daPeriodStartDate = period.pst
+        daPeriodEndDate = period.pend.
+    RELEASE period.
+        
+    FOR EACH bglhist NO-LOCK WHERE 
+        bglhist.company EQ ipcCompany AND 
+        bglhist.entryType NE "B" AND  
+            /* If the year and period are included in the gl-hist use them */ 
+        (bglhist.yr EQ ipiYear AND bglhist.period EQ ipiPeriod) OR 
+            /* or, if not, use the trans-date to find qualifying records.
+               Note that we do NOT put the (assumed) year/period in the report. */
+        (bglhist.yr EQ 0 AND bglhist.tr-date GE daPeriodStartDate AND bglhist.tr-date LE daPeriodEndDate):
+            
+        CREATE ttGLHistList.
+        ASSIGN 
+            ttGLHistList.lPosted         = YES
+            ttGLHistList.iYear           = IF bglhist.glyear NE 0 THEN bglhist.glyear ELSE          /* First choice = record.glyear */ 
+                                           IF bglhist.yr NE 0 THEN bglhist.yr ELSE                  /* Second choice = record.year */ 
+                                           IF AVAIL period AND period.pnum NE 0 THEN period.yr ELSE /* Third choice = period.pnum */   
+                                           YEAR(bglhist.tr-date)                                    /* finally, year of txn date */
+            ttGLHistList.iPeriod         = bglhist.period
+            ttGLHistList.cAccount        = bglhist.actnum
+            ttGLHistList.cJournal        = bglhist.jrnl
+            ttGLHistList.daTxnDate       = bglhist.tr-date
+            ttGLHistList.deAmount        = IF bglhist.tr-amt EQ ? THEN 0 ELSE bglhist.tr-amt
+            ttGLHistList.cCurrency       = bglhist.curr-code[1]
+            ttGLHistList.cDescription    = bglhist.tr-dscr
+            ttGLHistList.cType           = bglhist.entryType
+            ttGLHistList.cCreatedBy      = bglhist.createdby
+            ttGLHistList.cFileName       = "glhist"
+            ttGLHistList.cReckey         = bglhist.rec_key
+            ttGLHistList.rRowID          = ROWID(bglhist)
+            .
+        IF NOT bglhist.posted THEN
+        DO:
+           FIND FIRST bf-glhist EXCLUSIVE-LOCK
+                WHERE rowid(bf-glhist) EQ ROWID(bglhist) NO-ERROR.
+           IF avail bf-glhist THEN
+           bf-glhist.posted = YES.
+           RELEASE bf-glhist.
+        END.
+    END.
+    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -431,7 +657,10 @@ PROCEDURE pTestOneFile:
         hPoNoField = ?
         hRnoField = ?
         hTestField = ?
-        hXnoField = ?.
+        hXnoField = ?
+        hJobField = ?
+        hJobNoField = ?
+        hJobNo2Field = ?.
     
     /* Assign buffer-field names IF they are indexed fields */
     DO ictr = 1 TO hBuffer:NUM-FIELDS:
@@ -467,6 +696,12 @@ PROCEDURE pTestOneFile:
             hRNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "x-no" THEN ASSIGN
             hXnoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job" THEN ASSIGN
+            hJobField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job-no" THEN ASSIGN
+            hJobNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "job-no2" THEN ASSIGN
+            hJobNo2Field = hBuffer:BUFFER-FIELD(iCtr).
     END.
 
     hQuery:ADD-BUFFER(hBuffer).
@@ -539,7 +774,7 @@ PROCEDURE pTestOneFile:
         /* Cust-no tests */
         IF hCustNoField NE ? THEN DO:
             IF hCustNoField:BUFFER-VALUE EQ "" 
-            AND NOT CAN-DO("fg-bin,fg-rdtlh,item,itemfg,rm-bin,fg-rcpts,",ipcFileName) THEN ASSIGN 
+            AND NOT CAN-DO("fg-bin,fg-rdtlh,item,itemfg,rm-bin,fg-rcpts,job-hdr",ipcFileName) THEN ASSIGN 
                 lWarning = IF NOT CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lWarning 
                 lError = IF CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lError 
                 cRule = cRule + ",Blank Cust-No"
@@ -651,7 +886,7 @@ PROCEDURE pTestOneFile:
             ELSE IF NOT CAN-FIND(FIRST oe-ord WHERE 
                                 oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
                                 oe-ord.ord-no EQ hOrdNoField:BUFFER-VALUE) 
-            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd",ipcFileName) 
+            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd,job-hdr",ipcFileName) 
             THEN ASSIGN 
                 lError = IF NOT CAN-DO("ar-inv,ar-invl,ar-invm",ipcFileName) THEN TRUE ELSE lError 
                 cRule = cRule + ",Invalid Order No"
@@ -661,7 +896,8 @@ PROCEDURE pTestOneFile:
         /* Po-no tests */
         IF hPoNoField NE ? THEN 
         DO:
-            IF hPoNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+            IF hPoNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("job-hdr",ipcFileName) THEN ASSIGN  
                     lError = TRUE 
                     cRule = cRule + ",Blank PO No"
                     cMessage = cMessage + ",<blank>".
@@ -705,6 +941,35 @@ PROCEDURE pTestOneFile:
                 cMessage = cMessage + ",X-no=" + hXNoField:BUFFER-VALUE.  
         END.
         
+        /* Job tests */
+        IF hJobField NE ? THEN DO:
+            IF hJobField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank job"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST job WHERE 
+                    job.company EQ hCompanyField:BUFFER-VALUE AND     
+                    job.job EQ hJobField:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid job"
+                        cMessage = cMessage + ",job=" + hJobField:BUFFER-VALUE.  
+        END.
+        
+        /* JobNo/JobNo2 tests */
+        IF hJobNoField NE ? THEN DO:
+            IF hJobField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                    lError = TRUE 
+                    cRule = cRule + ",Blank job-no"
+                    cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST job WHERE 
+                    job.company EQ hCompanyField:BUFFER-VALUE AND     
+                    job.job-no EQ hJobNoField:BUFFER-VALUE AND 
+                    job.job-no2 EQ hJobNo2Field:BUFFER-VALUE) THEN ASSIGN 
+                        lError = TRUE 
+                        cRule = cRule + ",Invalid job-no"
+                        cMessage = cMessage + ",job-no=" + hJobNoField:BUFFER-VALUE + " and job-no2=" + hJobNo2Field:BUFFER-VALUE.  
+        END.
+        
         /* No matter what, don't delete fg-bin or rm-bin */
         IF CAN-DO("fg-bin,rm-bin",ipcFileName)
         AND lError THEN ASSIGN 
@@ -734,7 +999,10 @@ PROCEDURE pTestOneFile:
                                           (IF hInvNoField NE ? THEN hInvNoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hINoField NE ? THEN hINoField:BUFFER-VALUE ELSE "") + "," +
                                           (IF hXNoField NE ? THEN hXNoField:BUFFER-VALUE ELSE "") + "," +
-                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "")
+                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "") + "," + 
+                                          (IF hJobField NE ? THEN hJobField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hJobNoField NE ? THEN hJobNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hJobNo2Field NE ? THEN hJobNo2Field:BUFFER-VALUE ELSE "")
                 iErrorCount             = IF ttFileList.cError EQ "Error" THEN iErrorCount + 1 ELSE iErrorCount
                 iWarningCount           = IF ttFileList.cError EQ "Warning" THEN iWarningCount + 1 ELSE iWarningCount
                 .
@@ -768,7 +1036,7 @@ PROCEDURE outputOrphanFile:
     OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
-        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,Po-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum" + CHR(10).
+        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,Po-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum,Job,Job-No,Job-No2" + CHR(10).
     FOR EACH ttFileList
         BY ttFileList.cError
         BY ttFileList.cFileName 
@@ -823,6 +1091,146 @@ PROCEDURE outputOrphanFile:
 /*        END.                                                                                  */
 /*    END.                                                                                      */
     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-purgeGLhistFromFile) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeGLhistFromFile Procedure
+PROCEDURE purgeGLhistFromFile:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFileName AS CHAR.
+    DEF INPUT PARAMETER ipcFileNameExt AS CHAR.
+    DEF INPUT PARAMETER ipcCompany AS CHAR.
+    DEF OUTPUT PARAMETER oplError AS LOG.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    
+    DEF VAR cHeaderList AS CHAR NO-UNDO.
+    DEF VAR iTableCol AS INT NO-UNDO.
+    DEF VAR iRowidCol AS INT NO-UNDO.
+    DEF VAR cRawRow AS CHAR NO-UNDO.
+    DEF VAR cTableList AS CHAR NO-UNDO.
+    DEF VAR deSummaryAmount AS DECIMAL NO-UNDO.
+    
+    DEF BUFFER bGlhist FOR glhist.
+    DISABLE TRIGGERS FOR LOAD OF glhist.
+    
+    ASSIGN 
+        cOutputDir = REPLACE(ipcFileName,"\" + ipcFileNameExt ,"").
+    EMPTY TEMP-TABLE ttGLHistList.
+    IF SEARCH (ipcFileName) EQ ? THEN 
+    DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Unable to locate specified file name".
+        RETURN.
+    END.
+    ELSE IF SEARCH (cOutputDir + "\" + ipcFileName + ".d") NE ? THEN DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Records already deleted for table " + ipcFileName + " in this purge.".
+        RETURN.
+    END.
+    ELSE DO:
+        OUTPUT STREAM sDump TO VALUE (cOutputDir + "\glhist.d").
+        INPUT FROM VALUE(ipcFileName).
+        IMPORT UNFORMATTED cRawRow. /* Get rid of Title row */
+        REPEAT:
+            IMPORT UNFORMATTED cRawRow.
+            CREATE ttGLHistList.
+            ASSIGN 
+                ttGLHistList.lPosted        = IF ENTRY(1,cRawRow,",") = "POSTED" THEN TRUE ELSE FALSE 
+                ttGLHistList.iYear          = INT(ENTRY(2,cRawRow,","))
+                ttGLHistList.iPeriod        = INT(ENTRY(3,cRawRow,","))
+                ttGLHistList.cAccount       = ENTRY(4,cRawRow,",")
+                ttGLHistList.cJournal       = ENTRY(5,cRawRow,",")
+                ttGLHistList.daTxnDate      = DATE(ENTRY(6,cRawRow,","))
+                ttGLHistList.deAmount       = DECIMAL(ENTRY(7,cRawRow,","))
+                ttGLHistList.cCurrency      = ENTRY(8,cRawRow,",")
+                ttGLHistList.cDescription   = ENTRY(9,cRawRow,",")
+                ttGLHistList.cType          = ENTRY(10,cRawRow,",")
+                ttGLHistList.cCreatedBy     = ENTRY(11,cRawRow,",")
+                ttGLHistList.cFileName      = ENTRY(12,cRawRow,",")
+                ttGLHistList.cReckey        = ENTRY(13,cRawRow,",")
+                ttGLHistList.rRowID         = TO-ROWID(ENTRY(14,cRawRow,","))                
+                .
+        END.
+        INPUT CLOSE.
+        
+        FOR EACH ttGLHistList 
+            BREAK BY ttGLHistList.iYear
+            BY ttGLHistList.iPeriod
+            BY ttGLHistList.cAccount:
+            /* Only on first by break */
+            IF FIRST-OF(ttGLHistList.cAccount) 
+            OR FIRST-OF(ttGLHistList.iPeriod)
+            OR FIRST-OF(ttGLHistList.iYear) THEN ASSIGN 
+                deSummaryAmount = 0.
+            /* All records in group */
+            ASSIGN 
+                deSummaryAmount = deSummaryAmount + ttGLHistList.deAmount.
+            FIND FIRST period NO-LOCK WHERE 
+                period.company EQ ipcCompany and
+                period.pst LE ttGLHistList.daTxnDate AND 
+                period.pend GE ttGLHistList.daTxnDate
+                NO-ERROR.
+            FIND FIRST bglHist EXCLUSIVE WHERE 
+                ROWID(bglHist) EQ ttGLHistList.rRowid
+                NO-ERROR.
+            IF AVAIL bglHist THEN DO:
+                EXPORT STREAM sDump bglHist.
+                DELETE bglHist.
+            END.
+            /* Only on last of group */
+            /* When creating the balance fwd txn, it's now safe to assign year/prd 
+               because we created any missing ones during the test phase */
+            IF LAST-OF(ttGLHistList.cAccount) THEN DO:
+                CREATE bglHist.
+                ASSIGN 
+                    bglhist.actnum      = ttGLHistList.cAccount     
+                    bglhist.company     = ipcCompany
+                    bglhist.createdBy   = USERID(LDBNAME(1))
+                    bglhist.createdDate = today
+                    bglhist.curr-code[1]= ttGLHistList.cCurrency
+                    bglhist.documentID  = ""
+                    bglhist.entryType   = "B"
+                    bglhist.ex-rate     = 1
+                    bglhist.glYear      = IF ttGLHistList.iYear NE 0 THEN ttGLHistList.iYear ELSE 
+                                          IF AVAIL period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
+                    bglhist.jrnl        = ttGLHistList.cJournal
+                    bglhist.module      = ""
+                    bglhist.period      = ttGLHistList.iPeriod
+                    bglhist.posted      = YES
+                    bglhist.postedBy    = USERID(LDBNAME(1))
+                    bglhist.rec_key     = STRING(YEAR(TODAY),"9999") + 
+                                          STRING(MONTH(TODAY),"99") + 
+                                          STRING(DAY(TODAY),"99") + 
+                                          STRING(TIME,"99999") + 
+                                          STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+                    bglhist.sourceDate  = ?
+                    bglhist.tr-amt      = deSummaryAmount
+                    bglhist.tr-date     = IF AVAIL period THEN period.pend ELSE ttGLHistList.daTxnDate
+                    bglhist.tr-dscr     = "Balance Forward Total"
+                    bglhist.tr-num      = INTEGER(STRING(bglhist.glYear,"9999") + STRING(ttGLHistList.iPeriod,"99"))
+                    bglhist.yr          = IF ttGLHistList.iYear NE 0 THEN ttGLHistList.iYear ELSE 
+                                          IF AVAIL period THEN period.yr ELSE YEAR(ttGLHistList.daTxnDate)
+                    .
+            END.
+        END.
+            
+            
+    END.
+
 
 END PROCEDURE.
 	
@@ -928,6 +1336,59 @@ PROCEDURE purgeOrphansFromFile:
             END.
         END.
     END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-purgeClearTempTable) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeClearTempTable Procedure
+PROCEDURE purgeClearTempTable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+  EMPTY TEMP-TABLE ttGLHistList.
+  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-testAccounts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testAccounts Procedure
+PROCEDURE testAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipiYear AS INT NO-UNDO.
+    DEF INPUT PARAMETER ipiPeriod AS INT NO-UNDO.
+    DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    
+    OS-CREATE-DIR VALUE(ipcOutputDir).
+    ASSIGN 
+        cOutputDir = ipcOutputDir.
+     
+    RUN pTestGlhist (ipcCompany,
+        ipiYear,
+        ipiPeriod,
+        OUTPUT oplError,
+        OUTPUT opcMessage).
 
 END PROCEDURE.
 	

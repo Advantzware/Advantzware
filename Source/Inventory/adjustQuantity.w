@@ -51,7 +51,6 @@ DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
 {custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */

@@ -2207,15 +2207,16 @@ PROCEDURE pCreateNewRel :
         END.
 
         RELEASE shipto.
-
+        v-ship-id = IF v-ship-id NE "" THEN v-ship-id ELSE IF v-first-ship-id NE "" THEN v-first-ship-id ELSE oe-ord.ship-id.
+        FIND FIRST shipto NO-LOCK
+             WHERE shipto.company EQ oe-ord.company
+             AND shipto.cust-no EQ oe-ord.cust-no
+             AND shipto.ship-id EQ v-ship-id NO-ERROR.
+            
         IF v-carrier = "" THEN 
         DO:  /* NK1 OECARIER */
             IF sys-ctrl.char-fld EQ "ShipTo" THEN 
-            DO:
-                FIND FIRST shipto NO-LOCK
-                    WHERE shipto.company EQ oe-ord.company
-                    AND shipto.cust-no EQ oe-ord.cust-no
-                    AND shipto.ship-id EQ v-ship-id NO-ERROR.
+            DO:                 
                 v-carrier = IF AVAILABLE shipto THEN shipto.carrier ELSE "".
             END.
             ELSE IF sys-ctrl.char-fld EQ "Header" THEN v-carrier = oe-ord.carrier.
@@ -2268,7 +2269,8 @@ PROCEDURE pCreateNewRel :
             oe-rel.carrier      = /*if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
-            oe-rel.spare-char-1 = v-shipfrom.                                                                                                              .
+            oe-rel.spare-char-1 = v-shipfrom
+            oe-rel.ship-id      = v-ship-id.                                                                                                              .
 
     IF oereleas-cha EQ "LastShip" THEN
         oe-rel.rel-date = oe-ord.last-date.

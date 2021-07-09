@@ -145,11 +145,8 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
           AND oe-prmtx.custShipID EQ ipcShipID:          
           
           IF NOT(oe-prmtx.exp-date EQ ? OR oe-prmtx.exp-date GT TODAY) THEN 
-            NEXT.
-            
-          IF oe-prmtx.eff-date GT TODAY THEN 
-            NEXT.  
-            
+            NEXT.             
+                      
         CREATE ttOePrmtx.        
         ASSIGN
             ttOePrmtx.company       = oe-prmtx.company       
@@ -185,6 +182,40 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProcat         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-prmtx  FOR oe-prmtx. 
+    
+    FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
+        WHERE bf-oe-prmtx.company    EQ ipcCompany
+          AND bf-oe-prmtx.cust-no    EQ ipcCustNo
+          AND bf-oe-prmtx.i-no       EQ ipcItemID
+          AND bf-oe-prmtx.custype    EQ ipcCustType
+          AND bf-oe-prmtx.custShipID EQ ipcShipID
+          AND bf-oe-prmtx.procat     EQ ipcProcat 
+          AND bf-oe-prmtx.quoteID    NE 0
+          BREAK BY bf-oe-prmtx.cust-no DESC
+          BY bf-oe-prmtx.i-no DESC
+          BY bf-oe-prmtx.custype DESC
+          BY bf-oe-prmtx.custShipID DESC
+          BY bf-oe-prmtx.procat DESC
+          BY bf-oe-prmtx.eff-date DESC: 
+          
+          IF NOT FIRST-OF(bf-oe-prmtx.procat) THEN
+          bf-oe-prmtx.quoteID = 0.
+    END.          
+    RELEASE bf-oe-prmtx.      
+END PROCEDURE.          
 
 PROCEDURE pExpireOldPrices PRIVATE:
 /*------------------------------------------------------------------------------
@@ -212,7 +243,18 @@ PROCEDURE pExpireOldPrices PRIVATE:
           INPUT ipcShipID,
           INPUT ipcCustNo,
           INPUT ipcCustType
-          ).   
+          ).
+          
+      IF iplExpire THEN    
+      RUN pCheckDuplicateQuoteEntry(
+                   INPUT ipcCompany,
+                   INPUT ipcItemID,
+                   INPUT ipcShipID,
+                   INPUT ipcCustNo,
+                   INPUT ipcCustType,
+                   INPUT ipcProcat
+                   ).
+                   
     FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
         WHERE bf-oe-prmtx.company    EQ ipcCompany
           AND bf-oe-prmtx.cust-no    EQ ipcCustNo
@@ -225,10 +267,7 @@ PROCEDURE pExpireOldPrices PRIVATE:
             
         IF NOT(bf-oe-prmtx.exp-date EQ ? OR bf-oe-prmtx.exp-date GT TODAY) THEN 
             NEXT.
-            
-        IF bf-oe-prmtx.eff-date GT TODAY THEN 
-            NEXT.            
-               
+                       
         ASSIGN 
             iCount = iCount + 1
             iCount1 = 0
@@ -278,11 +317,23 @@ PROCEDURE pExpireOldPrices PRIVATE:
                         ttOePrmtxCsv.Quantity9     = bf-oe-prmtx.qty[9]
                         ttOePrmtxCsv.Quantity10    = bf-oe-prmtx.qty[10]
                         .
-                END.                
-                IF iplExpire THEN 
-                        bf-oe-prmtx.exp-date = TODAY - 1.
+                END.                  
+                      
+                IF ttOeprmtx.effectiveDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
+                    IF iplExpire THEN
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate.
                     ELSE 
-                        ttOePrmtxCsv.newExpiryDate = TODAY - 1.
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate.                           
+                END.                 
+                ELSE DO:
+                    IF iplExpire THEN
+                    do:
+                     ASSIGN
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.                        
+                    END.    
+                    ELSE 
+                        ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.                         
+                END.            
                 LEAVE.  
             END.                              
         END.                                        

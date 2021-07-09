@@ -387,8 +387,9 @@ form header
           USE-INDEX ord-no,
           FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK:
 
-        ASSIGN v-rel-no = oe-relh.release#
-               v-shipfrom = oe-rell.loc.
+        ASSIGN v-rel-no   = oe-relh.release#
+               v-shipfrom = oe-rell.loc
+               v-dockTime = oe-relh.releaseDockTime .
 
         IF oe-relh.posted EQ NO AND oe-relh.deleted EQ NO THEN
           tt-report.rec-id = recid(oe-rell).
@@ -418,6 +419,7 @@ form header
           use-index r-no no-lock.
       ASSIGN v-rel-no = IF AVAIL oe-relh THEN oe-relh.release# ELSE v-rel-no
              v-shipfrom = oe-rell.loc.
+             v-dockTime = IF AVAIL oe-relh THEN oe-relh.releaseDockTime ELSE v-dockTime.
 
       find first oe-ordl
           where oe-ordl.company eq cocode
@@ -485,9 +487,9 @@ form header
        w-ord.i-name        = oe-ordl.i-name
        w-ord.qty           = oe-ordl.qty
        w-ord.cost          = oe-ordl.cost
-       w-ord.price         = oe-ordl.t-price / oe-ordl.qty
-       w-ord.rel-qty       = v-qty
-       w-ord.t-price       = w-ord.price * w-ord.rel-qty
+       w-ord.price         = oe-ordl.price        
+       w-ord.rel-qty       = v-qty  
+       w-ord.t-price       = (oe-ordl.t-price / oe-ordl.qty) * w-ord.rel-qty
        w-ord.rel-date      = string(v-date) + tt-report.key-06
        w-ord.xls-rel-date  = v-date
        w-ord.xls-status    = tt-report.key-06

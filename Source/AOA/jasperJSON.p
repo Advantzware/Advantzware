@@ -16,8 +16,8 @@ DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumResults   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iRecordCount  AS INTEGER   NO-UNDO.
 
 DEFINE STREAM sJasperJSON.
 
@@ -54,9 +54,9 @@ iphQuery:QUERY-OPEN.
 iphQuery:GET-FIRST().
 IF NOT iphQuery:QUERY-OFF-END THEN
 REPEAT:
-    idx = idx + 1.
+    iRecordCount = iRecordCount + 1.
     IF iplProgressBar THEN
-    RUN spProgressBar (ipcSubjectName, idx, iNumResults).
+    RUN spProgressBar (ipcSubjectName, iRecordCount, iNumResults).
     PUT STREAM sJasperJSON UNFORMATTED
         FILL(" ",6) "~{" SKIP
         .
@@ -97,11 +97,15 @@ REPEAT:
             hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
             cFieldName   = ENTRY(2,dynValueColumn.colName,".")
             cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
+            cBufferValue = REPLACE(cBufferValue,"~"","''")
+            cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+            cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
             cFullName    = REPLACE(dynValueColumn.colName,".","__")
             cFullName    = REPLACE(cFullName,"[","")
             cFullName    = REPLACE(cFullName,"]","")
             .
+        IF dynParamValue.outputFormat EQ "HTML" THEN
+        cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
         /* handle how jasper auto multiplies % formatted fields by 100 */
         IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
         ASSIGN
@@ -134,7 +138,11 @@ PUT STREAM sJasperJSON UNFORMATTED
     .
 PUT STREAM sJasperJSON UNFORMATTED
     SKIP
-    FILL(" ",4) "]" SKIP
+    FILL(" ",4) "]"
+    .
+RUN pSubDataSet ("Detail").
+RUN pSubDataSet ("Summary").
+PUT STREAM sJasperJSON UNFORMATTED SKIP
     FILL(" ",2) "}" SKIP
     "}" SKIP
     .
@@ -143,3 +151,97 @@ oplOK = TRUE.
 iphQuery:QUERY-CLOSE().
 
 DELETE PROCEDURE hDynCalcField.
+
+PROCEDURE pSubDataSet:
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormat   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHandle   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQueryBuf AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iField    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFieldIdx AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTables   AS INTEGER   NO-UNDO.
+
+    RUN spGetSessionParam (ipcType + "Tables", OUTPUT cTables).
+    iTables = INTEGER(cTables).
+    IF iTables NE 0 THEN
+    DO idx = 1 TO iTables:
+        RUN spGetSessionParam (ipcType + "Handle" + STRING(idx), OUTPUT cHandle).
+        hTable = WIDGET-HANDLE(cHandle).
+        IF NOT VALID-HANDLE(hTable) THEN NEXT.
+        PUT STREAM sJasperJSON UNFORMATTED
+            "," SKIP
+            FILL(" ",4)
+            "~"" ipcType STRING(idx) "~": [" SKIP
+            .
+        /* scroll returned temp-table records */
+        CREATE QUERY hQuery.
+        hTable = hTable:DEFAULT-BUFFER-HANDLE.
+        hQuery:SET-BUFFERS(hTable:HANDLE).
+        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-OPEN.
+        hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
+        hQuery:GET-FIRST().
+        IF NOT hQuery:QUERY-OFF-END THEN
+        REPEAT:
+            IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
+            iField = 0.
+            DO iFieldIdx = 1 TO hTable:NUM-FIELDS:
+                IF CAN-DO("rowType,parameters,recDataType",hTable:BUFFER-FIELD(iFieldIdx):NAME) THEN NEXT.
+                IF hTable:BUFFER-FIELD(iFieldIdx):NAME BEGINS "xx" THEN NEXT.
+                ASSIGN
+                    iField       = iField + 1
+                    cFieldName   = hTable:BUFFER-FIELD(iFieldIdx):NAME
+                    cFormat      = hTable:BUFFER-FIELD(iFieldIdx):FORMAT
+                    cBufferValue = hTable:BUFFER-FIELD(iFieldIdx):BUFFER-VALUE()
+                    cBufferValue = REPLACE(cBufferValue,"~"","''")
+                    cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                    cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
+                    cFullName    = hTable:NAME + "__" + cFieldName
+                    cFullName    = REPLACE(cFullName,"[","")
+                    cFullName    = REPLACE(cFullName,"]","")
+                    .
+                IF dynParamValue.outputFormat EQ "HTML" THEN
+                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
+                /* handle how jasper auto multiplies % formatted fields by 100 */
+                IF INDEX(cFormat,"%") NE 0 THEN
+                ASSIGN
+                    cBufferValue = REPLACE(cBufferValue,"%","")
+                    cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+                    cBufferValue = cBufferValue + "%"
+                    .
+                IF iField EQ 1 THEN
+                PUT STREAM sJasperJSON UNFORMATTED
+                    FILL(" ",6) "~{" SKIP
+                    .
+                IF iField GT 1 THEN
+                PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+                PUT STREAM sJasperJSON UNFORMATTED
+                    FILL(" ",8)
+                    "~"" cFullName "~": ~""
+                    IF cBufferValue EQ ? AND cDataType EQ "Character" THEN " "
+                    ELSE IF cBufferValue EQ ? AND cDataType NE "Character" THEN "0"
+                    ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
+                    "~""
+                    .
+            END. /* do iFieldIdx */
+            PUT STREAM sJasperJSON UNFORMATTED SKIP FILL(" ",6) "}".
+            hQuery:GET-NEXT().
+            IF hQuery:QUERY-OFF-END THEN LEAVE.
+            PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+        END. /* repeat */
+        PUT STREAM sJasperJSON UNFORMATTED
+            SKIP
+            FILL(" ",4) "]"
+            .
+        hQuery:QUERY-CLOSE().
+        DELETE OBJECT hQuery.
+        DELETE OBJECT hQueryBuf.
+    END. /* do idx */
+
+END PROCEDURE.

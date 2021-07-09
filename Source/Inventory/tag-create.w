@@ -71,7 +71,11 @@ DEFINE VARIABLE rsValue                 AS CHARACTER NO-UNDO INITIAL "FG".
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventory.i}
+{Inventory/ttPrintInventoryStock.i}
+{Inventory/ttPrintInventoryStockFG.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -850,7 +854,8 @@ DO:
             ).
 
         RUN CreatePrintInventoryForFG IN hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
             ).
     END.
     
@@ -875,7 +880,8 @@ DO:
                 ).
     
         RUN CreatePrintInventoryForFG in hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
+            INPUT ttBrowseInventory.inventoryStockID,
+            INPUT-OUTPUT TABLE ttPrintInventoryStockFG BY-REFERENCE
             ).
     
         RUN pPrintLabels.
@@ -1514,7 +1520,7 @@ PROCEDURE pInit :
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
     ASSIGN
@@ -1660,7 +1666,8 @@ PROCEDURE pRebuildBrowse :
         ipiFormno,
         ipiBlankno,
         OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        OUTPUT iTotOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
             
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1711,6 +1718,8 @@ PROCEDURE pUpdateComboBoxes :
             ipcCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            ?,
+            ?,
             INPUT-OUTPUT cMachineListItems
             ).
     END.

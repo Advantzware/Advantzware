@@ -31,6 +31,7 @@ DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVersion            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hProgressBar        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSuperProcedure     AS HANDLE    NO-UNDO.
@@ -62,8 +63,8 @@ DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "browsers/BrowserProcs.p,"
-                    + "oe/PriceProcs.p,"
                     + "est/EstimateProcs.p,"
+                    + "oe/PriceProcs.p,"
                     + "system/CommonProcs.p,"
                     + "system/ConversionProcs.p,"
                     + "system/CreditProcs.p,"
@@ -94,7 +95,6 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
-{api/CommonAPIProcs.i}
 {sys/ref/CustList.i NEW}
 {AOA/BL/pBuildCustList.i}
 
@@ -125,7 +125,6 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
@@ -236,6 +235,20 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfVersion Procedure
+FUNCTION sfVersion RETURNS CHARACTER 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -377,6 +390,9 @@ ASSIGN
     cUserID     = users.user_id
     .
 RUN spSetSessionParam("UserID",cUserID).
+/* get current ASI version */
+FIND LAST updateHist NO-LOCK NO-ERROR.
+cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "Unknown".
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
@@ -894,10 +910,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
-
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spActivateCueCards Procedure
@@ -1298,6 +1311,29 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spDeleteSessionParam) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spDeleteSessionParam Procedure
+PROCEDURE spDeleteSessionParam:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF AVAILABLE ttSessionParam THEN
+    DELETE ttSessionParam.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spDynAuditField) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spDynAuditField Procedure
@@ -1436,7 +1472,7 @@ PROCEDURE spGetDynParamValue:
         ipiSubjectID,
         USERID("ASI"),
         "",
-        0
+        -1 // set to a negative for a temporary subject
         ).    
     IF NOT AVAILABLE dynParamValue THEN
     opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
@@ -2226,10 +2262,9 @@ PROCEDURE spSetSessionParam:
         CREATE ttSessionParam.
         ttSessionParam.sessionParam = ipcSessionParam.
     END. /* if not avail */
-    IF ttSessionParam.sessionParam EQ "Company" AND ttSessionParam.sessionValue NE ipcSessionValue THEN
-        RUN pSetCompanyContexts(
-            ipcSessionValue
-            ).
+    IF ttSessionParam.sessionParam EQ "Company" AND
+       ttSessionParam.sessionValue NE ipcSessionValue THEN
+    RUN pSetCompanyContexts (ipcSessionValue).
     ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
@@ -2385,9 +2420,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-fMessageTitle) = 0 &THEN
 
@@ -2422,7 +2455,7 @@ FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
 
     DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
         cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
-        RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+        RUN Format_UpdateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue, "").        
     END.   
     RETURN ipcMessage.
 
@@ -2431,9 +2464,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
@@ -2502,9 +2533,7 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
@@ -2557,6 +2586,25 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfVersion Procedure
+FUNCTION sfVersion RETURNS CHARACTER 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	RETURN cVersion.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure

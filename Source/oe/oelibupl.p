@@ -3534,11 +3534,11 @@ PROCEDURE LEAVE_part_no :
               FIND FIRST cust WHERE cust.company = oe-ord.company
               AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
               IF itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-              AVAIL cust AND cust.active NE "X"                         THEN DO:
+              AVAIL cust AND NOT cust.internal                         THEN DO:
                 FIND FIRST cust WHERE cust.company = g_company AND
                 cust.cust-no = itemfg.cust-no
                 NO-LOCK NO-ERROR.
-                IF AVAIL cust AND cust.active NE "X" THEN DO:
+                IF AVAIL cust AND NOT cust.internal THEN DO:
                   MESSAGE "This item exists for a different customer!. Do you want to continue?"
                       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
                       IF NOT ll-ans THEN  RETURN NO-APPLY.
@@ -5311,7 +5311,7 @@ PROCEDURE valid-type :
     (get-sv("oe-ordl.type-code") EQ "T" AND
     NOT CAN-FIND(FIRST cust WHERE cust.company EQ cocode
     AND cust.cust-no EQ oe-ord.cust-no
-    AND cust.active  EQ "X")) THEN DO:
+    AND cust.internal)) THEN DO:
       MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
       /* wfk  APPLY "entry" TO oe-ordl.type-code. */
       RETURN ERROR.
@@ -5835,10 +5835,10 @@ PROCEDURE validate-fgitem :
       AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
       IF cp-part-no EQ "" AND
       itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-      AVAIL cust AND cust.active NE "X"                         THEN DO:
+      AVAIL cust AND NOT cust.internal                         THEN DO:
         FIND FIRST cust WHERE cust.company = oe-ord.company
         AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
-        IF AVAIL cust AND cust.active NE "X" THEN DO:
+        IF AVAIL cust AND NOT cust.internal THEN DO:
           choice = NO.
           FIND FIRST sys-ctrl WHERE sys-ctrl.company = oe-ord.company AND
           sys-ctrl.NAME = "OEITEM" NO-LOCK NO-ERROR.

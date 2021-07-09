@@ -753,7 +753,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  run scr-rpt-d.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 END PROCEDURE.
 
@@ -904,6 +904,7 @@ PROCEDURE post-gl :
              glhist.period  = tran-period
              glhist.tr-num  = v-trnum   
              glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
+             glhist.yr      = YEAR(tran-date)
              glhist.module  = "AR"
              glhist.posted  = NO
              glhist.entryType = "A"

@@ -460,4 +460,8 @@ grant select on pub."materialType" to public ;
 grant select on pub."POReceiptLink" to public ;
 grant select on pub."customerPart" to public ;
 grant select on pub."customerIndustry" to public ;
+grant select on pub."estMaterial" to public ;
+grant select on pub."APIOutboundContent" to public ;
+grant all on pub.dmiTrans to public ;
+grant all on pub.job-mch to public ;
 COMMIT;

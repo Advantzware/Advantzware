@@ -40,10 +40,6 @@
 "" "202003274271604743621" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" yes 2020-07-16T21:25:23.462 "jay" "_default" 40 11
 "" "202004142003005007333" "SendPurchaseOrder" "PrintPurchaseOrder" "Print purchase order" yes 2020-07-16T21:28:16.676 "jay" "_default1" 41 12
 "" "202004142004005007334" "SendPurchaseOrder" "RePrintPurchaseOrder" "RePrint purchase order" yes 2020-07-16T21:28:10.223 "jay" "_default1" 42 12
-"" "202004225650705165879" "SendFinishedGood2" "AddFinishedGood" "Update A Finished Good" yes 2020-04-22T15:45:24.984 "Randy" "_default" 43 14
-"" "202004225659505165880" "SendFinishedGood2" "PrintRelease" "Send Finished Good when release is first printed" yes 2020-07-16T21:22:30.724 "jay" "_default" 44 14
-"" "202004225662005165881" "SendFinishedGood2" "ReprintRelease" "Send Finished Good when release is reprinted" yes 2020-07-16T21:22:33.914 "jay" "_default" 45 14
-"" "202004225669505165882" "SendFinishedGood2" "CreateLoadtag" "On creation of loadtags on a Job or Order from O-U-7 screen" yes 2020-07-16T21:22:39.459 "jay" "_default" 46 14
 "" "202005142461105162367" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" yes 2020-07-16T21:21:05.954 "jay" "_default1" 47 15
 "" "202005142461105162368" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" yes 2020-07-16T21:21:10.565 "jay" "_default1" 48 15
 "" "202005142461105162369" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2019-11-26T09:05:46.292 "user1" "_default1" 49 15
@@ -184,3 +180,23 @@
 "" "202103161651607065820" "SendJob" "CreateJobMolded" "Triggers when Job created with JobType Molded" no 2021-03-16T04:35:16.336 "rajesh" "_default1" 185 35
 "" "202103163290507065827" "CreateLoadtag" "PrintLoadTag" "Prints loadtag file" no 2021-03-16T09:08:25.465 "rajesh" "_default1" 186 36
 "" "202103163290507065828" "CreateLoadtag" "PrintBOLTag" "Prints BOltag file" no 2021-03-16T09:08:25.474 "rajesh" "_default1" 187 36
+"" "202105052213907157994" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2021-05-05T06:08:59.628 "rajesh" "_default2" 188 37
+"" "202105052213907157995" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2021-05-05T06:08:59.869 "rajesh" "_default2" 189 37
+"" "202105052213907157996" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2021-05-05T06:08:59.879 "rajesh" "_default2" 190 37
+"" "202105052213907157997" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2021-05-05T06:08:59.888 "rajesh" "_default2" 191 37
+"" "202105052213907157998" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2021-05-05T06:08:59.897 "rajesh" "_default2" 192 37
+"" "202106141109707385050" "SendJobAMS" "PrintJob" "Triggers when Job printed flag is NO" no 2021-06-16T06:03:41.254 "asi" "_default" 193 38
+"" "202106162183307386081" "SendJobAMS" "ReprintJob" "Triggers when Job printed flag is YES" no 2021-06-16T06:03:53.232 "asi" "_default" 194 38
+"" "202106213872407443257" "SendPurchaseOrder" "UpdatePurchaseOrder" "Updates a Purchase Order" yes 2021-06-21T10:45:24.899 "asi" "_default15" 195 40
+"" "202106213872407443258" "SendPurchaseOrder" "HoldPurchaseOrder" "Purchase Order status changing to ""H"" (Hold)" yes 2021-06-21T10:45:24.908 "asi" "_default15" 196 40
+"" "202106213872407443259" "SendPurchaseOrder" "ReleasePurchaseOrder" "Purchase Order status changing from ""H"" (Hold)" yes 2021-06-21T10:45:24.917 "asi" "_default15" 197 40
+"" "202106213872407443260" "SendPurchaseOrder" "PrintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""NO""" no 2021-06-23T15:57:36.760 "asi" "_default15" 198 40
+"" "202106213872407443261" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" no 2021-06-23T15:57:39.858 "asi" "_default15" 199 40
+"" "202106213872407443262" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2021-06-21T10:45:24.942 "asi" "_default15" 200 40
+"" "202106213872407443263" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2021-06-21T10:45:24.951 "asi" "_default15" 201 40
+"" "202106213872407443264" "SendPurchaseOrder" "ReopenPurchaseOrder" "Trigger when Purchase Order is re-opened" yes 2021-06-21T10:45:24.960 "asi" "_default15" 202 40
+"" "202106213872407443265" "SendPurchaseOrder" "TriggerGetPurchaseOrder" "Trigger to fetch purchase order details" yes 2021-06-21T10:45:24.968 "asi" "_default15" 203 40
+"" "202106221155007443291" "SendVendor" "AddVendor" "Trigger to process the request when vendor is created" no 2021-06-23T15:28:26.254 "asi" "_default1" 204 41
+"" "202106221157007443292" "SendVendor" "UpdateVendor" "Trigger to process the request when vendor is updated" no 2021-06-23T15:28:36.207 "asi" "_default1" 205 41
+"" "202106212061807443212" "SendReceipt" "CreateReceipt" "Trigger to process the request when receipt is created" no 2021-06-23T15:26:25.592 "asi" "_default" 206 39
+"" "202106235557407443565" "SendReceipt" "UpdateReceipt" "Trigger to process the request when receipt is updated" no 2021-06-23T15:26:14.248 "asi" "_default" 207 39

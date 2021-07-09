@@ -1630,7 +1630,8 @@ DO:
                     END. /* If a finished good */
 
                 END.  
-                                
+                
+                RUN pGetAccountForJobCat.
                 cFirstMach = "" .
                 RUN GetFirstMach(OUTPUT cFirstMach) .
                 ASSIGN cFirstMach:SCREEN-VALUE = cFirstMach . 
@@ -1678,8 +1679,9 @@ DO:
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
             DO:
-
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                      
                     FIND FIRST itemfg WHERE itemfg.company EQ po-ordl.company
@@ -2011,9 +2013,10 @@ DO:
             RUN valid-s-num NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             ELSE 
-            DO:
-
+            DO:                 
                 /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+                RUN pGetAccountForJobCat.
+                
                 IF po-ordl.item-type:SCREEN-VALUE = "FG" THEN 
                 DO:                 
                     FIND FIRST itemfg WHERE itemfg.company EQ g_company
@@ -2625,6 +2628,27 @@ PROCEDURE create-item :
             po-ordl.under-pct = po-ord.under-pct
             po-ordl.vend-no   = po-ord.vend-no
             po-ordl.cust-no   = po-ord.cust-no.
+        
+        IF  po-ordl.cust-no EQ "" THEN
+        DO:
+            FIND FIRST loc NO-LOCK 
+                 WHERE loc.company EQ cocode
+                 AND loc.loc EQ po-ord.ship-id
+                 NO-ERROR.
+            FIND FIRST company NO-LOCK
+                 WHERE company.company EQ po-ord.ship-id 
+                 NO-ERROR.
+            IF AVAIL loc OR AVAIL company THEN 
+            DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ cocode
+                     AND cust.active = "X" NO-ERROR.                
+                IF AVAIL cust THEN
+                ASSIGN
+                   po-ordl.cust-no   = cust.cust-no.
+            END.              
+        END.
+            
 
         IF AVAILABLE bf-itemfg 
             THEN
@@ -3171,8 +3195,8 @@ PROCEDURE display-item :
             po-ordl.i-name po-ordl.ord-qty po-ordl.pr-qty-uom po-ordl.dscr[1] 
             po-ordl.dscr[2] po-ordl.cost po-ordl.pr-uom po-ordl.disc po-ordl.s-wid 
             po-ordl.s-len po-ordl.actnum po-ordl.vend-i-no po-ordl.tax 
-            po-ordl.under-pct po-ordl.over-pct po-ordl.stat po-ordl.cust-no 
-            po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
+            po-ordl.under-pct po-ordl.excludeFromVoucher po-ordl.over-pct po-ordl.stat
+            po-ordl.cust-no po-ordl.ord-no po-ordl.item-type po-ordl.setup po-ordl.s-num
             po-ordl.b-num cFirstMach
             WITH FRAME Dialog-Frame.
 
@@ -4222,7 +4246,7 @@ PROCEDURE GetVendItem :
   DEFINE OUTPUT PARAMETER opcVendorItemId AS Character NO-UNDO.
           
 
- FIND FIRST vendItemCost EXCLUSIVE-LOCK
+ FIND FIRST vendItemCost NO-LOCK
         WHERE vendItemCost.company EQ ipcCompany
         AND vendItemCost.itemID EQ ipcItemID /*itemfg.i-no*/
         AND vendItemCost.itemType EQ ipcItemType  /* "FG" "RM" */ 
@@ -5106,6 +5130,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAccountForJobCat Dialog-Frame
+PROCEDURE pGetAccountForJobCat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAccountNo AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-job-hdr  FOR job-hdr.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+      /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+      IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
+      DO:
+        ASSIGN 
+        cAccountNo = "".
+        FIND FIRST b-job-hdr WHERE 
+             b-job-hdr.company EQ g_company AND
+             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+             b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
+             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
+        IF AVAILABLE b-job-hdr THEN
+        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
+        IF cAccountNo <> "" THEN 
+        DO:
+            ASSIGN 
+                po-ordl.actnum:SCREEN-VALUE = cAccountNo.
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ g_company
+                 AND account.actnum   EQ cAccountNo NO-ERROR.
+            v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+        END.
+        RELEASE b-job-hdr.
+      END.
+    END.        
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
@@ -6428,8 +6492,17 @@ PROCEDURE valid-uom :
         IF LOOKUP(lv-uom,uom-list) LE 0 THEN 
         DO:
             MESSAGE "UOM must be " + TRIM(uom-list) VIEW-AS ALERT-BOX ERROR.
-            IF ip-field EQ "pr-uom" THEN APPLY "entry" TO po-ordl.pr-uom.
-            ELSE APPLY "entry" TO po-ordl.pr-qty-uom.
+            IF ip-field EQ "pr-uom" THEN 
+            DO: 
+               IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-uom:SCREEN-VALUE = "EA".
+               APPLY "entry" TO po-ordl.pr-uom.
+            END.
+            ELSE DO:
+               IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "" THEN
+               po-ordl.pr-qty-uom:SCREEN-VALUE = "EA".
+              APPLY "entry" TO po-ordl.pr-qty-uom.
+            END.
             RETURN ERROR.
         END.
     END.

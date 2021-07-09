@@ -43,6 +43,12 @@ DEFINE VARIABLE glFormatAll           AS LOGICAL   NO-UNDO INITIAL TRUE.
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fEscapeExceptionCharactersJSON RETURNS CHARACTER 
+	( INPUT ipcValue AS CHARACTER ) FORWARD.
+
+FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER 
+	( INPUT ipcValue AS CHARACTER ) FORWARD.
+
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 	( INPUT ipiCount AS INTEGER ) FORWARD.
 
@@ -70,7 +76,7 @@ PROCEDURE Format_Date:
         YY      - Displays last two digits of the year ( Eg. 03/14/2020 - 20)
         DD      - Displays day of the date in two digits ( Eg. 03/04/2020 - 04)
         D       - Displays day of the date in single digit for days between 1 and 9 ( Eg. 03/04/2020 - 4)
-        TH      - Displays the ordinals of the day (Eg. 03/04/2020 - 4th, 03/01/2020 - 1st)
+        TH/th   - Displays the ordinals of the day (Eg. 03/04/2020 - 4th, 03/01/2020 - 1st). Case Sensitive
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipdtDate      AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFormat     AS CHARACTER NO-UNDO.
@@ -123,28 +129,11 @@ PROCEDURE Format_Date:
             gcReplaceDay  = TRIM(STRING(iDay,">9"))
             .
 
-    IF INDEX(opcDateString, "th") GT 0 THEN DO:
-        IF iDay EQ 1 OR iDay EQ 21 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "st"
-                .
-        ELSE IF iDay EQ 2 OR iDay EQ 22 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "nd"
-                .
-        ELSE IF iDay EQ 3 OR iDay EQ 23 THEN
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "rd"
-                .
-        ELSE
-            ASSIGN
-                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
-                gcReplaceOrdinal = "th"
-                .
-    END.
+    RUN pFormatOrdinal (
+        INPUT  iDay,
+        INPUT  opcDateString,
+        OUTPUT opcDateString
+        ).
     
     RUN pFormatAll (
         INPUT-OUTPUT opcDateString
@@ -363,6 +352,254 @@ PROCEDURE Format_Time:
         ).        
 END PROCEDURE.
 
+PROCEDURE pUpdateRequestData PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Replaces the given key field with the value in the request data
+ Notes: Below is the format for the key field to enter a format or data type in configuration.
+        $keyfield|format|datatype|alignmentstype|trim|$
+        Eg. $poID|>>>>>>>9|INT|$, $poNotes|X(30)|$, $poData|YYYYMMDD|DATE|$, $poID|>>>>>>>9|INT|L|$,
+            $poID|>>>>>>>9|INT||TRIM|$
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcField           AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcValue           AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFieldValuePrefix AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldValueSuffix AS CHARACTER NO-UNDO.        
+    DEFINE VARIABLE cFormat           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormatType       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cNextChar         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTrim             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormatAvail      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFormatTypeAvail  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAlignmentAvail   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTrimAvail        AS LOGICAL   NO-UNDO.
+    
+    ASSIGN
+        cFieldValuePrefix = "$"
+        cFieldValueSuffix = "$"
+        .
+
+    IF ipcValue EQ ? THEN
+        ipcValue = "".    
+
+    cTargetString = ipcValue.
+
+    IF ipcRequestDataType EQ "XML" THEN
+        cTargetString = fEscapeExceptionCharactersXML (cTargetString).      
+    ELSE IF ipcRequestDataType EQ "JSON" THEN
+        cTargetString = fEscapeExceptionCharactersJSON (cTargetString).
+
+    /* Replaces the key field with value in request data */
+    ioplcRequestData = REPLACE(ioplcRequestData, cFieldValuePrefix + ipcField + cFieldValueSuffix, cTargetString).
+    
+    cTargetString = "".
+    
+    /* If the key field is available with a specific format or data type for conversion */
+    DO WHILE ioplcRequestData MATCHES "*" + cFieldValuePrefix + ipcField + "|*|" + cFieldValueSuffix + "*":
+        /* cNextChar fetches the character after the at the end of key field */
+        ASSIGN
+            cFormat         = ""
+            cFormatType     = ""
+            cAlignmentStyle = ""
+            cSourceString   = ""
+            cTrim           = ""
+            cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
+            .
+        
+        ASSIGN
+            lFormatAvail     = FALSE
+            lFormatTypeAvail = FALSE
+            lAlignmentAvail  = FALSE
+            lTrimAvail       = FALSE
+            .
+            
+        /* If $ do nothing, as it would have been already replaced */
+        IF cNextChar EQ "$" THEN
+            cFormat = "".
+        /* If |, then a format exists */
+        ELSE IF cNextChar EQ "|" THEN DO:
+            iIndex = INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField) + 1.
+            
+            /* Code to retrieve the format */
+            DO WHILE TRUE:
+                IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                    LEAVE.
+                
+                ASSIGN
+                    cFormat = cFormat + SUBSTRING(ioplcRequestData,iIndex,1)
+                    iIndex  = iIndex + 1
+                    .
+            END.
+
+            lFormatAvail = TRUE.
+            
+            /* Block to check if a data type exist */            
+            iIndex = iIndex + 1.
+            
+            /* If the next character after the format is not $, then data type exist */
+            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:     
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                        LEAVE.
+                    
+                    ASSIGN
+                        cFormatType = cFormatType + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex      = iIndex + 1
+                        .
+                END.
+                
+                lFormatTypeAvail = TRUE.
+            END.
+            ELSE 
+                iIndex = iIndex - 1.
+            
+            /* Block to check if a alignment style exist */
+            iIndex = iIndex + 1.
+  
+            /* If the next character after the format is not $, then alignment style exist */
+            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                        LEAVE.
+  
+                    ASSIGN
+                        cAlignmentStyle = cAlignmentStyle + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+                
+                lAlignmentAvail = TRUE.
+            END. 
+            ELSE
+                iIndex = iIndex - 1.
+                
+            iIndex = iIndex + 1.    
+            
+            /* If the next character after the alignment is not $, then trim exist */
+            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                        LEAVE.
+  
+                    ASSIGN
+                        cTrim  = cTrim + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex = iIndex + 1
+                        .
+                END.
+                
+                lTrimAvail = TRUE.
+            END.                    
+        END.    
+        ELSE
+            cFormat = ?.    
+
+        IF cFormatType NE "" THEN DO:
+            /* To convert a decimal value into integer without losing the original value */
+            /* Decimal places will be rounded to Progress standard */
+            IF cFormatType EQ "DECIMAL-INTEGER" OR cFormatType EQ "DEC-INT" THEN
+                ASSIGN
+                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
+                    cTargetString = REPLACE(cTargetString, ".", "")
+                    cTargetString = TRIM(cTargetString)
+                    NO-ERROR.
+            ELSE IF cFormatType BEGINS "INT" THEN
+                ASSIGN
+                    cTargetString = STRING(INTEGER(ipcValue),cFormat)
+                    cTargetString = TRIM(cTargetString)
+                    NO-ERROR.
+            ELSE IF cFormatType BEGINS "DEC" THEN
+                ASSIGN
+                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
+                    cTargetString = TRIM(cTargetString)
+                    NO-ERROR.
+            ELSE IF cFormatType EQ "TIME" THEN
+                RUN Format_Time (
+                    INPUT  INTEGER(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
+            ELSE IF cFormatType EQ "MTIME" THEN
+                RUN Format_MTime (
+                    INPUT  INTEGER(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
+            ELSE IF cFormatType EQ "DATE" THEN
+                RUN Format_DateTimeTZ (
+                    INPUT  DATETIME-TZ(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
+            ELSE IF cFormatType BEGINS "LOG" THEN
+                ASSIGN
+                    cTargetString = STRING(LOGICAL(ipcValue), cFormat)
+                    cTargetString = TRIM(cTargetString)
+                    .
+        END.
+        ELSE
+            cTargetString = STRING(ipcValue,cFormat).
+
+        IF cFormatType BEGINS "INT" OR cFormatType BEGINS "DEC" THEN DO:
+            IF cAlignmentStyle EQ "L" THEN
+                cTargetString = cTargetString + FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)).
+            ELSE IF cAlignmentStyle EQ "R" THEN
+                cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
+        END.
+
+        /* If trim format exists them trim the target string */
+        IF cTrim EQ "TRIM" THEN
+            cTargetString = TRIM(cTargetString).
+        
+        IF lFormatAvail THEN        
+            cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
+        
+        /* Constructing the string to replace with the formatted string */
+        IF lFormatTypeAvail THEN
+            cSourceString = cSourceString + cFormatType + "|".
+        
+        IF lAlignmentAvail THEN
+            cSourceString = cSourceString + cAlignmentStyle + "|".
+
+        IF lTrimAvail THEN
+            cSourceString = cSourceString + cTrim + "|".
+
+        cSourceString = cSourceString + cFieldValueSuffix.
+        
+        IF ipcRequestDataType EQ "XML" THEN
+            cTargetString = fEscapeExceptionCharactersXML (cTargetString).      
+        ELSE IF ipcRequestDataType EQ "JSON" THEN
+            cTargetString = fEscapeExceptionCharactersJSON (cTargetString).
+
+        /* Replace the key field with format and data type with the value */
+        IF cFormat NE ? AND cFormat NE "" THEN
+            ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
+    END.    
+END PROCEDURE.
+
+PROCEDURE Format_UpdateRequestData:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcField           AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcValue           AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    
+    RUN pUpdateRequestData (
+        INPUT-OUTPUT ioplcRequestData,
+        INPUT        ipcField,
+        INPUT        ipcValue,
+        INPUT        ipcRequestDataType   
+        ).    
+END PROCEDURE.
+
 PROCEDURE pFormatAll PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -423,6 +660,64 @@ PROCEDURE pFormatMinutes PRIVATE:
             .
 END PROCEDURE.
 
+PROCEDURE pFormatOrdinal PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiDay        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDateString AS CHARACTER NO-UNDO CASE-SENSITIVE.
+
+    opcDateString  = ipcFormat.
+    
+    IF INDEX(opcDateString, "th") GT 0 THEN DO:
+        IF ipiDay EQ 1 OR ipiDay EQ 21 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "st"
+                .
+        ELSE IF ipiDay EQ 2 OR ipiDay EQ 22 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "nd"
+                .
+        ELSE IF ipiDay EQ 3 OR ipiDay EQ 23 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "rd"
+                .
+        ELSE
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "th", fGetReplaceString(4))
+                gcReplaceOrdinal = "th"
+                .
+    END.
+    
+    IF INDEX(opcDateString, "TH") GT 0 THEN DO:
+        IF ipiDay EQ 1 OR ipiDay EQ 21 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "st"
+                .
+        ELSE IF ipiDay EQ 2 OR ipiDay EQ 22 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "nd"
+                .
+        ELSE IF ipiDay EQ 3 OR ipiDay EQ 23 THEN
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "rd"
+                .
+        ELSE
+            ASSIGN
+                opcDateString    = REPLACE(opcDateString, "TH", fGetReplaceString(4))
+                gcReplaceOrdinal = "th"
+                .
+    END.    
+END PROCEDURE.
+
 PROCEDURE pFormatMonth PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -480,6 +775,46 @@ PROCEDURE pFormatMonth PRIVATE:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fEscapeExceptionCharactersJSON RETURNS CHARACTER 
+	( INPUT ipcValue AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    
+    cValue = ipcValue.
+    
+    ASSIGN
+        cValue = REPLACE(cValue, '\','\\')
+        cValue = REPLACE(cValue, '/','\/')
+        cValue = REPLACE(cValue, '"','\"')
+        .
+    
+    RETURN cValue.
+END FUNCTION.
+
+FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER 
+	( INPUT ipcValue AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    
+    cValue = ipcValue.
+    
+    ASSIGN
+        cValue = REPLACE(cValue, '&', "&amp;")
+        cValue = REPLACE(cValue, '"', "&quot;")
+        cValue = REPLACE(cValue, "'", "&apos;")
+        cValue = REPLACE(cValue, '<', "&lt;")
+        cValue = REPLACE(cValue, '>', "&gt;")
+        .
+    
+    RETURN cValue.
+END FUNCTION.
 
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 	( INPUT ipiCount AS INTEGER ):

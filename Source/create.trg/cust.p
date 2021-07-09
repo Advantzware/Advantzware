@@ -25,6 +25,7 @@ IF AVAIL b-{&TABLENAME} THEN
                                     lyr-sales cost comm ytd-msf lyytd-msf
                                     hibal hibal-date num-inv lpay lpay-date
                                     avg-pay ord-bal acc-bal on-account 
+                                    internal
                              TO {&TABLENAME}.
 
 ELSE DO:

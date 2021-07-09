@@ -71,13 +71,22 @@ DEFINE VARIABLE lCheckEditMode AS LOGICAL NO-UNDO.
 &Scoped-define VendItemCostCreateAfter procCreateAfter
 DEFINE VARIABLE lFGItemUOM AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cReturn AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lVendCostMatrix AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "FGItemUOM", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cReturn, OUTPUT lRecFound).
 IF lRecFound THEN
 lFGItemUOM = LOGICAL(cReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "VendCostMatrix", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturn, OUTPUT lRecFound).
+IF lRecFound THEN
+lVendCostMatrix = LOGICAL(cReturn) NO-ERROR. 
+
+    
 {system/ttConversionProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -738,8 +747,8 @@ END.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
-
+  &ENDIF 
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,24 +999,11 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  vendItemCost.company = cocode.
-  
-  IF adm-adding-record THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    CREATE bf-vendItemCostLevel .
-        ASSIGN bf-vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID 
-               bf-vendItemCostLevel.quantityBase    = 99999999 .
-        FIND CURRENT bf-vendItemCostLevel NO-LOCK NO-ERROR .
-
-     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
-
-  END.
-
+  vendItemCost.company = cocode.  
+ 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
-  
-  
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).   
 
 END PROCEDURE.
 
@@ -1052,6 +1048,10 @@ PROCEDURE local-update-record :
     DEFINE VARIABLE rdRowidLevel AS ROWID NO-UNDO .
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cQtyList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER vendItemCostLevel FOR vendItemCostLevel.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1102,7 +1102,26 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (0).
 
+    
   IF lNewRecord THEN
+  DO:
+    RUN get-attribute IN adm-broker-hdl ('OneVendItemCostQtyList' ).
+    cQtyList = IF RETURN-VALUE EQ ? THEN "" ELSE RETURN-VALUE.     
+    IF cQtyList NE '' THEN 
+    DO iCount = 1 TO NUM-ENTRIES(cQtyList, '|'):
+         
+        CREATE vendItemCostLevel .
+        ASSIGN 
+            vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
+            vendItemCostLevel.quantityBase = DECIMAL(ENTRY(iCount, cQtyList, '|'))
+        .  
+    END.
+    ELSE
+    DO: 
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), ?).
+      
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
@@ -1110,12 +1129,29 @@ PROCEDURE local-update-record :
           INPUT NO, /* Do not Change quantityFrom */
           OUTPUT rdRowidLevel
           ) .
-  
+    END.      
+  END.
   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
+  
+  RUN Vendor_ExpireOldCost IN hVendorCostProcs (
+        vendItemCost.company, 
+        vendItemCost.itemID,
+        vendItemCost.itemType,
+        vendItemCost.vendorID,
+        vendItemCost.customerID,
+        vendItemCost.estimateNo,
+        vendItemCost.formNo,
+        vendItemCost.blankNo
+        ).
        
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
+      
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopenmain-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost)).     
+      
   
   adm-adding-record = NO .
   adm-new-record = NO .
@@ -1167,7 +1203,11 @@ PROCEDURE proc-enable :
          DISABLE /*vendItemCost.ItemType*/ vendItemCost.ItemID vendItemCost.estimateNo vendItemCost.formNo 
              venditemCost.blankNo 
                     /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
-     END.  
+     END.
+     IF adm-new-record AND NOT adm-adding-record THEN
+     DO:
+        vendItemCost.expirationDate:SCREEN-VALUE IN FRAME {&frame-name}  = "12/31/2099".
+     END.
      lCheckEditMode = YES.
      {methods/run_link.i "getPanel-SOURCE" "DisablePanel"}.
      Btn_multi:SENSITIVE = NO.
@@ -1240,7 +1280,10 @@ PROCEDURE pSetDefaultValues PRIVATE:
             vendItemCost.createdDate:SCREEN-VALUE    = STRING(TODAY)
             vendItemCost.updatedID:SCREEN-VALUE      = USERID('ASI')
             vendItemCost.updatedDate:SCREEN-VALUE    = STRING(TODAY)
-            .   
+            .          
+        IF lVendCostMatrix THEN        
+            vendItemCost.useQuantityFromBase:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes".
+          
     END.                 
 END PROCEDURE.
 	
@@ -1499,7 +1542,7 @@ PROCEDURE valid-duplicateRecord :
                                    AND trim(bf-vendItemCost.EstimateNo) = trim(vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name})
                                    AND bf-vendItemCost.formNo EQ INTEGER(vendItemCost.formNo:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                                    AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-                                   AND bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID                                    
+                                   AND (bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID OR (adm-new-record AND NOT adm-adding-record))                                   
              )    
       .  
       

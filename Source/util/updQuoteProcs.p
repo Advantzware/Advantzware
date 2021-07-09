@@ -10,6 +10,52 @@
     Created     : Wed Jan 1 19:29:35 EST 2020
     Notes       :
   ----------------------------------------------------------------------*/
+  
+PROCEDURE pExpPriceMatrix:
+    /*------------------------------------------------------------------------------
+     Purpose: Public wrapper procedure to update Expire Date
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuote AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtNewExpire AS DATE NO-UNDO.
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    RUN pGetNk1Settings(INPUT ipcCompany, OUTPUT lQuotePriceMatrix).
+    IF lQuotePriceMatrix THEN 
+    DO:        
+        FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK
+             WHERE bf-oe-prmtx.company EQ ipcCompany
+             AND bf-oe-prmtx.quoteId  EQ ipiQuote :
+        
+           bf-oe-prmtx.exp-date = ipdtNewExpire. 
+        END.                                         
+    END.
+    RELEASE bf-oe-prmtx.
+END PROCEDURE.
+
+PROCEDURE pGetNk1Settings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.     
+    DEFINE OUTPUT PARAMETER iplFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p  (INPUT ipcCompany,
+        INPUT "QuotePriceMatrix", 
+        INPUT "L", 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "",
+        INPUT "", 
+        OUTPUT cReturn, 
+        OUTPUT iplFound ).
+                     
+END PROCEDURE.
+
 PROCEDURE UpdateExpireDate:
     /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to update Expire Date
@@ -32,8 +78,10 @@ PROCEDURE UpdateExpireDate:
               AND bf-quoteitm.cust-no EQ quotehd.cust-no :
             lCheckPartNo = YES .
         END.
-        IF NOT lCheckPartNo THEN
+        IF NOT lCheckPartNo THEN DO:        
             ASSIGN quotehd.expireDate = ipdtNewExpire .
+            RUN pExpPriceMatrix(quotehd.company,quotehd.q-no,ipdtNewExpire).
+        END.    
     END.
     FIND CURRENT quotehd NO-LOCK NO-ERROR .
 
@@ -60,16 +108,20 @@ PROCEDURE UpdateExpireCustFGItem:
             AND cust.cust-no NE "" NO-ERROR .
 
         IF AVAILABLE cust AND cust.ACTIVE EQ "I" AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) THEN
+        DO:         
             ASSIGN quotehd.expireDate = ipdtNewExpire .
-
+            RUN pExpPriceMatrix(quotehd.company,quotehd.q-no,ipdtNewExpire).
+        END.
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ quoteitm.company
             AND itemfg.i-no EQ quoteitm.i-no
             AND itemfg.i-no NE "" NO-ERROR .
 
         IF AVAILABLE itemfg AND itemfg.stat EQ "I" AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) THEN
+        DO:        
             ASSIGN quotehd.expireDate = ipdtNewExpire .
-
+            RUN pExpPriceMatrix(quotehd.company,quotehd.q-no,ipdtNewExpire).
+        END.
         FIND CURRENT quotehd NO-LOCK NO-ERROR .
     END.
 END PROCEDURE.
@@ -96,9 +148,12 @@ PROCEDURE UpdateExpireDate_allQuote:
         FOR EACH bf-quotehd NO-LOCK
             WHERE bf-quotehd.company EQ quoteitm.company
             AND bf-quotehd.loc EQ quoteitm.loc
-            AND bf-quotehd.cust-no EQ quotehd.cust-no,
+            AND bf-quotehd.cust-no EQ quotehd.cust-no
+            AND bf-quotehd.ship-id EQ quotehd.ship-id
+            AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod,
             FIRST bf-quoteitm OF bf-quotehd
             WHERE bf-quoteitm.part-no EQ quoteitm.part-no
+            AND bf-quoteitm.i-no EQ quoteitm.i-no 
             NO-LOCK BREAK BY bf-quotehd.cust-no
             BY bf-quoteitm.part-no
             BY bf-quotehd.quo-date:

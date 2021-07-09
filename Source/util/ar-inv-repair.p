@@ -9,7 +9,6 @@ DEF VAR ll-calc-disc-FIRST AS LOG            NO-UNDO.
 DEF VAR v-format LIKE sys-ctrl.char-fld      NO-UNDO.
 DEF VAR v-cost AS DEC EXTENT 4               NO-UNDO.
 DEF VAR v-basis LIKE sman.commbasis INIT ""  NO-UNDO.
-DEF VAR v-ref-ar AS INT                      NO-UNDO.
 DEF VAR v-ref-inv AS INT                     NO-UNDO.
 DEF VAR v-ref-arl AS INT                     NO-UNDO.
 DEF VAR v-tax AS DEC                         NO-UNDO.
@@ -60,9 +59,6 @@ ASSIGN
  v-format           = sys-ctrl.char-fld
  ll-calc-disc-FIRST = v-format EQ "Dayton".
 
-FIND LAST ar-inv NO-LOCK USE-INDEX x-no.
-v-ref-ar = ar-inv.x-no + 1.
-
 FIND LAST inv-head NO-LOCK USE-INDEX r-no NO-ERROR.
 v-ref-inv = next-value(inv_r_no_seq).
 
@@ -73,8 +69,7 @@ v-ref-arl = ar-invl.x-no + 1.
 FOR EACH glhist WHERE
          glhist.jrnl = "OEINV" AND
         (glhist.tr-date >= ip-beg-date AND 
-         glhist.tr-date <= ip-end-date) AND
-         glhist.posted  EQ NO NO-LOCK:
+         glhist.tr-date <= ip-end-date) NO-LOCK:
 
    v-pos = R-INDEX(glhist.tr-dscr,"Inv#").
 
@@ -166,17 +161,8 @@ END.
 
 PROCEDURE CREATE-ar-inv.
     
-    DO WHILE TRUE :
-        FIND ar-inv WHERE ar-inv.x-no = v-ref-ar NO-LOCK NO-ERROR.
-        IF AVAILABLE ar-inv THEN 
-            v-ref-ar = v-ref-ar + 1.
-        ELSE LEAVE.
-    END.
-
-
     CREATE ar-inv .
-    ASSIGN ar-inv.x-no           = v-ref-ar
-           ar-inv.company        = inv-head.company
+    ASSIGN ar-inv.company        = inv-head.company
            ar-inv.ord-no         = oe-bolh.b-ord-no
            ar-inv.ord-date       = oe-bolh.bol-date
            ar-inv.inv-no         = v-invno

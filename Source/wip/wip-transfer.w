@@ -68,7 +68,8 @@ DEFINE VARIABLE iCount              AS         INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobNo      AS         CHARACTER NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
+{Inventory/ttBrowseInventory.i}
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1149,7 +1150,7 @@ PROCEDURE init :
            
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 
     IF ipcJobNo NE "" THEN 
@@ -1427,7 +1428,8 @@ PROCEDURE rebuildTempTable :
         ipiFormno,
         ipiBlankno,
         OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        OUTPUT iTotOnHand,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
 

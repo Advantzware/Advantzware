@@ -63,7 +63,6 @@ ASSIGN
     .
     
 /* **********************  Internal Procedures  *********************** */
-
 PROCEDURE Estimate_GetVersionSettings:
     /*------------------------------------------------------------------------------
      Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
@@ -118,6 +117,63 @@ PROCEDURE Estimate_GetVersionSettings:
         END CASE.
 
 END PROCEDURE.
+
+PROCEDURE Estimate_GetQuantities:
+    /*------------------------------------------------------------------------------
+     Purpose: Load the eb table data to ttGoto temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDelimiter AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQtyList   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-est-qty  FOR est-qty.
+    
+    FIND FIRST bf-est-qty
+        WHERE bf-est-qty.company EQ ipcCompany
+        AND bf-est-qty.est-no  EQ ipcEstNo
+        NO-LOCK NO-ERROR.
+    
+    RUN pBuildQuantityList(BUFFER bf-est-qty, 1, ipcDelimiter, OUTPUT opcQtyList). 
+
+END.
+
+PROCEDURE Estimate_GetQuantitiesForEstMaterial:
+    /*------------------------------------------------------------------------------
+     Purpose: Load the eb table data to ttGoto temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriEstMaterial AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDelimiter AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQtyList   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-estMaterial FOR estMaterial.
+    
+    FIND bf-estMaterial NO-LOCK 
+        WHERE ROWID(bf-estMaterial) EQ ipriEstMaterial
+        NO-ERROR.
+    IF NOT AVAILABLE bf-estMaterial THEN RETURN. 
+    IF bf-estMaterial.quantityPer EQ "L" THEN 
+        opcQtyList = STRING(bf-estMaterial.quantity).
+    ELSE DO:
+        FIND FIRST bf-est-qty NO-LOCK
+            WHERE bf-est-qty.company EQ bf-estMaterial.company
+            AND bf-est-qty.est-no  EQ bf-estMaterial.estimateNo
+            NO-ERROR.
+        IF bf-estMaterial.quantityPer EQ "E" THEN
+            dMultiplier = bf-estMaterial.quantity * (1 + bf-estMaterial.wastePercent / 100). 
+        ELSE 
+            dMultiplier = 1.
+        RUN pBuildQuantityList(BUFFER bf-est-qty, dMultiplier, ipcDelimiter, OUTPUT opcQtyList).
+    END.
+END.
 
 PROCEDURE Estimate_LoadEstToTT:
 /*------------------------------------------------------------------------------
@@ -714,6 +770,34 @@ PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
     
     RELEASE bf-ef.
     RELEASE bf-eb.
+END PROCEDURE.
+
+PROCEDURE pBuildQuantityList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given an est-qty buffer, multiplier and delimiter, return a delimeter
+    separated list of quantities
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est-qty FOR est-qty.
+    DEFINE INPUT PARAMETER ipdMultiplier AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDelimiter AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQtyList AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE ipbf-est-qty THEN
+    DO iQtyCount = 1 TO 20:
+        IF ipbf-est-qty.qty[iQtyCount] NE 0 THEN DO:
+            iQty = ipbf-est-qty.qty[iQtyCount].
+            IF ipdMultiplier GT 0 THEN 
+                iQty = INTEGER(ipdMultiplier * iQty).        
+            opcQtyList = opcQtyList + ipcDelimiter + STRING(iQty).
+        END.
+    END.
+    
+    opcQtyList = TRIM(opcQtyList, ipcDelimiter).
+    
 END PROCEDURE.
 
 PROCEDURE pUpdateFormBoard PRIVATE:

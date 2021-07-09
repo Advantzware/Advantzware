@@ -10,15 +10,18 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany    AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cCompare    AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cLocation   AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE hConnection AS COM-HANDLE NO-UNDO.
-DEFINE VARIABLE hFields     AS COM-HANDLE NO-UNDO.
-DEFINE VARIABLE hRecordSet  AS COM-HANDLE NO-UNDO.
-DEFINE VARIABLE hTable      AS HANDLE     NO-UNDO EXTENT 2.
-DEFINE VARIABLE iTotal      AS INTEGER    NO-UNDO.
-DEFINE VARIABLE lNoChange   AS LOGICAL    NO-UNDO.
+
+DEFINE VARIABLE cCompany     AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cCompare     AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cLoadPrompt  AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE hConnection  AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE hFields      AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE hRecordSet   AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE hTable       AS HANDLE     NO-UNDO EXTENT 2.
+DEFINE VARIABLE iTotal       AS INTEGER    NO-UNDO.
+DEFINE VARIABLE lNoChange    AS LOGICAL    NO-UNDO.
+DEFINE VARIABLE lProgressBar AS LOGICAL    NO-UNDO.
 
 /* Temp-Table Definitions ---                                           */
 DEFINE TEMP-TABLE ttSBJobs NO-UNDO
@@ -63,34 +66,48 @@ END FUNCTION.
 
 /* **********************  Main Block  ******************************** */
 
+RUN spGetSessionParam ("adoSBJobs", OUTPUT cLoadPrompt).
+IF cLoadPrompt NE "NO" THEN
 MESSAGE
     "Refresh Jobs from ADO Source?"
 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
 UPDATE lRefresh AS LOGICAL.
+ELSE lRefresh = YES.
+
 IF lRefresh THEN
 RUN pBusinessLogic.
+IF RETURN-VALUE NE "" THEN
+RETURN "ERROR".
 
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE cADOSBJobs AS CHARACTER NO-UNDO.
+
     /* create ActiveX Data Object connection */
     CREATE "ADODB.Connection.6.0" hConnection.
     hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
     /* open ADO connection */
-    hConnection:Open (,,,).
+    hConnection:Open (,,,) NO-ERROR.
+    IF ERROR-STATUS:NUM-MESSAGES GT 0 THEN
+    RETURN "ERROR".
     /* create record set connection */
     CREATE "ADODB.Recordset.6.0" hRecordSet.
     hRecordSet:LockType = 1. /* read only */
     
-    RUN spGetSessionParam ("Company",  OUTPUT cCompany).
-    RUN spGetSessionParam ("Location", OUTPUT cLocation).
+    RUN spGetSessionParam ("Company",   OUTPUT cCompany)   NO-ERROR.
+    RUN spGetSessionParam ("adoSBJobs", OUTPUT cADOSBJobs) NO-ERROR.
+    lProgressBar = cADOSBJobs NE "NO".
     RUN pADOSBJobs.
     
     hConnection:Close ().
     RELEASE OBJECT hRecordSet.
     RELEASE OBJECT hConnection.
 
+    IF lProgressBar THEN
     RUN spProgressBar (?, ?, 100).
+    
+    RETURN "".
 
 END PROCEDURE.
 
@@ -108,7 +125,8 @@ PROCEDURE pADOSBJobs:
     DO WHILE TRUE:
         IF hRecordSet:EOF THEN LEAVE.
         iCount = iCount + 1.
-        RUN spProgressBar ("ADO SB Jobs - Phase 1", iCount, hRecordSet:RecordCount).
+        IF lProgressBar THEN
+        RUN spProgressBar ("ADO SB Jobs - Import Jobs", iCount, hRecordSet:RecordCount).
         RUN pCreatettSBJobs.
         hRecordSet:MoveNext.
     END. /* do while */
@@ -189,6 +207,10 @@ PROCEDURE pSBJobs:
     DEFINE VARIABLE iJNo      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lCEMenu   AS LOGICAL   NO-UNDO.
 
+    DISABLE TRIGGERS FOR LOAD OF job.
+    DISABLE TRIGGERS FOR LOAD OF job-hdr.
+    DISABLE TRIGGERS FOR LOAD OF job-mch.                                                                                                                                 
+
     RUN sys/ref/nk1look.p (
         cCompany,"CEMENU","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lCEMenu
@@ -200,7 +222,8 @@ PROCEDURE pSBJobs:
 
     FOR EACH ttSBJobs:
         iCount = iCount + 1.
-        RUN spProgressBar ("ADO SB Jobs - Phase 3", iCount, iTotal).
+        IF lProgressBar THEN
+        RUN spProgressBar ("ADO SB Jobs - Load into Job Machine", iCount, iTotal).
         FIND FIRST ttUniqueJob
              WHERE ttUniqueJob.company EQ ttSBJobs.company
                AND ttUniqueJob.job-no  EQ ttSBJobs.job-no
@@ -320,7 +343,8 @@ PROCEDURE pSetLineOrder:
               BY ttSBJobs.seq-no
         :
         iCount = iCount + 1.
-        RUN spProgressBar ("ADO SB Jobs - Phase 2", iCount, iTotal).
+        IF lProgressBar THEN
+        RUN spProgressBar ("ADO SB Jobs - Set Line Order", iCount, iTotal).
         IF FIRST-OF(ttSBJobs.job-no) THEN
         iLine = 0.
         ASSIGN
@@ -362,8 +386,7 @@ PROCEDURE pSetSelect:
               + "and (Orders.spec_part_no=Spec_File.spec_part_no)) "
               + "on Ord_Mach_Ops.order_no=Orders.order_no "
               + "Where (Orders.completion_flg='O' or Orders.completion_flg='P') "
-              + "and Orders.due_date>=~{ts '2020-10-15 00:00:00'} "
-              + "and Orders.for_invt_flg<>'R'"
+              + "and Orders.for_invt_flg in ('Y','N') "
               + "and ("
               .
     FOR EACH mach NO-LOCK

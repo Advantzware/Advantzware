@@ -32,7 +32,6 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i NEW SHARED}
 {methods/template/brwCustomDef.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 &SCOPED-DEFINE BRWSDEFS rm-issued
@@ -714,6 +713,8 @@ DO:
   DEF VAR lv-new-qty AS DEC NO-UNDO.
   DEF VAR hquery AS HANDLE NO-UNDO.
 
+  DEFINE VARIABLE riRMBin AS ROWID NO-UNDO.
+  
   DEF BUFFER b-rm-rctd-2 FOR rm-rctd.
 
   DEFINE BUFFER bf-rm-bin FOR rm-bin.
@@ -733,43 +734,22 @@ DO:
 
     IF adm-new-record OR rm-rctd.tag NE rm-rctd.tag:SCREEN-VALUE THEN
     DO:
-       /* Find if an rm-bin record available for the loadtag's location and bin with quantity grater than 0 */
-       FIND FIRST bf-rm-bin NO-LOCK
-            WHERE bf-rm-bin.company EQ cocode
-              AND bf-rm-bin.loc     EQ loadtag.loc
-              AND bf-rm-bin.i-no    EQ loadtag.i-no
-              AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
-              AND bf-rm-bin.tag     EQ loadtag.tag-no 
-              AND bf-rm-bin.qty     GT 0
-            NO-ERROR.
+        RUN pGetRMBin(
+            BUFFER loadtag,
+            OUTPUT riRMBin
+            ).
         
-       /* Find if an rm-bin record available with quantity grater than 0 */
-       IF NOT AVAILABLE bf-rm-bin THEN
-           FIND FIRST bf-rm-bin NO-LOCK
-                WHERE bf-rm-bin.company EQ cocode
-                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
-                  AND bf-rm-bin.i-no    EQ loadtag.i-no
-                  AND bf-rm-bin.qty     GT 0
-                NO-ERROR.
-
-       /* The below query is just to make sure procedure valid-qty throws an error, so that user can figure out there are
-          no bins for the tag which has on hand quantity */
-       IF NOT AVAILABLE bf-rm-bin THEN
-           FIND FIRST bf-rm-bin NO-LOCK
-                WHERE bf-rm-bin.company EQ cocode
-                  AND bf-rm-bin.loc     EQ loadtag.loc
-                  AND bf-rm-bin.i-no    EQ loadtag.i-no
-                  AND bf-rm-bin.loc-bin EQ loadtag.loc-bin
-                  AND bf-rm-bin.tag     EQ loadtag.tag-no 
-                NO-ERROR.
-
-       IF AVAILABLE bf-rm-bin THEN
-          ASSIGN
-             rm-rctd.qty:SCREEN-VALUE     = STRING(bf-rm-bin.qty)
-             rm-rctd.loc:SCREEN-VALUE     = bf-rm-bin.loc
-             rm-rctd.loc-bin:SCREEN-VALUE = bf-rm-bin.loc-bin
-             rm-rctd.cost:SCREEN-VALUE    = STRING(bf-rm-bin.cost)
-             .
+        FIND FIRST bf-rm-bin NO-LOCK  
+             WHERE ROWID(bf-rm-bin) EQ riRMBin 
+             NO-ERROR.
+             
+        IF AVAILABLE bf-rm-bin THEN
+            ASSIGN
+                rm-rctd.qty:SCREEN-VALUE     = STRING(bf-rm-bin.qty)
+                rm-rctd.loc:SCREEN-VALUE     = bf-rm-bin.loc
+                rm-rctd.loc-bin:SCREEN-VALUE = bf-rm-bin.loc-bin
+                rm-rctd.cost:SCREEN-VALUE    = STRING(bf-rm-bin.cost)
+                .
     END.
 
     RUN valid-qty NO-ERROR.
@@ -2233,7 +2213,11 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-qty AS DEC NO-UNDO.
-
+    
+  DEFINE VARIABLE riRMBin AS ROWID NO-UNDO.
+  
+  DEFINE BUFFER bf-rm-bin FOR rm-bin.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   
   RUN valid-po-no NO-ERROR.
@@ -2292,20 +2276,19 @@ PROCEDURE local-update-record :
   
   IF AVAIL loadtag THEN
   DO:
-     FIND FIRST rm-bin WHERE
-          rm-bin.company EQ cocode AND
-          rm-bin.i-no    EQ loadtag.i-no AND
-          rm-bin.loc     EQ loadtag.loc AND
-          rm-bin.loc-bin EQ loadtag.loc-bin AND
-          rm-bin.tag     EQ loadtag.tag-no
-          NO-LOCK NO-ERROR.
-     
-     IF AVAIL rm-bin AND lv-qty > rm-bin.qty THEN
-     DO:
-        MESSAGE "Tag Already Issues or Qty on Hand = ZERO."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-     END.
+      RUN pGetRMBin(
+          BUFFER loadtag,
+          OUTPUT riRMBin
+          ).
+    
+      FIND FIRST bf-rm-bin NO-LOCK  
+           WHERE ROWID(bf-rm-bin) EQ riRMBin 
+           NO-ERROR.    
+      IF AVAILABLE bf-rm-bin AND lv-qty > bf-rm-bin.qty THEN DO:
+          MESSAGE "Quantity entered (" + STRING(lv-qty) + ") is greater than bin quantity (" + STRING(bf-rm-bin.qty) + ")" 
+              VIEW-AS ALERT-BOX ERROR.
+          RETURN NO-APPLY.
+      END.
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -2653,6 +2636,57 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRMBin B-table-Win
+PROCEDURE pGetRMBin PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-loadtag FOR loadtag.
+    DEFINE OUTPUT PARAMETER opriRMbin AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin FOR rm-bin.
+    
+    /* Find if an rm-bin record available for the loadtag's location and bin with quantity grater than 0 */
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ ipbf-loadtag.company
+           AND bf-rm-bin.loc     EQ ipbf-loadtag.loc
+           AND bf-rm-bin.i-no    EQ ipbf-loadtag.i-no
+           AND bf-rm-bin.loc-bin EQ ipbf-loadtag.loc-bin
+           AND bf-rm-bin.tag     EQ ipbf-loadtag.tag-no 
+           AND bf-rm-bin.qty     GT 0
+         NO-ERROR.
+     
+    /* Find if an rm-bin record available with quantity grater than 0 */
+    IF NOT AVAILABLE bf-rm-bin THEN
+        FIND FIRST bf-rm-bin NO-LOCK
+             WHERE bf-rm-bin.company EQ ipbf-loadtag.company
+               AND bf-rm-bin.tag     EQ ipbf-loadtag.tag-no 
+               AND bf-rm-bin.i-no    EQ ipbf-loadtag.i-no
+               AND bf-rm-bin.qty     GT 0
+             NO-ERROR.
+    
+    /* The below query is just to make sure procedure valid-qty throws an error, so that user can figure out there are
+       no bins for the tag which has on hand quantity */
+    IF NOT AVAILABLE bf-rm-bin THEN
+        FIND FIRST bf-rm-bin NO-LOCK
+             WHERE bf-rm-bin.company EQ ipbf-loadtag.company
+               AND bf-rm-bin.loc     EQ ipbf-loadtag.loc
+               AND bf-rm-bin.i-no    EQ ipbf-loadtag.i-no
+               AND bf-rm-bin.loc-bin EQ ipbf-loadtag.loc-bin
+               AND bf-rm-bin.tag     EQ ipbf-loadtag.tag-no 
+             NO-ERROR.
+    
+    IF AVAILABLE bf-rm-bin THEN
+        opriRMbin = ROWID(bf-rm-bin).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rmbin-help B-table-Win 
 PROCEDURE rmbin-help :

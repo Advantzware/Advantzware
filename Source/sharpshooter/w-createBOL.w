@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-{system/sysconst.i}
+// {system/sysconst.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -73,7 +73,7 @@ DEFINE VARIABLE glScanTrailer AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiTag btDelete btPrintBOL 
+&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer 
 
 /* Custom List Definitions                                              */
@@ -110,10 +110,14 @@ DEFINE BUTTON btPrintBOL
      LABEL "Print BOL" 
      SIZE 22 BY 1.91.
 
+DEFINE BUTTON btReset 
+     LABEL "Reset" 
+     SIZE 15 BY 1.48.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag #" 
      VIEW-AS FILL-IN 
-     SIZE 66.2 BY 1.38 TOOLTIP "Enter Tag #" NO-UNDO.
+     SIZE 64.2 BY 1.38 TOOLTIP "Enter Tag #" NO-UNDO.
 
 DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U 
      LABEL "Trailer #" 
@@ -125,21 +129,22 @@ DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U
 
 DEFINE FRAME F-Main
      btChange AT ROW 3.19 COL 61.6 WIDGET-ID 14 NO-TAB-STOP 
+     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18 NO-TAB-STOP 
      fiTag AT ROW 4.81 COL 17.8 COLON-ALIGNED WIDGET-ID 8
-     fiTrailer AT ROW 4.81 COL 99.6 COLON-ALIGNED WIDGET-ID 10
-     btDelete AT ROW 12.57 COL 194.8 WIDGET-ID 16 NO-TAB-STOP 
-     btPrintBOL AT ROW 27.1 COL 172.2 WIDGET-ID 12 NO-TAB-STOP 
+     fiTrailer AT ROW 4.81 COL 117.4 COLON-ALIGNED WIDGET-ID 10
+     btDelete AT ROW 12.57 COL 175.6 WIDGET-ID 16 NO-TAB-STOP 
+     btPrintBOL AT ROW 27.1 COL 153.4 WIDGET-ID 12 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 204 BY 28.33
+         SIZE 204.2 BY 28.33
          BGCOLOR 15 FONT 17 WIDGET-ID 100.
 
 DEFINE FRAME Option-frame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 204 BY 1.91
+         SIZE 192 BY 1.91
          BGCOLOR 21  WIDGET-ID 200.
 
 
@@ -160,7 +165,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Create BOL"
          HEIGHT             = 28.33
-         WIDTH              = 204
+         WIDTH              = 183.2
          MAX-HEIGHT         = 36.57
          MAX-WIDTH          = 204
          VIRTUAL-HEIGHT     = 36.57
@@ -284,6 +289,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
+ON CHOOSE OF btReset IN FRAME F-Main /* Reset */
+DO:
+    fiTag:SCREEN-VALUE = "".
+    
+    APPLY "ENTRY" TO fiTag.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ANY-KEY OF fiTag IN FRAME F-Main /* Tag # */
@@ -396,7 +414,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME Option-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 196.80 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 175.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -412,7 +430,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_viewfginquiry ).
-       RUN set-position IN h_viewfginquiry ( 4.52 , 177.20 ) NO-ERROR.
+       RUN set-position IN h_viewfginquiry ( 4.62 , 158.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.67 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -421,7 +439,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releaseitems ).
        RUN set-position IN h_b-releaseitems ( 6.52 , 3.40 ) NO-ERROR.
-       RUN set-size IN h_b-releaseitems ( 5.91 , 190.60 ) NO-ERROR.
+       RUN set-size IN h_b-releaseitems ( 5.91 , 171.60 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-releasetags.w':U ,
@@ -429,7 +447,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
        RUN set-position IN h_b-releasetags ( 12.62 , 3.20 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 14.29 , 190.80 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 14.29 , 171.80 ) NO-ERROR.
 
        /* Links to SmartObject h_releasefilter. */
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).
@@ -510,7 +528,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTag fiTrailer 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE fiTag btDelete btPrintBOL 
+  ENABLE btReset fiTag btDelete btPrintBOL 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW FRAME Option-frame IN WINDOW W-Win.
@@ -574,7 +592,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
 
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + cCompanyName + " - " + cLocation.
                          
     fiTrailer:HIDDEN = NOT glScanTrailer.
@@ -629,6 +647,7 @@ PROCEDURE pInValidRelease PRIVATE :
         fiTrailer:SENSITIVE = FALSE
         btChange:HIDDEN     = TRUE
         btChange:SENSITIVE  = FALSE
+        btReset:SENSITIVE   = FALSE
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "EnableRelease"}
@@ -845,6 +864,7 @@ PROCEDURE pValidRelease PRIVATE :
         fiTrailer:SENSITIVE = TRUE
         btChange:HIDDEN     = FALSE
         btChange:SENSITIVE  = TRUE
+        btReset:SENSITIVE   = TRUE
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "DisableRelease"}

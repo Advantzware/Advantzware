@@ -73,8 +73,11 @@ DEFINE VARIABLE iLevel            AS INTEGER   NO-UNDO.
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 
+RUN spSetSessionParam ("Company", g_company).
+RUN spSetSessionParam ("Location", g_loc).
+
 /* System Constant Values */
-{system/sysconst.i}
+// {system/sysconst.i}
 
 {system/menuTree.i}
 ASSIGN

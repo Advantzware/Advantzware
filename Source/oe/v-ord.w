@@ -1545,7 +1545,7 @@ DO:
    IF SELF:SCREEN-VALUE EQ "T" AND
       CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                             AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-                            AND cust.active  EQ "X") THEN DO:
+                            AND cust.internal EQ YES) THEN DO:
      APPLY "leave" TO SELF.
      RETURN NO-APPLY.
    END.
@@ -3852,7 +3852,7 @@ PROCEDURE display-cust-detail :
                             
      RUN pGetOverUnderPct.        
 
-    IF cust.active EQ "X" THEN fi_type:screen-value = "T".
+    IF cust.internal THEN fi_type:screen-value = "T".
 
     IF INDEX("HA",oe-ord.stat:screen-value) = 0 THEN DO:
        /*if (cust.cr-lim - (cust.acc-bal + cust.ord-bal) < 0) or cust.cr-hold
@@ -3863,7 +3863,7 @@ PROCEDURE display-cust-detail :
             oe-ord.stat:screen-value = "H".
        end.*/
      
-      IF AVAIL cust AND cust.active NE "X" AND fi_type:screen-value NE "T" THEN DO:
+      IF AVAIL cust AND NOT cust.internal AND fi_type:screen-value NE "T" THEN DO:
           RUN oe/creditck.p (ROWID(cust), NO).
           FIND CURRENT cust NO-LOCK NO-ERROR.
           IF AVAIL cust AND cust.cr-hold AND oecredit-log THEN oe-ord.stat:SCREEN-VALUE = "H".  
@@ -4266,7 +4266,7 @@ IF AVAIL xest THEN DO:
       IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
       ELSE oe-ord.terms-d:screen-value = "".
 
-      IF cust.active EQ "X" THEN fi_type:screen-value = "T".
+      IF cust.internal THEN fi_type:screen-value = "T".
 
       v-factor = IF xest.est-type GE 1 AND xest.est-type LE 4 THEN  lastship-dec
                  ELSE 1. 
@@ -4612,7 +4612,7 @@ PROCEDURE hold-approve :
             IF AVAIL xoe-ord THEN RUN oe/oe-comm.p.
 
             RUN oe/calcordt.p (ROWID(oe-ord)).
-         IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+         IF AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
             RUN oe/creditck.p (ROWID(cust), YES). 
 
             FIND FIRST b-cust WHERE
@@ -5701,6 +5701,10 @@ PROCEDURE local-enable-fields :
   
 /*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
+  {methods/run_link.i "tandem-target" "disable-all"}
+  {methods/run_link.i "status-target" "disable-all"}
+  {methods/run_link.i "line-item-target" "disable-all"}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7860,7 +7864,7 @@ PROCEDURE valid-type :
        (fi_type:SCREEN-VALUE EQ "T" AND
         NOT CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                                   AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-                                  AND cust.active  EQ "X")) THEN DO:
+                                  AND cust.internal EQ YES)) THEN DO:
       MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_type.
       RETURN ERROR.

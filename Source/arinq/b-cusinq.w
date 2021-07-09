@@ -449,10 +449,11 @@ DO:
   {src/adm/template/brschnge.i}
   IF AVAILABLE tt-arinq THEN
   RUN custom/setUserPrint.p (g_company,'ar-inv_.',
-                             'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted',
+                             'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted,begin_Inv-id,end_Inv-id',
                              STRING(tt-arinq.inv-no) + ',' + STRING(tt-arinq.inv-no) + ',' +
                              fi_cust:SCREEN-VALUE + ',' + fi_cust:SCREEN-VALUE + ',' +
-                             STRING(tt-arinq.printed) + ',' + STRING(tt-arinq.posted)).
+                             STRING(tt-arinq.printed) + ',' + STRING(tt-arinq.posted) + ',' +
+                             '' + ',' + "99999999").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -912,6 +913,10 @@ PROCEDURE local-open-query :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
+  DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+  END.
+  
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.

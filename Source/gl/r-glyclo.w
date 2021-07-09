@@ -364,10 +364,11 @@ DO:
   end case. 
 
   IF lv-close-year THEN do:
-      MESSAGE "Close Year?" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+      MESSAGE "Close year?" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
       IF ll-ans THEN do:
          RUN close-year.
          MESSAGE "Completed closing year. " VIEW-AS ALERT-BOX INFO.
+         APPLY "close" TO THIS-PROCEDURE.
       END.
   END.
 END.
@@ -524,6 +525,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   if company.yend-per then do :
      MESSAGE "This fiscal year is already closed. " VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.
      return.
   END.
   find first period where period.company eq cocode
@@ -531,8 +533,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                       and period.yr      eq fisc-yr
                       no-lock no-error.
   if avail period then do with frame error:
-     MESSAGE "ALL MONTHS IN CLOSING FISCAL YEAR ARE NOT CLOSED!!!!" 
+     MESSAGE "All months in closing fiscal year are not closed!!!!" 
           VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.     
      return.  
   end.
 
@@ -542,17 +545,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                       no-lock no-error.
   if not avail period then do:
      MESSAGE
-     "  There is no Period One for the Next Fiscal Year set up.    "   skip
-     "  Please add the next Fiscal Year from General Ledger, File  "   skip
-     "  Maintenance, Company File Open Periods (L-F-Company File-O) "  skip
+     "  There is no period one for the next fiscal year set up.    "   skip
+     "  Please add the next fiscal year from General Ledger, file  "   skip
+     "  maintenance, company file open periods (L-F-Company File-O) "  skip
      "  before you continue. "
         VIEW-AS ALERT-BOX ERROR.
+     APPLY "close" TO THIS-PROCEDURE.   
      RETURN.        
-  end.
-
+  END.       
 
   RUN enable_UI.
   RUN check-date.
+  
+   tran-year:SENSITIVE IN FRAME FRAME-A = NO. 
 
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN 
@@ -645,7 +650,7 @@ SESSION:SET-WAIT-STATE("general").
                           (account.type eq "R" or
                           account.type eq "E"):
      ret-bal = ret-bal + cyr-open.
-     STATUS DEFAULT "Closing Openning Balance Account#: " + TRIM(account.actnum).
+     STATUS DEFAULT "Closing Account#: " + TRIM(account.actnum).
   end. 
 
    find first period where period.company eq cocode
@@ -657,7 +662,7 @@ SESSION:SET-WAIT-STATE("general").
       no-lock no-error.      
       if avail period then end-date = period.pend.  
       else do:
-           message "Can't Find Start and End Dates." VIEW-AS ALERT-BOX ERROR.
+           message "Can't find start and end dates." VIEW-AS ALERT-BOX ERROR.
            RETURN.
       end.
    end.

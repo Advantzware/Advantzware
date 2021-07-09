@@ -1386,17 +1386,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN
        v-auto-print   = sys-ctrl.log-fld
-       scr-auto-print:SCREEN-VALUE = STRING(sys-ctrl.log-fld)
-       scr-label-file:SCREEN-VALUE = sys-ctrl.char-fld
-       v-casflg = asi.sys-ctrl.log-fld.
+       scr-auto-print = sys-ctrl.log-fld
+       scr-label-file = sys-ctrl.char-fld
+       v-casflg       = asi.sys-ctrl.log-fld
+       .
 
     IF rd_print:SCREEN-VALUE NE "R" THEN DISABLE begin_date end_date.
     ELSE DO:
          ASSIGN begin_date = DATE(1,1,YEAR(TODAY))
-                END_date = DATE(12,31,YEAR(TODAY)).
-         DISPLAY begin_date END_date.
+                end_date = DATE(12,31,YEAR(TODAY)).
+         DISPLAY begin_date end_date.
     END.
-    DISPLAY lbl_po-no.
+    DISPLAY lbl_po-no scr-auto-print scr-label-file.
     APPLY "entry" TO fi_cas-lab.
 
     IF begin_filename:SCREEN-VALUE = "" THEN
@@ -1758,8 +1759,10 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                                  OUTPUT w-ord.rel-date,
                                  OUTPUT w-ord.rel-lot#).
-
-                w-ord.po-no        = oe-ordl.po-no-po.
+               
+               ASSIGN
+                w-ord.po-no        = oe-ordl.po-no-po
+                w-ord.customField  = oe-ordl.customField.
                 
 
                 FIND FIRST oe-relh NO-LOCK
@@ -2024,6 +2027,7 @@ PROCEDURE from-ord :
             w-ord.mult         = if cust.int-field[1] ne 0 then
                                    cust.int-field[1] else v-mult
             w-ord.linenum      = oe-ordl.e-num
+            w-ord.customField  = oe-ordl.customField
             num-rec            = num-rec + 1.
 
           ASSIGN
@@ -2186,6 +2190,7 @@ PROCEDURE from-ord :
           w-ord.mult         = if cust.int-field[1] ne 0 then
                                  cust.int-field[1] else v-mult
           w-ord.linenum      = oe-ordl.e-num
+          w-ord.customField  = oe-ordl.customField
           num-rec            = num-rec + 1.
 
         ASSIGN
@@ -2636,7 +2641,7 @@ PROCEDURE ok-button :
 
   MESSAGE "Enter Another?" VIEW-AS ALERT-BOX QUESTION
       BUTTON YES-NO UPDATE ll-ans AS LOG.
-  IF ll-ans THEN DO:
+  IF NOT ll-ans THEN DO:
      APPLY "CLOSE":U TO THIS-PROCEDURE.
      RETURN NO-APPLY.
   END.
@@ -3137,7 +3142,7 @@ ASSIGN
             "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
             "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
             "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME".
+            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME,CUSTOM1".
         PUT SKIP.
     END.
 
@@ -3306,6 +3311,7 @@ ASSIGN
             "~""  v-blnk-no  "~"," 
             "~""  TODAY  "~","
             "~""  STRING(TIME,'hh:mm am')  "~","
+            "~""  removeChars(w-ord.customField)  "~","
                .
             put skip.
         end.

@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
+    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -48,7 +48,25 @@ ON 'CTRL-ALT-P':U ANYWHERE
 DO: 
     RUN util/wPgmrToolbox.w.
 END.    
-   
+
+ON 'CTRL-ALT-T':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/Tasker.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-S':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSubjct.w PERSISTENT.
+END.
+
+ON 'CTRL-ALT-Y':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynSync.w PERSISTENT.
+END.
+
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
@@ -70,6 +88,7 @@ END.
 
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyBgColor   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDebug            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEulaVersion      AS CHARACTER NO-UNDO.
@@ -119,6 +138,20 @@ IF g_company EQ "" OR g_loc EQ "" THEN DO:
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
     RETURN.
 END.
+
+/* Set BGColor for this company */
+FIND company NO-LOCK WHERE
+    company.company EQ g_company.
+IF company.cBgColor NE "" THEN DO:
+    ASSIGN 
+        cCompanyBgColor = company.cBgColor.
+        
+    COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+    COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
+    COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
+    COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
+END.
+     
 cEulaFile = SEARCH("{&EulaFile}").
 
 &Scoped-define isActive YES
@@ -516,7 +549,7 @@ DEFINE FRAME menuTreeFrame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW MAINMENU ASSIGN
          HIDDEN             = YES
-         TITLE              = "Main Menu - Advantzware version {&awversion}"
+         TITLE              = "Main Menu - Advantzware Version"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -528,7 +561,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         PRIVATE-DATA       = "Main Menu - Advantzware version"
+         PRIVATE-DATA       = "Main Menu - Advantzware Version"
          KEEP-FRAME-Z-ORDER = yes
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
@@ -733,7 +766,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 
 &Scoped-define SELF-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL MAINMENU MAINMENU
-ON WINDOW-RESIZED OF MAINMENU /* Main Menu - Advantzware version {awversion} */
+ON WINDOW-RESIZED OF MAINMENU /* Main Menu - Advantzware Version */
 DO:
     RUN pWinReSize.
 END.
@@ -1609,7 +1642,7 @@ PROCEDURE pCheckUpgradeAdvantzware :
             RUN Service1Soap SET hSalesSoap ON hWebService .
             RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
             ASSIGN
-                cThisVer     = "{&awversion}"
+                cThisVer     = DYNAMIC-FUNCTION("sfVersion")
                 iThisVersion = fIntVer(cThisVer)
                 iLastVersion = fIntVer(cVersion).
                 
@@ -2009,10 +2042,12 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pMenuSize.
-    
+    RUN pMenuSize.    
     RUN pGetMenuSettings.
-    
+    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
+                         + DYNAMIC-FUNCTION("sfVersion")
+                         .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2343,8 +2378,8 @@ PROCEDURE pReset :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE i AS INTEGER NO-UNDO.
     
-    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO)
-                         + " {&awversion}"
+    {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
+                         + DYNAMIC-FUNCTION("sfVersion")
                          .
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
@@ -2407,6 +2442,7 @@ PROCEDURE pSearchSelections :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cSearchSelectionsValue AS CHARACTER NO-UNDO.
+
     DO WITH FRAME searchFrame:
         IF searchSelections:SCREEN-VALUE NE ? THEN
         cSearchSelectionsValue = searchSelections:SCREEN-VALUE.
@@ -2434,10 +2470,13 @@ PROCEDURE pSearchSelections :
                 )
                 .
         END. /* each ttmenutree */
+        IF cSearchSelectionsValue NE "" THEN
+        ASSIGN
+            ENTRY(2,cSearchSelectionsValue,"|") = STRING(NOT ENTRY(2,cSearchSelectionsValue,"|") EQ "yes")
+            searchSelections:SCREEN-VALUE = cSearchSelectionsValue
+            .
     END. /* with frame */
 
-    IF cSearchSelectionsValue NE "" THEN
-    searchSelections:SCREEN-VALUE = cSearchSelectionsValue.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2666,6 +2705,19 @@ PROCEDURE Set-Comp_Loc :
             g_company                 = ipcCompany
             g_loc                     = ipcLoc
             .
+
+        /* Set BGColor for this company */
+        FIND company NO-LOCK WHERE
+            company.company EQ g_company.
+        IF company.cBgColor NE "" THEN ASSIGN 
+            cCompanyBgColor = company.cBgColor.
+        ELSE ASSIGN 
+            cCompanyBgColor = "119,150,203".
+        COLOR-TABLE:SET-DYNAMIC(21, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
+        COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
+        COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
+
     END.
     RUN spSetSessionParam ("Company", g_company).
     RUN spSetSessionParam ("Location", g_loc).

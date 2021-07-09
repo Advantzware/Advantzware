@@ -121,7 +121,7 @@ DEFINE QUERY external_tables FOR pc-prdd.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table tt-prdd.m-code tt-prdd.frm tt-prdd.blank-no tt-prdd.pass tt-prdd.i-no tt-prdd.i-name tt-prdd.code /* display-time(tt-prdd.start) @ tt-prdd.start tt-prdd.start display-time(tt-prdd.start) @ tt-prdd.start display-time(tt-prdd.stopp) @ tt-prdd.stopp tt-prdd.stopp display-time(tt-prdd.stopp) @ tt-prdd.stopp */ tt-prdd.startx tt-prdd.stopx tt-prdd.hours tt-prdd.crew tt-prdd.qty tt-prdd.waste tt-prdd.complete   
+&Scoped-define FIELDS-IN-QUERY-Browser-Table tt-prdd.m-code tt-prdd.frm tt-prdd.blank-no tt-prdd.pass tt-prdd.i-no tt-prdd.i-name tt-prdd.code /* display-time(tt-prdd.start) @ tt-prdd.start tt-prdd.start display-time(tt-prdd.start) @ tt-prdd.start display-time(tt-prdd.stopp) @ tt-prdd.stopp tt-prdd.stopp display-time(tt-prdd.stopp) @ tt-prdd.stopp */ tt-prdd.startx tt-prdd.stopx tt-prdd.hours tt-prdd.crew tt-prdd.qty tt-prdd.waste tt-prdd.complete tt-prdd.notes[1]  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table tt-prdd.m-code ~
 tt-prdd.frm ~
 tt-prdd.blank-no ~
@@ -134,7 +134,8 @@ tt-prdd.hours ~
 tt-prdd.crew ~
 tt-prdd.qty ~
 tt-prdd.waste ~
-tt-prdd.complete   
+tt-prdd.complete ~
+tt-prdd.notes[1]
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table tt-prdd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table tt-prdd
 &Scoped-define SELF-NAME Browser-Table
@@ -236,6 +237,7 @@ DEFINE BROWSE Browser-Table
       tt-prdd.qty       FORMAT ">>>>>>>9-":U LABEL-BGCOLOR 14
       tt-prdd.waste     FORMAT ">>>>9-":U    LABEL-BGCOLOR 14
       tt-prdd.complete  FORMAT "Y/N":U       LABEL-BGCOLOR 14
+      tt-prdd.notes[1]  LABEL "Notes"        LABEL-BGCOLOR 14
   ENABLE
       tt-prdd.m-code
       tt-prdd.frm
@@ -250,6 +252,7 @@ DEFINE BROWSE Browser-Table
       tt-prdd.qty
       tt-prdd.waste
       tt-prdd.complete
+      tt-prdd.notes[1]
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 9.05

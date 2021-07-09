@@ -376,6 +376,9 @@ PROCEDURE pTaskEmails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cEmailBody  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cErrorText  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRunProgram AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRefresh    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
@@ -386,41 +389,47 @@ PROCEDURE pTaskEmails :
     FIND FIRST config NO-LOCK.
     {&OPEN-QUERY-EmailBrowse}
     FOR EACH bTaskEmail:
+        ASSIGN
+            cErrorFile = bTaskEmail.attachment
+            cErrorFile = SUBSTRING(cErrorFile,1,R-INDEX(cErrorFile,".")) + "err"
+            .
         IF bTaskEmail.mustExist EQ NO OR
-           SEARCH(bTaskEmail.attachment) NE ? THEN DO:
-            IF bTaskEmail.recipients EQ "Cue Card Message" THEN DO:
-                IF AVAILABLE config AND config.cueCard THEN DO:
-                    FIND LAST cueCardText NO-LOCK
-                         WHERE cueCardText.cueID     EQ 0
-                           AND cueCardText.cueTextID EQ 0
-                           AND cueCardText.cueType   EQ "Message"
-                         NO-ERROR.
-                    IF AVAILABLE cueCardText THEN DO:
-                        CREATE bCueCardText.
-                        BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
-                            ASSIGN
-                                bCueCardText.cueText     = "Submitted Run Now Request is Available"
-                                                         + CHR(10) + CHR(10) + "File: "
-                                                         + bTaskEmail.attachment
-                                bCueCardText.isActive    = YES
-                                bCueCardText.cueOrder    = cueCardText.cueOrder + 1
-                                bCueCardText.createdDate = TODAY
-                                bCueCardText.createdTime = TIME
-                                bCueCardText.createdFor  = bTaskEmail.user-id
-                                .
-                    END. /* if avail cuecardtext */
-                END. /* if avail config and cuecard */
-            END. /* if cue card message */
-            ELSE DO:
-                ASSIGN
-                    FILE-INFO:FILE-NAME = "AOA\TaskEmail.r" 
-                    cRunProgram = FILE-INFO:FULL-PATHNAME
-                    .
-                IF cRunProgram EQ ? THEN
-                ASSIGN
-                    FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
-                    cRunProgram = FILE-INFO:FULL-PATHNAME
-                    .
+           SEARCH(cErrorFile) NE ? THEN DO:
+            ASSIGN
+                FILE-INFO:FILE-NAME = "AOA\TaskEmail.r" 
+                cRunProgram = FILE-INFO:FULL-PATHNAME
+                .
+            IF cRunProgram EQ ? THEN
+            ASSIGN
+                FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
+                cRunProgram = FILE-INFO:FULL-PATHNAME
+                .
+            IF bTaskEmail.mustExist EQ NO OR
+               SEARCH(bTaskEmail.attachment) NE ? THEN DO:
+                IF bTaskEmail.recipients EQ "Cue Card Message" THEN DO:
+                    IF AVAILABLE config AND config.cueCard THEN DO:
+                        FIND LAST cueCardText NO-LOCK
+                             WHERE cueCardText.cueID     EQ 0
+                               AND cueCardText.cueTextID EQ 0
+                               AND cueCardText.cueType   EQ "Message"
+                             NO-ERROR.
+                        IF AVAILABLE cueCardText THEN DO:
+                            CREATE bCueCardText.
+                            BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
+                                ASSIGN
+                                    bCueCardText.cueText     = "Submitted Run Now Request is Available"
+                                                             + CHR(10) + CHR(10) + "File: "
+                                                             + bTaskEmail.attachment
+                                    bCueCardText.isActive    = YES
+                                    bCueCardText.cueOrder    = cueCardText.cueOrder + 1
+                                    bCueCardText.createdDate = TODAY
+                                    bCueCardText.createdTime = TIME
+                                    bCueCardText.createdFor  = bTaskEmail.user-id
+                                    .
+                        END. /* if avail cuecardtext */
+                    END. /* if avail config and cuecard */
+                END. /* if cue card message */
+                ELSE
                 RUN VALUE(cRunProgram) (
                     bTaskEmail.subject,
                     bTaskEmail.body,
@@ -428,22 +437,33 @@ PROCEDURE pTaskEmails :
                     bTaskEmail.recipients,
                     bTaskEmail.rec_key
                     ).
-/*                OS-COMMAND NO-WAIT VALUE(            */
-/*                    SUBSTITUTE(                      */
-/*                        cRun,                        */
-/*                        cRunProgram,           "~"" +*/
-/*                        PROPATH               + "+" +*/
-/*                        bTaskEmail.subject    + "+" +*/
-/*                        bTaskEmail.body       + "+" +*/
-/*                        bTaskEmail.attachment + "+" +*/
-/*                        bTaskEmail.recipients + "+" +*/
-/*                        bTaskEmail.rec_key    + "~"" */
-/*                        )                            */
-/*                    ).                               */
-            END. /* else */
+            END. /* if attachment search */
+            ELSE DO:
+                cEmailBody = "This Email was sent to you by the Advantzware dAOA application."
+                           + CHR(10) + CHR(10)
+                           + "The dAOA Report "
+                           + bTaskEmail.attachment
+                           + " failed to run because of the following error:"
+                           + CHR(10) + CHR(10)
+                           .
+                INPUT FROM VALUE(SEARCH(cErrorFile)) NO-ECHO.
+                REPEAT:
+                    IMPORT UNFORMATTED cErrorText.
+                    cEmailBody = CHR(10) + cEmailBody + cErrorText.
+                END. /* repeat */
+                INPUT CLOSE.
+                RUN VALUE(cRunProgram) (
+                    bTaskEmail.subject,
+                    cEmailBody,
+                    "",
+                    bTaskEmail.recipients,
+                    bTaskEmail.rec_key
+                    ).                
+            END. /* error else */
+            OS-DELETE VALUE(SEARCH(cErrorFile)).
             DELETE bTaskEmail.
             lRefresh = YES.
-        END. /* if search */
+        END. /* if error search */
     END. /* each bTaskEmail */
     IF lRefresh THEN
     {&OPEN-QUERY-EmailBrowse}

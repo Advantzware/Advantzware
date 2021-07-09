@@ -22,6 +22,7 @@
 "APIInboundDetail" no no no no no no no no 0 0
 "APIInboundEvent" no no no no no no no no 0 0
 "APIOutbound" no no no no no no no no 0 0
+"APIOutboundContent" no no no no no no no no 0 0
 "APIOutboundDetail" no no no no no no no no 0 0
 "APIOutboundEvent" no no no no no no no no 0 0
 "APIOutboundTrigger" no no no no no no no no 0 0
@@ -97,7 +98,7 @@
 "e-item-vend" no no no no no no no no 0 0
 "e-itemfg" yes no no no no no no no 0 0
 "e-itemfg-vend" yes no no no no no no no 0 0
-"eb" no yes no no no yes no no 0 0
+"eb" yes yes yes no no yes no no 0 0
 "ed" no no no no no no no no 0 0
 "EDAPCheck" no no no no no no no no 0 0
 "EDCat" no no no no no no no no 0 0
@@ -126,7 +127,7 @@
 "EDSHPack" no no no no no no no no 0 0
 "EDSHTare" no no no no no no no no 0 0
 "EDSHTran" no no no no no no no no 0 0
-"ef" no no no no no no no no 0 0
+"ef" yes yes yes no no no no no 0 0
 "ef-nsh" no no no no no no no no 0 0
 "emailcod" no no no no no no no no 0 0
 "emailConfig" yes yes yes yes yes yes yes yes 0 0
@@ -139,13 +140,13 @@
 "empmach" no no no no no no no no 0 0
 "emp_type" no no no no no no no no 0 0
 "er" no no no no no no no no 0 0
-"est" no no no no no no no no 0 0
+"est" yes yes yes no no no no no 0 0
 "est-flm" no no no no no no no no 0 0
 "est-inst" no no no no no no no no 0 0
 "est-op" no no no no no no no no 0 0
 "est-pf" no no no no no no no no 0 0
 "est-prep" no no no no no no no no 0 0
-"est-qty" no no no no no no no no 0 0
+"est-qty" yes yes yes no no no no no 0 0
 "est-summ" no no no no no no no no 0 0
 "estCostBlank" no no no no no no no no 0 0
 "estCostCategory" no no no no no no no no 0 0
@@ -159,6 +160,7 @@
 "estCostMisc" no no no no no no no no 0 0
 "estCostOperation" no no no no no no no no 0 0
 "estCostSummary" no no no no no no no no 0 0
+"estMaterial" no no no no no no no no 0 0
 "estPacking" no no no no no no no no 0 0
 "estRelease" no no no no no no no no 0 0
 "exchange" no no no no no no no no 0 0
@@ -173,7 +175,7 @@
 "fg-act" yes no no no no no no no 0 0
 "fg-bin" yes yes yes yes no no no no 0 0
 "fg-ctrl" yes no no no no no no no 0 0
-"fg-hist" yes no no no no no no no 0 0
+"fg-hist" yes yes yes yes no no no no 0 0
 "fg-rcpth" yes yes yes yes no no no no 0 0
 "fg-rcpts" yes yes yes yes no no no no 0 0
 "fg-rctd" yes yes yes yes no no no no 0 0
@@ -420,7 +422,7 @@
 "userLanguage" no no no no no no no no 0 0
 "userLog" no no no no no no no no 0 0
 "userPwdHist" no no no no no no no no 0 0
-"users" no no no no no no no no 0 0
+"users" no no no no yes yes yes yes 0 0
 "usersman" no no no no no no no no 0 0
 "uservend" no no no no no no no no 0 0
 "userWindow" no no no no no no no no 0 0

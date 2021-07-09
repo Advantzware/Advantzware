@@ -116,13 +116,11 @@ DEFINE VARIABLE iLockoutTries AS INT NO-UNDO.
 DEFINE VARIABLE iModePos AS INT NO-UNDO.
 DEFINE VARIABLE intBufferSize AS INTEGER NO-UNDO INITIAL 256.
 DEFINE VARIABLE intResult AS INTEGER NO-UNDO.
-DEFINE VARIABLE iNumUsers AS INT NO-UNDO.
 DEFINE VARIABLE is-running AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iTries AS INT NO-UNDO.
 DEFINE VARIABLE iTruncLevel AS INT NO-UNDO.
 DEFINE VARIABLE jCtr AS INT NO-UNDO.
 DEFINE VARIABLE lConnectAudit AS LOG NO-UNDO.
-DEFINE VARIABLE lCorrupt AS LOG NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lExit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
@@ -508,7 +506,12 @@ DO:
     RUN ipAssignSV.
     CASE SELF:NAME:
         WHEN "cbDatabase" THEN RUN ipChangeDatabase.
-        WHEN "cbEnvironment" THEN RUN ipChangeEnvironment.
+        WHEN "cbEnvironment" THEN DO:
+            RUN ipChangeEnvironment.
+            ASSIGN 
+                cbDatabase:SENSITIVE = NUM-ENTRIES(cDbValidList) GT 1
+                cbDatabase:SCREEN-VALUE = ENTRY(1,cbDatabase:LIST-ITEMS).
+        END.
         WHEN "cbMode" THEN RUN ipChangeMode.
     END CASE.
 END.
@@ -523,11 +526,14 @@ ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
     RUN ipAssignSV.
     FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserID = fiUserID
+        ttUsers.ttfUserID EQ fiUserID AND 
+        ttUsers.ttfPdbName EQ "*"
         NO-ERROR.
     IF NOT AVAIL ttUsers THEN FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserAlias = fiUserID
+        ttUsers.ttfUserAlias EQ fiUserID AND 
+        ttUsers.ttfPdbName EQ "*"
         NO-ERROR.
+
     IF NOT AVAIL ttUsers THEN DO:
         IF fwd-embedded-mode THEN 
             RETURN NO-APPLY 
@@ -578,6 +584,8 @@ DO:
         cModeSelected = cbMode:SCREEN-VALUE 
         cDbSelected = cbDatabase:SCREEN-VALUE 
         .
+        
+    APPLY 'value-changed' TO cbEnvironment.
     
 END.
 
@@ -635,10 +643,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             cbDatabase:SENSITIVE = FALSE 
             cbMode:VISIBLE = TRUE
             cbEnvironment:VISIBLE = TRUE 
-            cbDatabase:VISIBLE = TRUE. 
+            cbDatabase:VISIBLE = TRUE
+            cEnvSelected = cbEnvironment:SCREEN-VALUE. 
         RUN enable_UI.
         ASSIGN
             fiUserID:SCREEN-VALUE = OS-GETENV("USERNAME").
+        APPLY 'value-changed' TO cbEnvironment.    
         APPLY 'entry' TO fiUserID.
     END. /* If there is a UI */
     ELSE DO:
@@ -728,6 +738,7 @@ PROCEDURE ipAutoLogin :
 ------------------------------------------------------------------------------*/
     ASSIGN 
         fiUserID = ENTRY(1, cSessionParam)
+        cLoginUser = fiUserID
         fiPassword = ENTRY(2, cSessionParam)
         cEnvSelected = ENTRY(3, cSessionParam)
         cModeSelected = REPLACE(ENTRY(4, cSessionParam),"_"," ")
@@ -762,6 +773,7 @@ PROCEDURE ipChangeDatabase :
         cAudConnectString = ""
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
+        iTruncLevel = iDbLevel / 100
         asidbName = cDbSelected
         asiDbPort = ENTRY(iDbPos,cDbPortList)
         audDbName = ENTRY(iDbPos,cAudDbList)
@@ -772,9 +784,9 @@ PROCEDURE ipChangeDatabase :
         cAsiConnectString = "-db " + asiDbName + 
                             " -H " + chostName +
                             " -S " + asiDbPort +
-                            " -N tcp -ld ASI -U " +
+                            " -N tcp -ld ASI -U '" +
                             cLoginUser + 
-                            " -P '" +
+                            "' -P '" +
                             fiPassword + 
                             "' -ct 2".
     ELSE DO:
@@ -823,8 +835,9 @@ PROCEDURE ipChangeEnvironment :
         ASSIGN
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -832,7 +845,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.      
+                PROPATH = preProPath + origPropath.      
         RETURN.
     END.
     ELSE DO: /* Normal processing, with changes to drop downs */
@@ -864,8 +877,9 @@ PROCEDURE ipChangeEnvironment :
             cbDatabase:VISIBLE = TRUE /* NUM-ENTRIES(cDbValidList) NE 1 */
             cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\" 
             preProPath = cTop + "," +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asiObjects.pl," ELSE "") +
-                         (IF iEnvLevel GE 21000000 THEN cTop + "asigraphics.pl," ELSE "") +
+                         cTop + "asiObjects.pl," +
+                         cTop + "asigraphics.pl," +
+                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
@@ -873,8 +887,7 @@ PROCEDURE ipChangeEnvironment :
                          cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
-            PROPATH = preProPath + origPropath.
-
+                PROPATH = preProPath + origPropath.
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
             ASSIGN
                 cDBSelected = cDbValidList
@@ -888,7 +901,7 @@ PROCEDURE ipChangeEnvironment :
                 cbDatabase:LIST-ITEMS = cDbValidList
                 cbDatabase:SCREEN-VALUE = IF NOT CAN-DO(cDbValidList,cDbSelected) THEN ENTRY(1,cDbValidList) ELSE cDbSelected
                 cbDatabase:SENSITIVE = TRUE.
-            RETURN NO-APPLY.
+            RETURN.
         END.
 
     END.
@@ -933,7 +946,40 @@ PROCEDURE ipClickOk :
     DEFINE VARIABLE cDLC AS CHAR NO-UNDO.
     DEFINE VARIABLE cBitness AS CHAR NO-UNDO.
     DEFINE VARIABLE cVersion AS CHAR NO-UNDO.
- 
+    DEFINE VARIABLE cTop AS CHAR NO-UNDO.
+    DEFINE VARIABLE cLocalPlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRemotePlFile AS CHAR NO-UNDO.
+    DEFINE VARIABLE daLocalPlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daRemotePlFileDate AS DATE NO-UNDO.
+    DEFINE VARIABLE lUpdatePlFiles AS LOG NO-UNDO.
+
+    /* If this is a Hyper-V server (flagged in advantzware.ini file), test if user has current
+        pl files on his workstation.  If not, update the workstation from the server */
+    IF cIsHyperV EQ "YES" 
+    OR cIsHyperV EQ "Y" THEN DO:
+        ASSIGN 
+            lUpdatePlFiles = FALSE.
+        IF SEARCH("c:\tmp\asiObjects.pl") NE ? THEN DO:
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH("c:\tmp\asiObjects.pl")
+                daLocalPlFileDate = FILE-INFO:FILE-MOD-DATE.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = SEARCH(cTop + "asiObjects.pl")
+                daRemotePlFileDate = FILE-INFO:FILE-MOD-DATE.
+            IF daRemotePlFileDate GT daLocalPlFileDate THEN ASSIGN 
+                lUpdatePlFiles = TRUE.
+        END.
+        ELSE ASSIGN 
+            lUpdatePlFiles = TRUE.
+        cTop = cMapDir + "\" + cEnvDir + "\" + cEnvSelected + "\".
+        IF lUpdatePlFiles THEN DO:
+            OS-COPY VALUE(cTop + "asiObjects.pl") VALUE("c:\tmp").
+            OS-COPY VALUE(cTop + "asigraphics.pl") VALUE("c:\tmp").
+        END.
+        PROPATH = REPLACE (ProPath, cTop + "asiObjects.pl", "C:\tmp\asiObjects.pl").
+        PROPATH = REPLACE (ProPath, cTop + "asigraphics.pl", "C:\tmp\asigraphics.pl").
+    END.
+    
     IF cAsiConnectString <> "" 
     AND cbMode NE "Monitor Users" THEN 
     DO:
@@ -1115,7 +1161,9 @@ PROCEDURE ipConnectDbs :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
 
-        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? THEN
+        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? 
+        OR SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") NE ? 
+        THEN
             RUN VALUE(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
@@ -1209,9 +1257,8 @@ PROCEDURE ipPreRun :
         iEnvLevel = intVer(ENTRY(iEnvPos,cEnvVerList))
         iDbPos = LOOKUP(cDbSelected,cDbList)
         iDbLevel = intVer(ENTRY(iDbPos,cDbVerList))
-        iTruncLevel = iDbLevel
+        iTruncLevel = iDbLevel / 100
         .
-    
     /* Run various procedures and programs DEPENDING ON ENV OR DB LEVEL */
     /* Here the format for both is 16070400 */
     IF USERID(LDBNAME(1)) NE "asi" THEN DO:
@@ -1281,7 +1328,7 @@ PROCEDURE ipPreRun :
     AND cbMode NE "Monitor Users" 
     AND cbMode NE "Editor" THEN DO:
         IF iEnvLevel GE 16150300 THEN 
-            RUN epUserLogin IN hPreRun (cbMode, OUTPUT lExit).
+            RUN epUserLogin IN hPreRun (cModeSelected, OUTPUT lExit).
         ELSE 
             RUN epUserLogin IN hPreRun (OUTPUT lExit).
         IF lExit THEN DO:
@@ -1292,10 +1339,6 @@ PROCEDURE ipPreRun :
         END.
     END.
      
-    RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
-
-    RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
-
     RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
 
     IF iDbLevel GT 16061200 THEN 
@@ -1325,9 +1368,6 @@ PROCEDURE ipReadUsrFile :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    ASSIGN 
-        lCorrupt = FALSE
-        iCtr = 1.
     INPUT FROM VALUE(SEARCH(cUsrLoc)).
     REPEAT:
         IMPORT UNFORMATTED cUsrLine.
@@ -1341,12 +1381,10 @@ PROCEDURE ipReadUsrFile :
                 ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
                 ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
                 ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
-                iCtr = iCtr + 1.
+                .
         END.
     END.
     INPUT CLOSE.
-    ASSIGN
-        iNumUsers = iCtr.
 
 END PROCEDURE.
 
@@ -1385,95 +1423,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdUsrFile C-Win 
-PROCEDURE ipUpdUsrFile :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       The ONLY reason to run this is if in "healing" mode; i.e there's been
-                   a change to the structure of the .usr file or the ttUsers temp-table
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcUserList AS CHAR NO-UNDO.
-    DEFINE VARIABLE iCtr AS INT NO-UNDO.
-    DEFINE VARIABLE cOutString AS CHAR.
-    DEFINE VARIABLE cUserModes AS CHAR NO-UNDO.
-    
-    DEFINE BUFFER bttUsers FOR ttUsers.
-
-    /* ipcUserList is a list of all _user records in the connected DBs. */
-    ASSIGN 
-        lUpdUsr = FALSE.
-    
-    /* If we haven't previiously deleted the DB-specific records, do it now. */    
-    IF CAN-FIND (FIRST ttUsers WHERE 
-                ttUsers.ttfPdbName NE "*") THEN DO:
-        ASSIGN 
-            lUpdUsr = TRUE.
-        FOR EACH ttUsers WHERE 
-            ttUsers.ttfPdbName NE "*":
-            DELETE ttUsers.
-        END.
-    END.   
-    
-    /* If a new user has been created in the DB, add to .usr file */
-    DO iCtr = 1 TO NUM-ENTRIES(ipcUserList):
-        FIND FIRST bttUsers WHERE 
-            ttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            ttUsers.ttfPdbName EQ "PROD"
-            NO-LOCK NO-ERROR.
-        IF AVAIL bttUsers THEN ASSIGN 
-            cUserModes = bttUsers.ttfModeList.
-        ELSE ASSIGN
-            cUserModes = "".
-
-        FOR EACH bttUsers WHERE 
-            bttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            bttUsers.ttfPdbName NE "*":
-            DELETE ttUsers.
-        END.
-
-        FIND FIRST ttUsers WHERE
-            ttUsers.ttfUserID EQ ENTRY(iCtr,ipcUserList) AND
-            ttUsers.ttfPdbName EQ "*"
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                lUpdUsr = TRUE
-                ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
-                ttUsers.ttfUserAlias = ENTRY(iCtr,ipcUserList)
-                ttUsers.ttfPdbName = "*"
-                ttUsers.ttfModeList = cUserModes
-                .
-        END.
-        ELSE IF ttUsers.ttfModeList EQ "" 
-        AND cUserModes NE "" THEN ASSIGN 
-            lUpdUsr = TRUE
-            ttUsers.ttfModeList = cUserModes.
-        
-    END.
-    
-    IF lUpdUsr = TRUE THEN DO:
-        OUTPUT STREAM usrStream TO VALUE(cUsrLoc).
-        FOR EACH ttUsers by ttUsers.ttfUserID:
-            ASSIGN 
-                cOutString = 
-                ttUsers.ttfUserID + "|" + 
-                ttUsers.ttfPdbName + "|" +
-                ttUsers.ttfUserAlias + "|" + 
-                ttUsers.ttfEnvList + "|" +
-                ttUsers.ttfDbList + "|" +
-                ttUsers.ttfModeList.
-            PUT STREAM usrStream UNFORMATTED cOutString + CHR(10).
-        END.
-        OUTPUT STREAM usrStream CLOSE.
-    END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION intVer C-Win 
@@ -1503,4 +1452,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

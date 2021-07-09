@@ -220,11 +220,12 @@ DO:
   DEF VAR cnt AS INT NO-UNDO.
   DEF VAR v-num-found AS INT NO-UNDO.
   v-num-found = 0.
+  
+  FOR FIRST oe-relh NO-LOCK 
+    WHERE oe-relh.company EQ fiCompany:SCREEN-VALUE IN FRAME fMain
+    AND oe-relh.release# EQ INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain),
+    EACH oe-rell OF oe-relh NO-LOCK:
 
-  for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
-    and oe-rell.r-no = INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain)  no-lock.
-
-    find first oe-relh where oe-relh.r-no = oe-rell.r-no no-error.
     find first oe-boll where oe-boll.company = oe-rell.company
      and oe-boll.ord-no = oe-rell.ord-no
      and oe-boll.rel-no = oe-rell.rel-no
@@ -241,11 +242,12 @@ DO:
      
   END.
 
-  for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
-    and oe-rell.r-no = INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain)  no-lock.
-
-    find first oe-relh where oe-relh.r-no = oe-rell.r-no no-error.
-    find first oe-boll where oe-boll.company = oe-rell.company
+  FOR FIRST oe-relh EXCLUSIVE-LOCK 
+    WHERE oe-relh.company EQ fiCompany:SCREEN-VALUE IN FRAME fMain
+    AND oe-relh.release# EQ INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain),
+    EACH oe-rell OF oe-relh NO-LOCK:
+        
+     FIND FIRST oe-boll WHERE oe-boll.company = oe-rell.company
      and oe-boll.ord-no = oe-rell.ord-no
      and oe-boll.rel-no = oe-rell.rel-no
      no-lock no-error.
@@ -297,7 +299,7 @@ DEFINE VARIABLE hTT    AS HANDLE     NO-UNDO.
 DEFINE VARIABLE hTTBuf AS HANDLE     NO-UNDO.
 DEFINE VARIABLE hQuery AS HANDLE     NO-UNDO.
 DEFINE VARIABLE iSeq   AS INTEGER    NO-UNDO INIT 1000.
-DEFINE VARIABLE cName  LIKE oe-ordl.cust       NO-UNDO.
+DEFINE VARIABLE cName  LIKE oe-ordl.cust-no       NO-UNDO.
 DEFINE VARIABLE iCNum  LIKE oe-ordl.ord-no    NO-UNDO.
 DEFINE VARIABLE cRep   AS CHAR    NO-UNDO.
 DEFINE VARIABLE hBrowse AS HANDLE     NO-UNDO.
@@ -334,10 +336,11 @@ PROCEDURE create-tt :
 
 DEF VAR iSeq AS INT INIT 1.
 
-for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
-    and oe-rell.r-no = INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain)  no-lock.
-          
-    find first oe-relh where oe-relh.r-no = oe-rell.r-no no-error.
+FOR FIRST oe-relh NO-LOCK 
+    WHERE oe-relh.company EQ fiCompany:SCREEN-VALUE IN FRAME fMain
+    AND oe-relh.release# EQ INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain),
+    EACH oe-rell OF oe-relh NO-LOCK:
+    
     find first oe-boll where oe-boll.company = oe-rell.company
      and oe-boll.ord-no = oe-rell.ord-no
      and oe-boll.rel-no = oe-rell.rel-no

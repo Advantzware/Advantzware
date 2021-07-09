@@ -47,6 +47,8 @@ DEFINE BUFFER tmp-w-job FOR w-job.
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 {sys/ref/fgoecost.i}
+{jc/jcgl-sh.i NEW}
+{sys/inc/fgpostgl.i} 
 
 DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lAccess1     AS LOGICAL NO-UNDO.
@@ -203,7 +205,7 @@ DEFINE VARIABLE ld-tot-wt AS DECIMAL FORMAT ">>,>>9.99" INITIAL 0
      SIZE 12.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 0 
+DEFINE VARIABLE ld-v1 AS DECIMAL FORMAT "->>>,>>9":U INITIAL 1 
      LABEL "Units" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -501,6 +503,7 @@ DO:
     DEFINE VARIABLE lOldValueOnHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateAllJobTags AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateJobPO AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER b-fg-bin FOR fg-bin.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
@@ -508,6 +511,7 @@ DO:
     DISABLE TRIGGERS FOR LOAD OF loadtag.
   
     DO WITH FRAME {&frame-name}:
+       
         ASSIGN
             ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11
             ld-v2 = (ld-v1 * ld-v4) + ld-v11
@@ -523,7 +527,10 @@ DO:
          
         RUN valid-status(OUTPUT lCheckError).
         IF lCheckError THEN RETURN NO-APPLY.           
-    END.    
+    END.  
+    
+     RUN pValidUnitCount( OUTPUT lCheckError).
+     IF lCheckError THEN RETURN NO-APPLY.
 
     IF NOT AVAILABLE w-job THEN RETURN.
 
@@ -627,7 +634,14 @@ DO:
                 fg-bin.qty           = w-job.qty
                 fg-bin.partial-count = w-job.partial-count
                 .
-            IF ll-changed THEN DO:                
+            IF ll-changed THEN DO:
+               RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
+               IF lMsgResponse THEN
+               DO:
+                  RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode). 
+                  RUN pCreateGLTrans(ROWID(fg-bin), INPUT lv-qty).
+               END.
+               ELSE do:
                 FIND FIRST itemfg
                      {sys/look/itemfgrlW.i}
                      AND itemfg.i-no EQ fg-bin.i-no
@@ -672,7 +686,7 @@ DO:
                     bf-fg-rctd.cases-unit     = fg-bin.cases-unit .  
                     
                     RELEASE bf-fg-rctd.
-                    
+               END. /* not lMsgResponse*/     
                  
                 IF fg-bin.tag NE "" THEN DO:
                 FOR EACH loadtag
@@ -690,9 +704,7 @@ DO:
     
                 ll-changed = NO.    
                 
-            END.
-
-            RUN fg/d-reqtys.w (ROWID(itemfg), NO).
+            END.             
         END.    
     END.
     
@@ -891,6 +903,20 @@ END.
 ON VALUE-CHANGED OF ld-v4 IN FRAME D-Dialog /* Unit Count */
 DO:
     IF LASTKEY NE -1 THEN RUN calc-tot-qty.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-v4 D-Dialog
+ON LEAVE OF ld-v4 IN FRAME D-Dialog /* Unit Count */
+DO:
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN
+    DO:    
+        RUN pValidUnitCount( OUTPUT lCheckError).
+        IF lCheckError THEN RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1232,6 +1258,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-status D-Dialog 
 PROCEDURE valid-status :
 /*------------------------------------------------------------------------------
@@ -1240,8 +1267,7 @@ PROCEDURE valid-status :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  
+  {methods/lValidateError.i YES}   
 
   DO WITH FRAME {&frame-name}:
     FIND FIRST inventoryStatusType NO-LOCK
@@ -1261,6 +1287,191 @@ PROCEDURE valid-status :
              APPLY "entry" TO fiStatusID .
            END.
            
+  END.       
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateGLTrans D-Dialog 
+PROCEDURE pCreateGLTrans :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iprwRowid AS ROWID   NO-UNDO.
+  DEFINE INPUT PARAMETER ipdQty    AS DECIMAL NO-UNDO.
+  
+  DEFINE VARIABLE cPurUom AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dExtCost AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE iTrnum  LIKE gl-ctrl.trnum NO-UNDO.
+  DEFINE BUFFER bf-fg-bin FOR fg-bin.
+  
+  FOR EACH work-gl:
+    DELETE work-gl.
+  END.
+  
+  FIND FIRST bf-fg-bin NO-LOCK 
+       WHERE ROWID(bf-fg-bin) EQ iprwRowid NO-ERROR.
+
+  FIND FIRST itemfg NO-LOCK
+       WHERE itemfg.company EQ cocode 
+       AND itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
+  cPurUom = if fg-bin.pur-uom ne "" then fg-bin.pur-uom ELSE itemfg.pur-uom .
+  dExtCost = fg-bin.std-tot-cost * (ipdQty / IF cPurUom EQ "M" THEN 1000 ELSE 1). 
+  
+  IF AVAIL itemfg THEN   
+  FIND FIRST prodl
+       WHERE prodl.company eq cocode
+       AND prodl.procat  eq itemfg.procat
+       AND CAN-FIND(FIRST prod
+                        WHERE prod.company eq cocode
+                          AND prod.prolin  eq prodl.prolin)
+       NO-LOCK NO-ERROR.
+
+  IF avail prodl then
+  FIND FIRST prod NO-LOCK
+       WHERE prod.company eq cocode
+       AND prod.prolin  eq prodl.prolin
+       NO-ERROR.
+  
+  IF INT(bf-fg-bin.po-no) ne 0 then
+    FIND FIRST po-ord
+        WHERE po-ord.company eq cocode
+          AND po-ord.po-no   eq int(bf-fg-bin.po-no)
+        NO-LOCK NO-ERROR.
+    IF AVAIL po-ord then
+    FIND FIRST po-ordl
+        WHERE po-ordl.company   eq cocode
+          AND po-ordl.po-no     eq po-ord.po-no
+          AND po-ordl.i-no      eq bf-fg-bin.i-no
+          AND po-ordl.deleted   eq no
+          AND po-ordl.item-type eq no
+        NO-LOCK NO-ERROR.
+            
+  IF AVAIL itemfg AND fgpostgl NE "None"       AND
+    (AVAIL po-ordl OR fgpostgl EQ "AllItems") THEN DO:       
+      IF dExtCost ne 0  AND
+         dExtCost ne ?  AND
+         AVAIL prod         AND  
+         prod.fg-mat ne ""  AND
+         prod.wip-mat ne "" THEN DO:                          
+        
+        FIND FIRST work-gl WHERE work-gl.actnum eq prod.fg-mat NO-LOCK NO-ERROR.      
+        IF NOT AVAIL work-gl THEN DO:
+          create work-gl.
+          work-gl.actnum = prod.fg-mat.
+        END.
+        work-gl.debits = work-gl.debits + dExtCost.             
+        
+        FIND FIRST work-gl WHERE work-gl.actnum eq prod.wip-mat NO-LOCK NO-ERROR.      
+        IF NOT AVAIL work-gl THEN DO:
+          CREATE work-gl.
+          work-gl.actnum = prod.wip-mat.
+        END.
+        work-gl.credits = work-gl.credits + dExtCost.
+      END.  /* if w-fg-rctd.ext-cost */
+  END.         
+  
+  IF fgpostgl NE "None" THEN 
+  DO TRANSACTION:
+        loop2:
+        REPEAT:
+            FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+            IF AVAILABLE gl-ctrl THEN
+            DO:
+                ASSIGN
+                    iTrnum       = gl-ctrl.trnum + 1
+                    gl-ctrl.trnum = iTrnum.
+                FIND CURRENT gl-ctrl NO-LOCK.
+                LEAVE loop2.
+            END.
+        END.
+
+        RUN pGLFromWork (1, iTrnum).
+        RUN pGLFromWork (2, iTrnum).
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGLFromWork D-Dialog 
+PROCEDURE pGLFromWork :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAM ip-run AS INT NO-UNDO.
+    DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
+
+    DEF VAR credits AS DEC INIT 0 NO-UNDO.
+    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
+
+    FIND FIRST period
+        WHERE period.company EQ cocode
+        AND period.pst     LE TODAY
+        AND period.pend    GE TODAY
+        NO-LOCK.
+
+    FOR EACH work-gl 
+        WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
+        OR (ip-run EQ 2 AND work-gl.job-no EQ "")
+        BREAK BY work-gl.actnum:
+
+        ASSIGN
+            debits  = debits  + work-gl.debits
+            credits = credits + work-gl.credits.
+
+        IF LAST-OF(work-gl.actnum) THEN 
+        DO:
+          RUN GL_SpCreateGLHist(INPUT cocode,
+                             INPUT work-gl.actnum,
+                             INPUT "FGPOST",
+                             INPUT (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
+                                                      ELSE "FG Receipt from PO"),
+                             INPUT TODAY,
+                             INPUT (debits - credits),
+                             INPUT ip-trnum,
+                             INPUT period.pnum,
+                             INPUT "A",
+                             INPUT TODAY,
+                             INPUT "",
+                             INPUT "FG").
+          ASSIGN
+             debits          = 0
+             credits         = 0.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidUnitCount D-Dialog 
+PROCEDURE pValidUnitCount :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  
+
+  DO WITH FRAME {&frame-name}:
+    IF integer(ld-v4:SCREEN-VALUE) EQ 0 THEN DO:
+                
+       MESSAGE "Unit Count cannot be 0.  To remove this bin's quantity, set the Units and Partial to 0. "
+               "Unit Count will not matter if Units is 0." VIEW-AS ALERT-BOX INFO.
+       oplReturnError = TRUE.
+       APPLY "entry" TO ld-v4 .
+    END.           
   END.       
   {methods/lValidateError.i NO}
 END PROCEDURE.

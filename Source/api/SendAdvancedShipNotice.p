@@ -51,10 +51,13 @@
     DEFINE VARIABLE cBOLRelDate   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderDate    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDelivDate    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOID         AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cPostalID      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalStreet  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPostalStreet1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPostalStreet2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalCity    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalState   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalZip     AS CHARACTER NO-UNDO.
@@ -65,19 +68,38 @@
     DEFINE VARIABLE cPhoneCityCode    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPhoneNumber      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPhoneExtension   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCustomerID      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerStreet1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerStreet2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerCity    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerState   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerZip     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerCountry AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dConsolidatedQty AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cQuantity        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUOM             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lConsolidate     AS LOG       NO-UNDO.
-
+    
+    DEFINE VARIABLE cCarrierDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName           AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iSECount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
+    
+    DEFINE BUFFER bf-carrier FOR carrier.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-cust    FOR cust.
+    
     /* ************************  Function Prototypes ********************** */
     FUNCTION GetPayLoadID RETURNS CHARACTER
     	( ipcProcessID AS CHARACTER ) FORWARD.
 
     /* ***************************  Main Block  *************************** */        
 
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
     
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -109,13 +131,6 @@
                 .
             RETURN.
         END.
-        FIND FIRST sys-ctrl NO-LOCK     
-            WHERE sys-ctrl.company EQ oe-bolh.company
-              AND sys-ctrl.name    EQ "BOLFMT"  
-            NO-ERROR.
-        ASSIGN
-            lConsolidate = AVAILABLE sys-ctrl AND sys-ctrl.int-fld NE 0
-            .            
             
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
@@ -137,6 +152,8 @@
             ASSIGN
                 cPostalName       = shipto.ship-name
                 cPostalStreet     = shipto.ship-addr[1] + shipto.ship-addr[2]
+                cPostalStreet1    = shipto.ship-addr[1]
+                cPostalStreet2    = shipto.ship-addr[2]
                 cPostalCity       = shipto.ship-city
                 cPostalState      = shipto.ship-state
                 cPostalZip        = shipto.ship-zip
@@ -158,12 +175,36 @@
             cBOLPrintDate           = STRING(oe-bolh.prt-date) + " " + STRING(oe-bolh.prt-time,"hh:mm:ss")
             cBOLRelDate             = STRING(oe-bolh.rel-date)
             cDelivDate              = STRING(oe-bolh.bol-date + 2)
+            cPOID                   = oe-bolh.po-no
             .
             
             IF oe-bolh.ship-date EQ ? THEN 
               cBOLShipDate          = STRING(today) + " " + STRING(TIME, "hh:mm:ss").
             ELSE 
               cBOLPrintDate         = STRING(oe-bolh.prt-date) + " " + STRING(oe-bolh.prt-time,"hh:mm:ss").
+
+        FIND FIRST bf-carrier NO-LOCK 
+             WHERE bf-carrier.company EQ oe-bolh.company
+               AND bf-carrier.carrier EQ oe-bolh.carrier         
+             NO-ERROR.     
+        IF AVAILABLE bf-carrier THEN
+            cCarrierDescription = bf-carrier.dscr.
+
+        FIND FIRST bf-cust NO-LOCK
+             WHERE bf-cust.company EQ oe-bolh.company
+               AND bf-cust.cust-no EQ oe-bolh.cust-no
+             NO-ERROR.
+        IF AVAILABLE bf-cust THEN
+            ASSIGN
+                cCustomerID      = bf-cust.cust-no
+                cCustomerName    = bf-cust.name
+                cCustomerStreet1 = bf-cust.addr[1]
+                cCustomerStreet2 = bf-cust.addr[2]
+                cCustomerCity    = bf-cust.city
+                cCustomerState   = bf-cust.state
+                cCustomerZip     = bf-cust.zip
+                cCustomerCountry = bf-cust.country
+                .
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", GetPayLoadID("")).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", cNoticeDate).
@@ -177,6 +218,8 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLRelDate", cBOLRelDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToName", cPostalName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet", cPostalStreet).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet1", cPostalStreet1).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet2", cPostalStreet2).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCity", cPostalCity).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressState", cPostalState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressPostalCode", cPostalZip).
@@ -194,7 +237,17 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InStoreDate", cInStoreDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalPallets", cTotalPallets).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalWeight", cTotalWeight).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CarrierDescription", cCarrierDescription).
 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerID", cCustomerID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", cCustomerName).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerAddress1", cCustomerStreet1).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerAddress2", cCustomerStreet2).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", cCustomerCity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState", cCustomerState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode", cCustomerZip).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCountry", cCustomerCountry).
+                
         FIND FIRST APIOutboundDetail NO-LOCK
              WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
                AND APIOutboundDetail.detailID      EQ "OrderDetailID"
@@ -244,35 +297,41 @@
 
             cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
             
-            IF FIRST-OF(oe-boll.line) THEN 
-              dConsolidatedQty = 0.
-              
-            dConsolidatedQty = dConsolidatedQty + dQuantity.
-              
-            IF lConsolidate  THEN DO:
-                IF LAST-OF(oe-boll.line) THEN DO:
-                    cQuantity = TRIM(STRING(dConsolidatedQty, "->>>>>>>9")).
-                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
-                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
-                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
-                    lcItemConcatData = lcItemConcatData + lcItemData.
-                END.
-            END.  
-            ELSE DO:
-                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
-                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
-                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
-                lcItemConcatData = lcItemConcatData + lcItemData.
-            END.
+            iHLCount = iHLCount + 1.
+
+            FIND FIRST bf-itemfg NO-LOCK
+                 WHERE bf-itemfg.company EQ oe-boll.company
+                   AND bf-itemfg.i-no    EQ oe-boll.i-no
+                 NO-ERROR.
+            IF AVAILABLE bf-itemfg THEN
+                cItemName = bf-itemfg.i-name.
+                
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemID", oe-boll.i-no).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemName", cItemName).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
             
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
-
+        
+        RUN pUpdateDelimiter (INPUT-OUTPUT lcItemConcatData, "").
+        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LocationID", cLocationID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "HLCount", iHLCount).
             
         ioplcRequestData = REPLACE(ioplcRequestData,"$ItemDetailID$",lcItemConcatData).                
         ioplcRequestData = REPLACE(ioplcRequestData,"$OrderDetailID$",lcOrderConcatData).
-        
+
+        ASSIGN 
+            iSECount = NUM-ENTRIES(ioplcRequestData, "~n") 
+            /* Subtract lines before ST and after SE segments */
+            iSECount = iSECount - 4
+            .
+            
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SECount", STRING(iSECount)).
+                
         ASSIGN   
             opcMessage       = ""
             oplSuccess       = TRUE

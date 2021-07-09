@@ -67,7 +67,10 @@ DEFINE VARIABLE hdQuantityColumnLabel   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iWarehouseLength        AS INTEGER   NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{Inventory/ttInventory.i}
+{Inventory/ttBrowseInventory.i}
+{Inventory/ttInventoryStockDetails.i}
+
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 {custom/globdefs.i}
@@ -772,7 +775,8 @@ DO:
         INPUT  cocode,
         INPUT  TODAY,
         OUTPUT lSuccess,
-        OUTPUT cMessage
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
         ).
     IF lSuccess THEN
         MESSAGE "Posting completed"
@@ -1478,7 +1482,7 @@ PROCEDURE pInit :
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany NO-ERROR .
     IF AVAILABLE company THEN
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + STRING(company.name) + " - " + cLocation  .
     
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
@@ -1680,7 +1684,8 @@ PROCEDURE pRebuildBrowse :
             INPUT        TRUE,   /* Include empty tag bins */
             OUTPUT       cConsUOM,
             OUTPUT       lError,
-            OUTPUT       cMessage
+            OUTPUT       cMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
             ).
 
         RUN Inventory_BuildRMTransactions IN hdInventoryProcs (
@@ -1692,7 +1697,8 @@ PROCEDURE pRebuildBrowse :
             INPUT  ipiBlankno,
             INPUT  ipcRMItem,
             INPUT  "I",  /* Issue Transactions */
-            INPUT  FALSE /* Empty existing temp-table records */
+            INPUT  FALSE, /* Empty existing temp-table records */
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
             ).
 
         RUN Inventory_BuildRMHistory IN hdInventoryProcs (
@@ -1703,35 +1709,48 @@ PROCEDURE pRebuildBrowse :
             INPUT ipcJobNo,
             INPUT ipiJobNo2,
             INPUT "I",
-            INPUT FALSE /* Empty existing temp-table records */
+            INPUT FALSE, /* Empty existing temp-table records */
+            INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
             ).                    
     END.
     
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockConsumed,
+        OUTPUT iConsumedTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockScanned,
+        OUTPUT iScannedTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
+    RUN Inventory_CalculateTagCountInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockReceived,
+        OUTPUT iOnHandTags,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
+    RUN Inventory_CalculateTagQuantityInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockConsumed,
+        OUTPUT dConsumedQty,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
+    RUN Inventory_CalculateTagQuantityInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockScanned,
+        OUTPUT dScannedQty,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).        
+
+    RUN Inventory_CalculateTagQuantityInTTbrowse IN hdInventoryProcs (
+        INPUT  gcStatusStockReceived,
+        OUTPUT dOnHandQty,
+        INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
+        ).
+
     ASSIGN
-        iConsumedTags    = DYNAMIC-FUNCTION(
-                              'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockConsumed
-                              )
-        iScannedTags     = DYNAMIC-FUNCTION(
-                              'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockScanned
-                              )
-        iOnHandTags      = DYNAMIC-FUNCTION(
-                              'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockReceived
-                              )
-        dConsumedQty     = DYNAMIC-FUNCTION(
-                              'fCalculateTagQuantityInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockConsumed
-                              )
-        dScannedQty      = DYNAMIC-FUNCTION(
-                              'fCalculateTagQuantityInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockScanned
-                              )
-        dOnHandQty       = DYNAMIC-FUNCTION(
-                              'fCalculateTagQuantityInTTbrowse' IN hdInventoryProcs,
-                              gcStatusStockReceived
-                              )
         btTotal:LABEL    = "On Hand: " + STRING(iOnHandTags)
         btScanned:LABEL  = "Scanned: " + STRING(iScannedTags)
         btConsumed:LABEL = "Consumed: " + STRING(iConsumedTags)
@@ -1862,7 +1881,8 @@ PROCEDURE pTagScan :
                 INPUT  INTEGER(cbBlankNo:SCREEN-VALUE),
                 INPUT  lAutoPost,
                 OUTPUT lCreated,                    
-                OUTPUT cMessage
+                OUTPUT cMessage,
+                INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
                 ).
             IF lCreated THEN
                 cMessage = "Tag '" + ttInventoryStockDetails.tag + "' moved to '" + STRING(lAutoPost, "Consumed/Scanned") + "' status.".

@@ -126,6 +126,35 @@ PROCEDURE pCreateProbeit PRIVATE:
 
 END PROCEDURE.
 
+
+PROCEDURE pCreatePriceMatrixForQuote PRIVATE:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ define input PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcItemNo AS CHARACTER NO-UNDO.
+ 
+ FOR EACH quotehd NO-LOCK 
+        WHERE quotehd.company EQ ipcCompany
+        AND quotehd.est-no EQ ipcEstimate
+        ,
+        EACH quoteitm OF quotehd EXCLUSIVE-LOCK 
+        WHERE quoteitm.company EQ quotehd.company
+        AND quoteitm.part-no EQ ipcPartNo:
+    ASSIGN quoteitm.i-no = ipcItemNo .
+    LEAVE.
+ END.
+ RELEASE quoteitm.
+ IF AVAIL quotehd THEN
+ RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q").
+
+END PROCEDURE.
+
+
 PROCEDURE pCreateQuoteFromProbe PRIVATE:
     
     DEFINE PARAMETER BUFFER opbf-est FOR est.
@@ -619,6 +648,148 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     IF lFound THEN gcCePrep = cReturn.
             
 END PROCEDURE.
+
+PROCEDURE pUpdateQuotePriceFromMatrix PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Procedure for updating quotes from matrix 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-quoteqty FOR quoteqty.
+      FIND FIRST bf-oe-prmtx NO-LOCK WHERE ROWID(bf-oe-prmtx) EQ oprwRowid NO-ERROR.
+      IF bf-oe-prmtx.quoteID NE 0 THEN
+      DO:      
+         FIND FIRST quotehd
+              WHERE quotehd.company EQ bf-oe-prmtx.company                
+                AND quotehd.q-no    EQ bf-oe-prmtx.quoteID
+              NO-LOCK NO-ERROR.
+         IF AVAIL quotehd THEN
+         DO:
+            FOR EACH quoteitm
+                WHERE quoteitm.company EQ quotehd.company
+                AND quoteitm.loc     EQ quotehd.loc
+                AND quoteitm.q-no    EQ quotehd.q-no
+                AND quoteitm.i-no    EQ bf-oe-prmtx.i-no 
+                EXCLUSIVE-LOCK :
+                
+                iCount = 0.
+                
+                FOR EACH bf-quoteqty WHERE bf-quoteqty.company = quoteitm.company 
+                    AND bf-quoteqty.loc = quoteitm.loc 
+                    AND bf-quoteqty.q-no = quoteitm.q-no 
+                    AND bf-quoteqty.line = quoteitm.LINE EXCLUSIVE-LOCK BREAK BY bf-quoteqty.qty : 
+                    
+                    iCount = iCount + 1.
+                     
+                    IF FIRST-OF(bf-quoteqty.qty) AND bf-oe-prmtx.qty[iCount] NE 0 THEN
+                    DO:
+                       ASSIGN
+                        quoteitm.qty   = bf-oe-prmtx.qty[iCount]
+                        quoteitm.uom   = bf-oe-prmtx.uom[iCount]
+                        quoteitm.price = bf-oe-prmtx.price[iCount]   .
+                    END.
+                    IF bf-oe-prmtx.qty[iCount] NE 0 THEN DO: 
+                      ASSIGN
+                       bf-quoteqty.qty   = bf-oe-prmtx.qty[iCount]
+                       bf-quoteqty.uom   = bf-oe-prmtx.uom[iCount]
+                       bf-quoteqty.price = bf-oe-prmtx.price[iCount].
+                    END.
+                END.     
+            END. 
+         END.  /* AVAIL quotehd*/      
+      END.   /* bf-oe-prmtx.quoteID NE 0*/
+
+      RELEASE bf-quoteqty.
+       
+   
+END PROCEDURE.
+
+PROCEDURE pUnApprovedDuplicateQuote:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.       
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-quotehd FOR quotehd.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
+    FIND FIRST quotehd NO-LOCK
+         WHERE ROWID(quotehd) EQ iprwRowid NO-ERROR .
+           
+    FOR EACH bf-quotehd EXCLUSIVE-LOCK
+        WHERE bf-quotehd.company EQ quotehd.company
+        AND bf-quotehd.cust-no EQ quotehd.cust-no
+        AND bf-quotehd.ship-id EQ quotehd.ship-id
+        AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
+        AND rowid(bf-quotehd) NE iprwRowid ,
+        EACH quoteitm NO-LOCK
+             WHERE quoteitm.company EQ bf-quotehd.company
+             AND quoteitm.loc     EQ bf-quotehd.loc
+             AND quoteitm.q-no    EQ bf-quotehd.q-no
+             AND quoteitm.i-no    EQ ipcFgItem
+             AND quoteitm.part-no EQ ipcPartNo:                  
+        IF bf-quotehd.approved THEN do:
+          bf-quotehd.approved = NO.
+          bf-quotehd.expireDate = TODAY - 1.          
+          RUN ClearTagsByRecKey(bf-quotehd.rec_key).  /*Clear all hold tags - TagProcs.p*/
+          FIND FIRST bf-oe-prmtx EXCLUSIVE-LOCK
+              WHERE bf-oe-prmtx.company EQ bf-quotehd.company                
+              AND bf-oe-prmtx.quoteID  EQ  bf-quotehd.q-no   
+              NO-ERROR.
+          IF avail bf-oe-prmtx THEN
+           bf-oe-prmtx.exp-date = bf-quotehd.expireDate.           
+                    
+        END.  
+    END.
+    RELEASE bf-quotehd.
+    RELEASE bf-oe-prmtx.
+   
+END PROCEDURE.
+
+PROCEDURE quote_CreatePriceMatrixForQuote :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ define input PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+ define input PARAMETER ipcItemNo AS CHARACTER NO-UNDO.
+ 
+  RUN pCreatePriceMatrixForQuote(INPUT ipcCompany, INPUT ipcEstimate, INPUT ipcPartNo, INPUT ipcItemNo).  
+
+END PROCEDURE.
+
+PROCEDURE UpdateQuotePriceFromMatrix:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
+                 
+    RUN pUpdateQuotePriceFromMatrix(oprwRowid ).        
+   
+END PROCEDURE.
+
+PROCEDURE unApprovedDuplicateQuote:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.   
+    DEFINE INPUT PARAMETER ipcFgItem AS CHARACTER NO-UNDO.
+                 
+    RUN pUnApprovedDuplicateQuote(INPUT iprwRowid, INPUT ipcPartNo, INPUT ipcFgItem).        
+   
+END PROCEDURE.
+
+
 
 
 /* ************************  Function Implementations ***************** */

@@ -19,6 +19,8 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 
+USING system.SharedConfig.     
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -60,6 +62,7 @@ RUN methods/prgsecur.p
 DEF VAR li-current-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-prev-page AS INT INIT 1 NO-UNDO.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -133,6 +136,8 @@ DEFINE VARIABLE h_itmfgink-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_locw AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-calcq AS HANDLE NO-UNDO.
@@ -692,6 +697,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-locw ( 27.57 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.33 , 113.20 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-3 ).
+       RUN set-position IN h_movecol-3 ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3,14':U) NO-ERROR.
 
@@ -701,6 +714,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
 
+       /* Links to SmartObject h_movecol-3. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'move-columns':U , h_movecol-3 ).
+       
        /* Links to SmartBrowser h_locw. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'repo-query':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'Record':U , h_locw ).
@@ -998,23 +1014,9 @@ PROCEDURE adm-create-objects :
              h_p-updimg , 'AFTER':U ).
     END. /* Page 10 */
     WHEN 11 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/itemfgpo.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_itemfgpo ).
-       RUN set-position IN h_itemfgpo ( 4.81 , 9.00 ) NO-ERROR.
-       RUN set-size IN h_itemfgpo ( 19.52 , 145.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_itemfgpo. */
-       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfgpo ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_itemfgpo ,
-             h_folder , 'AFTER':U ).
+        RUN browsers/itemfgpo.p.
+        IF li-prev-page NE 11 THEN
+        RUN select-page IN THIS-PROCEDURE ( li-prev-page ).        
     END. /* Page 11 */
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1171,6 +1173,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-fg-bj-2 ).
        RUN set-position IN h_p-fg-bj-2 ( 27.91 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.10 , 95.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-4 ).
+       RUN set-position IN h_movecol-4 ( 1.00 , 27.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,5':U) NO-ERROR.
@@ -1178,6 +1188,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_itemfg-5. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg-5 ).
 
+       /* Links to SmartObject h_movecol-4. */
+       RUN add-link IN adm-broker-hdl ( h_fgijob , 'move-columns':U , h_movecol-4 ).
+       
        /* Links to SmartBrowser h_fgijob. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_fgijob ).
        RUN add-link IN adm-broker-hdl ( h_fgijob , 'ViewDetail':U , THIS-PROCEDURE ).
@@ -1441,6 +1454,12 @@ PROCEDURE local-change-page :
         RUN select-page (15).        
         
         RETURN.     
+    END.    
+    
+    IF li-current-page EQ 11 THEN 
+    DO:     
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("ItemFGPo",STRING(ROWID(itemfg))).
     END.
     
   /* Dispatch standard ADM method.                             */
@@ -1448,6 +1467,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+      
   
 END PROCEDURE.
 

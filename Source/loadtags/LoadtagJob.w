@@ -75,8 +75,6 @@ DEFINE VARIABLE scr-auto-print    AS LOGICAL   INITIAL YES NO-UNDO.
 DEFINE VARIABLE loadtagFunction   AS CHARACTER INITIAL "Order" NO-UNDO.
 DEFINE VARIABLE g_company         AS CHARACTER NO-UNDO.
 
-{system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
 
@@ -836,7 +834,7 @@ ON CHOOSE OF bt-exit IN FRAME F-Main
             APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
 
         IF VALID-HANDLE(hdJobDetails) THEN
-            DELETE OBJECT hdInventoryProcs.
+            DELETE OBJECT hdJobDetails.
 
         APPLY "CLOSE":U TO THIS-PROCEDURE.
     
@@ -2534,7 +2532,6 @@ PROCEDURE init :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
@@ -2543,7 +2540,7 @@ PROCEDURE init :
         NO-ERROR .
     IF AVAILABLE company THEN
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-            + " - {&awversion}" + " - " 
+            + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
             + STRING(company.name) + " - " + ipcLocation.  
              
     RUN pGetSettings.

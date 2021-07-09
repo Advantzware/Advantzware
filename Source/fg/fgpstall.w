@@ -3427,7 +3427,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN scr-rpt.w (list-name,FRAME {&frame-name}:title,int(lv-font-no),lv-ornt). /* open file-name, title */
+  RUN scr-rpt-d.w (list-name,FRAME {&frame-name}:title,int(lv-font-no),lv-ornt). /* open file-name, title */
 
 END PROCEDURE.
 
@@ -3538,12 +3538,13 @@ PROCEDURE print-and-post :
     FOR EACH w-fg-rctd WHERE w-fg-rctd.has-rec,
         FIRST fg-rctd NO-LOCK WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id:
 
-      FIND FIRST fg-bin 
-         WHERE fg-bin.company = fg-rctd.company 
-        AND fg-bin.loc = fg-rctd.loc 
-        AND fg-bin.i-no = ""
-        AND fg-bin.loc-bin = fg-rctd.loc-bin
-        NO-LOCK NO-ERROR.
+      FIND FIRST fg-bin NO-LOCK
+           WHERE fg-bin.company    EQ fg-rctd.company 
+             AND fg-bin.loc        EQ fg-rctd.loc 
+             AND fg-bin.i-no       EQ ""
+             AND (fg-bin.loc-bin   EQ fg-rctd.loc-bin
+              OR fg-rctd.rita-code EQ "A")        
+           NO-ERROR.
       IF NOT AVAIL fg-bin THEN DO:      
         MESSAGE "Sorry, these FG Transactions cannot be processed because 1 or " +
             "more have an invalid bin. Please correct and retry. "  SKIP          

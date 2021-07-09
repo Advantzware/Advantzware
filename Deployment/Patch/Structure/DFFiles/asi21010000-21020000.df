@@ -1,0 +1,141 @@
+ADD TABLE "APIOutboundContent"
+  AREA "Data"
+  LABEL "API Outbound Content"
+  DESCRIPTION "Stores the content information of an API Outbound request"
+  DUMP-NAME "apioutboundcontent"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\apiOutboundContent.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\apiOutboundContent.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\apiOutboundContent.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "APIOutboundContent" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiOutboundID" OF "APIOutboundContent" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "API Outbound ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "contentType" OF "APIOutboundContent" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Content Type"
+  POSITION 4
+  MAX-WIDTH 40
+  ORDER 30
+
+ADD FIELD "contentKey" OF "APIOutboundContent" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Content Key"
+  POSITION 5
+  MAX-WIDTH 64
+  ORDER 40
+
+ADD FIELD "contentValue" OF "APIOutboundContent" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Content Value"
+  POSITION 6
+  MAX-WIDTH 200
+  ORDER 50
+
+ADD INDEX "contentType" ON "APIOutboundContent" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "apiOutboundID" ASCENDING 
+  INDEX-FIELD "contentType" ASCENDING 
+
+ADD INDEX "apiOutboundID" ON "APIOutboundContent" 
+  AREA "Index"
+  INDEX-FIELD "apiOutboundID" ASCENDING 
+
+ADD INDEX "rec_key" ON "APIOutboundContent" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" DESCENDING 
+
+ADD FIELD "cBgColor" OF "company" AS character
+  FORMAT "x(11)"
+  POSITION 42
+  INITIAL ""
+  LABEL "Background Color"
+  ORDER 480
+  MAX-WIDTH 22
+
+ADD FIELD "internal" OF "cust" AS logical
+  FORMAT "yes/no"
+  POSITION 179
+  INITIAL "no"
+  LABEL "Internal Customer indication"
+  ORDER 1770
+  MAX-WIDTH 1
+
+ADD FIELD "lockLayout" OF "eb" AS logical
+  FORMAT "yes/no"
+  POSITION 166
+  INITIAL "no"
+  LABEL "Lock Auto calc"
+  ORDER 1620
+  MAX-WIDTH 1
+
+ADD FIELD "releaseDockTime" OF "oe-relh" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 61
+  INITIAL ?
+  LABEL "Dock Appointment Time"
+  ORDER 560
+  MAX-WIDTH 8
+
+ADD INDEX "openedDescPO" ON "po-ordl"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "opened" ASCENDING
+  INDEX-FIELD "po-no" DESCENDING
+
+ADD INDEX "iTagInfo" ON "tag"
+  AREA "Index"
+  INDEX-FIELD "linkTable" ASCENDING
+  INDEX-FIELD "linkRecKey" ASCENDING
+  INDEX-FIELD "tagType" ASCENDING
+  INDEX-FIELD "groupCode" ASCENDING
+  INDEX-FIELD "description" ASCENDING
+
+ADD FIELD "sortByColumn" OF "userColumn" AS character
+  FORMAT "x(40)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Sort Column"
+  ORDER 70
+  MAX-WIDTH 10
+
+ADD FIELD "sorted" OF "userColumn" AS character
+  FORMAT "x(1)"
+  POSITION 12
+  INITIAL ""
+  LABEL "Sort Type"
+  ORDER 90
+  MAX-WIDTH 2
+
+UPDATE FIELD "programName" OF "utilities"
+  FORMAT "x(200)"
+
+ADD SEQUENCE "arInvXno_Seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000003170

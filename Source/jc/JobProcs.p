@@ -16,6 +16,9 @@
 
 DEFINE VARIABLE iJobFormatLength AS INTEGER NO-UNDO INITIAL 6.
 
+DEFINE TEMP-TABLE w-job NO-UNDO 
+    FIELD job like job.job.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -48,6 +51,23 @@ PROCEDURE CheckJobStatus:
         RETURN ERROR.
     END. 
 
+END PROCEDURE.
+
+PROCEDURE IsJobClosed:
+/*------------------------------------------------------------------------------
+ Purpose: To check a job's status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplClosed  AS LOGICAL   NO-UNDO.
+    
+    oplClosed = CAN-FIND(FIRST job NO-LOCK
+                         WHERE job.company EQ ipcCompany
+                           AND job.job-No  EQ ipcJobNo
+                           AND job.job-No2 EQ ipiJobNo2
+                           AND NOT job.opened).
 END PROCEDURE.
 
 PROCEDURE GetFormAndBlankFromJobAndFGItem:
@@ -138,13 +158,49 @@ PROCEDURE Job_GetNextOperation:
     RELEASE bf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetSecondaryJobForJobByStatus:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID which are open
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcJobno2List   AS CHARACTER NO-UNDO.
+
+    RUN pGetSecondaryJobForJob (
+        INPUT  ipcCompany,
+        INPUT  ipcJobNo,
+        INPUT  iplJobStatus,
+        INPUT-OUTPUT opcJobno2List
+        ).
+END PROCEDURE.
+
 PROCEDURE GetSecondaryJobForJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID which are open
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcJobno2List   AS CHARACTER NO-UNDO.
+
+    RUN pGetSecondaryJobForJob (
+        INPUT  ipcCompany,
+        INPUT  ipcJobNo,
+        INPUT  TRUE, /* Open Jobs */
+        INPUT-OUTPUT opcJobno2List
+        ).
+END PROCEDURE.
+
+PROCEDURE pGetSecondaryJobForJob PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcJobno2List   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
@@ -152,7 +208,7 @@ PROCEDURE GetSecondaryJobForJob:
     FOR EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job-no  EQ ipcJobno
-          AND bf-job-hdr.opened  EQ TRUE
+          AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
                             STRING(bf-job-hdr.job-no2,"99")
@@ -165,6 +221,26 @@ PROCEDURE GetSecondaryJobForJob:
     RELEASE bf-job-hdr.
 END PROCEDURE.
 
+PROCEDURE GetFormNoForJobHeaderByStatus:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcFormnoList   AS CHARACTER NO-UNDO.    
+
+    RUN pGetFormNoForJobHeader(
+        INPUT ipcCompany,
+        INPUT ipcJobno,
+        INPUT ipiJobno2,
+        INPUT iplJobStatus, /* job status */
+        INPUT-OUTPUT opcFormnoList
+        ).    
+END PROCEDURE.
+
 PROCEDURE GetFormNoForJobHeader:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID
@@ -175,6 +251,26 @@ PROCEDURE GetFormNoForJobHeader:
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcFormnoList   AS CHARACTER NO-UNDO.    
 
+    RUN pGetFormNoForJobHeader(
+        INPUT ipcCompany,
+        INPUT ipcJobno,
+        INPUT ipiJobno2,
+        INPUT TRUE, /* job status */
+        INPUT-OUTPUT opcFormnoList
+        ).    
+END PROCEDURE.
+
+PROCEDURE pGetFormNoForJobHeader PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes: Send iplJobStatus value with ? for fetching both opened and closed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcFormnoList   AS CHARACTER NO-UNDO.    
+
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-job     FOR job.
     
@@ -182,13 +278,13 @@ PROCEDURE GetFormNoForJobHeader:
         WHERE bf-job.company EQ ipcCompany
           AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
-          AND bf-job.opened,
+          AND (bf-job.opened EQ iplJobStatus OR iplJobStatus EQ ?),
     EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job     EQ bf-job.job
           AND bf-job-hdr.job-no  EQ ipcJobno
           AND bf-job-hdr.job-no2 EQ ipiJobNo2
-          AND bf-job-hdr.opened  EQ TRUE
+          AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.job-no2:
         opcFormnoList = IF opcFormnoList EQ "" THEN 
                             STRING(bf-job-hdr.frm,"99")
@@ -197,6 +293,26 @@ PROCEDURE GetFormNoForJobHeader:
                         ELSE 
                             opcFormnoList + "," + STRING(bf-job-hdr.frm,"99").        
     END.    
+END PROCEDURE.
+
+PROCEDURE GetBlankNoForJobHeaderByStatus:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcBlankNoList  AS CHARACTER NO-UNDO.    
+
+    RUN pGetBlankNoForJobHeader (
+        INPUT ipcCompany,
+        INPUT ipcJobno,
+        INPUT ipiJobno2,
+        INPUT iplJobStatus,
+        INPUT-OUTPUT opcBlankNoList
+        ).      
 END PROCEDURE.
 
 PROCEDURE GetBlankNoForJobHeader:
@@ -209,6 +325,26 @@ PROCEDURE GetBlankNoForJobHeader:
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcBlankNoList  AS CHARACTER NO-UNDO.    
 
+    RUN pGetBlankNoForJobHeader (
+        INPUT ipcCompany,
+        INPUT ipcJobno,
+        INPUT ipiJobno2,
+        INPUT TRUE, /* job status */
+        INPUT-OUTPUT opcBlankNoList
+        ).      
+END PROCEDURE.
+
+PROCEDURE pGetBlankNoForJobHeader PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns all available secondary job list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplJobStatus    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcBlankNoList  AS CHARACTER NO-UNDO.    
+
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-job     FOR job.
     
@@ -216,13 +352,13 @@ PROCEDURE GetBlankNoForJobHeader:
         WHERE bf-job.company EQ ipcCompany
           AND bf-job.job-no  EQ ipcJobno
           AND bf-job.job-no2 EQ ipiJobno2
-          AND bf-job.opened,
+          AND (bf-job.opened EQ iplJobStatus OR iplJobStatus EQ ?),
     EACH bf-job-hdr NO-LOCK
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job     EQ bf-job.job
           AND bf-job-hdr.job-no  EQ ipcJobno
           AND bf-job-hdr.job-no2 EQ ipiJobNo2
-          AND bf-job-hdr.opened  EQ TRUE
+          AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
            BY bf-job-hdr.job-no2:
         opcBlankNoList = IF opcBlankNoList EQ "" THEN 
                              STRING(bf-job-hdr.blank-no,"99")
@@ -269,6 +405,79 @@ PROCEDURE GetFormnoForJob:
     RELEASE bf-job-mat.
 END PROCEDURE.
 
+PROCEDURE job_CloseJob_DCPost:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+      
+    RUN CloseJob_DCPost(INPUT ipcCompany,TABLE w-job).
+   
+    
+END PROCEDURE.
+
+
+PROCEDURE CloseJob_DCPost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR w-job.
+    DEFINE VARIABLE close_date AS DATE    NO-UNDO.
+    DEFINE VARIABLE v-fin-qty  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cCloseJob AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cocode    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLastOpAllRunComplete AS LOGICAL NO-UNDO.
+    
+    cocode = ipcCompany.
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "CLOSEJOB", /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cCloseJob, 
+        OUTPUT lRecFound
+        ).
+        
+    IF cCloseJob EQ "DCPost" THEN
+    DO:
+       close_date = TODAY.  
+        FOR EACH w-job,
+        FIRST job
+        WHERE job.company eq ipcCompany
+        and job.job     eq w-job.job       
+        NO-LOCK,
+        EACH job-hdr
+        WHERE job-hdr.company eq ipcCompany
+          AND job-hdr.job     eq job.job
+          AND job-hdr.job-no  eq job.job-no
+          AND job-hdr.job-no2 eq job.job-no2          
+        USE-INDEX job 
+        TRANSACTION:
+        
+            RUN pGetMachRunComplete(INPUT ipcCompany, INPUT job.job-no, INPUT job.job-no2,  OUTPUT lLastOpAllRunComplete).
+           
+            IF lLastOpAllRunComplete THEN
+            DO:         
+               {jc/job-clos.i}
+
+               FIND CURRENT reftable NO-LOCK NO-ERROR.
+
+               job-hdr.opened = job.opened.
+            END.
+        END.         
+    END. 
+    
+END PROCEDURE.
+
+
 PROCEDURE GetBlanknoForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns blank no list for a given jobID
@@ -313,6 +522,8 @@ PROCEDURE GetOperationsForJob:
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-job     FOR job.
@@ -327,6 +538,8 @@ PROCEDURE GetOperationsForJob:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
+              AND (bf-job-mch.frm     EQ ipiFormNo OR ipiFormNo EQ ?)
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0 OR ipiBlankNO EQ ?)
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 
                              STRING(bf-job-mch.m-code)
@@ -348,6 +561,8 @@ PROCEDURE GetOperationsForJobNotCompleted:
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-job     FOR job.
@@ -362,6 +577,8 @@ PROCEDURE GetOperationsForJobNotCompleted:
               AND bf-job-mch.job     EQ bf-job.job
               AND bf-job-mch.job-no  EQ bf-job.job-no
               AND bf-job-mch.job-no2 EQ bf-job.job-no2
+              AND bf-job-mch.frm     EQ ipiFormNo
+              AND (bf-job-mch.blank-no EQ ipiBlankNo OR bf-job-mch.blank-no EQ 0)
               AND NOT bf-job-mch.run-complete
             USE-INDEX line-idx:
         opcMachineList = IF opcMachineList EQ "" THEN 
@@ -745,6 +962,36 @@ PROCEDURE GetRecalcJobCostForJobHdr:
     END.
 
 END PROCEDURE.
+
+PROCEDURE pGetMachRunComplete PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  get job machine is completed or not (job-mch.run-complete)
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLastOpAllRunComplete AS LOGICAL NO-UNDO.
+    
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job-no EQ ipcJobNo
+        AND job-mch.job-no2 EQ ipiJobNo2
+        BREAK BY job-mch.frm
+        BY job-mch.line:
+        
+        IF LAST-OF(job-mch.frm) THEN DO:
+          IF job-mch.run-complete THEN
+              oplLastOpAllRunComplete = YES.
+          ELSE DO:
+              oplLastOpAllRunComplete = NO.
+              LEAVE.
+          END.    
+        END.    
+    END.
+       
+END PROCEDURE.
+
 
 PROCEDURE RecalcJobCostForJob:
     /*------------------------------------------------------------------------------

@@ -2319,17 +2319,19 @@ PROCEDURE pPrepareAndExecuteQueryForDetail PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
     
-    cQuery = "FOR EACH AuditDtl NO-LOCK "
-           + "WHERE AuditDtl.AuditID EQ " + STRING (AuditHdr.AuditID) 
-           + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField EQ '"       + cStartField + "'")
-           + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
-           + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue EQ '"  + cStartAfterValue + "'")
-           + ( IF cSortBy NE "" AND NOT lHeaderSorting THEN " BY " + cSortBy + ( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
-           .
-    SESSION:SET-WAIT-STATE("General").
-    hdAuditDtlQuery:QUERY-PREPARE (cQuery).    
-    hdAuditDtlQuery:QUERY-OPEN().
-    SESSION:SET-WAIT-STATE("").
+    IF AVAILABLE AuditHdr THEN DO:
+        cQuery = "FOR EACH AuditDtl NO-LOCK "
+               + "WHERE AuditDtl.AuditID EQ " + STRING (AuditHdr.AuditID) 
+               + (IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField EQ '"       + cStartField + "'")
+               + (IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
+               + (IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue EQ '"  + cStartAfterValue + "'")
+               + (IF cSortBy NE "" AND NOT lHeaderSorting THEN " BY " + cSortBy + (IF lAscending THEN "" ELSE " DESCENDING") ELSE " ")
+               .
+        SESSION:SET-WAIT-STATE("General").
+        hdAuditDtlQuery:QUERY-PREPARE (cQuery).    
+        hdAuditDtlQuery:QUERY-OPEN().
+        SESSION:SET-WAIT-STATE("").
+    END. /* if avail */
 
 END PROCEDURE.
 

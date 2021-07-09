@@ -4,6 +4,8 @@
 DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cReasonDesc AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hdJobProcs  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 if chosen eq 2 then DO:
@@ -24,7 +26,9 @@ if chosen eq 2 then DO:
 /* oe/rep/schdrel3N.i */ 
        
        ASSIGN cReasonCode  = ""
-             cReasonDesc  = "".
+             cReasonDesc  = ""
+             iFormNo      = 0
+             iBlankNo     = 0.
 
        FIND FIRST job-hdr NO-LOCK
            WHERE job-hdr.company EQ cocode
@@ -57,7 +61,32 @@ if chosen eq 2 then DO:
            IF AVAILABLE job-hdr AND AVAILABLE rejct-cd AND AVAIL job AND job.job-no NE "" THEN
                ASSIGN cReasonCode = job.reason
                      cReasonDesc  =  rejct-cd.dscr.      
-           END.
+       END.
+       
+       IF AVAILABLE job AND w-ord.is-a-component AND
+        CAN-FIND(FIRST reftable
+                 WHERE reftable.reftable EQ "jc/jc-calc.p"
+                 AND reftable.company  EQ job.company
+                 AND reftable.loc      EQ ""
+                 AND reftable.code     EQ STRING(job.job,"999999999")) THEN
+        FOR EACH reftable
+        WHERE reftable.reftable EQ "jc/jc-calc.p"
+        AND reftable.company  EQ job-hdr.company
+        AND reftable.loc      EQ ""
+        AND reftable.code     EQ STRING(job-hdr.job,"999999999")
+        AND ((reftable.code2  EQ w-ord.i-no AND w-ord.is-a-component) OR
+             (job-hdr.i-no    EQ w-ord.i-no AND NOT w-ord.is-a-component))
+        NO-LOCK:
+         ASSIGN
+           iFormNo   = reftable.val[12]
+           iBlankNo  = reftable.val[13].        
+       END .
+       ELSE IF AVAIL job-hdr THEN DO:                 
+            assign
+              iFormNo = job-hdr.frm
+              iBlankNo = job-hdr.blank-no .
+       END.
+        
           
        ASSIGN cDisplay = ""
            cTmpField = ""
@@ -318,16 +347,18 @@ if chosen eq 2 then DO:
                                  ).
                     END.
 
-                    ELSE DO:
+                    ELSE DO:                          
                         RUN GetOperationsForJob IN hdJobProcs (
                                 INPUT cocode,
                                 INPUT w-ord.job-no,
                                 INPUT w-ord.job-no2,
+                                INPUT iFormNo,
+                                INPUT iBlankNo,
                                 INPUT-OUTPUT v-m-code
                                 ). 
                     END.
 
-                    cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
+                    cVarValue = IF v-m-code NE "" THEN string(v-m-code,"x(35)") ELSE "" .
                 END.
                 
                 WHEN "remaining-routing" THEN do:  
@@ -336,10 +367,12 @@ if chosen eq 2 then DO:
                                 INPUT cocode,
                                 INPUT w-ord.job-no,
                                 INPUT w-ord.job-no2,
+                                INPUT iFormNo,
+                                INPUT iBlankNo,
                                 INPUT-OUTPUT v-m-code
                                 ).
                         
-                    cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .  
+                    cVarValue = IF v-m-code NE "" THEN string(v-m-code,"x(35)") ELSE "" .  
                 END.
                 
                 WHEN "mfg-date" THEN DO:
@@ -347,6 +380,7 @@ if chosen eq 2 then DO:
                       cVarValue = STRING(w-ord.prom-date) .
                   ELSE cVarValue = "" .
                 END.
+                WHEN "dock-appointment" THEN cVarValue = IF v-dockTime NE ? THEN STRING(v-dockTime,"99/99/9999 HH:MM") ELSE "" .
             
             END CASE.
             cExcelVarValue = cVarValue.

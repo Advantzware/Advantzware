@@ -36,9 +36,12 @@ CREATE WIDGET-POOL.
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
+
 {sys/inc/var.i SHARED}
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
+{methods/auditDefs.i}
+
 DEF VAR ll-close AS LOG NO-UNDO.
 DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
 
@@ -47,11 +50,18 @@ IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
 v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
-ASSIGN
-/*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */
-/*   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 10) + 1) */
-  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
-  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
+
+v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+
+{methods/auditFunc.i}
+
+&Scoped-define ACTION UPDATE
+&Scoped-define DBNAME ASI
+&Scoped-define TABLENAME job
+{methods/auditTrigProcs.i {&TABLENAME}}
+&Scoped-define TABLENAME job-hdr
+{methods/auditTrigProcs.i {&TABLENAME}}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -182,7 +192,6 @@ DEFINE FRAME D-Dialog
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Close Orders"
          DEFAULT-BUTTON btn_ok.
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -316,101 +325,83 @@ DO:
   
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
-
     ASSIGN
      begin_job = FILL(" ",6 - LENGTH(TRIM(begin_job))) +
                  TRIM(begin_job) + STRING(begin_job2,"99")
      end_job   = FILL(" ",6 - LENGTH(TRIM(end_job))) +
-                 TRIM(end_job) + STRING(end_job2,"99").
-
+                 TRIM(end_job) + STRING(end_job2,"99")
+     .
     IF ll-close THEN
-    FOR EACH job
-        WHERE job.company                               EQ cocode
-          AND job.opened                                EQ ll-close
-
-          AND (job.stat                                 EQ "W" OR
-               NOT tb_only                                     OR
+    FOR EACH job EXCLUSIVE-LOCK
+        WHERE job.company                     EQ cocode
+          AND job.opened                      EQ ll-close
+          AND (job.stat                       EQ "W" OR
+               NOT tb_only                                    OR
                CAN-FIND(FIRST mat-act
                         WHERE mat-act.company EQ job.company
                           AND mat-act.job     EQ job.job
                           AND mat-act.job-no  EQ job.job-no
-                          AND mat-act.job-no2 EQ job.job-no2)  OR
+                          AND mat-act.job-no2 EQ job.job-no2) OR
                CAN-FIND(FIRST mch-act
                         WHERE mch-act.company EQ job.company
                           AND mch-act.job     EQ job.job
                           AND mch-act.job-no  EQ job.job-no
-                          AND mch-act.job-no2 EQ job.job-no2)  OR
+                          AND mch-act.job-no2 EQ job.job-no2) OR
                CAN-FIND(FIRST misc-act
                         WHERE misc-act.company EQ job.company
                           AND misc-act.job     EQ job.job
                           AND misc-act.job-no  EQ job.job-no
                           AND misc-act.job-no2 EQ job.job-no2))
-
-          AND job.job-no                                GE SUBSTR(begin_job,1,6)
-          AND job.job-no                                LE SUBSTR(end_job,1,6)
-
+          AND job.job-no                       GE SUBSTR(begin_job,1,6)
+          AND job.job-no                       LE SUBSTR(end_job,1,6)
           AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")                  GE begin_job
+              STRING(job.job-no2,"99")         GE begin_job
           AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")                  LE end_job
-
-          AND job.start-date                            GE begin_date
-          AND job.start-date                            LE end_date
-
-        USE-INDEX opened,
-
-      {jc/jc-close.i}
-
-        FOR EACH rm-rctd WHERE rm-rctd.company = job.company
+              STRING(job.job-no2,"99")         LE end_job
+          AND job.start-date                   GE begin_date
+          AND job.start-date                   LE end_date
+        USE-INDEX opened:
+        {jc/jc-close.i}
+        FOR EACH rm-rctd EXCLUSIVE-LOCK
+            WHERE rm-rctd.company = job.company
               AND rm-rctd.job-no = FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  
               AND rm-rctd.job-no2 = job.job-no2
-              AND rm-rctd.rita-code = "I" EXCLUSIVE-LOCK:
-             ASSIGN
-                rm-rctd.rct-date = close_date .
-          END.
-  
-      DISPLAY "Job Closing: " +
+              AND rm-rctd.rita-code = "I"
+            :
+            rm-rctd.rct-date = close_date.
+        END.  
+        DISPLAY "Job Closing: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
     END.
-
     ELSE
     FOR EACH job NO-LOCK
-        WHERE job.company                               EQ cocode
-          AND job.opened                                EQ ll-close
-
-          AND job.job-no                                GE SUBSTR(begin_job,1,6)
-          AND job.job-no                                LE SUBSTR(end_job,1,6)
-
+        WHERE job.company              EQ cocode
+          AND job.opened               EQ ll-close
+          AND job.job-no               GE SUBSTR(begin_job,1,6)
+          AND job.job-no               LE SUBSTR(end_job,1,6)
           AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")                  GE begin_job
+              STRING(job.job-no2,"99") GE begin_job
               AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
               TRIM(job.job-no) +
-              STRING(job.job-no2,"99")                  LE end_job
-
-          AND job.start-date                            GE begin_date
-          AND job.start-date                            LE end_date
-
-        USE-INDEX opened:
-
-      RUN jc/jc-reopn.p (ROWID(job)).
-
-      DISPLAY "Job Opening: " +
+              STRING(job.job-no2,"99") LE end_job
+          AND job.start-date           GE begin_date
+          AND job.start-date           LE end_date
+        USE-INDEX opened
+        :
+        RUN jc/jc-reopn.p (ROWID(job)).
+        DISPLAY "Job Opening: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
-    END.
-    
-    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-     
+    END.    
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).     
     DISPLAY "" @ fi_status WITH FRAME {&FRAME-NAME}.
-
-    SESSION:SET-WAIT-STATE("").
-        
+    SESSION:SET-WAIT-STATE("").        
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.
@@ -529,11 +520,9 @@ ASSIGN
 
  FRAME {&FRAME-NAME}:TITLE = (IF ll-close THEN "Close" ELSE "Reopen") + " Jobs".
 
-    {methods/nowait.i}
+  {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
-
- /* {src/adm/template/dialogmn.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -16,7 +16,7 @@ IF EXIST "..\..\DoNotDelete.txt" (
     )
 
 :: Check to ensure we're on the ASI server
-IF /I NOT !Hostname! == %computername% (
+IF /I NOT !Hostname! == %computername% IF /I NOT !Hostname! == %computername%.%userdnsdomain% (
     ECHO MSGBOX "You MUST run this program on the ASI server." > %temp%\TEMPmessage.vbs
     CALL %temp%\TEMPmessage.vbs
     DEL %temp%\TEMPmessage.vbs /f /q
@@ -56,6 +56,12 @@ DEL /Q 7z.* > NUL
 DEL /Q convusr.* > NUL
 CLS
 
+:: Remove old structure files
+CD ..\..
+CD Databases\Structure\DFFiles
+DEL /Q *.df
+CD ..
+
 :: Build some directories that may or may not already exist
 CD ..\..
 MKDIR Documentation > NUL
@@ -65,6 +71,7 @@ CD ..
 MKDIR Install > NUL
 CD Install
 MKDIR ReportWriter > NUL
+MKDIR LocalPrintInstall > NUL
 CD ..
 MKDIR Backups > NUL
 CD Backups
@@ -77,7 +84,7 @@ XCOPY /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
 XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
-XCOPY /S /Y .\Install\ReportWriter\*.* ..\Install\ReportWriter > NUL
+XCOPY /S /Y .\Install\*.* ..\Install > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL

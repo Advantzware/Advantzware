@@ -46,7 +46,16 @@ assign
  cocode = g_company
  locode = g_loc.
 
-DEF VAR ll-inv-displayed AS LOG NO-UNDO.
+DEFINE VARIABLE ll-inv-displayed    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
 {ap/l-apinv1.i NEW}
 
@@ -157,7 +166,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-sel.inv-no COLUMN-LABEL "Invoice#" FORMAT "x(12)":U
+      ap-sel.inv-no COLUMN-LABEL "Invoice#" /*FORMAT "x(12)":U */
       ap-sel.due-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
       ap-sel.inv-bal COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
       ap-sel.disc-amt COLUMN-LABEL "Discount" FORMAT "->>,>>9.99":U
@@ -325,6 +334,10 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
+  IF lAPInvoiceLength THEN
+        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,6 +353,20 @@ DO:
    {brsleave.i}
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
+DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i} 
+    IF lAPInvoiceLength THEN
+        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
+    ELSE
+        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -395,6 +422,8 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+RUN pAPInvoiceLength.
 
 {methods/winReSize.i}
 
@@ -849,6 +878,24 @@ PROCEDURE update-header :
    ap-chk.check-amt = ld-tmp-amt.
    FIND CURRENT ap-chk NO-LOCK.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        ASSIGN ap-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    END.
+    ELSE DO: 
+        ASSIGN ap-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 20.    
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -41,14 +41,15 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
-           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,FreightCalculation,"
+           + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,FreightCalculation,"
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,MiscEstimateSource,"
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
-           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,InvoiceApprovalOrderlineChange"
+           + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
+           + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -838,18 +839,7 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Configuration file for Check printing (JSON)",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).        
-    WHEN "VendItemBrowse" THEN   
-    RUN sys/inc/addnk1.p (
-        INPUT cocode, 
-        INPUT ip-nk1-value, 
-        INPUT NO /* Prompt? */,
-        INPUT "Int val = # of records to load in the browse that meet desired criteria",
-        INPUT "" /* Char Value */, 
-        INPUT 25 /* Int value */,
-        INPUT NO /* Logical value */, 
-        INPUT 0 /* dec value*/
-        ).     
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
     WHEN "FreightCalculation" THEN   
         RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
             INPUT "Freight Calculation",
@@ -1519,7 +1509,84 @@ CASE ip-nk1-value:
             INPUT 0,                                    /* Int value */
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
-            ).         
+            ). 
+    WHEN "QuotePriceMatrix" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Quote and Price Matrix",             /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).
+    WHEN "DeleteBinsAllowed" THEN   
+          RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Allow a prompt for user to delete bins", /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).             
+    WHEN "QuoteExpirationDays" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Default quote expiration days ",     /* Description */
+            INPUT "Entry",                              /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).          
+    WHEN "QuoteExpireDuplicates" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Expire duplicate quotes",            /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ). 
+    WHEN "APIRequestMethod" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Desired method to make an API call", /* Description */
+            INPUT "cURL",                               /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ). 
+    WHEN "InvoiceApprovalMiscCharge" THEN    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Do not auto approve if invoice has a misc item",            /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).  
+    WHEN "VendItemCostMaximum" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Set Maximum Order Quantity on Vendor Cost Matrix", /* Description */
+            INPUT "Manual",                             /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                  /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).     
 END CASE.
 ELSE
 CASE ip-nk1-value:

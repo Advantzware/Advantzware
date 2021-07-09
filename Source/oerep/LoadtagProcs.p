@@ -690,7 +690,10 @@ PROCEDURE pCreateLoadTag:
             ipbf-ttLoadTag.createdTime  = bf-loadtag.tag-time
             ipbf-ttLoadTag.tagStatus    = "Created"
             .
-           
+
+        IF ipbf-ttLoadTag.recordSource EQ "BOL" THEN
+            RETURN.
+
         IF glCreateFGReceipts AND glCheckClosedStatus THEN DO:
             RUN po/POProcs.p PERSISTENT SET hdPOProcs.
             
@@ -2221,7 +2224,6 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
                    AND bf-job-hdr.frm      EQ ipiFormNo
                    AND bf-job-hdr.blank-no EQ ipiBlankNo
                    AND bf-job-hdr.i-no     EQ ipcItemID
-                   AND bf-job-hdr.opened   EQ TRUE
                  NO-ERROR.
         
         IF NOT AVAILABLE bf-job-hdr THEN DO:

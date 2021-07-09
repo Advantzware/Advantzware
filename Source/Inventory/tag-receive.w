@@ -51,7 +51,10 @@ DEFINE VARIABLE cWarehouseID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 
 {system/sysconst.i}
-{Inventory/ttInventory.i "NEW SHARED"}
+{inventory/ttBrowseInventory.i}
+{inventory/ttInventoryStockDetails.i}
+{inventory/ttInventory.i}
+
 {wip/keyboardDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -641,7 +644,7 @@ PROCEDURE pInit :
            
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany NO-ERROR .
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + ipcLocation  .
 END PROCEDURE.
 
@@ -670,7 +673,7 @@ PROCEDURE pSubmitScan :
         ipcTag,
         OUTPUT lValidInvStock,
         OUTPUT cReturnMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
     
     IF NOT lValidInvStock THEN DO:
@@ -761,7 +764,7 @@ PROCEDURE pTagScan :
         ipcTag,
         OUTPUT lValidInvStock,
         OUTPUT cReturnMessage,
-        INPUT-OUTPUT TABLE ttInventoryStockDetails
+        INPUT-OUTPUT TABLE ttInventoryStockDetails BY-REFERENCE
         ).
     
     IF NOT lValidInvStock THEN DO:

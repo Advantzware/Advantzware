@@ -180,7 +180,23 @@ PROCEDURE GL_CheckModClosePeriod:
     
 END PROCEDURE.
 
-PROCEDURE GL_pCloseMonthModule:
+PROCEDURE GL_CloseMonthModule:
+    /*------------------------------------------------------------------------------
+     Purpose: close sub ledger of month 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiPeriodYear      AS INTEGER     NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiPeriod          AS INTEGER     NO-UNDO.     
+    DEFINE INPUT PARAMETER ipcModule          AS CHARACTER   NO-UNDO.
+    
+    RUN pCloseMonthModule(INPUT ipcCompany, INPUT ipiPeriodYear, INPUT ipiPeriod, INPUT ipcModule).       
+    
+
+END PROCEDURE.
+
+PROCEDURE pCloseMonthModule PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: close sub ledger of month 
      Notes:
@@ -194,51 +210,12 @@ PROCEDURE GL_pCloseMonthModule:
     DEFINE BUFFER bf-account for account.
     DEFINE BUFFER bff-account for account.
     
-    FIND FIRST period NO-LOCK
+    FIND FIRST period EXCLUSIVE-LOCK
          WHERE period.company EQ ipcCompany 
          AND period.yr EQ ipiPeriodYear
          AND period.pnum EQ ipiPeriod
-        NO-ERROR.
-        
-    FIND FIRST gl-ctrl NO-LOCK
-         WHERE gl-ctrl.company eq ipcCompany no-error.    
-            
-    FOR EACH glhist
-       where glhist.company eq ipcCompany
-         and glhist.tr-date ge period.pst
-         and glhist.tr-date le period.pend
-         and glhist.period  eq ipiPeriod
-         AND glhist.posted  EQ NO
-         AND glhist.module  EQ ipcModule
-       transaction:
-       
-      FIND FIRST account
-           WHERE account.company eq ipcCompany
-           and account.actnum  eq glhist.actnum
-           NO-ERROR.
-      IF AVAIL account THEN DO:
-         account.cyr[ipiPeriod] = account.cyr[ipiPeriod] + glhist.tr-amt.
-
-         IF INDEX("RE",account.type) GT 0 then do:
-            FIND FIRST bf-account
-                 WHERE bf-account.company eq ipcCompany
-                 AND bf-account.actnum  eq gl-ctrl.ret.
-
-            bf-account.cyr[ipiPeriod] = bf-account.cyr[ipiPeriod] + glhist.tr-amt.
-
-            FIND FIRST bff-account
-                 WHERE bff-account.company eq ipcCompany
-                 AND bff-account.actnum  eq gl-ctrl.contra.
-
-            bff-account.cyr[ipiPeriod] = bff-account.cyr[ipiPeriod] - glhist.tr-amt.
-         END.
-      END.
-             
-      ASSIGN
-      glhist.posted = YES
-      glhist.postedBy = USERID(LDBNAME(1)) .
-    END.
-    FIND CURRENT period EXCLUSIVE-LOCK NO-ERROR.
+        NO-ERROR.     
+    
     IF ipcModule EQ "AP" THEN
      ASSIGN
        period.subLedgerAP = "C"
@@ -362,7 +339,8 @@ PROCEDURE GL_SpCreateGLHist :
            bf-glhist.tr-amt     = ipdTrAmount
            bf-glhist.tr-num     = ipiTrNumber
            bf-glhist.period     = ipiPeriod  
-           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)         
+           bf-glhist.glYear     = IF AVAIL period THEN period.yr ELSE YEAR(ipdtTrDate)
+           bf-glhist.yr         = YEAR(ipdtTrDate)
            bf-glhist.entryType  = ipcEntryType
            bf-glhist.sourceDate = ipdtSourceDate
            bf-glhist.documentID = ipcDocumentID
@@ -523,6 +501,100 @@ PROCEDURE GL_GetAccountOpenBal :
         END.   
     END.
 END PROCEDURE.
+
+PROCEDURE GL_ReOpenPeriod :
+    /*------------------------------------------------------------------------------
+     Purpose: Reopen Period 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.  
+    
+    RUN pReOpenPeriod(INPUT ipcCompany, INPUT iprwRowid).
+    
+END PROCEDURE.      
+    
+
+PROCEDURE pReOpenPeriod PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose: Reopen Period 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iprwRowid   AS ROWID       NO-UNDO.    
+    
+    DEFINE VARIABLE cTmpDir AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-period FOR period.
+    DEFINE BUFFER bf-account FOR account.
+    
+    FIND FIRST users NO-LOCK
+        WHERE users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+
+    IF AVAIL users AND users.user_program[2] NE "" THEN
+       cTmpDir = users.user_program[2].
+    ELSE
+       cTmpDir = "c:\tmp".
+       
+    RUN spProgressBar ("Reopen Period", 1, 3).
+    FIND FIRST company NO-LOCK where company.company eq ipcCompany NO-ERROR.
+    FIND FIRST bf-period EXCLUSIVE-LOCK 
+         WHERE bf-period.company EQ ipcCompany
+         AND ROWID(bf-period) EQ iprwRowid NO-ERROR.
+    IF AVAIL bf-period THEN
+    DO:
+        for each glhist
+            where glhist.company eq ipcCompany         
+            and glhist.tr-date ge bf-period.pst
+            and glhist.tr-date le bf-period.pend
+            and glhist.period  eq bf-period.pnum          
+            :
+            glhist.posted = NO.        
+        END.  
+       
+        OUTPUT TO value(cTmpDir + "\account.d") . 
+        FOR EACH bf-account
+            where bf-account.company EQ ipcCompany:
+            EXPORT bf-account.
+            bf-account.cyr[bf-period.pnum] = 0.
+        END.
+        OUTPUT CLOSE. 
+        RUN spProgressBar ("Reopen Period", 2, 3).
+        bf-period.pstat = YES.
+        ASSIGN
+        bf-period.APClosedBy  = USERID(LDBNAME(1))
+        bf-period.POClosedBy  = USERID(LDBNAME(1))
+        bf-period.OPClosedBy  = USERID(LDBNAME(1))
+        bf-period.WIPClosedBy = USERID(LDBNAME(1))
+        bf-period.RMClosedBy  = USERID(LDBNAME(1))
+        bf-period.FGClosedBy  = USERID(LDBNAME(1))
+        bf-period.BRClosedBy  = USERID(LDBNAME(1))
+        bf-period.ARClosedBy  = USERID(LDBNAME(1))        
+        bf-period.subLedgerAP  = IF company.subLedgerAP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerPO  = IF company.subLedgerPO EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerOP  = IF company.subLedgerOP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerWIP = IF company.subLedgerWIP EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerRM  = IF company.subLedgerRM EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerFG  = IF company.subLedgerFG EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerBR  = IF company.subLedgerBR EQ YES THEN "O" ELSE "A"
+        bf-period.subLedgerAR  = IF company.subLedgerAR EQ YES THEN "O" ELSE "A"       
+        bf-period.APClosed  = NOW
+        bf-period.POClosed  = NOW
+        bf-period.OPClosed  = NOW
+        bf-period.WIPClosed = NOW
+        bf-period.RMClosed  = NOW
+        bf-period.FGClosed  = NOW
+        bf-period.BRClosed  = NOW
+        bf-period.ARClosed  = NOW
+        .
+        
+    END.
+    RELEASE bf-period.
+    RUN spProgressBar ("Reopen Period", 3, 3).
+END PROCEDURE.    
+
 
 /* ************************  Function Implementations ***************** */
 

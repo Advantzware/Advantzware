@@ -32,7 +32,6 @@ DEF INPUT  PARAM ip-i-no AS cha NO-UNDO.
 DEF OUTPUT PARAM op-rowid-list AS CHAR NO-UNDO.
 
 {oe/d-selbin.i}
-{inventory/ttInventory.i "NEW SHARED"}
 
 DEF VAR v-i-no    LIKE oe-ordl.i-no NO-UNDO.
 DEF VAR v-ord     LIKE oe-ordl.ord-no NO-UNDO.
@@ -1033,6 +1032,7 @@ PROCEDURE initialize :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEF VAR v-linkno AS INT NO-UNDO.
+DEFINE VARIABLE cTagStatus AS CHARACTER NO-UNDO.
 
 FOR EACH w-bin:
   DELETE w-bin.
@@ -1049,6 +1049,11 @@ IF ip-run EQ 1 OR ip-run EQ 4 THEN DO:
    v-qty     = xoe-rell.qty
    lv-select = "Release"
    lv-select-desc = "Actual Release".
+   FIND FIRST oe-relh WHERE oe-relh.company = cocode
+                       AND oe-relh.r-no = xoe-rell.r-no
+                     NO-LOCK NO-ERROR.
+   IF AVAIL oe-relh THEN
+   ASSIGN v-cust = oe-relh.cust-no.                  
 END.
 
 ELSE 
@@ -1090,7 +1095,14 @@ END.
 ELSE v-i-no = ip-i-no.
 
 rel-type = "" .
+cTagStatus = "".
 IF v-cust NE "" THEN DO:                                /*Task# 12231304*/ 
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode 
+         AND cust.cust-no EQ v-cust NO-ERROR.
+    IF avail cust THEN
+    ASSIGN cTagStatus = cust.tagStatus.
+    
     FIND FIRST oe-rel WHERE oe-rel.company EQ cocode 
         AND oe-rel.ord-no  EQ v-ord 
         AND oe-rel.i-no    EQ v-i-no  
@@ -1107,6 +1119,9 @@ IF ip-all-one EQ "all" THEN
          AND fg-bin.i-no    EQ v-i-no
          AND fg-bin.qty     GT 0
          AND fg-bin.cust-no EQ '' /* ticket 23164 */
+         AND ((fg-bin.onHold AND cTagStatus EQ "H") OR
+             (NOT fg-bin.onHold AND cTagStatus EQ "") OR 
+             cTagStatus EQ "A")             
     NO-LOCK:
 
     /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/          /*Task# 12231304*/ 
@@ -1130,6 +1145,9 @@ FOR EACH fg-bin
       AND fg-bin.job-no2 EQ v-job-no2
       AND fg-bin.qty     GT 0
       AND fg-bin.cust-no EQ '' /* ticket 23164 */
+      AND ((fg-bin.onHold AND cTagStatus EQ "H") OR
+          (NOT fg-bin.onHold AND cTagStatus EQ "") OR 
+          cTagStatus EQ "A")    
     NO-LOCK:
 
     /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/      /*Task# 12231304*/ 

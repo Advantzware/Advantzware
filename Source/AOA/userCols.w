@@ -1013,6 +1013,8 @@ PROCEDURE pSave :
     APPLY "ROW-LEAVE":U TO BROWSE subjectColumnBrowse.
     APPLY "ROW-LEAVE":U TO BROWSE sortBrowse.
     APPLY "ROW-LEAVE":U TO BROWSE groupBrowse.
+    IF FOCUS:NAME EQ "groupLabel" THEN
+    APPLY "RETURN":U TO ttGroup.groupLabel IN BROWSE groupBrowse.
     DO TRANSACTION:
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID

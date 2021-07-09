@@ -175,62 +175,58 @@ DEFINE FRAME F-Main
      style.formula[7] AT ROW 7.24 COL 24.4 COLON-ALIGNED
           LABEL "Square Feet W"
           VIEW-AS FILL-IN 
-          SIZE 36 BY 1
+          SIZE 46.6 BY 1
           BGCOLOR 15 FONT 4
      style.formula[8] AT ROW 8.19 COL 24.4 COLON-ALIGNED
           LABEL "L"
           VIEW-AS FILL-IN 
-          SIZE 36 BY 1
+          SIZE 46.6 BY 1
           BGCOLOR 15 FONT 4
      style.kdf-width AT ROW 9.33 COL 24.4 COLON-ALIGNED
           LABEL "KDF W"
           VIEW-AS FILL-IN 
-          SIZE 36 BY 1
+          SIZE 46.6 BY 1
           BGCOLOR 15 
      style.kdf-length AT ROW 10.29 COL 24.4 COLON-ALIGNED
           LABEL "L"
           VIEW-AS FILL-IN 
-          SIZE 36 BY 1
+          SIZE 46.6 BY 1
           BGCOLOR 15 
      style.formula[20] AT ROW 11.48 COL 24.4 COLON-ALIGNED WIDGET-ID 6
-          LABEL "2 Up W"
+          LABEL "PO Scores Width" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 36 BY 1
+          SIZE 46.6 BY 1
           BGCOLOR 15 
      ld-box-fit AT ROW 12.71 COL 24.4 COLON-ALIGNED
-     style.balecount AT ROW 12.71 COL 57.4 COLON-ALIGNED
+     style.balecount AT ROW 12.71 COL 67.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      style.sqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
           "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2 FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     style.sqft-wid-trim AT ROW 13.91 COL 51.4 COLON-ALIGNED HELP
+     style.sqft-wid-trim AT ROW 13.91 COL 62 COLON-ALIGNED HELP
           "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4 FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     style.formula[12] AT ROW 9.57 COL 77 COLON-ALIGNED
+     style.formula[12] AT ROW 9.57 COL 87 COLON-ALIGNED
           LABEL "Die Rule" FORMAT "x(25)"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     style.use-w[2] AT ROW 11.48 COL 78 COLON-ALIGNED
+     style.use-w[2] AT ROW 11.48 COL 88 COLON-ALIGNED
           LABEL "Formula"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[3] AT ROW 11.48 COL 82 COLON-ALIGNED NO-LABEL
+     style.use-w[3] AT ROW 11.48 COL 92 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[4] AT ROW 11.48 COL 86 COLON-ALIGNED NO-LABEL
+     style.use-w[4] AT ROW 11.48 COL 96 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[5] AT ROW 11.48 COL 90 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 15 FONT 4
-     style.use-w[6] AT ROW 11.48 COL 94 COLON-ALIGNED NO-LABEL
+     style.use-w[5] AT ROW 11.48 COL 100 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
@@ -241,145 +237,149 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     style.use-w[7] AT ROW 11.48 COL 98 COLON-ALIGNED NO-LABEL
+     style.use-w[6] AT ROW 11.48 COL 104 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[8] AT ROW 11.48 COL 102 COLON-ALIGNED NO-LABEL
+     style.use-w[7] AT ROW 11.48 COL 108 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[9] AT ROW 11.48 COL 106 COLON-ALIGNED NO-LABEL
+     style.use-w[8] AT ROW 11.48 COL 112 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[10] AT ROW 11.48 COL 110 COLON-ALIGNED NO-LABEL
+     style.use-w[9] AT ROW 11.48 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[11] AT ROW 11.48 COL 114 COLON-ALIGNED NO-LABEL
+     style.use-w[10] AT ROW 11.48 COL 120 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[12] AT ROW 11.48 COL 118 COLON-ALIGNED NO-LABEL
+     style.use-w[11] AT ROW 11.48 COL 124 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-w[13] AT ROW 11.48 COL 122 COLON-ALIGNED NO-LABEL
+     style.use-w[12] AT ROW 11.48 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[2] AT ROW 13.38 COL 78 COLON-ALIGNED
+     style.use-w[13] AT ROW 11.48 COL 132 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 3.2 BY 1
+          BGCOLOR 15 FONT 4
+     style.use-l[2] AT ROW 13.38 COL 88 COLON-ALIGNED
           LABEL "Formula"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[3] AT ROW 13.38 COL 82 COLON-ALIGNED NO-LABEL
+     style.use-l[3] AT ROW 13.38 COL 92 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[4] AT ROW 13.38 COL 86 COLON-ALIGNED NO-LABEL
+     style.use-l[4] AT ROW 13.38 COL 96 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[5] AT ROW 13.38 COL 90 COLON-ALIGNED NO-LABEL
+     style.use-l[5] AT ROW 13.38 COL 100 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[6] AT ROW 13.38 COL 94 COLON-ALIGNED NO-LABEL
+     style.use-l[6] AT ROW 13.38 COL 104 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[7] AT ROW 13.38 COL 98 COLON-ALIGNED NO-LABEL
+     style.use-l[7] AT ROW 13.38 COL 108 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[8] AT ROW 13.38 COL 102 COLON-ALIGNED NO-LABEL
+     style.use-l[8] AT ROW 13.38 COL 112 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[9] AT ROW 13.38 COL 106 COLON-ALIGNED NO-LABEL
+     style.use-l[9] AT ROW 13.38 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[10] AT ROW 13.38 COL 110 COLON-ALIGNED NO-LABEL
+     style.use-l[10] AT ROW 13.38 COL 120 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[11] AT ROW 13.38 COL 114 COLON-ALIGNED NO-LABEL
+     style.use-l[11] AT ROW 13.38 COL 124 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[12] AT ROW 13.38 COL 118 COLON-ALIGNED NO-LABEL
+     style.use-l[12] AT ROW 13.38 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.use-l[13] AT ROW 13.38 COL 122 COLON-ALIGNED NO-LABEL
+     style.use-l[13] AT ROW 13.38 COL 132 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
      "5" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 93
-     "5" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 93
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 116
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 89
-     "# On Wid" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.67 COL 67
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 124
-     "9" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 109
-     "# On Len" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 10.76 COL 67
-     "8" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 105
-     "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 85
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 89
-     "9" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 109
-     "6" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 97
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 112
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 120
-     "8" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 105
+          SIZE 3 BY .62 AT ROW 10.76 COL 103
      "7" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 101
+          SIZE 3 BY .62 AT ROW 12.67 COL 111
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "Nesting Formula" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 8.62 COL 72
+          SIZE 19 BY .62 AT ROW 8.62 COL 82
+     "5" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 103
      "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 116
+          SIZE 3 BY .62 AT ROW 10.76 COL 126
      "7" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 101
+          SIZE 3 BY .62 AT ROW 10.76 COL 111
      "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 124
+          SIZE 3 BY .62 AT ROW 10.76 COL 134
      "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 85
+          SIZE 3 BY .62 AT ROW 12.67 COL 95
      "6" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 97
+          SIZE 3 BY .62 AT ROW 12.67 COL 107
      "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 112
+          SIZE 3 BY .62 AT ROW 10.76 COL 122
      "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 81
+          SIZE 3 BY .62 AT ROW 10.76 COL 91
+     "8" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 115
      "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 120
-     RECT-16 AT ROW 8.86 COL 65
+          SIZE 3 BY .62 AT ROW 10.76 COL 130
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 126
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 91
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 99
+     "# On Wid" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.67 COL 77
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 134
+     "9" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 119
+     "# On Len" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 10.76 COL 77
+     "3" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 95
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 99
+     "9" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 119
+     "6" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 107
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 122
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 130
+     "8" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 115
+     RECT-16 AT ROW 8.86 COL 75
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -447,7 +447,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.formula[1] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[20] IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[2] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[3] IN FRAME F-Main

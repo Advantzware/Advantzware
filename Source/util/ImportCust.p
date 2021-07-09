@@ -102,6 +102,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
+    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold, Only on Hold tags, Any tag status"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -412,7 +413,14 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.CustStatus = "X".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
-       
+        
+   IF ipbf-ttImportCust.tagStatus EQ "Only tags that are not on hold" THEN 
+        ipbf-ttImportCust.tagStatus = "".
+    ELSE IF ipbf-ttImportCust.tagStatus EQ "Only on Hold tags" THEN 
+        ipbf-ttImportCust.tagStatus = "H".
+    ELSE ipbf-ttImportCust.tagStatus = "A". 
+    
+    DELETE OBJECT hdValidator.   
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
@@ -520,6 +528,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
     RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
     RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
+    RUN pAssignValueC (ipbf-ttImportCust.tagStatus, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tagStatus).
     
     /* Set to round up if write blank and zero is selected */
     IF NOT iplIgnoreBlanks AND ipbf-ttImportCust.matrixRounding EQ "" THEN
@@ -607,20 +616,21 @@ PROCEDURE pAddNote:
     DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER.
-
+    DEFINE BUFFER bf-notes FOR notes.
+    
     IF ipcText NE "" THEN 
     DO:
-        CREATE notes.
+        CREATE bf-notes.
         ASSIGN
-            notes.rec_key    = ipcRecKey
-            notes.note_date  = TODAY
-            notes.note_time  = TIME
-            notes.note_text  = ipcText
-            notes.note_title = ipcTitle
-            notes.note_code  = ipcCode
-            notes.user_id    = "asi"
-            notes.note_type  = ipcType
+            bf-notes.rec_key    = ipcRecKey
+            bf-notes.note_date  = TODAY
+            bf-notes.note_time  = TIME
+            bf-notes.note_text  = ipcText
+            bf-notes.note_title = ipcTitle
+            bf-notes.note_code  = ipcCode
+            bf-notes.user_id    = "asi"
+            bf-notes.note_type  = ipcType
             .                    
     END.                           
-
+    RELEASE bf-notes.
 END PROCEDURE.

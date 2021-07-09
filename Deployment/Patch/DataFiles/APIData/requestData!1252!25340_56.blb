@@ -1,0 +1,21 @@
+ISA*00*          *00*          *ZZ*PREMIER        *ZZ*AMAZON         *$CurrentDate|YYMMDD|Date|$*$CurrentTime|hhmm|TIME|$*U*00401*$APITransCounter|999999999|Int|$*0*I*>~
+GS*IN*PREMIER*AMAZON*$currentDate|YYYYMMDD|DATE|$*$currentTime|hhmm|TIME|$*$ClientTransCounter$*X*004010~
+ST*810*0001~
+BIG*$InvoiceDate|YYYYMMDD|Date|$*$InvoiceNum$~
+CUR*BT*$Currency$~
+N1*BT*$CustomerName$
+N3$BillToStreetData$~
+N4*$CustomerCity$*$CustomerState$*$CustomerPostalCode$*US~
+N1*RI*$CompanyName$
+N3$CompanyStreetData$~
+N4*$CompanyCity$*$CompanyState$*$CompanyPostalCode$*US~
+N1*PE*$CompanyName$
+N3$CompanyStreetData$~
+N4*$CompanyCity$*$CompanyState$*$CompanyPostalCode$*US~
+N1*ST*$ShiptoName$
+N3$ShipToStreetData$~
+N4*$ShiptoCity$*$ShiptoState$*$ShiptoPostalCode$*US~$Detail$$Addons$$Tax$
+TDS*$TotalAmount$~
+SE*$SECount$*$0001~
+GE*1*$ClientTransCounter$~
+IEA*1*$APITransCounter|999999999|Int|$~

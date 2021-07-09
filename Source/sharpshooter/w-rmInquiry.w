@@ -45,9 +45,8 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-{system/sysconst.i}
+// {system/sysconst.i}
 {wip/keyboardDefs.i}
-{Inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
@@ -930,7 +929,7 @@ PROCEDURE pInit :
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - {&awversion}" + " - " 
+                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + locode.
 
     cCompany = cocode.

@@ -27,7 +27,6 @@ DEFINE OUTPUT PARAMETER ip-rowid AS ROWID     NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
-{inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN cocode = g_company.
 ASSIGN locode = g_loc.
@@ -1385,16 +1384,31 @@ PROCEDURE pValidateTagStatus PRIVATE :
 
     DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lResponse        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.    
     IF oe-rell.tag:SCREEN-VALUE NE "" THEN DO:
+        
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ cocode
+             AND cust.cust-no EQ oe-relh.cust-no NO-ERROR.
+        IF AVAIL cust THEN
+        cTagStatus = cust.tagStatus.            
+        
         lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                "fCheckFgBinTagOnHold" IN hdInventoryProcs,
                                cocode,
                                oe-rell.i-no:SCREEN-VALUE, 
                                oe-rell.tag:SCREEN-VALUE)
                                ).
+        IF ((cTagStatus EQ "" AND lTagStatusOnHold) OR (cTagStatus EQ "H" AND NOT lTagStatusOnHold)) THEN
+        DO:
+           MESSAGE "Bin Tag status did not match with Customer Tag status.."  VIEW-AS ALERT-BOX ERROR.
+           APPLY "ENTRY":U TO oe-rell.tag.
+           RETURN ERROR.
+        END.
+        
         IF lTagStatusOnHold THEN DO:
             RUN displayMessageQuestion (
                 INPUT  "53",

@@ -1273,10 +1273,6 @@ PROCEDURE local-display-fields :
     do:
         find first company where company.company eq g_company no-lock no-error.
 
-        do li = 1 to 13:
-          ld-period$[li] = account.cyr[li].
-        end.
-        
         for each period
             where period.company eq account.company
               and period.pstat   eq yes
@@ -1287,10 +1283,9 @@ PROCEDURE local-display-fields :
               and glhist.actnum  eq account.actnum
               and glhist.period  eq period.pnum
               and glhist.tr-date ge period.pst
-              and glhist.tr-date le period.pend
-              AND glhist.posted EQ NO
+              and glhist.tr-date le period.pend                
                 no-lock:
-
+               
               ld-period$[period.pnum] = ld-period$[period.pnum] + glhist.tr-amt.
         end.
     END.
