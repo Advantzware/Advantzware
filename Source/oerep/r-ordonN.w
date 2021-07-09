@@ -1750,7 +1750,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR16" }
+assign
+td-show-parm:sensitive = lShowParameters
+tb_batch:sensitive = lShowBatchMode
+td-show-parm:hidden = not lShowParameters
+tb_batch:hidden = not lShowBatchMode
+td-show-parm:visible = lShowParameters
+tb_batch:visible = lShowBatchMode
+.
   {methods/nowait.i}
 
    RUN sys/inc/CustListForm.p ( "OR16",cocode, 
