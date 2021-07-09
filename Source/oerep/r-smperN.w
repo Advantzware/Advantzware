@@ -110,9 +110,9 @@ ASSIGN cTextListToDefault  = "No,Sales Rep Name,Daily Sq Ft/M,Amount1,PTD Sq Ft/
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_ord-date begin_slsmn ~
 end_slsmn sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_ord-date begin_slsmn end_slsmn ~
-sl_avail sl_selected rd-dest fi_file tb_runExcel tbAutoClose 
+sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -147,23 +147,23 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/01 
      LABEL "Order Date" 
@@ -275,10 +275,10 @@ DEFINE FRAME FRAME-A
      rd-dest AT ROW 12 COL 6 NO-LABEL
      lv-ornt AT ROW 12.48 COL 31 NO-LABEL
      lines-per-page AT ROW 12.48 COL 84 COLON-ALIGNED
+     lv-font-name AT ROW 12.57 COL 27.8 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 12.57 COL 30
      lv-font-no AT ROW 12.62 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 12.67 COL 27.8 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 12.67 COL 30
-     td-show-parm AT ROW 12.91 COL 30
+     td-show-parm AT ROW 13.95 COL 39.2
      fi_file AT ROW 14.86 COL 27.2 COLON-ALIGNED HELP
           "Enter File Name"
      tb_runExcel AT ROW 14.91 COL 87.4 RIGHT-ALIGNED
@@ -287,15 +287,15 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 17.81 COL 50.2
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 5.05 COL 3.8 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.1 COL 3.8
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 3.6
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 5.05 COL 58.4 WIDGET-ID 44
-     RECT-6 AT ROW 11.38 COL 3
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 3.6
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 11.1 COL 3.8
+     RECT-6 AT ROW 11.48 COL 3
      RECT-7 AT ROW 1.67 COL 3
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 94.4 BY 21.57
@@ -409,11 +409,6 @@ ASSIGN
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -864,7 +859,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR16" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1026,11 +1026,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_ord-date begin_slsmn end_slsmn sl_avail sl_selected rd-dest 
-          fi_file tb_runExcel tbAutoClose 
+          td-show-parm fi_file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_ord-date begin_slsmn end_slsmn sl_avail Btn_Def 
-         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file 
-         tb_runExcel tbAutoClose btn-ok btn-cancel 
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm 
+         fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

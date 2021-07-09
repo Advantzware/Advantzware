@@ -125,13 +125,14 @@ btnCustList begin_cust-no end_cust-no begin_ord-date end_ord-date ~
 begin_po-no end_po-no begin_job-no begin_job-no2 end_job-no end_job-no2 ~
 begin_i-no end_i-no begin_slmn end_slmn rd_sort rd_jstat rd_ostat tb_under ~
 tb_job-qty fi_days-old tb_0-bal as-of-date tb_sch tb_0-qoh tb_break ~
-btn_SelectColumns rd-dest fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+btn_SelectColumns rd-dest td-show-parm fi_file tb_runExcel tbAutoClose ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date begin_po-no end_po-no begin_job-no ~
 begin_job-no2 end_job-no end_job-no2 begin_i-no end_i-no begin_slmn ~
 end_slmn lbl_sort rd_sort lbl_jstat rd_jstat lbl_ostat rd_ostat tb_under ~
 tb_job-qty fi_days-old tb_0-bal as-of-date tb_sch tb_0-qoh tb_break rd-dest ~
-fi_file tb_runExcel tbAutoClose 
+td-show-parm fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -473,7 +474,6 @@ DEFINE FRAME FRAME-A
      sl_selected AT ROW 22.19 COL 53 NO-LABEL WIDGET-ID 28
      Btn_Add AT ROW 22.19 COL 65 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     td-show-parm AT ROW 22.19 COL 68
      lv-ornt AT ROW 22.19 COL 70 NO-LABEL
      btn_Up AT ROW 22.19 COL 71 WIDGET-ID 40
      lines-per-page AT ROW 22.38 COL 85 COLON-ALIGNED
@@ -482,9 +482,10 @@ DEFINE FRAME FRAME-A
      Btn_Remove AT ROW 22.67 COL 72 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_down AT ROW 22.91 COL 77 WIDGET-ID 42
+     td-show-parm AT ROW 23.81 COL 37.2
      fi_file AT ROW 24.76 COL 26.2 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_runExcel AT ROW 24.81 COL 89 RIGHT-ALIGNED
+     tb_runExcel AT ROW 24.81 COL 87 RIGHT-ALIGNED
      tbAutoClose AT ROW 26.29 COL 35.4 WIDGET-ID 16
      btn-ok AT ROW 27.19 COL 35
      btn-cancel AT ROW 27.19 COL 58.6
@@ -492,7 +493,7 @@ DEFINE FRAME FRAME-A
           SIZE 26 BY .62 AT ROW 14.1 COL 68
      "Days" VIEW-AS TEXT
           SIZE 6 BY 1 AT ROW 15.05 COL 90.2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 109.8 BY 27.71
@@ -508,7 +509,7 @@ DEFINE FRAME FRAME-A
      RECT-6 AT ROW 21.24 COL 3
      RECT-7 AT ROW 1.48 COL 3
      RECT-8 AT ROW 13.86 COL 66
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 109.8 BY 27.71
@@ -762,11 +763,6 @@ ASSIGN
 ASSIGN 
        tb_under:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1521,7 +1517,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR8" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "OR8",cocode, 
@@ -2146,16 +2147,16 @@ PROCEDURE enable_UI :
           begin_po-no end_po-no begin_job-no begin_job-no2 end_job-no 
           end_job-no2 begin_i-no end_i-no begin_slmn end_slmn lbl_sort rd_sort 
           lbl_jstat rd_jstat lbl_ostat rd_ostat tb_under tb_job-qty fi_days-old 
-          tb_0-bal as-of-date tb_sch tb_0-qoh tb_break rd-dest fi_file 
-          tb_runExcel tbAutoClose 
+          tb_0-bal as-of-date tb_sch tb_0-qoh tb_break rd-dest td-show-parm 
+          fi_file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no 
          end_cust-no begin_ord-date end_ord-date begin_po-no end_po-no 
          begin_job-no begin_job-no2 end_job-no end_job-no2 begin_i-no end_i-no 
          begin_slmn end_slmn rd_sort rd_jstat rd_ostat tb_under tb_job-qty 
          fi_days-old tb_0-bal as-of-date tb_sch tb_0-qoh tb_break 
-         btn_SelectColumns rd-dest fi_file tb_runExcel tbAutoClose btn-ok 
-         btn-cancel 
+         btn_SelectColumns rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

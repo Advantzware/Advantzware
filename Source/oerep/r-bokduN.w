@@ -103,10 +103,10 @@ ASSIGN cTextListToDefault  = "Due Date,Customer,Item Name,Style,Test,Adder1,Adde
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 tb_cust-list btnCustList ~
 begin_cust-no end_cust-no begin_ord-date end_ord-date begin_slsmn end_slsmn ~
 tb_ex-msf sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date begin_slsmn end_slsmn tb_ex-msf sl_avail ~
-sl_selected rd-dest fi_file tb_runExcel tbAutoClose 
+sl_selected rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -145,23 +145,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -311,7 +311,7 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 16.43 COL 38 COLON-ALIGNED
      lines-per-page AT ROW 16.43 COL 83 COLON-ALIGNED
      lv-ornt AT ROW 16.57 COL 30 NO-LABEL
-     td-show-parm AT ROW 16.67 COL 57
+     td-show-parm AT ROW 18.19 COL 37.8
      fi_file AT ROW 19.1 COL 26.8 COLON-ALIGNED HELP
           "Enter File Name"
      tb_runExcel AT ROW 19.14 COL 87 RIGHT-ALIGNED
@@ -320,16 +320,16 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 22.33 COL 50.8
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 8.91 COL 4.8 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.86 COL 59 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.24 COL 4.4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.38 COL 4.6
           BGCOLOR 15 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.24 COL 4.4
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 8.86 COL 59 WIDGET-ID 44
      RECT-7 AT ROW 1.71 COL 3.6
      RECT-8 AT ROW 15.57 COL 3.6
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 95.2 BY 25.38
@@ -465,11 +465,6 @@ ASSIGN
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1275,13 +1270,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust-no end_cust-no begin_ord-date end_ord-date 
-          begin_slsmn end_slsmn tb_ex-msf sl_avail sl_selected rd-dest fi_file 
-          tb_runExcel tbAutoClose 
+          begin_slsmn end_slsmn tb_ex-msf sl_avail sl_selected rd-dest 
+          td-show-parm fi_file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no end_cust-no 
          begin_ord-date end_ord-date begin_slsmn end_slsmn tb_ex-msf sl_avail 
-         Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file 
-         tb_runExcel tbAutoClose btn-ok btn-cancel 
+         Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest 
+         td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

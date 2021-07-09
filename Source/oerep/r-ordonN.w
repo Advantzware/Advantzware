@@ -159,17 +159,17 @@ end_ord-date begin_po-no end_po-no begin_job-no begin_job-no2 end_job-no ~
 end_job-no2 begin_i-no end_i-no begin_cad-no end_cad-no begin_due-date ~
 end_due-date begin_userid end_userid begin_slsmn end_slsmn rd_sort-1 ~
 rd_sort rd_jstat tb_job-qty tb_0-bal rd_ostat tb_under tb_0-wip tb_0-avl ~
-rd_wip-qty tb_job-qoh tb_itm-act btn_SelectColumns rd-dest tb_batch ~
-tb_runExcel v-excel-file btn-ok btn-cancel tb_cust-list btnCustList ~
-tbAutoClose RECT-40 
+rd_wip-qty tb_job-qoh tb_itm-act btn_SelectColumns rd-dest td-show-parm ~
+tb_batch tb_runExcel v-excel-file btn-ok btn-cancel tb_cust-list ~
+btnCustList tbAutoClose RECT-40 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-date ~
 end_ord-date begin_po-no end_po-no begin_job-no begin_job-no2 end_job-no ~
 end_job-no2 begin_i-no end_i-no begin_cad-no end_cad-no begin_due-date ~
 end_due-date begin_userid end_userid begin_slsmn end_slsmn lbl_sort-1 ~
 rd_sort-1 lbl_sort rd_sort lbl_jstat rd_jstat tb_job-qty tb_0-bal lbl_ostat ~
 rd_ostat tb_under tb_0-wip tb_0-avl lbl_wip-qty rd_wip-qty tb_job-qoh ~
-tb_itm-act rd-dest tb_batch tb_runExcel v-excel-file tb_cust-list ~
-tbAutoClose 
+tb_itm-act rd-dest td-show-parm tb_batch tb_runExcel v-excel-file ~
+tb_cust-list tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -480,7 +480,7 @@ DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81
-     BGCOLOR 14  NO-UNDO.
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
@@ -605,8 +605,8 @@ DEFINE FRAME FRAME-A
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
      lv-font-name AT ROW 23.67 COL 30.2 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.67 COL 37.2
-     tb_batch AT ROW 25.1 COL 44.2
+     td-show-parm AT ROW 25.33 COL 44.2
+     tb_batch AT ROW 24.62 COL 44.2
      tb_excel AT ROW 23.91 COL 51.2
      tb_runExcel AT ROW 26.29 COL 104 RIGHT-ALIGNED
      v-excel-file AT ROW 26.19 COL 27.8 COLON-ALIGNED
@@ -920,11 +920,6 @@ ASSIGN
 ASSIGN 
        tb_under:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -2232,17 +2227,17 @@ PROCEDURE enable_UI :
           begin_userid end_userid begin_slsmn end_slsmn lbl_sort-1 rd_sort-1 
           lbl_sort rd_sort lbl_jstat rd_jstat tb_job-qty tb_0-bal lbl_ostat 
           rd_ostat tb_under tb_0-wip tb_0-avl lbl_wip-qty rd_wip-qty tb_job-qoh 
-          tb_itm-act rd-dest tb_batch tb_runExcel v-excel-file tb_cust-list 
-          tbAutoClose 
+          tb_itm-act rd-dest td-show-parm tb_batch tb_runExcel v-excel-file 
+          tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ord-date end_ord-date begin_po-no 
          end_po-no begin_job-no begin_job-no2 end_job-no end_job-no2 begin_i-no 
          end_i-no begin_cad-no end_cad-no begin_due-date end_due-date 
          begin_userid end_userid begin_slsmn end_slsmn rd_sort-1 rd_sort 
          rd_jstat tb_job-qty tb_0-bal rd_ostat tb_under tb_0-wip tb_0-avl 
-         rd_wip-qty tb_job-qoh tb_itm-act btn_SelectColumns rd-dest tb_batch 
-         tb_runExcel v-excel-file btn-ok btn-cancel tb_cust-list btnCustList 
-         tbAutoClose RECT-40 
+         rd_wip-qty tb_job-qoh tb_itm-act btn_SelectColumns rd-dest 
+         td-show-parm tb_batch tb_runExcel v-excel-file btn-ok btn-cancel 
+         tb_cust-list btnCustList tbAutoClose RECT-40 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

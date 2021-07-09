@@ -123,10 +123,10 @@ v-prompt-excel = sys-ctrl.log-fld.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_inv-date end_inv-date ~
 begin_cust end_cust begin_job-no begin_job-no2 end_job-no end_job-no2 ~
 sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
-v-excel-file tb_runExcel tbAutoClose btn-ok btn-cancel 
+td-show-parm v-excel-file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_inv-date end_inv-date begin_cust ~
 end_cust begin_job-no begin_job-no2 end_job-no end_job-no2 sl_avail ~
-sl_selected rd-dest v-excel-file tb_runExcel tbAutoClose 
+sl_selected rd-dest td-show-parm v-excel-file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -322,26 +322,26 @@ DEFINE FRAME FRAME-A
      btn_Up AT ROW 10.38 COL 40.8 WIDGET-ID 40
      btn_down AT ROW 11.43 COL 40.8 WIDGET-ID 42
      rd-dest AT ROW 14.24 COL 6 NO-LABEL
-     td-show-parm AT ROW 14.33 COL 31
      lv-ornt AT ROW 14.48 COL 30 NO-LABEL
      lv-font-no AT ROW 14.48 COL 63 COLON-ALIGNED
      lines-per-page AT ROW 14.48 COL 87 COLON-ALIGNED
      lv-font-name AT ROW 14.57 COL 29 COLON-ALIGNED NO-LABEL
      tb_excel AT ROW 14.81 COL 32
+     td-show-parm AT ROW 16.1 COL 38.2
      v-excel-file AT ROW 17 COL 25 COLON-ALIGNED
      tb_runExcel AT ROW 17.05 COL 89.8 RIGHT-ALIGNED
      tbAutoClose AT ROW 19.24 COL 29.4 WIDGET-ID 16
      btn-ok AT ROW 20.1 COL 29
      btn-cancel AT ROW 20.1 COL 53.6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.19 COL 5.2
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 6.67 COL 60.2 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.33 COL 4.4
           BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.19 COL 5.2
      "Available Columns" VIEW-AS TEXT
           SIZE 18.4 BY .62 AT ROW 6.67 COL 12 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 6.67 COL 60.2 WIDGET-ID 44
      RECT-6 AT ROW 13.57 COL 3.4
      RECT-7 AT ROW 1.71 COL 3.4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -474,11 +474,6 @@ ASSIGN
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -964,7 +959,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR15" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1127,12 +1127,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_inv-date end_inv-date begin_cust end_cust begin_job-no 
           begin_job-no2 end_job-no end_job-no2 sl_avail sl_selected rd-dest 
-          v-excel-file tb_runExcel tbAutoClose 
+          td-show-parm v-excel-file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_inv-date end_inv-date begin_cust end_cust 
          begin_job-no begin_job-no2 end_job-no end_job-no2 sl_avail Btn_Def 
-         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest v-excel-file 
-         tb_runExcel tbAutoClose btn-ok btn-cancel 
+         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm 
+         v-excel-file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

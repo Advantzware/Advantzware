@@ -95,12 +95,12 @@ ASSIGN cTextListToDefault  = "Job#,Order#,Cust#,Item Number,Item Name,Cust Po#,Q
 &Scoped-Define ENABLED-OBJECTS begin_cust-no end_cust-no begin_ord-no ~
 end_ord-no begin_i-no end_i-no begin_ord-date end_ord-date tb_sort-by-cust ~
 tb_due-date rs-due-date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove ~
-btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list ~
-btnCustList RECT-6 RECT-7 tbAutoClose 
+btn_Up btn_down rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel ~
+tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-no ~
 end_ord-no begin_i-no end_i-no begin_ord-date end_ord-date tb_sort-by-cust ~
-tb_due-date rs-due-date sl_avail sl_selected rd-dest tb_runExcel fi_file ~
-tb_cust-list tbAutoClose 
+tb_due-date rs-due-date sl_avail sl_selected rd-dest td-show-parm ~
+tb_runExcel fi_file tb_cust-list tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -139,23 +139,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -325,11 +325,11 @@ DEFINE FRAME FRAME-A
      btn_Up AT ROW 13.67 COL 40.2 WIDGET-ID 40
      btn_down AT ROW 14.71 COL 40.2 WIDGET-ID 42
      rd-dest AT ROW 17.14 COL 6 NO-LABEL
-     lv-ornt AT ROW 17.62 COL 31 NO-LABEL
+     lv-ornt AT ROW 17.71 COL 31 NO-LABEL
      lines-per-page AT ROW 17.62 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 17.76 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 17.91 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.86 COL 31
+     lv-font-name AT ROW 17.71 COL 28.2 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 19 COL 38.4
      tb_excel AT ROW 17.95 COL 31
      tb_runExcel AT ROW 19.95 COL 87 RIGHT-ALIGNED
      fi_file AT ROW 19.91 COL 27 COLON-ALIGNED HELP
@@ -350,7 +350,7 @@ DEFINE FRAME FRAME-A
           SIZE 34 BY .62 AT ROW 9.95 COL 59.6 WIDGET-ID 44
      RECT-6 AT ROW 16.57 COL 3.4
      RECT-7 AT ROW 1.48 COL 3.4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 95.2 BY 27.24
@@ -488,11 +488,6 @@ ASSIGN
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1050,7 +1045,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR3" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "OR3",cocode, 
@@ -1311,14 +1311,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_ord-no end_ord-no begin_i-no end_i-no 
           begin_ord-date end_ord-date tb_sort-by-cust tb_due-date rs-due-date 
-          sl_avail sl_selected rd-dest tb_runExcel fi_file tb_cust-list 
-          tbAutoClose 
+          sl_avail sl_selected rd-dest td-show-parm tb_runExcel fi_file 
+          tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ord-no end_ord-no begin_i-no end_i-no 
          begin_ord-date end_ord-date tb_sort-by-cust tb_due-date rs-due-date 
          sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list btnCustList 
-         RECT-6 RECT-7 tbAutoClose 
+         rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel 
+         tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

@@ -161,14 +161,15 @@ end_due-date begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom ~
 end_shipfrom begin_cust-part end_cust-part tb_prepmisc tb_smn-no tb_rep-tot ~
 tb_exclude-set-comps tb_include-ordrel tb_exclude-transfer tb_Under% ~
 tb_Over% sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest tb_batch fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest tb_batch td-show-parm fi_file tb_runExcel tbAutoClose btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date lbl_sqft begin_due-date end_due-date ~
 begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom ~
 begin_cust-part end_cust-part tb_prepmisc tb_smn-no tb_rep-tot ~
 tb_exclude-set-comps tb_include-ordrel tb_exclude-transfer tb_Under% ~
-fUnder% tb_Over% fOver% sl_avail sl_selected rd-dest tb_batch fi_file ~
-tb_runExcel tbAutoClose 
+fUnder% tb_Over% fOver% sl_avail sl_selected rd-dest tb_batch td-show-parm ~
+fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -224,23 +225,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -391,7 +392,7 @@ DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY .81
-     BGCOLOR 14  NO-UNDO.
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_comm AS LOGICAL INITIAL yes 
      LABEL "Print Commission?" 
@@ -544,12 +545,12 @@ DEFINE FRAME FRAME-A
      lv-font-name AT ROW 24 COL 25 COLON-ALIGNED NO-LABEL
      lv-ornt AT ROW 24.14 COL 26 NO-LABEL
      lines-per-page AT ROW 24.14 COL 79 COLON-ALIGNED
-     td-show-parm AT ROW 24.24 COL 28
-     tb_excel AT ROW 24.24 COL 51 RIGHT-ALIGNED
      lv-font-no AT ROW 24.24 COL 29 COLON-ALIGNED
+     tb_excel AT ROW 24.24 COL 51 RIGHT-ALIGNED
      rd-dest AT ROW 24.33 COL 5.2 NO-LABEL
-     tb_batch AT ROW 26.14 COL 39
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     tb_batch AT ROW 25.38 COL 38
+     td-show-parm AT ROW 26.24 COL 38
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 151.4 BY 31.38
@@ -566,20 +567,20 @@ DEFINE FRAME FRAME-A
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
           SIZE 55 BY .95 AT ROW 15.19 COL 15.8
           FGCOLOR 1 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 23.29 COL 4.2
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 57 BY .95 AT ROW 14.38 COL 15
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 16.81 COL 10.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 16.81 COL 58.6 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.05 COL 4.2
           BGCOLOR 15 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 16.81 COL 58.6 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 16.81 COL 10.8 WIDGET-ID 38
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 57 BY .95 AT ROW 14.38 COL 15
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 23.29 COL 4.2
      RECT-7 AT ROW 1.38 COL 3.2
      RECT-8 AT ROW 23.62 COL 3.2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 151.4 BY 31.38
@@ -817,11 +818,6 @@ ASSIGN
        tb_ton:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_ton:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1627,7 +1623,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR5" }
+assign
+td-show-parm:sensitive = lShowParameters
+tb_batch:sensitive = lShowBatchMode
+td-show-parm:hidden = not lShowParameters
+tb_batch:hidden = not lShowBatchMode
+td-show-parm:visible = lShowParameters
+tb_batch:visible = lShowBatchMode
+.
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "OR5",cocode, 
@@ -1882,8 +1886,8 @@ PROCEDURE enable_UI :
           begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom begin_cust-part 
           end_cust-part tb_prepmisc tb_smn-no tb_rep-tot tb_exclude-set-comps 
           tb_include-ordrel tb_exclude-transfer tb_Under% fUnder% tb_Over% 
-          fOver% sl_avail sl_selected rd-dest tb_batch fi_file tb_runExcel 
-          tbAutoClose 
+          fOver% sl_avail sl_selected rd-dest tb_batch td-show-parm fi_file 
+          tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no end_cust-no 
          begin_ord-date end_ord-date begin_due-date end_due-date begin_slsmn 
@@ -1891,8 +1895,8 @@ PROCEDURE enable_UI :
          begin_cust-part end_cust-part tb_prepmisc tb_smn-no tb_rep-tot 
          tb_exclude-set-comps tb_include-ordrel tb_exclude-transfer tb_Under% 
          tb_Over% sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest tb_batch fi_file tb_runExcel tbAutoClose btn-ok 
-         btn-cancel 
+         btn_down rd-dest tb_batch td-show-parm fi_file tb_runExcel tbAutoClose 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

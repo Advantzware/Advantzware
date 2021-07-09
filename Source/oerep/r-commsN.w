@@ -122,11 +122,12 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
 tgFullCost sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS lbl_ptd rd_ptd begin_period begin_date ~
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
-tgFullCost sl_avail sl_selected rd-dest fi_file tb_runExcel tbAutoClose 
+tgFullCost sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel ~
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -161,23 +162,23 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -390,9 +391,9 @@ DEFINE FRAME FRAME-A
      lv-font-name AT ROW 21.29 COL 28 COLON-ALIGNED NO-LABEL
      rd-dest AT ROW 21.38 COL 6 NO-LABEL
      lv-ornt AT ROW 21.43 COL 31 NO-LABEL
-     td-show-parm AT ROW 21.52 COL 30
      lv-font-no AT ROW 21.57 COL 34 COLON-ALIGNED
      tb_excel AT ROW 21.62 COL 67.8 RIGHT-ALIGNED
+     td-show-parm AT ROW 23.24 COL 40.2
      fi_file AT ROW 24.14 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
      tb_runExcel AT ROW 24.19 COL 87.4 RIGHT-ALIGNED
@@ -401,19 +402,19 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 27.05 COL 52
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 14.19 COL 60.2 WIDGET-ID 44
-     "Available Columns" VIEW-AS TEXT
-          SIZE 18.4 BY .62 AT ROW 14.1 COL 12 WIDGET-ID 38
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.19 COL 4.2
-          BGCOLOR 15 
-     "(Leave Blank For all Categories)" VIEW-AS TEXT
-          SIZE 31 BY .71 AT ROW 11.29 COL 46
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 20.62 COL 4
           BGCOLOR 15 
+     "(Leave Blank For all Categories)" VIEW-AS TEXT
+          SIZE 31 BY .71 AT ROW 11.29 COL 46
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.19 COL 4.2
+          BGCOLOR 15 
+     "Available Columns" VIEW-AS TEXT
+          SIZE 18.4 BY .62 AT ROW 14.1 COL 12 WIDGET-ID 38
      RECT-6 AT ROW 21.05 COL 3.4
      RECT-7 AT ROW 1.48 COL 3.4
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.19
          SIZE 95.2 BY 28.71
@@ -577,11 +578,6 @@ ASSIGN
 ASSIGN 
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
        tgCatSum:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -1076,7 +1072,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR6" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1248,13 +1249,14 @@ PROCEDURE enable_UI :
   DISPLAY lbl_ptd rd_ptd begin_period begin_date end_date begin_slsmn end_slsmn 
           tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
           end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
-          sl_avail sl_selected rd-dest fi_file tb_runExcel tbAutoClose 
+          sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel 
+          tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rd_ptd begin_period begin_date end_date begin_slsmn 
          end_slsmn tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
          sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
