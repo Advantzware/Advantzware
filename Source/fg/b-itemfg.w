@@ -69,6 +69,10 @@ DEF VAR lv-first-show-i-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE hFGProcs AS HANDLE NO-UNDO.
+
+RUN fg/FGProcs.p PERSISTENT SET hFGProcs.
+
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""IF1"" }
@@ -192,7 +196,7 @@ fi_i-name fi_est-no fi_style fi_procat tb_in-act btn_go btn_next btn_show ~
  r_table 
  // fi_movecol
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
-fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by
+fi_i-name fi_est-no fi_style fi_procat fi_FGMaster tb_in-act fi_sort-by
 // fi_movecol 
 
 /* Custom List Definitions                                              */
@@ -313,6 +317,11 @@ DEFINE VARIABLE fi_style AS CHARACTER FORMAT "X(8)":U
      SIZE 12.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE fi_FGMaster AS CHARACTER FORMAT "X(50)":U 
+     VIEW-AS FILL-IN 
+     SIZE 70 BY 1
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE tb_act AS LOGICAL INITIAL yes 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
@@ -387,6 +396,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.14 COL 47 WIDGET-ID 6
      btn_show AT ROW 3.14 COL 64 WIDGET-ID 10
      fi_sort-by AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fi_FGMaster AT ROW 3.14 COL 94 COLON-ALIGNED NO-LABEL NO-TAB-STOP
      r_table AT ROW 4.33 COL 1
      "Cust Part#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 26 WIDGET-ID 42
@@ -408,6 +418,9 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "Item No" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 4 WIDGET-ID 24
+          FGCOLOR 9 FONT 6
+     "Default FG:" VIEW-AS TEXT
+          SIZE 13 BY .82 AT ROW 3.26 COL 83 WIDGET-ID 58
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -487,6 +500,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_style IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR BUTTON fi_FGMaster IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        r_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1
        r_table:PRIVATE-DATA IN FRAME F-Main           = 
@@ -1214,6 +1229,7 @@ PROCEDURE local-display-fields :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
+  RUN pGetFGMaster .
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
@@ -2262,3 +2278,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetFGMaster B-table-Win 
+PROCEDURE pGetFGMaster :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cItem AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO.
+
+  RUN FG_GetDefaultFG IN hFGProcs( 
+                 INPUT g_company,
+                 OUTPUT cItem,
+                 OUTPUT cItemName
+                 ).
+  ASSIGN fi_FGMaster:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(cItem) + " - " + STRING(cItemName).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

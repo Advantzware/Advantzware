@@ -71,6 +71,28 @@ PROCEDURE FG_ExpirePricesByItem:
 
 END PROCEDURE.
 
+PROCEDURE FG_GetDefaultFG:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcItemID        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemName      AS CHARACTER   NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.    
+    
+    RUN pGetDefaultFGBuffer(
+        INPUT  ipcCompany,
+        BUFFER bf-itemfg
+        ). 
+    IF AVAIL bf-itemfg THEN
+    ASSIGN
+        opcItemID = bf-itemfg.i-no
+        opcItemName = bf-itemfg.i-name.
+        
+END PROCEDURE.
+
 PROCEDURE FG_HasMultipleFGItemsForCustPart:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -154,3 +176,31 @@ PROCEDURE pBuildFGItemForCustPart PRIVATE:
     oplMulitpleItems = iCount GT 1.
 END PROCEDURE.
 
+PROCEDURE pGetDefaultFGBuffer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-itemfg      FOR itemfg.
+    
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound       AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    RUN sys/ref/nk1Look.p(INPUT ipcCompany,
+                        INPUT "FGMASTER",
+                        INPUT "C",
+                        INPUT NO,
+                        INPUT NO,
+                        INPUT "",
+                        INPUT "",
+                        OUTPUT cReturnValue,
+                        OUTPUT lFound).
+    IF lFound THEN 
+    FIND FIRST opbf-itemfg NO-LOCK  
+         WHERE opbf-itemfg.company = ipcCompany
+         AND opbf-itemfg.i-no EQ cReturnValue 
+         NO-ERROR.
+
+END PROCEDURE.
