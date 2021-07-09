@@ -69,6 +69,10 @@ DEF VAR lv-first-show-i-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE hFGProcs AS HANDLE NO-UNDO.
+
+RUN fg/FGProcs.p PERSISTENT SET hFGProcs.
+
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""IF1"" }
@@ -415,7 +419,7 @@ DEFINE FRAME F-Main
      "Item No" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 4 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "FGMaster :" VIEW-AS TEXT
+     "Default FG:" VIEW-AS TEXT
           SIZE 13 BY .82 AT ROW 3.26 COL 83 WIDGET-ID 58
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -2281,25 +2285,16 @@ PROCEDURE pGetFGMaster :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE cFGMasterINo AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE lFound       AS LOGICAL NO-UNDO.
-   DEFINE BUFFER bf-itemfg FOR itemfg.
-   RUN sys/ref/nk1Look.p(INPUT cocode,
-    INPUT "FGMASTER",
-    INPUT "C",
-    INPUT NO,
-    INPUT NO,
-    INPUT "",
-    INPUT "",
-    OUTPUT cFGMasterINo,
-    OUTPUT lFound).
-IF lFound THEN DO:
-   FIND FIRST bf-itemfg 
-        WHERE bf-itemfg.company = cocode
-          AND bf-itemfg.i-no EQ cFGMasterINo 
-          NO-LOCK NO-ERROR.
-   IF AVAIL bf-itemfg THEN ASSIGN fi_FGMaster:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(bf-itemfg.i-no) + "-" + STRING(bf-itemfg.i-name).
-END.
+  DEFINE VARIABLE cItem AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO.
+
+  RUN FG_GetDefaultFG IN hFGProcs( 
+                 INPUT g_company,
+                 OUTPUT cItem,
+                 OUTPUT cItemName
+                 ).
+  ASSIGN fi_FGMaster:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(cItem) + " - " + STRING(cItemName).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
