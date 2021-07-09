@@ -199,16 +199,17 @@ PROCEDURE Customer_GetDefaultCustomer:
     DEFINE OUTPUT PARAMETER opcCustID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCustName  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER opbf-cust FOR cust.
+    DEFINE BUFFER bf-cust FOR cust.
     
     RUN pGetDefaultCustomerBuffer(
         INPUT  ipcCompany,
-        buffer opbf-cust
+        BUFFER bf-cust
         ).
-    IF AVAILABLE opbf-cust THEN 
+    IF AVAILABLE bf-cust THEN 
     ASSIGN
-          opcCustID = opbf-cust.cust-no
-          opcCustName = opbf-cust.name.
+          opcCustID = bf-cust.cust-no
+          opcCustName = bf-cust.name.
+          
 END PROCEDURE.
 
 PROCEDURE pGetDefaultCustomerBuffer PRIVATE:
@@ -217,13 +218,12 @@ PROCEDURE pGetDefaultCustomerBuffer PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE PARAMETER BUFFER ipbf-cust        FOR cust.
+    DEFINE PARAMETER BUFFER opbf-cust        FOR cust.
 
-    DEFINE BUFFER bf-cust FOR cust.
-    
-    FIND FIRST ipbf-cust
-        WHERE ipbf-cust.company EQ ipcCompany
-          AND ipbf-cust.ACTIVE EQ "X"
+        
+    FIND FIRST opbf-cust
+        WHERE opbf-cust.company EQ ipcCompany
+          AND opbf-cust.ACTIVE EQ "X"
         NO-LOCK NO-ERROR.
    
 
