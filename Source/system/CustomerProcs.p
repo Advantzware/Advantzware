@@ -190,3 +190,44 @@ PROCEDURE Customer_IsActiveShipToAvailable:
                          
 END PROCEDURE.
 
+PROCEDURE Customer_GetDefaultCustomer:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next shipto id for the given company and customer
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustName  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER opbf-cust FOR cust.
+    
+    RUN pGetDefaultCustomerBuffer(
+        INPUT  ipcCompany,
+        buffer opbf-cust
+        ).
+    IF AVAILABLE opbf-cust THEN 
+    ASSIGN
+          opcCustID = opbf-cust.cust-no
+          opcCustName = opbf-cust.name.
+END PROCEDURE.
+
+PROCEDURE pGetDefaultCustomerBuffer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-cust        FOR cust.
+
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FIND FIRST ipbf-cust
+        WHERE ipbf-cust.company EQ ipcCompany
+          AND ipbf-cust.ACTIVE EQ "X"
+        NO-LOCK NO-ERROR.
+   
+
+END PROCEDURE.
+
+
+

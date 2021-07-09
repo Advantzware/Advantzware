@@ -77,6 +77,9 @@ DEF VAR lv-last-show-cust-no AS cha NO-UNDO.
 DEF VAR lv-first-show-cust-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE hCustomerProcs AS HANDLE NO-UNDO.
+
+RUN system/CustomerProcs.p PERSISTENT SET hCustomerProcs.
 /*
 DEF VAR colHand AS WIDGET-HANDLE NO-UNDO.
 DEF VAR colHandList AS CHAR NO-UNDO.
@@ -445,7 +448,7 @@ DEFINE FRAME F-Main
      fi_type AT ROW 1.81 COL 93.2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      fi_sman AT ROW 1.81 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 36
      fi_terr AT ROW 1.81 COL 120.2 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fi_XCustomer AT ROW 3.35 COL 16 COLON-ALIGNED NO-LABEL NO-TAB-STOP
+     fi_XCustomer AT ROW 3.35 COL 22 COLON-ALIGNED NO-LABEL NO-TAB-STOP
      tb_in-act AT ROW 2.24 COL 133.4 WIDGET-ID 50
      btn_prev AT ROW 3.52 COL 118.8 WIDGET-ID 8
      btn_next AT ROW 3.52 COL 130.2 WIDGET-ID 6
@@ -463,8 +466,8 @@ DEFINE FRAME F-Main
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.19 COL 3 WIDGET-ID 24
           BGCOLOR 23 FGCOLOR 24 FONT 22
-      "X Customer :" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 3.50 COL 3 WIDGET-ID 60
+      "Default Customer :" VIEW-AS TEXT
+          SIZE 25 BY .71 AT ROW 3.50 COL 3 WIDGET-ID 60
           FGCOLOR 9 FONT 6
     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 3.86 COL 1.8 WIDGET-ID 30
@@ -1117,17 +1120,8 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  DEF BUFFER bff-cust FOR cust .
-  FIND FIRST bff-cust
-        WHERE bff-cust.company EQ cocode
-          AND bff-cust.ACTIVE EQ "X"
-        NO-LOCK NO-ERROR.
-   IF AVAIL bff-cust THEN DO:
-        ASSIGN 
-            fi_XCustomer:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(bff-cust.cust-no) + "-" + STRING(bff-cust.NAME)
-            .
-   END.
   
+  RUN pGetXCustomer.
   /* Code placed here will execute AFTER standard behavior.    */
   /*IF v-called-setCellColumns = NO THEN DO:
      RUN setCellColumns.
@@ -2123,6 +2117,33 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetFGMaster B-table-Win 
+PROCEDURE pGetXCustomer :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cCustID AS CHARACTER NO-UNDO.   
+  DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
+
+  RUN Customer_GetDefaultCustomer IN hCustomerProcs( 
+                 INPUT g_company,
+                 OUTPUT cCustID,
+                 OUTPUT cCustName
+                 ).
+  
+   
+        ASSIGN 
+            fi_XCustomer:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(cCustID) + "-" + STRING(cCustName)
+            .
+   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
