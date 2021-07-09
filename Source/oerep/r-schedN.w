@@ -170,23 +170,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 14 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 14 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 14 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 14 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 14 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_carr AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Carrier#" 
@@ -607,14 +607,14 @@ DEFINE FRAME FRAME-A
      tb_stats AT ROW 18.19 COL 6.8 WIDGET-ID 80
      rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
      sl_avail AT ROW 20.1 COL 5 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 20.29 COL 54.2 HELP
+     Btn_Def AT ROW 20.29 COL 53 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 21.29 COL 54.2 HELP
+     Btn_Add AT ROW 21.29 COL 53 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 22.29 COL 54.2 HELP
+     Btn_Remove AT ROW 22.29 COL 53 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 23.29 COL 54.2 WIDGET-ID 144
-     btn_down AT ROW 24.29 COL 54.2 WIDGET-ID 140
+     btn_Up AT ROW 23.29 COL 53 WIDGET-ID 144
+     btn_down AT ROW 24.29 COL 53 WIDGET-ID 140
      sl_selected AT ROW 20.1 COL 75.8 NO-LABEL WIDGET-ID 148
      lv-font-name AT ROW 26.48 COL 42 NO-LABEL WIDGET-ID 96
      rd-dest AT ROW 26.19 COL 10 NO-LABEL WIDGET-ID 16
