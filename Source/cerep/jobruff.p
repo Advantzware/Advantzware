@@ -1170,7 +1170,7 @@ PROCEDURE pPrintData:
             BY wrk-ink.i-unit
             :
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
-              ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
+              ASSIGN v-ink1[i] = STRING(wrk-ink.i-pass,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
@@ -1339,7 +1339,7 @@ PROCEDURE pPrintDetail:
             "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP
             v-fill SKIP
             "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" v-ord-qty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
-             "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"   v-prt-up FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP
+             "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"bf-xeb.num-UP FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP
             "<C1><FGCOLOR=GREEN>   FG ITEM: <FGCOLOR=BLACK>" bf-xeb.stock-no FORMAT "x(15)"      "<C25><FGCOLOR=GREEN>DESC:<FGCOLOR=BLACK>" bf-xeb.part-dscr1 FORMAT "x(30)"        "<C54><FGCOLOR=GREEN>STYLE: <FGCOLOR=BLACK>" v-stypart FORMAT "x(30)" SKIP
             "<C1><FGCOLOR=GREEN> CUST PART: <FGCOLOR=BLACK>" bf-xeb.part-no FORMAT "x(15)"     "<C29>"    bf-xeb.part-dscr2 FORMAT "x(30)"          "<C54><FGCOLOR=GREEN> SIZE: <FGCOLOR=BLACK>" string(STRING(bf-xeb.len) + "x" + string(bf-xeb.wid) + "x" + string(bf-xeb.dep)) FORMAT "x(40)" SKIP
             "<C1><FGCOLOR=GREEN>SPEC NOTES: <FGCOLOR=BLACK>" v-spec-inst[1] FORM "x(128)" SKIP
@@ -1419,7 +1419,7 @@ PROCEDURE pPrintDetail:
             BY wrk-ink.i-unit
             :
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
-              ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
+              ASSIGN v-ink1[i] = STRING(wrk-ink.i-pass,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
