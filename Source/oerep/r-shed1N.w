@@ -112,14 +112,14 @@ end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn ~
 begin_date end_date begin_carr end_carr begin_cat end_cat sl_avail Btn_Def ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
-tb_subt rd_sort rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list ~
-btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
+tb_subt rd_sort rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel ~
+tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-no ~
 end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn ~
 begin_date end_date begin_carr end_carr begin_cat end_cat sl_avail ~
 sl_selected tb_scheduled tb_late tb_invoiceable tb_actual tb_backordered ~
-tb_posted tb_invoice tb_completed tb_subt rd_sort rd-dest tb_runExcel ~
-fi_file tb_cust-list tbAutoClose 
+tb_posted tb_invoice tb_completed tb_subt rd_sort rd-dest td-show-parm ~
+tb_runExcel fi_file tb_cust-list tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -158,23 +158,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_carr AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Carrier#" 
@@ -288,7 +288,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
           "To Printer", 1,
 "To Screen", 2,
 "To Email", 5,
-"To File", 3
+"To CSV", 3
      SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer#" 
@@ -454,7 +454,7 @@ DEFINE FRAME FRAME-A
      rd-dest AT ROW 23.57 COL 6.2 NO-LABEL
      lines-per-page AT ROW 24.62 COL 43 COLON-ALIGNED
      lv-font-no AT ROW 24.62 COL 31 COLON-ALIGNED
-     td-show-parm AT ROW 24.62 COL 34
+     td-show-parm AT ROW 25.52 COL 38.8
      lv-font-name AT ROW 24.62 COL 24 COLON-ALIGNED NO-LABEL
      tb_excel AT ROW 24.86 COL 55 RIGHT-ALIGNED
      tb_runExcel AT ROW 26.43 COL 86.4 RIGHT-ALIGNED
@@ -698,11 +698,6 @@ ASSIGN
 ASSIGN 
        tb_subt:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1441,7 +1436,12 @@ RUN DisplaySelectionList.
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR9" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "OR9",cocode, 
@@ -1700,16 +1700,16 @@ PROCEDURE enable_UI :
           begin_loc end_loc begin_slsmn end_slsmn begin_date end_date begin_carr 
           end_carr begin_cat end_cat sl_avail sl_selected tb_scheduled tb_late 
           tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice 
-          tb_completed tb_subt rd_sort rd-dest tb_runExcel fi_file tb_cust-list 
-          tbAutoClose 
+          tb_completed tb_subt rd_sort rd-dest td-show-parm tb_runExcel fi_file 
+          tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ord-no end_ord-no begin_i-no end_i-no 
          begin_loc end_loc begin_slsmn end_slsmn begin_date end_date begin_carr 
          end_carr begin_cat end_cat sl_avail Btn_Def sl_selected Btn_Add 
          Btn_Remove btn_Up btn_down tb_scheduled tb_late tb_invoiceable 
          tb_actual tb_backordered tb_posted tb_invoice tb_completed tb_subt 
-         rd_sort rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list 
-         btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
+         rd_sort rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel 
+         tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-16 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

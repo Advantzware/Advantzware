@@ -117,14 +117,14 @@ end_ship begin_ord-no end_ord-no begin_i-no end_i-no begin_slsmn end_slsmn ~
 begin_date end_date tb_scheduled tb_actual tb_late tb_backordered ~
 tb_invoiceable tb_posted tb_invoice tb_completed rd_sort tgl_notes fl_spcCd ~
 rd_qty tg_set-comp-order sl_avail Btn_Def sl_selected Btn_Add Btn_Remove ~
-btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel tb_cust-list ~
-btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 RECT-10 
+btn_Up btn_down rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel ~
+tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 RECT-10 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ship ~
 end_ship begin_ord-no end_ord-no begin_i-no end_i-no begin_slsmn end_slsmn ~
 begin_date end_date tb_scheduled tb_actual tb_late tb_backordered ~
 tb_invoiceable tb_posted tb_invoice tb_completed rd_sort tgl_notes fl_spcCd ~
-rd_qty tg_set-comp-order sl_avail sl_selected rd-dest tb_runExcel fi_file ~
-tb_cust-list tbAutoClose 
+rd_qty tg_set-comp-order sl_avail sl_selected rd-dest td-show-parm ~
+tb_runExcel fi_file tb_cust-list tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -163,23 +163,23 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -456,7 +456,7 @@ DEFINE FRAME FRAME-A
      lines-per-page AT ROW 24.91 COL 43 COLON-ALIGNED
      lv-font-no AT ROW 24.67 COL 31 COLON-ALIGNED
      lv-font-name AT ROW 24.76 COL 25 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.91 COL 33
+     td-show-parm AT ROW 25.62 COL 38
      tb_excel AT ROW 24.91 COL 56 RIGHT-ALIGNED
      tb_runExcel AT ROW 26.57 COL 87.4 RIGHT-ALIGNED
      fi_file AT ROW 26.48 COL 26.6 COLON-ALIGNED HELP
@@ -686,11 +686,6 @@ ASSIGN
 ASSIGN 
        tb_scheduled:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -1446,7 +1441,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR12" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
    RUN sys/inc/CustListForm.p ( "OR12",cocode, 
@@ -1713,16 +1713,17 @@ PROCEDURE enable_UI :
           begin_i-no end_i-no begin_slsmn end_slsmn begin_date end_date 
           tb_scheduled tb_actual tb_late tb_backordered tb_invoiceable tb_posted 
           tb_invoice tb_completed rd_sort tgl_notes fl_spcCd rd_qty 
-          tg_set-comp-order sl_avail sl_selected rd-dest tb_runExcel fi_file 
-          tb_cust-list tbAutoClose 
+          tg_set-comp-order sl_avail sl_selected rd-dest td-show-parm 
+          tb_runExcel fi_file tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ship end_ship begin_ord-no end_ord-no 
          begin_i-no end_i-no begin_slsmn end_slsmn begin_date end_date 
          tb_scheduled tb_actual tb_late tb_backordered tb_invoiceable tb_posted 
          tb_invoice tb_completed rd_sort tgl_notes fl_spcCd rd_qty 
          tg_set-comp-order sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down rd-dest tb_runExcel fi_file btn-ok btn-cancel 
-         tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 RECT-10 
+         btn_Up btn_down rd-dest td-show-parm tb_runExcel fi_file btn-ok 
+         btn-cancel tb_cust-list btnCustList tbAutoClose RECT-6 RECT-7 RECT-9 
+         RECT-10 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

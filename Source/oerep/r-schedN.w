@@ -122,16 +122,16 @@ end_cat begin_shipfrom end_shipfrom begin_csr end_csr tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes begin_spec ~
 end_spec tb_stats sl_avail Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
-sl_selected rd-dest tb_excel fi_file btn-ok btn-cancel rd_printed ~
-tbAutoClose RECT-6 RECT-7 RECT-8 RECT-11 
+sl_selected rd-dest td-show-parm tb_excel fi_file btn-ok btn-cancel ~
+rd_printed tbAutoClose RECT-6 RECT-7 RECT-8 RECT-11 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-no end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn ~
 end_slsmn begin_date end_date begin_carr end_carr begin_cat end_cat ~
 begin_shipfrom end_shipfrom begin_csr end_csr tb_scheduled tb_late ~
 tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice tb_completed ~
 rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes begin_spec ~
-end_spec tb_stats sl_avail sl_selected rd-dest tb_excel fi_file lbl-print-2 ~
-rd_printed tbAutoClose 
+end_spec tb_stats sl_avail sl_selected rd-dest td-show-parm tb_excel ~
+fi_file lbl-print-2 rd_printed tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -410,7 +410,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 112 BY 17.81.
+     SIZE 112 BY 18.1.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -418,11 +418,11 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 41 BY 5.3 NO-UNDO.
+     SIZE 41 BY 5.29 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 41 BY 5.3 NO-UNDO.
+     SIZE 41 BY 5.29 NO-UNDO.
 
 DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
@@ -573,14 +573,14 @@ DEFINE FRAME FRAME-A
           "Enter starting CSR." WIDGET-ID 164
      end_csr AT ROW 12 COL 83 COLON-ALIGNED HELP
           "Enter ending CSR." WIDGET-ID 166
-     tb_scheduled AT ROW 15.95 COL 69 WIDGET-ID 78
-     tb_late AT ROW 16.71 COL 69 WIDGET-ID 68
-     tb_invoiceable AT ROW 17.43 COL 69 WIDGET-ID 66
-     tb_actual AT ROW 18.19 COL 69 WIDGET-ID 56
-     tb_backordered AT ROW 15.95 COL 91 WIDGET-ID 58
-     tb_posted AT ROW 16.71 COL 91 WIDGET-ID 74
-     tb_invoice AT ROW 17.43 COL 91 WIDGET-ID 64
-     tb_completed AT ROW 18.19 COL 91 WIDGET-ID 60
+     tb_scheduled AT ROW 15.95 COL 10.4 WIDGET-ID 78
+     tb_late AT ROW 16.71 COL 10.4 WIDGET-ID 68
+     tb_invoiceable AT ROW 17.43 COL 10.4 WIDGET-ID 66
+     tb_actual AT ROW 18.19 COL 10.4 WIDGET-ID 56
+     tb_backordered AT ROW 15.95 COL 32.4 WIDGET-ID 58
+     tb_posted AT ROW 16.71 COL 32.4 WIDGET-ID 74
+     tb_invoice AT ROW 17.43 COL 32.4 WIDGET-ID 64
+     tb_completed AT ROW 18.19 COL 32.4 WIDGET-ID 60
      rd_printOnhand AT ROW 13.1 COL 25.2 NO-LABEL WIDGET-ID 128
      rd_sort AT ROW 13.86 COL 25 NO-LABEL WIDGET-ID 32
      rd_print AT ROW 17.57 COL 138 NO-LABEL WIDGET-ID 24
@@ -588,13 +588,13 @@ DEFINE FRAME FRAME-A
      rs_qty AT ROW 24.33 COL 137 NO-LABEL WIDGET-ID 52
      tg-print-due AT ROW 11 COL 143 WIDGET-ID 94
      tb_po-no AT ROW 11.71 COL 143 WIDGET-ID 72
-     tb_subt AT ROW 15.95 COL 6.8 WIDGET-ID 82
-     tb_neg-avail AT ROW 16.71 COL 6.8 WIDGET-ID 162
-     tb_oh-rlqty AT ROW 17.43 COL 6.8 WIDGET-ID 156
-     tb_notes AT ROW 15.95 COL 38.4 WIDGET-ID 70
-     begin_spec AT ROW 16.71 COL 53.4 COLON-ALIGNED HELP
+     tb_subt AT ROW 15.95 COL 87 WIDGET-ID 82
+     tb_neg-avail AT ROW 16.71 COL 87 WIDGET-ID 162
+     tb_oh-rlqty AT ROW 17.43 COL 87 WIDGET-ID 156
+     tb_notes AT ROW 15.95 COL 59.6 WIDGET-ID 70
+     begin_spec AT ROW 16.76 COL 74.6 COLON-ALIGNED HELP
           "Enter Beginning Carrier Number" WIDGET-ID 2
-     end_spec AT ROW 17.81 COL 53.4 COLON-ALIGNED HELP
+     end_spec AT ROW 17.86 COL 74.6 COLON-ALIGNED HELP
           "Enter Ending Carrier Number" WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -604,7 +604,7 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     tb_stats AT ROW 18.19 COL 6.8 WIDGET-ID 80
+     tb_stats AT ROW 18.19 COL 87 WIDGET-ID 80
      rd_rel AT ROW 13.86 COL 135 NO-LABEL WIDGET-ID 28
      sl_avail AT ROW 20.1 COL 5 NO-LABEL WIDGET-ID 146
      Btn_Def AT ROW 20.29 COL 53 HELP
@@ -621,7 +621,7 @@ DEFINE FRAME FRAME-A
      lv-ornt AT ROW 26.24 COL 43 NO-LABEL WIDGET-ID 12
      lv-font-no AT ROW 26.24 COL 49 COLON-ALIGNED WIDGET-ID 10
      lines-per-page AT ROW 26.24 COL 54 COLON-ALIGNED WIDGET-ID 8
-     td-show-parm AT ROW 26.71 COL 61 WIDGET-ID 84
+     td-show-parm AT ROW 27.43 COL 43 WIDGET-ID 84
      tb_excel AT ROW 28.38 COL 97.8 RIGHT-ALIGNED WIDGET-ID 62
      tb_runExcel AT ROW 26.48 COL 71 RIGHT-ALIGNED WIDGET-ID 76
      fi_file AT ROW 28.33 COL 32 COLON-ALIGNED HELP
@@ -632,24 +632,24 @@ DEFINE FRAME FRAME-A
      rd_printed AT ROW 14.76 COL 25 NO-LABEL WIDGET-ID 170
      tbAutoClose AT ROW 29.86 COL 41.4 WIDGET-ID 174
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.14 COL 5.8
+          SIZE 21 BY .71 AT ROW 1 COL 5.8
           BGCOLOR 15 
      "Print OH Qty?" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 13.33 COL 9.6 WIDGET-ID 136
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 19.48 COL 6.8 WIDGET-ID 150
+          SIZE 20 BY .62 AT ROW 19.48 COL 14 WIDGET-ID 150
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 19.48 COL 79.6 WIDGET-ID 152
      "Release Types:" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 15.19 COL 66 WIDGET-ID 86
+          SIZE 15 BY .71 AT ROW 15.19 COL 7.4 WIDGET-ID 86
      "Output Destination" VIEW-AS TEXT
           SIZE 18.8 BY .76 AT ROW 25.52 COL 5.8 WIDGET-ID 88
      "Printed Status?" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 14.67 COL 8.4 WIDGET-ID 168
      RECT-6 AT ROW 26 COL 4.8 WIDGET-ID 40
-     RECT-7 AT ROW 1.48 COL 4.8 WIDGET-ID 42
-     RECT-8 AT ROW 15.62 COL 65 WIDGET-ID 44
-     RECT-11 AT ROW 15.62 COL 37.4 WIDGET-ID 100
+     RECT-7 AT ROW 1.38 COL 4.8 WIDGET-ID 42
+     RECT-8 AT ROW 15.62 COL 6.4 WIDGET-ID 44
+     RECT-11 AT ROW 15.62 COL 58.6 WIDGET-ID 100
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -942,11 +942,6 @@ ASSIGN
 ASSIGN 
        tb_subt:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tg-print-due IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
@@ -1843,7 +1838,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+{sys/inc/reportsConfigNK1.i "OR2" }
+assign
+td-show-parm:sensitive = lShowParameters
+td-show-parm:hidden = not lShowParameters
+td-show-parm:visible = lShowParameters
+.
   {methods/nowait.i}
 
    RUN sys/inc/CustListForm.p ( "OR2",cocode, 
@@ -2098,8 +2098,8 @@ PROCEDURE enable_UI :
           end_shipfrom begin_csr end_csr tb_scheduled tb_late tb_invoiceable 
           tb_actual tb_backordered tb_posted tb_invoice tb_completed 
           rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty tb_notes 
-          begin_spec end_spec tb_stats sl_avail sl_selected rd-dest tb_excel 
-          fi_file lbl-print-2 rd_printed tbAutoClose 
+          begin_spec end_spec tb_stats sl_avail sl_selected rd-dest td-show-parm 
+          tb_excel fi_file lbl-print-2 rd_printed tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tb_cust-list btnCustList begin_cust-no end_cust-no begin_ord-no 
          end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn 
@@ -2108,8 +2108,9 @@ PROCEDURE enable_UI :
          tb_invoiceable tb_actual tb_backordered tb_posted tb_invoice 
          tb_completed rd_printOnhand rd_sort tb_subt tb_neg-avail tb_oh-rlqty 
          tb_notes begin_spec end_spec tb_stats sl_avail Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down sl_selected rd-dest tb_excel fi_file btn-ok 
-         btn-cancel rd_printed tbAutoClose RECT-6 RECT-7 RECT-8 RECT-11 
+         Btn_Remove btn_Up btn_down sl_selected rd-dest td-show-parm tb_excel 
+         fi_file btn-ok btn-cancel rd_printed tbAutoClose RECT-6 RECT-7 RECT-8 
+         RECT-11 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
