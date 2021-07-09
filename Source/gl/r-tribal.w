@@ -1333,16 +1333,16 @@ DO:
      
      IF tb_fill-field AND tb_Period-Detail THEN
      ASSIGN
-     str-tit4 = "Account Number           Description                     PTD                 YTD   Opening Balance   Debit Activity  Credit Activity   Ending Balance DB Adjust  CR Adjust  Bal Sheet  Income Stat "
-     str-tit5 = "--------------------------------------------- --------------- ------------------- ---------------- ---------------- ---------------- ---------------- ---------- ---------- ---------- ----------- ".
+     str-tit4 = "Account Number           Description           Opening Balance   Debit Activity  Credit Activity   Ending Balance                YTD  DB Adjust  CR Adjust  Bal Sheet  Income Stat "
+     str-tit5 = "--------------------------------------------- ---------------- ---------------- ---------------- ---------------- ------------------- ---------- ---------- ---------- ----------- ".
      ELSE IF tb_fill-field THEN
      ASSIGN
      str-tit4 = "Account Number           Description                     PTD                 YTD  DB Adjust  CR Adjust  Bal Sheet  Income Stat "
      str-tit5 = "--------------------------------------------- --------------- ------------------- ---------- ---------- ---------- ----------- ".
      ELSE IF tb_Period-Detail THEN
      ASSIGN
-     str-tit4 = "Account Number           Description                     PTD                 YTD   Opening Balance   Debit Activity  Credit Activity   Ending Balance"
-     str-tit5 = "--------------------------------------------- --------------- ------------------- ---------------- ---------------- ---------------- ---------------- ".
+     str-tit4 = "Account Number           Description            Opening Balance   Debit Activity  Credit Activity   Ending Balance                YTD "
+     str-tit5 = "---------------------------------------------  ---------------- ---------------- ---------------- ---------------- -------------------".
      ELSE 
      ASSIGN
      str-tit4 = "Account Number           Description                     PTD                 YTD  "
@@ -1453,9 +1453,9 @@ DO:
            IF tb_fill-field AND tb_Period-Detail THEN
            PUT SKIP(1)
              account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)
-             ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" SPACE(1)
-             ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(1)
-             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) dEndingBalance SPACE(1)
+             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) 
+             dEndingBalance  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+             ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(2)
              dadj SPACE(1) cadj SPACE(1) bsht SPACE(1) incs SKIP .
            
            ELSE IF tb_fill-field THEN
@@ -1467,10 +1467,10 @@ DO:
              
            ELSE IF tb_Period-Detail THEN
            PUT SKIP(1)
-             account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)
-             ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+             account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)             
+             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) 
+             dEndingBalance  FORMAT "->>>,>>>,>>9.99" SPACE(1)
              ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(1)
-             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) dEndingBalance
              SKIP .
            ELSE
            PUT SKIP(1)
