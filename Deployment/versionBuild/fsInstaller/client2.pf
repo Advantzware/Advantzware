@@ -1,0 +1,25 @@
+# client.pf       Parameter file to start the Progress sesion in client-server mode
+
+# Parameter description (min,default,max)
+
+-Bt 20000           # Temptable buffer size (10,10,50000)
+#-cpstream ibm850    # Stream codepage
+-d mdy              # Date format
+# -Dsrv nojoinbysqldb # only useful in Oracle implementations
+-fc 5000            # Schema field cache size (0,128,mem)
+-h 50               # Number of databases
+-inp 32000          # Input characters (1,4K,32K)
+-Mm 1024            # Message buffer size (3,1K,32K) (must be same in database startup)
+-mmax 32766         # Maximum memory (1,512,65K)
+-Mr 4096            # Record buffer size (96,1012,32K)
+-rand 2             # Random number generator
+-s 256              # Stack size (9,40,5M)
+-T .                # Temp file directory
+-TB 31              # Speed sort (1,2,31)
+-TM 32              # Merge number (1,5,32)
+-tok 6400           # Number of tokens (1,1024,mem)
+-yy 1950            # Year cutover for century
+-D 150
+-l 50000
+-nb 255
+

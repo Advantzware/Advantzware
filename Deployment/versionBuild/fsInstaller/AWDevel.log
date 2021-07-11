@@ -1,0 +1,19 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 07/11/21 at 10:03:08                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipConnectDBs in fsInstaller.w                                                             10:03:08
+Completing ipConnectDBs in fsInstaller.w                                                             10:03:08
+ 
+Initiating ipCompileBase in fsInstaller.w                                                            10:03:08
+**************** PROPATH *****************
+   (PROPATH display suppressed. See config file for PROPATH details.
+******************************************
+  Base Code compile (19210 entries) completed with 0 errors                                          10:19:24
+Completing ipCompileBase in fsInstaller.w                                                            10:19:24
+ 
+-------------------------------------------------------------------------------------------------------------
+Ending run of fsInstaller system on 07/11/21 at 10:19:24                                    Elapsed: 00:16:16
+-------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 
