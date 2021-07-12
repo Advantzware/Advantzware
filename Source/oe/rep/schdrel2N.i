@@ -727,6 +727,6 @@ form header
 
   IF rd-dest = 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
+    IF tb_runExcel:CHECKED THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.

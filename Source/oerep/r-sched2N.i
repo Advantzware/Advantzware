@@ -528,7 +528,7 @@ DEF VAR v-value-head AS LOG NO-UNDO.
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
