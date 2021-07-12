@@ -3473,7 +3473,7 @@ PROCEDURE check-quote :
   DEF VAR ldQuotePrice AS DEC NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL xest AND v-quo-price-log                             AND
+    IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log      AND
       v-quo-price-dec EQ 1 AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN DO:
 
       FOR EACH quotehd
@@ -3606,6 +3606,13 @@ DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO.
+
+IF lQuotePriceMatrix THEN
+DO:
+   MESSAGE "Quotes should not be used as NK1 = QuotePriceMatrix is set such that only the price matrix should be used."
+           VIEW-AS ALERT-BOX INFO .
+   RETURN.        
+END.
 
 DO WITH FRAME {&FRAME-NAME}:
     cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
@@ -4726,7 +4733,7 @@ PROCEDURE display-est-detail :
          WHERE est-qty.company EQ est.company
            AND est-qty.est-no  EQ est.est-no
          NO-ERROR.
-     IF v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
+     IF NOT lQuotePriceMatrix AND v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
         (est-qty.qty[2] NE 0 OR est-qty.qty[3] NE 0 OR est-qty.qty[4] NE 0) AND
         NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4738,8 +4745,7 @@ PROCEDURE display-est-detail :
               WHERE quotehd.company EQ est.company AND
               quotehd.est-no EQ est.est-no AND 
               quotehd.quo-date LE TODAY AND
-              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
-              ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-ERROR .
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)  NO-ERROR .
            
           IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
@@ -4764,7 +4770,7 @@ PROCEDURE display-est-detail :
            END.
                  
         END.
-     ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
+     ELSE IF NOT lQuotePriceMatrix AND CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
@@ -4834,7 +4840,7 @@ PROCEDURE display-est-detail :
    lv-pr-uom = oe-ordl.pr-uom:SCREEN-VALUE
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
    cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
-  IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
+  IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
       NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -6368,11 +6374,10 @@ PROCEDURE get-price :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-price-ent LIKE price-ent NO-UNDO.
   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
-
+          
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT price-ent                           AND
-       AVAIL oe-ordl                           AND
-       TRIM(oe-ordl.est-no:SCREEN-VALUE) EQ "" THEN DO:
+       AVAIL oe-ordl                           THEN DO:
 
       lv-price-ent = price-ent.
       IF NOT lv-add-mode THEN price-ent = YES.
@@ -6927,7 +6932,7 @@ PROCEDURE leave-qty :
 
           ll-got-qtprice = YES.
 
-          IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
+          IF NOT lQuotePriceMatrix AND NOT CAN-FIND(FIRST tt-item-qty-price WHERE
              tt-item-qty-price.tt-selected = YES AND
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
              (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
@@ -6946,7 +6951,7 @@ PROCEDURE leave-qty :
                   INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                   ).
           END.
-          ELSE
+          ELSE IF NOT lQuotePriceMatrix THEN
           DO:
              FIND FIRST tt-item-qty-price WHERE
                   tt-item-qty-price.tt-selected = YES AND
