@@ -133,7 +133,7 @@ for each est-op where est-op.company = xest.company and
     ll-no-more-blank-fed = YES.
   END.
 
-  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num.
+  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num NO-ERROR.
   IF AVAILABLE w-qty THEN
       ASSIGN
        v-blk    = w-qty.num-bl
