@@ -2184,6 +2184,8 @@ END. /* gdm - 05210901 end */
   IF FIRST-OF(ap-sel.check-no) THEN v-fst-chk = YES.
   IF LAST-OF(ap-sel.check-no)  THEN V-lst-chk = YES.
 
+  ASSIGN cBankCode = ap-sel.bank-code .
+  
   IF ap-sel.vend-no EQ "VOID" THEN DO:
     DISPLAY ap-sel.check-no    FORMAT "zzzzzzz9"
             ap-sel.vend-no
