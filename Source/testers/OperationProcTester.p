@@ -45,10 +45,10 @@ PROCEDURE pChangeOperation PRIVATE:
     
     FIND FIRST job NO-LOCK 
         WHERE job.company EQ '001'
-        AND job.job-no EQ 'W00854'
+        AND job.job-no EQ 'W01356'
         AND job.job-no2 EQ 0
         NO-ERROR.
-    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRBV", job.job, 1,1,1,"PR", OUTPUT cAction).
+    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRESS", job.job, 1,0,1,"PR", OUTPUT cAction).
 
 END PROCEDURE.
 
