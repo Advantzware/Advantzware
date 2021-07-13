@@ -77,27 +77,28 @@ ASSIGN cTextListToDefault  = "Prep Code,Description,Est #,Customer Part #,Est Mo
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_die tb_plate tb_fold ~
 tb_corr begin_slsmn end_slsmn begin_cust-no end_cust-no begin_last-date ~
 end_last-date begin_last-ord end_last-ord begin_prep end_prep rd_sort ~
-rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def sl_selected Btn_Add Btn_Remove ~
-btn_Up btn_down
+sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
+lines-per-page td-show-parm lv-ornt lv-font-no tb_excel tb_runExcel fi_file ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_die lbl-mat-types tb_plate tb_fold ~
 lbl-industry tb_corr begin_slsmn end_slsmn begin_cust-no end_cust-no ~
 begin_last-date end_last-date begin_last-ord end_last-ord begin_prep ~
-end_prep lbl_sort rd_sort rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+end_prep lbl_sort rd_sort sl_avail sl_selected rd-dest lines-per-page ~
+td-show-parm lv-ornt lv-font-no lv-font-name tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -107,6 +108,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -256,7 +258,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 11.43.
+     SIZE 92 BY 10.95.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -310,28 +312,28 @@ DEFINE FRAME FRAME-A
      tb_die AT ROW 1.71 COL 45
      lbl-mat-types AT ROW 1.95 COL 26 COLON-ALIGNED NO-LABEL
      tb_plate AT ROW 2.43 COL 45
-     tb_fold AT ROW 3.62 COL 45
-     lbl-industry AT ROW 3.86 COL 26 COLON-ALIGNED NO-LABEL
-     tb_corr AT ROW 4.33 COL 45
-     begin_slsmn AT ROW 5.76 COL 26 COLON-ALIGNED HELP
+     tb_fold AT ROW 3.38 COL 45
+     lbl-industry AT ROW 3.62 COL 26 COLON-ALIGNED NO-LABEL
+     tb_corr AT ROW 4.1 COL 45
+     begin_slsmn AT ROW 5.76 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
-     end_slsmn AT ROW 5.76 COL 69 COLON-ALIGNED HELP
+     end_slsmn AT ROW 5.76 COL 72 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
-     begin_cust-no AT ROW 6.71 COL 26 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 6.71 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 6.71 COL 69 COLON-ALIGNED HELP
+     end_cust-no AT ROW 6.71 COL 72 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_last-date AT ROW 7.67 COL 26 COLON-ALIGNED HELP
+     begin_last-date AT ROW 7.67 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Last Modify Date"
-     end_last-date AT ROW 7.67 COL 69 COLON-ALIGNED HELP
+     end_last-date AT ROW 7.67 COL 72 COLON-ALIGNED HELP
           "Enter Ending Last Modify Date"
-     begin_last-ord AT ROW 8.62 COL 26 COLON-ALIGNED HELP
+     begin_last-ord AT ROW 8.62 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Last Order Date"
-     end_last-ord AT ROW 8.62 COL 69 COLON-ALIGNED HELP
+     end_last-ord AT ROW 8.62 COL 72 COLON-ALIGNED HELP
           "Enter Ending Last Order Date"
-     begin_prep AT ROW 9.57 COL 26 COLON-ALIGNED HELP
+     begin_prep AT ROW 9.57 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Prep Code"
-     end_prep AT ROW 9.57 COL 69 COLON-ALIGNED HELP
+     end_prep AT ROW 9.57 COL 72 COLON-ALIGNED HELP
           "Enter Ending Prep Code"
      lbl_sort AT ROW 11 COL 26 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 11 COL 38 NO-LABEL
@@ -359,19 +361,20 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 28.86 COL 60
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 12.91 COL 6.6 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.91 COL 61.2 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.33 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.33 COL 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.91 COL 61.2 WIDGET-ID 44
      RECT-6 AT ROW 19.1 COL 2
-     RECT-7 AT ROW 1 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     RECT-7 AT ROW 1.48 COL 3.6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 97.6 BY 29.19.
+         SIZE 97.6 BY 29.19
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -424,12 +427,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -449,6 +447,10 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -528,7 +530,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -606,7 +608,7 @@ END.
 
 &Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
-ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
+ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
      assign {&self-name}.
 END.
@@ -677,6 +679,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -756,6 +759,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
@@ -802,7 +806,7 @@ END.
 
 &Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
-ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
+ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
      assign {&self-name}.
 END.
@@ -1236,14 +1240,14 @@ PROCEDURE enable_UI :
   DISPLAY tb_die lbl-mat-types tb_plate tb_fold lbl-industry tb_corr begin_slsmn 
           end_slsmn begin_cust-no end_cust-no begin_last-date end_last-date 
           begin_last-ord end_last-ord begin_prep end_prep lbl_sort rd_sort 
-          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+          sl_avail sl_selected rd-dest lines-per-page td-show-parm lv-ornt 
+          lv-font-no lv-font-name tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_die tb_plate tb_fold tb_corr begin_slsmn end_slsmn 
          begin_cust-no end_cust-no begin_last-date end_last-date begin_last-ord 
-         end_last-ord begin_prep end_prep rd_sort rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down
+         end_last-ord begin_prep end_prep rd_sort sl_avail Btn_Def sl_selected 
+         Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page td-show-parm 
+         lv-ornt lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1850,7 +1854,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
@@ -1867,5 +1870,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

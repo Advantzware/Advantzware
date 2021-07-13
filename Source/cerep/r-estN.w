@@ -90,13 +90,12 @@ ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,D
 begin_slsmn end_slsmn begin_est end_est begin_date end_date begin_date-2 ~
 end_date-2 begin_mach end_mach tb_not-booked tb_booked tb_booked-job ~
 tb_sort tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up ~
-btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
+btn_down rd-dest td-show-parm fi_file tb_runExcel btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
 begin_mach end_mach lbl-booked tb_not-booked tb_booked tb_booked-job ~
-tb_sort tb_break sl_selected sl_avail rd-dest lines-per-page lv-ornt ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+tb_sort tb_break sl_selected sl_avail rd-dest td-show-parm fi_file ~
+tb_runExcel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -210,10 +209,9 @@ DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-est.csv" 
-     LABEL "If Yes, File Name" 
+     LABEL "Name" 
      VIEW-AS FILL-IN 
-     SIZE 43.6 BY 1
-     FGCOLOR 9 .
+     SIZE 43.6 BY 1.
 
 DEFINE VARIABLE lbl-booked AS CHARACTER FORMAT "X(256)":U INITIAL "Show?" 
      VIEW-AS FILL-IN 
@@ -245,19 +243,17 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.14.
+     SIZE 90 BY 4.91.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 10.71.
+     SIZE 90 BY 10.24.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -293,9 +289,9 @@ DEFINE VARIABLE tb_not-booked AS LOGICAL INITIAL yes
      SIZE 17 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY 1.05 NO-UNDO.
+     SIZE 15.2 BY 1.05 NO-UNDO.
 
 DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
      LABEL "Sort by Customer Part#?" 
@@ -311,73 +307,74 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust-no AT ROW 2.43 COL 27 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 2.1 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 2.43 COL 69 COLON-ALIGNED HELP
+     end_cust-no AT ROW 2.1 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_slsmn AT ROW 3.38 COL 27 COLON-ALIGNED HELP
+     begin_slsmn AT ROW 3.19 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep Number"
-     end_slsmn AT ROW 3.38 COL 69 COLON-ALIGNED HELP
+     end_slsmn AT ROW 3.19 COL 69 COLON-ALIGNED HELP
           "Enter Ending Sales Rep Number"
-     begin_est AT ROW 4.33 COL 27 COLON-ALIGNED HELP
+     begin_est AT ROW 4.29 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Estimate"
-     end_est AT ROW 4.33 COL 69 COLON-ALIGNED HELP
+     end_est AT ROW 4.29 COL 69 COLON-ALIGNED HELP
           "Enter Ending Estimate"
-     begin_date AT ROW 5.29 COL 27 COLON-ALIGNED HELP
+     begin_date AT ROW 5.38 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 5.29 COL 69 COLON-ALIGNED HELP
+     end_date AT ROW 5.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_date-2 AT ROW 6.24 COL 27 COLON-ALIGNED HELP
+     begin_date-2 AT ROW 6.48 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date-2 AT ROW 6.24 COL 69 COLON-ALIGNED HELP
+     end_date-2 AT ROW 6.48 COL 69 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_mach AT ROW 7.19 COL 27 COLON-ALIGNED HELP
+     begin_mach AT ROW 7.57 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_mach AT ROW 7.19 COL 69 COLON-ALIGNED HELP
+     end_mach AT ROW 7.57 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     lbl-booked AT ROW 8.76 COL 18.2 COLON-ALIGNED NO-LABEL
-     tb_not-booked AT ROW 8.76 COL 29.2
-     tb_booked AT ROW 8.81 COL 47.6
-     tb_booked-job AT ROW 8.81 COL 66 WIDGET-ID 64
-     tb_sort AT ROW 9.71 COL 29.2
+     lbl-booked AT ROW 8.86 COL 18.2 COLON-ALIGNED NO-LABEL
+     tb_not-booked AT ROW 8.86 COL 29.2
+     tb_booked AT ROW 8.91 COL 47.6
+     tb_booked-job AT ROW 8.91 COL 66 WIDGET-ID 64
+     tb_sort AT ROW 9.76 COL 29.2
      tb_break AT ROW 10.67 COL 29.2
      Btn_Def AT ROW 12.48 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 12.48 COL 60 NO-LABEL WIDGET-ID 28
-     sl_avail AT ROW 12.52 COL 4 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 12.48 COL 59.4 NO-LABEL WIDGET-ID 28
+     sl_avail AT ROW 12.52 COL 3.4 NO-LABEL WIDGET-ID 26
      Btn_Add AT ROW 13.52 COL 41.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 14.52 COL 41.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 15.52 COL 41.2 WIDGET-ID 40
      btn_down AT ROW 16.62 COL 41.2 WIDGET-ID 42
-     rd-dest AT ROW 18.71 COL 4 NO-LABEL
-     lines-per-page AT ROW 19.43 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 18.81 COL 6 NO-LABEL
+     lv-font-name AT ROW 19.33 COL 29 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 19.33 COL 54 RIGHT-ALIGNED WIDGET-ID 4
+     lv-font-no AT ROW 19.33 COL 34 COLON-ALIGNED
      lv-ornt AT ROW 19.57 COL 31 NO-LABEL
-     lv-font-no AT ROW 20.86 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 21.81 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.24 COL 30
-     tb_excel AT ROW 24.48 COL 50.2 RIGHT-ALIGNED WIDGET-ID 4
-     tb_runExcel AT ROW 24.48 COL 72.8 RIGHT-ALIGNED WIDGET-ID 6
-     fi_file AT ROW 25.67 COL 28.2 COLON-ALIGNED HELP
+     lines-per-page AT ROW 19.57 COL 51 COLON-ALIGNED
+     td-show-parm AT ROW 20.71 COL 37
+     fi_file AT ROW 21.57 COL 27 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
-     btn-ok AT ROW 27.33 COL 26
-     btn-cancel AT ROW 27.33 COL 56
+     tb_runExcel AT ROW 21.57 COL 88 RIGHT-ALIGNED WIDGET-ID 6
+     btn-ok AT ROW 23.62 COL 30.6
+     btn-cancel AT ROW 23.62 COL 51.2
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.81 COL 60 WIDGET-ID 44
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18 COL 3
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.81 COL 4.4 WIDGET-ID 38
-     RECT-6 AT ROW 17.91 COL 1
-     RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 29 BY .62 AT ROW 11.81 COL 11.8 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.91 COL 4.6
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 4.6
+          BGCOLOR 15 
+     RECT-6 AT ROW 18.24 COL 3.4
+     RECT-7 AT ROW 1.48 COL 3.4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 28.
+         SIZE 94.4 BY 28
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -397,16 +394,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Estimates List"
-         HEIGHT             = 28.29
+         HEIGHT             = 24.29
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
+         MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
-         BGCOLOR            = ?
+         BGCOLOR            = 15
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
@@ -493,8 +490,26 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lbl-booked IN FRAME FRAME-A
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -504,8 +519,9 @@ ASSIGN
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -876,7 +892,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
      assign {&self-name}.
 END.
@@ -1074,7 +1090,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -1297,15 +1313,13 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
           begin_date end_date begin_date-2 end_date-2 begin_mach end_mach 
           lbl-booked tb_not-booked tb_booked tb_booked-job tb_sort tb_break 
-          sl_selected sl_avail rd-dest lines-per-page lv-ornt lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          sl_selected sl_avail rd-dest td-show-parm fi_file tb_runExcel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_est end_est begin_date end_date begin_date-2 end_date-2 
          begin_mach end_mach tb_not-booked tb_booked tb_booked-job tb_sort 
          tb_break Btn_Def sl_selected sl_avail Btn_Add Btn_Remove btn_Up 
-         btn_down rd-dest lines-per-page lv-ornt lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         btn_down rd-dest td-show-parm fi_file tb_runExcel btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

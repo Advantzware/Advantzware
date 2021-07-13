@@ -68,11 +68,10 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_mach end_mach begin_dept ~
-end_dept tb_show-stds rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+end_dept tb_show-stds rd-dest td-show-parm tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_mach end_mach begin_dept end_dept ~
-tb_show-stds rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+tb_show-stds rd-dest td-show-parm tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -117,15 +116,14 @@ DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzz"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mach.csv" 
-     LABEL "If Yes, File Name" 
+     LABEL "Name" 
      VIEW-AS FILL-IN 
-     SIZE 43.6 BY 1
-     FGCOLOR 9 .
+     SIZE 43.6 BY 1.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+     SIZE 4 BY .71 NO-UNDO.
 
 DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
      VIEW-AS FILL-IN 
@@ -148,19 +146,17 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 9.76.
+     SIZE 90 BY 5.48.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 9.29.
+     SIZE 90 BY 4.95.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Export To Excel?" 
@@ -168,9 +164,9 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no
      SIZE 21 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY 1.05 NO-UNDO.
+     SIZE 14.6 BY 1.05 NO-UNDO.
 
 DEFINE VARIABLE tb_show-stds AS LOGICAL INITIAL no 
      LABEL "Show Standards?" 
@@ -186,38 +182,39 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_mach AT ROW 3.38 COL 27 COLON-ALIGNED HELP
+     begin_mach AT ROW 2.38 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Machine Number"
-     end_mach AT ROW 3.38 COL 69 COLON-ALIGNED HELP
+     end_mach AT ROW 2.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Machine Number"
-     begin_dept AT ROW 4.33 COL 27 COLON-ALIGNED HELP
+     begin_dept AT ROW 3.48 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Department Code"
-     end_dept AT ROW 4.33 COL 69 COLON-ALIGNED HELP
+     end_dept AT ROW 3.48 COL 69 COLON-ALIGNED HELP
           "Enter Ending Department Code"
-     tb_show-stds AT ROW 6.71 COL 50
-     rd-dest AT ROW 11.95 COL 5 NO-LABEL
-     lv-ornt AT ROW 12.91 COL 31 NO-LABEL
-     lines-per-page AT ROW 12.91 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 14.33 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 15.29 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 16.71 COL 30
-     tb_excel AT ROW 17.81 COL 50.2 RIGHT-ALIGNED WIDGET-ID 4
-     tb_runExcel AT ROW 17.81 COL 72.8 RIGHT-ALIGNED WIDGET-ID 6
-     fi_file AT ROW 19 COL 28.2 COLON-ALIGNED HELP
+     tb_show-stds AT ROW 4.95 COL 39.8
+     lv-ornt AT ROW 7.67 COL 31 NO-LABEL
+     lv-font-name AT ROW 7.91 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-no AT ROW 7.91 COL 39 COLON-ALIGNED
+     tb_excel AT ROW 7.91 COL 62 RIGHT-ALIGNED WIDGET-ID 4
+     lines-per-page AT ROW 7.91 COL 47 COLON-ALIGNED
+     rd-dest AT ROW 8.38 COL 5 NO-LABEL
+     td-show-parm AT ROW 10.19 COL 35
+     tb_runExcel AT ROW 11 COL 86 RIGHT-ALIGNED WIDGET-ID 6
+     fi_file AT ROW 11.1 COL 26.2 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
-     btn-ok AT ROW 20.86 COL 19
-     btn-cancel AT ROW 20.86 COL 57
+     btn-ok AT ROW 13.14 COL 29
+     btn-cancel AT ROW 13.14 COL 51.8
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11 COL 3
+          SIZE 18 BY .62 AT ROW 6.95 COL 3.2
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     RECT-6 AT ROW 10.76 COL 2
-     RECT-7 AT ROW 1 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 21 BY .71 AT ROW 1.14 COL 5
+          BGCOLOR 15 
+     RECT-6 AT ROW 7.19 COL 3.4
+     RECT-7 AT ROW 1.52 COL 3.4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 21.57.
+         SIZE 95.2 BY 21.57
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -237,7 +234,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Machine File"
-         HEIGHT             = 21.81
+         HEIGHT             = 14.1
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -246,7 +243,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
-         BGCOLOR            = ?
+         BGCOLOR            = 15
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
@@ -271,16 +268,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -288,6 +275,14 @@ ASSIGN
 ASSIGN 
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -301,11 +296,30 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -325,7 +339,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -473,7 +487,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
      assign {&self-name}.
 END.
@@ -564,7 +578,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -671,13 +685,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_mach end_mach begin_dept end_dept tb_show-stds rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+  DISPLAY begin_mach end_mach begin_dept end_dept tb_show-stds rd-dest 
+          td-show-parm tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_mach end_mach begin_dept end_dept tb_show-stds 
-         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel 
+         rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
