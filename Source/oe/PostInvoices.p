@@ -199,6 +199,8 @@ PROCEDURE pAddFGItemToUpdate PRIVATE:
         ttFGItemToUpdate.quantityShippedTotal     = ttFGItemToUpdate.quantityShippedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityAllocatedTotal   = ttFGItemToUpdate.quantityAllocatedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityInvoicedMSFTotal = ttFGItemToUpdate.quantityInvoicedMSFTotal + ipbf-ttInvoiceLineToPost.quantityInvoicedMSF
+        ttFGItemToUpdate.invOrder                 = ipbf-ttInvoiceLineToPost.orderID
+        ttFGItemToUpdate.bNo                      = ipbf-ttInvoiceLineToPost.bNo
         .
         
 END PROCEDURE.
@@ -432,7 +434,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.isFreightBillable = ipbf-ttInvoiceToPost.isFreightBillable
         ttInvoiceLineToPost.orderLine         = ipbf-inv-line.line
         ttInvoiceLineToPost.iEnum             = ipbf-inv-line.e-num
-         
+        ttInvoiceLineToPost.bNo               = ipbf-inv-line.b-no
          
         .
     FIND FIRST bf-sman NO-LOCK 
@@ -3072,6 +3074,11 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
                 .
+            IF ttFGItemToUpdate.invOrder EQ 0 THEN 
+            DO:   
+               FIND CURRENT bf-itemfg NO-LOCK NO-ERROR.
+               RUN pUpdateWarehouseQty(rowid(bf-itemfg), INPUT ttFGItemToUpdate.quantityShippedTotal, INPUT ttFGItemToUpdate.bNo).                
+            END.
             
             DELETE ttFGItemToUpdate.
             
@@ -3183,6 +3190,89 @@ PROCEDURE pUpdateTax PRIVATE:
             .
          
 
+END PROCEDURE.
+
+PROCEDURE pUpdateWarehouseQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:   
+     tax.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwFGRowid  AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdShipQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo  AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cCalcLoc AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER b-itemfg    FOR itemfg.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    
+    FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+        WHERE ROWID(bf-itemfg) EQ iprwFGRowid 
+        NO-ERROR.         
+        
+    bf-itemfg.q-alloc = bf-itemfg.q-alloc - ipdShipQty.
+    IF bf-itemfg.q-alloc LT 0 THEN bf-itemfg.q-alloc = 0.
+    
+    ASSIGN
+        bf-itemfg.q-onh   = bf-itemfg.q-onh - ipdShipQty
+        bf-itemfg.q-avail = bf-itemfg.q-onh + bf-itemfg.q-ono - bf-itemfg.q-alloc.
+     
+    FIND FIRST oe-boll NO-LOCK
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no      EQ ipiBNo          
+        AND oe-boll.i-no      EQ bf-itemfg.i-no        
+        NO-ERROR.
+    IF AVAILABLE oe-boll THEN
+        cCalcLoc = oe-boll.loc.
+    ELSE
+        cCalcLoc = bf-itemfg.loc. 
+        
+    RUN fg/chkfgloc.p (INPUT bf-itemfg.i-no, INPUT cCalcLoc).
+    FIND FIRST itemfg-loc EXCLUSIVE-LOCK
+        WHERE itemfg-loc.company EQ bf-itemfg.company
+        AND itemfg-loc.i-no    EQ bf-itemfg.i-no
+        AND itemfg-loc.loc     EQ cCalcLoc
+        NO-ERROR.
+               
+    IF AVAILABLE itemfg-loc THEN
+        ASSIGN itemfg-loc.q-onh   = itemfg-loc.q-onh - ipdShipQty
+            itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
+    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.        
+        
+    FOR EACH oe-boll
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no    EQ ipiBNo      
+        AND oe-boll.i-no    EQ bf-itemfg.i-no
+        ,      
+        FIRST oe-bolh
+        WHERE oe-bolh.company  EQ oe-boll.company
+        AND oe-bolh.b-no     EQ oe-boll.b-no
+        BREAK BY oe-boll.i-no :               
+      
+        IF LAST-OF(oe-boll.i-no) THEN
+        DO:
+            FIND FIRST fg-bin  EXCLUSIVE-LOCK
+                WHERE fg-bin.company  EQ oe-boll.company
+                AND fg-bin.job-no   EQ oe-boll.job-no
+                AND fg-bin.job-no2  EQ oe-boll.job-no2
+                AND fg-bin.i-no     EQ oe-boll.i-no
+                AND fg-bin.loc      EQ oe-boll.loc
+                AND fg-bin.loc-bin  EQ oe-boll.loc-bin
+                AND fg-bin.tag      EQ oe-boll.tag
+                AND (fg-bin.cust-no EQ "" OR oe-boll.s-code NE "I")
+                USE-INDEX i-no NO-ERROR.
+        
+            IF AVAILABLE fg-bin THEN
+            DO:
+                fg-bin.qty  = fg-bin.qty - ipdShipQty.
+                fg-bin.partial-count = fg-bin.partial-count - oe-boll.partial.
+                RUN fg/cre-pchr.p (ROWID(fg-bin), "S", ipdShipQty, oe-boll.partial,"").
+            END.
+        END.   
+    END. 
+    RELEASE fg-bin.
+    RELEASE bf-itemfg.
 END PROCEDURE.
 
 PROCEDURE ValidateInvoices:
