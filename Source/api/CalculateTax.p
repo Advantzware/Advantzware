@@ -93,6 +93,8 @@ DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail3 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail4 FOR APIOutboundDetail.
 
+RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+
 IF ipcRequestHandler NE "" THEN
     RUN VALUE(ipcRequestHandler) (
         INPUT TABLE  ttArgs,

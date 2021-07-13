@@ -39,7 +39,9 @@
     
     DEFINE BUFFER bf-APIOutbound            FOR APIOutbound.
     DEFINE BUFFER bf-tags-APIOutboundDetail FOR APIOutboundDetail.
-    
+
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+         
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE  ttArgs,

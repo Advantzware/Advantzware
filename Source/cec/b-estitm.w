@@ -2001,9 +2001,11 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR dep-num AS INT NO-UNDO.
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
    IF LASTKEY <> -1 THEN
    DO:
+      
       v-dec = DECIMAL(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0).
       IF v-dec >= v-16-or-32 THEN DO:
          MESSAGE "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "

@@ -123,7 +123,7 @@ FUNCTION fAuditHistory RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttAuditHistory.
 
     /* subject business logic */
-    RUN aoa/BL/AuditHist.p (OUTPUT TABLE ttAuditHistory, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/AuditHist.p (OUTPUT TABLE ttAuditHistory, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttAuditHistory:HANDLE .
 
@@ -145,7 +145,7 @@ FUNCTION fEDI810Exception RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttEDI810Exception.
     
     /* subject business logic */
-    RUN AOA/BL/edi810Xcp.p (OUTPUT TABLE ttEDI810Exception, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/edi810Xcp.p (OUTPUT TABLE ttEDI810Exception, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttEDI810Exception:HANDLE .
 

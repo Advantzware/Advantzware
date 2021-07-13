@@ -1,0 +1,27 @@
+{
+    "vendorUniqueId": "$VendorID$",
+    "number": "$VendorID$",
+    "vendorName": "$VendorName$",
+    "vendorRequestDate": "$CurrentDateTime|yyyy-MM-ddThh:mm:ss.nnntz|DATE|$",
+    "type": "$VendorType$",
+    "status": "$Active|ACT/DEL|LOG|$",
+    "udf1": "$Buyer$",
+    "vendorAddresses": [{
+        "vendorAddressUniqueId": "$VendorID$",
+        "vendorAddressName": "VendorAddress",
+        "addressDescription1": "$VendorStreetAddress1$",
+        "addressDescription2": "$VendorStreetAddress2$",
+        "city": "$VendorCity$",
+        "stateProvince": "$VendorState$",
+        "zipCode": "$VendorPostalCode$",
+        "country": "$VendorCountry$",
+        "requestDate": "$CurrentDateTime|yyyy-MM-ddThh:mm:ss.nnntz|DATE|$",
+        "phoneNumber": "$VendorPhone$",
+        "emailAddress": "$VendorEmail$",
+        "currencyCode": "$CurrencyCode$",
+        "taxCode": "$TaxGroup$",
+        "bankCode": "$BankAccountNumber$",
+        "type": "$VendorType$",
+        "status": "$Active|ACT/DEL|LOG|$"
+    }]
+}

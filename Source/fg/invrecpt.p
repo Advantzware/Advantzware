@@ -14,6 +14,7 @@ DEF BUFFER bf-po-ordl FOR po-ordl.
 DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-ord  FOR oe-ord.
+DEF BUFFER bf-oe-rel  FOR oe-rel.
 
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEF NEW SHARED VAR relh-recid AS RECID NO-UNDO.
@@ -53,6 +54,7 @@ DEFINE VARIABLE dTotFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cRetChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE dQtySum AS DECIMAL NO-UNDO.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
   
 
@@ -295,6 +297,18 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
        oe-rel.carrier   = oe-ord.carrier
        oe-rel.frt-pay   = oe-ordl.frt-pay
        oe-rel.fob-code  = oe-ord.fob-code.
+       
+       FOR EACH bf-oe-rel WHERE bf-oe-rel.company = oe-ordl.company
+            AND bf-oe-rel.ord-no = oe-ordl.ord-no
+            AND bf-oe-rel.i-no = oe-ordl.i-no 
+            AND bf-oe-rel.LINE = oe-ordl.LINE
+            AND ROWID(bf-oe-rel) NE ROWID(oe-rel)
+            NO-LOCK:             
+            IF bf-oe-rel.stat NE "B" THEN
+                dQtySum = dQtySum + bf-oe-rel.qty. 
+       END. 
+                 
+       oe-rel.tot-qty       =  (oe-ordl.qty - dQtySum  ).
 
       FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode

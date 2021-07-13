@@ -176,7 +176,11 @@ DEF TEMP-TABLE ttResTemplateFiles
 DEF TEMP-TABLE ttledger 
     FIELD cType as CHAR 
     FIELD rRowid as ROWID.
-    
+
+DEFINE TEMP-TABLE ttJobMch NO-UNDO
+    FIELD d-seq LIKE mach.d-seq
+    FIELD rowID AS ROWID.
+        
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -1160,7 +1164,7 @@ PROCEDURE ipAssignARInvXNoSeq PRIVATE:
 
     FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
         
-    IF AVAIL ar-inv THEN 
+    IF AVAIL bf-ar-inv THEN 
         CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
 
     ASSIGN 
@@ -2043,6 +2047,34 @@ PROCEDURE ipConfirmMonitorUser :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertCustomerX C-Win
+PROCEDURE ipConvertCustomerX PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Sets existing customer X to internal
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    DISABLE TRIGGERS FOR LOAD OF cust.
+    DISABLE TRIGGERS FOR LOAD OF bf-cust.
+
+    FOR EACH company NO-LOCK,
+        EACH bf-cust EXCLUSIVE-LOCK
+        WHERE bf-cust.company EQ company.company
+        AND bf-cust.active EQ 'X':
+            
+            ASSIGN 
+                bf-cust.internal = YES.
+    END.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3720,7 +3752,9 @@ PROCEDURE ipDataFix210200:
 
     RUN ipAssignARInvXNoSeq.
     RUN ipConvertPolScore.
-
+    RUN ipJobMchSequenceFix.
+    RUN ipConvertCustomerX.
+    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -7610,6 +7644,115 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipJobMchSequenceFix C-Win
+PROCEDURE ipJobMchSequenceFix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
+    
+    FOR EACH job NO-LOCK WHERE job.company = "001":
+        lResequence = FALSE.
+        FOR EACH job-mch NO-LOCK WHERE job-mch.company = job.company
+            AND job-mch.job = job.job BY job-mchid:
+            FIND FIRST bf-job-mch NO-LOCK 
+                WHERE bf-job-mch.company EQ job-mch.company
+                AND bf-job-mch.job EQ job-mch.job
+                AND bf-job-mch.job-mchID EQ job-mch.job-mchID
+                AND ROWID(bf-job-mch) NE ROWID(job-mch)
+                NO-ERROR.
+            IF AVAILABLE bf-job-mch THEN 
+            DO:
+                RUN ipUpdateJobMchID(BUFFER bf-job-mch).
+                IF NOT lResequence THEN
+                    lResequence = bf-job-mch.line EQ job-mch.line.
+            END.
+        END.
+        
+        IF lResequence THEN
+            RUN ipUpdateJobMchLines(BUFFER job).
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateJobMchID C-Win
+PROCEDURE ipUpdateJobMchID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    
+    IF NOT AVAILABLE ipbf-job-mch THEN
+        RETURN.
+        
+    FIND CURRENT ipbf-job-mch EXCLUSIVE-LOCK NO-ERROR.
+    
+    ipbf-job-mch.job-mchID = NEXT-VALUE(job-mch_seq,ASI).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateJobMchLines C-Win
+PROCEDURE ipUpdateJobMchLines PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    
+    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    EMPTY TEMP-TABLE ttJobMch.
+
+    FOR EACH bf-job-mch
+        WHERE bf-job-mch.company EQ  ipbf-job.company
+          AND bf-job-mch.job     EQ  ipbf-job.job
+          AND bf-job-mch.job-no  EQ  ipbf-job.job-no
+          AND bf-job-mch.job-no2 EQ  ipbf-job.job-no2
+        USE-INDEX line-idx:
+
+        FIND FIRST mach NO-LOCK
+             WHERE mach.company EQ bf-job-mch.company
+               AND mach.m-code EQ bf-job-mch.m-code
+             NO-ERROR.
+        CREATE ttJobMch.
+        ASSIGN
+            ttJobMch.d-seq = IF AVAILABLE mach THEN mach.d-seq ELSE 0
+            ttJobMch.rowID = ROWID(bf-job-mch)
+            .
+    END.
+
+    iLine = 0.
+    FOR EACH ttJobMch, 
+        FIRST bf-job-mch EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-job-mch) EQ ttJobMch.rowID
+
+        BY bf-job-mch.frm
+        BY ttJobMch.d-seq
+        BY bf-job-mch.blank-no
+        BY bf-job-mch.pass:
+  
+        iLine = iLine + 1.
+        bf-job-mch.line = iLine.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ************************  Function Implementations ***************** */

@@ -1492,6 +1492,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME eb.dep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep br-estitm _BROWSE-COLUMN B-table-Win
+ON LEAVE OF eb.dep IN BROWSE br-estitm /* Depth */
+DO:
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME eb.cust-%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-% br-estitm _BROWSE-COLUMN B-table-Win
@@ -4430,6 +4439,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+
   END.
   
   /* ====== end validation =======*/
@@ -4973,14 +4983,18 @@ PROCEDURE pEstimateCleanUp:
                 bf-eb.comm         = eb.comm
                 .
         END. 
-
+       
     IF adm-adding-record OR lv-hld-cust NE eb.cust-no THEN DO:
         FIND FIRST cust NO-LOCK
              WHERE cust.company EQ gcompany
                AND cust.cust-no EQ eb.cust-no
              NO-ERROR.
-        IF AVAILABLE cust THEN
+        IF AVAILABLE cust THEN 
+        do:
+            FIND CURRENT est EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
             est.csrUser_id = cust.csrUser_id.
+            FIND CURRENT est NO-LOCK NO-ERROR .
+        END.    
     END.
 
     IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:

@@ -1,6 +1,13 @@
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "AmazonInvoice.r" "OE" "" "Resend Amazon Invoices" "Enter CSV file of invoices to resend" 900
+"apiVariableExport.r" "UTIL" "" "Utility to export valid API variable names" "" 900
+"apiVariableExport.w" "API" "" "Outputs the API Variable Names" "This utility allows for the API variable names to be exported to show the fields available." 900
 "arch-est.r" "CE" "" "Archive Estimates" "Archive and remove old estimates from the system.  This utility can be used to remove old estimates from the system, with the option to output these estimates to and archive file to allow for retoration if desired at a later time." 900
+"ArchivalLicenseActivation.r" "" "" "Set Archival Access" "This utility will do the following:
+1) Backup permissions file to .\custfiles\arcLicArcLicense.d
+2) Set all persmissions to read only except for ASI user
+
+This is designed to allow read only access." 1000
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "ArtiosTester.r" "" "" "Artios Tester" "To test the loading of an ARD file to validate the data in the file and generate a JPEG file for attaching to an estimate." 900
 "AuditPurge.r" "AH" "NS5" "Purge Audit History" "Prompts for date range to purge audit history records through this date.  Will delete data used for Auditing and increase performance of audit history inquiries." 999
@@ -11,7 +18,7 @@
 "chgapchk.r" "AP" "VC" "Change AP Check Number" "Change check number utility that will allow the change of check numbers in A/P, A/P Checks, Disbursements for a posted check to correct numbering." 900
 "chgorduser.r" "OP" "OU1" "Update Replace User ID on all Orders" "Updated orders to replace the user id on the orders from the old user id to the new user id.  OPtion for open orders only or all orders." 900
 "CloseOrderTester.r" "OE" "OU6" "Close Order Tester" "Tests orders to see why they are in current state" 900
-"colorchg.r" "00" "" "Advantzware Color Changer" "Utility to change the default color palette for colors in the system." 900
+"colorchg.r" "00" "" "Advantzware Color Changer                    end" "Utility to change the default color palette for colors in the system." 900
 "Consolidatexfer.r" "FG" "IF1" "Consolidate Transferred Tags" "For any FG item, all transfers will be consolidated into as few transfer transactions as possible for that item." 900
 "ConversionGLTrans.r" "GL" "" "Convert GL Transactions to History" "This utility will move all GL transaction records into GL history table with a posted flag based on the current period status." 900
 "CopyCust.r" "AR" "AF1" "Copy Customer From 1 Company to Another Company" "Copy a customer record from one company to another." 900
@@ -53,9 +60,6 @@ LoadMach is the loader of the output." 900
 
 This requires turning on N-K-1 = FGForcedCommission" 900
 "fghispur.r" "UTIL" "IF1" "FG History Purge by Job" "This utility will delete all FG detail records for a given range of item number, date, type, and job number.
-
-Note that this function does NOT create summary transactions; use with EXTREME caution." 900
-"fghispur.w" "UTIL" "IF1" "FG History Purge by Job" "This utility will delete all FG detail records for a given range of item number, date, type, and job number.
 
 Note that this function does NOT create summary transactions; use with EXTREME caution." 900
 "FGHistoryPurge.r" "FG" "IF1" "FG History Purge/Consolidation" "This allows user to run a purge of FG History up to a date.  It will summarize all transactions up to that date and create an Inventory Count for each bin as of the date that represents all the previous transaction summary detail. 
@@ -163,14 +167,16 @@ Files saved based on NK1 = AuditDir settings." 900
 "ProcessFurnishBatchTester.r" "UTIL" "" "HMP Special Furnish Processing" "This utility will accept an estimate as input and result in:
 Issues for the Special Materials on the Estimate Tab
 Receipt of hte estimate quantity for ""Board"" Furnish Material based on the cost of the issued special materials" 900
+"ProcessFurnishBatchTester.w" "UTIL" "" "HMP Special Furnish Processing" "This utility will accept an estimate as input and result in:
+Issues for the Special Materials on the Estimate Tab
+Receipt of hte estimate quantity for ""Board"" Furnish Material based on the cost of the issued special materials" 900
 "Prodcode.r" "FG" "IF1" "Update the Items Prod Code as New / Repeat" "Updates the Order Line Production code from the FG Item.
 
 Another utility will update the FG Item from the job - Same program but in fg directory to set the FG item to New or Repeat." 900
 "PurgeActMchBlankNo.r" "JC" "JQ1" "Purge Blank Number on Sheet Fed Transactions" "Prompts for job number range and if job machine is Sheet fed or Roll fed, removes the blank number record from the job-mach table.
 
 Destructive delete." 1000
-"PurgeGLHist.r" "UTIL" "" "Consolidate/Purge GL Transactions" "" 900
-"PurgeGLHist.w" "UTIL" "" "Consolidate/Purge GL Transactions" "Purge GL History - Consolidate GL History into a single record per accunt per period to increase performance." 900
+"PurgeGLHist.r" "GL" "NQ5" "Consolidate/Purge GL Transactions" "The G/L Consolidation will consoidate all G/L hisstory ino a single net entry for each period and year such that prior period trail balances can be run for previous years." 900
 "PurgeMU2.r" "RM" "MU2" "Delete UnPosted RM Issues by Date Range" "Deletes unposted RM issues to a job that have not been posted in date range." 900
 "purgeorders.r" "OP" "OU1" "Purge Orders with no Customer or Order Lines" "* Warning No Prompt! * - Deletes all orders with no customer and no line items." 900
 "purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "This utility is designed to find and remove from the system orphan records.  Orphan records can occur for several reasons but the most common is where a user enters a header, like a PO, then never adds a PO line or deletes the line item." 900
@@ -182,8 +188,9 @@ Can count the number of records as well as option to delete them.  They can also
 Used to clear load tags from the load tag file." 1000
 "purgnote.r" "FG" "IF" "Purge FG Spec Notes Range" "Askes for a Spec note type and will delete all spec notes of that type from all FG items." 900
 "rctdpurg.r" "SA" "NR" "Purge FG Transactions by Type" "Allows for mass delete of FG transactions." 900
-"RebuildRecalcJobs.r" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity." 900
-"RebuildRecalcJobs.w" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity." 900
+"RebuildRecalcJobs.r" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity.
+
+NK1 (JobBuildVersion Integer Value) should be set to not prompt before running it" 1000
 "recalcJobs.r" "SA" "NR" "Recalc Jobs" "Utility to recalculate job standard costs with updates to the estimated rates in the machine files for jobs that have not started production (No production quantity)." 900
 "reopenyr.r" "GL" "" "Reopen year after closing" "Re-opens last year after closing and resets balances.
 
@@ -225,12 +232,12 @@ Prompt for customer range, a default tax group which if entered, will default al
 "Show-Neg-Jobs.r" "JC" "JU1" "Find negative job quantity on Job Routing" "* Warning - No Prompt *
 
 Display all job material quantities that are less than zero." 900
-"SoundTester.r" "" "" "" "" 900
+"SoundTester.r" "" "" "Test Sound on Workstation" "Sound on workstation - Utility only for testing" 1000
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly.
 
 If no invoice, it will set BOL to unposted as well as all lines." 900
 "unPostBOLs.r" "UTIL" "" "UnPost multiple BOLs from input or file" "" 900
-"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 1000
+"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 900
 "upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "Update the box design drive or path." 900
 "updappay.r" "AP" "" "Update check date of Posted Checks" "Update date of a posted AP check." 900
 "updarcal.r" "AR" "" "Update line item of OP/AR invoice" "Update invoice line details." 900
@@ -265,8 +272,14 @@ This utility should be used to verify and clean up data before upgrading.
 "w-UpdARInv.r" "AR" "AC1" "Clear Amount Due Amounts" "This utility will correct invoices that appear in A-C-1 but really should have a zero balance due and not appear." 900
 "w-updsmn.r" "AF" "AF" "Update Salesman on Estimate,Quotes and Order fro" "Allows update of salesperson on estimates, quotes, orders and invoices." 900
 "warinvrestore.r" "AR" "NF#" "Restores Purged Invoices via N-F-13" "Retore invoices purges with N-F-13" 1000
+"wCleansePriceMatrix.r" "OE" "OF3" "Cleanse the Price Matrix" "Utility to cleanse the rice matrix file and expire duplicate records." 900
+"wCleanseVendorCostMatrix.r" "" "PF3" "Cleanse the Vendor Cost Matrix" "This utility will read the vendor cost matrix and set expire the records based on today's date.
+
+Customer Inactive, Vendor inactive, RM Item inactive, FG Item inactive.
+
+Will create a CSV file of results." 900
 "wGlAcctConverter.r" "GL" "GF2" "Change GL Account Number" "This utility allows for changing the GL account number and converting all GL history and related transactions to new account number.  Should NOT be run other than by ASI team." 1000
-"wInactiveQuotesByCustomer.r" "" "" "Inactivate customer related records" "This utility will allow the administrator to make quotes, price matrix entries, vendor cost records inactive if the customer is inactive.  Option to simulate or execute updates." 900
+"wInactiveQuotesByCustomer.r" "CE" "EQ" "Inactivate customer related records" "This utility will allow the administrator to make quotes, price matrix entries, vendor cost records inactive if the customer is inactive.  Option to simulate or execute updates." 900
 "wJobPurge" "JC" "JU1" "Job Purge Program" "This program will purge jobs from the system." 900
 "wLockMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
 "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust G" "Utility to copy the customer type into a permanent field." 1000

@@ -117,7 +117,7 @@ DEFINE VARIABLE hWidget         AS HANDLE    NO-UNDO EXTENT 1000.
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
 {sys/ref/CustList.i NEW}
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 {AOA/includes/pGetDynParamValue.i}
 {methods/template/brwcustomdef.i}
 

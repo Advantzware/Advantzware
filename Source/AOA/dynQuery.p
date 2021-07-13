@@ -27,7 +27,7 @@ DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
 
 {sys/ref/CustList.i NEW}
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 
 RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
 RUN AOA/spDynCalcField.p   PERSISTENT SET hDynCalcField.
