@@ -154,14 +154,17 @@ PROCEDURE UpdateExpireDate_allQuote:
             FIRST bf-quoteitm OF bf-quotehd
             WHERE bf-quoteitm.part-no EQ quoteitm.part-no
             AND bf-quoteitm.i-no EQ quoteitm.i-no 
-            NO-LOCK BREAK BY bf-quotehd.cust-no
+            NO-LOCK BREAK BY bf-quotehd.pricingMethod
+            BY bf-quotehd.cust-no
             BY bf-quoteitm.part-no
-            BY bf-quotehd.quo-date:
-            IF NOT LAST(bf-quotehd.quo-date) AND (bf-quotehd.expireDate GT TODAY OR bf-quotehd.expireDate EQ ?) THEN 
+            BY bf-quotehd.ship-id
+            BY bf-quoteitm.i-no
+            BY bf-quotehd.effectiveDate:
+            IF NOT LAST(bf-quotehd.effectiveDate) AND (bf-quotehd.expireDate GT TODAY OR bf-quotehd.expireDate EQ ?) THEN 
             DO:                    
                 RUN UpdateExpireDate(ROWID(bf-quotehd),bf-quoteitm.part-no, ipdtNewExpire) .
             END.
-            ELSE IF LAST(bf-quotehd.quo-date) THEN 
+            ELSE IF LAST(bf-quotehd.effectiveDate) THEN 
                 DO:                 
                     RUN UpdateExpireCustFGItem (ROWID(bf-quoteitm), ipdtNewExpire) .
                 END.
