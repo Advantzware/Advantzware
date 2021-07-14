@@ -82,18 +82,22 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
-                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount"
+                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount," +
+                                                "Customer Tax Status,Customer Tax Code,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Code,Ship To Taxable Status"
        cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
-                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment,inv-head.t-inv-tax,inv-head.t-inv-freight"
+                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment,inv-head.t-inv-tax,inv-head.t-inv-freight," +
+                                        "custTaxStatus,custTaxCode,custTaxId,taxExpDate,shiptoTaxCode,shiptoStatus "
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60,10,10"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60,10,10," +
+                       "6,8,20,10,14,6"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
-                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c,c,d,d"     
+                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c,c,d,d," +
+                        "c,c,c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1119,8 +1123,16 @@ DEF VAR vshipid  AS CHAR NO-UNDO.
 DEF VAR vreldate AS CHAR NO-UNDO.
 DEF VAR vsman  AS CHAR NO-UNDO .
 DEF VAR vsname  AS CHAR NO-UNDO .
+DEF VAR cCustStatus     AS CHAR NO-UNDO .
+DEF VAR cCustTaxCode    AS CHAR NO-UNDO .
+DEF VAR cCustTaxId      AS CHAR NO-UNDO .
+DEF VAR cExpDate        AS CHAR NO-UNDO .
+DEF VAR cShiptoTaxCode  AS CHAR NO-UNDO .
+DEF VAR cShiptoTaxStatus  AS CHAR NO-UNDO .
 DEF VAR lv-ord-no LIKE inv-line.ord-no.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+DEFINE BUFFER b-shipto FOR shipto.
 
 ASSIGN
    v-fcust[1]   = begin_cust-no
@@ -1178,7 +1190,22 @@ IF tb_print-del  THEN do:
           WHERE cust.company EQ cocode
           AND cust.cust-no EQ inv-head.cust-no 
           AND (cust.accountant BEGINS fi_accountant or fi_accountant eq "") BY inv-head.inv-no:
-   
+         
+         ASSIGN
+             cCustStatus  = cust.SORT
+             cCustTaxCode = cust.tax-gr
+             cCustTaxId   = cust.tax-id
+             cExpDate     = IF cust.date-field[2] NE ? THEN STRING(cust.date-field[2]) ELSE "".
+             .
+          FIND FIRST b-shipto NO-LOCK
+             WHERE b-shipto.company   EQ cocode
+             AND b-shipto.ship-id     EQ inv-head.cust-no  NO-ERROR.
+           IF AVAILABLE b-shipto THEN 
+             DO:
+             ASSIGN
+                cShiptoTaxCode   = b-shipto.tax-code
+                cShiptoTaxStatus = STRING(b-shipto.tax-mandatory).
+           END.  
        IF inv-head.stat EQ "H" THEN
            v-stat = "On Hold".
        ELSE IF inv-head.stat EQ "W" THEN
@@ -1339,6 +1366,12 @@ IF tb_print-del  THEN do:
                                             ).  
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
                   WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
+                  WHEN "custTaxStatus"          THEN cVarValue = STRING(cCustStatus).
+                  WHEN "custTaxCode"            THEN cVarValue = STRING(cCustTaxCode).
+                  WHEN "custTaxId"               THEN cVarValue = STRING(cCustTaxId).
+                  WHEN "taxExpDate"             THEN cVarValue = STRING(cExpDate).
+                  WHEN "shiptoTaxCode"          THEN cVarValue = STRING(cShiptoTaxCode).
+                  WHEN "shiptoStatus"           THEN cVarValue = STRING(cShiptoTaxStatus).
              END CASE.
 
              cExcelVarValue = cVarValue.
@@ -1368,6 +1401,22 @@ ELSE DO:
           WHERE cust.company EQ cocode
           AND cust.cust-no EQ inv-head.cust-no 
           AND (cust.accountant BEGINS fi_accountant or fi_accountant eq "") BY inv-head.inv-no:
+          
+          ASSIGN
+             cCustStatus  = cust.SORT
+             cCustTaxCode = cust.tax-gr
+             cCustTaxId   = cust.tax-id
+             cExpDate     = IF cust.date-field[2] NE ? THEN STRING(cust.date-field[2]) ELSE "".
+             .
+          FIND FIRST b-shipto NO-LOCK
+             WHERE b-shipto.company   EQ cocode
+             AND b-shipto.ship-id     EQ inv-head.cust-no  NO-ERROR.
+           IF AVAILABLE b-shipto THEN 
+             DO:
+             ASSIGN
+                cShiptoTaxCode   = b-shipto.tax-code
+                cShiptoTaxStatus = STRING(b-shipto.tax-mandatory).
+           END.  
    
        IF inv-head.stat EQ "H" THEN
            v-stat = "On Hold".
@@ -1502,6 +1551,12 @@ ELSE DO:
                                         ).  
                   WHEN "cAccountant"            THEN cVarValue = STRING(cust.accountant).
                   WHEN "cInvComment"            THEN cVarValue = STRING(inv-head.spare-char-5).
+                  WHEN "custTaxStatus"          THEN cVarValue = STRING(cCustStatus).
+                  WHEN "custTaxCode"            THEN cVarValue = STRING(cCustTaxCode).
+                  WHEN "custTaxId"               THEN cVarValue = STRING(cCustTaxId).
+                  WHEN "taxExpDate"             THEN cVarValue = STRING(cExpDate).
+                  WHEN "shiptoTaxCode"          THEN cVarValue = STRING(cShiptoTaxCode).
+                  WHEN "shiptoStatus"           THEN cVarValue = STRING(cShiptoTaxStatus).    
              END CASE.
 
              cExcelVarValue = cVarValue.
