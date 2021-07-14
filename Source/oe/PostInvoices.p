@@ -747,6 +747,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
         opbf-ttInvoiceToPost.termsCode                    = ipbf-inv-head.terms
         opbf-ttInvoiceToPost.taxGroup                     = ipbf-inv-head.tax-gr
         opbf-ttInvoiceToPost.runID                        = ipbf-ttPostingMaster.runID
+        opbf-ttInvoiceToPost.shipStat                     = ipbf-inv-head.sold-state
         .
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
@@ -1967,7 +1968,8 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
     DEFINE VARIABLE dTotalTax      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTax           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTaxableAmount AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lHasLimit      AS LOGICAL   NO-UNDO.    
+    DEFINE VARIABLE lHasLimit      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cTaxAccount    AS CHARACTER NO-UNDO.
     
     IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN 
     DO:
@@ -1983,13 +1985,20 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             OUTPUT oplError,
             OUTPUT opcErrorMessage
             ).
+        cTaxAccount = ipbf-ttInvoiceToPost.accountARSalesTax.    
+        FIND FIRST ttTaxDetail NO-LOCK 
+             WHERE ttTaxDetail.taxCode EQ ipbf-ttInvoiceToPost.shipStat 
+             NO-ERROR.
+        IF AVAIL ttTaxDetail THEN
+             cTaxAccount = ttTaxDetail.taxCodeAccount.
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
                 OUTPUT oplError, OUTPUT opcErrorMessage).
             IF oplError THEN RETURN.
             CREATE ttInvoiceTaxDetail.
-            BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
-            ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
+            BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.            
+            ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.             
+            ttInvoiceTaxDetail.taxCodeAccount = cTaxAccount.
         END.         
 
         IF dTotalTax NE ipbf-ttInvoiceToPost.amountBilledTax THEN 

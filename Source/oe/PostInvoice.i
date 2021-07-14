@@ -100,6 +100,7 @@ DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO
     FIELD termsCode                    AS CHARACTER
     FIELD taxGroup                     AS CHARACTER
     FIELD runID                        AS INTEGER
+    FIELD shipStat                     AS CHARACTER
     .
     
 DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
