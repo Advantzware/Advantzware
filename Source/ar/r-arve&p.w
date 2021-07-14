@@ -1402,7 +1402,7 @@ def var ws_net    like wkdistrib.amount column-label "Net"   no-undo.
 def var num-recs  like wkdistrib.recs no-undo.
 def var tot-debit  like wkdistrib.amount no-undo.
 def var tot-credit like wkdistrib.amount no-undo.
-DEFINE VARIABLE cShiptoStat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cShiptoState AS CHARACTER NO-UNDO.
 
 {sys/form/r-top3w.f}
 
@@ -1612,7 +1612,7 @@ IF cust.factored THEN
         DEFINE VARIABLE v-jd-taxamt AS DECIMAL   NO-UNDO.
 
         tot-tax = ar-inv.tax-amt.
-        RUN pGetShipToStatus(INPUT cocode,INPUT ar-inv.cust-no, INPUT ar-inv.ship-id, OUTPUT cShiptoStat).
+        RUN pGetShipToStatus(INPUT cocode,INPUT ar-inv.cust-no, INPUT ar-inv.ship-id, OUTPUT cShiptoState).
         
         RELEASE account.
         FOR EACH ttTaxDetail
@@ -1623,7 +1623,7 @@ IF cust.factored THEN
                v-jd-taxamt = 0.
                RELEASE account.
             END.                        
-            IF ttTaxDetail.taxCode EQ cShiptoStat AND NOT AVAIL account THEN                        
+            IF ttTaxDetail.taxCode EQ cShiptoState AND NOT AVAIL account THEN                        
             FIND FIRST account NO-LOCK
                  WHERE account.company EQ cocode
                    AND account.actnum  EQ ttTaxDetail.taxCodeAccount
@@ -2035,7 +2035,7 @@ PROCEDURE pGetShipToStatus :
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcShipId AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcShiptoStat AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcShiptoState AS CHARACTER NO-UNDO.
 
 FIND FIRST shipto NO-LOCK
      WHERE shipto.company EQ ipcCompany
@@ -2043,7 +2043,7 @@ FIND FIRST shipto NO-LOCK
      AND shipto.ship-id EQ ipcShipId
      NO-ERROR.
     IF AVAIL shipto THEN
-     opcShiptoStat = shipto.ship-state.
+     opcShiptoState = shipto.ship-state.
 
 END PROCEDURE.
 

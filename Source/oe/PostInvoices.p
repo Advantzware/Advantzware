@@ -747,7 +747,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
         opbf-ttInvoiceToPost.termsCode                    = ipbf-inv-head.terms
         opbf-ttInvoiceToPost.taxGroup                     = ipbf-inv-head.tax-gr
         opbf-ttInvoiceToPost.runID                        = ipbf-ttPostingMaster.runID
-        opbf-ttInvoiceToPost.shipStat                     = ipbf-inv-head.sold-state
+        opbf-ttInvoiceToPost.shipState                    = ipbf-inv-head.sold-state
         .
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
@@ -1987,7 +1987,7 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             ).
         cTaxAccount = ipbf-ttInvoiceToPost.accountARSalesTax.    
         FIND FIRST ttTaxDetail NO-LOCK 
-             WHERE ttTaxDetail.taxCode EQ ipbf-ttInvoiceToPost.shipStat 
+             WHERE ttTaxDetail.taxCode EQ ipbf-ttInvoiceToPost.shipState 
              NO-ERROR.
         IF AVAIL ttTaxDetail THEN
              cTaxAccount = ttTaxDetail.taxCodeAccount.
