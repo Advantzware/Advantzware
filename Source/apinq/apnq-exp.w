@@ -98,10 +98,10 @@ ASSIGN cTextListToSelect = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Disc
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_inv end_inv ~
-sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel ~
-fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_inv end_inv sl_avail sl_selected ~
-tb_excel tb_runExcel fi_file 
+begin_vendor end_vendor begin_date end_date sl_avail sl_selected Btn_Def ~
+Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_inv end_inv begin_vendor end_vendor ~
+begin_date end_date sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -174,13 +174,33 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_inv AS CHARACTER /*FORMAT "x(10)"*/ 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001
+     LABEL "From Date" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE begin_inv AS CHARACTER FORMAT "x(8)" 
      LABEL "From Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_inv AS CHARACTER /*FORMAT "X(10)" INITIAL "zzzzzzzzzzz"*/ 
+DEFINE VARIABLE begin_vendor AS CHARACTER FORMAT "x(8)" 
+     LABEL "From Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" INITIAL 12/31/9999
+     LABEL "To Date" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
+DEFINE VARIABLE end_inv AS CHARACTER FORMAT "x(8)" 
      LABEL "To Invoice#" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
+DEFINE VARIABLE end_vendor AS CHARACTER FORMAT "x(8)" INITIAL "zzzzzzzz"
+     LABEL "To Vendor" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
@@ -230,6 +250,14 @@ DEFINE FRAME rd-fgnq-exp
           "Enter Beginning Invoice#" WIDGET-ID 142
      end_inv AT ROW 3.86 COL 67.6 COLON-ALIGNED HELP
           "Enter Ending Invoice#" WIDGET-ID 144
+     begin_vendor AT ROW 5.14 COL 23.6 COLON-ALIGNED HELP
+          "Enter Beginning Invoice#" WIDGET-ID 146
+     end_vendor AT ROW 5.14 COL 67.6 COLON-ALIGNED HELP
+          "Enter Ending Invoice#" WIDGET-ID 148
+     begin_date AT ROW 6.43 COL 23.6 COLON-ALIGNED HELP
+          "Enter Beginning Invoice#" WIDGET-ID 150
+     end_date AT ROW 6.43 COL 67.6 COLON-ALIGNED HELP
+          "Enter Ending Invoice#" WIDGET-ID 152
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 12.43 COL 44 HELP
@@ -248,13 +276,13 @@ DEFINE FRAME rd-fgnq-exp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Selected Columns" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -286,11 +314,27 @@ ASSIGN
        FRAME rd-fgnq-exp:HIDDEN           = TRUE.
 
 ASSIGN 
+       begin_date:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
        begin_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
                 "parm".
 
 ASSIGN 
+       begin_vendor:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
        end_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
+       end_vendor:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
                 "parm".
 
 ASSIGN 
@@ -320,7 +364,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgnq-exp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON HELP OF FRAME rd-fgnq-exp /* Export Customer to Excel */
+ON HELP OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
 DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
@@ -354,9 +398,20 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Customer to Excel */
+ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date rd-fgnq-exp
+ON LEAVE OF begin_date IN FRAME rd-fgnq-exp /* From Date */
+DO:
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,6 +421,17 @@ END.
 &Scoped-define SELF-NAME begin_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv rd-fgnq-exp
 ON LEAVE OF begin_inv IN FRAME rd-fgnq-exp /* From Invoice# */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_vendor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vendor rd-fgnq-exp
+ON LEAVE OF begin_vendor IN FRAME rd-fgnq-exp /* From Vendor */
 DO:
    assign {&self-name}.
 END.
@@ -480,9 +546,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date rd-fgnq-exp
+ON LEAVE OF end_date IN FRAME rd-fgnq-exp /* To Date */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv rd-fgnq-exp
 ON LEAVE OF end_inv IN FRAME rd-fgnq-exp /* To Invoice# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_vendor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vendor rd-fgnq-exp
+ON LEAVE OF end_vendor IN FRAME rd-fgnq-exp /* To Vendor */
 DO:
      assign {&self-name}.
 END.
@@ -770,11 +858,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_inv end_inv sl_avail sl_selected tb_excel tb_runExcel fi_file 
+  DISPLAY begin_inv end_inv begin_vendor end_vendor begin_date end_date sl_avail 
+          sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgnq-exp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_inv end_inv sl_avail sl_selected Btn_Def 
-         Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_inv end_inv begin_vendor end_vendor 
+         begin_date end_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove 
+         btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgnq-exp.
   VIEW FRAME rd-fgnq-exp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgnq-exp}
@@ -844,6 +933,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength rd-fgnq-exp 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(20)"
+                   end_inv:FORMAT = "x(20)"
+                   begin_inv:WIDTH-CHARS = 30
+                   end_inv:WIDTH-CHARS = 30
+                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".
+        END.
+    END.
+    ELSE DO: 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN begin_inv:FORMAT = "x(12)"
+                   end_inv:FORMAT = "x(12)"
+                   begin_inv:WIDTH-CHARS = 20
+                   end_inv:WIDTH-CHARS = 20
+                   end_inv:INITIAL = "zzzzzzzzzzzz".
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report rd-fgnq-exp 
 PROCEDURE run-report :
 /*------------------------------------------------------------------------------
@@ -870,9 +989,14 @@ li-pallets = 0 .
 v-lineno = 0 .
 
     FOR EACH ap-inv WHERE ap-inv.company EQ cocode 
-      AND ap-inv.posted EQ YES 
-      AND ap-inv.inv-no GE begin_inv
-      AND ap-inv.inv-no LE end_inv NO-LOCK,
+      AND ap-inv.posted   EQ YES 
+      AND ap-inv.inv-no   GE begin_inv
+      AND ap-inv.inv-no   LE end_inv
+      AND ap-inv.vend-no  GE begin_vendor
+      AND ap-inv.vend-no  LE end_vendor 
+      AND ap-inv.inv-date GE begin_date
+      AND ap-inv.inv-date LE end_date 
+      NO-LOCK,
       EACH ap-invl WHERE ap-invl.i-no eq ap-inv.i-no NO-LOCK:
 
         v-excel-detail-lines = "".
@@ -1343,32 +1467,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength  B-table-Win 
-PROCEDURE pAPInvoiceLength :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAPInvoiceLength THEN DO:
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(20)"
-                   end_inv:FORMAT = "x(20)"
-                   begin_inv:WIDTH-CHARS = 30
-                   end_inv:WIDTH-CHARS = 30
-                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".
-        END.
-    END.
-    ELSE DO: 
-        DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(12)"
-                   end_inv:FORMAT = "x(12)"
-                   begin_inv:WIDTH-CHARS = 20
-                   end_inv:WIDTH-CHARS = 20
-                   end_inv:INITIAL = "zzzzzzzzzzzz".
-        END.    
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
