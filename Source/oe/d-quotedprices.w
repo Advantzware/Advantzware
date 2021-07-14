@@ -172,7 +172,7 @@ DEFINE QUERY BROWSE-3 FOR
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 gDialog _FREEFORM
   QUERY BROWSE-3 DISPLAY
-      ttQuoteList.q-no LABEL "Quote#"
+      ttQuoteList.q-no FORMAT ">>>>>>>9" LABEL "Quote#"
       ttQuoteList.qty FORM ">>>,>>>,>>9" LABEL "Quantity"
       ttQuoteList.price FORM "->>>,>>>,>>9.99<<<" LABEL "Price"
       ttQuoteList.uom LABEL "UOM" WIDTH 5
