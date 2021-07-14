@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 {est\ttOperationAttribute.i}
 {est\OperationProcsTT.i}
+{system/ttTag.i &Table-Name=ttOpsTag}
 
 
 /* Define Globals - Machine Attributes */
@@ -69,8 +70,8 @@ DEFINE VARIABLE gcDeptsForCoaters                    AS CHARACTER NO-UNDO INITIA
 DEFINE VARIABLE glOpRatesSeparate                    AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
 DEFINE VARIABLE glApplyOperationMinimumCharge        AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly AS LOGICAL   NO-UNDO.
-   
-DEFINE VARIABLE gcErrorString AS CHARACTER NO-UNDO.
+ 
+DEFINE VARIABLE glTagDisabled AS LOGICAL NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -199,6 +200,29 @@ PROCEDURE BuildRouting:
  Notes:
 ------------------------------------------------------------------------------*/
 
+
+END PROCEDURE.
+
+PROCEDURE pResetObjects:
+/*------------------------------------------------------------------------------
+ Purpose: Delete all internal objects.
+ Notes: Delete Handles, objects, temp-table etc
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcBeforeAftr AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttJobMch.
+    EMPTY TEMP-TABLE ttEstBlank.
+    EMPTY TEMP-TABLE ttAxis.
+    EMPTY TEMP-TABLE  ttEstOp.
+        
+    /* If being run after the process don't Cleanup objets used by other calling routines*/
+    IF ipcBeforeAftr EQ "Before" THEN
+    DO:
+        EMPTY TEMP-TABLE  ttOperation.
+        EMPTY TEMP-TABLE  ttAttribute.
+        EMPTY TEMP-TABLE  ttOpsTag.
+        glTagDisabled = FALSE.
+    END.
 
 END PROCEDURE.
 
@@ -331,6 +355,9 @@ PROCEDURE GetOperationStandardsForJobMch:
                 
         RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, ipcAction, ipcExistingOps, OUTPUT lError, OUTPUT cMessage).
         
+        IF cMessage NE "" THEN
+            RUN pBuildTagInfo ("Error","Error from SetAttributesFromJobMch",cMessage).
+            
         RUN pBuildMessage("", INPUT-OUTPUT cMessage).
         
         IF NOT lError THEN 
@@ -358,6 +385,10 @@ PROCEDURE GetOperationStandardsForJobMch:
             
             bf-job-mch.run-qty =  fGetJobMachRunQty(BUFFER bf-eb, bf-job-mch.m-code,bf-job-mch.pass).
         END.
+        
+        FIND CURRENT bf-job-mch NO-LOCK.
+        IF AVAILABLE bf-job-mch THEN
+            RUN pAddTagInfo (bf-job-mch.rec_key).
     END.
 
 END PROCEDURE.
@@ -543,6 +574,34 @@ PROCEDURE pAddOperationFromEstOp PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pAddTagInfo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Builds process summary/error stream. Create tags on Job-mch.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCnt  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTemp AS CHARACTER NO-UNDO.
+            
+    RUN ClearTagsForGroup(
+            INPUT ipcRecKey,
+            INPUT "OpsStandard"
+            ).
+            
+    FOR EACH ttOpsTag:
+                
+        RUN AddTagInfoForGroup(
+            INPUT ipcRecKey,
+            INPUT "job-mch",
+            INPUT ttOpsTag.Description,
+            INPUT ttOpsTag.Note[1],
+            INPUT "OpsStandard"
+            ). /*From TagProcs Super Proc*/
+    END.
+     
+END PROCEDURE.
+
 PROCEDURE pBuildMessage PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Builds a message string based on new message and existing message
@@ -557,11 +616,30 @@ PROCEDURE pBuildMessage PRIVATE:
             iopcMessage = iopcMessage + CHR(13) + ipcMessageAdd.
         ELSE 
             iopcMessage = ipcMessageAdd.
+            
     END.
     
-    /* Build Global Error Variable */
-    ASSIGN 
-        gcErrorString = gcErrorString + CHR(13) + (IF ipcMessageAdd NE "" THEN ipcMessageAdd ELSE iopcMessage).
+END PROCEDURE.
+
+PROCEDURE pBuildTagInfo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Builds the TT Tag for debug/information purpose
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcNotes AS CHARACTER NO-UNDO.
+    
+    IF glTagDisabled = TRUE THEN
+        RETURN.
+        
+    CREATE ttOpsTag. 
+    ASSIGN
+        ttOpsTag.tagType     = ipcType
+        ttOpsTag.description = ipcName
+        ttOpsTag.Note[1]      = ipcNotes
+        .
+
 END PROCEDURE.
 
 PROCEDURE pGetEffectiveEstOpQuantity PRIVATE:
@@ -811,6 +889,8 @@ PROCEDURE pGetValue PRIVATE:
     RUN pBuildMessage("Y Axis: Attribute: " + cYAttribute + " Attribute Value: " + STRING(dYAttributeValue) + " Page: " + STRING(iPageY) + " Index: " + STRING(iY), INPUT-OUTPUT opcMessage).
     RUN pBuildMessage(CHR(13), INPUT-OUTPUT opcMessage).
 
+    RUN pBuildTagInfo ("Info",ipcType + ": " + STRING(opdValue)+ "| X Axis [" + cXAttribute + " = " + STRING(dXAttributeValue) + "]" + ". Y Axis [" + cYAttribute + " = " + STRING(dYAttributeValue) + "]" ,"").
+        
 END PROCEDURE.
 
 PROCEDURE pGetAttribute PRIVATE:
@@ -999,6 +1079,12 @@ PROCEDURE pGetRunSpeed PRIVATE:
         RUN pBuildMessage(cMessageMatrix, INPUT-OUTPUT opcMessage).
         RUN pBuildMessage(cMessageItemReduction, INPUT-OUTPUT opcMessage).
         RUN pBuildMessage(cMessageMatrixReduction, INPUT-OUTPUT opcMessage).
+        
+        IF cMessageItemReduction NE "" THEN
+            RUN pBuildTagInfo ("Info","RunSpeed" + ": Item Reduction- " + STRING(dReductionItem),  cMessageItemReduction).
+        IF cMessageMatrixReduction NE "" THEN
+            RUN pBuildTagInfo ("Info","RunSpeed" + ": Matrix Reduction- " + STRING(dReductionMatrix), cMessageMatrixReduction).
+        
     END.
     
 END PROCEDURE.
@@ -1056,6 +1142,9 @@ PROCEDURE pGetMRWaste PRIVATE:
     RUN pBuildMessage("MRWaste: " + STRING(dMRWasteFromMach) + " from machine file", INPUT-OUTPUT opcMessage).
     RUN pBuildMessage("Waste for Inks: " + STRING(dMRWasteFromInks) + " from " + cColors + " colors", INPUT-OUTPUT opcMessage).
     RUN pBuildMessage(CHR(13), INPUT-OUTPUT opcMessage).
+    
+    
+    RUN pBuildTagInfo ("Info","MRWaste: " + STRING(opdMRWaste) + "| File MR Waste- " + STRING(dMRWasteFromMach) + ". Ink Waste- " + STRING(dMRWasteFromInks),  "Colors- " + cColors + ". MR Waste per color- " + STRING(ipbf-mach.col-wastesh)).
         
 END PROCEDURE.        
 
@@ -1341,6 +1430,8 @@ PROCEDURE ProcessOperationChange:
         ipcDepartmentID) THEN
 
         RETURN.  /*If a match is found, return with no action*/
+    
+    RUN pSetProcessScope(INPUT "MainProcessStart").
                              
     /*Find machine from same department*/
     FIND FIRST bf-job-mch NO-LOCK
@@ -1365,6 +1456,8 @@ PROCEDURE ProcessOperationChange:
         WHEN "AddDept" THEN 
         RUN pOperationChangeAddDepartment(ipcCompany, ipcOperationID, ipiJob, ipiFormNo, ipiBlankNo, ipiPass, ipcDepartmentID).
     END CASE.        
+    
+    RUN pSetProcessScope(INPUT "MainProcessEnd").
                           
 END PROCEDURE.
 
@@ -1710,6 +1803,12 @@ PROCEDURE pRecalcOperations PRIVATE:
     DEFINE BUFFER bf-ef          FOR ef.
     DEFINE BUFFER bf-ttOperation FOR ttOperation.
     
+    EMPTY TEMP-TABLE ttOperation.
+    EMPTY TEMP-TABLE ttEstop.
+    
+    /* Set Recalc Scope */
+    RUN pSetProcessScope(INPUT "RecalcStart").
+    
     FIND FIRST bf-ef NO-LOCK
         OF ipbf-eb NO-ERROR.
     
@@ -1862,7 +1961,8 @@ PROCEDURE pRecalcOperations PRIVATE:
         END.
                     
     END. /*Each ttEstop*/
-
+    RUN pSetProcessScope(INPUT "RecalcEnd").
+     
 END PROCEDURE.
 
 
@@ -1943,11 +2043,24 @@ END PROCEDURE.
 PROCEDURE pGetOperationTT:
    
    DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
-   DEFINE OUTPUT PARAMETER opcError AS CHARACTER NO-UNDO.
-   
-   ASSIGN opcError = gcErrorString.
    
 END.
+
+PROCEDURE pSetProcessScope PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcProc AS CHARACTER NO-UNDO.
+    
+     glTagDisabled = IF ipcProc EQ "RecalcStart" THEN TRUE ELSE FALSE.
+
+    IF ipcProc EQ "MainProcessStart" THEN 
+        RUN pResetObjects(INPUT "Before").
+    ELSE IF ipcProc EQ "MainProcessEnd" THEN
+         RUN pResetObjects(INPUT "After").  
+
+END PROCEDURE.
 
 PROCEDURE SetAttribute:
     /*------------------------------------------------------------------------------
@@ -2001,6 +2114,7 @@ PROCEDURE SetAttributesFromJobMch:
     DEFINE VARIABLE iForm  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPass  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cMsg   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-job-mch FOR job-mch.
     DEFINE BUFFER bf-job     FOR job.
@@ -2057,10 +2171,10 @@ PROCEDURE SetAttributesFromJobMch:
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
             RUN pSetAttributesForm(BUFFER bf-ef).
-            
-        /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT opcMessage).
         
+        /* Re-build the Est-op and Operations Data */ 
+        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
+         
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
             RUN pSetAttributesFromQty (BUFFER bf-eb, bf-job-mch.m-code, bf-job.loc, iPass, INPUT TABLE ttOperation BY-REFERENCE).
@@ -2743,8 +2857,9 @@ FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dReturnValue  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQtyEach      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMsgTyp       AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cMessageStr   AS CHARACTER NO-UNDO.
+    
     
     DEFINE BUFFER bf-ttOperation FOR ttOperation.
     
@@ -2758,8 +2873,21 @@ FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
         AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR.
             
    IF AVAILABLE bf-ttOperation THEN
-        dReturnValue = bf-ttOperation.quantityInAfterSetupWaste.
-    
+   DO:
+        ASSIGN
+            dReturnValue = bf-ttOperation.quantityInAfterSetupWaste
+            cMsgTyp      = "Info"
+            cMessageStr  = "Run Qty-" + STRING(dReturnValue) +  "| Qty In- " + STRING(bf-ttOperation.quantityIn) + ". Qty Out- " + STRING(bf-ttOperation.quantityOut) + ". Qty MR Waste- " + STRING(bf-ttOperation.quantityInSetupWaste) + ". Qty Run Waste- " + STRING(bf-ttOperation.quantityInRunWaste)
+            .
+   END.
+   ELSE
+        ASSIGN
+            cMsgTyp       = "Error"
+            cMessageStr  = "ttOperation not found for Mach" + ipcMachCode + " F-" + STRING(ipbf-eb.form-no) + " B-" + STRING(MAX(ipbf-eb.blank-no, 1)) + " P-" + STRING(MAX(ipiPass , 1))
+            .
+       
+    RUN pBuildTagInfo (cMsgTyp,cMessageStr, "").
+        
     RETURN dReturnValue.
 		
 END FUNCTION.

@@ -102,8 +102,8 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOperationProcs).
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS company btnReset btnDon JobNo formNo blankNo ~
-Pass operationID btnProcessOps fi_FileOps tb_FileOps BROWSE-4 btnGo fi_file ~
-tb_excel BROWSE-1 
+Pass operationID btnProcessOps fi_FileOps btnTag tb_FileOps BROWSE-4 btnGo ~
+fi_file tb_excel BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS company JobNo formNo blankNo Pass ~
 operationID fi_FileOps tb_FileOps fi_file tb_excel 
 
@@ -144,6 +144,10 @@ DEFINE BUTTON btnProcessOps
 DEFINE BUTTON btnReset 
      LABEL "Reset" 
      SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnTag 
+     LABEL "View Tag" 
+     SIZE 10 BY 1.14.
 
 DEFINE VARIABLE blankNo AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 1 
      LABEL "Blank" 
@@ -263,6 +267,7 @@ DEFINE FRAME wOperationsTester
      btnProcessOps AT ROW 5.52 COL 5 WIDGET-ID 58
      fi_FileOps AT ROW 5.52 COL 75.6 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 60
+     btnTag AT ROW 5.57 COL 127 WIDGET-ID 66
      tb_FileOps AT ROW 5.67 COL 57 RIGHT-ALIGNED WIDGET-ID 62
      BROWSE-4 AT ROW 7.67 COL 5 WIDGET-ID 300
      btnGo AT ROW 16 COL 6 WIDGET-ID 10
@@ -439,6 +444,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTag wOperationsTester
+ON CHOOSE OF btnTag IN FRAME wOperationsTester /* View Tag */
+DO:
+    RUN pGetTagInfo(company, JobNo, formNo, blankNo,Pass,operationID).
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME company
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL company wOperationsTester
 ON LEAVE OF company IN FRAME wOperationsTester /* Company */
@@ -603,8 +620,8 @@ PROCEDURE enable_UI :
           fi_file tb_excel 
       WITH FRAME wOperationsTester.
   ENABLE company btnReset btnDon JobNo formNo blankNo Pass operationID 
-         btnProcessOps fi_FileOps tb_FileOps BROWSE-4 btnGo fi_file tb_excel 
-         BROWSE-1 
+         btnProcessOps fi_FileOps btnTag tb_FileOps BROWSE-4 btnGo fi_file 
+         tb_excel BROWSE-1 
       WITH FRAME wOperationsTester.
   VIEW FRAME wOperationsTester.
   {&OPEN-BROWSERS-IN-QUERY-wOperationsTester}
@@ -695,6 +712,76 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagInfo wOperationsTester
+PROCEDURE pGetTagInfo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    
+    FIND FIRST mach NO-LOCK
+        WHERE mach.company EQ ipcCompany
+        AND mach.m-code  EQ ipcOperationID
+        NO-ERROR.
+        
+    IF NOT AVAILable mach then
+    DO:
+        MESSAGE 'MACHINE DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
+    
+    FIND FIRST job NO-LOCK 
+        WHERE job.company EQ ipcCompany
+        AND job.job-no EQ ipcJobNo
+        AND job.job-no2 EQ 0
+        NO-ERROR.
+           
+    IF NOT AVAILable job then
+    DO:
+        MESSAGE 'JOB DOES NOT EXIST - TRY AGAIN' VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
+              
+    FIND FIRST job-mch NO-LOCK
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job  EQ job.job
+        AND job-mch.m-code  EQ ipcOperationID
+        AND job-mch.frm     EQ ipiFormNo
+        AND job-mch.blank-no EQ ipiBlankNo
+        AND job-mch.dept    EQ mach.dept[1]
+        AND job-mch.pass    EQ ipiPass NO-ERROR.
+
+    IF NOT AVAILABLE job-mch THEN
+        FIND FIRST job-mch NO-LOCK
+            WHERE job-mch.company EQ ipcCompany
+            AND job-mch.job  EQ job.job
+            AND job-mch.m-code  EQ ipcOperationID
+            AND job-mch.frm     EQ ipiFormNo
+            AND job-mch.blank-no EQ ipiBlankNo
+            AND job-mch.pass    EQ ipiPass NO-ERROR.
+            
+    IF AVAILABLE job-mch THEN
+        RUN system/d-TagViewer.w (
+            INPUT job-mch.rec_key,
+            INPUT "",
+            INPUT ""
+            ).   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunOperation wOperationsTester 
 PROCEDURE pRunOperation :
 /*------------------------------------------------------------------------------
@@ -743,7 +830,7 @@ PROCEDURE pRunOperation :
         RETURN.
     END.
     
-    RUN pGetOperationTT ( OUTPUT TABLE ttOperation, OUTPUT cError).
+    RUN pGetOperationTT ( OUTPUT TABLE ttOperation).
     
     {&CLOSE-QUERY-BROWSE-4}   
     {&OPEN-QUERY-BROWSE-4}
