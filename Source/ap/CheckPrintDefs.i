@@ -19,396 +19,399 @@ DEFINE VARIABLE cPrintOrderCSS     AS CHARACTER NO-UNDO INITIAL "Check,Stub,Stub
 DEFINE VARIABLE cPrintOrderSSC     AS CHARACTER NO-UNDO INITIAL "Check,Stub,Stub". 
 DEFINE VARIABLE cPrintOrderDefault AS CHARACTER NO-UNDO INITIAL "Stub,Check,Stub".
 
-DEFINE {1} TEMP-TABLE ttCheckConfig
-    /*Overall output settings*/
-    FIELD company                          AS CHARACTER
-    FIELD outputFile                       AS CHARACTER
-    FIELD defaultFont                      AS CHARACTER INITIAL "Arial"
-    FIELD defaultFontSize                  AS INTEGER   INITIAL 10
-    
-    /*Structure Configuration*/
-    FIELD panel1Type                       AS CHARACTER INITIAL "Stub"
-    FIELD panel2Type                       AS CHARACTER INITIAL "Check"
-    FIELD panel3Type                       AS CHARACTER INITIAL "Stub"
-    
-    /*Overall panel Coordinates*/
-    FIELD panel1Row                        AS DECIMAL   INITIAL 1
-    FIELD panel2Row                        AS DECIMAL   INITIAL 25
-    FIELD panel3Row                        AS DECIMAL   INITIAL 46
-    
-    /*Properties for check defaults*/
-    FIELD checkFont                        AS CHARACTER 
-    FIELD checkFontSize                    AS INTEGER 
-    
-    /*Coordinates for Check Objects*/
-    FIELD checkCheckNumberRow              AS DECIMAL   INITIAL 5 
-    FIELD checkCheckNumberCol              AS DECIMAL   INITIAL 80
-    FIELD checkAmtInWordsRow               AS DECIMAL   INITIAL 9
-    FIELD checkAmtInWordsCol               AS DECIMAL   INITIAL 8
-    FIELD checkAmtRow                      AS DECIMAL   INITIAL 8
-    FIELD checkAmtCol                      AS DECIMAL   INITIAL 80
-    FIELD checkPayDateRow                  AS DECIMAL   INITIAL 5
-    FIELD checkPayDateCol                  AS DECIMAL   INITIAL 45
-    FIELD checkRemitToNameRow              AS DECIMAL   INITIAL 8 
-    FIELD checkRemitToNameCol              AS DECIMAL   INITIAL 8
-    FIELD checkRemitToAddressRow           AS DECIMAL   INITIAL 10 
-    FIELD checkRemitToAddressCol           AS DECIMAL   INITIAL 8
-    FIELD checkCompanyNameRow              AS DECIMAL   INITIAL 2
-    FIELD checkCompanyNameCol              AS DECIMAL   INITIAL 8
-    FIELD checkCompanyAddressRow           AS DECIMAL   INITIAL 3
-    FIELD checkCompanyAddressCol           AS DECIMAL   INITIAL 8
-    FIELD checkMemoRow                     AS DECIMAL   INITIAL 12
-    FIELD checkMemoCol                     AS DECIMAL   INITIAL 50
-    
-    /*Coordinates for Stub Objects*/
-    FIELD stubCheckNumberRow               AS DECIMAL   INITIAL 3 
-    FIELD stubCheckNumberCol               AS DECIMAL   INITIAL 80
-    FIELD stubPayDateRow                   AS DECIMAL   INITIAL 3
-    FIELD stubPayDateCol                   AS DECIMAL   INITIAL 1
-    FIELD stubRemitToNameRow               AS DECIMAL   INITIAL 3 
-    FIELD stubRemitToNameCol               AS DECIMAL   INITIAL 20
-    FIELD stubCompanyNameRow               AS DECIMAL   INITIAL 2
-    FIELD stubCompanyNameCol               AS DECIMAL   INITIAL 24
-    FIELD stubRegHeadRow                   AS INTEGER   INITIAL 5
-    FIELD stubRegSuppNoticeRow             AS INTEGER   INITIAL 5
-    FIELD stubRegSuppNoticeCol             AS INTEGER   INITIAL 5
-    FIELD stubRegDetailRow                 AS INTEGER   INITIAL 6
-    FIELD stubRegInvNoCol                  AS INTEGER   INITIAL 3
-    FIELD stubRegPOCol                     AS INTEGER   INITIAL 18
-    FIELD stubRegInvDateCol                AS INTEGER   INITIAL 45
-    FIELD stubRegAmtGrossCol               AS INTEGER   INITIAL 55
-    FIELD stubRegAmtDiscCol                AS INTEGER   INITIAL 65
-    FIELD stubRegAmtNetCol                 AS INTEGER   INITIAL 75
-    FIELD stubRegTotLabelCol               AS INTEGER   INITIAL 30
-    
-    /*Properties for check objects*/   
-    FIELD checkCheckNumberShow             AS LOGICAL   INITIAL YES 
-    FIELD checkCheckNumberFont             AS CHARACTER 
-    FIELD checkCheckNumberFontSize         AS INTEGER 
-    FIELD checkCheckNumberNumSize          AS INTEGER   INITIAL 9
-    FIELD checkCheckNumberBold             AS LOGICAL   INITIAL YES
-    FIELD checkCheckNumberUnderline        AS LOGICAL
-    FIELD checkCheckNumberItalic           AS LOGICAL 
-    FIELD checkCheckNumberRightJustify     AS LOGICAL   INITIAL YES
-    
-    FIELD checkAmtInWordsShow              AS LOGICAL   INITIAL YES
-    FIELD checkAmtInWordsFont              AS CHARACTER 
-    FIELD checkAmtInWordsFontSize          AS INTEGER 
-    FIELD checkAmtInWordsSize              AS INTEGER   INITIAL 70
-    FIELD checkAmtInWordsBold              AS LOGICAL 
-    FIELD checkAmtInWordsUnderline         AS LOGICAL
-    FIELD checkAmtInWordsItalic            AS LOGICAL 
-    FIELD checkAmtInWordsRightJustify      AS LOGICAL
-    FIELD checkAmtInWordsAndAsFraction     AS LOGICAL   INITIAL YES
-    FIELD checkAmtInWordsZeroAsNo          AS LOGICAL   INITIAL YES
-    FIELD checkAmtInWordsFillChar          AS CHARACTER INITIAL "*"
-    FIELD checkAmtInWordsFillCenter        AS LOGICAL   INITIAL YES
-    FIELD checkAmtInWordsAllCaps           AS LOGICAL
-    
-    FIELD checkAmtShow                     AS LOGICAL   INITIAL YES 
-    FIELD checkAmtFont                     AS CHARACTER 
-    FIELD checkAmtFontSize                 AS INTEGER 
-    FIELD checkAmtNumSize                  AS INTEGER   INITIAL 9
-    FIELD checkAmtDecimals                 AS INTEGER   INITIAL 2
-    FIELD checkAmtBold                     AS LOGICAL 
-    FIELD checkAmtUnderline                AS LOGICAL
-    FIELD checkAmtItalic                   AS LOGICAL 
-    FIELD checkAmtRightJustify             AS LOGICAL   INITIAL YES
-    FIELD checkAmtComma                    AS LOGICAL   INITIAL YES
-    FIELD checkAmtCurrSymb                 AS CHARACTER 
-    
-    FIELD checkPayDateShow                 AS LOGICAL   INITIAL YES
-    FIELD checkPayDateFont                 AS CHARACTER 
-    FIELD checkPayDateFontSize             AS CHARACTER 
-    FIELD checkPayDateSize                 AS INTEGER   INITIAL 30
-    FIELD checkPayDateBold                 AS LOGICAL 
-    FIELD checkPayDateUnderline            AS LOGICAL   INITIAL YES
-    FIELD checkPayDateItalic               AS LOGICAL 
-    FIELD checkPayDateRightJustify         AS LOGICAL
-    FIELD checkPayDateAllCaps              AS LOGICAL
-    FIELD checkPayDateFormat               AS CHARACTER INITIAL "MM/DD/YYYY"
+/* Moving partial field defs here to avoid 16K character limit */
+DEFINE TEMP-TABLE ttcheckconfig1
+ /*Overall output settings*/
+ FIELD company AS CHAR
+ FIELD outputFile AS CHAR
+ FIELD defaultFont AS CHAR INIT "Arial"
+ FIELD defaultFontSize AS INT INIT 10
+ 
+ /*Structure Configuration*/
+ FIELD panel1Type AS CHAR INIT "Stub"
+ FIELD panel2Type AS CHAR INIT "Check"
+ FIELD panel3Type AS CHAR INIT "Stub"
+ 
+ /*Overall panel Coordinates*/
+ FIELD panel1Row AS DEC INIT 1
+ FIELD panel2Row AS DEC INIT 25
+ FIELD panel3Row AS DEC INIT 46
+ 
+ /*Properties for check defaults*/
+ FIELD checkFont AS CHAR 
+ FIELD checkFontSize AS INT 
+ 
+ /*Coordinates for Check Objects*/
+ FIELD checkCheckNumberRow AS DEC INIT 5 
+ FIELD checkCheckNumberCol AS DEC INIT 80
+ FIELD checkAmtInWordsRow AS DEC INIT 9
+ FIELD checkAmtInWordsCol AS DEC INIT 8
+ FIELD checkAmtRow AS DEC INIT 8
+ FIELD checkAmtCol AS DEC INIT 80
+ FIELD checkPayDateRow AS DEC INIT 5
+ FIELD checkPayDateCol AS DEC INIT 45
+ FIELD checkRemitToNameRow AS DEC INIT 8 
+ FIELD checkRemitToNameCol AS DEC INIT 8
+ FIELD checkRemitToAddressRow AS DEC INIT 10 
+ FIELD checkRemitToAddressCol AS DEC INIT 8
+ FIELD checkCompanyNameRow AS DEC INIT 2
+ FIELD checkCompanyNameCol AS DEC INIT 8
+ FIELD checkCompanyAddressRow AS DEC INIT 3
+ FIELD checkCompanyAddressCol AS DEC INIT 8
+ FIELD checkMemoRow AS DEC INIT 12
+ FIELD checkMemoCol AS DEC INIT 50
+ 
+ /*Coordinates for Stub Objects*/
+ FIELD stubCheckNumberRow AS DEC INIT 3 
+ FIELD stubCheckNumberCol AS DEC INIT 80
+ FIELD stubPayDateRow AS DEC INIT 3
+ FIELD stubPayDateCol AS DEC INIT 1
+ FIELD stubRemitToNameRow AS DEC INIT 3 
+ FIELD stubRemitToNameCol AS DEC INIT 20
+ FIELD stubCompanyNameRow AS DEC INIT 2
+ FIELD stubCompanyNameCol AS DEC INIT 24
+ FIELD stubRegHeadRow AS INT INIT 5
+ FIELD stubRegSuppNoticeRow AS INT INIT 5
+ FIELD stubRegSuppNoticeCol AS INT INIT 5
+ FIELD stubRegDetailRow AS INT INIT 6
+ FIELD stubRegInvNoCol AS INT INIT 3
+ FIELD stubRegPOCol AS INT INIT 18
+ FIELD stubRegInvDateCol AS INT INIT 45
+ FIELD stubRegAmtGrossCol AS INT INIT 55
+ FIELD stubRegAmtDiscCol AS INT INIT 65
+ FIELD stubRegAmtNetCol AS INT INIT 75
+ FIELD stubRegTotLabelCol AS INT INIT 30
+ 
+ /*Properties for check objects*/ 
+ FIELD checkCheckNumberShow AS LOG INIT YES 
+ FIELD checkCheckNumberFont AS CHAR 
+ FIELD checkCheckNumberFontSize AS INT 
+ FIELD checkCheckNumberNumSize AS INT INIT 9
+ FIELD checkCheckNumberBold AS LOG INIT YES
+ FIELD checkCheckNumberUnderline AS LOG
+ FIELD checkCheckNumberItalic AS LOG 
+ FIELD checkCheckNumberRightJustify AS LOG INIT YES
+ 
+ FIELD checkAmtInWordsShow AS LOG INIT YES
+ FIELD checkAmtInWordsFont AS CHAR 
+ FIELD checkAmtInWordsFontSize AS INT 
+ FIELD checkAmtInWordsSize AS INT INIT 70
+ FIELD checkAmtInWordsBold AS LOG 
+ FIELD checkAmtInWordsUnderline AS LOG
+ FIELD checkAmtInWordsItalic AS LOG 
+ FIELD checkAmtInWordsRightJustify AS LOG
+ FIELD checkAmtInWordsAndAsFraction AS LOG INIT YES
+ FIELD checkAmtInWordsZeroAsNo AS LOG INIT YES
+ FIELD checkAmtInWordsFillChar AS CHAR INIT "*"
+ FIELD checkAmtInWordsFillCenter AS LOG INIT YES
+ FIELD checkAmtInWordsAllCaps AS LOG
+ 
+ FIELD checkAmtShow AS LOG INIT YES 
+ FIELD checkAmtFont AS CHAR 
+ FIELD checkAmtFontSize AS INT 
+ FIELD checkAmtNumSize AS INT INIT 9
+ FIELD checkAmtDecimals AS INT INIT 2
+ FIELD checkAmtBold AS LOG 
+ FIELD checkAmtUnderline AS LOG
+ FIELD checkAmtItalic AS LOG 
+ FIELD checkAmtRightJustify AS LOG INIT YES
+ FIELD checkAmtComma AS LOG INIT YES
+ FIELD checkAmtCurrSymb AS CHAR 
+ .
 
-    FIELD checkMemoShow                    AS LOGICAL   INITIAL YES
-    FIELD checkMemoFont                    AS CHARACTER 
-    FIELD checkMemoFontSize                AS INTEGER   
-    FIELD checkMemoSize                    AS INTEGER   INITIAL 70
-    FIELD checkMemoBold                    AS LOGICAL   
-    FIELD checkMemoUnderline               AS LOGICAL   
-    FIELD checkMemoItalic                  AS LOGICAL 
-    FIELD checkMemoRightJustify            AS LOGICAL   
-    FIELD checkMemoAllCaps                 AS LOGICAL   
-    
-    FIELD checkRemitToNameShow             AS LOGICAL   INITIAL YES
-    FIELD checkRemitToNameFont             AS CHARACTER 
-    FIELD checkRemitToNameFontSize         AS INTEGER 
-    FIELD checkRemitToNameSize             AS INTEGER   INITIAL 70
-    FIELD checkRemitToNameBold             AS LOGICAL 
-    FIELD checkRemitToNameUnderline        AS LOGICAL
-    FIELD checkRemitToNameItalic           AS LOGICAL 
-    FIELD checkRemitToNameRightJustify     AS LOGICAL
-    FIELD checkRemitToNameAllCaps          AS LOGICAL   INITIAL YES
-    
-    FIELD checkRemitToAddressShow          AS LOGICAL   INITIAL YES
-    FIELD checkRemitToAddressFont          AS CHARACTER 
-    FIELD checkRemitToAddressFontSize      AS INTEGER   INITIAL 8
-    FIELD checkRemitToAddressSize          AS INTEGER   INITIAL 70
-    FIELD checkRemitToAddressBold          AS LOGICAL 
-    FIELD checkRemitToAddressUnderline     AS LOGICAL
-    FIELD checkRemitToAddressItalic        AS LOGICAL 
-    FIELD checkRemitToAddressRightJustify  AS LOGICAL
-    FIELD checkRemitToAddressCompact       AS LOGICAL   INITIAL YES
-    FIELD checkRemitToAddressRowSpace      AS DECIMAL   INITIAL 1
-    FIELD checkRemitToAddressAllCaps       AS LOGICAL   INITIAL YES
-    
-    FIELD checkCompanyNameShow             AS LOGICAL   INITIAL YES
-    FIELD checkCompanyNameFont             AS CHARACTER 
-    FIELD checkCompanyNameFontSize         AS INTEGER 
-    FIELD checkCompanyNameSize             AS INTEGER   INITIAL 70
-    FIELD checkCompanyNameBold             AS LOGICAL 
-    FIELD checkCompanyNameUnderline        AS LOGICAL
-    FIELD checkCompanyNameItalic           AS LOGICAL 
-    FIELD checkCompanyNameRightJustify     AS LOGICAL
-    FIELD checkCompanyNameAllCaps          AS LOGICAL   INITIAL YES
-    
-    FIELD checkCompanyAddressShow          AS LOGICAL   INITIAL YES
-    FIELD checkCompanyAddressFont          AS CHARACTER 
-    FIELD checkCompanyAddressFontSize      AS INTEGER   INITIAL 8
-    FIELD checkCompanyAddressSize          AS INTEGER   INITIAL 70
-    FIELD checkCompanyAddressBold          AS LOGICAL 
-    FIELD checkCompanyAddressUnderline     AS LOGICAL
-    FIELD checkCompanyAddressItalic        AS LOGICAL 
-    FIELD checkCompanyAddressRightJustify  AS LOGICAL
-    FIELD checkCompanyAddressCompact       AS LOGICAL   INITIAL YES
-    FIELD checkCompanyAddressRowSpace      AS DECIMAL   INITIAL 1
-    FIELD checkCompanyAddressAllCaps       AS LOGICAL
-    
-    /*Properties for stub defaults*/
-    FIELD stubFont                         AS CHARACTER 
-    FIELD stubFontSize                     AS INTEGER
-    FIELD stubInvoiceColumns               AS INTEGER   INITIAL 1
-    FIELD stubInvoiceLines                 AS INTEGER   INITIAL 10
-    FIELD stubRowSpace                     AS INTEGER   INITIAL 1
-    FIELD stubUseSupplementalReg           AS LOGICAL   INITIAL YES
-    
-    /*Properties for Stub Objects*/
-    FIELD stubCheckNumberShow              AS LOGICAL   INITIAL YES 
-    FIELD stubCheckNumberFont              AS CHARACTER 
-    FIELD stubCheckNumberFontSize          AS INTEGER 
-    FIELD stubCheckNumberNumSize           AS INTEGER   INITIAL 9
-    FIELD stubCheckNumberBold              AS LOGICAL   INITIAL YES
-    FIELD stubCheckNumberUnderline         AS LOGICAL
-    FIELD stubCheckNumberItalic            AS LOGICAL 
-    FIELD stubCheckNumberRightJustify      AS LOGICAL   INITIAL YES
-    
-    FIELD stubCompanyNameShow              AS LOGICAL   INITIAL YES
-    FIELD stubCompanyNameFont              AS CHARACTER 
-    FIELD stubCompanyNameFontSize          AS INTEGER 
-    FIELD stubCompanyNameSize              AS INTEGER   INITIAL 70
-    FIELD stubCompanyNameBold              AS LOGICAL   INITIAL YES
-    FIELD stubCompanyNameUnderline         AS LOGICAL
-    FIELD stubCompanyNameItalic            AS LOGICAL 
-    FIELD stubCompanyNameRightJustify      AS LOGICAL
-    FIELD stubCompanyNameAllCaps           AS LOGICAL   INITIAL YES
-    
-    FIELD stubRemitToNameShow              AS LOGICAL   INITIAL YES
-    FIELD stubRemitToNameFont              AS CHARACTER 
-    FIELD stubRemitToNameFontSize          AS INTEGER 
-    FIELD stubRemitToNameSize              AS INTEGER   INITIAL 70
-    FIELD stubRemitToNameBold              AS LOGICAL 
-    FIELD stubRemitToNameUnderline         AS LOGICAL
-    FIELD stubRemitToNameItalic            AS LOGICAL   INITIAL YES
-    FIELD stubRemitToNameRightJustify      AS LOGICAL
-    FIELD stubRemitToNameAllCaps           AS LOGICAL   INITIAL YES
-    
-    FIELD stubPayDateShow                  AS LOGICAL   INITIAL YES
-    FIELD stubPayDateFont                  AS CHARACTER 
-    FIELD stubPayDateFontSize              AS CHARACTER 
-    FIELD stubPayDateSize                  AS INTEGER   INITIAL 30
-    FIELD stubPayDateBold                  AS LOGICAL 
-    FIELD stubPayDateUnderline             AS LOGICAL
-    FIELD stubPayDateItalic                AS LOGICAL 
-    FIELD stubPayDateRightJustify          AS LOGICAL
-    FIELD stubPayDateAllCaps               AS LOGICAL
-    FIELD stubPayDateFormat                AS CHARACTER INITIAL "M/D/YYYY"
-    
-    FIELD stubRegInvNoShow                 AS LOGICAL   INITIAL YES
-    FIELD stubRegInvNoHead                 AS CHARACTER INITIAL "Invoice Number"
-    FIELD stubRegInvNoHeadFont             AS CHARACTER 
-    FIELD stubRegInvNoHeadFontSize         AS INTEGER
-    FIELD stubRegInvNoHeadSize             AS INTEGER   INITIAL 15
-    FIELD stubRegInvNoHeadBold             AS LOGICAL   INITIAL YES 
-    FIELD stubRegInvNoHeadUnderline        AS LOGICAL
-    FIELD stubRegInvNoHeadItalic           AS LOGICAL   INITIAL YES
-    FIELD stubRegInvNoHeadRightJustify     AS LOGICAL
-    FIELD stubRegInvNoHeadAllCaps          AS LOGICAL
-    FIELD stubRegInvNoFont                 AS CHARACTER 
-    FIELD stubRegInvNoFontSize             AS INTEGER
-    FIELD stubRegInvNoSize                 AS INTEGER   INITIAL 15
-    FIELD stubRegInvNoBold                 AS LOGICAL   
-    FIELD stubRegInvNoUnderline            AS LOGICAL
-    FIELD stubRegInvNoItalic               AS LOGICAL 
-    FIELD stubRegInvNoRightJustify         AS LOGICAL
-    FIELD stubRegInvNoAllCaps              AS LOGICAL 
-    
-    FIELD stubRegPOShow                    AS LOGICAL   INITIAL YES
-    FIELD stubRegPOHead                    AS CHARACTER INITIAL "Purchase Order #"
-    FIELD stubRegPOHeadFont                AS CHARACTER 
-    FIELD stubRegPOHeadFontSize            AS INTEGER
-    FIELD stubRegPOHeadSize                AS INTEGER   INITIAL 20
-    FIELD stubRegPOHeadBold                AS LOGICAL   INITIAL YES
-    FIELD stubRegPOHeadUnderline           AS LOGICAL
-    FIELD stubRegPOHeadItalic              AS LOGICAL   INITIAL YES
-    FIELD stubRegPOHeadRightJustify        AS LOGICAL
-    FIELD stubRegPOHeadAllCaps             AS LOGICAL
-    FIELD stubRegPOFont                    AS CHARACTER 
-    FIELD stubRegPOFontSize                AS INTEGER
-    FIELD stubRegPONumSize                 AS INTEGER   INITIAL 6
-    FIELD stubRegPOBold                    AS LOGICAL 
-    FIELD stubRegPOUnderline               AS LOGICAL
-    FIELD stubRegPOItalic                  AS LOGICAL 
-    FIELD stubRegPORightJustify            AS LOGICAL
-    
-    FIELD stubRegInvDateShow               AS LOGICAL   INITIAL YES
-    FIELD stubRegInvDateHead               AS CHARACTER INITIAL "Invoice Date"
-    FIELD stubRegInvDateHeadFont           AS CHARACTER 
-    FIELD stubRegInvDateHeadFontSize       AS INTEGER
-    FIELD stubRegInvDateHeadSize           AS INTEGER   INITIAL 15
-    FIELD stubRegInvDateHeadBold           AS LOGICAL   INITIAL YES
-    FIELD stubRegInvDateHeadUnderline      AS LOGICAL   
-    FIELD stubRegInvDateHeadItalic         AS LOGICAL   INITIAL YES
-    FIELD stubRegInvDateHeadRightJustify   AS LOGICAL   INITIAL YES
-    FIELD stubRegInvDateHeadAllCaps        AS LOGICAL
-    FIELD stubRegInvDateFont               AS CHARACTER 
-    FIELD stubRegInvDateFontSize           AS INTEGER
-    FIELD stubRegInvDateSize               AS INTEGER   INITIAL 15
-    FIELD stubRegInvDateBold               AS LOGICAL 
-    FIELD stubRegInvDateUnderline          AS LOGICAL
-    FIELD stubRegInvDateItalic             AS LOGICAL 
-    FIELD stubRegInvDateRightJustify       AS LOGICAL   INITIAL YES
-    FIELD stubRegInvDateAllCaps            AS LOGICAL
-    FIELD stubRegInvDateFormat             AS CHARACTER INITIAL "MM/DD/YYYY"
-    
-    FIELD stubRegAmtGrossShow              AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossHead              AS CHARACTER INITIAL "Gross"
-    FIELD stubRegAmtGrossHeadFont          AS CHARACTER 
-    FIELD stubRegAmtGrossHeadFontSize      AS INTEGER
-    FIELD stubRegAmtGrossHeadSize          AS INTEGER   INITIAL 15
-    FIELD stubRegAmtGrossHeadBold          AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossHeadUnderline     AS LOGICAL
-    FIELD stubRegAmtGrossHeadItalic        AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossHeadRightJustify  AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossHeadAllCaps       AS LOGICAL
-    FIELD stubRegAmtGrossFont              AS CHARACTER 
-    FIELD stubRegAmtGrossFontSize          AS INTEGER
-    FIELD stubRegAmtGrossNumSize           AS INTEGER   INITIAL 9
-    FIELD stubRegAmtGrossDecimals          AS INTEGER   INITIAL 2
-    FIELD stubRegAmtGrossBold              AS LOGICAL 
-    FIELD stubRegAmtGrossUnderline         AS LOGICAL
-    FIELD stubRegAmtGrossItalic            AS LOGICAL 
-    FIELD stubRegAmtGrossRightJustify      AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossComma             AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossCurrSymb          AS CHARACTER 
-    FIELD stubRegAmtGrossCurrSymbFirstOnly AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossTotShow           AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossTotFont           AS CHARACTER
-    FIELD stubRegAmtGrossTotFontSize       AS INTEGER
-    FIELD stubRegAmtGrossTotNumSize        AS INTEGER   INITIAL 9
-    FIELD stubRegAmtGrossTotDecimals       AS INTEGER   INITIAL 2
-    FIELD stubRegAmtGrossTotBold           AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossTotUnderline      AS LOGICAL
-    FIELD stubRegAmtGrossTotItalic         AS LOGICAL 
-    FIELD stubRegAmtGrossTotRightJustify   AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossTotComma          AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtGrossTotCurrSymb       AS CHARACTER 
-    
-    FIELD stubRegAmtNetShow                AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetHead                AS CHARACTER INITIAL "Net"
-    FIELD stubRegAmtNetHeadFont            AS CHARACTER 
-    FIELD stubRegAmtNetHeadFontSize        AS INTEGER
-    FIELD stubRegAmtNetHeadSize            AS INTEGER   INITIAL 15
-    FIELD stubRegAmtNetHeadBold            AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetHeadUnderline       AS LOGICAL
-    FIELD stubRegAmtNetHeadItalic          AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetHeadRightJustify    AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetHeadAllCaps         AS LOGICAL
-    FIELD stubRegAmtNetFont                AS CHARACTER 
-    FIELD stubRegAmtNetFontSize            AS INTEGER
-    FIELD stubRegAmtNetNumSize             AS INTEGER   INITIAL 9
-    FIELD stubRegAmtNetDecimals            AS INTEGER   INITIAL 2
-    FIELD stubRegAmtNetBold                AS LOGICAL 
-    FIELD stubRegAmtNetUnderline           AS LOGICAL
-    FIELD stubRegAmtNetItalic              AS LOGICAL 
-    FIELD stubRegAmtNetRightJustify        AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetComma               AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetCurrSymb            AS CHARACTER 
-    FIELD stubRegAmtNetCurrSymbFirstOnly   AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetTotShow             AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetTotFont             AS CHARACTER
-    FIELD stubRegAmtNetTotFontSize         AS INTEGER
-    FIELD stubRegAmtNetTotNumSize          AS INTEGER   INITIAL 9
-    FIELD stubRegAmtNetTotDecimals         AS INTEGER   INITIAL 2
-    FIELD stubRegAmtNetTotBold             AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetTotUnderline        AS LOGICAL
-    FIELD stubRegAmtNetTotItalic           AS LOGICAL 
-    FIELD stubRegAmtNetTotRightJustify     AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetTotComma            AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtNetTotCurrSymb         AS CHARACTER
-    
-    FIELD stubRegAmtDiscShow               AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscHead               AS CHARACTER INITIAL "Discount"
-    FIELD stubRegAmtDiscHeadFont           AS CHARACTER 
-    FIELD stubRegAmtDiscHeadFontSize       AS INTEGER
-    FIELD stubRegAmtDiscHeadSize           AS INTEGER   INITIAL 15
-    FIELD stubRegAmtDiscHeadBold           AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscHeadUnderline      AS LOGICAL
-    FIELD stubRegAmtDiscHeadItalic         AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscHeadRightJustify   AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscHeadAllCaps        AS LOGICAL
-    FIELD stubRegAmtDiscFont               AS CHARACTER 
-    FIELD stubRegAmtDiscFontSize           AS INTEGER
-    FIELD stubRegAmtDiscNumSize            AS INTEGER   INITIAL 9
-    FIELD stubRegAmtDiscDecimals           AS INTEGER   INITIAL 2
-    FIELD stubRegAmtDiscBold               AS LOGICAL 
-    FIELD stubRegAmtDiscUnderline          AS LOGICAL
-    FIELD stubRegAmtDiscItalic             AS LOGICAL 
-    FIELD stubRegAmtDiscRightJustify       AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscAllCaps            AS LOGICAL
-    FIELD stubRegAmtDiscComma              AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscCurrSymb           AS CHARACTER 
-    FIELD stubRegAmtDiscCurrSymbFirstOnly  AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscTotShow            AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscTotFont            AS CHARACTER
-    FIELD stubRegAmtDiscTotFontSize        AS INTEGER
-    FIELD stubRegAmtDiscTotNumSize         AS INTEGER   INITIAL 9
-    FIELD stubRegAmtDiscTotDecimals        AS INTEGER   INITIAL 2
-    FIELD stubRegAmtDiscTotBold            AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscTotUnderline       AS LOGICAL
-    FIELD stubRegAmtDiscTotItalic          AS LOGICAL 
-    FIELD stubRegAmtDiscTotRightJustify    AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscTotComma           AS LOGICAL   INITIAL YES
-    FIELD stubRegAmtDiscTotCurrSymb        AS CHARACTER
-    
-    FIELD stubRegSuppNoticeShow            AS LOGICAL   INITIAL YES
-    FIELD stubRegSuppNotice                AS CHARACTER INITIAL "Invoices for this vendor too numerous to fit.  See Supplemental register for details."
-    FIELD stubRegSuppNoticeFont            AS CHARACTER 
-    FIELD stubRegSuppNoticeFontSize        AS INTEGER
-    FIELD stubRegSuppNoticeSize            AS INTEGER   INITIAL 120
-    FIELD stubRegSuppNoticeBold            AS LOGICAL   INITIAL YES 
-    FIELD stubRegSuppNoticeUnderline       AS LOGICAL
-    FIELD stubRegSuppNoticeItalic          AS LOGICAL   INITIAL YES
-    FIELD stubRegSuppNoticeRightJustify    AS LOGICAL
-    FIELD stubRegSuppNoticeAllCaps         AS LOGICAL
-    
-    FIELD stubRegTotLabelShow              AS LOGICAL   INITIAL YES
-    FIELD stubRegTotLabel                  AS CHARACTER INITIAL "Totals:"
-    FIELD stubRegTotLabelFont              AS CHARACTER 
-    FIELD stubRegTotLabelFontSize          AS INTEGER
-    FIELD stubRegTotLabelSize              AS INTEGER   INITIAL 120
-    FIELD stubRegTotLabelBold              AS LOGICAL   INITIAL YES 
-    FIELD stubRegTotLabelUnderline         AS LOGICAL
-    FIELD stubRegTotLabelItalic            AS LOGICAL   
-    FIELD stubRegTotLabelRightJustify      AS LOGICAL
-    FIELD stubRegTotLabelAllCaps           AS LOGICAL
+DEFINE {1} TEMP-TABLE ttCheckConfig LIKE ttcheckconfig1 
+ FIELD checkPayDateShow AS LOG INIT YES
+ FIELD checkPayDateFont AS CHAR 
+ FIELD checkPayDateFontSize AS CHAR 
+ FIELD checkPayDateSize AS INT INIT 30
+ FIELD checkPayDateBold AS LOG 
+ FIELD checkPayDateUnderline AS LOG INIT YES
+ FIELD checkPayDateItalic AS LOG 
+ FIELD checkPayDateRightJustify AS LOG
+ FIELD checkPayDateAllCaps AS LOG
+ FIELD checkPayDateFormat AS CHAR INIT "MM/DD/YYYY"
+
+ FIELD checkMemoShow AS LOG INIT YES
+ FIELD checkMemoFont AS CHAR 
+ FIELD checkMemoFontSize AS INT 
+ FIELD checkMemoSize AS INT INIT 70
+ FIELD checkMemoBold AS LOG 
+ FIELD checkMemoUnderline AS LOG 
+ FIELD checkMemoItalic AS LOG 
+ FIELD checkMemoRightJustify AS LOG 
+ FIELD checkMemoAllCaps AS LOG 
+ 
+ FIELD checkRemitToNameShow AS LOG INIT YES
+ FIELD checkRemitToNameFont AS CHAR 
+ FIELD checkRemitToNameFontSize AS INT 
+ FIELD checkRemitToNameSize AS INT INIT 70
+ FIELD checkRemitToNameBold AS LOG 
+ FIELD checkRemitToNameUnderline AS LOG
+ FIELD checkRemitToNameItalic AS LOG 
+ FIELD checkRemitToNameRightJustify AS LOG
+ FIELD checkRemitToNameAllCaps AS LOG INIT YES
+ 
+ FIELD checkRemitToAddressShow AS LOG INIT YES
+ FIELD checkRemitToAddressFont AS CHAR 
+ FIELD checkRemitToAddressFontSize AS INT INIT 8
+ FIELD checkRemitToAddressSize AS INT INIT 70
+ FIELD checkRemitToAddressBold AS LOG 
+ FIELD checkRemitToAddressUnderline AS LOG
+ FIELD checkRemitToAddressItalic AS LOG 
+ FIELD checkRemitToAddressRightJustify AS LOG
+ FIELD checkRemitToAddressCompact AS LOG INIT YES
+ FIELD checkRemitToAddressRowSpace AS DEC INIT 1
+ FIELD checkRemitToAddressAllCaps AS LOG INIT YES
+ 
+ FIELD checkCompanyNameShow AS LOG INIT YES
+ FIELD checkCompanyNameFont AS CHAR 
+ FIELD checkCompanyNameFontSize AS INT 
+ FIELD checkCompanyNameSize AS INT INIT 70
+ FIELD checkCompanyNameBold AS LOG 
+ FIELD checkCompanyNameUnderline AS LOG
+ FIELD checkCompanyNameItalic AS LOG 
+ FIELD checkCompanyNameRightJustify AS LOG
+ FIELD checkCompanyNameAllCaps AS LOG INIT YES
+ 
+ FIELD checkCompanyAddressShow AS LOG INIT YES
+ FIELD checkCompanyAddressFont AS CHAR 
+ FIELD checkCompanyAddressFontSize AS INT INIT 8
+ FIELD checkCompanyAddressSize AS INT INIT 70
+ FIELD checkCompanyAddressBold AS LOG 
+ FIELD checkCompanyAddressUnderline AS LOG
+ FIELD checkCompanyAddressItalic AS LOG 
+ FIELD checkCompanyAddressRightJustify AS LOG
+ FIELD checkCompanyAddressCompact AS LOG INIT YES
+ FIELD checkCompanyAddressRowSpace AS DEC INIT 1
+ FIELD checkCompanyAddressAllCaps AS LOG
+ 
+ /*Properties for stub defaults*/
+ FIELD stubFont AS CHAR 
+ FIELD stubFontSize AS INT
+ FIELD stubInvoiceColumns AS INT INIT 1
+ FIELD stubInvoiceLines AS INT INIT 10
+ FIELD stubRowSpace AS INT INIT 1
+ FIELD stubUseSupplementalReg AS LOG INIT YES
+ 
+ /*Properties for Stub Objects*/
+ FIELD stubCheckNumberShow AS LOG INIT YES 
+ FIELD stubCheckNumberFont AS CHAR 
+ FIELD stubCheckNumberFontSize AS INT 
+ FIELD stubCheckNumberNumSize AS INT INIT 9
+ FIELD stubCheckNumberBold AS LOG INIT YES
+ FIELD stubCheckNumberUnderline AS LOG
+ FIELD stubCheckNumberItalic AS LOG 
+ FIELD stubCheckNumberRightJustify AS LOG INIT YES
+ 
+ FIELD stubCompanyNameShow AS LOG INIT YES
+ FIELD stubCompanyNameFont AS CHAR 
+ FIELD stubCompanyNameFontSize AS INT 
+ FIELD stubCompanyNameSize AS INT INIT 70
+ FIELD stubCompanyNameBold AS LOG INIT YES
+ FIELD stubCompanyNameUnderline AS LOG
+ FIELD stubCompanyNameItalic AS LOG 
+ FIELD stubCompanyNameRightJustify AS LOG
+ FIELD stubCompanyNameAllCaps AS LOG INIT YES
+ 
+ FIELD stubRemitToNameShow AS LOG INIT YES
+ FIELD stubRemitToNameFont AS CHAR 
+ FIELD stubRemitToNameFontSize AS INT 
+ FIELD stubRemitToNameSize AS INT INIT 70
+ FIELD stubRemitToNameBold AS LOG 
+ FIELD stubRemitToNameUnderline AS LOG
+ FIELD stubRemitToNameItalic AS LOG INIT YES
+ FIELD stubRemitToNameRightJustify AS LOG
+ FIELD stubRemitToNameAllCaps AS LOG INIT YES
+ 
+ FIELD stubPayDateShow AS LOG INIT YES
+ FIELD stubPayDateFont AS CHAR 
+ FIELD stubPayDateFontSize AS CHAR 
+ FIELD stubPayDateSize AS INT INIT 30
+ FIELD stubPayDateBold AS LOG 
+ FIELD stubPayDateUnderline AS LOG
+ FIELD stubPayDateItalic AS LOG 
+ FIELD stubPayDateRightJustify AS LOG
+ FIELD stubPayDateAllCaps AS LOG
+ FIELD stubPayDateFormat AS CHAR INIT "M/D/YYYY"
+ 
+ FIELD stubRegInvNoShow AS LOG INIT YES
+ FIELD stubRegInvNoHead AS CHAR INIT "Invoice Number"
+ FIELD stubRegInvNoHeadFont AS CHAR 
+ FIELD stubRegInvNoHeadFontSize AS INT
+ FIELD stubRegInvNoHeadSize AS INT INIT 15
+ FIELD stubRegInvNoHeadBold AS LOG INIT YES 
+ FIELD stubRegInvNoHeadUnderline AS LOG
+ FIELD stubRegInvNoHeadItalic AS LOG INIT YES
+ FIELD stubRegInvNoHeadRightJustify AS LOG
+ FIELD stubRegInvNoHeadAllCaps AS LOG
+ FIELD stubRegInvNoFont AS CHAR 
+ FIELD stubRegInvNoFontSize AS INT
+ FIELD stubRegInvNoSize AS INT INIT 15
+ FIELD stubRegInvNoBold AS LOG 
+ FIELD stubRegInvNoUnderline AS LOG
+ FIELD stubRegInvNoItalic AS LOG 
+ FIELD stubRegInvNoRightJustify AS LOG
+ FIELD stubRegInvNoAllCaps AS LOG 
+ 
+ FIELD stubRegPOShow AS LOG INIT YES
+ FIELD stubRegPOHead AS CHAR INIT "Purchase Order #"
+ FIELD stubRegPOHeadFont AS CHAR 
+ FIELD stubRegPOHeadFontSize AS INT
+ FIELD stubRegPOHeadSize AS INT INIT 20
+ FIELD stubRegPOHeadBold AS LOG INIT YES
+ FIELD stubRegPOHeadUnderline AS LOG
+ FIELD stubRegPOHeadItalic AS LOG INIT YES
+ FIELD stubRegPOHeadRightJustify AS LOG
+ FIELD stubRegPOHeadAllCaps AS LOG
+ FIELD stubRegPOFont AS CHAR 
+ FIELD stubRegPOFontSize AS INT
+ FIELD stubRegPONumSize AS INT INIT 6
+ FIELD stubRegPOBold AS LOG 
+ FIELD stubRegPOUnderline AS LOG
+ FIELD stubRegPOItalic AS LOG 
+ FIELD stubRegPORightJustify AS LOG
+ 
+ FIELD stubRegInvDateShow AS LOG INIT YES
+ FIELD stubRegInvDateHead AS CHAR INIT "Invoice Date"
+ FIELD stubRegInvDateHeadFont AS CHAR 
+ FIELD stubRegInvDateHeadFontSize AS INT
+ FIELD stubRegInvDateHeadSize AS INT INIT 15
+ FIELD stubRegInvDateHeadBold AS LOG INIT YES
+ FIELD stubRegInvDateHeadUnderline AS LOG 
+ FIELD stubRegInvDateHeadItalic AS LOG INIT YES
+ FIELD stubRegInvDateHeadRightJustify AS LOG INIT YES
+ FIELD stubRegInvDateHeadAllCaps AS LOG
+ FIELD stubRegInvDateFont AS CHAR 
+ FIELD stubRegInvDateFontSize AS INT
+ FIELD stubRegInvDateSize AS INT INIT 15
+ FIELD stubRegInvDateBold AS LOG 
+ FIELD stubRegInvDateUnderline AS LOG
+ FIELD stubRegInvDateItalic AS LOG 
+ FIELD stubRegInvDateRightJustify AS LOG INIT YES
+ FIELD stubRegInvDateAllCaps AS LOG
+ FIELD stubRegInvDateFormat AS CHAR INIT "MM/DD/YYYY"
+ 
+ FIELD stubRegAmtGrossShow AS LOG INIT YES
+ FIELD stubRegAmtGrossHead AS CHAR INIT "Gross"
+ FIELD stubRegAmtGrossHeadFont AS CHAR 
+ FIELD stubRegAmtGrossHeadFontSize AS INT
+ FIELD stubRegAmtGrossHeadSize AS INT INIT 15
+ FIELD stubRegAmtGrossHeadBold AS LOG INIT YES
+ FIELD stubRegAmtGrossHeadUnderline AS LOG
+ FIELD stubRegAmtGrossHeadItalic AS LOG INIT YES
+ FIELD stubRegAmtGrossHeadRightJustify AS LOG INIT YES
+ FIELD stubRegAmtGrossHeadAllCaps AS LOG
+ FIELD stubRegAmtGrossFont AS CHAR 
+ FIELD stubRegAmtGrossFontSize AS INT
+ FIELD stubRegAmtGrossNumSize AS INT INIT 9
+ FIELD stubRegAmtGrossDecimals AS INT INIT 2
+ FIELD stubRegAmtGrossBold AS LOG 
+ FIELD stubRegAmtGrossUnderline AS LOG
+ FIELD stubRegAmtGrossItalic AS LOG 
+ FIELD stubRegAmtGrossRightJustify AS LOG INIT YES
+ FIELD stubRegAmtGrossComma AS LOG INIT YES
+ FIELD stubRegAmtGrossCurrSymb AS CHAR 
+ FIELD stubRegAmtGrossCurrSymbFirstOnly AS LOG INIT YES
+ FIELD stubRegAmtGrossTotShow AS LOG INIT YES
+ FIELD stubRegAmtGrossTotFont AS CHAR
+ FIELD stubRegAmtGrossTotFontSize AS INT
+ FIELD stubRegAmtGrossTotNumSize AS INT INIT 9
+ FIELD stubRegAmtGrossTotDecimals AS INT INIT 2
+ FIELD stubRegAmtGrossTotBold AS LOG INIT YES
+ FIELD stubRegAmtGrossTotUnderline AS LOG
+ FIELD stubRegAmtGrossTotItalic AS LOG 
+ FIELD stubRegAmtGrossTotRightJustify AS LOG INIT YES
+ FIELD stubRegAmtGrossTotComma AS LOG INIT YES
+ FIELD stubRegAmtGrossTotCurrSymb AS CHAR 
+ 
+ FIELD stubRegAmtNetShow AS LOG INIT YES
+ FIELD stubRegAmtNetHead AS CHAR INIT "Net"
+ FIELD stubRegAmtNetHeadFont AS CHAR 
+ FIELD stubRegAmtNetHeadFontSize AS INT
+ FIELD stubRegAmtNetHeadSize AS INT INIT 15
+ FIELD stubRegAmtNetHeadBold AS LOG INIT YES
+ FIELD stubRegAmtNetHeadUnderline AS LOG
+ FIELD stubRegAmtNetHeadItalic AS LOG INIT YES
+ FIELD stubRegAmtNetHeadRightJustify AS LOG INIT YES
+ FIELD stubRegAmtNetHeadAllCaps AS LOG
+ FIELD stubRegAmtNetFont AS CHAR 
+ FIELD stubRegAmtNetFontSize AS INT
+ FIELD stubRegAmtNetNumSize AS INT INIT 9
+ FIELD stubRegAmtNetDecimals AS INT INIT 2
+ FIELD stubRegAmtNetBold AS LOG 
+ FIELD stubRegAmtNetUnderline AS LOG
+ FIELD stubRegAmtNetItalic AS LOG 
+ FIELD stubRegAmtNetRightJustify AS LOG INIT YES
+ FIELD stubRegAmtNetComma AS LOG INIT YES
+ FIELD stubRegAmtNetCurrSymb AS CHAR 
+ FIELD stubRegAmtNetCurrSymbFirstOnly AS LOG INIT YES
+ FIELD stubRegAmtNetTotShow AS LOG INIT YES
+ FIELD stubRegAmtNetTotFont AS CHAR
+ FIELD stubRegAmtNetTotFontSize AS INT
+ FIELD stubRegAmtNetTotNumSize AS INT INIT 9
+ FIELD stubRegAmtNetTotDecimals AS INT INIT 2
+ FIELD stubRegAmtNetTotBold AS LOG INIT YES
+ FIELD stubRegAmtNetTotUnderline AS LOG
+ FIELD stubRegAmtNetTotItalic AS LOG 
+ FIELD stubRegAmtNetTotRightJustify AS LOG INIT YES
+ FIELD stubRegAmtNetTotComma AS LOG INIT YES
+ FIELD stubRegAmtNetTotCurrSymb AS CHAR
+ 
+ FIELD stubRegAmtDiscShow AS LOG INIT YES
+ FIELD stubRegAmtDiscHead AS CHAR INIT "Discount"
+ FIELD stubRegAmtDiscHeadFont AS CHAR 
+ FIELD stubRegAmtDiscHeadFontSize AS INT
+ FIELD stubRegAmtDiscHeadSize AS INT INIT 15
+ FIELD stubRegAmtDiscHeadBold AS LOG INIT YES
+ FIELD stubRegAmtDiscHeadUnderline AS LOG
+ FIELD stubRegAmtDiscHeadItalic AS LOG INIT YES
+ FIELD stubRegAmtDiscHeadRightJustify AS LOG INIT YES
+ FIELD stubRegAmtDiscHeadAllCaps AS LOG
+ FIELD stubRegAmtDiscFont AS CHAR 
+ FIELD stubRegAmtDiscFontSize AS INT
+ FIELD stubRegAmtDiscNumSize AS INT INIT 9
+ FIELD stubRegAmtDiscDecimals AS INT INIT 2
+ FIELD stubRegAmtDiscBold AS LOG 
+ FIELD stubRegAmtDiscUnderline AS LOG
+ FIELD stubRegAmtDiscItalic AS LOG 
+ FIELD stubRegAmtDiscRightJustify AS LOG INIT YES
+ FIELD stubRegAmtDiscAllCaps AS LOG
+ FIELD stubRegAmtDiscComma AS LOG INIT YES
+ FIELD stubRegAmtDiscCurrSymb AS CHAR 
+ FIELD stubRegAmtDiscCurrSymbFirstOnly AS LOG INIT YES
+ FIELD stubRegAmtDiscTotShow AS LOG INIT YES
+ FIELD stubRegAmtDiscTotFont AS CHAR
+ FIELD stubRegAmtDiscTotFontSize AS INT
+ FIELD stubRegAmtDiscTotNumSize AS INT INIT 9
+ FIELD stubRegAmtDiscTotDecimals AS INT INIT 2
+ FIELD stubRegAmtDiscTotBold AS LOG INIT YES
+ FIELD stubRegAmtDiscTotUnderline AS LOG
+ FIELD stubRegAmtDiscTotItalic AS LOG 
+ FIELD stubRegAmtDiscTotRightJustify AS LOG INIT YES
+ FIELD stubRegAmtDiscTotComma AS LOG INIT YES
+ FIELD stubRegAmtDiscTotCurrSymb AS CHAR
+ 
+ FIELD stubRegSuppNoticeShow AS LOG INIT YES
+ FIELD stubRegSuppNotice AS CHAR INIT "Invoices for this vendor too numerous to fit. See Supplemental register for details."
+ FIELD stubRegSuppNoticeFont AS CHAR 
+ FIELD stubRegSuppNoticeFontSize AS INT
+ FIELD stubRegSuppNoticeSize AS INT INIT 120
+ FIELD stubRegSuppNoticeBold AS LOG INIT YES 
+ FIELD stubRegSuppNoticeUnderline AS LOG
+ FIELD stubRegSuppNoticeItalic AS LOG INIT YES
+ FIELD stubRegSuppNoticeRightJustify AS LOG
+ FIELD stubRegSuppNoticeAllCaps AS LOG
+ 
+ FIELD stubRegTotLabelShow AS LOG INIT YES
+ FIELD stubRegTotLabel AS CHAR INIT "Totals:"
+ FIELD stubRegTotLabelFont AS CHAR 
+ FIELD stubRegTotLabelFontSize AS INT
+ FIELD stubRegTotLabelSize AS INT INIT 120
+ FIELD stubRegTotLabelBold AS LOG INIT YES 
+ FIELD stubRegTotLabelUnderline AS LOG
+ FIELD stubRegTotLabelItalic AS LOG 
+ FIELD stubRegTotLabelRightJustify AS LOG
+ FIELD stubRegTotLabelAllCaps AS LOG
     .
        
 DEFINE {1} TEMP-TABLE ttCheck

@@ -1,0 +1,277 @@
+/*------------------------------------------------------------------------
+    File        : api/SendBankCheck.p
+    Purpose     : Returns the request data for xml check
+
+    Syntax      :
+
+    Description : Returns the request data for xml check
+
+    Author(s)   : Sewa Singh
+    Created     : Fr July 2 07:33:22 EDT 2021
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+{api/ttArgs.i}
+{api/CommonAPIProcs.i}
+
+DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
+DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.  
+
+DEFINE VARIABLE iNumberOfTransactions            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dTotalSum                        AS DECIMAL   NO-UNDO. 
+DEFINE VARIABLE cCountry                         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankAccount                     AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cVendorRemitToCountry            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrencyType                    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankIdentifierCode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorCountry                   AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cVendorName                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToPostalCode         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToCity               AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToState              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToStreetAddress1     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorRemitToStreetAddress2     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE iInvoiceNumber                   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dtInvoiceDate                    AS DATE      NO-UNDO.
+DEFINE VARIABLE cCreditDebitIndicator            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdditionalRemittanceInformation AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cRequestDataType                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcLineItemsData                  AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lcConcatLineItemsData            AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE iPaymentID                       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lPostManual                      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCompany                         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCheckAmount                     AS DECIMAL   NO-UNDO.
+
+DEFINE TEMP-TABLE ttPaymentData NO-UNDO
+    FIELD paymentID   AS INTEGER
+    FIELD company     AS CHARACTER
+    FIELD checkNo     AS INTEGER
+    FIELD invNo       AS CHARACTER
+    FIELD vendNo      AS CHARACTER
+    FIELD bankCode    AS CHARACTER
+    FIELD paymentType AS CHARACTER
+    FIELD description AS CHARACTER
+    FIELD grossAmt    AS DECIMAL
+    FIELD adjAmt      AS DECIMAL
+    FIELD netAmt      AS DECIMAL
+    FIELD Amt         AS DECIMAL
+    FIELD checkDate   AS DATE
+    FIELD invDate     AS DATE
+    .
+
+DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
+DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
+
+IF ipcRequestHandler NE "" THEN DO:
+    RUN VALUE(ipcRequestHandler) (
+        INPUT TABLE ttArgs,
+        INPUT ipiAPIOutboundID,
+        INPUT ipiAPIOutboundTriggerID,
+        INPUT-OUTPUT ioplcRequestData,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).      
+    RETURN.
+END.
+
+FIND FIRST bf-APIOutbound NO-LOCK
+     WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID
+     NO-ERROR.
+IF NOT AVAILABLE bf-APIOutbound THEN DO:
+    ASSIGN
+        opcMessage = "No APIOutbound record found"
+        oplSuccess = FALSE
+        .
+    RETURN.        
+END. 
+
+FIND FIRST ttArgs
+     WHERE ttArgs.argType  EQ "ROWID"
+       AND ttArgs.argKey   EQ "PostManual"
+    NO-ERROR.
+    
+lPostManual = IF AVAIL ttArgs THEN logical(ttArgs.argValue) ELSE NO. 
+
+FIND FIRST ttArgs
+     WHERE ttArgs.argType  EQ "ROWID"
+       AND ttArgs.argKey   EQ "Company"
+    NO-ERROR.
+  
+cCompany = IF AVAIL ttArgs THEN ttArgs.argValue ELSE "".
+IF NOT AVAILABLE ttArgs THEN DO:
+    ASSIGN
+        opcMessage = "No valid company record passed to handler"
+        oplSuccess = FALSE
+        .
+    RETURN.
+END.  
+ 
+FIND FIRST bf-line-APIOutboundDetail NO-LOCK
+     WHERE bf-line-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+       AND bf-line-APIOutboundDetail.detailID      EQ "Detail"
+       AND bf-line-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
+     NO-ERROR.
+
+cRequestDataType = bf-APIOutbound.requestDataType. 
+
+FOR EACH ap-sel NO-LOCK
+    WHERE ap-sel.company      EQ cCompany 
+      AND ap-sel.check-no     NE ?
+      AND ap-sel.check-no     GT 0
+      AND ap-sel.man-check    EQ LOGICAL(lPostManual)  
+      AND TRIM(ap-sel.inv-no) GT ""
+      AND CAN-FIND(FIRST ap-chk
+                   WHERE ap-chk.company   EQ ap-sel.company
+                     AND ap-chk.check-no  EQ ap-sel.check-no
+                     AND ap-chk.man-check EQ ap-sel.man-check),
+    FIRST ap-inv NO-LOCK
+    WHERE ap-inv.company EQ ap-sel.company
+      AND ap-inv.vend-no EQ ap-sel.vend-no
+      AND ap-inv.inv-no  EQ ap-sel.inv-no,
+    FIRST vend NO-LOCK
+    WHERE vend.company EQ ap-sel.company
+      AND vend.vend-no EQ ap-sel.vend-no
+    BREAK BY ap-sel.check-no:
+                            
+    iPaymentID = iPaymentID + 1.
+
+    CREATE ttPaymentData.
+    ASSIGN
+        ttPaymentData.paymentID   = iPaymentID
+        ttPaymentData.company     = ap-sel.company
+        ttPaymentData.checkNo     = ap-sel.check-no
+        ttPaymentData.invNo       = ap-sel.inv-no
+        ttPaymentData.vendNo      = vend.vend-no
+        ttPaymentData.bankCode    = ap-sel.bank-code
+        ttPaymentData.grossAmt    = ap-sel.inv-bal
+        ttPaymentData.adjAmt      = ap-sel.disc-amt
+        ttPaymentData.netAmt      = ap-sel.amt-paid
+        ttPaymentData.paymentType = vend.payment-type
+        ttPaymentData.invDate     = ap-inv.inv-date
+        ttPaymentData.checkDate   = TODAY
+        ttPaymentData.amt         = ap-sel.amt-paid * (ap-sel.amt-paid / (ap-inv.net + ap-inv.freight))
+        .    
+
+    FIND FIRST currency NO-LOCK
+         WHERE currency.company     EQ ap-inv.company
+           AND currency.c-code      EQ ap-inv.curr-code[1]
+           AND currency.ar-ast-acct NE ""
+           AND currency.ex-rate     GT 0
+         NO-ERROR.
+    IF AVAILABLE currency THEN
+        ASSIGN
+            ttPaymentData.grossAmt = ttPaymentData.grossAmt * currency.ex-rate
+            ttPaymentData.adjAmt   = ttPaymentData.adjAmt * currency.ex-rate
+            ttPaymentData.netAmt   = ttPaymentData.netAmt * currency.ex-rate
+            .
+END.
+
+FIND FIRST ttPaymentData NO-ERROR.
+IF AVAILABLE ttPaymentData THEN
+    FIND FIRST bank NO-LOCK
+         WHERE bank.company   EQ ttPaymentData.company
+           AND bank.bank-code EQ ttPaymentData.bankCode
+         NO-ERROR.
+IF AVAILABLE bank THEN
+ASSIGN
+    cBankIdentifierCode = STRING(bank.bk-act)
+    .
+    
+FOR EACH ttPaymentData
+    BREAK BY ttPaymentData.checkNo:
+        IF FIRST-OF(ttPaymentData.checkNo) THEN
+        iNumberOfTransactions = iNumberOfTransactions + 1.
+        dTotalSum = dTotalSum +  ttPaymentData.amt .
+        
+END.  
+        
+FOR EACH ttPaymentData
+    BREAK BY ttPaymentData.checkNo:
+        
+    IF FIRST-OF(ttPaymentData.checkNo) THEN
+    dCheckAmount = 0.
+    dCheckAmount = dCheckAmount + ttPaymentData.amt.
+    
+    IF LAST-OF(ttPaymentData.checkNo) THEN DO:
+        FIND FIRST vend NO-LOCK
+             WHERE vend.company EQ ttPaymentData.company
+               AND vend.vend-no EQ ttPaymentData.vendNo
+             NO-ERROR.
+        IF AVAILABLE vend THEN
+            ASSIGN
+                cVendorName                        = vend.name
+                cVendorRemitToCountry              = vend.r-country
+                cVendorRemitToPostalCode           = vend.r-zip
+                cVendorRemitToCity                 = vend.r-city
+                cVendorCountry                     = vend.country
+                cVendorRemitToStreetAddress1       = vend.r-add1
+                cVendorRemitToStreetAddress2       = vend.r-add2
+                cVendorRemitToState                = vend.r-state
+                cBankAccount                       = vend.bank-acct
+                cCreditDebitIndicator              = vend.tax-gr
+                cCountry                           = vend.country
+                .
+            
+        FIND FIRST bank NO-LOCK
+             WHERE bank.company   EQ ttPaymentData.company
+               AND bank.bank-code EQ ttPaymentData.bankCode
+             NO-ERROR.
+        IF AVAILABLE bank THEN
+            ASSIGN
+                cCurrencyType  = bank.curr-code[1]
+                .
+        lcLineItemsData = STRING(bf-line-APIOutboundDetail.data).         
+                
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionAmount", STRING(dCheckAmount)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).         
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", cVendorName).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToPostalCode", cVendorRemitToPostalCode).    
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToCity", cVendorRemitToCity).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToState", cVendorRemitToState).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorCountry", cVendorCountry).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToStreetAddress1", cVendorRemitToStreetAddress1).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorRemitToStreetAddress2", cVendorRemitToStreetAddress2).                 
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceNumber", STRING(ttPaymentData.invNo)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "InvoiceDate", STRING(ttPaymentData.invDate)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DuePayableAmount", STRING(dCheckAmount)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "Amount", STRING(dCheckAmount)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CreditDebitIndicator", cCreditDebitIndicator).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "RemittedAmount", STRING(dCheckAmount)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "AdditionalRemittanceInformation", cAdditionalRemittanceInformation).
+        
+        lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.        
+        
+    END.
+    IF LAST(ttPaymentData.checkNo) THEN DO:  
+    
+        ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", lcConcatLineItemsData).                   
+        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NumberOfTransactions", STRING(iNumberOfTransactions)).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalSum", STRING(dTotalSum)).         
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country",cCountry). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankAccount",cBankAccount).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorRemitToCountry", cVendorRemitToCountry).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyType",cCurrencyType).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorCountry",cVendorCountry).
+    END.
+END. /* FOR EACH ttPaymentData */     
+
+RUN pUpdateDelimiter(
+    INPUT-OUTPUT ioplcRequestData,
+    INPUT        cRequestDataType
+    ).                
+
+ASSIGN
+    opcMessage = ""
+    oplSuccess = TRUE
+    .
+     
