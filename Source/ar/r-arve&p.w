@@ -1617,7 +1617,12 @@ IF cust.factored THEN
         RELEASE account.
         FOR EACH ttTaxDetail
             BREAK BY ttTaxDetail.invoiceNo:
-                        
+            
+            IF FIRST-OF(ttTaxDetail.invoiceNo) THEN
+            DO:
+               v-jd-taxamt = 0.
+               RELEASE account.
+            END.                        
             IF ttTaxDetail.taxCode EQ cShiptoStat AND NOT AVAIL account THEN                        
             FIND FIRST account NO-LOCK
                  WHERE account.company EQ cocode
