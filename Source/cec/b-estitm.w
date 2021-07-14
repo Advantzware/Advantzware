@@ -2005,8 +2005,6 @@ DO:
 
    IF LASTKEY <> -1 THEN
    DO:
-      RUN valid-dep(OUTPUT lReturnError) NO-ERROR.
-      IF lReturnError THEN RETURN NO-APPLY.
       
       v-dec = DECIMAL(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0).
       IF v-dec >= v-16-or-32 THEN DO:
@@ -6521,9 +6519,6 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
-     
-     RUN valid-dep(OUTPUT lCheckError) NO-ERROR.
-     IF lCheckError THEN RETURN NO-APPLY.
 
      IF DECIMAL(eb.wid:screen-value) - trunc(DECIMAL(eb.wid:screen-value),0) >= v-16-or-32 
      THEN DO:
@@ -8437,32 +8432,6 @@ PROCEDURE valid-flute :
   END.
   ELSE DO:
     {est/valflute.i "eb.flute" ":SCREEN-VALUE" " IN BROWSE {&browse-name}"}
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-dep B-table-Win 
-PROCEDURE valid-dep :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-
-  DEF VAR lv-part-no LIKE eb.part-no NO-UNDO.
-  DEF VAR lv-msg AS CHAR NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-    
-     IF DECIMAL(eb.dep:screen-value IN BROWSE {&browse-name}) = 0 THEN DO:
-        MESSAGE eb.dep:LABEL IN BROWSE {&browse-name} +  " can not be 0. " VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO eb.dep IN BROWSE {&browse-name}.
-        oplReturnError = YES.        
-     END.    
   END.
 
 END PROCEDURE.
