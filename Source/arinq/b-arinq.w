@@ -818,6 +818,7 @@ DO:
     APPLY "choose" TO btn_go.
   END.
   */
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF NOT AVAIL cust THEN DO:
        FIND FIRST cust WHERE cust.cust-no = fi_cust-no:SCREEN-VALUE 
            AND cust.company = cocode NO-LOCK NO-ERROR.
@@ -831,7 +832,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
