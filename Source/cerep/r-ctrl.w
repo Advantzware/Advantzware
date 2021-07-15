@@ -78,11 +78,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -116,11 +116,11 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 5.29.
+     SIZE 90 BY 4.95.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 92 BY 8.1.
+     SIZE 90 BY 2.14.
 
 DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
@@ -136,22 +136,22 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     lv-font-name AT ROW 10.48 COL 28 COLON-ALIGNED NO-LABEL
-     lv-font-no AT ROW 10.67 COL 34 COLON-ALIGNED
-     lines-per-page AT ROW 10.81 COL 84 COLON-ALIGNED
-     rd-dest AT ROW 11 COL 5 NO-LABEL
-     lv-ornt AT ROW 11.24 COL 31 NO-LABEL
-     td-show-parm AT ROW 13.76 COL 23.6
-     tbAutoClose AT ROW 15.95 COL 30.2 WIDGET-ID 16
-     btn-ok AT ROW 16.95 COL 30
-     btn-cancel AT ROW 16.95 COL 50.6
+     lv-font-name AT ROW 4.62 COL 28.2 COLON-ALIGNED NO-LABEL
+     lv-font-no AT ROW 4.81 COL 34.2 COLON-ALIGNED
+     rd-dest AT ROW 4.91 COL 5.2 NO-LABEL
+     lines-per-page AT ROW 4.95 COL 84.2 COLON-ALIGNED
+     lv-ornt AT ROW 5.38 COL 31.2 NO-LABEL
+     td-show-parm AT ROW 7.67 COL 29.8
+     tbAutoClose AT ROW 9.48 COL 30.4 WIDGET-ID 16
+     btn-ok AT ROW 10.29 COL 30.2
+     btn-cancel AT ROW 10.29 COL 50.8
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 9.71 COL 2.8
+          SIZE 18 BY .62 AT ROW 3.86 COL 4.6
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.14 COL 2.8
-     RECT-6 AT ROW 10 COL 2
-     RECT-7 AT ROW 1.48 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 21 BY .71 AT ROW 1.14 COL 4.8
+     RECT-6 AT ROW 4.14 COL 3.8
+     RECT-7 AT ROW 1.48 COL 3.8
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
          SIZE 95.2 BY 21.57
@@ -175,7 +175,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Control File"
-         HEIGHT             = 18.29
+         HEIGHT             = 11.14
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -184,7 +184,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
-         BGCOLOR            = ?
+         BGCOLOR            = 15
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
@@ -328,7 +328,8 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE. 
-
+ IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,8 +446,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
+    btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+
   RUN enable_UI.
   {methods/nowait.i}
+  {sys/inc/reportsConfigNK1.i "OR12" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY 'ENTRY' TO rd-dest.

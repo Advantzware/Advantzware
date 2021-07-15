@@ -48,7 +48,7 @@ def new shared var head as ch format "x(78)" extent 4.
 
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE cFileName as character NO-UNDO .
 /* gdm - 10130802 */
 DEF STREAM excel.
 
@@ -68,10 +68,10 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_mach end_mach begin_dept ~
-end_dept tb_show-stds rd-dest td-show-parm tb_runExcel fi_file btn-ok ~
-btn-cancel 
+end_dept tb_show-stds rd-dest td-show-parm tb_runExcel fi_file tbAutoClose ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_mach end_mach begin_dept end_dept ~
-tb_show-stds rd-dest td-show-parm tb_runExcel fi_file 
+tb_show-stds rd-dest td-show-parm tb_runExcel fi_file tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -89,11 +89,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE begin_dept AS CHARACTER FORMAT "X(2)" 
      LABEL "Beginning Dept. Code" 
@@ -115,7 +115,7 @@ DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mach.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-mach.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 43.6 BY 1.
@@ -157,6 +157,11 @@ DEFINE RECTANGLE RECT-6
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 90 BY 4.95.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
      LABEL "Export To Excel?" 
@@ -201,8 +206,9 @@ DEFINE FRAME FRAME-A
      tb_runExcel AT ROW 11 COL 86 RIGHT-ALIGNED WIDGET-ID 6
      fi_file AT ROW 11.1 COL 26.2 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
-     btn-ok AT ROW 13.14 COL 29
-     btn-cancel AT ROW 13.14 COL 51.8
+     tbAutoClose AT ROW 12.91 COL 29.2 WIDGET-ID 16
+     btn-ok AT ROW 13.71 COL 29
+     btn-cancel AT ROW 13.71 COL 51.8
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 6.95 COL 3.2
      "Selection Parameters" VIEW-AS TEXT
@@ -213,7 +219,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 21.57
+         SIZE 95.2 BY 14.57
          BGCOLOR 15 .
 
 
@@ -234,7 +240,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Machine File"
-         HEIGHT             = 14.1
+         HEIGHT             = 14.76
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -416,13 +422,21 @@ DO:
     END.
 
   assign rd-dest.
-
+ IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-mach.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   run run-report. 
 
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
+       WHEN 3 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //RUN output-to-file.
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type=" "
@@ -455,7 +469,8 @@ DO:
   END CASE.
 
   SESSION:SET-WAIT-STATE ("").
-
+ IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 
 END.
 
@@ -489,7 +504,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+     fi_file = ''.
+     //assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,8 +655,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
+      btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
   {methods/nowait.i}
+   /* {sys/inc/reportsConfigNK1.i "OR12" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .*/
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY 'ENTRY' TO begin_mach.
@@ -686,10 +710,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_mach end_mach begin_dept end_dept tb_show-stds rd-dest 
-          td-show-parm tb_runExcel fi_file 
+          td-show-parm tb_runExcel fi_file tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_mach end_mach begin_dept end_dept tb_show-stds 
-         rd-dest td-show-parm tb_runExcel fi_file btn-ok btn-cancel 
+         rd-dest td-show-parm tb_runExcel fi_file tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -790,7 +814,7 @@ DEF VAR v_head     AS CHAR NO-UNDO.
 DEF VAR v_numlw    AS CHAR NO-UNDO.
 DEF VAR v_col-pass AS CHAR NO-UNDO.
 DEF VAR v_coater   AS CHAR NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEFINE VARIABLE lCreated AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -809,7 +833,7 @@ head[3] = "==========  Printing Press  =========" .
 {sys/ref/mmty.f}
 {sys/ref/mach.i}
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format
   "Code:" to 7 mach.m-code
@@ -909,7 +933,7 @@ sho-stds = tb_show-stds.
     view frame r-top.
 
 /* gdm - 10130802 */
-IF tb_excel THEN DO:
+IF rd-dest = 3  THEN DO:
     OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED
         "Company Name,Warehouse - Descr,Code,Loc,Feed,Desc,Dept,Run Spoil. %,Sequence," 
@@ -960,7 +984,7 @@ END.
                       THEN '' ELSE STRING(mach.col-pass) 
        v_coater = IF mach.coater = ? THEN '' ELSE STRING(mach.coater).
 
-      IF tb_excel THEN DO:
+      IF rd-dest = 3  THEN DO:
           PUT STREAM excel UNFORMATTED
               '"' STRING(mach.company + ' - ' + STRING(company.name)) '",'
               '"' String(string(loc.loc) + ' - ' + STRING(loc.dscr))  '",'
@@ -1203,7 +1227,7 @@ END.
       end.
     end.
     /* gdm - 10130802 */
-    IF tb_excel THEN DO:
+    IF rd-dest = 3  THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).

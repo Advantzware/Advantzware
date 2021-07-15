@@ -67,7 +67,7 @@ DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
-
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst Usd Dt," +
                             "Markup,Cost,M/L,Amtz,M Type,Use w/Est,UOM,SIMON,C Type,Account No,Cad #,File #," +
@@ -104,9 +104,9 @@ ASSIGN cTextListToDefault  = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 begin_prep end_prep sl_avail ~
 Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm ~
-fi_file tb_runExcel btn-ok btn-cancel 
+fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_prep end_prep sl_avail sl_selected ~
-rd-dest td-show-parm fi_file tb_runExcel 
+rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -133,31 +133,31 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_prep AS CHARACTER FORMAT "x(15)" 
      LABEL "Beginning  Prep Code" 
@@ -169,7 +169,7 @@ DEFINE VARIABLE end_prep AS CHARACTER FORMAT "x(15)" INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 32 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-prep.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-prep.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
@@ -219,6 +219,11 @@ DEFINE VARIABLE sl_avail AS CHARACTER
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
      LABEL "Run In Batch Mode?" 
@@ -271,17 +276,18 @@ DEFINE FRAME FRAME-A
      fi_file AT ROW 15.05 COL 26.2 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
      tb_runExcel AT ROW 15.14 COL 87.8 RIGHT-ALIGNED WIDGET-ID 6
-     btn-ok AT ROW 16.71 COL 29.2
-     btn-cancel AT ROW 16.71 COL 51.8
+     tbAutoClose AT ROW 16.76 COL 29.6 WIDGET-ID 16
+     btn-ok AT ROW 17.62 COL 29.2
+     btn-cancel AT ROW 17.62 COL 51.8
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 5.29 COL 5.2 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 5.29 COL 59.8 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.38 COL 4.6
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.05 COL 4.6
           BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 11.38 COL 4.6
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 5.29 COL 59.8 WIDGET-ID 44
      RECT-7 AT ROW 1.43 COL 3.6
      RECT-8 AT ROW 11.71 COL 3.6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -308,7 +314,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Prep and Die File Listing"
-         HEIGHT             = 17.67
+         HEIGHT             = 18.38
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -467,7 +473,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
+ IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-prep.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   IF g_batch THEN tb_batch = YES.
 
   RUN GetSelectionList.
@@ -476,7 +488,9 @@ DO:
  CASE rd-dest:
       WHEN 1 THEN RUN output-to-printer.
       WHEN 2 THEN RUN output-to-screen.
-      WHEN 3 THEN RUN output-to-file.
+      WHEN 3 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //RUN output-to-file.
       WHEN 4 THEN DO:
              /*run output-to-fax.*/
            {custom/asifax.i &type= " "
@@ -507,6 +521,8 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
+   IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,7 +623,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     ASSIGN {&self-name}.
+     fi_file = ''.
+     //ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -813,10 +830,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF g_batch THEN tb_batch = YES.
 
   RUN DisplaySelectionList.
+    btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   {methods/nowait.i}
-
+  {sys/inc/reportsConfigNK1.i "ER4" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
         RUN DisplaySelectionList2.
@@ -976,11 +1005,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_prep end_prep sl_avail sl_selected rd-dest td-show-parm fi_file 
-          tb_runExcel 
+          tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 begin_prep end_prep sl_avail Btn_Def sl_selected Btn_Add 
          Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file tb_runExcel 
-         btn-ok btn-cancel 
+         tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1144,12 +1173,12 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
     DEFINE VARIABLE v-lst-job AS CHARACTER NO-UNDO.
     DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cslist AS CHAR NO-UNDO.
-    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+ //   DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
     DEFINE BUFFER bfprep FOR prep .
     
     {sys/form/r-topsw.f}
     
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+ //   RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN 
         cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}
@@ -1190,7 +1219,7 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
         SKIP
         .
     
-    IF tb_excel THEN DO:
+    IF rd-dest = 3  THEN DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -1294,12 +1323,12 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
         END.
 
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3  THEN DO:
             PUT STREAM excel UNFORMATTED cExcelDisplay SKIP.
         END.  
     END.
     
-    IF tb_excel THEN DO:
+    IF rd-dest = 3  THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
