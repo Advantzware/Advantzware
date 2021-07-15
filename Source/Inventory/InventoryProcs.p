@@ -4777,6 +4777,7 @@ PROCEDURE CreatePrintInventory:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttPrintInventoryStock.
     
     DEFINE VARIABLE cCustName LIKE oe-ord.cust-name NO-UNDO.
     DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.
