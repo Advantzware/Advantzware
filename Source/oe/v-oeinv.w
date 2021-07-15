@@ -151,8 +151,8 @@ FUNCTION getCashSaleLog RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-tax-stat V-table-Win 
-FUNCTION get-tax-stat RETURNS CHARACTER
-  (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER, ipcTable AS CHARACTER)  FORWARD.
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER, ipcShipto AS CHARACTER, ipcTable AS CHARACTER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME 
@@ -1595,8 +1595,8 @@ PROCEDURE local-display-fields :
   END.
   IF AVAILABLE inv-head THEN
   DO:
-      ASSIGN fi_Cust-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = get-tax-stat(cocode,inv-head.cust-no, "cust").
-      ASSIGN fi_Shipto-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = get-tax-stat(cocode,inv-head.cust-no, "shipto").
+      ASSIGN fi_Cust-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,"", "cust")).
+      ASSIGN fi_Shipto-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,inv-head.sold-no, "shipto")).
   END.
   
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
@@ -2220,34 +2220,21 @@ END FUNCTION.
 &ANALYZE-RESUME
  
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-tax-stat V-table-Win 
-FUNCTION get-tax-stat RETURNS CHARACTER
-  (INPUT ipcCompany AS CHARACTER, INPUT ipcCustNo AS CHARACTER , INPUT ipcTable AS CHARACTER) :
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (INPUT ipcCompany AS CHARACTER, INPUT ipcCustNo AS CHARACTER ,INPUT ipcShipto AS CHARACTER,INPUT ipcTable  AS CHARACTER) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER b-cust   FOR cust.
-DEFINE BUFFER b-shipto FOR shipto.
-DEFINE VARIABLE opStat AS CHARACTER NO-UNDO.
-IF ipcTable EQ "cust" THEN
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+IF ipcTable  EQ "cust" THEN
 DO:
-    FIND FIRST b-cust NO-LOCK 
-         WHERE b-cust.company EQ ipcCompany
-           AND b-cust.cust-no EQ ipcCustNo NO-ERROR.
-    IF AVAIL b-cust THEN 
-    ASSIGN opStat = b-cust.SORT .
-    
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo,"","", OUTPUT lTaxable).
 END.
-ELSE DO:
-    FIND FIRST b-shipto NO-LOCK
-         WHERE b-shipto.company   EQ ipcCompany
-           AND b-shipto.ship-id   EQ ipcCustNo NO-ERROR.
-    IF AVAIL b-shipto THEN 
-    ASSIGN opStat = IF b-shipto.tax-mandatory THEN "Y" ELSE "N".
-    
+ELSE DO:  
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo, ipcShipto,"", OUTPUT lTaxable).
 END.
-
-  RETURN opStat.   /* Function return value. */
+RETURN lTaxable.
 
 END FUNCTION.
 
