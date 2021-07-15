@@ -479,7 +479,7 @@ DEFINE VARIABLE tb_0-wip AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .62
+     SIZE 24 BY .81
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
@@ -522,7 +522,7 @@ DEFINE VARIABLE tb_under AS LOGICAL INITIAL no
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .62 NO-UNDO.
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -584,19 +584,19 @@ DEFINE FRAME FRAME-A
      tb_job-qoh AT ROW 18.86 COL 74
      tb_itm-act AT ROW 19.86 COL 74
      btn_SelectColumns AT ROW 21.24 COL 42 WIDGET-ID 10
-     sl_avail AT ROW 23.29 COL 68 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 23.38 COL 52 HELP
+     sl_avail AT ROW 23.57 COL 46.2 NO-LABEL WIDGET-ID 26
+     Btn_Add AT ROW 23.67 COL 30.2 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     sl_selected AT ROW 23.14 COL 49 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 23.38 COL 65 HELP
+     sl_selected AT ROW 23.43 COL 27.2 NO-LABEL WIDGET-ID 28
+     Btn_Remove AT ROW 23.67 COL 43.2 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 23.38 COL 84 WIDGET-ID 40
+     btn_Up AT ROW 23.67 COL 62.2 WIDGET-ID 40
      btn_down AT ROW 23.91 COL 77.2 WIDGET-ID 42
      rd-dest AT ROW 23.43 COL 6.2 NO-LABEL
-     lv-ornt AT ROW 23.29 COL 52.2 NO-LABEL
-     lv-font-no AT ROW 23.24 COL 85.8 COLON-ALIGNED
-     lines-per-page AT ROW 23.24 COL 113.8 COLON-ALIGNED
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+     lv-ornt AT ROW 23.57 COL 30.4 NO-LABEL
+     lv-font-no AT ROW 23.52 COL 64 COLON-ALIGNED
+     lines-per-page AT ROW 23.52 COL 92 COLON-ALIGNED
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 119.6 BY 29.19
@@ -604,10 +604,10 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     lv-font-name AT ROW 23.38 COL 52 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.33 COL 44.2
-     tb_batch AT ROW 25.1 COL 44.2
-     tb_excel AT ROW 23.62 COL 73
+     lv-font-name AT ROW 23.67 COL 30.2 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 25.33 COL 44.2
+     tb_batch AT ROW 24.62 COL 44.2
+     tb_excel AT ROW 23.91 COL 51.2
      tb_runExcel AT ROW 26.29 COL 104 RIGHT-ALIGNED
      v-excel-file AT ROW 26.19 COL 27.8 COLON-ALIGNED
      btn-ok AT ROW 28.62 COL 41
@@ -628,7 +628,7 @@ DEFINE FRAME FRAME-A
      RECT-39 AT ROW 23 COL 3.2
      RECT-40 AT ROW 1.48 COL 3.2 WIDGET-ID 44
      RECT-10 AT ROW 15.57 COL 3.2 WIDGET-ID 46
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 119.6 BY 29.19
@@ -1759,7 +1759,6 @@ tb_batch:hidden = not lShowBatchMode
 td-show-parm:visible = lShowParameters
 tb_batch:visible = lShowBatchMode
 .
-
   {methods/nowait.i}
 
    RUN sys/inc/CustListForm.p ( "OR16",cocode, 

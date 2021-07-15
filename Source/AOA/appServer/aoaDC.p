@@ -149,7 +149,7 @@ FUNCTION fMachineProductivity RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttMachineProductivity.
 
     /* subject business logic */
-    RUN aoa/BL/machprod.p (OUTPUT TABLE ttMachineProductivity, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/machprod.p (OUTPUT TABLE ttMachineProductivity, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttMachineProductivity:HANDLE .
 
@@ -171,7 +171,7 @@ FUNCTION fProductionAnalysis RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttProductionAnalysis.
 
     /* subject business logic */
-    RUN aoa/BL/r-prodlys.p (OUTPUT TABLE ttProductionAnalysis, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-prodlys.p (OUTPUT TABLE ttProductionAnalysis, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttProductionAnalysis:HANDLE .
 

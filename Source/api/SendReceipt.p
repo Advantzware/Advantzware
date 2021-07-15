@@ -35,7 +35,9 @@
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
     DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
     DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
-             
+    
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+                 
     IF ipcRequestHandler NE "" THEN 
         RUN VALUE(ipcRequestHandler) (
             INPUT  TABLE ttArgs,

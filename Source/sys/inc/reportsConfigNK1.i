@@ -1,42 +1,37 @@
 /* sys/inc/runAOAVer.i       RunAOAVersion => Reports */
 
-&SCOPED-DEFINE descrip Run AOA Version (Logical = ?)
 
 DEFINE VARIABLE lShowBatchMode as logical NO-UNDO.
 DEFINE VARIABLE lShowParameters as logical NO-UNDO.
 
-for FIRST sys-ctrl NO-LOCK
+FOR FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ cocode
        AND sys-ctrl.name    EQ "Reports":
-    for first sys-ctrl-shipto  of sys-ctrl
-    where sys-ctrl-shipto.char-fld = "{1}":
-        
-        case sys-ctrl-shipto.int-fld:
-            
-            when 0 then
-            assign 
-            lShowBatchMode = false
-            lShowParameters = false
+    FOR FIRST sys-ctrl-shipto  OF sys-ctrl
+    WHERE sys-ctrl-shipto.char-fld EQ "{1}":       
+        CASE sys-ctrl-shipto.int-fld:         
+            WHEN 0 THEN
+            ASSIGN 
+                lShowBatchMode = FALSE
+                lShowParameters = FALSE
             .
-            when 1 then
-            assign 
-            lShowBatchMode = false
-            lShowParameters = true
+            WHEN 1 THEN
+            ASSIGN 
+                lShowBatchMode = FALSE
+                lShowParameters = TRUE
             .
-            when 2 then
-            assign 
-            lShowBatchMode = true
-            lShowParameters = true
+            WHEN 2 THEN
+            ASSIGN 
+                lShowBatchMode = TRUE
+                lShowParameters = TRUE
             .
-            otherwise
-            assign 
-            lShowBatchMode = false
-            lShowParameters = false
+            OTHERWISE
+            ASSIGN 
+                lShowBatchMode = FALSE
+                lShowParameters = FALSE
             .
-
-
-end case.
-end.
+        END CASE.
+    END.
 END. 
 
 

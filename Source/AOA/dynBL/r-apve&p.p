@@ -210,7 +210,7 @@ PROCEDURE pBusinessLogic:
     END. /* ttAPInvoicePostingMsg */
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 80, 100). 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingMsg}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingMsg}
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 100, 100). 
 END PROCEDURE.
@@ -706,7 +706,7 @@ PROCEDURE pEditReport:
         END. /* if last-of */
     END. /* each tt-report */
     
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingGL}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingGL}
     
     FOR EACH tt-report,
         FIRST ap-inv NO-LOCK
@@ -876,7 +876,7 @@ PROCEDURE pEditReport:
     END. /* last-of */
     dFrtTotal  = (ACCUM TOTAL ap-inv.freight).
 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingSummary}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingSummary}
     
 END PROCEDURE.
 

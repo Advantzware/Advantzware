@@ -1,0 +1,52 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 04/19/20 at 17:10:44                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipCreateObject in fsInstaller.w                                                           17:10:46
+Completing ipCreateObject in fsInstaller.w                                                           17:10:48
+ 
+Initiating ipConnectDBs in fsInstaller.w                                                             17:10:48
+Completing ipConnectDBs in fsInstaller.w                                                             17:10:49
+ 
+Initiating ipCompileBase in fsInstaller.w                                                            17:10:49
+**************** PROPATH *****************
+C:\ASIgui\Environments\16.14.03\Source,
+C:\ASIgui\Environments\16.14.03\Resources,
+C:\ASIgui\Environments\16.14.03\Source\Addon,
+C:\ASIgui\Environments\16.14.03\Source\datadigger,
+C:\Progress\OE116_64\gui,
+C:\Progress\OE116_64\gui\ablunit.pl,
+C:\Progress\OE116_64\gui\adecomm.pl,
+C:\Progress\OE116_64\gui\adecomp.pl,
+C:\Progress\OE116_64\gui\adedesk.pl,
+C:\Progress\OE116_64\gui\adedict.pl,
+C:\Progress\OE116_64\gui\adeedit.pl,
+C:\Progress\OE116_64\gui\adeicon.pl,
+C:\Progress\OE116_64\gui\aderes.pl,
+C:\Progress\OE116_64\gui\adeshar.pl,
+C:\Progress\OE116_64\gui\adeuib.pl,
+C:\Progress\OE116_64\gui\adeweb.pl,
+C:\Progress\OE116_64\gui\adexml.pl,
+C:\Progress\OE116_64\gui\dataadmin.pl,
+C:\Progress\OE116_64\gui\OpenEdge.BusinessLogic.pl,
+C:\Progress\OE116_64\gui\OpenEdge.Core.pl,
+C:\Progress\OE116_64\gui\OpenEdge.ServerAdmin.pl,
+C:\Progress\OE116_64\gui\prodict.pl,
+C:\Progress\OE116_64\gui\protools.pl,
+C:\Progress\OE116_64,
+C:\Progress\OE116_64\bin,
+C:\ASIgui\Environments\,
+C:\ASIgui\Environments\16.14.03\Source\,
+C:\ASIgui\Environments\16.14.03\,
+******************************************
+  Creating dir C:\ASIgui\Environments\16.14.03\Programs\api\node\node_modules\http-errors                                                                                 17:11:49
+  Creating dir C:\ASIgui\Environments\16.14.03\Programs\api\node\node_modules\verror                                                                                      17:12:03
+  Creating dir C:\ASIgui\Environments\16.14.03\Programs\api\node\node_modules\verror\lib                                                                                  17:12:03
+  Base Code compile (10088 entries) completed with 0 errors                                          17:23:25
+Completing ipCompileBase in fsInstaller.w                                                            17:23:25
+ 
+-------------------------------------------------------------------------------------------------------------
+Ending run of fsInstaller system on 04/19/20 at 17:23:25                                    Elapsed: 00:12:41
+-------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 

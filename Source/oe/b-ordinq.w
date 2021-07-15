@@ -91,6 +91,8 @@ DEFINE VARIABLE cPriceUom        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCostUom         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceLineCost AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dProdBalance     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
@@ -1273,11 +1275,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON LEAVE OF fi_cust-no IN FRAME F-Main
+DO:
+    {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
@@ -1463,7 +1473,15 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
 
-fiOrderDate = TODAY - 365.
+RUN sys/ref/nk1look.p (INPUT cocode,"OEBrowse", "DT" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/, 
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN 
+        ASSIGN
+        fiOrderDate = DATE(cRtnChar) NO-ERROR.
+    ELSE
+        fiOrderDate = TODAY - 365.
+        
 IF lEnableShowAll THEN 
     btSHowAll:SENSITIVE = lEnableShowAll.
 
