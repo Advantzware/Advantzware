@@ -1402,7 +1402,6 @@ def var ws_net    like wkdistrib.amount column-label "Net"   no-undo.
 def var num-recs  like wkdistrib.recs no-undo.
 def var tot-debit  like wkdistrib.amount no-undo.
 def var tot-credit like wkdistrib.amount no-undo.
-DEFINE VARIABLE cShiptoState AS CHARACTER NO-UNDO.
 
 {sys/form/r-top3w.f}
 
@@ -1612,39 +1611,28 @@ IF cust.factored THEN
         DEFINE VARIABLE v-jd-taxamt AS DECIMAL   NO-UNDO.
 
         tot-tax = ar-inv.tax-amt.
-        RUN pGetShipToStatus(INPUT cocode,INPUT ar-inv.cust-no, INPUT ar-inv.ship-id, OUTPUT cShiptoState).
-        
-        RELEASE account.
+
         FOR EACH ttTaxDetail
             BREAK BY ttTaxDetail.invoiceNo:
-            
-            IF FIRST-OF(ttTaxDetail.invoiceNo) THEN
-            DO:
-               v-jd-taxamt = 0.
-               RELEASE account.
-            END.                        
-            IF ttTaxDetail.taxCode EQ cShiptoState AND NOT AVAIL account THEN                        
             FIND FIRST account NO-LOCK
                  WHERE account.company EQ cocode
                    AND account.actnum  EQ ttTaxDetail.taxCodeAccount
-                 NO-ERROR.                   
+                 NO-ERROR.
             ASSIGN
                 ws_taxacct  = IF AVAILABLE account THEN 
-                                  account.actnum 
+                                  ttTaxDetail.taxCodeAccount 
                               ELSE 
                                   xar-stax
-                v-jd-taxamt = v-jd-taxamt + ttTaxDetail.taxCodeTaxAmount
-                tot-tax     = tot-tax - ttTaxDetail.taxCodeTaxAmount
+                v-jd-taxamt = ttTaxDetail.taxCodeTaxAmount
+                tot-tax     = tot-tax - v-jd-taxamt
                 .
-            IF last-of(ttTaxDetail.invoiceNo) THEN
-            DO:               
-                ld-gl-amt = v-jd-taxamt * -1.
-                
-                IF AVAILABLE currency THEN 
-                    ld-gl-amt = ld-gl-amt * currency.ex-rate.
 
-                {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
-            END.
+            ld-gl-amt = v-jd-taxamt * -1.
+            
+            IF AVAILABLE currency THEN 
+                ld-gl-amt = ld-gl-amt * currency.ex-rate.
+
+            {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
         END.
     END.
 
@@ -2019,31 +2007,6 @@ REPEAT:
  END. /* IF AVAIL gl-ctrl */
 END. /* REPEAT */
 /* gdm - 11050906 */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetShipToStatus C-Win 
-PROCEDURE pGetShipToStatus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcShipId AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcShiptoState AS CHARACTER NO-UNDO.
-
-FIND FIRST shipto NO-LOCK
-     WHERE shipto.company EQ ipcCompany
-     AND shipto.cust-no EQ ipcCustomer
-     AND shipto.ship-id EQ ipcShipId
-     NO-ERROR.
-    IF AVAIL shipto THEN
-     opcShiptoState = shipto.ship-state.
 
 END PROCEDURE.
 

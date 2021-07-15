@@ -482,7 +482,7 @@ PROCEDURE pCalculate PRIVATE :
         dTaxableAmount = ABS(ipdTaxableAmount)
         lIsNegative = ipdTaxableAmount LT 0.
     
-    DO iCount = 1 TO EXTENT(bf-stax.tax-rate1):
+    DO iCount = 1 TO 1 :  /*EXTENT(bf-stax.tax-rate1)*/ /* Ticket 97441*/
         /* Skip if tax code is blank. */
         IF bf-stax.tax-code1[iCount] EQ "" THEN
             NEXT.
