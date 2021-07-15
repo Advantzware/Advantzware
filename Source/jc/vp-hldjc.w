@@ -37,23 +37,10 @@ CREATE WIDGET-POOL.
 def var char-hdl as cha no-undo.
 
 /* === vars for d-poordl.w ====*/
-{custom/globdefs.i}
+{methods/prgsecdt.i}
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
-       
-DEFINE VARIABLE lJobHoldPermission AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
-RUN methods/prgsecur.p
-	    (INPUT "JobHoldPermission",
-	     INPUT "ALL", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lJobHoldPermission, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */       
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -305,16 +292,15 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:  
+  DO WITH FRAME {&FRAME-NAME}:
     ENABLE btn-update.
     IF AVAIL job AND job.opened THEN
       btn-update:LABEL = IF job.stat EQ "H" THEN "Re&lease" ELSE "&Hold".
     ELSE DO:
       btn-update:LABEL = "Hold/Release".
       DISABLE btn-update.
-    END. 
-    IF NOT lJobHoldPermission THEN
-     DISABLE btn-update.
+    END.
+    IF NOT v-can-update THEN ASSIGN  btn-update:SENSITIVE = NO .
   END.
 
 END PROCEDURE.
