@@ -97,10 +97,10 @@ ASSIGN cTextListToSelect = "Invoice#,Vendor#,Invoice Date,Due Date,Net,Paid,Disc
 &Scoped-define FRAME-NAME rd-fgnq-exp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_inv end_inv ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_invoice end_invoice ~
 begin_vendor end_vendor begin_date end_date sl_avail sl_selected Btn_Def ~
 Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_inv end_inv begin_vendor end_vendor ~
+&Scoped-Define DISPLAYED-OBJECTS begin_invoice end_invoice begin_vendor end_vendor ~
 begin_date end_date sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -179,7 +179,7 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_inv AS CHARACTER FORMAT "x(8)" 
+DEFINE VARIABLE begin_invoice AS CHARACTER FORMAT "x(20)" 
      LABEL "From Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
@@ -194,7 +194,7 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE end_inv AS CHARACTER FORMAT "x(8)" 
+DEFINE VARIABLE end_invoice AS CHARACTER FORMAT "x(20)" INITIAL "zzzzzzzzzzzzzzzzzzzz"
      LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -246,9 +246,9 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgnq-exp
-     begin_inv AT ROW 3.86 COL 23.6 COLON-ALIGNED HELP
+     begin_invoice AT ROW 3.86 COL 23.6 COLON-ALIGNED HELP
           "Enter Beginning Invoice#" WIDGET-ID 142
-     end_inv AT ROW 3.86 COL 67.6 COLON-ALIGNED HELP
+     end_invoice AT ROW 3.86 COL 67.6 COLON-ALIGNED HELP
           "Enter Ending Invoice#" WIDGET-ID 144
      begin_vendor AT ROW 5.14 COL 23.6 COLON-ALIGNED HELP
           "Enter Beginning Invoice#" WIDGET-ID 146
@@ -318,7 +318,7 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       begin_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+       begin_invoice:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
                 "parm".
 
 ASSIGN 
@@ -330,7 +330,7 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       end_inv:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+       end_invoice:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
                 "parm".
 
 ASSIGN 
@@ -364,40 +364,6 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgnq-exp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON HELP OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
-DO:
-DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-DEF VAR ls-cur-val AS CHAR NO-UNDO.
-DEF VAR char-val AS CHAR NO-UNDO.
-
-   lw-focus = FOCUS.
-
-   case lw-focus:name :
-      /* when "begin_i-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           RUN windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg */
-       when "end_i-no" then do:
-           ls-cur-val = lw-focus:screen-value.
-           run windows/l-itemfj.w (cocode, ls-cur-val, output char-val).
-           if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
-           end.
-           return no-apply.
-       end.  /* itemfg*/*/
-
-END CASE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
 ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Vendor to Excel */
 DO:
   APPLY "END-ERROR":U TO SELF.
@@ -418,9 +384,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_inv
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv rd-fgnq-exp
-ON LEAVE OF begin_inv IN FRAME rd-fgnq-exp /* From Invoice# */
+&Scoped-define SELF-NAME begin_invoice
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_invoice rd-fgnq-exp
+ON LEAVE OF begin_invoice IN FRAME rd-fgnq-exp /* From Invoice# */
 DO:
    assign {&self-name}.
 END.
@@ -557,9 +523,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_inv
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv rd-fgnq-exp
-ON LEAVE OF end_inv IN FRAME rd-fgnq-exp /* To Invoice# */
+&Scoped-define SELF-NAME end_invoice
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_invoice rd-fgnq-exp
+ON LEAVE OF end_invoice IN FRAME rd-fgnq-exp /* To Invoice# */
 DO:
      assign {&self-name}.
 END.
@@ -703,7 +669,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     RUN Set-Sort-Data.
 
-    APPLY "entry" TO begin_inv.
+    APPLY "entry" TO begin_invoice.
   END. 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -858,10 +824,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_inv end_inv begin_vendor end_vendor begin_date end_date sl_avail 
+  DISPLAY begin_invoice end_invoice begin_vendor end_vendor begin_date end_date sl_avail 
           sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgnq-exp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_inv end_inv begin_vendor end_vendor 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_invoice end_invoice begin_vendor end_vendor 
          begin_date end_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove 
          btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgnq-exp.
@@ -942,20 +908,20 @@ PROCEDURE pAPInvoiceLength :
 ------------------------------------------------------------------------------*/
     IF lAPInvoiceLength THEN DO:
         DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(20)"
-                   end_inv:FORMAT = "x(20)"
-                   begin_inv:WIDTH-CHARS = 30
-                   end_inv:WIDTH-CHARS = 30
-                   end_inv:INITIAL = "zzzzzzzzzzzzzzzzzzzz".
+            ASSIGN begin_invoice:FORMAT = "x(20)"
+                   end_invoice:FORMAT = "x(20)"
+                   begin_invoice:WIDTH-CHARS = 30
+                   end_invoice:WIDTH-CHARS = 30
+                   .
         END.
     END.
     ELSE DO: 
         DO WITH FRAME {&FRAME-NAME}:
-            ASSIGN begin_inv:FORMAT = "x(12)"
-                   end_inv:FORMAT = "x(12)"
-                   begin_inv:WIDTH-CHARS = 20
-                   end_inv:WIDTH-CHARS = 20
-                   end_inv:INITIAL = "zzzzzzzzzzzz".
+            ASSIGN begin_invoice:FORMAT = "x(12)"
+                   end_invoice:FORMAT = "x(12)"
+                   begin_invoice:WIDTH-CHARS = 20
+                   end_invoice:WIDTH-CHARS = 20
+                   .
         END.    
     END.
 END PROCEDURE.
@@ -990,8 +956,8 @@ v-lineno = 0 .
 
     FOR EACH ap-inv WHERE ap-inv.company EQ cocode 
       AND ap-inv.posted   EQ YES 
-      AND ap-inv.inv-no   GE begin_inv
-      AND ap-inv.inv-no   LE end_inv
+      AND ap-inv.inv-no   GE begin_invoice
+      AND ap-inv.inv-no   LE end_invoice
       AND ap-inv.vend-no  GE begin_vendor
       AND ap-inv.vend-no  LE end_vendor 
       AND ap-inv.inv-date GE begin_date
