@@ -275,7 +275,7 @@ FUNCTION fBOLPackingList RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttBOLPackingList.
 
     /* subject business logic */
-    RUN aoa/BL/bolpcklst.p (OUTPUT TABLE ttBOLPackingList, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/bolpcklst.p (OUTPUT TABLE ttBOLPackingList, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttBOLPackingList:HANDLE .
 
@@ -297,7 +297,7 @@ Notes:
     EMPTY TEMP-TABLE ttMachineOrdersbyDueDate.
     
     /* subject business logic */
-    RUN aoa/BL/r-mchord.p (OUTPUT TABLE ttMachineOrdersbyDueDate, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-mchord.p (OUTPUT TABLE ttMachineOrdersbyDueDate, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttMachineOrdersbyDueDate:HANDLE.
 
@@ -371,7 +371,7 @@ Notes:
     EMPTY TEMP-TABLE ttInvoicePostUpdateGL.
     
     /* subject business logic */
-    RUN aoa/BL/r-inve&pb.p (OUTPUT TABLE ttInvoicePostUpdateGL, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-inve&pb.p (OUTPUT TABLE ttInvoicePostUpdateGL, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttInvoicePostUpdateGL:HANDLE .
 
@@ -394,7 +394,7 @@ Notes:
     EMPTY TEMP-TABLE ttOpenOrderReportDetail.
     
     /* subject business logic */
-    RUN aoa/BL/r-ordopn.p (OUTPUT TABLE ttOpenOrderReport,
+    RUN AOA/dynBL/r-ordopn.p (OUTPUT TABLE ttOpenOrderReport,
                            OUTPUT TABLE ttOpenOrderReportDetail,
                            ipcCompany, ipiBatch, ipcUserID
                            ).
@@ -419,7 +419,7 @@ Notes:
     EMPTY TEMP-TABLE ttOpenOrderReportDetail.
     
     /* subject business logic */
-    RUN aoa/BL/r-ordopnDetail.p (OUTPUT TABLE ttOpenOrderReportDetail, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-ordopnDetail.p (OUTPUT TABLE ttOpenOrderReportDetail, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttOpenOrderReportDetail:HANDLE.
 
@@ -441,7 +441,7 @@ Notes:
     EMPTY TEMP-TABLE ttOrderAcknowledgements.
     
     /* subject business logic */
-    RUN aoa/BL/orderack.p (OUTPUT TABLE ttOrderAcknowledgements, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/orderack.p (OUTPUT TABLE ttOrderAcknowledgements, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrderAcknowledgements:HANDLE .
 
@@ -464,7 +464,7 @@ Notes:
     EMPTY TEMP-TABLE ttRecapProductCategory.
 
     /* subject business logic */
-    RUN aoa/BL/r-booked.p (OUTPUT TABLE ttOrdersBooked, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-booked.p (OUTPUT TABLE ttOrdersBooked, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBooked:HANDLE .
 
@@ -486,7 +486,7 @@ Notes:
     EMPTY TEMP-TABLE ttOrdersBookedByOrderNo.
     
     /* subject business logic */
-    RUN aoa/BL/r-booko#.p (OUTPUT TABLE ttOrdersBookedByOrderNo, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-booko#.p (OUTPUT TABLE ttOrdersBookedByOrderNo, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttOrdersBookedByOrderNo:HANDLE .
 
@@ -508,7 +508,7 @@ Notes:
     EMPTY TEMP-TABLE ttPostBOLCreateInvoice.
     
     /* subject business logic */
-    RUN aoa/BL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-bolpst.p (OUTPUT TABLE ttPostBOLCreateInvoice, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttPostBOLCreateInvoice:HANDLE.
 
@@ -531,7 +531,7 @@ Notes:
     EMPTY TEMP-TABLE ttRecapProductCategory.
     
     /* subject business logic */
-    RUN aoa/BL/recappc.p (OUTPUT TABLE ttRecapProductCategory, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/recappc.p (OUTPUT TABLE ttRecapProductCategory, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttRecapProductCategory:HANDLE .
 
@@ -555,7 +555,7 @@ FUNCTION fScheduledReleases RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttScheduledReleasesStats.
     
     /* subject business logic */
-    RUN aoa/BL/r-sched.p (OUTPUT TABLE ttScheduledReleases,
+    RUN AOA/dynBL/r-sched.p (OUTPUT TABLE ttScheduledReleases,
                           OUTPUT TABLE ttScheduledReleasesNotes,
                           OUTPUT TABLE ttScheduledReleasesStats,
                           ipcCompany, ipiBatch, ipcUserID).
@@ -580,7 +580,7 @@ FUNCTION fScheduledReleasesNotes RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) 
     EMPTY TEMP-TABLE ttScheduledReleasesNotes.
     
     /* subject business logic */
-    RUN aoa/BL/r-schedNotes.p (OUTPUT TABLE ttScheduledReleasesNotes, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-schedNotes.p (OUTPUT TABLE ttScheduledReleasesNotes, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttScheduledReleasesNotes:HANDLE .
 
@@ -602,7 +602,7 @@ FUNCTION fScheduledReleasesStats RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) 
     EMPTY TEMP-TABLE ttScheduledReleasesStats.
     
     /* subject business logic */
-    RUN aoa/BL/r-schedStats.p (OUTPUT TABLE ttScheduledReleasesStats, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-schedStats.p (OUTPUT TABLE ttScheduledReleasesStats, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttScheduledReleasesStats:HANDLE .
 
@@ -626,7 +626,7 @@ FUNCTION fShipmentReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttShipmentReportSummary.
     
     /* subject business logic */
-    RUN aoa/BL/shiprpt.p (OUTPUT TABLE ttShipmentReport, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/shiprpt.p (OUTPUT TABLE ttShipmentReport, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttShipmentReport:HANDLE .
 

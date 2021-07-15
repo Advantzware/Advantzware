@@ -54,7 +54,6 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHAR NO-UNDO.
 DEFINE VARIABLE char-hdl                AS CHAR NO-UNDO.
 DEFINE VARIABLE columnCount             AS INT  NO-UNDO.
 DEFINE VARIABLE idx                     AS INT  NO-UNDO.
-DEFINE VARIABLE ilogic                  AS LOG  NO-UNDO.
 DEFINE VARIABLE iSecurityLevel          AS INT  NO-UNDO.
 DEFINE VARIABLE lActive                 AS LOG  NO-UNDO.
 DEFINE VARIABLE ll-first                AS LOG  INIT YES NO-UNDO.
@@ -854,11 +853,7 @@ PROCEDURE local-initialize :
     ASSIGN 
         utilities.description:WIDTH IN BROWSE {&browse-name} = 60
         utilities.notes:WIDTH IN BROWSE {&browse-name} = 86.
-        
-    FOR EACH bf-utilities WHERE utilities.securityLevel LE iSecurityLevel :
-        ilogic = fi_hotkey:ADD-LAST (bf-utilities.hotkey) IN FRAME {&frame-name}.
-    END. /* each bf-utilities */
-        
+       
     APPLY 'ENTRY':U TO fi_desc IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

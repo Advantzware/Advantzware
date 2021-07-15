@@ -31,6 +31,8 @@
     DEFINE VARIABLE unitsPerSale              AS CHARACTER NO-UNDO INITIAL "1".
     DEFINE VARIABLE cardCode                  AS CHARACTER NO-UNDO INITIAL "1".
 
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE ttArgs,

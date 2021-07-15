@@ -2483,6 +2483,19 @@ PROCEDURE local-update-record :
 
   RUN get-matrix (NO).
   
+  IF DECIMAL(fg-rctd.t-qty:SCREEN-VALUE) LT 0 THEN
+  DO:
+      RUN pValidateNegativeReceipt(
+              INPUT cocode,
+              INPUT fg-rctd.i-no:SCREEN-VALUE,
+              INPUT fg-rctd.tag:SCREEN-VALUE,
+              INPUT fg-rctd.loc:SCREEN-VALUE,
+              INPUT fg-rctd.loc-bin:SCREEN-VALUE,
+              INPUT DECIMAL(fg-rctd.t-qty:SCREEN-VALUE),
+              OUTPUT op-error) NO-ERROR.
+      IF op-error THEN RETURN NO-APPLY.
+  END.
+  
   RUN valid-lot# (fg-rctd.stack-code:HANDLE,OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
 
@@ -3112,6 +3125,61 @@ PROCEDURE pCheckPeriod :
       oplReturnNotValidPost = yes.
     end.  
      
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateNegativeReceipt Dialog-Frame 
+PROCEDURE pValidateNegativeReceipt :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCurrentQty  AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    
+    
+    DEFINE VARIABLE lResponse   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dBinTotQty  AS DECIMAL NO-UNDO.
+    
+    IF ipcTag EQ "" THEN DO:
+        FOR EACH fg-bin
+            WHERE fg-bin.company EQ ipcCompany
+            AND  fg-bin.i-no     EQ ipcItemID
+            AND  fg-bin.loc      EQ ipcWarehouse
+            AND  fg-bin.loc-bin  EQ ipcLocation
+            NO-LOCK:
+            ASSIGN dBinTotQty = dBinTotQty + fg-bin.qty .
+        END. /* each fg-bin */
+    END.
+    ELSE DO:
+        FOR EACH fg-bin
+            WHERE fg-bin.company EQ itemfg.company         
+            AND  fg-bin.tag      EQ ipcTag
+            AND  fg-bin.i-no     EQ ipcItemID
+            NO-LOCK:
+            ASSIGN dBinTotQty = dBinTotQty + fg-bin.qty . 
+        END. /* each fg-bin */
+    END.
+    IF (ipdCurrentQty * -1 ) GT dBinTotQty THEN
+    DO:
+         RUN displayMessageQuestion (
+                      INPUT  "70",
+                      OUTPUT lResponse
+                      ).
+                  IF NOT lResponse THEN DO:
+                      APPLY "ENTRY" TO fg-rctd.cases IN BROWSE {&browse-name} .
+                      oplReturnError = YES.
+                      RETURN.
+                  END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

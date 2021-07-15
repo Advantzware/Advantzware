@@ -105,6 +105,8 @@ DEFINE VARIABLE cIpAddress AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMapDrive AS CHARACTER FORMAT "x(2)" NO-UNDO.
 DEFINE VARIABLE cMsgStr AS CHARACTER FORMAT "x(80)" EXTENT 100 NO-UNDO.
+DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE connectStatement AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutFile AS CHARACTER NO-UNDO.
@@ -364,15 +366,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 81
          VIRTUAL-HEIGHT     = 26.67
          VIRTUAL-WIDTH      = 81
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -405,7 +407,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -736,7 +738,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEFINE VARIABLE rc AS INTEGER NO-UNDO.
     
     /* This window will ALWAYS be on top of other windows */
-    RUN BringWindowToTop (c-Win:hwnd, OUTPUT rc).
+    RUN BringWindowToTop (c-Win:HWND, OUTPUT rc).
     
     /* There should not be any connected DBs at this point.  If there are, disconnect */
     DO ictr = 1 TO NUM-DBS:
@@ -753,7 +755,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         lMakeBackup = TRUE 
         slEnvList:LIST-ITEMS = cEnvList
         slEnvList:SCREEN-VALUE = ENTRY(1,cEnvList)
-        iIndex              = LOOKUP(slEnvList:{&SV},slEnvList:LIST-ITEMS)
+        iIndex              = 1
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
@@ -1508,7 +1510,7 @@ PROCEDURE ipStatus :
             IF AVAIL ttUpdateHist THEN ASSIGN 
                 ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
                 ttUpdateHist.endTimeInt = INT(TIME)
-                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")
+                ttUpdateHist.endTime = STRING(TIME,"HH:MM:SS AM")
                 ttUpdateHist.success = lSuccess.        
             OUTPUT STREAM logStream TO VALUE(cLogFile) APPEND.
             PUT STREAM logStream
@@ -1519,9 +1521,9 @@ PROCEDURE ipStatus :
             OUTPUT STREAM logStream CLOSE.
         END.
     END.
-    
+
     IF ipcStatus EQ "Upgrade Complete." THEN 
-        RUN asiUpdateHist.p.
+        RUN asiUpdateHist.p (cEnvDir + "\" + slEnvList:{&SV}).
                
     PROCESS EVENTS.
 

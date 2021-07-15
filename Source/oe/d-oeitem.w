@@ -382,6 +382,7 @@ DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
 DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lShowWarning AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -1775,6 +1776,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_jobStartDate d-oeitem
+ON VALUE-CHANGED OF fi_jobStartDate IN FRAME d-oeitem /* Job Start Date */
+DO:
+    lShowWarning = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+              
 
 &Scoped-define SELF-NAME fi_qty-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
@@ -2154,11 +2164,11 @@ DO:
             FIND FIRST cust WHERE cust.company = oe-ord.company
                               AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
             IF itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-               AVAIL cust AND cust.active NE "X"                         THEN DO:
+               AVAIL cust AND NOT cust.internal                         THEN DO:
                FIND FIRST cust WHERE cust.company = g_company AND
                                      cust.cust-no = itemfg.cust-no
                                      NO-LOCK NO-ERROR.
-               IF AVAIL cust AND cust.active NE "X" THEN DO:                      
+               IF AVAIL cust AND NOT cust.internal THEN DO:                      
                   MESSAGE "This item exists for a different customer!. Do you want to continue?"
                           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
                   IF NOT ll-ans THEN  RETURN NO-APPLY.       
@@ -2799,7 +2809,7 @@ DO:
    IF SELF:SCREEN-VALUE EQ "T" AND
       CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                             AND cust.cust-no EQ oe-ord.cust-no
-                            AND cust.active  EQ "X") THEN DO:
+                            AND cust.internal EQ YES) THEN DO:
      APPLY "leave" TO SELF.
      RETURN NO-APPLY.
    END.
@@ -3473,7 +3483,7 @@ PROCEDURE check-quote :
   DEF VAR ldQuotePrice AS DEC NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL xest AND v-quo-price-log                             AND
+    IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log      AND
       v-quo-price-dec EQ 1 AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN DO:
 
       FOR EACH quotehd
@@ -3606,6 +3616,13 @@ DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO.
+
+IF lQuotePriceMatrix THEN
+DO:
+   MESSAGE "Quotes should not be used as NK1 = QuotePriceMatrix is set such that only the price matrix should be used."
+           VIEW-AS ALERT-BOX INFO .
+   RETURN.        
+END.
 
 DO WITH FRAME {&FRAME-NAME}:
     cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
@@ -4726,7 +4743,7 @@ PROCEDURE display-est-detail :
          WHERE est-qty.company EQ est.company
            AND est-qty.est-no  EQ est.est-no
          NO-ERROR.
-     IF v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
+     IF NOT lQuotePriceMatrix AND v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
         (est-qty.qty[2] NE 0 OR est-qty.qty[3] NE 0 OR est-qty.qty[4] NE 0) AND
         NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4738,8 +4755,7 @@ PROCEDURE display-est-detail :
               WHERE quotehd.company EQ est.company AND
               quotehd.est-no EQ est.est-no AND 
               quotehd.quo-date LE TODAY AND
-              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
-              ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-ERROR .
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)  NO-ERROR .
            
           IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
@@ -4764,7 +4780,7 @@ PROCEDURE display-est-detail :
            END.
                  
         END.
-     ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
+     ELSE IF NOT lQuotePriceMatrix AND CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
@@ -4834,7 +4850,7 @@ PROCEDURE display-est-detail :
    lv-pr-uom = oe-ordl.pr-uom:SCREEN-VALUE
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
    cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
-  IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
+  IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
       NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -5608,6 +5624,7 @@ PROCEDURE display-item :
             fi_s-pct-lbl
             fi_s-comm-lbl
             oe-ordl.SourceEstimateID            
+            oe-ordl.managed
           WITH FRAME {&frame-name}.
 
 /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -6368,11 +6385,10 @@ PROCEDURE get-price :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-price-ent LIKE price-ent NO-UNDO.
   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
-
+          
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT price-ent                           AND
-       AVAIL oe-ordl                           AND
-       TRIM(oe-ordl.est-no:SCREEN-VALUE) EQ "" THEN DO:
+       AVAIL oe-ordl                           THEN DO:
 
       lv-price-ent = price-ent.
       IF NOT lv-add-mode THEN price-ent = YES.
@@ -6927,7 +6943,7 @@ PROCEDURE leave-qty :
 
           ll-got-qtprice = YES.
 
-          IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
+          IF NOT lQuotePriceMatrix AND NOT CAN-FIND(FIRST tt-item-qty-price WHERE
              tt-item-qty-price.tt-selected = YES AND
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
              (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
@@ -6946,7 +6962,7 @@ PROCEDURE leave-qty :
                   INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                   ).
           END.
-          ELSE
+          ELSE IF NOT lQuotePriceMatrix THEN
           DO:
              FIND FIRST tt-item-qty-price WHERE
                   tt-item-qty-price.tt-selected = YES AND
@@ -7520,36 +7536,44 @@ PROCEDURE OnSaveButton :
             END.
         END.
         
-        IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+        IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:
             IF NOT cPromManualChanged AND cDueManualChanged THEN 
             DO:
-                
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "DueDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-      
-            oe-ordl.prom-date = dCalcPromDate.
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
             END.
-            ELSE IF NOT cDueManualChanged AND cPromManualChanged THEN 
+            ELSE
+            IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
-                
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "PromiseDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-      
-            oe-ordl.req-date = dCalcDueDate.
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "PromiseDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.req-date = dCalcDueDate.
+            END.
+            ELSE
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
         END.
-        END.
-  
   
         IF lv-change-cst-po THEN 
         DO:  
@@ -7595,11 +7619,8 @@ PROCEDURE OnSaveButton :
         RUN itemfg-sman.
         ASSIGN oe-ordl.s-man[1].
     END.
-     
   
     DO  TRANSACTION :
-  
-  
         IF ll-new-record AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
         DO:
             RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
@@ -7632,7 +7653,7 @@ PROCEDURE OnSaveButton :
             WHERE cust.company EQ cocode
             AND cust.cust-no EQ oe-ord.cust-no NO-ERROR.
         IF (ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-")
-            AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN 
+            AND AVAIL cust AND NOT cust.internal AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN 
         DO:
             RUN oe/creditck.p (ROWID(oe-ord), YES).  
         END.
@@ -7837,9 +7858,9 @@ PROCEDURE OnSaveButton :
 
         FIND CURRENT oe-ord NO-LOCK NO-ERROR.
     END.
-   
+
     /* Done after oe-ord.due-date is updated */
-    IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
+    IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
     DO TRANSACTION:
    
         FOR EACH oe-rel 
@@ -10151,7 +10172,7 @@ PROCEDURE valid-type :
        (oe-ordl.type-code:SCREEN-VALUE EQ "T" AND
         NOT CAN-FIND(FIRST cust WHERE cust.company EQ cocode
                                   AND cust.cust-no EQ oe-ord.cust-no
-                                  AND cust.active  EQ "X")) THEN DO:
+                                  AND cust.internal EQ YES)) THEN DO:
       MESSAGE "Invalid Type, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-ordl.type-code.
       RETURN ERROR.
@@ -10670,10 +10691,10 @@ DO WITH FRAME {&frame-name} :
                         AND cust.cust-no = oe-ord.cust-no NO-LOCK NO-ERROR.
       IF cp-part-no EQ "" AND
          itemfg.cust-no NE oe-ord.cust-no AND itemfg.cust-no NE "" AND
-         AVAIL cust AND cust.active NE "X"                         THEN DO:
+         AVAIL cust AND NOT cust.internal                         THEN DO:
          FIND FIRST cust WHERE cust.company = oe-ord.company
                            AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
-         IF AVAIL cust AND cust.active NE "X" THEN DO:
+         IF AVAIL cust AND NOT cust.internal THEN DO:
             choice = NO.
             FIND FIRST sys-ctrl WHERE sys-ctrl.company = oe-ord.company AND
                                       sys-ctrl.NAME = "OEITEM" NO-LOCK NO-ERROR.
@@ -10715,11 +10736,17 @@ PROCEDURE validate-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT fi_jobStartDate:SCREEN-VALUE,
-                                 OUTPUT ll-valid).
-        IF NOT ll-valid THEN
-            APPLY "entry" TO fi_jobStartDate.
+                                 OUTPUT cMessage).
+         ll-valid = YES.                         
+        IF cMessage NE "" AND NOT lShowWarning THEN
+        DO:
+           MESSAGE cMessage 
+                 VIEW-AS ALERT-BOX WARNING.
+           lShowWarning = YES.       
+        END.       
     END.
 END PROCEDURE.
 

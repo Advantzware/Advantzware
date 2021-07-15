@@ -1695,6 +1695,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-blank-size V-table-Win 
 PROCEDURE calc-blank-size :
 /*------------------------------------------------------------------------------

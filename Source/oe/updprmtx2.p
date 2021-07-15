@@ -153,13 +153,14 @@ IF AVAIL quotehd THEN DO:
        quotehd.approved = YES
        quotehd.expireDate = 12/31/2099.
        IF dtEffectiveDate EQ ? THEN
-       quotehd.effectiveDate = TODAY.
-       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no). 
+       quotehd.effectiveDate = TODAY.       
+       RUN unApprovedDuplicateQuote IN hdQuoteProcs (ROWID(quotehd),quoteitm.part-no,quoteitm.i-no).
+       
     END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
      
     IF lQuoteExpireDuplicates THEN
-    RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.quo-date - 1) .
+    RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.effectiveDate - 1) .
      
   END.
 END.
@@ -182,7 +183,7 @@ PROCEDURE update-matrix.
         AND oe-prmtx.custShipID         EQ cShipId 
         AND oe-prmtx.procat             EQ itemfg.procat 
         AND oe-prmtx.custype            EQ cCustType
-        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)        
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate )        
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -281,6 +282,16 @@ PROCEDURE update-matrix.
        oe-prmtx.uom[li]  = w-matrix.uom
        oe-prmtx.price[li]= w-matrix.price.
   END.
+  
+  FIND CURRENT oe-prmtx NO-LOCK NO-ERROR.
+  RUN Price_ExpireOldPrice(
+        INPUT oe-prmtx.company,
+        INPUT oe-prmtx.i-no,
+        INPUT oe-prmtx.custshipid,
+        INPUT oe-prmtx.cust-no,
+        INPUT oe-prmtx.custype,
+        INPUT oe-prmtx.procat
+        ).
 
 END PROCEDURE.
 
@@ -293,7 +304,7 @@ PROCEDURE update-matrix-minus.
         AND oe-prmtx.custShipID         EQ cShipId 
         AND oe-prmtx.procat             EQ itemfg.procat 
         AND oe-prmtx.custype            EQ cCustType
-        AND (oe-prmtx.eff-date          EQ dtEffectiveDate OR oe-prmtx.eff-date EQ TODAY)
+        AND (oe-prmtx.eff-date          EQ dtEffectiveDate )
       BY oe-prmtx.eff-date DESC:
     LEAVE.
   END.
@@ -404,5 +415,15 @@ PROCEDURE update-matrix-minus.
     */
     END.
   END.
+  
+  FIND CURRENT oe-prmtx NO-LOCK NO-ERROR.
+  RUN Price_ExpireOldPrice(
+        INPUT oe-prmtx.company,
+        INPUT oe-prmtx.i-no,
+        INPUT oe-prmtx.custshipid,
+        INPUT oe-prmtx.cust-no,
+        INPUT oe-prmtx.custype,
+        INPUT oe-prmtx.procat
+        ).
 
 END PROCEDURE.

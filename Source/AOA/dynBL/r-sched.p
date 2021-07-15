@@ -1046,4 +1046,4 @@ PROCEDURE pPrintSpecNotes:
     END. /* each notes */
 END PROCEDURE.
 
-{AOA/BL/pGetCustInfo.i}
+{AOA/dynBL/pGetCustInfo.i}

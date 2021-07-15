@@ -487,7 +487,7 @@ PROCEDURE run-process :
         FIRST cust NO-LOCK
         WHERE cust.company EQ oe-bolh.company
         AND cust.cust-no EQ oe-bolh.cust-no
-        AND cust.active NE "X" /* exclude transfers */,    
+        AND NOT cust.internal /* exclude transfers */,    
         EACH oe-boll 
         WHERE oe-boll.company EQ oe-bolh.company
         AND oe-boll.b-no    EQ oe-bolh.b-no                    

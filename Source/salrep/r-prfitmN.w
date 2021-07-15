@@ -79,12 +79,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
                            "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
-                           "Style,Flute,Test,Length,Width,Depth"
+                           "Style,Flute,Test,Length,Width,Depth,BOL#,Order#,PO Number"
        cFieldListToSelect = "cust,inv,ino,cust-part,cat,qty-shp,i-sq,ttl-msf,msf," +
                             "unt-prc,uom,brdcst-m,ordcst-m,invcst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
-                            "styl,flut,tst,lnth,wdth,dpth"
-       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
-       cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c,i,c," + "c,c,c,i,i,i" 
+                            "styl,flut,tst,lnth,wdth,dpth,bol-no,ord-no,po-no"
+       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6,10,8,15"
+       cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c,i,c," + "c,c,c,i,i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1541,6 +1541,9 @@ DEF VAR v-dep    AS DECI FORMAT ">>9.99".
 DEF VAR v-space AS CHAR FORMAT "X(2)".
 DEF VAR v-cust-part-no AS CHAR FORMAT "X(15)".
 DEF VAR v-cust-part-no2 AS CHAR FORMAT "X(15)".
+DEFINE VARIABLE iBolNo AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iOrdNo AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cPoNo  AS CHARACTER NO-UNDO.
 
 DEF VAR lv-r-no  LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type  AS   CHAR NO-UNDO.

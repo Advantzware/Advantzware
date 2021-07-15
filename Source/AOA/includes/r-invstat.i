@@ -931,4 +931,4 @@ PROCEDURE pGetQuantityOnHandAsOf PRIVATE:
 
 END PROCEDURE.
 
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

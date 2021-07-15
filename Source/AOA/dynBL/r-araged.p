@@ -10,7 +10,7 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttAgedReceivables
-{AOA/BL/r-aragedDefs.i}
+{AOA/dynBL/r-aragedDefs.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -25,6 +25,6 @@ DEFINE VARIABLE cType  AS CHARACTER NO-UNDO INITIAL "Detail".
 
 /* **********************  Internal Procedures  *********************** */
 
-{AOA/BL/r-araged.i}
+{AOA\dynBL/r-araged.i}
 
-{aoa/BL/pGetCustInfo.i}
+{AOA/dynBL/pGetCustInfo.i}

@@ -13,7 +13,7 @@
 {AOA/tempTable/ttRecapProductCategory.i}
 {AOA/tempTable/ttOrdersBooked.i}
 
-{AOA/BL/r-bookedDefs.i}
+{AOA\dynBL/r-bookedDefs.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -21,4 +21,4 @@
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
 /* subject business logic */
-{AOA/BL/r-booked.i}
+{AOA\dynBL/r-booked.i}
