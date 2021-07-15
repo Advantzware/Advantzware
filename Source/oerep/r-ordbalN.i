@@ -240,7 +240,7 @@
               END.
            
               PUT UNFORMATTED cDisplay SKIP.
-              IF tb_excel THEN DO:
+              IF rd-dest = 3 THEN DO:
                    PUT STREAM excel UNFORMATTED  
                          cExcelDisplay SKIP.
                END.
@@ -377,7 +377,7 @@
                 "-----------"
                 skip.
 
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
               IF tb_break THEN
                 PUT STREAM excel UNFORMATTED
                     '"' ""                                                '",'
@@ -428,7 +428,7 @@
               tt-fg-bin.qty               FORMAT ">>>,>>>,>>9"
               SKIP.
 
-          IF tb_excel THEN DO:
+          IF rd-dest = 3 THEN DO:
             IF tb_break THEN
               PUT STREAM excel UNFORMATTED
                   '"' ""                                                '",'
