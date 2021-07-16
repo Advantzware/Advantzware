@@ -303,6 +303,16 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
+  
+  IF index(begin_rm-i-no,"*") gt 0 AND SUBSTRING(begin_rm-i-no,1,1) NE "*" THEN 
+  DO:
+     
+     IF NOT( index(end_rm-i-no,"*") gt 0 AND SUBSTRING(end_rm-i-no,1,1) NE "*") THEN
+     DO:
+        message "ERROR: The new RM# must have a match case" view-as alert-box error.
+        return no-apply.
+     END.
+  END.
 
   IF begin_rm-i-no EQ "/" OR begin_rm-i-no eq "*" OR
      (begin_rm-i-no BEGINS "!" AND
@@ -445,7 +455,9 @@ def buffer b-item for item.
 def var v-item      like item.i-no init "".
 def var v-new-item  like item.i-no.
 def var v-char      as   char.
-
+DEFINE VARIABLE cBaginItem AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNewItemValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNewItemBegin AS CHARACTER NO-UNDO.
 
 assign
  v-item     = begin_rm-i-no
@@ -485,9 +497,22 @@ else
       view-as alert-box question button yes-no update v-process.
 
 if v-process then do:
-  session:set-wait-state("General").
-
-  if index("*!",v-item) gt 0 then
+  session:set-wait-state("General").   
+   
+  IF index(v-item,"*") gt 0 AND SUBSTRING(v-item,1,1) NE "*" THEN
+  DO:
+      cBaginItem = SUBSTRING(v-item,1,INDEX(v-item,"*") - 1)  .
+      cNewItemBegin = SUBSTRING(v-new-item,1,INDEX(v-new-item,"*") - 1)  .
+       
+      FOR EACH ITEM
+          WHERE item.company  EQ cocode
+          AND item.i-no       BEGINS cBaginItem
+        NO-LOCK:            
+          cNewItemValue = cNewItemBegin + SUBSTRING(item.i-no,LENGTH(cBaginItem) + 1, LENGTH(item.i-no) - LENGTH(cBaginItem)).  
+          RUN rm/updrmitm.p (recid(item), cNewItemValue).
+      END. 
+  END.    
+  ELSE IF index("*!",v-item) gt 0 then
   for each item
       where item.company           eq cocode
         and ((v-item               eq "*" and
