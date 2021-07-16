@@ -193,7 +193,7 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout
 &Scoped-define SECOND-DISPLAYED-TABLE eb
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
-&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_per-set fi_from-est-no ~
+&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_len-blank fi_tot-len-blank fi_per-set fi_from-est-no ~
 fi_blank-qty sman_sname procat_desc style_dscr tab-inout 
 
 /* Custom List Definitions                                              */
@@ -277,7 +277,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_qty-msf 
      LABEL "" 
-     SIZE 74 BY 1.
+     SIZE 79.3 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -298,9 +298,19 @@ DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0
      SIZE 15.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_per-set AS DECIMAL FORMAT "->>>9.9<<<":U INITIAL 0 
-     LABEL "Qty/Set" 
+     LABEL "PerSet" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_len-blank AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
+     LABEL "LF" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_tot-len-blank AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
+     LABEL "TLF" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE procat_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -346,9 +356,11 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 DEFINE FRAME Corr
      tb-set AT ROW 16 COL 90 WIDGET-ID 12
      bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
-     btn_qty-msf AT ROW 2.67 COL 78
+     btn_qty-msf AT ROW 2.67 COL 73.2
      fi_msf AT ROW 2.67 COL 134.6 COLON-ALIGNED
      fi_per-set AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_len-blank AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_tot-len-blank AT ROW 2.67 COL 114 COLON-ALIGNED
      est.est-no AT ROW 1.24 COL 9.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -421,7 +433,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
-          LABEL "Quantity" FORMAT ">>>>>>>"
+          LABEL "Q" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.part-no AT ROW 3.86 COL 90 COLON-ALIGNED
@@ -710,6 +722,16 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fi_per-set:HIDDEN IN FRAME Corr           = TRUE.
+       
+/* SETTINGS FOR FILL-IN fi_len-blank IN FRAME Corr
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_len-blank:HIDDEN IN FRAME Corr           = TRUE.
+       
+/* SETTINGS FOR FILL-IN fi_tot-len-blank IN FRAME Corr
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_tot-len-blank:HIDDEN IN FRAME Corr           = TRUE.       
 
 /* SETTINGS FOR FILL-IN eb.form-no IN FRAME Corr
    NO-ENABLE EXP-LABEL                                                  */
@@ -3780,8 +3802,9 @@ END.
        fi_msf     = (IF eb.est-type GE 7 THEN eb.bl-qty
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
-                               ELSE (eb.t-sqin / 144)) / 1000.
-
+                               ELSE (eb.t-sqin / 144)) / 1000
+      fi_len-blank = eb.t-len / 12
+      fi_tot-len-blank = fi_len-blank * est-qty.eqty .
 
   fi_from-est-no = IF eb.master-est-no NE "" AND
                       eb.est-type EQ 8       THEN eb.master-est-no
@@ -3850,12 +3873,18 @@ END.
 
     btn_qty-msf:LABEL = TRIM(est-qty.eqty:LABEL) + ": " +
                         TRIM(lv-eqty) +
-                        FILL(" ",10) +
+                        FILL(" ",5) +
                         TRIM(fi_per-set:LABEL) + ": " +
                         TRIM(STRING(fi_per-set,fi_per-set:FORMAT)) +
-                        FILL(" ",10) +
+                        FILL(" ",5) +
                         TRIM(fi_msf:LABEL) + ": " +
-                        TRIM(STRING(fi_msf,fi_msf:FORMAT)).
+                        TRIM(STRING(fi_msf,fi_msf:FORMAT)) +
+                        FILL(" ",5) +
+                        TRIM(fi_len-blank:LABEL) + ": " +
+                        TRIM(STRING(fi_len-blank,fi_len-blank:FORMAT)) +
+                        FILL(" ",5) +
+                        TRIM(fi_tot-len-blank:LABEL) + ": " +
+                        TRIM(STRING(fi_tot-len-blank,fi_tot-len-blank:FORMAT)).
 
     btn_fgitem:LABEL = " " + TRIM(eb.stock:LABEL) + ": " /*+ TRIM(eb.stock) */.
     IF eb.stock = "" THEN
