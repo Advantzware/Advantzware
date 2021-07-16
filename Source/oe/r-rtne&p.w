@@ -86,9 +86,11 @@ def var v-postable as log no-undo.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-18 RECT-6 tran-date begin_ra-no ~
-end_ra-no tb_prt-notes rd-dest td-show-parm Btn_OK Btn_Cancel 
+end_ra-no tb_prt-notes lv-ornt lines-per-page rd-dest lv-font-no ~
+td-show-parm Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date begin_ra-no end_ra-no ~
-tb_prt-notes rd-dest td-show-parm 
+tb_prt-notes lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -169,16 +171,16 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To CSV", 3
-     SIZE 16 BY 3.33 NO-UNDO.
+"To File", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 88 BY 4.57.
+     SIZE 92 BY 8.57.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 88 BY 4.57.
+     SIZE 92 BY 8.1.
 
 DEFINE VARIABLE tb_prt-notes AS LOGICAL INITIAL yes 
      LABEL "Print Notes?" 
@@ -194,32 +196,31 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-F
-     tran-date AT ROW 2.1 COL 24 COLON-ALIGNED
-     tran-period AT ROW 2.1 COL 62 COLON-ALIGNED
-     begin_ra-no AT ROW 3.19 COL 24 COLON-ALIGNED HELP
+     tran-date AT ROW 2.91 COL 24 COLON-ALIGNED
+     tran-period AT ROW 2.91 COL 62 COLON-ALIGNED
+     begin_ra-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
           "Enter the beginning BOL number"
-     end_ra-no AT ROW 3.19 COL 62 COLON-ALIGNED HELP
+     end_ra-no AT ROW 4.33 COL 62 COLON-ALIGNED HELP
           "Enter the ending BOL number"
-     tb_prt-notes AT ROW 4.43 COL 26.4
-     rd-dest AT ROW 7.43 COL 7 NO-LABEL
-     lv-ornt AT ROW 7.43 COL 28.6 NO-LABEL
-     lv-font-name AT ROW 7.43 COL 29 COLON-ALIGNED NO-LABEL
-     lv-font-no AT ROW 7.43 COL 33 COLON-ALIGNED
-     lines-per-page AT ROW 7.67 COL 35 COLON-ALIGNED
-     td-show-parm AT ROW 9.57 COL 32
-     Btn_OK AT ROW 11.71 COL 25.2
-     Btn_Cancel AT ROW 11.71 COL 49.4
+     tb_prt-notes AT ROW 6 COL 25
+     lv-ornt AT ROW 11 COL 33 NO-LABEL
+     lines-per-page AT ROW 11 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 11.95 COL 11 NO-LABEL
+     lv-font-no AT ROW 14.33 COL 33.2 COLON-ALIGNED
+     lv-font-name AT ROW 15.29 COL 33 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 16.24 COL 9
+     Btn_OK AT ROW 18.86 COL 19
+     Btn_Cancel AT ROW 18.86 COL 52
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 20.8 BY .67 AT ROW 1.1 COL 4.4
+          SIZE 22 BY .95 AT ROW 1.48 COL 6
      "Output Destination" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 6.38 COL 4.4
-     RECT-18 AT ROW 1.43 COL 3.6
-     RECT-6 AT ROW 6.67 COL 3.6
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+          SIZE 20 BY .62 AT ROW 10.52 COL 5
+     RECT-18 AT ROW 1 COL 1
+     RECT-6 AT ROW 9.81 COL 1
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 93 BY 12.38
-         BGCOLOR 15 .
+         SIZE 93 BY 19.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -239,7 +240,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Returns Edit & Post"
-         HEIGHT             = 12.38
+         HEIGHT             = 19.76
          WIDTH              = 93
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -273,42 +274,26 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-F
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_ra-no:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
 
 ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-F     = 
-                "ribbon-button".
-
-ASSIGN 
-       Btn_OK:PRIVATE-DATA IN FRAME FRAME-F     = 
-                "ribbon-button".
-
-ASSIGN 
        end_ra-no:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-F
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lines-per-page:HIDDEN IN FRAME FRAME-F           = TRUE.
-
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-F
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-name:HIDDEN IN FRAME FRAME-F           = TRUE.
-
-/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-F
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-no:HIDDEN IN FRAME FRAME-F           = TRUE.
-
-/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-F
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-ornt:HIDDEN IN FRAME FRAME-F           = TRUE.
-
+   NO-ENABLE                                                            */
 ASSIGN 
        tb_prt-notes:PRIVATE-DATA IN FRAME FRAME-F     = 
                 "parm".
@@ -328,7 +313,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -585,8 +570,6 @@ ASSIGN
   c-win:TITLE = IF ip-post THEN "Return Posting/Post Returns"
                             ELSE "Return Edit List".
   tran-date = TODAY.
-  btn_ok:load-image("Graphics/32x32/Ok.png").
-  btn_cancel:load-image("Graphics/32x32/cancel.png").
  RUN enable_UI.
 
   /*RUN check-date.*/
@@ -667,10 +650,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date begin_ra-no end_ra-no tb_prt-notes rd-dest td-show-parm 
+  DISPLAY tran-date begin_ra-no end_ra-no tb_prt-notes lv-ornt lines-per-page 
+          rd-dest lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-F IN WINDOW C-Win.
-  ENABLE RECT-18 RECT-6 tran-date begin_ra-no end_ra-no tb_prt-notes rd-dest 
-         td-show-parm Btn_OK Btn_Cancel 
+  ENABLE RECT-18 RECT-6 tran-date begin_ra-no end_ra-no tb_prt-notes lv-ornt 
+         lines-per-page rd-dest lv-font-no td-show-parm Btn_OK Btn_Cancel 
       WITH FRAME FRAME-F IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-F}
   VIEW C-Win.
