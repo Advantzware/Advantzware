@@ -35,7 +35,7 @@ PROCEDURE createRelease:
         oe-rel.i-no      = oe-ordl.i-no
         oe-rel.cust-no   = oe-ord.cust-no
         oe-rel.po-no     = IF oe-ordl.po-no NE "" THEN oe-ordl.po-no ELSE oe-ord.po-no
-        oe-rel.qty       = oe-ordl.qty /*- v-qty-sum */
+        oe-rel.qty       = 0 /*- v-qty-sum */
         oe-rel.tot-qty   = oe-ordl.qty
         oe-rel.line      = oe-ordl.line
         oe-rel.s-comm[1] = oe-ord.s-comm[1]
