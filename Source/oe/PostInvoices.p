@@ -3248,10 +3248,8 @@ PROCEDURE pUpdateWarehouseQty PRIVATE:
         FIRST oe-bolh
         WHERE oe-bolh.company  EQ oe-boll.company
         AND oe-bolh.b-no     EQ oe-boll.b-no
-        BREAK BY oe-boll.i-no :               
-      
-        IF LAST-OF(oe-boll.i-no) THEN
-        DO:
+        BREAK BY oe-boll.i-no :         
+       
             FIND FIRST fg-bin  EXCLUSIVE-LOCK
                 WHERE fg-bin.company  EQ oe-boll.company
                 AND fg-bin.job-no   EQ oe-boll.job-no
@@ -3265,11 +3263,10 @@ PROCEDURE pUpdateWarehouseQty PRIVATE:
         
             IF AVAILABLE fg-bin THEN
             DO:
-                fg-bin.qty  = fg-bin.qty - ipdShipQty.
+                fg-bin.qty  = fg-bin.qty - oe-boll.qty.
                 fg-bin.partial-count = fg-bin.partial-count - oe-boll.partial.
-                RUN fg/cre-pchr.p (ROWID(fg-bin), "S", ipdShipQty, oe-boll.partial,"").
-            END.
-        END.   
+                RUN fg/cre-pchr.p (ROWID(fg-bin), "S", oe-boll.qty, oe-boll.partial,"").
+            END.         
     END. 
     RELEASE fg-bin.
     RELEASE bf-itemfg.
