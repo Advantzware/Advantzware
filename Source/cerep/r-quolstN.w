@@ -494,7 +494,7 @@ DO:
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
     END.
- IF rd-dest = 3 THEN
+ IF rd-dest = 4 THEN
   do:
     fi_file:SCREEN-VALUE = "c:\tmp\r-quolst.csv".
     assign fi_file.
