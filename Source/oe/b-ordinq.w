@@ -227,7 +227,10 @@ ll-initial = browser-log. */
           
 &SCOPED-DEFINE for-each2 ~
     FIRST oe-ord OF oe-ordl ~
-      USE-INDEX ord-no NO-LOCK, ~
+     WHERE ((oe-ord.stat NE 'H' AND tbOther EQ YES) ~
+       OR (oe-ord.stat EQ 'W' AND tbWeb EQ YES) ~
+       OR (oe-ord.stat EQ 'H' AND tbHold EQ YES)) ~
+       USE-INDEX ord-no NO-LOCK, ~
     FIRST itemfg ~{&joinScop} NO-LOCK ~
     WHERE itemfg.company EQ oe-ordl.company ~
       AND itemfg.i-no EQ oe-ordl.i-no ~
