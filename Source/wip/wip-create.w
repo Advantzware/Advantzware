@@ -786,7 +786,7 @@ DO:
     
             RUN CreatePrintInventory IN hdInventoryProcs (
                 INPUT ttBrowseInventory.inventoryStockID,
-                OUTPUT TABLE ttPrintInventoryStock 
+                INPUT-OUTPUT TABLE ttPrintInventoryStock 
                 ).
         END.
         
@@ -801,9 +801,10 @@ DO:
                     INPUT ttBrowseInventory.inventoryStockID
                     ).
         
+
             RUN CreatePrintInventory IN hdInventoryProcs (
                 INPUT ttBrowseInventory.inventoryStockID,
-                OUTPUT TABLE ttPrintInventoryStock
+                INPUT-OUTPUT TABLE ttPrintInventoryStock
                 ).
         
             RUN pPrintLabels.
