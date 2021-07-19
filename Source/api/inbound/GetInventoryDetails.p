@@ -26,6 +26,7 @@ DEFINE INPUT  PARAMETER iplIncludeEmptyTag  AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcStatus           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplOnHold           AS LOGICAL   NO-UNDO. /* Send ? as input to ignore onHold in query filter */
 DEFINE INPUT  PARAMETER ipcItemType         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiRecordLimit      AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE               FOR ttItem. 
@@ -50,11 +51,6 @@ DEFINE VARIABLE lValidCustNo     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidPoID       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidStatus     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidOnHold     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iRecordLimit     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE dQueryTimeLimit  AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lEnableShowAll   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cResponse        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
 
 RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -211,16 +207,8 @@ END.
   
 /* Writes response data to temp table*/
 IF ipcItemType EQ cItemTypeFG THEN DO:
-
-    RUN Browser_GetRecordAndTimeLimit(
-    INPUT  ipcCompany,
-    INPUT  "IQ3",
-    OUTPUT iRecordLimit,
-    OUTPUT dQueryTimeLimit,
-    OUTPUT lEnableShowAll
-    ).      
-            
-    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
+       
+    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"             
            + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF iplIncludeEmptyTag THEN " AND fg-bin.tag NE ''" ELSE "")
            + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
@@ -234,41 +222,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
            + (IF lValidOnHold THEN " AND fg-bin.onHold EQ " + STRING(iplOnHold) ELSE "") 
            + (IF iplIncludeZeroQty THEN " AND fg-bin.qty NE 0 " + " AND fg-bin.qty NE ?" ELSE "")
            + (IF lValidPoID THEN " USE-INDEX po-no" ELSE IF lValidJobNo THEN " USE-INDEX job-no" ELSE IF lValidStatus THEN " USE-INDEX statusID" ELSE " USE-INDEX onHold")
-           + " BREAK BY fg-bin.rec_key DESC"
-           .
-                 
-    RUN Browse_PrepareAndExecuteLimitingQuery(
-            INPUT  cQuery,           /* Query */
-            INPUT  "fg-bin",         /* Buffers Name */
-            INPUT  iRecordLimit,     /* Record Limit */
-            INPUT  dQueryTimeLimit,  /* Time Limit*/
-            INPUT  NO,               /* Enable ShowAll Button? */
-            INPUT  "fg-bin",         /* Buffer name to fetch the field's value*/
-            INPUT  "rec_key",        /* Field Name*/
-            INPUT  NO,               /* Initial Query*/
-            INPUT  YES,              /* Is breakby used */
-            OUTPUT cResponse           
-            ).  
-            
-    cBrowseWhereClause = " AND fg-bin.rec_key  GE " + QUOTER(cResponse) . 
-    
-    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
-           + cBrowseWhereClause  
-           + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
-           + (IF iplIncludeEmptyTag THEN " AND fg-bin.tag NE ''" ELSE "")
-           + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
-           + (IF lValidLoc    THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin    THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + (IF lValidJobNo  THEN " AND fg-bin.job-no EQ '" + ipcJobNo + "'" ELSE "")
-           + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ " + STRING(ipiJobNo2) ELSE "")
-           + (IF lValidCustNo THEN " AND fg-bin.cust-no EQ '" + ipcCustNo + "'" ELSE "")
-           + (IF lValidPoID   THEN " AND fg-bin.po-no EQ '" + STRING(ipiPoID) + "'" ELSE "")
-           + (IF lValidStatus THEN " AND fg-bin.statusID EQ '" + ipcStatus + "'" ELSE "")
-           + (IF lValidOnHold THEN " AND fg-bin.onHold EQ " + STRING(iplOnHold) ELSE "") 
-           + (IF iplIncludeZeroQty THEN " AND fg-bin.qty NE 0 " + " AND fg-bin.qty NE ?" ELSE "")
-           + (IF lValidPoID THEN " USE-INDEX po-no" ELSE IF lValidJobNo THEN " USE-INDEX job-no" ELSE IF lValidStatus THEN " USE-INDEX statusID" ELSE " USE-INDEX onHold")
-           .
-                         
+           .                           
               
     CREATE BUFFER hdBuffer FOR TABLE cTableFG.
     CREATE QUERY hdQuery.          
@@ -277,8 +231,12 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
     hdQuery:QUERY-OPEN().
     hdQuery:GET-FIRST().
     
-    REPEAT:                     
-        IF hdQuery:QUERY-OFF-END THEN DO:             
+    REPEAT:   
+        iCount = iCount + 1.
+        
+        IF hdQuery:QUERY-OFF-END OR iCount GT ipiRecordLimit THEN DO:  
+            IF iCount GT ipiRecordLimit THEN
+                opcMessage = "Large number of records available for this search. Limiting to " + STRING(ipiRecordLimit) +  " records".
             LEAVE.
         END.
         
@@ -359,9 +317,9 @@ ELSE DO:
     REPEAT:
         iCount = iCount + 1.
         
-        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN DO:
-            IF iCount GT 1000 THEN
-                opcMessage = "Large number of records available for this search. Limiting to 1000 records".
+        IF hdQuery:QUERY-OFF-END OR iCount GT ipiRecordLimit THEN DO:
+            IF iCount GT ipiRecordLimit THEN
+                opcMessage = "Large number of records available for this search. Limiting to " + STRING(ipiRecordLimit) + " records".
             LEAVE.
         END.
     
