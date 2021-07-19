@@ -51,8 +51,8 @@ ASSIGN
 
 DEF TEMP-TABLE tt-msf FIELD tt-set LIKE est-qty.eqty
                       FIELD tt-qty LIKE tt-set
-                      FIELD tt-len-blank AS DEC  FORM "->>,>>9.999"
-                      FIELD tt-tot-len-blank AS DEC FORM "->>,>>9.999"
+                      FIELD tt-lf-blank AS DEC  FORM "->>,>>9.999"
+                      FIELD tt-tot-lf-blank AS DEC FORM "->>,>>9.999"
                       FIELD tt-msf AS DEC
                       INDEX sets tt-set.
 
@@ -77,7 +77,7 @@ DEF TEMP-TABLE tt-msf FIELD tt-set LIKE est-qty.eqty
 &Scoped-define INTERNAL-TABLES tt-msf
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-msf.tt-qty tt-msf.tt-msf tt-msf.tt-len-blank tt-msf.tt-tot-len-blank  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-msf.tt-qty tt-msf.tt-msf tt-msf.tt-lf-blank tt-msf.tt-tot-lf-blank  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tt-msf NO-LOCK
@@ -123,8 +123,8 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 DISPLAY
       tt-msf.tt-qty           LABEL "Qty" FORMAT ">>,>>>,>>9"
       tt-msf.tt-msf           LABEL "MSF" FORMAT "->>,>>9.999"
-      tt-msf.tt-len-blank     LABEL "LF" FORMAT "->>,>>9.999"
-      tt-msf.tt-tot-len-blank LABEL "TLF" FORMAT "->>,>>9.999"
+      tt-msf.tt-lf-blank     LABEL "LF" FORMAT "->>,>>9.999"
+      tt-msf.tt-tot-lf-blank LABEL "TLF" FORMAT "->>,>>9.999"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 12.38
@@ -347,8 +347,8 @@ IF AVAIL eb THEN DO:
         NO-LOCK:
       ASSIGN
        ld               = IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet
-       tt-len-blank     = b-eb.t-len / 12
-       tt-tot-len-blank = tt-len-blank * tt-qty
+       tt-lf-blank     = b-eb.t-len / 12
+       tt-tot-lf-blank = tt-lf-blank * tt-qty
        tt-msf           = tt-msf +
                             (tt-set * ld * (IF v-corr THEN (b-eb.t-sqin * .007)
                                                       ELSE (b-eb.t-sqin / 144)) / 1000)
@@ -418,8 +418,8 @@ PROCEDURE local-initialize :
     ASSIGN
      tt-qty:WIDTH-CHARS IN BROWSE {&browse-name} = 20
      tt-msf:WIDTH-CHARS IN BROWSE {&browse-name} = 20
-     tt-len-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20
-     tt-tot-len-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20.
+     tt-lf-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20
+     tt-tot-lf-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20.
   END.
 
 END PROCEDURE.

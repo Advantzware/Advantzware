@@ -193,7 +193,7 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout
 &Scoped-define SECOND-DISPLAYED-TABLE eb
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
-&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_len-blank fi_tot-len-blank fi_per-set fi_from-est-no ~
+&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_lf-blank fi_tot-lf-blank fi_per-set fi_from-est-no ~
 fi_blank-qty sman_sname procat_desc style_dscr tab-inout 
 
 /* Custom List Definitions                                              */
@@ -302,12 +302,12 @@ DEFINE VARIABLE fi_per-set AS DECIMAL FORMAT "->>>9.9<<<":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 11 BY 1 NO-UNDO.
      
-DEFINE VARIABLE fi_len-blank AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
-     LABEL "LF" 
+DEFINE VARIABLE fi_lf-blank AS DECIMAL FORMAT "->,>>>,>>9.9":U INITIAL 0 
+     LABEL "Linear Feet" 
      VIEW-AS FILL-IN 
      SIZE 15.4 BY 1 NO-UNDO.
      
-DEFINE VARIABLE fi_tot-len-blank AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
+DEFINE VARIABLE fi_tot-lf-blank AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
      LABEL "TLF" 
      VIEW-AS FILL-IN 
      SIZE 15.4 BY 1 NO-UNDO.     
@@ -354,13 +354,13 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Corr
-     tb-set AT ROW 16 COL 90 WIDGET-ID 12
+     tb-set AT ROW 11.71 COL 132 WIDGET-ID 12
      bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
      btn_qty-msf AT ROW 2.67 COL 73.2
      fi_msf AT ROW 2.67 COL 134.6 COLON-ALIGNED
      fi_per-set AT ROW 2.67 COL 114 COLON-ALIGNED
-     fi_len-blank AT ROW 2.67 COL 114 COLON-ALIGNED
-     fi_tot-len-blank AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_lf-blank AT ROW 16 COL 91 COLON-ALIGNED
+     fi_tot-lf-blank AT ROW 2.67 COL 114 COLON-ALIGNED
      est.est-no AT ROW 1.24 COL 9.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -433,7 +433,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
-          LABEL "Q" FORMAT ">>>>>>>"
+          LABEL "Qty" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.part-no AT ROW 3.86 COL 90 COLON-ALIGNED
@@ -527,9 +527,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
-     eb.lockLayout AT ROW 11.71 COL 115 COLON-ALIGNED 
+     eb.lockLayout AT ROW 11.71 COL 108 COLON-ALIGNED 
           VIEW-AS TOGGLE-BOX 
-          SIZE 30 BY 1     
+          SIZE 20 BY 1     
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -594,7 +594,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" FORMAT ">>>9.999<<"
+          LABEL "Square Ft" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
@@ -723,15 +723,11 @@ ASSIGN
 ASSIGN 
        fi_per-set:HIDDEN IN FRAME Corr           = TRUE.
        
-/* SETTINGS FOR FILL-IN fi_len-blank IN FRAME Corr
-   NO-ENABLE                                                            */
-ASSIGN 
-       fi_len-blank:HIDDEN IN FRAME Corr           = TRUE.
        
-/* SETTINGS FOR FILL-IN fi_tot-len-blank IN FRAME Corr
+/* SETTINGS FOR FILL-IN fi_tot-lf-blank IN FRAME Corr
    NO-ENABLE                                                            */
 ASSIGN 
-       fi_tot-len-blank:HIDDEN IN FRAME Corr           = TRUE.       
+       fi_tot-lf-blank:HIDDEN IN FRAME Corr           = TRUE.       
 
 /* SETTINGS FOR FILL-IN eb.form-no IN FRAME Corr
    NO-ENABLE EXP-LABEL                                                  */
@@ -3803,8 +3799,8 @@ END.
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
                                ELSE (eb.t-sqin / 144)) / 1000
-      fi_len-blank = eb.t-len / 12
-      fi_tot-len-blank = fi_len-blank * est-qty.eqty .
+      fi_lf-blank = eb.t-len / 12
+      fi_tot-lf-blank = fi_lf-blank * est-qty.eqty .
 
   fi_from-est-no = IF eb.master-est-no NE "" AND
                       eb.est-type EQ 8       THEN eb.master-est-no
@@ -3873,18 +3869,15 @@ END.
 
     btn_qty-msf:LABEL = TRIM(est-qty.eqty:LABEL) + ": " +
                         TRIM(lv-eqty) +
-                        FILL(" ",5) +
+                        FILL(" ",8) +
                         TRIM(fi_per-set:LABEL) + ": " +
                         TRIM(STRING(fi_per-set,fi_per-set:FORMAT)) +
-                        FILL(" ",5) +
+                        FILL(" ",8) +
                         TRIM(fi_msf:LABEL) + ": " +
                         TRIM(STRING(fi_msf,fi_msf:FORMAT)) +
-                        FILL(" ",5) +
-                        TRIM(fi_len-blank:LABEL) + ": " +
-                        TRIM(STRING(fi_len-blank,fi_len-blank:FORMAT)) +
-                        FILL(" ",5) +
-                        TRIM(fi_tot-len-blank:LABEL) + ": " +
-                        TRIM(STRING(fi_tot-len-blank,fi_tot-len-blank:FORMAT)).
+                        FILL(" ",8) +
+                        TRIM(fi_tot-lf-blank:LABEL) + ": " +
+                        TRIM(STRING(fi_tot-lf-blank,fi_tot-lf-blank:FORMAT)).
 
     btn_fgitem:LABEL = " " + TRIM(eb.stock:LABEL) + ": " /*+ TRIM(eb.stock) */.
     IF eb.stock = "" THEN
