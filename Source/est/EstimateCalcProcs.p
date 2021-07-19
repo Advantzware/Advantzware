@@ -5137,16 +5137,18 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
         ELSE
         DO: 
             /* pull Numout for sheeters */
-            FOR EACH bf-est-op NO-LOCK
+            FIND FIRST bf-est-op NO-LOCK
                 WHERE bf-est-op.company EQ bf-estCostOperation.company
                 AND bf-est-op.est-no    EQ bf-estCostOperation.estimateNo
                 AND bf-est-op.s-num     EQ bf-estCostOperation.formNo
+                AND bf-est-op.b-num     EQ bf-estCostOperation.blankNo
+                AND bf-est-op.op-Pass   EQ bf-estCostOperation.pass
                 AND bf-est-op.line      LT 500
-                AND bf-est-op.line      EQ bf-estCostOperation.sequenceOfOperation
-                AND bf-est-op.qty       EQ ipdEstOPQty:
+                AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
                 
+           IF AVAILABLE bf-est-op THEN     
                 iOut = IF bf-est-op.n-out GT 0 THEN bf-est-op.n-out ELSE 1.
-            END.
+           
         END.
     END.
 	
