@@ -601,12 +601,12 @@ ASSIGN
   IF NOT ip-post THEN DISABLE tran-date WITH FRAME {&FRAME-NAME}.
 
   {methods/nowait.i}
-  {sys/inc/reportsConfigNK1.i "OR12" }
+ /* {sys/inc/reportsConfigNK1.i "OR12" }
   assign
     td-show-parm:sensitive = lShowParameters
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
-    .
+    .*/
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
