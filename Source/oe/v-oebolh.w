@@ -1019,7 +1019,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-pallets V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-pallets IN FRAME F-Main /* Total Pallet */
+DO:  
+  RUN calc-freight.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -1134,10 +1144,12 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
             RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT ld).
             oe-bolh.freight:SCREEN-VALUE = STRING(ld).
             oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+            oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
         ELSE DO:   
            RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT ld).  
            oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+           oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
         
         scInstance = SharedConfig:instance.
