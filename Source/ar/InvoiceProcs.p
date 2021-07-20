@@ -767,8 +767,8 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
         OUTPUT iInterCompanyBilling
         ). 
         
-    cCustomer = IF iInterCompanyBilling EQ 1 THEN oe-bolh.cust-no ELSE oe-bolh.ship-id.   
-    cShipto   = IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no.    
+    cCustomer = IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no .   
+    cShipto   = oe-bolh.ship-id .    
      
     FIND FIRST bf-period NO-LOCK 
         WHERE bf-period.company EQ oe-bolh.company

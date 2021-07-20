@@ -221,14 +221,14 @@ DO TRANSACTION:
     RUN ipProcessBackorders.
     RUN ipUpdateReleaseStat. 
     
-    /* InterCompanyBilling AU1 */     
-    RUN ipCreateInterCompanyBilling.
-
 END. /* Do trans */
 RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
 
 RUN ipProcessShipOnly.
 RUN ipCalcHeaderTotals.
+
+/* InterCompanyBilling AU1 */     
+RUN ipCreateInterCompanyBilling.
 
 RUN ipUpsFile.
 RUN ipEndLog.
