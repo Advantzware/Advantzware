@@ -1740,6 +1740,82 @@ PROCEDURE Convert32ndsToDecimal:
         ).    
 END PROCEDURE.
 
+PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Updates the legacy reftable based on Panel Details
+     Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+     callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND FIRST bf-po-ordl NO-LOCK 
+        WHERE bf-po-ordl.company EQ ipcCompany
+        AND bf-po-ordl.po-no EQ ipiPoID
+        AND bf-po-ordl.line EQ ipiPoLine 
+        NO-ERROR.
+    IF AVAILABLE bf-po-ordl AND bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "2", "L", TABLE ttPanel BY-REFERENCE). 
+    ELSE 
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "1", "W", TABLE ttPanel BY-REFERENCE).
+        
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacyDetail PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Purpose:  Updates the legacy reftable based on Panel Details
+         Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+         callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcReftableLoc AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    
+    DEFINE BUFFER bf-scoreReftable FOR reftable.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dScore AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-scoreReftable EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable.reftable EQ "POLSCORE"
+        AND bf-scoreReftable.company  EQ ipcCompany
+        AND bf-scoreReftable.loc      EQ  ipcReftableLoc  //1 for Width 2 for Length
+        AND bf-scoreReftable.code     EQ STRING(ipiPoID,"9999999999")
+        AND bf-scoreReftable.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+    IF AVAILABLE bf-scoreReftable THEN 
+    DO:
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable.val  = 0
+            bf-scoreReftable.dscr = ""
+            . 
+        FOR EACH ttPanel
+            WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
+            BY ttPanel.iPanelNum:
+            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
+                NEXT.
+            ASSIGN 
+                iIndex = iIndex + 1
+                dScore = ttPanel.dPanelSize
+                .
+            RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
+                                    
+            ASSIGN 
+                bf-scoreReftable.val[iIndex] = dScore
+                bf-scoreReftable.dscr        = bf-scoreReftable.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE ttPanel.cScoreType)
+                .                                    
+        END.
+    END.  
+    RELEASE bf-scoreReftable.
+
+END PROCEDURE.
+
 PROCEDURE SwitchPanelSizeFormat:
 /*------------------------------------------------------------------------------
  Purpose: Converts the size format among 16th's, 32nd's and decimal
@@ -1863,6 +1939,14 @@ PROCEDURE UpdatePanelDetailsForPO:
         INPUT  "",                   /* Score set Type */
         INPUT  TABLE ttPanel
         ). 
+    
+    //Deprecate when POLSCORE Reftable is removed
+    RUN pUpdatePanelDetailsPOLegacy(
+        INPUT ipcCompany,
+        INPUT ipiPOID,
+        INPUT ipiPOLine,
+        INPUT TABLE ttPanel BY-REFERENCE).
+        
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForStyle:
