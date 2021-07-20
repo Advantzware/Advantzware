@@ -266,17 +266,22 @@ PROCEDURE pInterCompanyTrans:
     DEFINE VARIABLE cCustomerValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShiptoValue AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-cust    FOR cust.
-    DEFINE BUFFER bf-shipto  FOR shipto. 
-    DEFINE BUFFER bf-soldto  FOR soldto.
-    DEFINE BUFFER bff-shipto FOR shipto.
-    DEFINE BUFFER bff-soldto FOR soldto.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-shipto   FOR shipto. 
+    DEFINE BUFFER bf-soldto   FOR soldto.
+    DEFINE BUFFER bff-shipto  FOR shipto.
+    DEFINE BUFFER bff-soldto  FOR soldto.
+    DEFINE BUFFER bf-ori-cust FOR cust.
         
     FIND FIRST shipto NO-LOCK 
         WHERE shipto.company  EQ ipcCompany 
         AND shipto.cust-no    EQ ipcCustomer
         AND shipto.ship-id    EQ ipcShipID           
         NO-ERROR.
+    FIND FIRST bf-ori-cust NO-LOCK
+         WHERE bf-ori-cust.company EQ ipcCompany
+         AND bf-ori-cust.cust-no   EQ ipcCustomer
+         NO-ERROR.
        
     RUN pGetNk1Settings (
         ipcCompany,
@@ -311,8 +316,8 @@ PROCEDURE pInterCompanyTrans:
                     bf-cust.ACTIVE       = "A"
                     bf-cust.internal     = NO .                                                            
             END.      
-            
-            ASSIGN
+            IF iInterCompanyBilling EQ 1 THEN
+             ASSIGN
                 bf-cust.NAME         = shipto.ship-name
                 bf-cust.addr[1]      = shipto.ship-addr[1]
                 bf-cust.addr[2]      = shipto.ship-addr[2]
@@ -321,6 +326,16 @@ PROCEDURE pInterCompanyTrans:
                 bf-cust.state        = shipto.ship-state
                 bf-cust.zip          = shipto.ship-zip
                 bf-cust.fax-country  = shipto.country .
+            ELSE IF AVAIL bf-ori-cust THEN
+              ASSIGN
+                bf-cust.NAME         = bf-ori-cust.name
+                bf-cust.addr[1]      = bf-ori-cust.addr[1]
+                bf-cust.addr[2]      = bf-ori-cust.addr[2]
+                bf-cust.spare-char-3 = bf-ori-cust.spare-char-3
+                bf-cust.city         = bf-ori-cust.city
+                bf-cust.state        = bf-ori-cust.state
+                bf-cust.zip          = bf-ori-cust.zip
+                bf-cust.fax-country  = bf-ori-cust.fax-country .
             
             FIND FIRST bf-shipto EXCLUSIVE-LOCK
                  WHERE bf-shipto.company EQ cTransCompany
