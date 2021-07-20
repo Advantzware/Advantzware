@@ -830,16 +830,32 @@ find first company where company.company eq cocode NO-LOCK.
                        string(v-t-tax[i],"->>,>>>,>>9.99")) else "".
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
+    
+    IF ltb_print-message THEN DO:
+      IF v-printline > 55 THEN DO:
+          PAGE.
+          v-printline = 0.
+          {oe/rep/invhenry.i}
+      END.
+      PUT "<FArial><R56><C1><P12><B> Remit to: </B>" cInvMessage[1] FORMAT "x(30)" SKIP
+      "<c9>" cInvMessage[2] FORMAT "x(30)" SKIP
+      "<c9>" cInvMessage[3] FORMAT "x(30)" SKIP
+      "<c9>" cInvMessage[4] FORMAT "x(30)" SKIP
+      "<c9>" cInvMessage[5] FORMAT "x(30)" SKIP.
+      
+      v-printline = v-printline + 5.
+    END.
+    
     FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
         AND bf-cust.ACTIVE EQ "X":
 
         RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
         
-            PUT "<p8><R56><C3>" cStockNotes[1] SKIP
-                "<R57><C3>" cStockNotes[2] SKIP
-                "<R58><C3>" cStockNotes[3] SKIP
-                "<R59><C3>" cStockNotes[4] SKIP
+            PUT "<p8><R62><C3>" cStockNotes[1] SKIP
+                "<R63><C3>" cStockNotes[2] SKIP
+                "<R64><C3>" cStockNotes[3] SKIP
+                "<R65><C3>" cStockNotes[4] SKIP
                 "<p10>".
         
     END.
