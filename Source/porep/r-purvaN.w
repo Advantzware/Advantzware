@@ -105,18 +105,17 @@ ASSIGN cTextListToDefault  = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,V
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_po-no end_po-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 end_po-no begin_po-no ~
 begin_po-date end_po-date begin_vend-no end_vend-no begin_po-i-no ~
 end_po-i-no begin_job-no end_job-no tb_receipt begin_rec-date end_rec-date ~
 rd_vend-cost tb_mpv tb_repeat tb_overs tb_adder sl_avail sl_selected ~
-Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_po-date ~
+Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file ~
+tb_runExcel tbAutoClose btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS end_po-no begin_po-no begin_po-date ~
 end_po-date begin_vend-no end_vend-no begin_po-i-no end_po-i-no ~
-begin_job-no end_job-no tb_receipt begin_rec-date end_rec-date ~
-lbl_vend-cost rd_vend-cost tb_mpv tb_repeat tb_overs tb_adder sl_avail ~
-sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+begin_job-no end_job-no tb_receipt begin_rec-date end_rec-date rd_vend-cost ~
+tb_mpv tb_repeat tb_overs tb_adder sl_avail sl_selected rd-dest ~
+td-show-parm fi_file tb_runExcel tbAutoClose lbl_vend-cost 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -143,31 +142,31 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Job#" 
@@ -229,15 +228,15 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-purvar.csv" 
-     LABEL "If Yes, File Name" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-purvar.csv" 
+     LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
-     FGCOLOR 9 .
+     FGCOLOR 0 .
 
 DEFINE VARIABLE lbl_vend-cost AS CHARACTER FORMAT "X(256)":U INITIAL "Show Vendor $ from..." 
-     VIEW-AS FILL-IN 
-     SIZE 23 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 23 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -245,8 +244,8 @@ DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99
      SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 62 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
@@ -265,26 +264,24 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 19 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_vend-cost AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Vendor Matrix", "Vendor Matrix",
 "Invoiced Amt", "Invoiced Amt"
-     SIZE 36 BY 1 NO-UNDO.
+     SIZE 38 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 9.52.
+     SIZE 90 BY 5.24.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 10.95.
+     SIZE 90 BY 11.43.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -293,6 +290,11 @@ DEFINE VARIABLE sl_avail AS CHARACTER
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33.8 BY 5.43 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_adder AS LOGICAL INITIAL no 
      LABEL "Adder Codes" 
@@ -326,10 +328,10 @@ DEFINE VARIABLE tb_repeat AS LOGICAL INITIAL no
      SIZE 27 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+     SIZE 15.6 BY .81
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -340,74 +342,76 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_po-no AT ROW 2.19 COL 26 COLON-ALIGNED HELP
-          "Enter Beginning PO Number"
      end_po-no AT ROW 2.19 COL 69 COLON-ALIGNED HELP
           "Enter Ending PO Number"
-     begin_po-date AT ROW 3.14 COL 26 COLON-ALIGNED HELP
+     begin_po-no AT ROW 2.24 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning PO Number"
+     begin_po-date AT ROW 3.29 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Due Date"
-     end_po-date AT ROW 3.14 COL 69 COLON-ALIGNED HELP
+     end_po-date AT ROW 3.29 COL 69 COLON-ALIGNED HELP
           "Enter ending Due Date"
-     begin_vend-no AT ROW 4.1 COL 26 COLON-ALIGNED HELP
+     begin_vend-no AT ROW 4.38 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend-no AT ROW 4.1 COL 69 COLON-ALIGNED HELP
+     end_vend-no AT ROW 4.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Vendor number"
-     begin_po-i-no AT ROW 5.05 COL 26 COLON-ALIGNED HELP
+     begin_po-i-no AT ROW 5.48 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_po-i-no AT ROW 5.05 COL 69 COLON-ALIGNED HELP
+     end_po-i-no AT ROW 5.48 COL 69 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_job-no AT ROW 6 COL 26 COLON-ALIGNED HELP
+     begin_job-no AT ROW 6.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 6 COL 69 COLON-ALIGNED HELP
+     end_job-no AT ROW 6.57 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     tb_receipt AT ROW 7.14 COL 28 WIDGET-ID 62
-     begin_rec-date AT ROW 8 COL 26 COLON-ALIGNED HELP
+     tb_receipt AT ROW 7.71 COL 28 WIDGET-ID 62
+     begin_rec-date AT ROW 8.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Rec Date" WIDGET-ID 58
-     end_rec-date AT ROW 8 COL 69 COLON-ALIGNED HELP
+     end_rec-date AT ROW 8.57 COL 69 COLON-ALIGNED HELP
           "Enter ending Rec Date" WIDGET-ID 60
-     lbl_vend-cost AT ROW 9.05 COL 26 COLON-ALIGNED NO-LABEL
-     rd_vend-cost AT ROW 9.05 COL 51 NO-LABEL
-     tb_mpv AT ROW 10.24 COL 56
-     tb_repeat AT ROW 10.29 COL 29
-     tb_overs AT ROW 11.19 COL 29
-     tb_adder AT ROW 11.19 COL 56
-     sl_avail AT ROW 13.1 COL 3.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.1 COL 60.4 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 13.29 COL 41 HELP
+     rd_vend-cost AT ROW 9.76 COL 28 NO-LABEL
+     tb_mpv AT ROW 10.81 COL 56
+     tb_repeat AT ROW 10.86 COL 28.4
+     tb_overs AT ROW 11.76 COL 28.4
+     tb_adder AT ROW 11.76 COL 56
+     sl_avail AT ROW 14 COL 4.2 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 14 COL 60.4 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 14.19 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 14.29 COL 41 HELP
+     Btn_Add AT ROW 15.19 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.29 COL 41 HELP
+     Btn_Remove AT ROW 16.19 COL 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.33 COL 41 WIDGET-ID 40
-     btn_down AT ROW 17.38 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 19.86 COL 6 NO-LABEL
-     lv-ornt AT ROW 20.33 COL 31 NO-LABEL
-     lines-per-page AT ROW 20.33 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 22 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 22.95 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.05 COL 31
-     tb_excel AT ROW 25.57 COL 51 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.57 COL 72.4 RIGHT-ALIGNED
-     fi_file AT ROW 26.48 COL 29 COLON-ALIGNED HELP
+     btn_Up AT ROW 17.24 COL 41 WIDGET-ID 40
+     btn_down AT ROW 18.29 COL 41 WIDGET-ID 42
+     rd-dest AT ROW 20.76 COL 6 NO-LABEL
+     lv-font-no AT ROW 21.19 COL 35 COLON-ALIGNED
+     lv-ornt AT ROW 21.24 COL 31 NO-LABEL
+     lines-per-page AT ROW 21.24 COL 84 COLON-ALIGNED
+     tb_excel AT ROW 21.43 COL 53 RIGHT-ALIGNED
+     td-show-parm AT ROW 22.81 COL 39.6
+     fi_file AT ROW 23.57 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 28.38 COL 19
-     btn-cancel AT ROW 28.38 COL 57
+     tb_runExcel AT ROW 23.71 COL 87.6 RIGHT-ALIGNED
+     tbAutoClose AT ROW 26.05 COL 32.2 WIDGET-ID 16
+     btn-ok AT ROW 26.86 COL 31.4
+     btn-cancel AT ROW 26.86 COL 50.4
+     lbl_vend-cost AT ROW 9.86 COL 3 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 21.43 COL 29 COLON-ALIGNED NO-LABEL
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.38 COL 4.2 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.91 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.48 COL 3
-          BGCOLOR 2 
+          SIZE 29 BY .62 AT ROW 13.33 COL 11.4 WIDGET-ID 38
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.48 COL 60.6 WIDGET-ID 44
-     RECT-6 AT ROW 18.62 COL 2
-     RECT-7 AT ROW 1.24 COL 2
+          SIZE 34 BY .62 AT ROW 13.38 COL 60.6 WIDGET-ID 44
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.38 COL 5.4
+          BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.91 COL 5.4
+     RECT-6 AT ROW 20.24 COL 4.2
+     RECT-7 AT ROW 1.71 COL 4.2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.8 BY 29.1.
+         SIZE 95.8 BY 29.1
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -427,7 +431,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "PO Purchased Variance"
-         HEIGHT             = 29.1
+         HEIGHT             = 27.48
          WIDTH              = 95.6
          MAX-HEIGHT         = 29.1
          MAX-WIDTH          = 95.8
@@ -461,16 +465,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -494,6 +488,14 @@ ASSIGN
 ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -529,15 +531,34 @@ ASSIGN
        lbl_vend-cost:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_vend-cost".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        rd_vend-cost:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -553,7 +574,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -862,7 +883,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
      assign {&self-name}.
 END.
@@ -1107,7 +1128,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -1239,50 +1260,6 @@ PROCEDURE adder-proc :
                  temp-adder.adder-index = viIndex.
           RELEASE temp-adder.
       END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTVendItemCost C-Win 
-PROCEDURE pBuildTTVendItemCost PRIVATE:
-/*------------------------------------------------------------------------------ 
-  Purpose:  Populates tt-ei and tt-eiv from vendItemCost and vendItemcostLevel tables  
-  Parameters:  <none>
-  Notes:    
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemId   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcVendorId AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO INITIAL 1.
-
-    FIND FIRST vendItemCost NO-LOCK  
-        WHERE vendItemCost.company  EQ ipcCompany
-          AND vendItemCost.itemID   EQ ipcItemID
-          AND vendItemcost.itemType EQ ipcItemtype
-          AND vendItemCost.vendorID EQ ipcVendorId
-          NO-ERROR.
-           
-    IF AVAILABLE(vendItemCost) THEN DO:
-        CREATE tt-ei.
-        ASSIGN 
-            iIndex        = 1
-            tt-ei.std-uom = vendItemCost.vendorUom
-            .
-            
-        CREATE tt-eiv.
-        FOR EACH  vendItemCostLevel NO-LOCK
-            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID :
-            ASSIGN
-                tt-eiv.run-cost[iIndex] = vendItemCostLevel.costPerUOM
-                tt-eiv.run-qty[iIndex]  = vendItemCostLevel.quantityBase
-                iIndex                  = iIndex + 1
-                .                                          
-        END.    
-    END.    
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1422,19 +1399,18 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_po-no end_po-no begin_po-date end_po-date begin_vend-no 
+  DISPLAY end_po-no begin_po-no begin_po-date end_po-date begin_vend-no 
           end_vend-no begin_po-i-no end_po-i-no begin_job-no end_job-no 
-          tb_receipt begin_rec-date end_rec-date lbl_vend-cost rd_vend-cost 
-          tb_mpv tb_repeat tb_overs tb_adder sl_avail sl_selected rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          tb_receipt begin_rec-date end_rec-date rd_vend-cost tb_mpv tb_repeat 
+          tb_overs tb_adder sl_avail sl_selected rd-dest td-show-parm fi_file 
+          tb_runExcel tbAutoClose lbl_vend-cost 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_po-date end_po-date 
+  ENABLE RECT-6 RECT-7 end_po-no begin_po-no begin_po-date end_po-date 
          begin_vend-no end_vend-no begin_po-i-no end_po-i-no begin_job-no 
          end_job-no tb_receipt begin_rec-date end_rec-date rd_vend-cost tb_mpv 
          tb_repeat tb_overs tb_adder sl_avail sl_selected Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file tb_runExcel 
+         tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1590,6 +1566,50 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTTVendItemCost C-Win 
+PROCEDURE pBuildTTVendItemCost PRIVATE :
+/*------------------------------------------------------------------------------ 
+  Purpose:  Populates tt-ei and tt-eiv from vendItemCost and vendItemcostLevel tables  
+  Parameters:  <none>
+  Notes:    
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemId   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorId AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO INITIAL 1.
+
+    FIND FIRST vendItemCost NO-LOCK  
+        WHERE vendItemCost.company  EQ ipcCompany
+          AND vendItemCost.itemID   EQ ipcItemID
+          AND vendItemcost.itemType EQ ipcItemtype
+          AND vendItemCost.vendorID EQ ipcVendorId
+          NO-ERROR.
+           
+    IF AVAILABLE(vendItemCost) THEN DO:
+        CREATE tt-ei.
+        ASSIGN 
+            iIndex        = 1
+            tt-ei.std-uom = vendItemCost.vendorUom
+            .
+            
+        CREATE tt-eiv.
+        FOR EACH  vendItemCostLevel NO-LOCK
+            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID :
+            ASSIGN
+                tt-eiv.run-cost[iIndex] = vendItemCostLevel.costPerUOM
+                tt-eiv.run-qty[iIndex]  = vendItemCostLevel.quantityBase
+                iIndex                  = iIndex + 1
+                .                                          
+        END.    
+    END.    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2424,7 +2444,7 @@ SESSION:SET-WAIT-STATE ("").
     IF tb_excel AND tb_runExcel THEN
         OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 
-end procedure.
+.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
