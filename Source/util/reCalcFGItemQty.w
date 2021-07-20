@@ -26,21 +26,21 @@ DEFINE VARIABLE fi_file AS CHARACTER INITIAL "c:~\tmp~\RecalculateFGItemQty.csv"
 DEFINE TEMP-TABLE ttReCalculateFgItem 
        FIELD itemId AS CHARACTER  LABEL "FG Item" 
        FIELD itemLoc AS CHARACTER  LABEL "Location"       
-       FIELD calcOhHand AS INTEGER  LABEL "Calculated On Hand"
-       FIELD calcOnOrder AS INTEGER  LABEL "Calculated On Order"
-       FIELD calcBackOrder AS INTEGER LABEL "Calculated Backordered"
-       FIELD calcAvailable AS INTEGER LABEL "Calculated Available"
-       FIELD calcAllocated AS INTEGER LABEL "Calculated Allocated"
-       FIELD actualOhHand AS INTEGER  LABEL "Actual On Hand"
-       FIELD actualOnOrder AS INTEGER LABEL "Actual On Order"
-       FIELD actualBackOrder AS INTEGER LABEL "Actual Backordered"
-       FIELD actualAvailable AS INTEGER LABEL "Actual Available"
-       FIELD actualAllocated AS INTEGER LABEL "Actual Allocated"
-       FIELD diffOhHand AS INTEGER  LABEL "Variance On Hand"
-       FIELD diffOnOrder AS INTEGER LABEL "Variance On Order"
-       FIELD diffBackOrder AS INTEGER LABEL "Variance Backordered"
-       FIELD diffAvailable AS INTEGER LABEL "Variance Available"
-       FIELD diffAllocated AS INTEGER LABEL "Variance Allocated" .         
+       FIELD calcOhHand AS INT64  LABEL "Calculated On Hand"
+       FIELD calcOnOrder AS INT64  LABEL "Calculated On Order"
+       FIELD calcBackOrder AS INT64 LABEL "Calculated Backordered"
+       FIELD calcAvailable AS INT64 LABEL "Calculated Available"
+       FIELD calcAllocated AS INT64 LABEL "Calculated Allocated"
+       FIELD actualOhHand AS INT64  LABEL "Actual On Hand"
+       FIELD actualOnOrder AS INT64 LABEL "Actual On Order"
+       FIELD actualBackOrder AS INT64 LABEL "Actual Backordered"
+       FIELD actualAvailable AS INT64 LABEL "Actual Available"
+       FIELD actualAllocated AS INT64 LABEL "Actual Allocated"
+       FIELD diffOhHand AS INT64  LABEL "Variance On Hand"
+       FIELD diffOnOrder AS INT64 LABEL "Variance On Order"
+       FIELD diffBackOrder AS INT64 LABEL "Variance Backordered"
+       FIELD diffAvailable AS INT64 LABEL "Variance Available"
+       FIELD diffAllocated AS INT64 LABEL "Variance Allocated" .         
 
 {sys/inc/var.i new shared}
 
@@ -387,6 +387,8 @@ FOR EACH bf-itemfg NO-LOCK
     WHERE bf-itemfg.company EQ cocode
     AND bf-itemfg.i-no GE begin_i-no
     AND bf-itemfg.i-no LE end_i-no:
+    
+    STATUS INPUT "FG Item# " + bf-itemfg.i-no .
     
     FOR EACH itemfg-loc NO-LOCK
         WHERE itemfg-loc.company EQ bf-itemfg.company
