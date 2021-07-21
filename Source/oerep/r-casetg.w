@@ -2967,14 +2967,7 @@ ASSIGN
         NO-LOCK:
 
       RUN from-job (ROWID(job),OUTPUT op-warning).
-
-      IF op-warning THEN
-         var-display-warning = YES.
     END.
-
-    IF var-display-warning THEN
-       MESSAGE "Job does not contain an order number, hence data such as PO# will not print."
-           VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 
   FOR EACH w-ord,
       FIRST itemfg
