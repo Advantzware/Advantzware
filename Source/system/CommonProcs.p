@@ -822,6 +822,26 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCommon_FillCharacter) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_FillCharacter Procedure
+PROCEDURE spCommon_FillCharacter:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT-OUTPUT  PARAMETER iopcCharacter      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSize AS INTEGER NO-UNDO.
+    
+    iopcCharacter = FILL(" ",ipiSize - LENGTH(TRIM(iopcCharacter))) + TRIM(iopcCharacter).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
