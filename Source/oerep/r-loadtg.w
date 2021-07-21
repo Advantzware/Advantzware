@@ -1396,7 +1396,7 @@ DO:
     FIND FIRST itemfg 
        WHERE itemfg.company EQ cocode
          AND itemfg.i-no EQ END_i-no NO-LOCK NO-ERROR.
-    IF itemfg.alloc EQ YES THEN
+    IF AVAIL itemfg AND itemfg.alloc EQ YES THEN
       rd_comps:SCREEN-VALUE = "U".
     IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 99.
     FIND FIRST job-hdr NO-LOCK

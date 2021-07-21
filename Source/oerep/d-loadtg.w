@@ -52,6 +52,7 @@ DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-overrun2-checked AS LOG       NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lLoadTagLimit       AS LOGICAL   NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
@@ -69,6 +70,12 @@ RUN sys/ref/nk1look.p (INPUT g_company, "LoadTagLimit", "D" /* Logical */, NO /*
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     dLoadTagLimit = DECIMAL(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT g_company, "LoadTagLimit", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lLoadTagLimit = LOGICAL(cRtnChar) NO-ERROR.    
 
 IF NOT BOLWt-log THEN RUN calc-weight-all.
 
@@ -623,6 +630,13 @@ ON 'LEAVE' OF w-ord.po-line IN BROWSE {&BROWSE-NAME} DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
   
+END.
+
+ON 'ENTRY' OF  w-ord.total-tags   IN BROWSE {&BROWSE-NAME} DO:
+   IF NOT lLoadTagLimit AND AVAIL w-ord AND w-ord.total-tags GT 0 THEN do:
+       APPLY "entry"  TO w-ord.unit-wt IN BROWSE {&browse-NAME}.
+       RETURN NO-APPLY.
+   END.
 END.
 
 /* gdm - end */
