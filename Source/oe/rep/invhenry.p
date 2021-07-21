@@ -785,7 +785,7 @@ find first company where company.company eq cocode NO-LOCK.
                 END.
            END.
 
-           DO i = 1 TO 4:
+/*           DO i = 1 TO 4:
               IF cBillNotes[i] <> "" THEN DO:
                  IF v-printline > 50 THEN DO:
                     PAGE.
@@ -796,7 +796,7 @@ find first company where company.company eq cocode NO-LOCK.
                  v-printline = v-printline + 1.
               END.
            END.
-        end.
+*/        end.
         
         v-frt-tax = inv-head.t-inv-freight.
         
