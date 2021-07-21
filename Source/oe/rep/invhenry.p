@@ -846,20 +846,21 @@ find first company where company.company eq cocode NO-LOCK.
       v-printline = v-printline + 5.
     END.
     
+  IF ltb_print-message THEN DO:
     FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
         AND bf-cust.ACTIVE EQ "X":
 
         RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
         
-            PUT "<p8><R62><C3>" cStockNotes[1] SKIP
-                "<R63><C3>" cStockNotes[2] SKIP
-                "<R64><C3>" cStockNotes[3] SKIP
-                "<R65><C3>" cStockNotes[4] SKIP
+            PUT "<p8><R56><C3>" cStockNotes[1] SKIP
+                "<R57><C3>" cStockNotes[2] SKIP
+                "<R58><C3>" cStockNotes[3] SKIP
+                "<R59><C3>" cStockNotes[4] SKIP
                 "<p10>".
         
     END.
-
+  END.
     IF v-bot-lab[4] <> "" THEN
     PUT "<R56><C59><#8><FROM><R+8><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
