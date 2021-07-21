@@ -96,11 +96,16 @@ DEF VAR v-len-score3 AS CHAR FORMAT 'x(30)'          NO-UNDO.
 DEF VAR v-xcnt       AS INT                          NO-UNDO.
 DEF VAR v-ship-id    AS CHAR                         NO-UNDO.
 DEF VAR v-frt-pay-dscr AS CHAR FORMAT "x(14)"        NO-UNDO.
+DEF VAR lv-val         AS CHAR                       NO-UNDO.
+DEF VAR lv-typ         AS CHAR                       NO-UNDO.
 
 DEF BUFFER bf-reftable1 FOR reftable.
 DEF BUFFER bf-reftable2 FOR reftable.
 
 DEF VAR tb_app-unprinted AS LOG NO-UNDO.
+DEFINE        VARIABLE hdPOProcs       AS HANDLE    NO-UNDO.
+
+RUN po/POProcs.p PERSISTENT SET hdPOProcs.
 
 ASSIGN
    ls-image1 = "images\loy2.jpg"
@@ -308,9 +313,21 @@ do v-local-loop = 1 to v-local-copies:
             AND job-mat.job     EQ job.job
             AND job-mat.i-no    EQ po-ordl.i-no
             AND job-mat.frm     EQ job-hdr.frm:
+            
+            RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+            INPUT  po-ordl.company,
+            INPUT  po-ordl.po-no,
+            INPUT  po-ordl.line,
+            OUTPUT lv-val,
+            OUTPUT lv-typ
+            ).
+          
+            DELETE PROCEDURE hdPOProcs.
 
-
-           FIND FIRST bf-reftable1 NO-LOCK
+            ASSIGN  
+              v-len-score = lv-val.
+            
+         /*  FIND FIRST bf-reftable1 NO-LOCK
               WHERE bf-reftable1.reftable EQ "POLSCORE"
                 AND bf-reftable1.company  EQ po-ordl.company
                 AND bf-reftable1.loc      EQ "1"
@@ -349,10 +366,10 @@ do v-local-loop = 1 to v-local-copies:
                                      SUBSTR(bf-reftable2.dscr,v-xcnt,1)
                                      + " ".
               END.            
-            END.               
+            END. */              
         END.         
-
-        v-len-score = TRIM(v-len-score).
+        
+       v-len-score = TRIM(v-len-score).
 
         IF LENGTH(v-len-score) GT 25 THEN DO:
 
