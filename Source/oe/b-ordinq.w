@@ -280,7 +280,7 @@ oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance 
+fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance get-bal(li-qoh) @ li-bal
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -686,6 +686,7 @@ DEFINE BROWSE Browser-Table
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 16
       fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
+      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -2880,6 +2881,8 @@ FUNCTION fnProdBalance RETURNS DECIMAL
      
      ASSIGN
         iResult = ( ipOrderQty - ipProdQty ) .
+     
+        IF iResult LT 0 THEN iResult = 0. 
      
             RETURN iResult.
 
