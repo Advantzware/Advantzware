@@ -327,46 +327,6 @@ do v-local-loop = 1 to v-local-copies:
             ASSIGN  
               v-len-score = lv-val.
             
-         /*  FIND FIRST bf-reftable1 NO-LOCK
-              WHERE bf-reftable1.reftable EQ "POLSCORE"
-                AND bf-reftable1.company  EQ po-ordl.company
-                AND bf-reftable1.loc      EQ "1"
-                AND bf-reftable1.code     EQ STRING({1}po-ordl.po-no,"9999999999")
-                AND bf-reftable1.code2    EQ STRING({1}po-ordl.line, "9999999999") NO-ERROR.
-           
-            FIND FIRST bf-reftable2 NO-LOCK
-             WHERE bf-reftable2.reftable EQ "POLSCORE"
-               AND bf-reftable2.company  EQ {1}po-ordl.company
-               AND bf-reftable2.loc      EQ "2"
-               AND bf-reftable2.code     EQ STRING({1}po-ordl.po-no,"9999999999")
-               AND bf-reftable2.code2    EQ STRING({1}po-ordl.line, "9999999999") NO-ERROR.
-           
-            IF AVAIL bf-reftable1 OR AVAIL bf-reftable2 THEN DO:
-           
-              DO v-xcnt = 1 TO 12:
-                IF bf-reftable1.val[v-xcnt] NE 0 THEN DO:
-                  v-len-score = "".
-                  LEAVE.
-                END.                        
-              END.
-           
-              DO v-xcnt = 1 TO 12:
-                IF STRING(bf-reftable1.val[v-xcnt]) EQ "0" 
-                  THEN NEXT.
-                ASSIGN v-len-score = v-len-score + 
-                                     STRING(bf-reftable1.val[v-xcnt]) + " " +
-                                     SUBSTR(bf-reftable1.dscr,v-xcnt,1)
-                                     + " ".
-              END.
-           
-              DO v-xcnt = 1 TO 12:
-                IF STRING(bf-reftable2.val[v-xcnt]) EQ "0" THEN NEXT.
-                ASSIGN v-len-score = v-len-score + 
-                                     STRING(bf-reftable2.val[v-xcnt]) + " " +
-                                     SUBSTR(bf-reftable2.dscr,v-xcnt,1)
-                                     + " ".
-              END.            
-            END. */              
         END.         
         
        v-len-score = TRIM(v-len-score).
