@@ -100,12 +100,13 @@ ASSIGN cTextListToDefault  = "Item#,PTD MSF,PTD Cost,YTD MSF,YTD Cost"  .
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_due-date begin_vend-no ~
 end_vend-no begin_prod-cat end_prod-cat begin_flute end_flute begin_cal ~
 end_cal begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code ~
-btn_SelectColumns rd-dest sl_avail td-show-parm fi_file tb_runExcel ~
-tbAutoClose btn-ok btn-cancel 
+btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_due-date begin_vend-no end_vend-no ~
 begin_prod-cat end_prod-cat begin_flute end_flute begin_cal end_cal ~
-begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code sl_avail ~
-td-show-parm fi_file tb_runExcel tbAutoClose lbl_fg-rm lbl_fg-rm-2 
+begin_acct end_acct tb_det lbl_fg-rm rd_fg-rm select-mat lbl_fg-rm-2 ~
+rd_item-code lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -132,15 +133,15 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 16 BY 1.29.
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 16 BY 1.29.
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn_SelectColumns 
      LABEL "Select Columns" 
-     SIZE 40 BY 1.48.
+     SIZE 43 BY 1.19.
 
 DEFINE VARIABLE begin_acct AS CHARACTER FORMAT "X(25)":U 
      LABEL "Beginning Acct#" 
@@ -150,27 +151,27 @@ DEFINE VARIABLE begin_acct AS CHARACTER FORMAT "X(25)":U
 DEFINE VARIABLE begin_cal AS DECIMAL FORMAT "9.99999":U INITIAL 0 
      LABEL "Beginning Caliper" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Due Date" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_flute AS CHARACTER FORMAT "X(15)" 
      LABEL "Beginning Flute" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1.
+     SIZE 16 BY 1.
 
 DEFINE VARIABLE begin_prod-cat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Product Cat." 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Vendor#" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_acct AS CHARACTER FORMAT "X(25)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "Ending Acct#" 
@@ -180,36 +181,36 @@ DEFINE VARIABLE end_acct AS CHARACTER FORMAT "X(25)":U INITIAL "zzzzzzzzzzzzzzzz
 DEFINE VARIABLE end_cal AS DECIMAL FORMAT "9.99999":U INITIAL 9.99999 
      LABEL "Ending Caliper" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_flute AS CHARACTER FORMAT "X(15)" INITIAL "zzz" 
      LABEL "Ending Flute" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1.
+     SIZE 16 BY 1.
 
 DEFINE VARIABLE end_prod-cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Product Cat." 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Vendor#" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-venanl.csv" 
-     LABEL "Name" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-venanl.csv" 
+     LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
-     FGCOLOR 15 .
+     FGCOLOR 9 .
 
 DEFINE VARIABLE lbl_fg-rm AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-      VIEW-AS TEXT 
-     SIZE 7 BY .62 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 7 BY .91 NO-UNDO.
 
 DEFINE VARIABLE lbl_fg-rm-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-      VIEW-AS TEXT 
-     SIZE 7 BY .62 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 7 BY .91 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -242,9 +243,11 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
+"To File", 3,
+"To Fax", 4,
 "To Email", 5,
-"To CSV", 3
-     SIZE 16 BY 3.81 NO-UNDO.
+"To Port Directly", 6
+     SIZE 19 BY 6.67 NO-UNDO.
 
 DEFINE VARIABLE rd_fg-rm AS CHARACTER INITIAL "Both" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -264,11 +267,11 @@ DEFINE VARIABLE rd_item-code AS CHARACTER INITIAL "Both"
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 106.4 BY 5.05.
+     SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 106.4 BY 13.81.
+     SIZE 94 BY 14.52.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -276,21 +279,16 @@ DEFINE VARIABLE select-mat AS CHARACTER
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 24 BY .71 NO-UNDO.
+     SIZE 33 BY 5.19 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 19.2 BY 1.05 NO-UNDO.
-
-DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
-     LABEL "Auto Close" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .81 NO-UNDO.
+     SIZE 33 BY 5.19 NO-UNDO.
 
 DEFINE VARIABLE tb_det AS LOGICAL INITIAL yes 
      LABEL "Detail?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .8 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -299,79 +297,78 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Open CSV?" 
+     LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 14.8 BY .81
-     BGCOLOR 15  NO-UNDO.
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .71 NO-UNDO.
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_due-date AT ROW 1.95 COL 27 COLON-ALIGNED HELP
+     begin_due-date AT ROW 1.95 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Due Date"
-     begin_vend-no AT ROW 3.1 COL 27 COLON-ALIGNED HELP
+     begin_vend-no AT ROW 3.38 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend-no AT ROW 3.1 COL 77.6 COLON-ALIGNED HELP
+     end_vend-no AT ROW 3.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Vendor number"
-     begin_prod-cat AT ROW 4.24 COL 27 COLON-ALIGNED HELP
+     begin_prod-cat AT ROW 4.33 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_prod-cat AT ROW 4.24 COL 77.6 COLON-ALIGNED HELP
+     end_prod-cat AT ROW 4.33 COL 69 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     begin_flute AT ROW 5.38 COL 27 COLON-ALIGNED HELP
+     begin_flute AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Flute"
-     end_flute AT ROW 5.38 COL 77.6 COLON-ALIGNED HELP
+     end_flute AT ROW 5.29 COL 69 COLON-ALIGNED HELP
           "Enter Ending Flute"
-     begin_cal AT ROW 6.52 COL 27 COLON-ALIGNED HELP
+     begin_cal AT ROW 6.24 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Caliper"
-     end_cal AT ROW 6.52 COL 77.6 COLON-ALIGNED HELP
+     end_cal AT ROW 6.24 COL 69 COLON-ALIGNED HELP
           "Enter Ending Caliper"
-     begin_acct AT ROW 7.67 COL 27 COLON-ALIGNED HELP
+     begin_acct AT ROW 7.48 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
-     end_acct AT ROW 7.67 COL 77.6 COLON-ALIGNED HELP
+     end_acct AT ROW 7.48 COL 64 COLON-ALIGNED HELP
           "Enter Ending Account Number"
-     tb_det AT ROW 9.43 COL 15.8
+     tb_det AT ROW 9.05 COL 15.8
+     lbl_fg-rm AT ROW 10.19 COL 5.8 COLON-ALIGNED NO-LABEL
      rd_fg-rm AT ROW 10.24 COL 15.8 NO-LABEL
-     select-mat AT ROW 10.29 COL 66.8 HELP
+     select-mat AT ROW 10.76 COL 50 HELP
           "Enter description of this Material Type." NO-LABEL
-     rd_item-code AT ROW 11.14 COL 15.8 NO-LABEL WIDGET-ID 32
-     mat-types AT ROW 11.91 COL 65 COLON-ALIGNED
-     btn_SelectColumns AT ROW 15.62 COL 37.8 WIDGET-ID 10
-     lv-ornt AT ROW 17.62 COL 33 NO-LABEL
-     lines-per-page AT ROW 17.62 COL 86 COLON-ALIGNED
-     sl_selected AT ROW 17.67 COL 31 NO-LABEL WIDGET-ID 28
-     lv-font-no AT ROW 17.67 COL 36 COLON-ALIGNED
-     lv-font-name AT ROW 17.91 COL 29 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 17.91 COL 62 RIGHT-ALIGNED
-     rd-dest AT ROW 18.14 COL 8 NO-LABEL
-     sl_avail AT ROW 18.14 COL 43 NO-LABEL WIDGET-ID 26
-     td-show-parm AT ROW 20.24 COL 41.6
-     fi_file AT ROW 20.95 COL 29.4 COLON-ALIGNED HELP
-          "Enter File Name"
-     tb_runExcel AT ROW 21 COL 88.4 RIGHT-ALIGNED
-     tbAutoClose AT ROW 22.81 COL 39.8 WIDGET-ID 16
-     btn-ok AT ROW 23.62 COL 39
-     btn-cancel AT ROW 23.62 COL 60.2
-     lbl_fg-rm AT ROW 10.43 COL 5.8 COLON-ALIGNED NO-LABEL
      lbl_fg-rm-2 AT ROW 11.38 COL 5.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     rd_item-code AT ROW 11.43 COL 15.8 NO-LABEL WIDGET-ID 32
+     mat-types AT ROW 12.38 COL 45.6 COLON-ALIGNED
+     btn_SelectColumns AT ROW 13.81 COL 4 WIDGET-ID 10
+     lv-ornt AT ROW 15.95 COL 31 NO-LABEL
+     lines-per-page AT ROW 15.95 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 16.48 COL 6 NO-LABEL
+     lv-font-no AT ROW 17.14 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 18.1 COL 29 COLON-ALIGNED NO-LABEL
+     sl_avail AT ROW 18.14 COL 3 NO-LABEL WIDGET-ID 26
+     td-show-parm AT ROW 19.52 COL 31
+     sl_selected AT ROW 19.71 COL 15.8 NO-LABEL WIDGET-ID 28
+     tb_excel AT ROW 20.76 COL 68.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 20.76 COL 89.2 RIGHT-ALIGNED
+     fi_file AT ROW 21.57 COL 46.2 COLON-ALIGNED HELP
+          "Enter File Name"
+     btn-ok AT ROW 23.62 COL 27
+     btn-cancel AT ROW 23.62 COL 57
      "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 32.2 BY 1 AT ROW 9.33 COL 72.2
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17.05 COL 5
+          SIZE 38 BY 1 AT ROW 9.81 COL 51
+          FONT 6
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1 COL 5
-     RECT-6 AT ROW 17.38 COL 3.6
-     RECT-7 AT ROW 1.48 COL 3.2
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.76 COL 3
+     RECT-6 AT ROW 15.52 COL 1
+     RECT-7 AT ROW 1 COL 1
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 110.2 BY 24.29
-         BGCOLOR 15 .
+         SIZE 95.2 BY 24.14.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -391,8 +388,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Vendor Analysis"
-         HEIGHT             = 24.29
-         WIDTH              = 110.2
+         HEIGHT             = 24.24
+         WIDTH              = 95.6
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -425,6 +422,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -448,14 +455,6 @@ ASSIGN
 ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
 
 ASSIGN 
        end_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -493,26 +492,8 @@ ASSIGN
        lbl_fg-rm-2:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_fg-rm".
 
-/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
-
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
-
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -520,8 +501,6 @@ ASSIGN
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR RADIO-SET rd-dest IN FRAME FRAME-A
-   NO-DISPLAY                                                           */
 ASSIGN 
        rd_fg-rm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -543,9 +522,8 @@ ASSIGN
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+   ALIGN-R                                                              */
 ASSIGN 
-       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -561,7 +539,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -807,7 +785,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
      assign {&self-name}.
 END.
@@ -1016,7 +994,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
   assign {&self-name}.
 END.
@@ -1246,14 +1224,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_due-date begin_vend-no end_vend-no begin_prod-cat end_prod-cat 
           begin_flute end_flute begin_cal end_cal begin_acct end_acct tb_det 
-          rd_fg-rm select-mat rd_item-code sl_avail td-show-parm fi_file 
-          tb_runExcel tbAutoClose lbl_fg-rm lbl_fg-rm-2 
+          lbl_fg-rm rd_fg-rm select-mat lbl_fg-rm-2 rd_item-code lv-ornt 
+          lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_due-date begin_vend-no end_vend-no begin_prod-cat 
          end_prod-cat begin_flute end_flute begin_cal end_cal begin_acct 
          end_acct tb_det rd_fg-rm select-mat rd_item-code btn_SelectColumns 
-         rd-dest sl_avail td-show-parm fi_file tb_runExcel tbAutoClose btn-ok 
-         btn-cancel 
+         lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

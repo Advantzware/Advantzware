@@ -85,7 +85,6 @@ ASSIGN cTextListToSelect = "Job No,Item No,UOM,Required,Ordered,Received,Vendor,
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Job No,Item No,UOM,Required,Ordered,Received,Vendor,"
                          + "Width,Length,Scoring" .
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -97,18 +96,18 @@ ASSIGN cTextListToDefault  = "Job No,Item No,UOM,Required,Ordered,Received,Vendo
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
-end_job-no end_job-no2 begin_job-date end_job-date begin_due-date ~
-end_due-date tb_sort tb_show select-mat btn_SelectColumns sl_avail rd-dest ~
-td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+end_job-no end_job-no2 tb_sort tb_show begin_job-date end_job-date begin_due-date  ~
+end_due-date select-mat rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
+tb_runExcel fi_file btn-ok btn-cancel btn_SelectColumns
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
-end_job-no2 begin_job-date end_job-date begin_due-date end_due-date tb_sort ~
-tb_show select-mat sl_avail rd-dest td-show-parm fi_file tb_runExcel ~
-tbAutoClose 
+end_job-no2 tb_sort tb_show begin_job-date end_job-date begin_due-date end_due-date  ~
+select-mat rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -116,19 +115,19 @@ tbAutoClose
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD cons-qty C-Win 
-FUNCTION cons-qty RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD cons-qty B-table-Win 
+FUNCTION cons-qty RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -142,15 +141,15 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 16 BY 1.29.
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 16 BY 1.29.
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn_SelectColumns 
      LABEL "Select Columns" 
-     SIZE 40 BY 1.48.
+     SIZE 43 BY 1.19.
 
 DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning PO Due Date" 
@@ -165,7 +164,7 @@ DEFINE VARIABLE begin_job-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
      LABEL "" 
@@ -185,17 +184,18 @@ DEFINE VARIABLE end_job-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "99":U INITIAL 99 
      LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-matjob.csv" 
-     LABEL "Name" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-matjob.csv" 
+     LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
-     SIZE 43 BY 1.
+     SIZE 43 BY 1
+     FGCOLOR 9 .
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -228,17 +228,19 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
+"To File", 3,
+"To Fax", 4,
 "To Email", 5,
-"To CSV", 3
-     SIZE 16 BY 3.81 NO-UNDO.
+"To Port Directly", 6
+     SIZE 19 BY 6.67 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90 BY 5.48.
+     SIZE 95 BY 9.05.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90 BY 12.14.
+     SIZE 95 BY 14.52.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -246,16 +248,11 @@ DEFINE VARIABLE select-mat AS CHARACTER
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 29 BY 1.19 NO-UNDO.
+     SIZE 33 BY 5.19 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 24.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
-     LABEL "Auto Close" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .81 NO-UNDO.
+     SIZE 33 BY 5.19 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -264,20 +261,20 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Open CSV?" 
+     LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .81
-     BGCOLOR 15  NO-UNDO.
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
 
 DEFINE VARIABLE tb_show AS LOGICAL INITIAL no 
      LABEL "Only Show Materials w/POs?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 32 BY .81 NO-UNDO.
+     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
      LABEL "Sort Board by Size?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY .81 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -292,53 +289,52 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 2.43 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 2.52 COL 71.4 COLON-ALIGNED HELP
+     end_job-no AT ROW 2.43 COL 72 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.52 COL 84 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.43 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_job-date AT ROW 3.57 COL 29 COLON-ALIGNED HELP
+     tb_sort AT ROW 3.86 COL 31
+     tb_show AT ROW 3.86 COL 58.2
+     begin_job-date AT ROW 5.29 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Job Due Date" WIDGET-ID 30
-     end_job-date AT ROW 3.67 COL 71.4 COLON-ALIGNED HELP
+     end_job-date AT ROW 5.38 COL 72 COLON-ALIGNED HELP
           "Enter Ending Job Due Date" WIDGET-ID 32
-     begin_due-date AT ROW 4.71 COL 29 COLON-ALIGNED HELP
+     begin_due-date AT ROW 6.24 COL 29 COLON-ALIGNED HELP
           "Enter Beginning PO Due Date"
-     end_due-date AT ROW 4.71 COL 71.4 COLON-ALIGNED HELP
+     end_due-date AT ROW 6.24 COL 72 COLON-ALIGNED HELP
           "Enter Ending PO Due Date"
-     tb_sort AT ROW 5.91 COL 31
-     tb_show AT ROW 6.67 COL 31.2
      select-mat AT ROW 8.38 COL 29 HELP
           "Enter description of this Material Type." NO-LABEL
-     mat-types AT ROW 10.76 COL 27 COLON-ALIGNED
-     btn_SelectColumns AT ROW 14.05 COL 29 WIDGET-ID 10
-     sl_avail AT ROW 16.48 COL 35 NO-LABEL WIDGET-ID 26
-     rd-dest AT ROW 16.52 COL 5.8 NO-LABEL
-     lv-font-name AT ROW 16.71 COL 25 COLON-ALIGNED NO-LABEL
+     mat-types AT ROW 10.76 COL 24 COLON-ALIGNED
+     btn_SelectColumns AT ROW 13.81 COL 29 WIDGET-ID 10
+     rd-dest AT ROW 16.71 COL 5 NO-LABEL
      lv-ornt AT ROW 16.95 COL 31 NO-LABEL
-     sl_selected AT ROW 16.95 COL 37 NO-LABEL WIDGET-ID 28
-     lines-per-page AT ROW 16.95 COL 58 COLON-ALIGNED
-     tb_excel AT ROW 17.19 COL 54 RIGHT-ALIGNED
-     lv-font-no AT ROW 17.19 COL 33 COLON-ALIGNED
-     td-show-parm AT ROW 18.57 COL 42.4
-     fi_file AT ROW 19.29 COL 27.4 COLON-ALIGNED HELP
+     lines-per-page AT ROW 16.95 COL 85 COLON-ALIGNED
+     lv-font-no AT ROW 19.1 COL 35 COLON-ALIGNED
+     sl_avail AT ROW 19.81 COL 3 NO-LABEL WIDGET-ID 26
+     lv-font-name AT ROW 20.05 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 21.14 COL 31
+     sl_selected AT ROW 21.19 COL 15.8 NO-LABEL WIDGET-ID 28
+     tb_excel AT ROW 22.43 COL 51 RIGHT-ALIGNED
+     tb_runExcel AT ROW 22.43 COL 72 RIGHT-ALIGNED
+     fi_file AT ROW 23.24 COL 29 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_runExcel AT ROW 19.38 COL 87.2 RIGHT-ALIGNED
-     tbAutoClose AT ROW 21.62 COL 29.6 WIDGET-ID 16
-     btn-ok AT ROW 22.52 COL 29.2
-     btn-cancel AT ROW 22.52 COL 51.8
+     btn-ok AT ROW 24.81 COL 27
+     btn-cancel AT ROW 24.81 COL 57
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.38 COL 5
-          BGCOLOR 15 
-     "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 37 BY .71 AT ROW 7.67 COL 35.8
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.48 COL 5
-     RECT-6 AT ROW 15.76 COL 4
-     RECT-7 AT ROW 1.71 COL 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+          SIZE 18 BY .62 AT ROW 16 COL 3
+     "Select/Deselect Material Types" VIEW-AS TEXT
+          SIZE 37 BY 1 AT ROW 7.19 COL 31
+          FONT 6
+     RECT-6 AT ROW 15.52 COL 1
+     RECT-7 AT ROW 1 COL 1
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96 BY 23.19
-         BGCOLOR 15 .
+         SIZE 96 BY 25.62.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -358,7 +354,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Material Required for Job"
-         HEIGHT             = 23.19
+         HEIGHT             = 25.62
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -391,7 +387,17 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-   FRAME-NAME                                                           */
+                                                                        */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -409,17 +415,8 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
        end_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
 ASSIGN 
        end_job-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -436,33 +433,14 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
-
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
-
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        mat-types:HIDDEN IN FRAME FRAME-A           = TRUE
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
 ASSIGN 
        sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -472,9 +450,8 @@ ASSIGN
        sl_selected:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+   ALIGN-R                                                              */
 ASSIGN 
-       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -498,7 +475,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -555,6 +532,16 @@ END.
 &Scoped-define SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_job-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-date C-Win
+ON LEAVE OF end_job-date IN FRAME FRAME-A /* Ending Job Due Date */
 DO:
   assign {&self-name}.
 END.
@@ -639,7 +626,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME btn_SelectColumns
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_SelectColumns C-Win
 ON CHOOSE OF btn_SelectColumns IN FRAME FRAME-A /* Select Columns */
@@ -662,21 +648,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME end_due-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_due-date C-Win
 ON LEAVE OF end_due-date IN FRAME FRAME-A /* Ending PO Due Date */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_job-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-date C-Win
-ON LEAVE OF end_job-date IN FRAME FRAME-A /* Ending Job Due Date */
 DO:
   assign {&self-name}.
 END.
@@ -709,7 +683,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
      assign {&self-name}.
 END.
@@ -809,6 +783,16 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME select-mat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL select-mat C-Win
+ON VALUE-CHANGED OF select-mat IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -871,7 +855,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -885,7 +868,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
   assign {&self-name}.
 END.
@@ -1115,14 +1098,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 begin_job-date 
-          end_job-date begin_due-date end_due-date tb_sort tb_show select-mat 
-          sl_avail rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+  DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 tb_sort tb_show 
+          begin_job-date end_job-date begin_due-date end_due-date select-mat rd-dest  
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 
-         begin_job-date end_job-date begin_due-date end_due-date tb_sort 
-         tb_show select-mat btn_SelectColumns sl_avail rd-dest td-show-parm 
-         fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         tb_sort tb_show begin_job-date end_job-date begin_due-date end_due-date select-mat  
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel btn_SelectColumns
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1571,9 +1555,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION cons-qty C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
+FUNCTION GEtFieldValue RETURNS CHARACTER
+  ( hipField AS HANDLE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
+  RETURN string(hipField:BUFFER-VALUE).
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION cons-qty c-Win 
 FUNCTION cons-qty RETURNS DECIMAL
   ( /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------
@@ -1617,21 +1618,6 @@ DEF VAR v-wid       LIKE item.s-wid                                     NO-UNDO.
   END.
 
   RETURN v-comm.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
-FUNCTION GEtFieldValue RETURNS CHARACTER
-  ( hipField AS HANDLE ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 
