@@ -455,7 +455,7 @@ def buffer b-item for item.
 def var v-item      like item.i-no init "".
 def var v-new-item  like item.i-no.
 def var v-char      as   char.
-DEFINE VARIABLE cBaginItem AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBeginItem AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNewItemValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNewItemBegin AS CHARACTER NO-UNDO.
 
@@ -501,14 +501,14 @@ if v-process then do:
    
   IF index(v-item,"*") gt 0 AND SUBSTRING(v-item,1,1) NE "*" THEN
   DO:
-      cBaginItem = SUBSTRING(v-item,1,INDEX(v-item,"*") - 1)  .
+      cBeginItem = SUBSTRING(v-item,1,INDEX(v-item,"*") - 1)  .
       cNewItemBegin = SUBSTRING(v-new-item,1,INDEX(v-new-item,"*") - 1)  .
        
       FOR EACH ITEM
           WHERE item.company  EQ cocode
-          AND item.i-no       BEGINS cBaginItem
+          AND item.i-no       BEGINS cBeginItem
         NO-LOCK:            
-          cNewItemValue = cNewItemBegin + SUBSTRING(item.i-no,LENGTH(cBaginItem) + 1, LENGTH(item.i-no) - LENGTH(cBaginItem)).  
+          cNewItemValue = cNewItemBegin + SUBSTRING(item.i-no,LENGTH(cBeginItem) + 1, LENGTH(item.i-no) - LENGTH(cBeginItem)).  
           RUN rm/updrmitm.p (recid(item), cNewItemValue).
       END. 
   END.    
