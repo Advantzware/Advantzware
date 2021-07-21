@@ -719,9 +719,9 @@ ELSE lv-comp-color = "BLACK".
         RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
         
         PUT "<p8><R58><C3>" cStockNotes[1] SKIP
-                "<R58><C3>" cStockNotes[2] SKIP
-                "<R58><C3>" cStockNotes[3] SKIP
-                "<R58><C3>" cStockNotes[4] SKIP
+                "<R59><C3>" cStockNotes[2] SKIP
+                "<R60><C3>" cStockNotes[3] SKIP
+                "<R61><C3>" cStockNotes[4] SKIP
                 "<p10>".
         
     END.
