@@ -9,86 +9,86 @@
 DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 
-def var v-salesman as char format "x(14)" NO-UNDO.
-def var v-fob as char format "x(27)" NO-UNDO.
-def var v-shipvia like carrier.dscr NO-UNDO.
-def var v-addr3 as char format "x(30)" NO-UNDO.
-def var v-sold-addr3 as char format "x(30)" NO-UNDO.
-def var v-shipto-name as char format "x(30)" NO-UNDO.
-def var v-shipto-addr as char format "x(30)" extent 2 NO-UNDO.
-def var v-shipto-city as char format "x(15)" NO-UNDO.
-def var v-shipto-state as char format "x(2)" NO-UNDO.
-def var v-shipto-zip as char format "x(10)" NO-UNDO.
-def var v-line as int NO-UNDO.
-def var v-printline as INT NO-UNDO.
-def var v-invhead as char format "x(13)" initial
+DEF VAR v-salesman AS CHAR FORMAT "x(14)" NO-UNDO.
+DEF VAR v-fob AS CHAR FORMAT "x(27)" NO-UNDO.
+DEF VAR v-shipvia LIKE carrier.dscr NO-UNDO.
+DEF VAR v-addr3 AS CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-sold-addr3 AS CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-shipto-name AS CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-shipto-addr AS CHAR FORMAT "x(30)" EXTENT 2 NO-UNDO.
+DEF VAR v-shipto-city AS CHAR FORMAT "x(15)" NO-UNDO.
+DEF VAR v-shipto-state AS CHAR FORMAT "x(2)" NO-UNDO.
+DEF VAR v-shipto-zip AS CHAR FORMAT "x(10)" NO-UNDO.
+DEF VAR v-line AS INT NO-UNDO.
+DEF VAR v-printline AS INT NO-UNDO.
+DEF VAR v-invhead AS CHAR FORMAT "x(13)" INITIAL
   "I N V O I C E".
-def var v-pitch like asi.printer.pitch NO-UNDO.
-def var v-len as int NO-UNDO.
-def var v-hldpitch like asi.printer.pitch NO-UNDO.
-def var v-t-weight like inv-line.t-weight NO-UNDO.
-def var v-tot-cas as dec format "->>>9.9999" NO-UNDO.
-def var v-tot-pallets as int NO-UNDO.
-def var v-tot-qty as INT NO-UNDO.
-def var v-inv-date as date initial TODAY FORM "99/99/9999" NO-UNDO.
-def shared var v-fr-tax as logical initial no NO-UNDO.
-def var v-tax-rate as dec format "->>>.99" NO-UNDO.
-def var v-tax-code like stax.tax-code NO-UNDO.
-def var v-tx-rate like stax.tax-rate NO-UNDO.
-def var v-ans as logical initial no NO-UNDO.
-def var v-date-ship as date initial today NO-UNDO.
-def var v-del-no as int format ">>>>>>" NO-UNDO.
-def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
-def var v-set-qty AS DECIMAL NO-UNDO.
-def var v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
-def var v-net like inv-head.t-inv-rev NO-UNDO.
-def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
-def var v-case-line as char NO-UNDO.
-def var v-part-line as char NO-UNDO.
-def var tmp1 as dec NO-UNDO.
-def var tmp2 as date NO-UNDO.
-def var net1 as dec NO-UNDO.
-def var net2 as dec NO-UNDO.
-def var net3 as dec NO-UNDO.
-def var cnt as int NO-UNDO.
-def var disp-frt as char init "Freight:" format "x(8)" NO-UNDO.
-def var minus-ship as int NO-UNDO.
+DEF VAR v-pitch LIKE asi.printer.pitch NO-UNDO.
+DEF VAR v-len AS INT NO-UNDO.
+DEF VAR v-hldpitch LIKE asi.printer.pitch NO-UNDO.
+DEF VAR v-t-weight LIKE inv-line.t-weight NO-UNDO.
+DEF VAR v-tot-cas AS DEC FORMAT "->>>9.9999" NO-UNDO.
+DEF VAR v-tot-pallets AS INT NO-UNDO.
+DEF VAR v-tot-qty AS INT NO-UNDO.
+DEF VAR v-inv-date AS DATE INITIAL TODAY FORM "99/99/9999" NO-UNDO.
+DEF SHARED VAR v-fr-tax AS LOGICAL INITIAL NO NO-UNDO.
+DEF VAR v-tax-rate AS DEC FORMAT "->>>.99" NO-UNDO.
+DEF VAR v-tax-code LIKE stax.tax-code NO-UNDO.
+DEF VAR v-tx-rate LIKE stax.tax-rate NO-UNDO.
+DEF VAR v-ans AS LOGICAL INITIAL NO NO-UNDO.
+DEF VAR v-date-ship AS DATE INITIAL TODAY NO-UNDO.
+DEF VAR v-del-no AS INT FORMAT ">>>>>>" NO-UNDO.
+DEF VAR v-bol-cases LIKE oe-boll.cases NO-UNDO.
+DEF VAR v-set-qty AS DECIMAL NO-UNDO.
+DEF VAR v-part-qty AS DEC FORMAT "999.9999" NO-UNDO.
+DEF VAR v-net LIKE inv-head.t-inv-rev NO-UNDO.
+DEF VAR v-case-cnt AS CHAR FORMAT "x(80)" EXTENT 5 NO-UNDO.
+DEF VAR v-case-line AS CHAR NO-UNDO.
+DEF VAR v-part-line AS CHAR NO-UNDO.
+DEF VAR tmp1 AS DEC NO-UNDO.
+DEF VAR tmp2 AS DATE NO-UNDO.
+DEF VAR net1 AS DEC NO-UNDO.
+DEF VAR net2 AS DEC NO-UNDO.
+DEF VAR net3 AS DEC NO-UNDO.
+DEF VAR cnt AS INT NO-UNDO.
+DEF VAR disp-frt AS CHAR INIT "Freight:" FORMAT "x(8)" NO-UNDO.
+DEF VAR minus-ship AS INT NO-UNDO.
 DEF VAR v-int AS DEC NO-UNDO.
 DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 
 DEF BUFFER bf-inv-head FOR inv-head.
 
-def buffer xinv-head for inv-head .
-def buffer xinv-line for inv-line .
+DEF BUFFER xinv-head FOR inv-head .
+DEF BUFFER xinv-line FOR inv-line .
 
-def workfile w-sman
-  field sman as char format "x(4)".
+DEF WORKFILE w-sman
+  FIELD sman AS CHAR FORMAT "x(4)".
 
-def var v-ord-del-hdr as char format "x(3)" init "Del".
-def var v-beeler-lines as int.
-def var v-part-info as char format "x(30)".
-def var v as int.
-def var v-bo-qty as int format "99999" no-undo.
-def var v-inv-qty as int format "99999" no-undo.
-def var v-ship-qty as int format "99999" no-undo.
-DEFINE VARIABLE v-ord-qty as int format "99999" no-undo.
-def var v-i-no as char format "x(15)" no-undo.
-def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.9999" no-undo.
-def var v-t-price as dec format ">>>>>>9.99" no-undo.
-def var v-po-no like inv-line.po-no no-undo.
-def var v-bill-i as char format "x(25)" no-undo.
-def var v-ord-no like oe-ord.ord-no no-undo.
-def var v-ord-date like oe-ord.ord-date no-undo.
-def var v-ship-i as char format "x(25)" no-undo.
-def var v-ord-po-no like oe-ord.po-no no-undo.
-def var v-price-head as char format "x(5)" no-undo.
+DEF VAR v-ord-del-hdr AS CHAR FORMAT "x(3)" INIT "Del".
+DEF VAR v-beeler-lines AS INT.
+DEF VAR v-part-info AS CHAR FORMAT "x(30)".
+DEF VAR v AS INT.
+DEF VAR v-bo-qty AS INT FORMAT "99999" NO-UNDO.
+DEF VAR v-inv-qty AS INT FORMAT "99999" NO-UNDO.
+DEF VAR v-ship-qty AS INT FORMAT "99999" NO-UNDO.
+DEFINE VARIABLE v-ord-qty AS INT FORMAT "99999" NO-UNDO.
+DEF VAR v-i-no AS CHAR FORMAT "x(15)" NO-UNDO.
+DEF VAR v-i-dscr AS CHAR FORMAT "x(18)" NO-UNDO.
+DEF VAR v-price AS DEC FORMAT ">>>>9.9999" NO-UNDO.
+DEF VAR v-t-price AS DEC FORMAT ">>>>>>9.99" NO-UNDO.
+DEF VAR v-po-no LIKE inv-line.po-no NO-UNDO.
+DEF VAR v-bill-i AS CHAR FORMAT "x(25)" NO-UNDO.
+DEF VAR v-ord-no LIKE oe-ord.ord-no NO-UNDO.
+DEF VAR v-ord-date LIKE oe-ord.ord-date NO-UNDO.
+DEF VAR v-ship-i AS CHAR FORMAT "x(25)" NO-UNDO.
+DEF VAR v-ord-po-no LIKE oe-ord.po-no NO-UNDO.
+DEF VAR v-price-head AS CHAR FORMAT "x(5)" NO-UNDO.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
-def workfile w-tax
-    field w-dsc as   char
-    field w-tax as   dec.
-def var v-t-tax      as   dec extent 5 NO-UNDO.
-def var v-bot-lab    as   char format "x(63)" extent 5 NO-UNDO.
+DEF WORKFILE w-tax
+    FIELD w-dsc AS   CHAR
+    FIELD w-tax AS   DEC.
+DEF VAR v-t-tax      AS   DEC EXTENT 5 NO-UNDO.
+DEF VAR v-bot-lab    AS   CHAR FORMAT "x(63)" EXTENT 5 NO-UNDO.
 DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
@@ -111,7 +111,7 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
-DEFINE VARIABLE vRelPo like oe-rel.po-no no-undo.
+DEFINE VARIABLE vRelPo LIKE oe-rel.po-no NO-UNDO.
 DEFINE VARIABLE iPoCheck AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPo-No AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
@@ -147,17 +147,17 @@ END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
 ELSE lv-display-comp = NO.
 
-FIND first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "LOGOCOLR" no-lock no-error.
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "LOGOCOLR" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
 ELSE lv-comp-color = "BLACK".
 
-find first company where company.company eq cocode NO-LOCK. 
+FIND FIRST company WHERE company.company EQ cocode NO-LOCK. 
 
  IF lv-display-comp THEN DO:
     FIND FIRST cust WHERE cust.company = cocode AND
@@ -173,17 +173,17 @@ find first company where company.company eq cocode NO-LOCK.
            .
  END.
     
-    find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
+    FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK NO-ERROR.
 
-    for each report where report.term-id eq v-term-id no-lock,
-        first xinv-head where recid(xinv-head) eq report.rec-id no-lock
-        break by report.key-01
-              by report.key-02:
+    FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
+        FIRST xinv-head WHERE RECID(xinv-head) EQ report.rec-id NO-LOCK
+        BREAK BY report.key-01
+              BY report.key-02:
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
-      assign  v-shipto-name = xinv-head.sold-name
+      ASSIGN  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]
               v-shipto-addr[2] = xinv-head.sold-addr[2]
               v-shipto-city = xinv-head.sold-city
@@ -192,24 +192,24 @@ find first company where company.company eq cocode NO-LOCK.
 
       v-del-no = 0.
 
-      find first oe-bolh where oe-bolh.company = xinv-head.company and
-          oe-bolh.bol-no = xinv-head.bol-no use-index bol-no no-lock no-error.
-      if avail oe-bolh then do:
+      FIND FIRST oe-bolh WHERE oe-bolh.company = xinv-head.company AND
+          oe-bolh.bol-no = xinv-head.bol-no USE-INDEX bol-no NO-LOCK NO-ERROR.
+      IF AVAIL oe-bolh THEN DO:
         /*find first oe-relh where oe-relh.company = oe-bolh.company and
                    oe-relh.r-no = oe-bolh.r-no no-lock no-error.
         if avail oe-relh then */
-        find first shipto where shipto.company  = oe-bolh.company and
-                   shipto.cust-no = oe-bolh.cust-no and
-                   shipto.ship-id = oe-bolh.ship-id no-lock no-error.
-        if avail shipto then
-        assign  v-shipto-name = shipto.ship-name
+        FIND FIRST shipto WHERE shipto.company  = oe-bolh.company AND
+                   shipto.cust-no = oe-bolh.cust-no AND
+                   shipto.ship-id = oe-bolh.ship-id NO-LOCK NO-ERROR.
+        IF AVAIL shipto THEN
+        ASSIGN  v-shipto-name = shipto.ship-name
                 v-shipto-addr[1] = shipto.ship-addr[1]
                 v-shipto-addr[2] = shipto.ship-addr[2]
                 v-shipto-city = shipto.ship-city
                 v-shipto-state = shipto.ship-state
                 v-shipto-zip = shipto.ship-zip.
 
-      end. /* avail oe-bolh */
+      END. /* avail oe-bolh */
 
       IF NOT v-reprint OR xinv-head.inv-no EQ 0 THEN
         RUN oe/get-inv#.p (ROWID(xinv-head)).
@@ -217,12 +217,12 @@ find first company where company.company eq cocode NO-LOCK.
       DO TRANSACTION:
         FIND inv-head WHERE ROWID(inv-head) EQ ROWID(xinv-head).
 
-        if inv-head.inv-date ne ? then v-inv-date = inv-head.inv-date.
+        IF inv-head.inv-date NE ? THEN v-inv-date = inv-head.inv-date.
         
-        if inv-head.fob-code begins "ORIG" then
-         assign v-fob = "Origin".
-        else
-         assign v-fob = "Destination".
+        IF inv-head.fob-code BEGINS "ORIG" THEN
+         ASSIGN v-fob = "Origin".
+        ELSE
+         ASSIGN v-fob = "Destination".
         
         ASSIGN 
             cBillNotes[1] = ""
@@ -254,13 +254,13 @@ find first company where company.company eq cocode NO-LOCK.
                 cBillNotes[4] = xinv-head.bill-i[4]
                 .
 
-        find FIRST carrier where carrier.company = inv-head.company and
-          carrier.carrier = inv-head.carrier no-lock no-error.
-         if avail carrier then
-           assign v-shipvia = carrier.dscr.
-         else
-           assign v-shipvia = "".
-        assign
+        FIND FIRST carrier WHERE carrier.company = inv-head.company AND
+          carrier.carrier = inv-head.carrier NO-LOCK NO-ERROR.
+         IF AVAIL carrier THEN
+           ASSIGN v-shipvia = carrier.dscr.
+         ELSE
+           ASSIGN v-shipvia = "".
+        ASSIGN
           v-addr3 = inv-head.city + ", " + inv-head.state + "  " + inv-head.zip
           v-sold-addr3 = v-shipto-city + ", " + v-shipto-state +
               "  " + v-shipto-zip
@@ -273,12 +273,12 @@ find first company where company.company eq cocode NO-LOCK.
             {sys/ref/stax1W.i}
               and {sys/ref/taxgroup.i stax} eq inv-head.tax-gr
             no-lock no-error. */
-        if not avail stax then
-        find first stax where stax.tax-group eq inv-head.tax-gr
-            no-lock no-error.
+        IF NOT AVAIL stax THEN
+        FIND FIRST stax WHERE stax.tax-group EQ inv-head.tax-gr
+            NO-LOCK NO-ERROR.
    
-        if avail stax then
-          assign v-tax-rate = stax.tax-rate[1] +
+        IF AVAIL stax THEN
+          ASSIGN v-tax-rate = stax.tax-rate[1] +
                               stax.tax-rate[2] + stax.tax-rate[3]
                  v-tax-code[1] = stax.tax-code[1]
                  v-tax-code[2] = stax.tax-code[2]
@@ -287,21 +287,21 @@ find first company where company.company eq cocode NO-LOCK.
                  v-tx-rate[2]  = stax.tax-rate[2]
                  v-tx-rate[3]  = stax.tax-rate[3].
 
-        assign v-tot-pallets = 0.
+        ASSIGN v-tot-pallets = 0.
         cPo-No = "".
 
         
-        for each xinv-line no-lock where xinv-line.r-no = inv-head.r-no
-          break by xinv-line.i-no:
+        FOR EACH xinv-line NO-LOCK WHERE xinv-line.r-no = inv-head.r-no
+          BREAK BY xinv-line.i-no:
         
-         do i = 1 to 3:
-          if xinv-line.sman[i] ne "" then do:
-            create w-sman.
-            assign w-sman.sman = xinv-line.sman[i].
-          end.
-         end.
-         assign v-tot-qty = v-tot-qty + xinv-line.ship-qty
-                v-t-weight = v-t-weight + (round(xinv-line.t-weight /
+         DO i = 1 TO 3:
+          IF xinv-line.sman[i] NE "" THEN DO:
+            CREATE w-sman.
+            ASSIGN w-sman.sman = xinv-line.sman[i].
+          END.
+         END.
+         ASSIGN v-tot-qty = v-tot-qty + xinv-line.ship-qty
+                v-t-weight = v-t-weight + (ROUND(xinv-line.t-weight /
                             xinv-line.qty, 2) * xinv-line.inv-qty).
 
          IF xinv-line.po-no NE "" THEN DO:
@@ -319,17 +319,17 @@ find first company where company.company eq cocode NO-LOCK.
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
-           assign v-date-ship = oe-bolh.bol-date.
+           ASSIGN v-date-ship = oe-bolh.bol-date.
 
          END. /* each oe-bolh */
-         if last-of(xinv-line.i-no) then do:
-           if xinv-line.est-no ne "" then
-           do:
-             find first eb where eb.company = xinv-line.company and
-               eb.est-no = xinv-line.est-no and
-               eb.e-num = xinv-line.e-num and
-               eb.form-no = xinv-line.form-no and
-               eb.blank-no = xinv-line.blank-no no-lock no-error.
+         IF LAST-OF(xinv-line.i-no) THEN DO:
+           IF xinv-line.est-no NE "" THEN
+           DO:
+             FIND FIRST eb WHERE eb.company = xinv-line.company AND
+               eb.est-no = xinv-line.est-no AND
+               eb.e-num = xinv-line.e-num AND
+               eb.form-no = xinv-line.form-no AND
+               eb.blank-no = xinv-line.blank-no NO-LOCK NO-ERROR.
 
              IF xinv-line.form-no = 0 AND xinv-line.est-type = 2 THEN
              DO:
@@ -359,8 +359,8 @@ find first company where company.company eq cocode NO-LOCK.
                  ELSE
                    ASSIGN v-tot-cas = ROUND((v-tot-qty * v-part-qty) /
                                       eb.cas-cnt, 2).
-                 if v-bol-cases ne 0 then
-                   assign v-tot-cas = v-bol-cases.
+                 IF v-bol-cases NE 0 THEN
+                   ASSIGN v-tot-cas = v-bol-cases.
                END. /* each eb */
              END. /* do */
              ELSE
@@ -370,53 +370,53 @@ find first company where company.company eq cocode NO-LOCK.
                  ASSIGN v-tot-cas = ROUND(v-t-weight / eb.cas-wt, 2).
                ELSE
                  ASSIGN v-tot-cas = ROUND(v-tot-qty / eb.cas-cnt, 2).
-               if v-bol-cases ne 0 then
-                 assign v-tot-cas = v-bol-cases.
+               IF v-bol-cases NE 0 THEN
+                 ASSIGN v-tot-cas = v-bol-cases.
              END. /* do */
-           end. /* est-no ne "" */
-          assign
+           END. /* est-no ne "" */
+          ASSIGN
              v-t-weight = 0
              v-tot-cas = 0
              v-tot-qty = 0.
-         end. /* last-of i-no */
-        end. /* each xinv-line */
+         END. /* last-of i-no */
+        END. /* each xinv-line */
 
         DO iCount = 1 TO NUM-ENTRIES(cPo-No):
-           IF ENTRY(1,cPo-No) NE ENTRY(iCount,cPo-No) and ENTRY(iCount,cPo-No) ne ""  THEN iPoCheck = YES. 
+           IF ENTRY(1,cPo-No) NE ENTRY(iCount,cPo-No) AND ENTRY(iCount,cPo-No) NE ""  THEN iPoCheck = YES. 
        END.
     
         /** Build Salesman Id String **/
         v-salesman = "".
-        for each w-sman break by w-sman.sman:
-          if first-of(w-sman.sman) then
-            assign v-salesman = v-salesman + w-sman.sman.
-          delete w-sman.
-        end.
+        FOR EACH w-sman BREAK BY w-sman.sman:
+          IF FIRST-OF(w-sman.sman) THEN
+            ASSIGN v-salesman = v-salesman + w-sman.sman.
+          DELETE w-sman.
+        END.
 
-        find first oe-bolh where oe-bolh.company = inv-head.company and
+        FIND FIRST oe-bolh WHERE oe-bolh.company = inv-head.company AND
                                  oe-bolh.bol-no = inv-head.bol-no
-                                 USE-INDEX bol-no no-lock no-error.
+                                 USE-INDEX bol-no NO-LOCK NO-ERROR.
       /*  if avail oe-bolh then
           assign v-rel-po-no = oe-bolh.po-no.*/
 
-        find first inv-line where inv-line.r-no = inv-head.r-no
-                                  no-lock no-error.
-        if avail inv-line then
-        do:
-          assign v-price-head = inv-line.pr-uom.
-          find first oe-ord where oe-ord.company = cocode and
+        FIND FIRST inv-line WHERE inv-line.r-no = inv-head.r-no
+                                  NO-LOCK NO-ERROR.
+        IF AVAIL inv-line THEN
+        DO:
+          ASSIGN v-price-head = inv-line.pr-uom.
+          FIND FIRST oe-ord WHERE oe-ord.company = cocode AND
                                   oe-ord.ord-no = inv-line.ord-no
-                                  no-lock no-error.
-          if avail oe-ord then
-          do:
-            assign v-bill-i = oe-ord.bill-i[1]
+                                  NO-LOCK NO-ERROR.
+          IF AVAIL oe-ord THEN
+          DO:
+            ASSIGN v-bill-i = oe-ord.bill-i[1]
                    v-ord-no = oe-ord.ord-no
                    v-ord-date = oe-ord.ord-date
                    .
-          end.
-          else
-            assign v-price-head = inv-line.pr-uom.
-        end.
+          END.
+          ELSE
+            ASSIGN v-price-head = inv-line.pr-uom.
+        END.
 
         /* gdm - 01280914 */
         FIND FIRST inv-line
@@ -441,8 +441,8 @@ find first company where company.company eq cocode NO-LOCK.
 
         v-subtot-lines = 0.
         v-t-tax = 0.
-        for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
-          assign v-case-line = ""
+        FOR EACH inv-line NO-LOCK WHERE inv-line.r-no = inv-head.r-no:
+          ASSIGN v-case-line = ""
                  v-part-line = ""
                  v-case-cnt = "".
 
@@ -452,37 +452,37 @@ find first company where company.company eq cocode NO-LOCK.
                {oe/rep/invhenry.i}
           END.
 
-          for each oe-boll
-              where oe-boll.company eq inv-line.company
-                and oe-boll.ord-no  eq inv-line.ord-no
-                and oe-boll.b-no    eq inv-line.b-no
-                and oe-boll.i-no    eq inv-line.i-no
-                and oe-boll.line    eq inv-line.line
-                and oe-boll.po-no   eq inv-line.po-no
-              use-index bol-no no-lock:
+          FOR EACH oe-boll
+              WHERE oe-boll.company EQ inv-line.company
+                AND oe-boll.ord-no  EQ inv-line.ord-no
+                AND oe-boll.b-no    EQ inv-line.b-no
+                AND oe-boll.i-no    EQ inv-line.i-no
+                AND oe-boll.line    EQ inv-line.line
+                AND oe-boll.po-no   EQ inv-line.po-no
+              USE-INDEX bol-no NO-LOCK:
 
                                        /** Build Case Count Display Lines **/
-            if oe-boll.cases ne 0 and oe-boll.qty-case ne 0 then
-            assign v-case-line = string(oe-boll.cases) + " @ " +
+            IF oe-boll.cases NE 0 AND oe-boll.qty-case NE 0 THEN
+            ASSIGN v-case-line = STRING(oe-boll.cases) + " @ " +
                                      string(oe-boll.qty-case).
-            else assign v-case-line = "".
-            if oe-boll.partial ne 0 then
-            assign v-part-line = "1" + " @ " + string(oe-boll.partial).
-            else assign v-part-line = "".
+            ELSE ASSIGN v-case-line = "".
+            IF oe-boll.partial NE 0 THEN
+            ASSIGN v-part-line = "1" + " @ " + string(oe-boll.partial).
+            ELSE ASSIGN v-part-line = "".
 
-            do i = 1 to 5:
-              if (80 - length(v-case-cnt[i])) > length(v-case-line) and
-                v-case-line ne "" then
-              assign v-case-cnt[i] = v-case-cnt[i] + v-case-line + "  "
+            DO i = 1 TO 5:
+              IF (80 - length(v-case-cnt[i])) > length(v-case-line) AND
+                v-case-line NE "" THEN
+              ASSIGN v-case-cnt[i] = v-case-cnt[i] + v-case-line + "  "
                      v-case-line = "".
-              if (80 - length(v-case-cnt[i])) > length(v-part-line) and
-                v-part-line ne "" then
-              assign v-case-cnt[i] = v-case-cnt[i] + v-part-line + "  "
+              IF (80 - length(v-case-cnt[i])) > length(v-part-line) AND
+                v-part-line NE "" THEN
+              ASSIGN v-case-cnt[i] = v-case-cnt[i] + v-part-line + "  "
                      v-part-line = "".
-            end. /* 1 to 5 */
-          end. /* each oe-boll */
+            END. /* 1 to 5 */
+          END. /* each oe-boll */
 
-            assign v-line = v-line + 1
+            ASSIGN v-line = v-line + 1
                    .
 
             ASSIGN
@@ -491,13 +491,13 @@ find first company where company.company eq cocode NO-LOCK.
                                                    ELSE inv-line.ship-qty.
              
 
-            find first oe-ordl where oe-ordl.company = cocode and
-                                     oe-ordl.ord-no = inv-line.ord-no and
+            FIND FIRST oe-ordl WHERE oe-ordl.company = cocode AND
+                                     oe-ordl.ord-no = inv-line.ord-no AND
                                      oe-ordl.i-no = inv-line.i-no
-                                     no-lock no-error.
+                                     NO-LOCK NO-ERROR.
 
-            if avail oe-ordl then DO:
-              v-bo-qty = if (inv-line.qty - v-ship-qty -
+            IF AVAIL oe-ordl THEN DO:
+              v-bo-qty = IF (inv-line.qty - v-ship-qty -
                              oe-ordl.t-ship-qty) < 0 then 0 else
                              (inv-line.qty - v-ship-qty -
                               oe-ordl.t-ship-qty).
@@ -542,24 +542,24 @@ find first company where company.company eq cocode NO-LOCK.
                 lv-inv-list = lv-inv-list + TRIM(STRING(ar-invl.inv-no,">>>>>>>>>>")) + " ".
               END.
             END.
-            else
-              assign v-bo-qty = if ( inv-line.qty - v-ship-qty ) < 0
+            ELSE
+              ASSIGN v-bo-qty = IF ( inv-line.qty - v-ship-qty ) < 0
                                   then 0 else inv-line.qty - v-ship-qty.
 
             v-beeler-lines = 0.
-            do v = 1 to 3:
-              v-part-info = if v eq 1 then inv-line.part-dscr1
-                            else
-                            if v eq 2 then inv-line.part-dscr2
-                            else           trim(lv-inv-list).
+            DO v = 1 TO 3:
+              v-part-info = IF v EQ 1 THEN inv-line.part-dscr1
+                            ELSE
+                            IF v EQ 2 THEN inv-line.part-dscr2
+                            ELSE           TRIM(lv-inv-list).
 
-              if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then
+              IF v-part-info NE "" OR (v = 1 AND inv-line.part-no <> "") THEN
                 v-beeler-lines = v-beeler-lines + 1.
-            end.
+            END.
            
             /*v-printline = v-printline + v-beeler-lines.*/
  
-            assign v-inv-qty = inv-line.qty /* task 03170618 inv-qty*/
+            ASSIGN v-inv-qty = inv-line.qty /* task 03170618 inv-qty*/
                    v-i-no = inv-line.i-no
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
@@ -570,51 +570,51 @@ find first company where company.company eq cocode NO-LOCK.
             IF lPrintQtyAll THEN
                    v-inv-qty = inv-line.inv-qty .
 
-            if inv-line.tax and avail stax then
-            do i = 1 to 5:
-              if stax.tax-code1[i] ne "" then do:
-                create w-tax.
-                assign
+            IF inv-line.tax AND AVAIL stax THEN
+            DO i = 1 TO 5:
+              IF stax.tax-code1[i] NE "" THEN DO:
+                CREATE w-tax.
+                ASSIGN
                  w-dsc      = stax.tax-dscr1[i]
-                 w-tax      = round((if stax.company eq "yes" then v-t-price
-                                                              else inv-line.t-price) *
+                 w-tax      = ROUND((IF stax.company EQ "yes" THEN v-t-price
+                                                              ELSE inv-line.t-price) *
                                     stax.tax-rate1[i] / 100,2)
                  v-t-price  = v-t-price + w-tax
                  v-t-tax[i] = v-t-tax[i] + w-tax
                  v-lines    = v-lines + 1.
-              end.
-            end.
+              END.
+            END.
 
-            if v-t-price ne inv-line.t-price then do:
-              create w-tax.
-              assign
+            IF v-t-price NE inv-line.t-price THEN DO:
+              CREATE w-tax.
+              ASSIGN
                w-dsc     = "******ITEM TOTAL:"
                w-tax     = v-t-price
                v-lines   = v-lines + 1.
-            end.
+            END.
             
             v-price-head = inv-line.pr-uom.
   
-          IF NOT lPrintQtyAll THEN do:
-            PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>>9" SPACE(1)
+          IF NOT lPrintQtyAll THEN DO:
+            PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
+                v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
-                v-i-no  format "x(15)" SPACE(3)
-                v-i-dscr  format "x(25)" SPACE(3)
-                v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
+                v-i-no  FORMAT "x(15)" SPACE(3)
+                v-i-dscr  FORMAT "x(25)" SPACE(3)
+                v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
                 v-price-head 
-                inv-line.t-price  format "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
           END.
           ELSE DO:
-              PUT space(1)v-ord-qty  format "->>>>>>9" SPACE(1)
-                v-inv-qty  format "->>>>>>9" SPACE(1)
+              PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
+                v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
-                v-i-no  format "x(15)" SPACE(3)
-                v-i-dscr  format "x(25)" SPACE(2)
-                v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
+                v-i-no  FORMAT "x(15)" SPACE(3)
+                v-i-dscr  FORMAT "x(25)" SPACE(2)
+                v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
                 v-price-head 
-                inv-line.t-price  format "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
           END.
@@ -629,18 +629,18 @@ find first company where company.company eq cocode NO-LOCK.
                 AND itemfg.cust-no = inv-line.cust-no
                 NO-ERROR.
 
-            do v = 1 to 4:
+            DO v = 1 TO 4:
               CASE v:
                 WHEN 1 THEN ASSIGN v-part-info = inv-line.part-dscr1.
                 WHEN 2 THEN ASSIGN v-part-info = IF inv-line.part-dscr2 NE "" THEN inv-line.part-dscr2 ELSE
                                                  IF AVAIL itemfg THEN itemfg.part-dscr2 ELSE "".
                 WHEN 3 THEN ASSIGN v-part-info = IF AVAIL itemfg THEN itemfg.part-dscr3 ELSE "".
-                WHEN 4 THEN ASSIGN v-part-info = trim(lv-inv-list).
+                WHEN 4 THEN ASSIGN v-part-info = TRIM(lv-inv-list).
               END CASE.
                             
-              if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
+              IF v-part-info NE "" OR  (v = 1 AND inv-line.part-no <> "") THEN DO:
                  IF v = 1 THEN DO:
-                   IF lPrintQtyAll THEN do:
+                   IF lPrintQtyAll THEN DO:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
                          PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
@@ -664,15 +664,15 @@ find first company where company.company eq cocode NO-LOCK.
                  ELSE
                   PUT SPACE(46) v-part-info SKIP.
                  v-printline = v-printline + 1.
-              end.
-            end.
-            put skip(1).
+              END.
+            END.
+            PUT SKIP(1).
             v-printline = v-printline + 1.
             
             IF v-print-dept AND AVAIL oe-ordl THEN
             DO:
                FIND FIRST job-hdr WHERE
-                   job-hdr.company eq cocode AND
+                   job-hdr.company EQ cocode AND
                    job-hdr.job-no  EQ oe-ordl.job-no AND
                    job-hdr.job-no2 EQ oe-ordl.job-no2
                    NO-LOCK NO-ERROR.
@@ -680,10 +680,10 @@ find first company where company.company eq cocode NO-LOCK.
                IF AVAIL job-hdr THEN
                DO:
                   FIND FIRST job WHERE
-                       job.company eq cocode AND
-                       job.job     eq job-hdr.job AND
-                       job.job-no  eq job-hdr.job-no AND
-                       job.job-no2 eq job-hdr.job-no2
+                       job.company EQ cocode AND
+                       job.job     EQ job-hdr.job AND
+                       job.job-no  EQ job-hdr.job-no AND
+                       job.job-no2 EQ job-hdr.job-no2
                        NO-LOCK NO-ERROR.
                  
                   IF AVAIL job THEN
@@ -704,7 +704,7 @@ find first company where company.company eq cocode NO-LOCK.
                                {oe/rep/invhenry.i}
                             END.
                     
-                            PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
+                            PUT SUBSTRING(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                                 v-printline = v-printline + 1.
                          END.
                      END.
@@ -720,57 +720,57 @@ find first company where company.company eq cocode NO-LOCK.
                END.
             END.
 
-        end. /* each inv-line */
+        END. /* each inv-line */
 
-        for each inv-misc no-lock where inv-misc.company = inv-head.company and
-          inv-misc.r-no = inv-head.r-no and
-          inv-misc.bill = "Y" break by inv-misc.ord-no with frame detailm:
-          if first(inv-misc.ord-no) then
-          do:
+        FOR EACH inv-misc NO-LOCK WHERE inv-misc.company = inv-head.company AND
+          inv-misc.r-no = inv-head.r-no AND
+          inv-misc.bill = "Y" BREAK BY inv-misc.ord-no WITH FRAME detailm:
+          IF FIRST(inv-misc.ord-no) THEN
+          DO:
             IF v-printline > 50 THEN DO:
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
             END.
-            put "** Miscellaneous Items **" at 23 skip(1).
-            assign v-printline = v-printline + 2.
-          end.
+            PUT "** Miscellaneous Items **" AT 23 SKIP(1).
+            ASSIGN v-printline = v-printline + 2.
+          END.
             
-          put inv-misc.charge AT 3 inv-misc.po-no inv-misc.dscr inv-misc.amt FORMAT "$->>,>>9.99"  SKIP.
+          PUT inv-misc.charge AT 3 inv-misc.po-no inv-misc.dscr inv-misc.amt FORMAT "$->>,>>9.99"  SKIP.
           ASSIGN
              v-subtot-lines = v-subtot-lines + inv-misc.amt
              v-printline = v-printline + 1.
-          if inv-misc.tax and avail stax then
-          do i = 1 to 5:
-            if stax.tax-code1[i] ne "" then do:
-              create w-tax.
-              assign
+          IF inv-misc.tax AND AVAIL stax THEN
+          DO i = 1 TO 5:
+            IF stax.tax-code1[i] NE "" THEN DO:
+              CREATE w-tax.
+              ASSIGN
                w-dsc      = stax.tax-dscr1[i]
-               w-tax      = if stax.company eq "yes" then v-t-price
-                            else inv-misc.amt
-               w-tax      = round(w-tax * (1 + (stax.tax-rate1[i] / 100)),2) - w-tax
+               w-tax      = IF stax.company EQ "yes" THEN v-t-price
+                            ELSE inv-misc.amt
+               w-tax      = ROUND(w-tax * (1 + (stax.tax-rate1[i] / 100)),2) - w-tax
                v-t-price  = v-t-price + w-tax
                v-t-tax[i] = v-t-tax[i] + w-tax
                v-lines    = v-lines + 1.
-            end.
-          end.
+            END.
+          END.
 
-          if v-t-price ne inv-misc.amt then do:
-            create w-tax.
-            assign
+          IF v-t-price NE inv-misc.amt THEN DO:
+            CREATE w-tax.
+            ASSIGN
              w-dsc     = "******ITEM TOTAL:"
              w-tax     = v-t-price
              v-lines   = v-lines + 1.
-          end.
+          END.
           IF v-printline > 53 THEN DO:
              PAGE.
              v-printline = 0.
              {oe/rep/invhenry.i}
          END.
 
-        end. /* each inv-misc */
+        END. /* each inv-misc */
 
-        if v-prntinst then do:
+        IF v-prntinst THEN DO:
 
            {custom/notesprt.i inv-head v-inst 4}
            DO i = 1 TO 4:
@@ -796,57 +796,57 @@ find first company where company.company eq cocode NO-LOCK.
                  v-printline = v-printline + 1.
               END.
            END.
-*/        end.
+*/        END.
         
         v-frt-tax = inv-head.t-inv-freight.
         
-        IF inv-head.tax-gr <> "" and
+        IF inv-head.tax-gr <> "" AND
            inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
-        do i = 1 to 5:
+        DO i = 1 TO 5:
 
-           if stax.tax-code1[i] ne "" AND stax.tax-frt1[i] EQ YES then do:
-                create w-tax.
-                assign
+           IF stax.tax-code1[i] NE "" AND stax.tax-frt1[i] EQ YES THEN DO:
+                CREATE w-tax.
+                ASSIGN
                  w-dsc      = stax.tax-dscr1[i]
-                 w-tax      = round((if stax.company eq "yes" then v-frt-tax
+                 w-tax      = ROUND((IF stax.company EQ "yes" THEN v-frt-tax
                                                          ELSE inv-head.t-inv-freight) *
                                         stax.tax-rate1[i] / 100,2)
                  v-frt-tax  = v-frt-tax + w-tax
                  v-t-tax[i] = v-t-tax[i] + w-tax
                  v-lines    = v-lines + 1.
            END.
-        end. 
+        END. 
 
-        assign
-         inv-head.printed = yes
+        ASSIGN
+         inv-head.printed = YES
          inv-head.stat = "X".
-      end. /* DO TRANSACTION avail inv-head */
+      END. /* DO TRANSACTION avail inv-head */
 
-    do i = 1 to 5:
-       v-bot-lab[i] = if v-t-tax[i] ne 0 then
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
+    DO i = 1 TO 5:
+       v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN
+                        ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code1[i] + " TAX"),"x(7)") 
                            ELSE FILL(" ",7) ) +
                        fill(" ",4) + ":" +
-                       string(v-t-tax[i],"->>,>>>,>>9.99")) else "".
-    end.
-    v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-    
-  IF ltb_print-message THEN DO:
-    FOR EACH bf-cust NO-LOCK
-        WHERE bf-cust.company EQ cocode
-        AND bf-cust.ACTIVE EQ "X":
-
-        RUN pNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).
-        
-            PUT "<p8><R56><C3>" cStockNotes[1] SKIP
-                "<R57><C3>" cStockNotes[2] SKIP
-                "<R58><C3>" cStockNotes[3] SKIP
-                "<R59><C3>" cStockNotes[4] SKIP
-                "<p10>".
-        
+                       string(v-t-tax[i],"->>,>>>,>>9.99")) ELSE "".
     END.
-  END.
-    IF v-bot-lab[4] <> "" THEN
+    v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
+    
+    /* #101624 */
+    IF ltb_print-message THEN DO:
+      FIND FIRST ar-ctrl NO-LOCK WHERE 
+        ar-ctrl.company = cocode
+        NO-ERROR.
+      IF AVAIL ar-ctrl THEN DO:
+            PUT "<p8><R56><C3>" ar-ctrl.invoiceMessage1 SKIP
+                "<R57><C3>" ar-ctrl.invoiceMessage2 SKIP
+                "<R58><C3>" ar-ctrl.invoiceMessage3 SKIP
+                "<R59><C3>" ar-ctrl.invoiceMessage4 SKIP
+                "<R60><C3>" ar-ctrl.invoiceMessage5 SKIP
+                "<p10>".
+      END.
+    END.
+    
+      IF v-bot-lab[4] <> "" THEN
     PUT "<R56><C59><#8><FROM><R+8><C+23><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORMAT "->>,>>>,>>9.99"
@@ -868,9 +868,9 @@ ELSE
     ASSIGN
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
-    page.
+    PAGE.
  
-    end. /* each xinv-head */
+    END. /* each xinv-head */
     
 PROCEDURE pNotes:
 
@@ -904,7 +904,7 @@ FOR EACH notes WHERE notes.rec_key = reckey
                                   ELSE "" .              
            
            IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-           THEN do:
+           THEN DO:
                   lv-got-return = lv-got-return + 1.
                   j = i.
            END.
