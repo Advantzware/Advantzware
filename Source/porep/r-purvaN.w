@@ -73,7 +73,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-
+DEFINE VARIABLE cFileName as character NO-UNDO .
 ASSIGN cTextListToSelect = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,Vendor $," +
                            "Bought $,Diff $,MPV %,Overs %,Adder code1,Adder code2"
            cFieldListToSelect = "po-no,vend,job,item,due-dt,rcd-dt,msf,vend-$," +
@@ -230,7 +230,7 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-purvar.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN 
+     VIEW-AS FILL-IN NATIVE
      SIZE 43 BY 1
      FGCOLOR 0 .
 
@@ -691,6 +691,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+   IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-purvar.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   RUN GetSelectionList.
   run run-report. 
  STATUS DEFAULT "Processing Complete".
@@ -698,7 +705,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=begin_po-no
@@ -730,6 +739,8 @@ DO:
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -885,7 +896,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    // assign {&self-name}.
+    fi_file = ''.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,6 +967,17 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+    IF rd-dest = 3 THEN
+        ASSIGN
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1184,6 +1207,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_po-date   = today.
 
   RUN DisplaySelectionList.
+    btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1200,7 +1230,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   {methods/nowait.i}
-
+ /*{sys/inc/reportsConfigNK1.i "PR5" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
+    ASSIGN rd-dest.
+  APPLY 'VALUE-CHANGED' TO rd-dest.*/
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1699,14 +1736,14 @@ DEF VAR v-page AS LOGICAL NO-UNDO.
 DEF VAR vaddr AS CHAR NO-UNDO.
 DEF VAR vaddr2 AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1789,7 +1826,7 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
- IF tb_excel THEN DO:
+ IF rd-dest = 3 THEN DO:
    OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
@@ -1818,7 +1855,7 @@ display "" with frame r-top.
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF tb_excel AND fi_file NE '' THEN DO:
+IF rd-dest = 3 AND fi_file NE '' THEN DO:
   /*OUTPUT STREAM st-excel TO VALUE(fi_file).
   excelheader = "PO #,Vendor #".
   IF tb_adder THEN
@@ -2241,7 +2278,7 @@ DO WITH FRAME main:
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
     END.
     PUT UNFORMATTED cDisplay SKIP.
-    IF tb_excel THEN DO:
+    IF rd-dest = 3 THEN DO:
         PUT STREAM st-excel UNFORMATTED  
                cExcelDisplay SKIP.
     END.
@@ -2285,7 +2322,7 @@ DO WITH FRAME main:
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
     END.
     PUT UNFORMATTED cDisplay SKIP.
-    IF tb_excel THEN DO:
+    IF rd-dest = 3 THEN DO:
         PUT STREAM st-excel UNFORMATTED  
                cExcelDisplay SKIP.
     END.
@@ -2352,7 +2389,7 @@ do:
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
     END.
     PUT UNFORMATTED  "    Sub Totals:" substring(cDisplay,21,300) SKIP.
-    IF tb_excel THEN DO:
+    IF rd-dest = 3 THEN DO:
         PUT STREAM st-excel UNFORMATTED  
                " Sub Totals: " + substring(cExcelDisplay,3,300) SKIP.
     END.
@@ -2423,7 +2460,7 @@ end.
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
     END.
     PUT UNFORMATTED  "    Grand Totals:" substring(cDisplay,23,300) SKIP.
-    IF tb_excel THEN DO:
+    IF rd-dest = 3 THEN DO:
         PUT STREAM st-excel UNFORMATTED  
                " Grand Totals: " + substring(cExcelDisplay,3,300) SKIP.
     END.
@@ -2433,7 +2470,7 @@ end.
          v-grand-vend = 0
          v-grand-bght = 0.
 
-IF tb_excel AND cFileName NE '' THEN
+IF rd-dest = 3 AND cFileName NE '' THEN
    OUTPUT STREAM st-excel CLOSE.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2441,10 +2478,10 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE ("").
 
     /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-    IF tb_excel AND tb_runExcel THEN
+    IF rd-dest = 3 AND tb_runExcel THEN
         OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 
-.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -65,6 +65,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -139,7 +140,7 @@ DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-bilmat.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN 
+     VIEW-AS FILL-IN NATIVE
      SIZE 43 BY 1
      FGCOLOR 0 .
 
@@ -488,7 +489,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
+ IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "cc:\tmp\r-bilmat.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   lv-pdf-file = INIT-dir +  "\Job" + STRING(begin_job1).
 
   RUN run-report.
@@ -496,7 +503,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
          run output-to-fax.
        END.
@@ -506,6 +515,8 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case.
   SESSION:SET-WAIT-STATE ("").
+    IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -540,7 +551,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    // assign {&self-name}.
+    fi_file = ''.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,6 +624,17 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+    IF rd-dest = 3 THEN
+        ASSIGN
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -703,7 +726,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-
+  btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
 
   FIND FIRST users WHERE
@@ -716,7 +740,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   {methods/nowait.i}
-
+ {sys/inc/reportsConfigNK1.i "ER5" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
+    ASSIGN rd-dest.
+  APPLY 'VALUE-CHANGED' TO rd-dest.
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
 
@@ -923,9 +954,9 @@ PROCEDURE run-report :
 {sys/inc/outprint.i value(lines-per-page) } 
 
 DEFINE  VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN s-print-revised = tb_prt-revise
                   v-export           = tb_excel
@@ -950,7 +981,7 @@ END.
 ELSE IF rd-dest = 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
 PUT "</PROGRESS>".
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
    output stream s-temp to value(v-exp-name).
 /*   excelheader = "Job No, Job2,Customer Name,Due Date,Ship To,Estimate,Printed Date,Time,Status," +
                            "Form,Blank,Description,Form Qty,Part #,PO#,FG Item#,Style,Size,CAD#".
@@ -960,7 +991,7 @@ END.
 
 RUN cerep/bomcbox2.p (rd_po-part EQ 2).
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
