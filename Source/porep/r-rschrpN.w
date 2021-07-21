@@ -133,6 +133,7 @@ ASSIGN cTextListToDefault  = "VENDOR #,VENDOR NAME,ITEM NO,FG ITEM,BIN,ITEM NAME
                          + "P/O DATE,QTY ORDER,QTY RECEIVED,REQ DATE,CARRIER,"
                          + "JOB NO,SIZE,UOM,CUSTOMER"
                                                      .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -151,13 +152,13 @@ ASSIGN cTextListToDefault  = "VENDOR #,VENDOR NAME,ITEM NO,FG ITEM,BIN,ITEM NAME
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend-no end_vend-no ~
 begin_due-date end_due-date begin_procat end_procat begin_cat end_cat ~
 tg_receipts begin_receipt-date end_receipt-date rd_show select-mat rd_print ~
-tb_late tb_printNotes rd-dest lines-per-page td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel btn_SelectColumns
+tb_late tb_printNotes btn_SelectColumns sl_avail rd-dest td-show-parm ~
+fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend-no end_vend-no begin_due-date ~
 end_due-date begin_procat end_procat begin_cat end_cat tg_receipts ~
-begin_receipt-date end_receipt-date lbl_show rd_show select-mat lbl_print ~
-rd_print tb_late mat-types tb_printNotes rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
+begin_receipt-date end_receipt-date rd_show select-mat rd_print mat-types ~
+tb_late tb_printNotes sl_avail rd-dest td-show-parm fi_file tb_runExcel ~
+tbAutoClose lbl_show lbl_print 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -184,15 +185,15 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn_SelectColumns 
      LABEL "Select Columns" 
-     SIZE 43 BY 1.19.
+     SIZE 40 BY 1.48.
 
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning FG Category" 
@@ -244,19 +245,19 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-rschrp.csv" 
-     LABEL "If Yes, File Name" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-rschrp.csv" 
+     LABEL "Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
-     FGCOLOR 9 .
+     FGCOLOR 0 .
 
 DEFINE VARIABLE lbl_print AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 6 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lbl_show AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 5.6 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -265,7 +266,7 @@ DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99
 
 DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
      VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+     SIZE 51 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
@@ -289,11 +290,9 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 19 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Job" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -301,7 +300,7 @@ DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Job"
           "Job", "Job",
 "Item", "Item",
 "Vendor", "Vendor"
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 34 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_show AS CHARACTER INITIAL "Open" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -309,15 +308,15 @@ DEFINE VARIABLE rd_show AS CHARACTER INITIAL "Open"
           "Open", "Open",
 "Closed (Not Received)", "Closed (Not Received)",
 "All PO's", "All PO's"
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 46 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 9.05.
+     SIZE 95 BY 5.71.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 14.05.
+     SIZE 95 BY 13.33.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -325,11 +324,16 @@ DEFINE VARIABLE select-mat AS CHARACTER
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 33 BY 5.19 NO-UNDO.
+     SIZE 27 BY .95 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 33 BY 5.19 NO-UNDO.
+     SIZE 31.2 BY 1.05 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -348,10 +352,10 @@ DEFINE VARIABLE tb_printNotes AS LOGICAL INITIAL no
      SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+     SIZE 15 BY .81
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -367,63 +371,64 @@ DEFINE VARIABLE tg_receipts AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_vend-no AT ROW 2.67 COL 28 COLON-ALIGNED HELP
+     begin_vend-no AT ROW 2.67 COL 29.2 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend-no AT ROW 2.67 COL 69 COLON-ALIGNED HELP
+     end_vend-no AT ROW 2.67 COL 70.2 COLON-ALIGNED HELP
           "Enter Ending Vendor number"
-     begin_due-date AT ROW 3.67 COL 28 COLON-ALIGNED HELP
+     begin_due-date AT ROW 3.81 COL 29.2 COLON-ALIGNED HELP
           "Enter Beginning Due Date"
-     end_due-date AT ROW 3.67 COL 69 COLON-ALIGNED HELP
+     end_due-date AT ROW 3.81 COL 70.2 COLON-ALIGNED HELP
           "Enter ending Due Date"
-     begin_procat AT ROW 4.67 COL 28 COLON-ALIGNED
-     end_procat AT ROW 4.67 COL 69 COLON-ALIGNED HELP
+     begin_procat AT ROW 4.95 COL 29.2 COLON-ALIGNED
+     end_procat AT ROW 4.95 COL 70.2 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_cat AT ROW 5.67 COL 28 COLON-ALIGNED HELP
+     begin_cat AT ROW 6.1 COL 29.2 COLON-ALIGNED HELP
           "Enter Beginning Category"
-     end_cat AT ROW 5.67 COL 69 COLON-ALIGNED HELP
+     end_cat AT ROW 6.1 COL 70.2 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     tg_receipts AT ROW 6.71 COL 30 WIDGET-ID 2
-     begin_receipt-date AT ROW 7.67 COL 28 COLON-ALIGNED HELP
+     tg_receipts AT ROW 7.14 COL 31.2 WIDGET-ID 2
+     begin_receipt-date AT ROW 8.1 COL 29.2 COLON-ALIGNED HELP
           "Enter Beginning Due Date" WIDGET-ID 4
-     end_receipt-date AT ROW 7.67 COL 69 COLON-ALIGNED HELP
+     end_receipt-date AT ROW 8.1 COL 70.2 COLON-ALIGNED HELP
           "Enter ending Due Date" WIDGET-ID 6
-     lbl_show AT ROW 9.33 COL 3 NO-LABEL
-     rd_show AT ROW 9.33 COL 12 NO-LABEL
-     select-mat AT ROW 10.29 COL 68 NO-LABEL
-     lbl_print AT ROW 10.38 COL 3 NO-LABEL
-     rd_print AT ROW 10.38 COL 11 NO-LABEL
-     tb_late AT ROW 11.33 COL 15
-     mat-types AT ROW 11.33 COL 63 COLON-ALIGNED
-     tb_printNotes AT ROW 12.29 COL 15
-     btn_SelectColumns AT ROW 13.48 COL 15 WIDGET-ID 10
-     sl_avail AT ROW 16 COL 3 NO-LABEL WIDGET-ID 26
-     rd-dest AT ROW 16.24 COL 7 NO-LABEL
-     lv-ornt AT ROW 16.48 COL 32 NO-LABEL
-     lines-per-page AT ROW 16.48 COL 85 COLON-ALIGNED
-     sl_selected AT ROW 17.57 COL 15.8 NO-LABEL WIDGET-ID 28
-     lv-font-no AT ROW 18.38 COL 36 COLON-ALIGNED
-     lv-font-name AT ROW 19.33 COL 30 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 20.52 COL 32
-     tb_excel AT ROW 21.95 COL 52 RIGHT-ALIGNED
-     tb_runExcel AT ROW 21.95 COL 73 RIGHT-ALIGNED
-     fi_file AT ROW 22.76 COL 30 COLON-ALIGNED HELP
+     rd_show AT ROW 9.95 COL 12 NO-LABEL
+     select-mat AT ROW 10.1 COL 68 NO-LABEL
+     rd_print AT ROW 11 COL 12.2 NO-LABEL
+     mat-types AT ROW 11.71 COL 66.4 COLON-ALIGNED
+     tb_late AT ROW 11.95 COL 12.8
+     tb_printNotes AT ROW 12.91 COL 12.8
+     btn_SelectColumns AT ROW 15.29 COL 32 WIDGET-ID 10
+     sl_selected AT ROW 17.86 COL 34.4 NO-LABEL WIDGET-ID 28
+     sl_avail AT ROW 17.86 COL 39.4 NO-LABEL WIDGET-ID 26
+     rd-dest AT ROW 18 COL 7.6 NO-LABEL
+     lv-font-name AT ROW 18.1 COL 31.4 COLON-ALIGNED NO-LABEL
+     lv-ornt AT ROW 18.1 COL 34.4 NO-LABEL
+     lv-font-no AT ROW 18.1 COL 42.4 COLON-ALIGNED
+     tb_excel AT ROW 18.1 COL 69.4 RIGHT-ALIGNED
+     lines-per-page AT ROW 18.1 COL 56.4 COLON-ALIGNED
+     td-show-parm AT ROW 19.91 COL 38.6
+     fi_file AT ROW 20.81 COL 28.6 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 24.33 COL 26
-     btn-cancel AT ROW 24.33 COL 56
+     tb_runExcel AT ROW 20.91 COL 87.6 RIGHT-ALIGNED
+     tbAutoClose AT ROW 23.43 COL 33.2 WIDGET-ID 16
+     btn-ok AT ROW 24.33 COL 32.6
+     btn-cancel AT ROW 24.33 COL 52.4
+     lbl_show AT ROW 10.14 COL 5.2 NO-LABEL
+     lbl_print AT ROW 11.14 COL 5.4 NO-LABEL
      "Select/Deselect RM Types" VIEW-AS TEXT
-          SIZE 31 BY 1 AT ROW 9.1 COL 64
-          FONT 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.29 COL 4
+          SIZE 24.8 BY .76 AT ROW 9.33 COL 69.2
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.48 COL 6
-          BGCOLOR 2 
-     RECT-6 AT ROW 15.05 COL 1
-     RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 21 BY .71 AT ROW 1.38 COL 4.8
+          BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.76 COL 5.6
+     RECT-6 AT ROW 17.14 COL 4.4
+     RECT-7 AT ROW 1.71 COL 3.8
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.4 BY 25.
+         SIZE 104.6 BY 26.81
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -443,8 +448,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Scheduled Receipts with Orders"
-         HEIGHT             = 25.14
-         WIDTH              = 96.8
+         HEIGHT             = 25.05
+         WIDTH              = 100.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -477,16 +482,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -506,6 +501,14 @@ ASSIGN
 ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -543,26 +546,32 @@ ASSIGN
        lbl_show:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_show".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
        mat-types:HIDDEN IN FRAME FRAME-A           = TRUE
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-ASSIGN 
-       sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR SELECTION-LIST sl_selected IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       sl_selected:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
        rd_print:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -575,9 +584,18 @@ ASSIGN
 ASSIGN 
        select-mat:AUTO-RESIZE IN FRAME FRAME-A      = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
 ASSIGN 
+       sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR SELECTION-LIST sl_selected IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       sl_selected:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -593,7 +611,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -746,6 +764,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btn_SelectColumns
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_SelectColumns C-Win
 ON CHOOSE OF btn_SelectColumns IN FRAME FRAME-A /* Select Columns */
@@ -767,6 +786,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cat C-Win
@@ -825,7 +845,7 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
      assign {&self-name}.
 END.
@@ -924,6 +944,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -986,6 +1007,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -1021,7 +1043,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -1545,15 +1567,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_vend-no end_vend-no begin_due-date end_due-date begin_procat 
           end_procat begin_cat end_cat tg_receipts begin_receipt-date 
-          end_receipt-date lbl_show rd_show select-mat lbl_print rd_print 
-          tb_late mat-types tb_printNotes rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          end_receipt-date rd_show select-mat rd_print mat-types tb_late 
+          tb_printNotes sl_avail rd-dest td-show-parm fi_file tb_runExcel 
+          tbAutoClose lbl_show lbl_print 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend-no end_vend-no begin_due-date end_due-date 
          begin_procat end_procat begin_cat end_cat tg_receipts 
          begin_receipt-date end_receipt-date rd_show select-mat rd_print 
-         tb_late tb_printNotes rd-dest lines-per-page td-show-parm tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel btn_SelectColumns
+         tb_late tb_printNotes btn_SelectColumns sl_avail rd-dest td-show-parm 
+         fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2451,7 +2473,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 
