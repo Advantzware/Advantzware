@@ -710,7 +710,7 @@ ELSE lv-comp-color = "BLACK".
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
- 
+ /*
   IF ltb_print-message THEN DO:
       IF v-printline > 55 THEN DO:
           PAGE.
@@ -725,7 +725,8 @@ ELSE lv-comp-color = "BLACK".
       
       v-printline = v-printline + 5.
   END.
- 
+ */
+ IF ltb_print-message THEN DO:
  FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
         AND bf-cust.ACTIVE EQ "X":
@@ -739,7 +740,7 @@ ELSE lv-comp-color = "BLACK".
                 "<p10>".
         
  END.
-
+ END.
 IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C59><#8><FROM><R+8><C+21><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "$->>>,>>9.99"
