@@ -831,21 +831,6 @@ find first company where company.company eq cocode NO-LOCK.
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     
-    IF ltb_print-message THEN DO:
-      IF v-printline > 55 THEN DO:
-          PAGE.
-          v-printline = 0.
-          {oe/rep/invhenry.i}
-      END.
-      PUT "<FArial><R56><C1><P12><B> Remit to: </B>" cInvMessage[1] FORMAT "x(30)" SKIP
-      "<c9>" cInvMessage[2] FORMAT "x(30)" SKIP
-      "<c9>" cInvMessage[3] FORMAT "x(30)" SKIP
-      "<c9>" cInvMessage[4] FORMAT "x(30)" SKIP
-      "<c9>" cInvMessage[5] FORMAT "x(30)" SKIP.
-      
-      v-printline = v-printline + 5.
-    END.
-    
   IF ltb_print-message THEN DO:
     FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
