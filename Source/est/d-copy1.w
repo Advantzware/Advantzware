@@ -33,10 +33,12 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEF INPUT PARAM iplFolding AS LOGICAL NO-UNDO.
 DEF OUTPUT PARAM op-inks AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-pack AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-frat AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-UpdEst AS LOG NO-UNDO.
+DEF OUTPUT PARAM op-unit AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-error AS LOG INIT YES NO-UNDO.
 
 DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
@@ -71,13 +73,13 @@ RUN sys/ref/nk1look.p (INPUT g_company, "CEUpdate", "C" /* Logical */, NO /* che
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-26 tb_inks tb_pack tb_frat ~
-tb_update-other-est Btn_OK Btn_Cancel 
+tb_update-other-est tb_unit Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_inks tb_pack tb_frat ~
-tb_update-other-est fi_Criteria 
+tb_update-other-est tb_unit fi_Criteria 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 tb_inks tb_pack tb_frat 
+&Scoped-define List-1 tb_inks tb_pack tb_frat tb_unit 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -116,6 +118,11 @@ DEFINE VARIABLE tb_inks AS LOGICAL INITIAL yes
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE tb_unit AS LOGICAL INITIAL yes 
+     LABEL "Unit#" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE tb_pack AS LOGICAL INITIAL yes 
      LABEL "" 
@@ -132,6 +139,7 @@ DEFINE VARIABLE tb_update-other-est AS LOGICAL INITIAL yes
 
 DEFINE FRAME D-Dialog
      tb_inks AT ROW 1.24 COL 12.4
+     tb_unit AT ROW 1.24 COL 35.4
      tb_pack AT ROW 2.19 COL 12.4
      tb_frat AT ROW 3.14 COL 12.4
      tb_update-other-est AT ROW 4.29 COL 12.4
@@ -143,7 +151,7 @@ DEFINE FRAME D-Dialog
      "Copy..." VIEW-AS TEXT
           SIZE 9 BY 1 AT ROW 1.24 COL 3
      "Inks?" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 1.24 COL 17.4
+          SIZE 7 BY 1 AT ROW 1.24 COL 17.4                
      "Freight?" VIEW-AS TEXT
           SIZE 10 BY 1 AT ROW 3.14 COL 17.4
      "Packing?" VIEW-AS TEXT
@@ -192,6 +200,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_inks IN FRAME D-Dialog
    1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb_unit IN FRAME D-Dialog
+   1 EXP-LABEL                                                          */   
 /* SETTINGS FOR TOGGLE-BOX tb_pack IN FRAME D-Dialog
    1                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -249,6 +259,7 @@ DO:
    op-pack  = tb_pack
    op-frat  = tb_frat
    op-UpdEst = tb_update-other-est
+   op-unit   = tb_unit
    op-error = NO.
 END.
 
@@ -278,6 +289,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END. 
   
   RUN enable_UI.
+  
+  IF NOT iplFolding THEN
+  ASSIGN
+  tb_unit:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+  tb_unit:HIDDEN IN FRAME {&FRAME-NAME} = YES.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -355,9 +371,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb_inks tb_pack tb_frat tb_update-other-est fi_Criteria 
+  DISPLAY tb_inks tb_pack tb_frat tb_update-other-est tb_unit fi_Criteria 
       WITH FRAME D-Dialog.
-  ENABLE RECT-26 tb_inks tb_pack tb_frat tb_update-other-est Btn_OK Btn_Cancel 
+  ENABLE RECT-26 tb_inks tb_pack tb_frat tb_update-other-est tb_unit Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

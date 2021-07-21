@@ -285,18 +285,23 @@ DO:
   DEF VAR ll-frat AS LOG NO-UNDO.
   DEF VAR ll-updest AS LOG NO-UNDO.
   DEF VAR ll-error AS LOG NO-UNDO.
-
+  DEFINE VARIABLE ll-unit AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lFolding AS LOGICAL NO-UNDO.
 
   DO WITH FRAME Panel-Frame:
-    RUN est/d-copy1.w (OUTPUT ll-inks, OUTPUT ll-pack, OUTPUT ll-frat,
-                       OUTPUT ll-updest, OUTPUT ll-error).
-
-    IF NOT ll-error THEN DO:
-      RUN get-link-handle IN adm-broker-hdl
+    RUN get-link-handle IN adm-broker-hdl
           (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+    RUN pGetEstType IN WIDGET-HANDLE(char-hdl) (OUTPUT lFolding ) .
+          
+    RUN est/d-copy1.w (INPUT lFolding, OUTPUT ll-inks, OUTPUT ll-pack, OUTPUT ll-frat,
+                       OUTPUT ll-updest, OUTPUT ll-unit, OUTPUT ll-error).
+
+    IF NOT ll-error THEN DO:      
 
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-        IF ll-inks THEN RUN copy-inks IN WIDGET-HANDLE(char-hdl) (ll-updest). 
+      
+        IF ll-inks THEN RUN copy-inks IN WIDGET-HANDLE(char-hdl) (ll-updest, ll-unit). 
  
         IF ll-pack THEN RUN copy-pack IN WIDGET-HANDLE(char-hdl) (ll-updest).
 
