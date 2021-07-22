@@ -103,12 +103,11 @@ ASSIGN cTextListToDefault  = "Job No,Item No,UOM,Required,Ordered,Received,Vendo
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 begin_job-date end_job-date begin_due-date ~
-end_due-date tb_sort tb_show select-mat btn_SelectColumns sl_avail rd-dest ~
+end_due-date tb_sort tb_show select-mat btn_SelectColumns rd-dest ~
 td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 end_job-no ~
 end_job-no2 begin_job-date end_job-date begin_due-date end_due-date tb_sort ~
-tb_show select-mat sl_avail rd-dest td-show-parm fi_file tb_runExcel ~
-tbAutoClose 
+tb_show select-mat rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -194,7 +193,7 @@ DEFINE VARIABLE end_job-no2 AS INTEGER FORMAT "99":U INITIAL 99
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-matjob.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
@@ -328,10 +327,10 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.38 COL 5
           BGCOLOR 15 
-     "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 37 BY .71 AT ROW 7.67 COL 35.8
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 15.48 COL 5
+     "Select/Deselect Material Types" VIEW-AS TEXT
+          SIZE 37 BY .71 AT ROW 7.67 COL 35.8
      RECT-6 AT ROW 15.76 COL 4
      RECT-7 AT ROW 1.71 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -463,6 +462,8 @@ ASSIGN
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -805,6 +806,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-matjob.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1009,12 +1011,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+    
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_job-no.
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
   END.
 
   cColumnInit   = NO .
@@ -1149,12 +1152,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job-no begin_job-no2 end_job-no end_job-no2 begin_job-date 
           end_job-date begin_due-date end_due-date tb_sort tb_show select-mat 
-          sl_avail rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+          rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 
          begin_job-date end_job-date begin_due-date end_due-date tb_sort 
-         tb_show select-mat btn_SelectColumns sl_avail rd-dest td-show-parm 
-         fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         tb_show select-mat btn_SelectColumns rd-dest td-show-parm fi_file 
+         tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

@@ -121,7 +121,7 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "x(6)" 
      LABEL "Beginning  Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0 
      LABEL "-" 
@@ -131,7 +131,7 @@ DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0
 DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99 
      LABEL "-" 
@@ -140,7 +140,7 @@ DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-bilmat.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1
      FGCOLOR 0 .
 
@@ -491,7 +491,7 @@ DO:
   END.
  IF rd-dest = 3 THEN
   do:
-    fi_file:SCREEN-VALUE = "cc:\tmp\r-bilmat.csv".
+    fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv".
     assign fi_file.
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
@@ -626,6 +626,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -746,12 +747,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+    
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
 
-    APPLY "entry" TO begin_job1.    
+    APPLY "entry" TO begin_job1.  
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.  
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -959,7 +961,7 @@ DEFINE  VARIABLE excelheader AS CHARACTER  NO-UNDO.
 //RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN s-print-revised = tb_prt-revise
-                  v-export           = tb_excel
+                  v-export           = (if rd-dest = 3 then Yes else No)
                   v-exp-name         = cFileName.    
 
 if td-show-parm then run show-param.

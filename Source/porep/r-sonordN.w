@@ -112,8 +112,8 @@ ASSIGN cTextListToSelect = "Due Date,Order#,Customer Name,Vendor Name,Order Qty,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend-no end_vend-no ~
 begin_due-date end_due-date rd_uom rd_sort tb_date tb_closed sl_avail ~
-sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-font-name ~
-td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm ~
+fi_file tb_runExcel tbAutoClose btn-ok btn-cancel lbl_uom lbl_sort 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend-no end_vend-no begin_due-date ~
 end_due-date rd_uom rd_sort tb_date tb_closed sl_avail sl_selected rd-dest ~
 td-show-parm fi_file tb_runExcel tbAutoClose lbl_uom lbl_sort 
@@ -198,7 +198,7 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-sonord.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1.
 
 DEFINE VARIABLE lbl_show AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
@@ -365,13 +365,13 @@ DEFINE FRAME FRAME-A
      lbl_sort AT ROW 6.05 COL 27.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      "Available Columns" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 9.33 COL 9.8 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 9.33 COL 60.6 WIDGET-ID 44
+     " Output Destination" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 15.76 COL 5.4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.38 COL 5
           BGCOLOR 15 
-     " Output Destination" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 15.76 COL 5.4
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 9.33 COL 60.6 WIDGET-ID 44
      RECT-6 AT ROW 16.05 COL 4
      RECT-7 AT ROW 1.71 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -468,14 +468,10 @@ ASSIGN
        lbl_show:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_show".
 
-/* SETTINGS FOR FILL-IN lbl_sort IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 ASSIGN 
        lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_sort".
 
-/* SETTINGS FOR FILL-IN lbl_uom IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 ASSIGN 
        lbl_uom:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_uom".
@@ -486,7 +482,7 @@ ASSIGN
        lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-DISPLAY                                                           */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -856,6 +852,7 @@ DO:
   assign {&self-name}.
   IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-sonord.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1074,12 +1071,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+    
   DO WITH FRAME {&FRAME-NAME}:
+      
+      
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_vend-no.
+    ASSIGN rd-dest .
+    APPLY 'VALUE-CHANGED' TO rd-dest.
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1224,8 +1224,8 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend-no end_vend-no begin_due-date end_due-date 
          rd_uom rd_sort tb_date tb_closed sl_avail sl_selected Btn_Def Btn_Add 
-         Btn_Remove btn_Up btn_down rd-dest lv-font-name td-show-parm fi_file 
-         tb_runExcel tbAutoClose btn-ok btn-cancel 
+         Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file tb_runExcel 
+         tbAutoClose btn-ok btn-cancel lbl_uom lbl_sort 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

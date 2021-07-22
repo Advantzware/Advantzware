@@ -106,13 +106,12 @@ ASSIGN cTextListToDefault  = "Customer,PO#,Vendor,Vendor Name,Cust Part#,FG Item
 begin_po-date end_po-date begin_vend end_vend begin_po-i-no end_po-i-no ~
 begin_ctrl-no end_ctrl-no begin_r-date end_r-date begin_due-date ~
 end_due-date rd_sort select-mat rd_show tb_po tb_fg tb_rm btn_SelectColumns ~
-sl_avail rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok ~
-btn-cancel 
+rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS end_po-no begin_po-no begin_po-date ~
 end_po-date begin_vend end_vend begin_po-i-no end_po-i-no begin_ctrl-no ~
 end_ctrl-no begin_r-date end_r-date begin_due-date end_due-date rd_sort ~
-select-mat rd_show tb_po mat-types tb_fg tb_rm sl_avail rd-dest ~
-td-show-parm fi_file tb_runExcel tbAutoClose lbl_sort lbl_show 
+select-mat rd_show tb_po tb_fg tb_rm rd-dest td-show-parm fi_file ~
+tb_runExcel tbAutoClose lbl_sort lbl_show 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -221,7 +220,7 @@ DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-pofgh1.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1
      FGCOLOR 0 .
 
@@ -250,7 +249,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
 DEFINE VARIABLE mat-types AS CHARACTER FORMAT "X(256)":U 
      LABEL "Material Types" 
      VIEW-AS FILL-IN 
-     SIZE 1 BY 1 NO-UNDO.
+     SIZE 7.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -376,7 +375,7 @@ DEFINE FRAME FRAME-A
      select-mat AT ROW 11.19 COL 64 NO-LABEL
      rd_show AT ROW 11.67 COL 14 NO-LABEL
      tb_po AT ROW 12.62 COL 14
-     mat-types AT ROW 12.86 COL 62.6 COLON-ALIGNED
+     mat-types AT ROW 12.86 COL 56 COLON-ALIGNED
      tb_fg AT ROW 13.48 COL 14
      tb_rm AT ROW 14.38 COL 14
      btn_SelectColumns AT ROW 17.05 COL 30 WIDGET-ID 10
@@ -399,11 +398,11 @@ DEFINE FRAME FRAME-A
      lbl_show AT ROW 11.86 COL 5 COLON-ALIGNED NO-LABEL
      "Select/Deselect RM Types" VIEW-AS TEXT
           SIZE 26 BY .81 AT ROW 10.38 COL 64.6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.62 COL 4.2
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 15 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18.62 COL 4.2
      RECT-6 AT ROW 18.95 COL 3
      RECT-7 AT ROW 1.57 COL 3.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -564,7 +563,7 @@ ASSIGN
        lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        mat-types:HIDDEN IN FRAME FRAME-A           = TRUE
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -581,6 +580,8 @@ ASSIGN
 ASSIGN 
        select-mat:AUTO-RESIZE IN FRAME FRAME-A      = TRUE.
 
+/* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -1028,6 +1029,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-pofgh1.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1269,12 +1271,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+    
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_po-no.
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
   END.
 
    cColumnInit   = NO .
@@ -1465,15 +1468,14 @@ PROCEDURE enable_UI :
   DISPLAY end_po-no begin_po-no begin_po-date end_po-date begin_vend end_vend 
           begin_po-i-no end_po-i-no begin_ctrl-no end_ctrl-no begin_r-date 
           end_r-date begin_due-date end_due-date rd_sort select-mat rd_show 
-          tb_po mat-types tb_fg tb_rm sl_avail rd-dest td-show-parm fi_file 
-          tb_runExcel tbAutoClose lbl_sort lbl_show 
+          tb_po tb_fg tb_rm rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+          lbl_sort lbl_show 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 end_po-no begin_po-no begin_po-date end_po-date 
          begin_vend end_vend begin_po-i-no end_po-i-no begin_ctrl-no 
          end_ctrl-no begin_r-date end_r-date begin_due-date end_due-date 
-         rd_sort select-mat rd_show tb_po tb_fg tb_rm btn_SelectColumns 
-         sl_avail rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok 
-         btn-cancel 
+         rd_sort select-mat rd_show tb_po tb_fg tb_rm btn_SelectColumns rd-dest 
+         td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

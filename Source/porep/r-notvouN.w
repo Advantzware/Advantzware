@@ -923,6 +923,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-notvou.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1083,12 +1084,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+    
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_date.
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

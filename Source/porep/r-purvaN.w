@@ -969,6 +969,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-purvar.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1221,23 +1222,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_po-no.
 
-    IF tb_mpv:SCREEN-VALUE = "YES" OR
+    IF tb_mpv:SCREEN-VALUE  = "YES" OR
        tb_overs:SCREEN-VALUE = "YES" OR
        tb_adder:SCREEN-VALUE = "YES" THEN
        ASSIGN
          lv-ornt:SENSITIVE = NO
          lv-ornt:SCREEN-VALUE = "L".
+         ASSIGN rd-dest .
+  APPLY 'VALUE-CHANGED' TO rd-dest IN FRAME FRAME-A.
   END.
 
   {methods/nowait.i}
- /*{sys/inc/reportsConfigNK1.i "PR5" }
+ {sys/inc/reportsConfigNK1.i "PR5" }
   assign
-    td-show-parm:sensitive = lShowParameters
-    td-show-parm:hidden = not lShowParameters
-    td-show-parm:visible = lShowParameters
+    td-show-parm:sensitive IN FRAME FRAME-A = lShowParameters
+    td-show-parm:hidden IN FRAME FRAME-A = not lShowParameters
+    td-show-parm:visible IN FRAME FRAME-A = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.*/
+    
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

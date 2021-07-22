@@ -100,12 +100,12 @@ ASSIGN cTextListToDefault  = "Item#,PTD MSF,PTD Cost,YTD MSF,YTD Cost"  .
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_due-date begin_vend-no ~
 end_vend-no begin_prod-cat end_prod-cat begin_flute end_flute begin_cal ~
 end_cal begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code ~
-btn_SelectColumns rd-dest sl_avail td-show-parm fi_file tb_runExcel ~
-tbAutoClose btn-ok btn-cancel 
+btn_SelectColumns rd-dest td-show-parm fi_file tb_runExcel tbAutoClose ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_due-date begin_vend-no end_vend-no ~
 begin_prod-cat end_prod-cat begin_flute end_flute begin_cal end_cal ~
-begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code sl_avail ~
-td-show-parm fi_file tb_runExcel tbAutoClose lbl_fg-rm lbl_fg-rm-2 
+begin_acct end_acct tb_det rd_fg-rm select-mat rd_item-code td-show-parm ~
+fi_file tb_runExcel tbAutoClose lbl_fg-rm lbl_fg-rm-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -199,7 +199,7 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-venanl.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1
      FGCOLOR 15 .
 
@@ -290,7 +290,7 @@ DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_det AS LOGICAL INITIAL yes 
      LABEL "Detail?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 15 BY .8 NO-UNDO.
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -360,11 +360,11 @@ DEFINE FRAME FRAME-A
      lbl_fg-rm AT ROW 10.43 COL 5.8 COLON-ALIGNED NO-LABEL
      lbl_fg-rm-2 AT ROW 11.38 COL 5.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
      "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 32.2 BY 1 AT ROW 9.33 COL 72.2
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17.05 COL 5
+          SIZE 32.2 BY .8 AT ROW 9.38 COL 72.2
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1 COL 5
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.05 COL 5
      RECT-6 AT ROW 17.38 COL 3.6
      RECT-7 AT ROW 1.48 COL 3.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -530,6 +530,8 @@ ASSIGN
        rd_item-code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -903,6 +905,7 @@ DO:
   assign {&self-name}.
     IF rd-dest = 3 THEN
         ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-venanl.csv"
             fi_file:sensitive     = TRUE  
             tb_runExcel:sensitive = TRUE
             .
@@ -1114,12 +1117,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     td-show-parm:hidden = not lShowParameters
     td-show-parm:visible = lShowParameters
     .
-    ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+  
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_due-date.
+    ASSIGN rd-dest.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
   END.
 
    cColumnInit   = NO .
@@ -1278,14 +1282,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_due-date begin_vend-no end_vend-no begin_prod-cat end_prod-cat 
           begin_flute end_flute begin_cal end_cal begin_acct end_acct tb_det 
-          rd_fg-rm select-mat rd_item-code sl_avail td-show-parm fi_file 
-          tb_runExcel tbAutoClose lbl_fg-rm lbl_fg-rm-2 
+          rd_fg-rm select-mat rd_item-code td-show-parm fi_file tb_runExcel 
+          tbAutoClose lbl_fg-rm lbl_fg-rm-2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_due-date begin_vend-no end_vend-no begin_prod-cat 
          end_prod-cat begin_flute end_flute begin_cal end_cal begin_acct 
          end_acct tb_det rd_fg-rm select-mat rd_item-code btn_SelectColumns 
-         rd-dest sl_avail td-show-parm fi_file tb_runExcel tbAutoClose btn-ok 
-         btn-cancel 
+         rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
