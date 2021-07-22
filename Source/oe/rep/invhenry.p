@@ -123,6 +123,21 @@ DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
+/*
+DEF VAR cInvMessage1 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR cInvMessage2 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR cInvMessage3 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR cInvMessage4 AS cha FORM "x(40)" NO-UNDO.
+DEF VAR cInvMessage5 AS cha FORM "x(40)" NO-UNDO.
+ASSIGN
+    cInvMessage1 = cInvMessage[1]
+    cInvMessage2 = cInvMessage[2]
+    cInvMessage3 = cInvMessage[3]
+    cInvMessage4 = cInvMessage[4]
+    cInvMessage5 = cInvMessage[5]
+    .
+*/
+
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -833,17 +848,12 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
     
     /* #101624 */
     IF ltb_print-message THEN DO:
-      FIND FIRST ar-ctrl NO-LOCK WHERE 
-        ar-ctrl.company = cocode
-        NO-ERROR.
-      IF AVAIL ar-ctrl THEN DO:
-            PUT "<p8><R56><C3>" ar-ctrl.invoiceMessage1 SKIP
-                "<R57><C3>" ar-ctrl.invoiceMessage2 SKIP
-                "<R58><C3>" ar-ctrl.invoiceMessage3 SKIP
-                "<R59><C3>" ar-ctrl.invoiceMessage4 SKIP
-                "<R60><C3>" ar-ctrl.invoiceMessage5 SKIP
-                "<p10>".
-      END.
+        PUT "<p8><R56><C3>" cInvMessage[1] FORMAT "x(40)" SKIP
+            "<R57><C3>" cInvMessage[2] FORMAT "x(40)" SKIP
+            "<R58><C3>" cInvMessage[3] FORMAT "x(40)" SKIP
+            "<R59><C3>" cInvMessage[4] FORMAT "x(40)" SKIP
+            "<R60><C3>" cInvMessage[5] FORMAT "x(40)" SKIP
+            "<p10>".
     END.
     
       IF v-bot-lab[4] <> "" THEN

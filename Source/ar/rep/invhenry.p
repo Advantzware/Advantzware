@@ -713,17 +713,12 @@ ELSE lv-comp-color = "BLACK".
 
     /* #101624 */
     IF ltb_print-message THEN DO:
-      FIND FIRST ar-ctrl NO-LOCK WHERE 
-        ar-ctrl.company = cocode
-        NO-ERROR.
-      IF AVAIL ar-ctrl THEN DO:
-            PUT "<p8><R58><C3>" ar-ctrl.invoiceMessage1 SKIP
-                    "<R59><C3>" ar-ctrl.invoiceMessage2 SKIP
-                    "<R60><C3>" ar-ctrl.invoiceMessage3 SKIP
-                    "<R61><C3>" ar-ctrl.invoiceMessage4 SKIP
-                    "<R62><C3>" ar-ctrl.invoiceMessage5 SKIP
-                    "<p10>".
-      END.
+        PUT "<p8><R58><C3>" cInvMessage[1] FORMAT "x(40)" SKIP
+                "<R59><C3>" cInvMessage[2] FORMAT "x(40)" SKIP
+                "<R60><C3>" cInvMessage[3] FORMAT "x(40)" SKIP
+                "<R61><C3>" cInvMessage[4] FORMAT "x(40)" SKIP
+                "<R62><C3>" cInvMessage[5] FORMAT "x(40)" SKIP
+                "<p10>".
     END.
   
 IF v-bot-lab[4] <> "" THEN
