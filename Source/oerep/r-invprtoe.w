@@ -437,6 +437,11 @@ DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_print-message AS LOGICAL INITIAL NO 
+     LABEL "Print Message" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17.5 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_prt-dupl AS LOGICAL INITIAL no 
      LABEL "Print Duplicate $0.00 Invoice?" 
      VIEW-AS TOGGLE-BOX
@@ -528,6 +533,7 @@ DEFINE FRAME FRAME-A
      rs_no_PN AT ROW 14.05 COL 28.2 NO-LABEL WIDGET-ID 8
      tb_cust-copy AT ROW 14.95 COL 12
      tb_office-copy AT ROW 14.95 COL 39
+     tb_print-message AT ROW 14.95 COL 55.6 WIDGET-ID 40
      tb_sman-copy AT ROW 14.95 COL 64
      btnInvoiceMessage AT ROW 14.95 COL 74.4
      tb_BatchMail AT ROW 16.81 COL 48.8 RIGHT-ALIGNED
@@ -552,7 +558,6 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 4
           BGCOLOR 2 
-     RECT-6 AT ROW 16.14 COL 1.4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
@@ -560,6 +565,7 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     RECT-6 AT ROW 16.14 COL 1.4
      RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -776,6 +782,11 @@ ASSIGN
        tb_print-dept:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_print-dept:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_print-message IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       tb_print-message:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_prt-dupl IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE ALIGN-R                                         */
@@ -1136,6 +1147,7 @@ DO:
             tb_prt-dupl        ,
             NO  /* Pdf only */ , 
             tb_open-inv,
+            tb_print-message,
             cInvMessage1,
             cInvMessage2,
             cInvMessage3,
@@ -1289,6 +1301,7 @@ DO:
         tb_prt-dupl        ,
         YES /* Pdf only */ ,
         tb_open-inv,
+        tb_print-message,
         cInvMessage1,
         cInvMessage2,
         cInvMessage3,
@@ -1725,6 +1738,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_print-message
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-message C-Win
+ON VALUE-CHANGED OF tb_print-message IN FRAME FRAME-A /* Print Message */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_print-dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-dept C-Win
 ON VALUE-CHANGED OF tb_print-dept IN FRAME FRAME-A /* Print Dept Notes? */
@@ -2108,6 +2132,7 @@ ELSE
     RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
     
 APPLY "VALUE-CHANGED":U TO tb_posted IN FRAME {&FRAME-NAME}.    
+APPLY "VALUE-CHANGED":U TO tb_print-message IN FRAME {&FRAME-NAME}.    
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -2409,12 +2434,16 @@ PROCEDURE pRunFormatValueChanged :
              ASSIGN tb_qty-all:HIDDEN = NO .
          ELSE tb_qty-all:HIDDEN = YES .
          
-         IF v-print-fmt EQ "Badger" THEN
+         IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" THEN
              ASSIGN btnInvoiceMessage:HIDDEN    = NO
-             btnInvoiceMessage:SENSITIVE = YES.
+                    tb_print-message:HIDDEN     = NO
+                    btnInvoiceMessage:SENSITIVE = YES
+                    tb_print-message:SENSITIVE  = YES.
          ELSE
              ASSIGN btnInvoiceMessage:HIDDEN    = YES
-             btnInvoiceMessage:SENSITIVE = NO.
+                    tb_print-message:HIDDEN     = YES
+                    btnInvoiceMessage:SENSITIVE = NO
+                    tb_print-message:SENSITIVE  = NO.
        
     END.
 END PROCEDURE.
