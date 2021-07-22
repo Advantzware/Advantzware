@@ -1335,12 +1335,18 @@ DO:
             ttUsers.ttfUserID EQ SELF:SCREEN-VALUE AND 
             ttUsers.ttfPdbname EQ "*"
             NO-ERROR.
-        IF AVAIL ttUsers 
-        AND ttUsers.ttfUserAlias NE "" THEN ASSIGN 
-            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
-            slDatabases:SCREEN-VALUE = ttUsers.ttfDbList
-            slEnvironments:SCREEN-VALUE = ttUsers.ttfEnvList
-            slModes:SCREEN-VALUE = ttUsers.ttfModeList.
+        IF AVAIL ttUsers THEN DO:
+            ASSIGN 
+                users.userAlias:SCREEN-VALUE = ""
+                slDatabases:SCREEN-VALUE = "" 
+                slEnvironments:SCREEN-VALUE = ""   
+                slModes:SCREEN-VALUE = ""
+                users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+                slDatabases:SCREEN-VALUE = IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE slDatabases:LIST-ITEMS 
+                slEnvironments:SCREEN-VALUE = IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE slEnvironments:LIST-ITEMS   
+                slModes:SCREEN-VALUE = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
+        END.     
+        
     END.
   
 END.
@@ -2050,17 +2056,6 @@ PROCEDURE local-delete-record :
         DELETE cueCardText.
     END.
    
-    FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = "*" AND
-        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-ERROR.
-    IF AVAIL ttUsers THEN DO:
-        DELETE ttUsers.
-        RUN ipWriteUsrFile.
-        EMPTY TEMP-TABLE ttUsers.
-        RUN ipReadUsrFile.
-    END.
-    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
     {methods/template/local/deleteAfter.i}
