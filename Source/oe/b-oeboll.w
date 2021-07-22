@@ -1821,19 +1821,17 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
                             AND oe-ordl.i-no = oe-boll.i-no NO-LOCK NO-ERROR.
       IF AVAIL oe-ordl THEN oe-boll.LINE = oe-ordl.LINE.
     END.
-    
-    IF cFreightCalculationValue NE "ALL" THEN
-    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
-    
+        
     /* Task 04171407, only recalc freight if quantity is changed, */
     /* if weight or freight changed, just add up and display in header */ 
     IF (v-qty NE oe-boll.qty
       OR v-qty-case NE oe-boll.qty-case
       OR v-partial  NE oe-boll.partial
-      OR v-pallets  NE oe-boll.tot-pallets 
+      OR v-pallets  NE oe-boll.tot-pallets
+      OR v-weight   NE oe-boll.weight
       OR adm-new-record)
       AND (v-freight EQ oe-boll.freight)
-      AND cFreightCalculationValue EQ "ALL" THEN DO:
+      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
     
       RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
       
@@ -1843,6 +1841,9 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
       END.
     END.            
+    
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
   END. /* if freight modified or new record */
     
   oe-bolh.tot-pallets = oe-boll.tot-pallets.
