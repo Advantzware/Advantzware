@@ -192,7 +192,7 @@ DEFINE VARIABLE fi_Cust-stat AS CHARACTER FORMAT "X(256)":U
      SIZE 12 BY 1 NO-UNDO.
      
 DEFINE VARIABLE fi_Shipto-stat AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Shipto Taxable" 
+     LABEL "Ship To Taxable" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.     
      
