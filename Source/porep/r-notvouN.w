@@ -1186,7 +1186,7 @@ PROCEDURE display-data-proc :
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -1231,7 +1231,7 @@ PROCEDURE display-data-proc :
             END.
 
             PUT UNFORMATTED "           Totals:" + SUBSTRING(cDisplay,19,300) SKIP(1).
-            IF tb_excel THEN DO:
+            IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  ' Totals ,'
                        substring(cExcelDisplay,4,300) SKIP(1).
              END.
