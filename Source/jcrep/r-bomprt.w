@@ -752,8 +752,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
 
     APPLY "entry" TO begin_job1.  
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.  
+   IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            . 
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

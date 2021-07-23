@@ -262,7 +262,7 @@ DEFINE FRAME FRAME-A
           "Enter Ending FG Product Category"
      select-mat AT ROW 7.62 COL 28 HELP
           "Enter description of this Material Type." NO-LABEL
-     mat-types AT ROW 9.29 COL 26.4 COLON-ALIGNED
+     mat-types AT ROW 9.29 COL 24.6 COLON-ALIGNED
      btn_SelectColumns AT ROW 12.62 COL 28 WIDGET-ID 10
      rd-dest AT ROW 15.33 COL 5.8 NO-LABEL
      lv-ornt AT ROW 15.76 COL 31 NO-LABEL
@@ -281,10 +281,10 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 21.43 COL 50.6
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 14.19 COL 5
-     "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 38 BY .62 AT ROW 6.91 COL 34.8
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.38 COL 4.8
+     "Select/Deselect Material Types" VIEW-AS TEXT
+          SIZE 38 BY .62 AT ROW 6.91 COL 34.8
      RECT-6 AT ROW 14.57 COL 3.6
      RECT-7 AT ROW 1.71 COL 3.6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -940,8 +940,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_date.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
+  IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-voufgc.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
    cColumnInit   = NO .

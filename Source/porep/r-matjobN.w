@@ -307,7 +307,7 @@ DEFINE FRAME FRAME-A
      tb_show AT ROW 6.67 COL 31.2
      select-mat AT ROW 8.38 COL 29 HELP
           "Enter description of this Material Type." NO-LABEL
-     mat-types AT ROW 10.76 COL 27 COLON-ALIGNED
+     mat-types AT ROW 10.76 COL 25.4 COLON-ALIGNED
      btn_SelectColumns AT ROW 14.05 COL 29 WIDGET-ID 10
      sl_avail AT ROW 16.48 COL 35 NO-LABEL WIDGET-ID 26
      rd-dest AT ROW 16.52 COL 5.8 NO-LABEL
@@ -327,10 +327,10 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.38 COL 5
           BGCOLOR 15 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.48 COL 5
      "Select/Deselect Material Types" VIEW-AS TEXT
           SIZE 37 BY .71 AT ROW 7.67 COL 35.8
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 15.48 COL 5
      RECT-6 AT ROW 15.76 COL 4
      RECT-7 AT ROW 1.71 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1016,8 +1016,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_job-no.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
+  IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-matjob.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
   cColumnInit   = NO .

@@ -1228,8 +1228,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        ASSIGN
          lv-ornt:SENSITIVE = NO
          lv-ornt:SCREEN-VALUE = "L".
-         ASSIGN rd-dest .
-  APPLY 'VALUE-CHANGED' TO rd-dest IN FRAME FRAME-A.
+    IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-purvar.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
   {methods/nowait.i}

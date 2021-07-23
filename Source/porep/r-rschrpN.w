@@ -152,13 +152,13 @@ ASSIGN cTextListToDefault  = "VENDOR #,VENDOR NAME,ITEM NO,FG ITEM,BIN,ITEM NAME
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend-no end_vend-no ~
 begin_due-date end_due-date begin_procat end_procat begin_cat end_cat ~
 tg_receipts begin_receipt-date end_receipt-date rd_show select-mat rd_print ~
-tb_late tb_printNotes btn_SelectColumns sl_avail rd-dest td-show-parm ~
-fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+tb_late tb_printNotes btn_SelectColumns rd-dest td-show-parm fi_file ~
+tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend-no end_vend-no begin_due-date ~
 end_due-date begin_procat end_procat begin_cat end_cat tg_receipts ~
-begin_receipt-date end_receipt-date rd_show select-mat rd_print mat-types ~
-tb_late tb_printNotes sl_avail rd-dest td-show-parm fi_file tb_runExcel ~
-tbAutoClose lbl_show lbl_print 
+begin_receipt-date end_receipt-date rd_show select-mat rd_print tb_late ~
+tb_printNotes rd-dest td-show-parm fi_file tb_runExcel tbAutoClose lbl_show ~
+lbl_print 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -247,7 +247,7 @@ DEFINE VARIABLE end_vend-no AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-rschrp.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN NATIVE
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1
      FGCOLOR 0 .
 
@@ -567,7 +567,7 @@ ASSIGN
        lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN mat-types IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        mat-types:HIDDEN IN FRAME FRAME-A           = TRUE
        mat-types:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -584,6 +584,8 @@ ASSIGN
 ASSIGN 
        select-mat:AUTO-RESIZE IN FRAME FRAME-A      = TRUE.
 
+/* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -1155,8 +1157,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_vend-no.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
+ IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-rschrp.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
   cColumnInit   = NO .
@@ -1601,15 +1613,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_vend-no end_vend-no begin_due-date end_due-date begin_procat 
           end_procat begin_cat end_cat tg_receipts begin_receipt-date 
-          end_receipt-date rd_show select-mat rd_print mat-types tb_late 
-          tb_printNotes sl_avail rd-dest td-show-parm fi_file tb_runExcel 
-          tbAutoClose lbl_show lbl_print 
+          end_receipt-date rd_show select-mat rd_print tb_late tb_printNotes 
+          rd-dest td-show-parm fi_file tb_runExcel tbAutoClose lbl_show 
+          lbl_print 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend-no end_vend-no begin_due-date end_due-date 
          begin_procat end_procat begin_cat end_cat tg_receipts 
          begin_receipt-date end_receipt-date rd_show select-mat rd_print 
-         tb_late tb_printNotes btn_SelectColumns sl_avail rd-dest td-show-parm 
-         fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         tb_late tb_printNotes btn_SelectColumns rd-dest td-show-parm fi_file 
+         tb_runExcel tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

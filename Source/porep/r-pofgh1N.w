@@ -249,7 +249,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11"
 DEFINE VARIABLE mat-types AS CHARACTER FORMAT "X(256)":U 
      LABEL "Material Types" 
      VIEW-AS FILL-IN 
-     SIZE 7.6 BY 1 NO-UNDO.
+     SIZE .6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -375,7 +375,7 @@ DEFINE FRAME FRAME-A
      select-mat AT ROW 11.19 COL 64 NO-LABEL
      rd_show AT ROW 11.67 COL 14 NO-LABEL
      tb_po AT ROW 12.62 COL 14
-     mat-types AT ROW 12.86 COL 56 COLON-ALIGNED
+     mat-types AT ROW 12.86 COL 61 COLON-ALIGNED
      tb_fg AT ROW 13.48 COL 14
      tb_rm AT ROW 14.38 COL 14
      btn_SelectColumns AT ROW 17.05 COL 30 WIDGET-ID 10
@@ -398,11 +398,11 @@ DEFINE FRAME FRAME-A
      lbl_show AT ROW 11.86 COL 5 COLON-ALIGNED NO-LABEL
      "Select/Deselect RM Types" VIEW-AS TEXT
           SIZE 26 BY .81 AT ROW 10.38 COL 64.6
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18.62 COL 4.2
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 15 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.62 COL 4.2
      RECT-6 AT ROW 18.95 COL 3
      RECT-7 AT ROW 1.57 COL 3.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1276,8 +1276,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_po-no.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
+   IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-pofgh1.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
    cColumnInit   = NO .

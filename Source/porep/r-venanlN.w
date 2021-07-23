@@ -340,7 +340,7 @@ DEFINE FRAME FRAME-A
      select-mat AT ROW 10.29 COL 66.8 HELP
           "Enter description of this Material Type." NO-LABEL
      rd_item-code AT ROW 11.14 COL 15.8 NO-LABEL WIDGET-ID 32
-     mat-types AT ROW 11.91 COL 65 COLON-ALIGNED
+     mat-types AT ROW 11.91 COL 63.2 COLON-ALIGNED
      btn_SelectColumns AT ROW 15.62 COL 37.8 WIDGET-ID 10
      lv-ornt AT ROW 17.62 COL 33 NO-LABEL
      lines-per-page AT ROW 17.62 COL 86 COLON-ALIGNED
@@ -360,11 +360,11 @@ DEFINE FRAME FRAME-A
      lbl_fg-rm AT ROW 10.43 COL 5.8 COLON-ALIGNED NO-LABEL
      lbl_fg-rm-2 AT ROW 11.38 COL 5.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
      "Select/Deselect Material Types" VIEW-AS TEXT
-          SIZE 32.2 BY .8 AT ROW 9.38 COL 72.2
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1 COL 5
+          SIZE 32.2 BY .81 AT ROW 9.38 COL 72.2
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 17.05 COL 5
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1 COL 5
      RECT-6 AT ROW 17.38 COL 3.6
      RECT-7 AT ROW 1.48 COL 3.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1122,8 +1122,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_due-date.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
+ IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-venanl.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
   END.
 
    cColumnInit   = NO .
