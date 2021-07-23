@@ -110,8 +110,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To CSV", 3,
-"To Email", 5
+"To File", 3
      SIZE 14 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
