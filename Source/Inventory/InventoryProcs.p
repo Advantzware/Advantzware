@@ -352,20 +352,16 @@ PROCEDURE Inventory_GetOnHandQuantity:
     DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
-    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTagQty     AS DECIMAL   NO-UNDO. 
     
     RUN pGetOnHandQuantity(
-           INPUT ipcCompany,
-           INPUT ipcJobno,
-           INPUT ipcMachine,
-           INPUT ipiJobno2,
-           INPUT ipiFormno,
-           INPUT ipcItemType,
-           INPUT ipdRunQty,
-           OUTPUT oplError,
-           OUTPUT opcMessage
+           INPUT  ipcCompany,
+           INPUT  ipcJobno,
+           INPUT  ipcMachine,
+           INPUT  ipiJobno2,
+           INPUT  ipiFormno,
+           INPUT  ipcItemType,
+           OUTPUT opdTagQty
            ).
         
 END PROCEDURE.
@@ -2599,11 +2595,7 @@ PROCEDURE pGetOnHandQuantity PRIVATE:
     DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
-    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE dTagQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER opdTagQty     AS DECIMAL   NO-UNDO. 
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
@@ -2613,13 +2605,8 @@ PROCEDURE pGetOnHandQuantity PRIVATE:
               ELSE inventoryStock.MachineID EQ ipcMachine)
          AND inventoryStock.formNo    EQ ipiFormno
          AND inventoryStock.itemType  EQ ipcItemType :   
-        dTagQty = dTagQty + inventoryStock.quantityOriginal.
+        opdTagQty = opdTagQty + inventoryStock.quantityOriginal.
     END. 
-    IF dTagQty GE DECIMAL(ipdRunQty)  THEN
-    DO:
-        opcMessage = "Quantity Exceeds Run Quantity, Continue?"  .           
-        oplError = YES.
-    END.
 END PROCEDURE.
 
 PROCEDURE pGetJobFromPOAndRMItem PRIVATE:

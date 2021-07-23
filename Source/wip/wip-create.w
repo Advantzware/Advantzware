@@ -2398,27 +2398,25 @@ PROCEDURE pCheckTagQuantity :
     DEFINE INPUT  PARAMETER ipdRunQty     AS DECIMAL   NO-UNDO. 
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTagQty     AS DECIMAL   NO-UNDO.
     
     RUN Inventory_GetOnHandQuantity IN hdInventoryProcs(
-                             INPUT ipcCompany,
-                             INPUT ipcJobno,
-                             INPUT ipcMachine,
-                             INPUT ipiJobno2,
-                             INPUT ipiFormno,
-                             INPUT gcItemTypeWIP,
-                             INPUT ipdRunQty,
-                             OUTPUT lError,
-                             OUTPUT cMessage
-                             ).                                         
-    IF lError THEN
+                             INPUT  ipcCompany,
+                             INPUT  ipcJobno,
+                             INPUT  ipcMachine,
+                             INPUT  ipiJobno2,
+                             INPUT  ipiFormno,
+                             INPUT  gcItemTypeWIP,
+                             OUTPUT dTagQty
+                             ).                   
+                                                   
+    IF dTagQty GE ipdRunQty THEN
     DO:
-        MESSAGE cMessage  
-                VIEW-AS ALERT-BOX QUESTION 
-                BUTTONS OK-CANCEL UPDATE lcheckflg as logical .           
-        IF not lcheckflg THEN 
-        oplReturnError = YES.
+        MESSAGE "Quantity Exceeds Run Quantity, Continue?"           
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS OK-CANCEL UPDATE lcheckflg AS LOGICAL.           
+        IF NOT lcheckflg THEN 
+            oplReturnError = YES.
     END.  
     
 END PROCEDURE.
