@@ -2595,7 +2595,7 @@ PROCEDURE pGetOnHandQuantity PRIVATE:
     DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER opdTagQty     AS DECIMAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opdTagQty     AS DECIMAL   NO-UNDO. 
     
     FOR EACH inventoryStock NO-LOCK
        WHERE inventoryStock.company   EQ ipcCompany
