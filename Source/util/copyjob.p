@@ -33,15 +33,16 @@ FIND LAST b2Job NO-LOCK WHERE b2Job.company EQ b1Job.company
                           AND b2Job.job-no EQ b1Job.job-no
                           AND ROWID(b2job) NE ROWID(job).
 jobNo2 = (IF AVAIL b2job THEN b2Job.job-no2 ELSE 0) + 1.
-BUFFER-COPY b1Job EXCEPT job start-date due-date close-date TO job
+BUFFER-COPY b1Job EXCEPT job start-date due-date close-date promiseDate rec_key TO job
   ASSIGN job.job-no = b1Job.job-no
          job.job-no2 = jobNo2
          job.stat = "R"
-         job.ordertype = "R".
+         job.ordertype = "R"
+         job.cs-printed = NO.
 
 FOR EACH bJobHdr OF b1Job NO-LOCK:
   CREATE job-hdr.
-  BUFFER-COPY bJobHdr EXCEPT job job-no job-no2 j-no due-date rec_key TO job-hdr
+  BUFFER-COPY bJobHdr EXCEPT job job-no job-no2 j-no start-date due-date rec_key TO job-hdr
     ASSIGN job-hdr.job = job.job
            job-hdr.job-no = job.job-no
            job-hdr.job-no2 = job.job-no2
