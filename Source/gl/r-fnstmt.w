@@ -1127,7 +1127,10 @@ FOR EACH gl-rpt
   if consolidate and index(company-list,",") gt 0 then
     v-hdr[5] = v-hdr[5] + (if v-hdr[5] eq "" then "" else " - ") +
                "Companies: " + trim(company-list).
-
+  
+  IF v-hdr[2] EQ "" THEN
+  ASSIGN  v-hdr[2] = "Printed: " + STRING(TODAY,"99/99/9999") + " @ " + STRING(TIME,"HH:MM").
+    
   /* form headers */
   do i = 1 to 5:
     assign tot2[i] = length(v-hdr[i])
