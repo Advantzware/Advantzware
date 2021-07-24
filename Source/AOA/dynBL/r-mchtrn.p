@@ -11,10 +11,13 @@
 
 &Scoped-define ttTempTable ttMachineTransactions
 {AOA/tempTable/ttMachineTransactions.i}
+{AOA/tempTable/ttMachineEmployeeTransactions.i}
+RUN spSetSessionParam ("DetailHandle1", TEMP-TABLE ttMachineEmployeeTransactions:HANDLE).
+RUN spSetSessionParam ("DetailTables", "1").
 
 /* Parameters Definitions ---                                           */
 
-&Scoped-define subjectID 8
+&Scoped-define subjectID 1
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
 /* Local Variable Definitions ---                                       */
@@ -28,6 +31,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dMSF            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRecordID       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iShiftStartTime AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iShiftEndTime   AS INTEGER   NO-UNDO INITIAL 86400.
     
@@ -116,6 +120,7 @@ PROCEDURE pBusinessLogic:
     
         CREATE ttMachineTransactions.
         ASSIGN
+            iRecordID = iRecordID + 1
             ttMachineTransactions.machine        = machtran.machine
             ttMachineTransactions.custPartNo     = cCustPartNo
             ttMachineTransactions.custName       = cCustName
@@ -138,9 +143,44 @@ PROCEDURE pBusinessLogic:
             ttMachineTransactions.runComplete    = machtran.completed
             ttMachineTransactions.xxRecKey       = machtran.rec_key
             ttMachineTransactions.loginDateTime  = TRIM(STRING(machtran.start_date) + " " + STRING(machtran.start_time,"hh:mm am"))
-            ttMachineTransactions.logoutDateTime = TRIM(STRING(machtran.end_date) + " " + STRING(machtran.end_time,"hh:mm am"))                                
+            ttMachineTransactions.logoutDateTime = TRIM(STRING(machtran.end_date) + " " + STRING(machtran.end_time,"hh:mm am"))
+            ttMachineTransactions.recordID       = iRecordID                                
             iCount = iCount + 1
             .
+        IF lShowTransactions THEN DO:
+            OPEN QUERY qMachEmp
+            FOR EACH machemp NO-LOCK
+                WHERE machemp.table_rec_key EQ machtran.rec_key,
+                FIRST employee NO-LOCK OUTER-JOIN
+                 WHERE employee.company  EQ machtran.company
+                   AND employee.employee EQ machemp.employee
+                   .
+            GET FIRST qMachEmp.
+            DO WHILE AVAILABLE machemp:
+                CREATE ttMachineEmployeeTransactions.
+                ASSIGN
+                    ttMachineEmployeeTransactions.employee       = machemp.employee
+                    ttMachineEmployeeTransactions.startDate      = machemp.start_date
+                    ttMachineEmployeeTransactions.startTime      = STRING(machemp.start_time,"hh:mm am")
+                    ttMachineEmployeeTransactions.endDate        = machemp.end_date
+                    ttMachineEmployeeTransactions.endTime        = STRING(machemp.end_time,"hh:mm am")
+                    ttMachineEmployeeTransactions.totalTime      = machemp.total_time / 3600
+                    ttMachineEmployeeTransactions.shift          = machemp.shift
+                    ttMachineEmployeeTransactions.rateUsage      = machemp.rate_usage
+                    ttMachineEmployeeTransactions.rateType       = machemp.ratetype
+                    ttMachineEmployeeTransactions.rate           = machemp.rate
+                    ttMachineEmployeeTransactions.loginDateTime  = TRIM(STRING(machemp.start_date) + " " + STRING(machemp.start_time,"hh:mm am"))
+                    ttMachineEmployeeTransactions.logoutDateTime = TRIM(STRING(machemp.end_date) + " " + STRING(machemp.end_time,"hh:mm am"))
+                    ttMachineEmployeeTransactions.recordID       = ttMachineTransactions.recordID
+                    .
+                IF AVAILABLE employee THEN
+                ASSIGN
+                    ttMachineEmployeeTransactions.firstName = employee.first_name
+                    ttMachineEmployeeTransactions.lastName  = employee.last_name
+                    .
+                GET NEXT qMachEmp.
+            END. /* do while */
+        END. /* if lShowTransactions */
         IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, iCount, ?).
         GET NEXT qMachTran.
