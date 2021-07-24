@@ -4903,7 +4903,8 @@ DO WITH FRAME {&FRAME-NAME}:
          end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"99")
          begin_i-no:SCREEN-VALUE = v-frstitem
          end_i-no:SCREEN-VALUE   = v-lastitem.    
-
+      
+      APPLY 'VALUE-CHANGED':U TO begin_ord-no.
       APPLY "LEAVE" TO end_i-no.
       RUN check-release(0) .
       RUN check-release(1) .
@@ -6395,7 +6396,10 @@ IF AVAIL bf-oe-ord THEN DO:
          begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
          end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ord.ord-no)  
          end_job:SCREEN-VALUE      = v-last-job
-         end_job2:SCREEN-VALUE     = STRING(v-last-job2).
+         end_job2:SCREEN-VALUE     = STRING(v-last-job2).          
+  
+  RUN pLabelPerSkid(bf-oe-ord.cust-no).
+    
   FIND FIRST bf-oe-ordl NO-LOCK                             
    WHERE bf-oe-ordl.company EQ bf-oe-ord.company         
      AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no NO-ERROR.
