@@ -62,6 +62,8 @@ PROCEDURE createRelease:
         oe-rel.rel-date = oe-ord.last-date.
     ELSE IF oereleas-cha EQ "Due Date" THEN
             oe-rel.rel-date = oe-ordl.req-date.
+    ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
+        oe-rel.rel-date = oe-ordl.req-date - (IF AVAIL shipto THEN shipto.del-time ELSE 0).
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
                 oe-ord.company,

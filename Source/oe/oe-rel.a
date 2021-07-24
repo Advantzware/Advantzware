@@ -92,6 +92,8 @@ if avail {&fil} then do:
        oe-rel.rel-date = xoe-ord.last-date.
     ELSE IF oereleas-cha EQ "Due Date" THEN
        oe-rel.rel-date = {&fil}.req-date.
+    ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
+        oe-rel.rel-date = oe-ordl.req-date - (IF AVAIL shipto THEN shipto.del-time ELSE 0).
     ELSE /*DueDate+1Day*/
     DO:
        oe-rel.rel-date = {&fil}.req-date + 1.
