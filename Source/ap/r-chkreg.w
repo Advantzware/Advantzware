@@ -98,9 +98,10 @@ DEFINE VARIABLE cBankTransmitRecValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFullFilePath AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFileName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
-DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iAPCheckFile AS INTEGER  NO-UNDO.
+DEFINE VARIABLE cRecValue                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound                 AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAPCheckFile              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lBankTransmittalLocation  AS LOGICAL   NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -172,6 +173,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /*
 IF lRecFound THEN
     lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BankTransmittalLocation", "l" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBankTransmittalLocation = LOGICAL(cNK1Value) NO-ERROR.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1121,7 +1128,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
                                                            + cBankTransmitFileName
         .
-                
+    IF NOT lBankTransmittalLocation THEN
+        ASSIGN
+        tbTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
+        fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+        
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1666,6 +1677,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE StandardCSV C-Win 
+PROCEDURE StandardCSV :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: gdm - 05210901
+------------------------------------------------------------------------------*/   
+DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+IF tb_APcheckFile THEN DO:
+   FIND FIRST ap-chk WHERE
+          ap-chk.company  EQ ap-sel.company AND
+          ap-chk.check-no EQ ap-sel.check-no
+          NO-LOCK NO-ERROR.
+          IF ap-chk.check-date NE ? THEN ASSIGN dtCheckDate = ap-chk.check-date .
+  /* excel output */
+  PUT STREAM ap-excel UNFORMATTED
+       '"' STRING(INT(ap-sel.check-no),"9999999999")                                '",'  /* Check Number     */
+       '"' STRING(vend.NAME)                                                        '",'  /* Vendor Name    */
+       '"' STRING(dtCheckDate)                                                      '",'  /* Check Date     */
+       '"' STRING(ap-sel.amt-paid)                                                  '",'  /* Check amount paid */
+       SKIP .
+
+
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
 /*------------------------------------------------------------------------------
@@ -2145,6 +2186,8 @@ IF tb_APcheckFile THEN do:
         OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
         IF v-fileFormat EQ "Positive Pay" THEN
            excelheader = "Bank No,Bank Code,Account Number,Check Number,Amount,Issue Date,Payee Name,Void Indicator" .
+        ELSE IF v-fileFormat EQ "StandardCSV" THEN
+            excelheader = "Check Number,Vendor Name,Check Date,Check Amount Paid" .
         ELSE
             excelheader = "Void Indicator,Account Number,Check Number,Payee Name,Amount,Issue Date" .
              
