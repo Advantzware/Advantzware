@@ -850,7 +850,7 @@ DO:
            IF AVAIL style AND style.type = "f" THEN  DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
-                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
                 RUN new-board.
                 APPLY "ENTRY":U TO ef.board.
               END.
