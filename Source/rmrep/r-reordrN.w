@@ -1246,10 +1246,10 @@ form
     item.procat
     item.cons-uom
     item.loc
-    item.ord-level format "->>>>9.99"
-    item.q-onh     format "->>>>9.999"
-    item.q-comm    format "->>>>9.999"
-    item.q-ono     format "->>>>9.999"
+    item.ord-level format "->>>>>>>>9.99"
+    item.q-onh     format "->>>>>>>>9.99"
+    item.q-comm    format "->>>>>>>>9.99"
+    item.q-ono     format "->>>>>>>>9.99"
     item.ord-min
     item.vend-no
     item.vend-item
@@ -1375,11 +1375,11 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "cat"       THEN cVarValue = string(item.procat)  .                                                             
                          WHEN "uom"       THEN cVarValue = string(item.cons-uom) .                                 
                          WHEN "loc"       THEN cVarValue = string(item.loc) .                                     
-                         WHEN "rcrd-lvl"  THEN cVarValue = STRING(item.ord-level,"->>>>9.99") .           
-                         WHEN "qty-oh"    THEN cVarValue = STRING(item.q-onh,"->>>>9.999")  .             
-                         WHEN "qty-all"   THEN cVarValue = STRING(item.q-comm,"->>>>9.999")  .            
-                         WHEN "qty-ord"   THEN cVarValue = STRING(item.q-ono,"->>>>9.999") .              
-                         WHEN "min-ord"   THEN cVarValue = STRING(item.ord-min,">>>,>>>,>>9.999<<<")  .   
+                         WHEN "rcrd-lvl"  THEN cVarValue = STRING(item.ord-level,"->>>>>>>>9.99") .           
+                         WHEN "qty-oh"    THEN cVarValue = STRING(item.q-onh,"->>>>>>>>9.99")  .             
+                         WHEN "qty-all"   THEN cVarValue = STRING(item.q-comm,"->>>>>>>>9.99")  .            
+                         WHEN "qty-ord"   THEN cVarValue = STRING(item.q-ono,"->>>>>>>>9.99") .              
+                         WHEN "min-ord"   THEN cVarValue = STRING(item.ord-min,">>>>>>>>9.999<<<")  .   
                          WHEN "vend"      THEN cVarValue = string(item.vend-no) .                                  
                          WHEN "vend-ino"  THEN cVarValue = string(item.vend-item) .                                
 
