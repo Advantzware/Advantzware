@@ -1,4 +1,4 @@
-/* subjectID1Defs.i - auto generated 07.06.2021 @  7:12:08 pm */
+/* subjectID1Defs.i - auto generated 07.23.2021 @  5:04:50 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
@@ -21,6 +21,7 @@ DEFINE VARIABLE cEndShftDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseTimes AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cStartTime AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndTime AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lShowTransactions AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -45,5 +46,6 @@ PROCEDURE pAssignParamVariables:
         lUseTimes = DYNAMIC-FUNCTION("fGetDynParamValue","useTimes") EQ "YES"
         cStartTime = DYNAMIC-FUNCTION("fGetDynParamValue","startTime")
         cEndTime = DYNAMIC-FUNCTION("fGetDynParamValue","endTime")
+        lShowTransactions = DYNAMIC-FUNCTION("fGetDynParamValue","ShowTransactions") EQ "YES"
         .
 END PROCEDURE.
