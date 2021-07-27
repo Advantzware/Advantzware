@@ -1,24 +1,26 @@
-/* subjectID126Defs.i - auto generated 06.15.2020 @  6:59:49 pm */
+/* subjectID126Defs.i - auto generated 07.06.2021 @  7:17:47 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE cCompany AS Character NO-UNDO.
-DEFINE VARIABLE lAllCustNo AS Logical NO-UNDO.
-DEFINE VARIABLE cStartCustNo AS Character NO-UNDO.
-DEFINE VARIABLE cStartCustName AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustNo AS Character NO-UNDO.
-DEFINE VARIABLE cEndCustName AS Character NO-UNDO.
-DEFINE VARIABLE lAllOrderNo AS Logical NO-UNDO.
-DEFINE VARIABLE iStartOrderNo AS Integer NO-UNDO.
-DEFINE VARIABLE iEndOrderNo AS Integer NO-UNDO.
-DEFINE VARIABLE dtStartBOLDate AS Date NO-UNDO.
-DEFINE VARIABLE dtEndBOLDate AS Date NO-UNDO.
-DEFINE VARIABLE lAllBOL AS Logical NO-UNDO.
-DEFINE VARIABLE iStartBOL AS Integer NO-UNDO.
-DEFINE VARIABLE iEndBOL AS Integer NO-UNDO.
-DEFINE VARIABLE cPrinterID AS Character NO-UNDO.
-DEFINE VARIABLE lCustList AS Logical NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllCustNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartCustNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartCustName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllOrderNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iStartOrderNo AS INTEGER NO-UNDO.
+DEFINE VARIABLE iEndOrderNo AS INTEGER NO-UNDO.
+DEFINE VARIABLE lAllBOL AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iStartBOL AS INTEGER NO-UNDO.
+DEFINE VARIABLE iEndBOL AS INTEGER NO-UNDO.
+DEFINE VARIABLE dtStartBOLDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtEndBOLDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrinterID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCustList AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -32,11 +34,15 @@ PROCEDURE pAssignParamVariables:
         lAllOrderNo = DYNAMIC-FUNCTION("fGetDynParamValue","AllOrderNo") EQ "YES"
         iStartOrderNo = DYNAMIC-FUNCTION("fGetDynParamValue","startOrderNo")
         iEndOrderNo = DYNAMIC-FUNCTION("fGetDynParamValue","endOrderNo")
-        dtStartBOLDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startBOLDate"))
-        dtEndBOLDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endBOLDate"))
         lAllBOL = DYNAMIC-FUNCTION("fGetDynParamValue","allBOL") EQ "YES"
         iStartBOL = DYNAMIC-FUNCTION("fGetDynParamValue","startBOL")
         iEndBOL = DYNAMIC-FUNCTION("fGetDynParamValue","endBOL")
+        dtStartBOLDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startBOLDate"))
+        cDatePickList-1 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-1")
+        dtStartBOLDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-1,dtStartBOLDate)
+        dtEndBOLDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endBOLDate"))
+        cDatePickList-2 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-2")
+        dtEndBOLDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-2,dtEndBOLDate)
         cPrinterID = DYNAMIC-FUNCTION("fGetDynParamValue","PrinterID")
         lCustList = DYNAMIC-FUNCTION("fGetDynParamValue","custList") EQ "YES"
         .
