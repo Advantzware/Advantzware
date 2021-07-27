@@ -62,7 +62,7 @@ ASSIGN cTextListToSelect = "ITEM #,CAT,UOM,LOC,REORD LVL,QTY O|H,"
        cFieldListToSelect = "i-no,cat,uom,loc,rcrd-lvl,qty-oh," +
                             "qty-all,qty-ord,min-ord,vend," +
                             "vend-ino"
-       cFieldLength = "10,5,3,5,10,10," + "10,10,15,8," + "30" 
+       cFieldLength = "10,5,3,5,14,14," + "14,14,14,8," + "30" 
        cFieldType = "c,c,c,c,i,i," + "i,i,i,c," + "c"  
     .
 
