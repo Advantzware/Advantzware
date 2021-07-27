@@ -10,12 +10,21 @@
   
   initialDir = '{&scenarios}/' + ID.
   IF scenario EQ '<New>' THEN DO:
-    scenario = ?.
+    ASSIGN
+      scenario = 'sb-'
+               + STRING(YEAR(TODAY),"9999")
+               + STRING(MONTH(TODAY),"99")
+               + STRING(DAY(TODAY),"99") + '-'
+               + STRING(TIME,"hh:mm:ss")
+      scenario = REPLACE(scenario,':','')
+      scenario = REPLACE(scenario,' ','0')
+               .
     /* RUN {&prompts}/saveschd.w (INPUT-OUTPUT scenario). */
     SYSTEM-DIALOG GET-FILE scenario
       TITLE 'Choose Scenario File'
       INITIAL-DIR initialDir
       DEFAULT-EXTENSION '.dat'
+      USE-FILENAME
       SAVE-AS
       ASK-OVERWRITE
       RETURN-TO-START-DIR
@@ -25,7 +34,7 @@
       ASSIGN scenario.
       RETURN NO-APPLY.
     END.
-    ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
+    ENABLE btnRemove btnReset WITH FRAME {&FRAME-NAME}.
     ASSIGN
       scenario = SUBSTRING(scenario,R-INDEX(scenario,'\') + 1)
       scenario = REPLACE(scenario,'.dat','').
