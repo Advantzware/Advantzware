@@ -46,7 +46,7 @@ IF all-per THEN DO:
      uperiod = period.pnum
      udate   = period.pend.
 
-    RUN gl/gl-tot (RECID(account), INT("{1}")).
+    RUN gl/gl-tot.p (RECID(account), INT("{1}")).
 
     IF pre-close THEN RUN gl/gl-pre.p (RECID(account), INT("{1}")).
 

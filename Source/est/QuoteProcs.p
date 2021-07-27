@@ -255,7 +255,7 @@ PROCEDURE pCreateQuoteFromProbe PRIVATE:
             END.
 
             ASSIGN
-                quotehd.sman     = eb.sman  /* bf-eb.sman */
+                quotehd.sman     = cust.sman  /* bf-eb.sman */
                 quotehd.carrier  = eb.carrier  /*bf-eb.carrier */
                 quotehd.del-zone = eb.dest-code  /* bf-eb.dest-code */
                 quotehd.terms    = cust.terms

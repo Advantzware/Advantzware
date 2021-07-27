@@ -74,16 +74,17 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-6 RECT-7 tb_show-all-account ~
-tran-date begin_acct-no end_acct-no tb_sup-zero tb_include-summary-total ~
-tb_show-detail tb_sub-acct begin_sub-acct end_sub-acct rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+tran-date begin_acct-no end_acct-no tb_sup-zero tb_show-detail ~
+tb_include-summary-total tb_fill-field tb_Period-Detail tb_sub-acct ~
+begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_show-all-account lbl_show-all-account ~
 tran-date tran-period begin_acct-no end_acct-no lbl_paid tb_sup-zero ~
-tb_include-summary-total lbl_show-detail tb_show-detail lbl_include-summery ~
-lbl_paid-2 tb_sub-acct v-sub-acct-lvl begin_sub-acct end_sub-acct rd-dest ~
-lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+lbl_show-detail tb_show-detail lbl_include-summery tb_include-summary-total ~
+tb_fill-field lbl_fill-field lbl_Period-Details tb_Period-Detail lbl_paid-2 ~
+tb_sub-acct v-sub-acct-lvl begin_sub-acct end_sub-acct rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -132,6 +133,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-tribal.c
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
 
+DEFINE VARIABLE lbl_fill-field AS CHARACTER FORMAT "X(256)":U INITIAL "Include the fill in fields:" 
+     VIEW-AS FILL-IN 
+     SIZE 23.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lbl_include-summery AS CHARACTER FORMAT "X(256)":U INITIAL "Include Summary Total:" 
      VIEW-AS FILL-IN 
      SIZE 23.4 BY 1 NO-UNDO.
@@ -143,6 +148,10 @@ DEFINE VARIABLE lbl_paid AS CHARACTER FORMAT "X(256)":U INITIAL "Suppress Zero B
 DEFINE VARIABLE lbl_paid-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by Sub Account Level?" 
      VIEW-AS FILL-IN 
      SIZE 29 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lbl_Period-Details AS CHARACTER FORMAT "X(256)":U INITIAL "Period Details:" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_show-all-account AS CHARACTER FORMAT "X(256)":U INITIAL "Show All Account:" 
      VIEW-AS FILL-IN 
@@ -201,7 +210,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 4.52.
+     SIZE 89 BY 4.14.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -209,7 +218,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 97 BY 12.38.
+     SIZE 97 BY 13.57.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -217,8 +226,18 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE tb_fill-field AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_include-summary-total AS LOGICAL INITIAL no 
      LABEL "Show Detail" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_Period-Detail AS LOGICAL INITIAL no 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY 1 NO-UNDO.
 
@@ -256,50 +275,54 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME FRAME-A      
+DEFINE FRAME FRAME-A
+     tb_show-all-account AT ROW 1.86 COL 81.8 WIDGET-ID 8
      lbl_show-all-account AT ROW 1.91 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      tran-date AT ROW 1.95 COL 39 COLON-ALIGNED
      tran-period AT ROW 2.91 COL 39 COLON-ALIGNED
-     tb_show-all-account AT ROW 1.86 COL 81.8 WIDGET-ID 8
      begin_acct-no AT ROW 4.33 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Account Number"
      end_acct-no AT ROW 5.29 COL 39 COLON-ALIGNED HELP
           "Enter Ending Account Number"
      lbl_paid AT ROW 6.48 COL 12 COLON-ALIGNED NO-LABEL
-     tb_sup-zero AT ROW 6.48 COL 41     
+     tb_sup-zero AT ROW 6.48 COL 41
      lbl_show-detail AT ROW 7.48 COL 25.6 COLON-ALIGNED NO-LABEL
      tb_show-detail AT ROW 7.48 COL 41
-     tb_include-summary-total AT ROW 7.43 COL 79.2 WIDGET-ID 4
      lbl_include-summery AT ROW 7.48 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     lbl_paid-2 AT ROW 9.1 COL 10 COLON-ALIGNED NO-LABEL
-     tb_sub-acct AT ROW 9.1 COL 41
-     v-sub-acct-lvl AT ROW 10.29 COL 39 COLON-ALIGNED
-     begin_sub-acct AT ROW 11.48 COL 39 COLON-ALIGNED HELP
+     tb_include-summary-total AT ROW 7.48 COL 79.2 WIDGET-ID 4
+     tb_fill-field AT ROW 8.52 COL 41 WIDGET-ID 16
+     lbl_fill-field AT ROW 8.57 COL 15.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     lbl_Period-Details AT ROW 8.57 COL 61.4 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     tb_Period-Detail AT ROW 8.57 COL 79.2 WIDGET-ID 12
+     lbl_paid-2 AT ROW 10.67 COL 10 COLON-ALIGNED NO-LABEL
+     tb_sub-acct AT ROW 10.67 COL 41
+     v-sub-acct-lvl AT ROW 11.86 COL 39 COLON-ALIGNED
+     begin_sub-acct AT ROW 13.05 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Sub Account#"
-     end_sub-acct AT ROW 11.48 COL 74 COLON-ALIGNED HELP
+     end_sub-acct AT ROW 13.05 COL 74 COLON-ALIGNED HELP
           "Enter Ending Sub Account#"
-     rd-dest AT ROW 15.05 COL 5 NO-LABEL
-     lv-ornt AT ROW 15.29 COL 30 NO-LABEL
-     lines-per-page AT ROW 15.29 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 16.71 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 17.67 COL 27 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     td-show-parm AT ROW 20.05 COL 27
-     tb_excel AT ROW 20.05 COL 71 RIGHT-ALIGNED
-     tb_runExcel AT ROW 20.05 COL 95 RIGHT-ALIGNED
-     fi_file AT ROW 21.14 COL 49 COLON-ALIGNED HELP
+     rd-dest AT ROW 16.19 COL 5 NO-LABEL
+     lv-ornt AT ROW 16.43 COL 30 NO-LABEL
+     lines-per-page AT ROW 16.43 COL 83 COLON-ALIGNED
+     lv-font-no AT ROW 17.86 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 18.81 COL 27 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     td-show-parm AT ROW 21.19 COL 27
+     tb_excel AT ROW 21.19 COL 71 RIGHT-ALIGNED
+     tb_runExcel AT ROW 21.19 COL 95 RIGHT-ALIGNED
+     fi_file AT ROW 22.29 COL 49 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 23.62 COL 18
-     btn-cancel AT ROW 23.62 COL 55
+     btn-ok AT ROW 24.14 COL 18
+     btn-cancel AT ROW 24.14 COL 55
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.1 COL 4
-     "SORT OPTIONS" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 8.38 COL 41
-          FGCOLOR 9 FONT 6
+          SIZE 18 BY .62 AT ROW 15.24 COL 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-10 AT ROW 8.62 COL 5
-     RECT-6 AT ROW 13.62 COL 2
+     "SORT OPTIONS" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 9.95 COL 41
+          FGCOLOR 9 FONT 6
+     RECT-10 AT ROW 10.24 COL 5
+     RECT-6 AT ROW 14.76 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -386,11 +409,15 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_fill-field IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_include-summery IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_paid IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_paid-2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lbl_Period-Details IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_show-all-account IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -681,9 +708,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_fill-field
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fill-field C-Win
+ON VALUE-CHANGED OF tb_fill-field IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_include-summary-total
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-summary-total C-Win
 ON VALUE-CHANGED OF tb_include-summary-total IN FRAME FRAME-A /* Show Detail */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_Period-Detail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Period-Detail C-Win
+ON VALUE-CHANGED OF tb_Period-Detail IN FRAME FRAME-A
 DO:
   assign {&self-name}.
 END.
@@ -836,7 +885,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN init-proc.
   RUN enable_UI.
   {custom/usrprint.i}
-
+  
   tran-date:SCREEN-VALUE = string(TODAY).
 
   RUN check-date.
@@ -917,16 +966,18 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_show-all-account lbl_show-all-account tran-date tran-period 
-          begin_acct-no end_acct-no lbl_paid tb_sup-zero 
-          tb_include-summary-total lbl_show-detail tb_show-detail 
-          lbl_include-summery lbl_paid-2 tb_sub-acct v-sub-acct-lvl 
-          begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          begin_acct-no end_acct-no lbl_paid tb_sup-zero lbl_show-detail 
+          tb_show-detail lbl_include-summery tb_include-summary-total 
+          tb_fill-field lbl_fill-field lbl_Period-Details tb_Period-Detail 
+          lbl_paid-2 tb_sub-acct v-sub-acct-lvl begin_sub-acct end_sub-acct 
+          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-10 RECT-6 RECT-7 tb_show-all-account tran-date begin_acct-no 
-         end_acct-no tb_sup-zero tb_include-summary-total tb_show-detail 
-         tb_sub-acct begin_sub-acct end_sub-acct rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_acct-no tb_sup-zero tb_show-detail tb_include-summary-total 
+         tb_fill-field tb_Period-Detail tb_sub-acct begin_sub-acct end_sub-acct 
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1110,6 +1161,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetParameter C-Win 
+PROCEDURE pSetParameter :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO with frame {&frame-name}:
+    
+    IF LOGICAL(tb_show-all-account:SCREEN-VALUE) EQ TRUE THEN
+    DO:
+      ASSIGN 
+          begin_acct-no:SCREEN-VALUE = ""
+          end_acct-no:SCREEN-VALUE  = "zzzzzzzzzzzzzzzzzzzzzzzzz".
+           DISABLE begin_acct-no end_acct-no .
+    END.
+    ELSE
+    ENABLE begin_acct-no end_acct-no.
+   
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 def var save_id as RECID NO-UNDO.
@@ -1163,17 +1240,24 @@ DEFINE VARIABLE dTitleAmountPTD AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTitleAmountYTD AS DECIMAL NO-UNDO. 
 DEFINE VARIABLE cAccountType AS CHARACTER NO-UNDO.   
 DEFINE VARIABLE cFinancialReport AS CHARACTER NO-UNDO.
+DEFINE VARIABLE str-tit4        AS CHARACTER FORMAT "x(240)" NO-UNDO.
+DEFINE VARIABLE str-tit5        AS CHARACTER FORMAT "x(240)" NO-UNDO.
+DEFINE VARIABLE dOpenBalance    AS DECIMAL format "->>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dDebitActivity  AS DECIMAL format "->>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dCreditActivity AS DECIMAL format "->>>>,>>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE dEndingBalance  AS DECIMAL format "->>>>,>>>,>>9.99" NO-UNDO.
 
     DEFINE VARIABLE dTotPTD         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
     
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
+ 
  {sys/inc/print1.i}
  {sys/inc/outprint.i VALUE(lines-per-page)}
 
  IF td-show-parm THEN RUN show-param.
 
+ 
  SESSION:SET-WAIT-STATE("general").
  
  cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
@@ -1182,6 +1266,21 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
+   IF tb_Period-Detail THEN
+   EXPORT STREAM excel DELIMITER ","
+       "Account Number"
+       "Description"
+       cPeriodLabel
+       cYtdLabel          
+       "Account Type"
+       "Financial Report"
+       "Opening Balance"
+       "Debit Activity"
+       "Credit Activity"
+       "Ending Balance"
+       cAsofDateLabel
+       SKIP.
+   ELSE
    EXPORT STREAM excel DELIMITER ","
        "Account Number"
        "Description"
@@ -1202,7 +1301,7 @@ IF OPSYS eq 'win32' THEN
 
 time_stamp = string(TIME, "hh:mmam").
 
-{sys/form/r-topw.f}
+{sys/form/r-topw3.f}
 
 ASSIGN facct = begin_acct-no
        tacct = END_acct-no
@@ -1231,11 +1330,27 @@ DO:
      {sys/inc/ctrtext.i str-tit  112}
      {sys/inc/ctrtext.i str-tit2 112}
      {sys/inc/ctrtext.i str-tit3 132}.
-         
-
-    display str-tit3 format "x(130)" SKIP(1)      
-     SKIP with frame r-top STREAM-IO.
-
+     
+     IF tb_fill-field AND tb_Period-Detail THEN
+     ASSIGN
+     str-tit4 = "Account Number           Description           Opening Balance   Debit Activity  Credit Activity   Ending Balance                YTD  DB Adjust  CR Adjust  Bal Sheet  Income Stat "
+     str-tit5 = "--------------------------------------------- ---------------- ---------------- ---------------- ---------------- ------------------- ---------- ---------- ---------- ----------- ".
+     ELSE IF tb_fill-field THEN
+     ASSIGN
+     str-tit4 = "Account Number           Description                     PTD                 YTD  DB Adjust  CR Adjust  Bal Sheet  Income Stat "
+     str-tit5 = "--------------------------------------------- --------------- ------------------- ---------- ---------- ---------- ----------- ".
+     ELSE IF tb_Period-Detail THEN
+     ASSIGN
+     str-tit4 = "Account Number           Description            Opening Balance   Debit Activity  Credit Activity   Ending Balance                YTD "
+     str-tit5 = "---------------------------------------------  ---------------- ---------------- ---------------- ---------------- -------------------".
+     ELSE 
+     ASSIGN
+     str-tit4 = "Account Number           Description                     PTD                 YTD  "
+     str-tit5 = "--------------------------------------------- --------------- ------------------- ".
+     
+     display str-tit3 format "x(130)" SKIP(1)     
+     SKIP str-tit4 SKIP str-tit5 SKIP with frame r-top STREAM-IO.    
+        
     if break-flag and subac-lvl ne 1 then do:
       start-lvl = 0.
       do i = 1 to (subac-lvl - 1):
@@ -1253,6 +1368,12 @@ DO:
           {gl/outstr.i v-hdr 1 70}.
           PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
     end.
+    
+    FIND LAST period NO-LOCK 
+            WHERE period.company EQ cocode
+            AND period.pst     LE tran-date
+            AND period.pend    GE tran-date
+            NO-ERROR.
     
     FOR EACH ttTrialBalance, 
         FIRST account NO-LOCK 
@@ -1308,18 +1429,59 @@ DO:
         
         dTotPTD = dTotPTD + ttTrialBalance.amountPTD.
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
+        ASSIGN
+        dOpenBalance    =  ttTrialBalance.amountYTDOpen
+        dDebitActivity  =  0
+        dCreditActivity =  0
+        dEndingBalance  =  ttTrialBalance.amountYTDOpen .
        
         IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
-            DISPLAY SKIP(1)
-                account.actnum + "  " + account.dscr FORMAT "x(45)"
-                LABEL "Account Number           Description"
-                ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" LABEL "PTD      "
-                ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" LABEL "YTD       "
-                dadj cadj bsht incs
-                WITH CENTERED WIDTH 132 STREAM-IO.                
-              
-            IF tb_excel THEN 
+        
+            FOR EACH glhist NO-LOCK 
+               WHERE glhist.company EQ account.company
+               AND glhist.actnum  EQ account.actnum
+               AND glhist.tr-date GE period.pst 
+               AND glhist.tr-date LE tran-date BY glhist.tr-date  :
+            
+                IF glhist.tr-amt GT 0 THEN
+                dDebitActivity = dDebitActivity + glhist.tr-amt.
+                ELSE dCreditActivity = dCreditActivity + glhist.tr-amt.
+                dEndingBalance = dEndingBalance + glhist.tr-amt.
+            END.    
+           
+           IF tb_fill-field AND tb_Period-Detail THEN
+           PUT SKIP(1)
+             account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)
+             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) 
+             dEndingBalance  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+             ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(2)
+             dadj SPACE(1) cadj SPACE(1) bsht SPACE(1) incs SKIP .
+           
+           ELSE IF tb_fill-field THEN
+           PUT SKIP(1)
+             account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)
+             ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+             ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(1)
+             dadj SPACE(1) cadj SPACE(1) bsht SPACE(1) incs SKIP .
+             
+           ELSE IF tb_Period-Detail THEN
+           PUT SKIP(1)
+             account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)             
+             dOpenBalance SPACE(1) dDebitActivity SPACE(1) dCreditActivity SPACE(1) 
+             dEndingBalance  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+             ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99" SPACE(1)
+             SKIP .
+           ELSE
+           PUT SKIP(1)
+            account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(1)
+            ttTrialBalance.amountPTD  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+            ttTrialBalance.amountYTD FORMAT "->>>,>>>,>>>,>>9.99"
+             SKIP . 
+             
+            IF tb_excel THEN
+            DO:
+               IF tb_Period-Detail THEN
                 EXPORT STREAM excel DELIMITER ","
                     account.actnum
                     account.dscr
@@ -1327,8 +1489,21 @@ DO:
                     ttTrialBalance.amountYTD
                     cAccountType 
                     cFinancialReport
+                    dOpenBalance
+                    dDebitActivity
+                    dCreditActivity
+                    dEndingBalance
                     SKIP.
-
+               ELSE
+                 EXPORT STREAM excel DELIMITER ","
+                    account.actnum
+                    account.dscr
+                    ttTrialBalance.amountPTD    
+                    ttTrialBalance.amountYTD
+                    cAccountType 
+                    cFinancialReport
+                    SKIP.
+            END.
             IF v-download THEN
             DO:
                 ASSIGN 
@@ -1347,8 +1522,11 @@ DO:
 
     put skip(1) "===============" to 61 "===================" to 81 skip
         "TRIAL BALANCE:" AT 10 dTotPTD format "->>>,>>>,>>9.99" to 61
-                                  dTotYTD format "->>>,>>>,>>>,>>9.99" to 81
-        " " dadj " " cadj " " bsht " " incs skip(1).
+                                  dTotYTD format "->>>,>>>,>>>,>>9.99" to 81.
+        IF tb_fill-field THEN                          
+        PUT
+        " " dadj " " cadj " " bsht " " incs .
+        PUT skip(1).
         
     IF tb_include-summary-total THEN
     DO: 
@@ -1497,6 +1675,9 @@ DEFINE VARIABLE dTotYTD         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lRecordExist    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE str-tit4        AS CHARACTER FORMAT "x(240)" NO-UNDO.
 DEFINE VARIABLE str-tit5        AS CHARACTER FORMAT "x(240)" NO-UNDO.
+DEFINE VARIABLE str-line        AS CHARACTER FORMAT "x(240)" NO-UNDO.
+DEFINE VARIABLE dTotalDebitAmt  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalCreditAmt AS DECIMAL   NO-UNDO.
        
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1510,6 +1691,7 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
  cPeriodLabel = " Period " + string(MONTH(tran-date),"99") + " Total".
  cYtdLabel = "  " + string(YEAR(tran-date)) + " YTD Total".
  cAsofDateLabel = "As of Date: " + string(tran-date) .
+ str-line = FILL(" ",45) + "  " + "---------------" + " " + FILL(" ",51) + "--------------" + " " + "--------------" + " " + "--------------" + FILL(" ",57) + "-----------------" .                                                 
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
@@ -1608,6 +1790,8 @@ DO:
         IF subac LT fsubac OR subac GT tsubac THEN NEXT.
                         
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
+        dTotalDebitAmt = 0 .
+        dTotalCreditAmt = 0.
         
         IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
@@ -1621,10 +1805,15 @@ DO:
                AND glhist.tr-date GE period.pst 
                AND glhist.tr-date LE tran-date BY glhist.tr-date  :
             dDebitAmt = 0.
-            dCreditAmt = 0.
+            dCreditAmt = 0.            
             IF glhist.tr-amt GT 0 THEN
-            dDebitAmt = glhist.tr-amt.
-            ELSE dCreditAmt = glhist.tr-amt.
+            ASSIGN
+               dDebitAmt = glhist.tr-amt
+               dTotalDebitAmt = dTotalDebitAmt + glhist.tr-amt .
+            ELSE
+            assign
+            dCreditAmt = glhist.tr-amt
+             dTotalCreditAmt = dTotalCreditAmt + glhist.tr-amt .
             
             dPeriodTotal = dPeriodTotal + glhist.tr-amt. 
             dYtdAmount = dYtdAmount + glhist.tr-amt.
@@ -1633,7 +1822,7 @@ DO:
             
             PUT 
                 account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(2)                
-                ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                 SPACE(16) 
                 glhist.tr-date FORMAT "99/99/9999" SPACE(1)
                 glhist.jrnl FORMAT "x(8)" SPACE(1)
                 glhist.tr-dscr FORMAT "x(30)" SPACE(1)
@@ -1663,15 +1852,56 @@ DO:
                     dYtdAmount
                     dYtdAmount
                     SKIP.                     
+           END.           
+           
+           IF lRecordExist THEN
+           DO:
+                 PUT SKIP str-line FORMAT "x(240)" SKIP.
+                 PUT  "                              Account Total:" FORMAT "x(45)" SPACE(2)
+                 ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                 SPACE(11) 
+                 space(9) 
+                 SPACE(31) 
+                 dTotalDebitAmt FORMAT "->>,>>>,>>9.99" SPACE(1)
+                 dTotalCreditAmt FORMAT "->>,>>>,>>9.99" SPACE(1)
+                 dPeriodTotal FORMAT "->>,>>>,>>9.99"  SPACE(1)
+                 SPACE(33) 
+                 SPACE(12)
+                 SPACE(11) 
+                 dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                 SKIP(1).
+                 
+                 IF tb_excel THEN 
+                 EXPORT STREAM excel DELIMITER ","
+                    "Account Total"
+                    ""
+                    ttTrialBalance.amountYTDOpen
+                    ""
+                    ""
+                    ""
+                    dTotalDebitAmt
+                    dTotalCreditAmt
+                    dPeriodTotal
+                    ""
+                    ""
+                    ""  
+                    dYtdAmount
+                    SKIP(1).    
            END.
            
            IF NOT lRecordExist THEN
-           DO:                  
+           DO:  
+                
                 PUT SKIP
                 account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(2)
                 ttTrialBalance.amountYTDOpen FORMAT "->>>,>>>,>>9.99" SPACE(1)
                 "" FORMAT "x(152)" 
                 dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SKIP .
+                PUT str-line FORMAT "x(240)" SKIP.
+                PUT  "                              Account Total:" FORMAT "x(45)" SPACE(2)
+                 ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99"
+                 "" FORMAT "x(153)" 
+                 dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SKIP(1).
                 
                           
             IF tb_excel THEN 
@@ -1687,8 +1917,26 @@ DO:
                     ""
                     ""
                     ""
-                    ""                     
-                    SKIP.               
+                    ""
+                    dYtdAmount
+                    SKIP(1). 
+                    
+            IF tb_excel THEN 
+                EXPORT STREAM excel DELIMITER ","
+                    "Account Total"
+                    ""
+                    ttTrialBalance.amountYTDOpen
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    ""
+                    dYtdAmount
+                    SKIP(1).                
            END.
 
             IF v-download THEN
@@ -1816,32 +2064,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetParameter C-Win 
-PROCEDURE pSetParameter :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DO with frame {&frame-name}:
-    
-    IF LOGICAL(tb_show-all-account:SCREEN-VALUE) EQ TRUE THEN
-    DO:
-      ASSIGN 
-          begin_acct-no:SCREEN-VALUE = ""
-          end_acct-no:SCREEN-VALUE  = "zzzzzzzzzzzzzzzzzzzzzzzzz".
-           DISABLE begin_acct-no end_acct-no .
-    END.
-    ELSE
-    ENABLE begin_acct-no end_acct-no.
-   
-   END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
