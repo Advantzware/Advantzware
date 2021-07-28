@@ -4035,14 +4035,11 @@ RUN ask-release-questions (INPUT ROWID(oe-ordl),
                            OUTPUT v-num-shipto).
 
 /* prompt is in ask-release-questions */
-IF v-relflg2 THEN DO:
+IF v-relflg2 THEN DO:  
   {oe/oe-rel.a &fil="oe-ordl"}.
   /* stores oe-rel due date */
-  IF lfirstReleaseofItem THEN DO:
-
-    oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
-    IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-      oe-rel.rel-date = get-colonial-rel-date(ROWID(oe-rel)).
+  IF lfirstReleaseofItem THEN DO:  
+    oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".     
   END.
     
 END.
@@ -10880,8 +10877,23 @@ FUNCTION get-colonial-rel-date RETURNS DATE
      AND bf-oe-ord.ord-no EQ bf-oe-rel.ord-no
      NO-LOCK NO-ERROR.
   /* order header due-date - dock appt days, adjusted for weekends */
-  IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN
-     opRelDate = get-date(bf-oe-ord.due-date, bf-shipto.spare-int-2, "-").
+  IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN do:      
+     IF oereleas-cha EQ "LastShip" THEN
+        opRelDate = bf-oe-ord.last-date.
+     ELSE IF oereleas-cha EQ "Due Date" THEN
+        opRelDate = oe-ordl.req-date.
+     ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
+        opRelDate = oe-ordl.req-date - (IF AVAIL bf-shipto THEN bf-shipto.del-time ELSE 0).
+     ELSE /*DueDate+1Day*/
+     DO:
+        opRelDate = oe-ordl.req-date + 1.
+        IF WEEKDAY(opRelDate) EQ 7 THEN
+        opRelDate = oe-rel.rel-date + 2.
+        ELSE
+        IF WEEKDAY(opRelDate) EQ 1 THEN
+        opRelDate = opRelDate + 1.
+    END.
+  END.   
   RETURN opRelDate.
 
 END FUNCTION.

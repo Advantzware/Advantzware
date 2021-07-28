@@ -18,25 +18,14 @@ if avail {&fil} then do:
          no-lock no-error.
     if avail eb then
        find first shipto of eb no-lock no-error.
-    /*========
-        where shipto.company eq xoe-ord.company
-          and shipto.cust-no eq eb.cust-no
-          and shipto.ship-id eq eb.ship-id
-          and shipto.ship-no eq eb.ship-no
-        no-lock no-error.
-    if not avail shipto then
-    find first shipto
-        where shipto.company eq xoe-ord.company
-          and shipto.cust-no eq eb.cust-no
-          and shipto.ship-id eq eb.ship-id
-        no-lock no-error.
-    if not avail shipto then
-    find shipto
-        where shipto.company eq xoe-ord.company
-          and shipto.cust-no eq eb.cust-no
-          and shipto.ship-no eq eb.ship-no
-        no-lock no-error.
-    */
+    ELSE DO: 
+       if not avail shipto then
+       FIND FIRST shipto NO-LOCK
+            where shipto.company eq cocode
+            and shipto.cust-no eq xoe-ord.cust-no
+            and shipto.ship-id eq xoe-ord.ship-id
+         NO-ERROR.
+    END.
 
     find first sys-ctrl where sys-ctrl.company eq cocode
                           and sys-ctrl.name    eq "OECARIER"
