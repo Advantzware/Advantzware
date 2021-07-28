@@ -249,7 +249,7 @@ do with no-box no-labels frame flute  stream-io :
           w-brd.cost-m = v-qty
           w-brd.qty-uom = "EA"
           w-brd.sc-uom = b-uom
-          mfl$ = mfl$ / qty * mqty
+       /* mfl$ = mfl$ / qty * mqty*/
           tmpstore = "Liner ".
 
    if v-add-to-est then do:
