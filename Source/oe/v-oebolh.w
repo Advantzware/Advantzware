@@ -637,6 +637,7 @@ DO:
               RUN windows/l-loc.w (g_company, oe-bolh.loc:screen-value IN FRAME {&frame-name}, OUTPUT char-val).
               IF char-val <> "" THEN DO:
                 FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                RUN new-loc.
               END.
          END.
 
@@ -705,6 +706,18 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-loc( OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-bolh.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
+ON VALUE-CHANGED OF oe-bolh.loc IN FRAME F-Main /* loc */
+DO:    
+  IF LASTKEY NE -1 THEN DO:
+    RUN new-loc.
   END.
 END.
 
@@ -991,13 +1004,32 @@ END.
 ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
 DO:
   RUN pCalcFrtForce.
+  RUN calc-freight.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-wt V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-wt IN FRAME F-Main /* Total Weight */
+DO:  
+  RUN calc-freight.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-pallets V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-pallets IN FRAME F-Main /* Total Pallet */
+DO:  
+  RUN calc-freight.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -1104,21 +1136,27 @@ DEF VAR ldMinRate AS DEC NO-UNDO.
         scInstance = SharedConfig:instance.
         scInstance:SetValue("BolScreenValueOfLocation",TRIM(oe-bolh.loc:SCREEN-VALUE)).
         scInstance:SetValue("BolScreenValueOfCarrier",TRIM(oe-bolh.carrier:SCREEN-VALUE)).
+        scInstance:SetValue("BolScreenValueOfRate",TRIM(oe-bolh.cwt:SCREEN-VALUE)).
+        scInstance:SetValue("BolScreenValueOfWeight",TRIM(oe-bolh.tot-wt:SCREEN-VALUE)).
         
         IF NOT lFreightEntered AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN
         DO:          
             RUN oe/calcBolFrt.p (ROWID(oe-bolh), YES, OUTPUT ld).
             oe-bolh.freight:SCREEN-VALUE = STRING(ld).
             oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+            oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
         ELSE DO:   
            RUN oe/calcBolFrt.p (ROWID(oe-bolh), NO, OUTPUT ld).  
            oe-bolh.freightCalculationAmount:SCREEN-VALUE = STRING(ld).
+           oe-bolh.tot-pallets:SCREEN-VALUE = STRING(oe-bolh.tot-pallets).
         END.
         
         scInstance = SharedConfig:instance.
         scInstance:DeleteValue(INPUT "BolScreenValueOfLocation").
         scInstance:DeleteValue(INPUT "BolScreenValueOfCarrier").
+        scInstance:DeleteValue(INPUT "BolScreenValueOfRate").
+        scInstance:DeleteValue(INPUT "BolScreenValueOfWeight").
       END.
       ELSE DO: 
         FIND CURRENT oe-bolh.
@@ -2234,7 +2272,7 @@ PROCEDURE new-carrier :
   DO WITH FRAME {&FRAME-NAME}:
     FIND carrier
         WHERE carrier.company EQ g_company
-          AND carrier.loc     EQ g_loc                       
+          AND carrier.loc     EQ oe-bolh.loc:SCREEN-VALUE                      
           AND carrier.carrier EQ oe-bolh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
         
@@ -2246,6 +2284,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-loc V-table-Win 
+PROCEDURE new-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:  
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company = g_company
+         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
+    IF AVAIL loc THEN DO:
+      RUN new-carrier.
+    END.                                       
+  END.                             
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no V-table-Win 
 PROCEDURE new-cust-no :
