@@ -1829,15 +1829,20 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
       OR v-partial  NE oe-boll.partial
       OR v-pallets  NE oe-boll.tot-pallets
       OR v-weight   NE oe-boll.weight
-      OR adm-new-record)
-      AND (v-freight EQ oe-boll.freight)
-      AND (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:
-    
-      RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+      OR adm-new-record) THEN do:
       
-      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
-          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+        
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:         
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).          
+        END.
+        ELSE DO:
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
+        END.
+      
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:            
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
       END.
     END.            
