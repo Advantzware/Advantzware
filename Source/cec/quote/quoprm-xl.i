@@ -164,7 +164,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       
       ASSIGN LvLineCnt = LvLineCnt + 1
              v-cell = "R" + string(LvLineCnt) + "C2".
-      //MESSAGE STRING(lv-i-coldscr) VIEW-AS ALERT-BOX.
+
       chExcelApplication:Goto(v-cell) NO-ERROR.
       ASSIGN chExcelApplication:ActiveCell:Value = "JOINT: " + IF AVAIL eb THEN eb.adhesive ELSE ""
              v-cell = "R" + string(LvLineCnt) + "C3".
