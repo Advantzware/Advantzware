@@ -4035,6 +4035,7 @@ PROCEDURE local-update-record :
            decimal(hd2:screen-value) - trunc(decimal(hd2:screen-value),0) >= v-16-or-32 
            AND hd2:name NE "t-sqin" AND hd2:NAME NE "comm"
            AND hd2:NAME NE "fi_msf" AND hd2:NAME NE "fi_per-set"
+           AND hd2:NAME NE "fi_lf-blank"
         then do:
              message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
                      view-as alert-box error.
