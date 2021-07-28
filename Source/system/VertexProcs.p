@@ -109,7 +109,8 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
-        
+    
+    DEFINE VARIABLE dttzServerDateTimeTZ     AS DATETIME-TZ NO-UNDO.    
     DEFINE VARIABLE dttzCurrentGMTDateTimeTZ AS DATETIME-TZ NO-UNDO.
     DEFINE VARIABLE dttzSysCtrlDateTimeTZ    AS DATETIME-TZ NO-UNDO.
     
@@ -118,7 +119,12 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
         
     /* Code to find and extract the GMT Date and time from current date amnd time */
-    RUN spCommon_GetCurrentGMTTime (
+    RUN spCommon_GetServerTime (
+        OUTPUT dttzServerDateTimeTZ
+        ).
+        
+    RUN spCommon_GetGMTTime (
+        INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
@@ -214,8 +220,13 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         RETURN.
     END.
 
-    /* Code to find and extract the GMT Date and time from current date amnd time */
-    RUN spCommon_GetCurrentGMTTime (
+    RUN spCommon_GetServerTime (
+        OUTPUT dttzServerDateTimeTZ
+        ).
+
+    /* Code to find and extract the GMT Date and time from current date amnd time */        
+    RUN spCommon_GetGMTTime (
+        INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
