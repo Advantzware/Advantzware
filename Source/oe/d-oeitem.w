@@ -1110,7 +1110,7 @@ DO:
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
                    IF AVAIL oe-ord THEN
-                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,oe-ord.ord-no) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1907,7 +1907,7 @@ DO:
             . 
             
    IF AVAIL oe-ord THEN
-      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,oe-ord.ord-no) .
       
   IF ll-bypass THEN DO:
     ll-bypass = NO.
@@ -4703,7 +4703,7 @@ PROCEDURE display-est-detail :
               DATE(oe-ordl.prom-date:SCREEN-VALUE) THEN
              oe-ordl.prom-date:SCREEN-VALUE = oe-ordl.req-date:SCREEN-VALUE.
         END.
-        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,0) .
+        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,ip-ord-no) .
      END. /*avail b-eb*/
 
      IF lastship-cha = "Stock/Custom" THEN DO:
