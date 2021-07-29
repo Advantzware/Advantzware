@@ -484,7 +484,7 @@ v-printline = 0.
            PUT "<C50.5>" v-job-no FORM "x(12)" SPACE(1)
                lv-cost FORM "->>>9.99<<" SPACE(1)
                lv-pr-uom
-               (po-ordl.t-cost - po-ordl.setup) FORM "->>,>>9.99"          
+               po-ordl.t-cost FORM "->>,>>9.99"          
                SKIP.
         END.
         ELSE
@@ -502,7 +502,7 @@ v-printline = 0.
                SPACE(68)
                lv-cost FORM "->>>,>>9.99<<" SPACE(1)
                lv-pr-uom
-               (po-ordl.t-cost - po-ordl.setup) FORM "->>>,>>9.99"
+               po-ordl.t-cost FORM "->>>,>>9.99"
                SKIP.
 
            v-printline = v-printline + 1.
