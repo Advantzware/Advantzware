@@ -106,7 +106,8 @@ DEFINE VARIABLE lBankTransmittalLocation  AS LOGICAL   NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 DEF STREAM excel.
-DEFINE STREAM ap-excel.
+DEF STREAM checkFile.
+DEF STREAM ap-excel.
 
 DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id    AS ROWID
                                FIELD ex-rate   LIKE currency.ex-rate INIT 1
@@ -1242,8 +1243,8 @@ IF AVAILABLE(asi._lock) THEN DO:
 
     FIND FIRST asi._connect WHERE _connect-usr = _lock-usr NO-LOCK.
     IF AVAIL(asi._connect) AND asi._connect._connect-name = "" THEN
-        FIND nosweat._user 
-          WHERE nosweat._user._user_number EQ asi._connect._connect-usr
+        FIND asi._user 
+          WHERE asi._user._user_number EQ asi._connect._connect-usr
         NO-LOCK NO-ERROR.
     ASSIGN oplLocked = YES
            opcUsr    = asi._connect._connect-usr
@@ -1251,10 +1252,10 @@ IF AVAILABLE(asi._lock) THEN DO:
            opcDevice = _connect-device.
 
     IF asi._connect._connect-name EQ "" THEN
-        FIND nosweat._connect WHERE nosweat._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
+        FIND asi._connect WHERE asi._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
 
-    IF AVAIL(nosweat._connect) THEN
-       opcName = nosweat._connect._connect-name.    
+    IF AVAIL(asi._connect) THEN
+       opcName = asi._connect._connect-name.    
 
 END.
 
@@ -1507,7 +1508,8 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN DO:
+ 
+ IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "D"
      STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
@@ -1573,7 +1575,7 @@ IF tb_APcheckFile THEN DO:
      v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
      v-check-date = v-check-date + iAPCheckFile.
 
-  IF rd_print-apfile EQ "Text" THEN DO:
+  IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
      PUT STREAM checkFile UNFORMATTED
      IF ap-sel.vend-no EQ "VOID"
           THEN "V" ELSE "I"      ","                                 /* Void Indicator */
@@ -1625,7 +1627,7 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code /*"6017"*/ NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN DO:
+ IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "6217    6017          "
      STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
@@ -1685,7 +1687,8 @@ PROCEDURE StandardCSV :
   Notes: gdm - 05210901
 ------------------------------------------------------------------------------*/   
 DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
-IF tb_APcheckFile THEN DO:
+IF tb_APcheckFile 
+AND rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "CSV" THEN DO:
    FIND FIRST ap-chk WHERE
           ap-chk.company  EQ ap-sel.company AND
           ap-chk.check-no EQ ap-sel.check-no
@@ -2467,7 +2470,7 @@ END. /* each ap-sel */
     END.
 
 IF tb_APcheckFile THEN DO:
-    IF rd_print-apfile EQ "Text" THEN
+    IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN
         OUTPUT STREAM checkFile CLOSE.
     ELSE 
         OUTPUT STREAM ap-excel CLOSE.
