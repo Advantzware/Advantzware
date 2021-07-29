@@ -3779,6 +3779,8 @@ PROCEDURE ipDataFix210300:
     RUN ipStatus ("  Data Fix 210300...").
 
     RUN ipRemoveBadApiOutboundRecs.
+    RUN ipConvertPolScore.
+    RUN ipJobMchSequenceFix.
     
 END PROCEDURE.
     
