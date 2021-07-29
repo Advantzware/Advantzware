@@ -255,6 +255,7 @@ PROCEDURE pGetTaxAmounts PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
@@ -293,6 +294,8 @@ PROCEDURE pGetTaxAmounts PRIVATE:
     DEFINE VARIABLE cFieldID           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldValue        AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-stax   FOR stax.
+    
     EMPTY TEMP-TABLE tttaxDetail.
     
     IF iplcResponseData EQ "" THEN DO:
@@ -323,6 +326,12 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         oplSuccess = FALSE.
         RETURN.        
     END. 
+    
+    RUN pSetStaxBuffer(
+        INPUT  ipcCompany, 
+        INPUT  ipcTaxCode, 
+        BUFFER bf-stax
+        ).
     
     ASSIGN
         opdInvoiceTotal    = DECIMAL(oObject:GetJsonText('total'))
@@ -391,15 +400,15 @@ PROCEDURE pGetTaxAmounts PRIVATE:
                     ttTaxDetail.invoiceLineType        = cLineType
                     ttTaxDetail.invoiceLineRecKey      = cLineRecKey
                     ttTaxDetail.taxLine                = iLineNo
-                    ttTaxDetail.taxGroup               = ""
+                    ttTaxDetail.taxGroup               = IF AVAIL bf-stax THEN bf-stax.tax-group ELSE ""
                     ttTaxDetail.taxGroupLine           = iCount3
                     ttTaxDetail.isFreight              = isFreight
                     ttTaxDetail.isTaxOnFreight         = isFreightTaxable                    
                     ttTaxDetail.taxGroupTaxAmountLimit = 0
-                    ttTaxDetail.taxCode                = ""
-                    ttTaxDetail.taxCodeDescription     = ""
+                    ttTaxDetail.taxCode                = IF AVAIL bf-stax THEN bf-stax.tax-code1[1] ELSE ""
+                    ttTaxDetail.taxCodeDescription     = IF AVAIL bf-stax THEN bf-stax.tax-dscr1[1] ELSE ""
                     ttTaxDetail.taxCodeRate            = dEffectiveRate
-                    ttTaxDetail.taxCodeAccount         = ""
+                    ttTaxDetail.taxCodeAccount         = IF AVAIL bf-stax THEN bf-stax.tax-acc1[1] ELSE ""
                     ttTaxDetail.taxCodeTaxAmount       = dCalculatedTax
                     ttTaxDetail.taxCodeTaxableAmount   = dTaxable
                     .
@@ -411,6 +420,22 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         oplSuccess = TRUE 
         opcMessage = "Success"
         .    
+
+END PROCEDURE.
+
+PROCEDURE pSetStaxBuffer PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the Stax buffer given company and tax group
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTaxGroup AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-stax FOR stax.
+
+    FIND FIRST ipbf-stax NO-LOCK 
+        WHERE ipbf-stax.company EQ ipcCompany
+        AND ipbf-stax.tax-group EQ ipcTaxGroup
+        NO-ERROR.
 
 END PROCEDURE.
 
@@ -492,6 +517,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
 
             RUN pGetTaxAmounts (
                 INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
@@ -581,7 +607,8 @@ PROCEDURE Vertex_CalculateTaxForArInv:
             lcResponseData = bf-APIOutboundEvent.responseData.
 
             RUN pGetTaxAmounts (
-                INPUT  bf-ar-inv.company,            
+                INPUT  bf-ar-inv.company, 
+                INPUT  bf-ar-inv.tax-code,
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
