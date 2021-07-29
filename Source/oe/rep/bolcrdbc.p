@@ -118,15 +118,10 @@ IF lRecFound AND cRtnChar NE "" THEN DO:
 END.
 
 ASSIGN
-    ls-full-img3 = cRtnChar + ">" .
-    
-ASSIGN ls-image1 = "images\Carded.jpg"
-       ls-image2 = "images\Carded.jpg".
-
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-FILE-INFO:FILE-NAME = ls-image2.
-ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
+    ls-full-img1 = cRtnChar + ">" 
+    ls-full-img2 = cRtnChar + ">" 
+    ls-full-img3 = cRtnChar + ">" 
+    .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.

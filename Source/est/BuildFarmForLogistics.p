@@ -46,6 +46,8 @@ FIND FIRST cust NO-LOCK
 IF AVAILABLE cust THEN 
     cVendor = cust.cust-no.
     
+RUN pCopyPrepCharge(BUFFER eb).                      
+    
 RUN pGetCostFrom(INPUT eb.company,OUTPUT cMiscEstimateSource). 
 
 IF cMiscEstimateSource EQ "Estimate" THEN
@@ -215,6 +217,46 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     END.
 
 END PROCEDURE. 
+
+PROCEDURE pCopyPrepCharge PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    DEFINE VARIABLE cEstNo AS CHARACTER.
+    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-est-prep FOR est-prep.
+    
+    cEstNo = ipbf-eb.sourceEstimate.
+    RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+    
+    FOR EACH bf-est-prep
+        WHERE bf-est-prep.company EQ ipbf-eb.company 
+        AND bf-est-prep.est-no  EQ ipbf-eb.est-no                      
+        USE-INDEX est-qty NO-LOCK
+        BY bf-est-prep.line DESCENDING:
+        LEAVE.
+    END.
+
+    iLine = (IF AVAILABLE bf-est-prep THEN bf-est-prep.line ELSE 0) + 1.      
+   
+    FOR EACH est-prep NO-LOCK
+        WHERE est-prep.company EQ ipbf-eb.company 
+        AND est-prep.est-no EQ cEstNo 
+        AND est-prep.simon EQ "S":
+        
+        CREATE bf-est-prep.
+        BUFFER-COPY est-prep EXCEPT e-num rec_key est-no LINE TO bf-est-prep.
+        ASSIGN
+           bf-est-prep.e-num  = ipbf-eb.e-num
+           bf-est-prep.est-no = ipbf-eb.est-no
+           bf-est-prep.LINE   = iLine. 
+           iLine = iLine + 1.
+    END.
+    RELEASE bf-est-prep. 
+END PROCEDURE.  
           
 PROCEDURE pGetCostFrom PRIVATE:
     /*------------------------------------------------------------------------------

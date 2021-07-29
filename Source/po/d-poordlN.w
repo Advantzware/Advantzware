@@ -6844,6 +6844,7 @@ PROCEDURE vend-cost :
                 po-ordl.cons-cost:SCREEN-VALUE = STRING(dCostPerUOMCons,po-ordl.cons-cost:FORMAT)
                 po-ordl.pr-uom:SCREEN-VALUE    = cCostUOM
                 .
+            IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN po-ordl.pr-uom:SCREEN-VALUE = "EA".
             IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN 
                 RUN Conv_QuantityFromUOMToUOM (
                     INPUT  po-ordl.company,

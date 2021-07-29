@@ -1,26 +1,21 @@
 
-{po/po-ordls.i}
-            
-IF AVAIL b-ref1 OR AVAIL b-ref2 THEN DO:
-  ASSIGN
+RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+
+ASSIGN
    lv-val     = 0
    lv-typ     = "".
+   
+   RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+            INPUT  po-ordl.company,
+            INPUT  po-ordl.po-no,
+            INPUT  po-ordl.line,
+            OUTPUT lv-val,
+            OUTPUT lv-typ
+            ).
 
-  IF AVAIL b-ref1 THEN
-  DO x = 1 TO 12:
-    ASSIGN
-     lv-val[x] = b-ref1.val[x]
-     lv-typ[x] = SUBSTR(b-ref1.dscr,x,1).
-  END.
+   DELETE PROCEDURE hdPOProcs.   
 
-  IF AVAIL b-ref2 THEN
-  DO x = 1 TO 8:
-    ASSIGN
-     lv-val[x + 12] = b-ref2.val[x]
-     lv-typ[x + 12] = SUBSTR(b-ref2.dscr,x,1).
-  END.
-
-  DO lv-int = 0 TO 1:
+DO lv-int = 0 TO 1:
     ASSIGN
      v-lscore-c = ""
      len-score  = "".

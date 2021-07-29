@@ -4,6 +4,7 @@
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEF INPUT PARAM iplUpdateOtherEst AS LOGICAL NO-UNDO.
+DEF INPUT PARAM iplUpdateUnit AS LOGICAL NO-UNDO.
                       
 {sys/inc/var.i SHARED}
 
@@ -16,21 +17,19 @@ DEF BUFFER b-ref FOR reftable.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lj AS INT NO-UNDO.
-DEF VAR ll AS LOG INIT YES NO-UNDO.
+DEF VAR lUpdUnit AS LOG INIT YES NO-UNDO.
 DEF VAR v-side-count AS INT NO-UNDO.
 
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL eb THEN DO:
-  IF eb.est-type LE 4 THEN
-    MESSAGE "Update Units along with Inks?"
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE ll.
+  
+  lUpdUnit = iplUpdateUnit.
         
   IF iplUpdateOtherEst THEN
-  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(ll),NO).
+  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(lUpdUnit),NO).
 
-  RUN est/d-selblk.w (ip-rowid, "Copy Inks" + IF ll THEN " & Units" ELSE "").
+  RUN est/d-selblk.w (ip-rowid, "Copy Inks" + IF lUpdUnit THEN " & Units" ELSE "").
 
   FOR EACH tt-select WHERE tt-selected,
       FIRST b-eb WHERE ROWID(b-eb) EQ tt-rowid
@@ -39,7 +38,7 @@ IF AVAIL eb THEN DO:
     {est/copyinks.i}
 
     IF LAST-OF(b-eb.stock-no) AND iplUpdateOtherEst THEN
-      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll),NO).
+      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(lUpdUnit),NO).
   END.
 END.
 

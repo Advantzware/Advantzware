@@ -51,6 +51,8 @@ ASSIGN
 
 DEF TEMP-TABLE tt-msf FIELD tt-set LIKE est-qty.eqty
                       FIELD tt-qty LIKE tt-set
+                      FIELD tt-lf-blank AS DEC  FORM "->>,>>9.999"
+                      FIELD tt-tot-lf-blank AS DEC FORM "->>,>>9.999"
                       FIELD tt-msf AS DEC
                       INDEX sets tt-set.
 
@@ -75,7 +77,7 @@ DEF TEMP-TABLE tt-msf FIELD tt-set LIKE est-qty.eqty
 &Scoped-define INTERNAL-TABLES tt-msf
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-msf.tt-qty tt-msf.tt-msf   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 tt-msf.tt-qty tt-msf.tt-msf tt-msf.tt-lf-blank tt-msf.tt-tot-lf-blank  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH tt-msf NO-LOCK
@@ -119,11 +121,13 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-msf.tt-qty LABEL "Qty" FORMAT ">>,>>>,>>9"
-      tt-msf.tt-msf LABEL "MSF" FORMAT "->>,>>9.999"
+      tt-msf.tt-qty           LABEL "Qty" FORMAT ">>,>>>,>>9"
+      tt-msf.tt-msf           LABEL "MSF" FORMAT "->>,>>9.999"
+      tt-msf.tt-lf-blank     LABEL "LF" FORMAT "->>,>>9.999"
+      tt-msf.tt-tot-lf-blank LABEL "TLF" FORMAT "->>,>>9.999"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 69 BY 12.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 12.38
          BGCOLOR 8 FONT 6 ROW-HEIGHT-CHARS .57 EXPANDABLE.
 
 
@@ -131,7 +135,7 @@ DEFINE BROWSE BROWSE-2
 
 DEFINE FRAME D-Dialog
      BROWSE-2 AT ROW 1.24 COL 1
-     Btn_OK AT ROW 14.33 COL 28
+     Btn_OK AT ROW 14.33 COL 37
      SPACE(27.19) SKIP(0.81)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -342,10 +346,13 @@ IF AVAIL eb THEN DO:
                (ROWID(b-eb) EQ ROWID(eb) AND eb.form-no NE 0))
         NO-LOCK:
       ASSIGN
-       ld     = IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet
-       tt-msf = tt-msf +
-                (tt-set * ld * (IF v-corr THEN (b-eb.t-sqin * .007)
-                                          ELSE (b-eb.t-sqin / 144)) / 1000).
+       ld               = IF b-eb.quantityPerSet LT 0 THEN -1 / b-eb.quantityPerSet ELSE b-eb.quantityPerSet
+       tt-lf-blank     = b-eb.t-len / 12
+       tt-tot-lf-blank = tt-lf-blank * tt-qty
+       tt-msf           = tt-msf +
+                            (tt-set * ld * (IF v-corr THEN (b-eb.t-sqin * .007)
+                                                      ELSE (b-eb.t-sqin / 144)) / 1000)
+       .                                   
     END.
 
     IF eb.form-no NE 0 AND ld NE 0 THEN tt-qty = tt-set * ld.
@@ -410,7 +417,9 @@ PROCEDURE local-initialize :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tt-qty:WIDTH-CHARS IN BROWSE {&browse-name} = 20
-     tt-msf:WIDTH-CHARS IN BROWSE {&browse-name} = 20.
+     tt-msf:WIDTH-CHARS IN BROWSE {&browse-name} = 20
+     tt-lf-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20
+     tt-tot-lf-blank:WIDTH-CHARS IN BROWSE {&browse-name} = 20.
   END.
 
 END PROCEDURE.

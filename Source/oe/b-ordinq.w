@@ -93,6 +93,7 @@ DEFINE VARIABLE dInvoiceLineCost AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dProdBalance     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iOEBrowse        AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
@@ -120,14 +121,7 @@ ll-sort-asc = NO /*oeinq*/.
   Procedures Removed:
   - Show-all
   - First-Query    
-  
-&SCOPED-DEFINE key-phrase oe-ordl.company EQ cocode AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'
 
-&SCOPED-DEFINE for-eachblank ~
-    FOR EACH oe-ordl ~
-        WHERE {&key-phrase} ~
-          AND ((LOOKUP(oe-ordl.cust-no,custcount) NE 0 ~
-          AND oe-ordl.cust-no NE '') OR custcount EQ '')
           
 &SCOPED-DEFINE for-eachblank2 ~
     EACH oe-ordl ~
@@ -165,16 +159,6 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.job-no BEGINS fi_job-no ~
           AND (oe-ordl.job-no2 EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ '') ~
           AND {system/brMatches.i  oe-ordl.i-name fi_i-name}
-
-&SCOPED-DEFINE for-each2 ~
-    FIRST oe-ord OF oe-ordl ~
-    WHERE (oe-ord.stat NE 'W' AND tb_web EQ NO) ~
-       OR (oe-ord.stat EQ 'W' AND tb_web EQ YES) ~
-      USE-INDEX ord-no NO-LOCK, ~
-    FIRST itemfg ~{&joinScop} NO-LOCK ~
-    WHERE itemfg.company EQ oe-ordl.company ~
-      AND itemfg.i-no EQ oe-ordl.i-no ~
-      AND itemfg.cad-no BEGINS fi_cad-no
 
 &SCOPED-DEFINE for-each3 FIRST oe-ord OF oe-ordl WHERE ~
    (tb_web EQ NO and oe-ord.stat NE 'W') OR (tb_web AND oe-ord.stat EQ 'W') ~
@@ -233,6 +217,25 @@ ll-initial = browser-log. */
     pGetInvoiceLineCost() @ dInvoiceLineCost COLUMN-LABEL "Invoice Line Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
 */
 
+&SCOPED-DEFINE key-phrase oe-ordl.company EQ cocode AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C'
+
+&SCOPED-DEFINE for-eachblank ~
+    FOR EACH oe-ordl ~
+        WHERE {&key-phrase} ~
+          AND ((LOOKUP(oe-ordl.cust-no,custcount) NE 0 ~
+          AND oe-ordl.cust-no NE '') OR custcount EQ '')
+          
+&SCOPED-DEFINE for-each2 ~
+    FIRST oe-ord OF oe-ordl ~
+     WHERE ((oe-ord.stat NE 'H' AND tbOther EQ YES) ~
+       OR (oe-ord.stat EQ 'W' AND tbWeb EQ YES) ~
+       OR (oe-ord.stat EQ 'H' AND tbHold EQ YES)) ~
+       USE-INDEX ord-no NO-LOCK, ~
+    FIRST itemfg ~{&joinScop} NO-LOCK ~
+    WHERE itemfg.company EQ oe-ordl.company ~
+      AND itemfg.i-no EQ oe-ordl.i-no ~
+      AND itemfg.cad-no BEGINS fi_cad-no
+
 DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
@@ -277,7 +280,7 @@ oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance 
+fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance get-bal(li-qoh) @ li-bal
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -683,6 +686,7 @@ DEFINE BROWSE Browser-Table
       itemfg.q-onh COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
             WIDTH 16
       fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
+      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -1441,7 +1445,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-&SCOPED-DEFINE key-phrase oe-ordl.company EQ cocode
 &SCOPED-DEFINE cellColumnDat b-ordinq
 
 {methods/ctrl-a_browser.i}
@@ -1476,11 +1479,18 @@ fi_sort-by:VISIBLE = FALSE.
 RUN sys/ref/nk1look.p (INPUT cocode,"OEBrowse", "DT" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/, 
                        OUTPUT cRtnChar, OUTPUT lRecFound).
-    IF lRecFound THEN 
+    IF lRecFound AND DATE(cRtnChar) NE ? THEN 
         ASSIGN
         fiOrderDate = DATE(cRtnChar) NO-ERROR.
     ELSE
         fiOrderDate = TODAY - 365.
+        
+RUN sys/ref/nk1look.p (INPUT cocode,"OEBrowse", "I" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/, 
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN 
+        ASSIGN
+        iOEBrowse = INTEGER(cRtnChar) NO-ERROR.        
         
 IF lEnableShowAll THEN 
     btSHowAll:SENSITIVE = lEnableShowAll.
@@ -1853,17 +1863,13 @@ PROCEDURE local-open-query :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    IF lShowAll THEN 
+    IF ll-first THEN 
+        RUN pQueryFirst.
+    ELSE IF lShowAll THEN 
         RUN pPrepareAndExecuteQueryForShowAll.
    
     ELSE IF lv-show-prev OR lv-show-next THEN DO:
-        /* Use below logic to sort records by rec_key */
-        
-        /* RUN pPrepareAndExecuteQueryForPrevNext(
-            IF lv-show-prev THEN cLastRecKey ELSE cFirstRecKey,
-            INPUT lv-show-prev
-            ). */
-                      
+                              
         RUN pPrepareAndExecuteQueryForPrevNext(
             IF lv-show-prev THEN lv-last-show-ord-no ELSE lv-first-show-ord-no,
             INPUT lv-show-prev
@@ -2380,7 +2386,7 @@ PROCEDURE record-added :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ll-first = YES.
+  
   RUN set-defaults.
   APPLY "VALUE-CHANGED":U TO cbType IN FRAME {&FRAME-NAME}.
   ASSIGN FRAME {&FRAME-NAME}
@@ -2574,6 +2580,57 @@ PROCEDURE reposition-item :
         END.
      END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQueryFirst B-table-Win 
+PROCEDURE pQueryFirst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE li AS INT NO-UNDO.
+  DEFINE VARIABLE iOrderNo LIKE oe-ordl.ord-no NO-UNDO.
+  DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+
+  {&for-eachblank}
+      AND oe-ordl.opened EQ YES
+      USE-INDEX opened NO-LOCK,
+      {&for-each2}
+      AND oe-ord.ord-date GE fiOrderDate       
+      BREAK BY oe-ordl.ord-no DESC:  
+    IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
+    iOrderNo = oe-ordl.ord-no.
+    IF li GE iOEBrowse THEN LEAVE.
+  END.
+                   
+  cShowAllQuery = "FOR EACH oe-ordl NO-LOCK"
+                    + " WHERE oe-ordl.company EQ " + QUOTER(cocode)
+                    + "AND oe-ordl.ord-no GE " + QUOTER(iOrderNo)
+                    + pGetWhereCriteria("oe-ordl") 
+                    + ", FIRST oe-ord OF oe-ordl NO-LOCK"
+                    + " WHERE " + pGetWhereCriteria("oe-ord")
+                    + ",FIRST itemfg " + (IF fi_cad-no EQ "" THEN "OUTER-JOIN" ELSE "") + " NO-LOCK"
+                    + " WHERE itemfg.company EQ oe-ordl.company"
+                    + "   AND itemfg.i-no    EQ oe-ordl.i-no"
+                    + ( IF fi_cad-no NE "" THEN " AND itemfg.cad-no BEGINS " + QUOTER(fi_cad-no) ELSE "")
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY oe-ordl.ord-no DESC BY oe-ordl.i-no"
+                    .               
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cShowAllQuery,               /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse                                                  
+        ).
+    lShowAll = NO.         
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2824,6 +2881,8 @@ FUNCTION fnProdBalance RETURNS DECIMAL
      
      ASSIGN
         iResult = ( ipOrderQty - ipProdQty ) .
+     
+        IF iResult LT 0 THEN iResult = 0. 
      
             RETURN iResult.
 

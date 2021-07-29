@@ -23,6 +23,8 @@ DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lForceFreight AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCarrier AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dRate AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
@@ -34,7 +36,9 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  ASSIGN 
       scInstance  = SharedConfig:instance
       cLocation   =  STRING(scInstance:GetValue("BolScreenValueOfLocation")) 
-      cCarrier    =  STRING(scInstance:GetValue("BolScreenValueOfCarrier")) NO-ERROR.  
+      cCarrier    =  STRING(scInstance:GetValue("BolScreenValueOfCarrier")) 
+      dRate       =  DECIMAL(scInstance:GetValue("BolScreenValueOfRate"))
+      dWeight     =  DECIMAL(scInstance:GetValue("BolScreenValueOfWeight")) NO-ERROR.  
         
  ASSIGN oe-bolh.tot-pallets = 0
         dTotFreight         = 0
@@ -42,13 +46,16 @@ DEF BUFFER bf-oe-boll FOR oe-boll.
  IF cLocation EQ "" THEN
     ASSIGN
         cLocation           = oe-bolh.loc
-        cCarrier            = oe-bolh.carrier.
+        cCarrier            = oe-bolh.carrier
+        dRate               = oe-bolh.cwt
+        dWeight             = oe-bolh.tot-wt
+        .
            
-IF oe-bolh.cwt NE 0 THEN
+IF dRate NE 0 THEN
 DO:
   lForceFreight = YES.
-  opdFreight =  oe-bolh.cwt / 100 * oe-bolh.tot-wt . 
-  cTagDescription = "Freight cost forced at $" + string(oe-bolh.cwt) + "/ 100 lbs x " + string(oe-bolh.tot-wt) + " lbs = $" + string(opdFreight). 
+  opdFreight =  dRate / 100 * dWeight . 
+  cTagDescription = "Freight cost forced at $" + string(dRate) + "/ 100 lbs x " + string(dWeight) + " lbs = $" + string(opdFreight). 
 END.
 
 IF NOT lForceFreight THEN
@@ -176,7 +183,7 @@ DO:
    IF carrier.chg-method EQ "P" THEN
    cTagDescription = "Loc = " + cLocation + ", Carrier = Pallet, Zone = " + v-del-zone + ", Pallet = " +  string(oe-bolh.tot-pallet) + " @ $" + string(dRatePerPallet) + "/Pallet".
    ELSE IF carrier.chg-method EQ "W" THEN
-   cTagDescription = "Loc = " + cLocation + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(oe-bolh.tot-wt) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
+   cTagDescription = "Loc = " + cLocation + ", Carrier = Weight, Zone = " + v-del-zone + ", Weight = " +  string(dWeight) + " @ $" + string(dRatePerPallet) + "/100 Lbs".
    ELSE IF carrier.chg-method EQ "M" THEN
    cTagDescription = "Loc = " + cLocation + ", Carrier = Msf, Zone = " + v-del-zone + ", MSF = @ $" + string(dRatePerPallet) + "/Msf".
    

@@ -89,7 +89,7 @@ PROCEDURE pButtonEmail:
             PERSISTENT RUN pRecipients IN THIS-PROCEDURE (iphWidget:HANDLE).
         END TRIGGERS.
     IF VALID-HANDLE(ophWidget) THEN
-    ophWidget:LOAD-IMAGE("AOA\images\navigate_plus.gif").
+    ophWidget:LOAD-IMAGE("Graphics/16x16/navigate_plus.gif").
 END PROCEDURE.
 
 PROCEDURE pComboBox:

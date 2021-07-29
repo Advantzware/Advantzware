@@ -2,6 +2,7 @@
 
 /* Machine Transactions.rpa */
 DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
+    {AOA/tempTable/ttFields.i}
     FIELD employee       LIKE machemp.employee
     FIELD firstName      LIKE employee.first_name
     FIELD lastName       LIKE employee.last_name

@@ -1563,6 +1563,7 @@ PROCEDURE copy-inks :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
+  DEFINE INPUT PARAMETER ipUpdateUnit AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
 
@@ -1571,7 +1572,7 @@ PROCEDURE copy-inks :
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
                            AND b-eb.form-no NE 0) THEN
-    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst).
+    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst, ipUpdateUnit).
 
 END PROCEDURE.
 
@@ -3195,5 +3196,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
+PROCEDURE pGetEstType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
+  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

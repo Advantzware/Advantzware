@@ -231,26 +231,41 @@ DO TRANSACTION:
           oe-bolh.company EQ cocode AND
           oe-bolh.b-no EQ inv-line.b-no
           NO-LOCK NO-ERROR.
-/*   10051225 */
-/*   FIND LAST oe-relh USE-INDEX r-no NO-LOCK NO-ERROR. */
-/*   li = IF AVAIL oe-relh THEN oe-relh.r-no ELSE 0.    */
-  RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
+          
+  IF AVAIL oe-bolh THEN        
+  FIND FIRST oe-relh EXCLUSIVE-LOCK
+       WHERE oe-relh.company EQ oe-bolh.company
+       AND oe-relh.release# EQ oe-bolh.release# NO-ERROR.
+  IF not AVAIL oe-relh THEN
+  DO:   
+    /*   10051225 */
+    /*   FIND LAST oe-relh USE-INDEX r-no NO-LOCK NO-ERROR. */
+    /*   li = IF AVAIL oe-relh THEN oe-relh.r-no ELSE 0.    */
+      RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
 
-  RUN oe/release#.p (cocode, OUTPUT li2).
-  
-  CREATE oe-relh.
-  ASSIGN
-   oe-relh.company  = cocode
-   oe-relh.r-no     = v-nxt-r-no
-   oe-relh.release# = li2
-   oe-relh.posted   = YES
-   oe-relh.user-id  = USERID("nosweat")
-   oe-relh.upd-time = TIME
-   oe-relh.upd-date = TODAY
+      RUN oe/release#.p (cocode, OUTPUT li2).
+      
+      CREATE oe-relh.
+      ASSIGN
+       oe-relh.company  = cocode
+       oe-relh.r-no     = v-nxt-r-no
+       oe-relh.release# = li2
+       oe-relh.posted   = YES
+       oe-relh.user-id  = USERID("nosweat")
+       oe-relh.upd-time = TIME
+       oe-relh.upd-date = TODAY.
+   END.
+   
    out-recid = RECID(oe-relh).
-
-  RUN oe/fifoloop.p (ROWID(inv-line), NO, OUTPUT ll-none).
+   
+  FIND FIRST oe-rell NO-LOCK
+       WHERE oe-rell.company EQ oe-relh.company
+       AND oe-rell.r-no EQ oe-relh.r-no
+       AND oe-rell.i-no EQ inv-line.i-no NO-ERROR.
   
+  IF NOT AVAIL oe-rell THEN do:  
+  RUN oe/fifoloop.p (ROWID(inv-line), NO, OUTPUT ll-none).
+  END.
   IF NOT ll-none THEN
      FOR EACH oe-rell FIELDS(qty)
          WHERE oe-rell.company EQ oe-relh.company
@@ -279,20 +294,27 @@ IF li-qty GE inv-line.ship-qty THEN DO TRANSACTION:
       oe-bolh.posted   = YES
       oe-bolh.deleted  = YES
       oe-bolh.bol-date = TODAY.
+  END.    
   
      FOR EACH oe-rell
          WHERE oe-rell.company EQ oe-relh.company
            AND oe-rell.r-no    EQ oe-relh.r-no
          NO-LOCK:
-       CREATE oe-boll.
-       BUFFER-COPY oe-rell TO oe-boll
-       ASSIGN
-        oe-boll.bol-no = oe-bolh.bol-no
-        oe-boll.ord-no = oe-bolh.ord-no
-        oe-boll.b-no   = oe-bolh.b-no
-        oe-boll.r-no   = oe-bolh.r-no.
-     END.
-  END.
+       FIND FIRST oe-boll NO-LOCK
+            WHERE oe-boll.company EQ oe-relh.company            
+            AND oe-boll.b-no EQ oe-bolh.b-no
+            AND oe-boll.i-no EQ oe-rell.i-no NO-ERROR.
+       IF NOT AVAIL oe-boll THEN
+       DO:            
+           CREATE oe-boll.
+           BUFFER-COPY oe-rell TO oe-boll
+           ASSIGN
+            oe-boll.bol-no = oe-bolh.bol-no
+            oe-boll.ord-no = oe-bolh.ord-no
+            oe-boll.b-no   = oe-bolh.b-no
+            oe-boll.r-no   = oe-bolh.r-no.
+       END.     
+     END.  
 
   FIND CURRENT inv-line NO-LOCK.
 END.

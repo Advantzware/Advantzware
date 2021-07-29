@@ -105,7 +105,22 @@ ASSIGN
 
 {sys/form/r-top3.f}
 
-DEF VAR userLabelPath AS cha NO-UNDO.
+DEFINE VARIABLE userLabelPath AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cRtnChar      AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lRecFound     AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dCaseLabel    AS DECIMAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "CaseLabel",
+                       INPUT "D" ,
+                       INPUT NO /* check by cust */,
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */,
+                       INPUT "" /* ship-to*/,
+                       OUTPUT cRtnChar,
+                       OUTPUT lRecFound).
+IF lRecFound THEN
+    dCaseLabel = DECIMAL(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1055,16 +1070,56 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cas-lab C-Win
 ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
 DO:
-  DEF VAR v-cust-no AS CHAR NO-UNDO.
+  DEFINE VARIABLE v-cust-no     AS CHARACTER        NO-UNDO.
+  DEFINE VARIABLE ll            AS INTEGER INIT 1   NO-UNDO.
+  DEFINE VARIABLE lv-job-no     AS CHARACTER        NO-UNDO.
+  DEFINE VARIABLE lv-job-no2    AS CHARACTER        NO-UNDO.
+  DEFINE VARIABLE li            AS INTEGER          NO-UNDO.
+  DEFINE VARIABLE iForm         AS CHARACTER        NO-UNDO .
+  DEFINE VARIABLE iBlank-no     AS CHARACTER        NO-UNDO .
 
   IF SELF:SCREEN-VALUE NE "" THEN DO:      
-
-    ASSIGN
-      fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
-      begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,6)
-      begin_job:SCREEN-VALUE    = begin_ord-no:SCREEN-VALUE
-      begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,22,2)
-      begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
+    IF dCaseLabel EQ 0 THEN DO:
+        ASSIGN
+          fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
+          begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,6)
+          begin_job:SCREEN-VALUE    = begin_ord-no:SCREEN-VALUE
+          begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,22,2)
+          begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
+    END.
+    ELSE DO:
+          fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE).
+          DO li = 1 TO LENGTH(fi_cas-lab:SCREEN-VALUE):
+              IF INDEX("/:-",SUBSTR(fi_cas-lab:SCREEN-VALUE,li,1)) GT 0 THEN
+                ll = ll + 1.
+                 /*ELSE LEAVE.*/
+              ELSE do:
+                 IF ll EQ 1 THEN lv-job-no = lv-job-no + SUBSTR(fi_cas-lab:SCREEN-VALUE,li,1).
+                 ELSE IF ll EQ 2 THEN lv-job-no2 = lv-job-no2 + SUBSTR(fi_cas-lab:SCREEN-VALUE,li,1).
+                 ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(fi_cas-lab:SCREEN-VALUE,li,1) NO-ERROR .
+                 ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(fi_cas-lab:SCREEN-VALUE,li,1) NO-ERROR .
+              END.
+              
+           END.
+         ASSIGN
+          begin_job:SCREEN-VALUE    = lv-job-no
+          begin_job2:SCREEN-VALUE   = lv-job-no2
+          .    
+         
+         FIND FIRST job-hdr 
+            WHERE job-hdr.company  EQ cocode 
+              AND job-hdr.job-no   EQ begin_job:SCREEN-VALUE 
+              AND job-hdr.job-no2  EQ INT(begin_job2:SCREEN-VALUE) 
+              AND job-hdr.frm      EQ INT(iForm)
+              AND job-hdr.blank-no EQ INT(iBlank-no)
+              NO-LOCK NO-ERROR.
+       
+       IF AVAIL job-hdr THEN
+          ASSIGN 
+          begin_i-no:SCREEN-VALUE   = job-hdr.i-no 
+          begin_ord-no:SCREEN-VALUE = STRING(job-hdr.ord-no)
+          .
+    END.
 
     IF v-auto-print THEN DO:
        FIND FIRST job-hdr WHERE
@@ -2912,14 +2967,7 @@ ASSIGN
         NO-LOCK:
 
       RUN from-job (ROWID(job),OUTPUT op-warning).
-
-      IF op-warning THEN
-         var-display-warning = YES.
     END.
-
-    IF var-display-warning THEN
-       MESSAGE "Job does not contain an order number, hence data such as PO# will not print."
-           VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 
   FOR EACH w-ord,
       FIRST itemfg
