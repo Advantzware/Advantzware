@@ -7532,9 +7532,47 @@ PROCEDURE OnSaveButton :
                     xoe-ordl.prom-date = oe-ordl.prom-date.
             END.
         END.
+                  
+        IF lv-change-cst-po THEN 
+        DO:  
+            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
+                AND xoe-ordl.ord-no EQ oe-ord.ord-no
+                AND recid(xoe-ordl) NE recid(oe-ordl):
+                ASSIGN 
+                    xoe-ordl.po-no = oe-ordl.po-no.
+            END.
+        END.
+        IF lv-change-inv-po THEN 
+        DO:    
+            RUN oe/poNoChange.p (INPUT g_company,
+                INPUT oe-ord.ord-no,
+                INPUT oe-ordl.po-no,
+                INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
+        END.
+        RELEASE xoe-ordl.
+
+        RUN update-itemfg.
+
+        ASSIGN {&list-2} .  /* job-no job-no2 */
+
+        FIND CURRENT oe-ordl NO-LOCK.
+    END. /* trans */
+
+    IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
+        RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
+  
+
+    IF oereleas-log THEN 
+        IF ll-new-record THEN RUN create-release.
+        ELSE RUN update-release.
+        
+  
+    DO  TRANSACTION :
+        FIND CURRENT oe-ordl EXCLUSIVE.
+        FIND CURRENT oe-ord EXCLUSIVE.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
-        DO:
+        DO:      
             IF NOT cPromManualChanged AND cDueManualChanged THEN 
             DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -7571,43 +7609,6 @@ PROCEDURE OnSaveButton :
                 oe-ordl.prom-date = dCalcPromDate.
             END.
         END.
-  
-        IF lv-change-cst-po THEN 
-        DO:  
-            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
-                AND xoe-ordl.ord-no EQ oe-ord.ord-no
-                AND recid(xoe-ordl) NE recid(oe-ordl):
-                ASSIGN 
-                    xoe-ordl.po-no = oe-ordl.po-no.
-            END.
-        END.
-        IF lv-change-inv-po THEN 
-        DO:    
-            RUN oe/poNoChange.p (INPUT g_company,
-                INPUT oe-ord.ord-no,
-                INPUT oe-ordl.po-no,
-                INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
-        END.
-        RELEASE xoe-ordl.
-
-        RUN update-itemfg.
-
-        ASSIGN {&list-2} .  /* job-no job-no2 */
-
-        FIND CURRENT oe-ordl NO-LOCK.
-    END. /* trans */
-
-    IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
-        RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
-  
-
-    IF oereleas-log THEN 
-        IF ll-new-record THEN RUN create-release.
-        ELSE RUN update-release.
-  
-    DO  TRANSACTION :
-        FIND CURRENT oe-ordl EXCLUSIVE.
-        FIND CURRENT oe-ord EXCLUSIVE.
     
         RUN final-steps.
     END. /* Transaction */
