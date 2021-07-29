@@ -63,6 +63,8 @@ DEFINE BUFFER bf-tax-APIOutboundDetail      FOR APIOutboundDetail.
 DEFINE BUFFER bf-charge-APIOutboundDetail   FOR APIOutboundDetail.
 DEFINE BUFFER bf-tax-line-APIOutboundDetail FOR APIOutboundDetail.
 
+RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+
 IF ipcRequestHandler NE "" THEN DO:
     RUN VALUE(ipcRequestHandler) (
         INPUT TABLE ttArgs,

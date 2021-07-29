@@ -492,6 +492,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust B-table-Win
 ON LEAVE OF fi_cust IN FRAME F-Main /* Customer# */
 DO:
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY NE -1 THEN APPLY "value-changed" TO {&self-name}.
 END.
 
@@ -508,7 +509,6 @@ DO:
       NO-LOCK NO-ERROR.
   IF AVAIL cust THEN fi_name:SCREEN-VALUE = cust.name.
 
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 

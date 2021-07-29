@@ -1,19 +1,13 @@
 DEFINE INPUT PARAMETER ipcStartDate AS CHAR NO-UNDO.
-DEFINE OUTPUT PARAMETER oplValid AS LOG NO-UNDO.
-
-DEFINE VARIABLE lcMsg AS CHAR NO-UNDO.
-      
-  oplValid = YES.
+DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
   IF DATE(ipcStartDate) LT TODAY THEN
-      lcMsg = "earlier than today".
-  IF lcMsg EQ ""
+      opcMessage = "earlier than today".
+  IF opcMessage EQ ""
       AND DATE(ipcStartDate) GT TODAY + 180 THEN
-      lcMsg = "later than 180 days from today".
-  IF lcMsg NE "" THEN DO:
-      MESSAGE "Start Date cannot be " + TRIM(lcMsg) + "..."
-          VIEW-AS ALERT-BOX ERROR.
-      oplValid = NO.
-  END.
+      opcMessage = "later than 180 days from today".
+  IF opcMessage NE "" THEN 
+      opcMessage = "Start Date is " + TRIM(opcMessage) + "..." .
+         
   
 

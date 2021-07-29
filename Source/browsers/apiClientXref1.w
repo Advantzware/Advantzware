@@ -649,7 +649,7 @@ PROCEDURE local-row-available :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

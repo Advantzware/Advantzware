@@ -100,7 +100,7 @@ inv-head.t-inv-freight inv-head.t-inv-cost
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 &Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO cBillFreightDscr ~
-dBillableFreight  
+dBillableFreight fi_Cust-stat fi_Shipto-stat 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -154,6 +154,13 @@ FUNCTION getCashSaleLog RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-tax-stat V-table-Win 
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER, ipcShipto AS CHARACTER, ipcTable AS CHARACTER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -182,7 +189,17 @@ DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U
      LABEL "Cust PO#" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
-
+     
+DEFINE VARIABLE fi_Cust-stat AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Customer Taxable" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_Shipto-stat AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Ship To Taxable" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.     
+     
 DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U 
      LABEL "Status" 
      VIEW-AS FILL-IN 
@@ -276,6 +293,9 @@ DEFINE FRAME F-Main
      inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     fi_Cust-stat AT ROW 9.33 COL 58.6 COLON-ALIGNED 
+     fi_Shipto-stat AT ROW 9.33 COL 92.6 COLON-ALIGNED
+            
      fi_PO AT ROW 9.33 COL 113 COLON-ALIGNED WIDGET-ID 4
      inv-head.terms AT ROW 10.29 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -1577,6 +1597,11 @@ PROCEDURE local-display-fields :
        ELSE
            btnTags:SENSITIVE = FALSE.
   END.
+  IF AVAILABLE inv-head THEN
+  DO:
+      ASSIGN fi_Cust-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,"", "cust")).
+      ASSIGN fi_Shipto-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,inv-head.sold-no, "shipto")).
+  END.
   
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
 
@@ -2264,4 +2289,25 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+ 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-tax-stat V-table-Win 
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (INPUT ipcCompany AS CHARACTER, INPUT ipcCustNo AS CHARACTER ,INPUT ipcShipto AS CHARACTER,INPUT ipcTable  AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+IF ipcTable  EQ "cust" THEN
+DO:
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo,"","", OUTPUT lTaxable).
+END.
+ELSE DO:  
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo, ipcShipto,"", OUTPUT lTaxable).
+END.
+RETURN lTaxable.
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   

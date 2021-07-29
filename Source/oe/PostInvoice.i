@@ -176,7 +176,8 @@ DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO
     FIELD termsCode               AS CHARACTER LABEL "Terms" FORMAT "x(5)"
     FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
     FIELD orderLine               AS Integer   LABEL "Order Line"
-    FIELD iEnum                   AS Integer   LABEL "Ln#"
+    FIELD iEnum                   AS Integer   LABEL "Ln#" 
+    FIELD bNo                     AS INTEGER   LABEL "B-NO"   
     .    
     
 DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 
@@ -230,6 +231,8 @@ DEFINE TEMP-TABLE ttFGItemToUpdate NO-UNDO
     FIELD quantityInvoicedMSFTotal AS DECIMAL
     FIELD quantityInvoicedMSFPTD   AS DECIMAL
     FIELD periodID                 AS INTEGER
+    FIELD invOrder                 AS INTEGER
+    FIELD bNO                      AS INTEGER
     . 
         
 DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO 

@@ -1545,6 +1545,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME eb.dep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep br-estitm _BROWSE-COLUMN B-table-Win
+ON LEAVE OF eb.dep IN BROWSE br-estitm /* Depth */
+DO:
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME eb.cust-%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-% br-estitm _BROWSE-COLUMN B-table-Win
@@ -4675,6 +4684,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO eb.wid.
         RETURN NO-APPLY.
      END.
+
   END.
 
   /* ====== end validation =======*/

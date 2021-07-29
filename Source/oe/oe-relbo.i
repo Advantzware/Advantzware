@@ -346,13 +346,23 @@ DO bo-try = 1 TO 2:
     /** Find last release in the oe-rel file. **/
 /*     FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
 /*     i = (IF AVAIL oe-rel THEN oe-rel.r-no ELSE 0) + 1.   */
-    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
-    CREATE oe-rel.
+    FIND FIRST oe-rel EXCLUSIVE-LOCK
+         WHERE oe-rel.company EQ cocode
+         AND oe-rel.ord-no = oe-rell.ord-no
+         AND oe-rel.i-no = oe-rell.i-no 
+         AND oe-rel.LINE = oe-rell.line
+         AND oe-rel.stat EQ "B" NO-ERROR.
+    IF NOT AVAIL oe-rel THEN
+    DO:
+        RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+        CREATE oe-rel.
+        ASSIGN
+        oe-rel.r-no      = v-nxt-r-no
+        oe-rel.rel-no    = v-rel-no
+        oe-rel.b-ord-no  = v-b-ord-no
+        oe-rel.company   = cocode  .        
+    END.
     ASSIGN
-     oe-rel.r-no      = v-nxt-r-no
-     oe-rel.rel-no    = v-rel-no
-     oe-rel.b-ord-no  = v-b-ord-no
-     oe-rel.company   = cocode
      oe-rel.loc       = oe-rell.loc
      oe-rel.cust-no   = oe-relh.cust-no
      oe-rel.ord-no    = oe-rell.ord-no
@@ -365,6 +375,7 @@ DO bo-try = 1 TO 2:
      oe-rel.tag       = oe-rell.tag
      oe-rel.qty-case  = oe-rell.qty-case
      oe-rel.qty       = v-rel-qty
+     oe-rel.tot-qty   = v-rel-qty
      oe-rel.partial   = oe-rell.partial
      oe-rel.cases     = trunc((oe-rel.qty - oe-rel.partial) / oe-rel.qty-case,0)
      oe-rel.partial   = oe-rel.qty - (oe-rel.cases * oe-rel.qty-case)
@@ -423,12 +434,24 @@ DO bo-try = 1 TO 2:
        oe-rel.zeroPrice = DECIMAL(v-new-zero-price).
 
     RELEASE b-reftable2.
-
-    CREATE xoe-rell.
+    
+    FIND FIRST xoe-rell EXCLUSIVE-LOCK 
+         WHERE xoe-rell.company EQ cocode
+         AND xoe-rell.ord-no EQ oe-rel.ord-no
+         AND xoe-rell.rel-no EQ oe-rel.rel-no
+         AND xoe-rell.i-no EQ oe-rel.i-no
+         AND xoe-rell.LINE EQ oe-rel.LINE 
+         AND xoe-rell.r-no EQ xoe-relh.r-no NO-ERROR.
+         
+    IF NOT AVAIL xoe-rell THEN
+    DO:
+      CREATE xoe-rell.
+        ASSIGN
+        xoe-rell.company  = cocode
+        xoe-rell.ord-no   = oe-rel.ord-no
+        xoe-rell.rel-no   = oe-rel.rel-no .        
+    END.
     ASSIGN
-     xoe-rell.company  = cocode
-     xoe-rell.ord-no   = oe-rel.ord-no
-     xoe-rell.rel-no   = oe-rel.rel-no
      xoe-rell.b-ord-no = oe-rel.b-ord-no
      xoe-rell.loc      = oe-rel.loc
      xoe-rell.loc-bin  = oe-rel.loc-bin

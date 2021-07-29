@@ -199,7 +199,7 @@
     DEFINE VARIABLE cVendItemNoAdders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoBoardAndAdders  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalLineCost             AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cGLAccountNumber           AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -311,7 +311,8 @@
 FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
     (  ) FORWARD.
     
-      
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+          
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -709,7 +710,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
                                               + "-" + STRING(po-ordl.s-num,"99")
-                                                
+                cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
@@ -1158,6 +1159,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "MinUnderPct",cMinUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalLineCost", cTotalLineCost).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "GLAccountNumber", cGLAccountNumber).
             
             cItemWithAdders = cItemID.
             

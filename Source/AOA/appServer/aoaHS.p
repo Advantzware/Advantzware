@@ -129,7 +129,7 @@ FUNCTION fCustomerItemByMonth RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCustomerItemByMonthSummary.
 
     /* subject business logic */
-    RUN aoa/BL/custitem.p (OUTPUT TABLE ttCustomerItemByMonth, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/custitem.p (OUTPUT TABLE ttCustomerItemByMonth, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttCustomerItemByMonth:HANDLE .
 
@@ -178,7 +178,7 @@ FUNCTION fInvoiceHighlights RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttInvoiceHighlights.
 
     /* subject business logic */
-    RUN aoa/BL/dbinvmh.p (OUTPUT TABLE ttInvoiceHighlights, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/dbinvmh.p (OUTPUT TABLE ttInvoiceHighlights, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttInvoiceHighlights:HANDLE .
 

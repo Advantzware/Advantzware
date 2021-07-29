@@ -210,6 +210,8 @@ DEFINE VARIABLE hdOutputProcs AS HANDLE.
 
 DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lLoadTagLimit    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iLoadtag         AS INTEGER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -256,6 +258,30 @@ RUN sys/ref/nk1look.p (INPUT cocode,
                        OUTPUT cResult,
                        OUTPUT lFound).
 lSSCC = LOGICAL(cResult).
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "LoadTagLimit",
+                       INPUT "L",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cResult,
+                       OUTPUT lFound).
+IF lFound THEN
+    lLoadTagLimit = LOGICAL(cResult) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "LoadTag",
+                       INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cResult,
+                       OUTPUT lFound).
+IF lFound THEN
+    iLoadtag = INTEGER(cResult) NO-ERROR.    
 
 /* gdm - 09210907 */
 DEF VAR v-bardir AS LOG NO-UNDO.
@@ -1396,7 +1422,7 @@ DO:
     FIND FIRST itemfg 
        WHERE itemfg.company EQ cocode
          AND itemfg.i-no EQ END_i-no NO-LOCK NO-ERROR.
-    IF itemfg.alloc EQ YES THEN
+    IF AVAIL itemfg AND itemfg.alloc EQ YES THEN
       rd_comps:SCREEN-VALUE = "U".
     IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 99.
     FIND FIRST job-hdr NO-LOCK
@@ -1884,7 +1910,7 @@ DO:
             WHERE bf-po-ord.company EQ cocode 
             AND bf-po-ord.po-no  EQ int(end_ord-no:SCREEN-VALUE) NO-ERROR.
         IF AVAIL bf-po-ord THEN DO:
-
+                RUN pLabelPerSkid(bf-po-ord.cust-no).
                 FIND FIRST bf-po-ordl NO-LOCK
                     WHERE bf-po-ordl.company EQ bf-po-ord.company
                     AND bf-po-ordl.po-no  EQ bf-po-ord.po-no 
@@ -3202,7 +3228,9 @@ PROCEDURE check-release :
 
         END.
     END.
- 
+    IF AVAIL oe-ordl THEN
+    RUN pLabelPerSkid(oe-ordl.cust-no).
+    
 
 END PROCEDURE.
 
@@ -4875,7 +4903,8 @@ DO WITH FRAME {&FRAME-NAME}:
          end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"99")
          begin_i-no:SCREEN-VALUE = v-frstitem
          end_i-no:SCREEN-VALUE   = v-lastitem.    
-
+      
+      APPLY 'VALUE-CHANGED':U TO begin_ord-no.
       APPLY "LEAVE" TO end_i-no.
       RUN check-release(0) .
       RUN check-release(1) .
@@ -6367,7 +6396,10 @@ IF AVAIL bf-oe-ord THEN DO:
          begin_job2:SCREEN-VALUE   = STRING(v-first-job2)
          end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ord.ord-no)  
          end_job:SCREEN-VALUE      = v-last-job
-         end_job2:SCREEN-VALUE     = STRING(v-last-job2).
+         end_job2:SCREEN-VALUE     = STRING(v-last-job2).          
+  
+  RUN pLabelPerSkid(bf-oe-ord.cust-no).
+    
   FIND FIRST bf-oe-ordl NO-LOCK                             
    WHERE bf-oe-ordl.company EQ bf-oe-ord.company         
      AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no NO-ERROR.
@@ -7687,6 +7719,46 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLabelPerSkid C-Win 
+PROCEDURE pLabelPerSkid PRIVATE :
+   DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAllowEdit AS LOGICAL NO-UNDO.
+   DEFINE BUFFER bf-cust FOR cust.
+   
+   FIND FIRST bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.cust-no EQ ipcCustomer 
+        NO-ERROR.
+        
+   IF (AVAIL bf-cust AND bf-cust.int-field[1] EQ 0 AND NOT lLoadTagLimit) 
+       OR NOT AVAIL bf-cust 
+       OR lLoadTagLimit THEN
+   lAllowEdit = YES.    
+   
+   IF lAllowEdit THEN
+   DO:
+      tb_override-mult:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+      IF tb_override-mult:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "No" THEN
+      begin_labels:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+      ELSE begin_labels:SENSITIVE IN FRAME {&FRAME-NAME} = YES . 
+      begin_labels:SCREEN-VALUE = string(iLoadtag).
+   END.
+   ELSE DO:
+    ASSIGN 
+      tb_override-mult:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+      tb_override-mult:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+      begin_labels:SENSITIVE IN FRAME {&FRAME-NAME} = NO.  
+      IF AVAIL bf-cust THEN
+      begin_labels:SCREEN-VALUE = string(bf-cust.int-field[1]).
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win 
 PROCEDURE pRunAPIOutboundTrigger PRIVATE :

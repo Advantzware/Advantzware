@@ -136,7 +136,7 @@ FUNCTION fCustomerInventory RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttCustomerInventory.
 
     /* subject business logic */
-    RUN aoa/BL/r-cusinv.p (OUTPUT TABLE ttCustomerInventory, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-cusinv.p (OUTPUT TABLE ttCustomerInventory, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttCustomerInventory:HANDLE .
 
@@ -158,7 +158,7 @@ FUNCTION fFinishedGoodsExport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttFinishedGoodsExport.
 
     /* subject business logic */
-    RUN aoa/BL/rd-fgexp.p (OUTPUT TABLE ttFinishedGoodsExport, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/rd-fgexp.p (OUTPUT TABLE ttFinishedGoodsExport, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttFinishedGoodsExport:HANDLE .
 
@@ -208,7 +208,7 @@ FUNCTION fInventoryValue RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttInventoryValue.
 
     /* subject business logic */
-    RUN aoa/BL/r-fgobb.p (OUTPUT TABLE ttInventoryValue, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-fgobb.p (OUTPUT TABLE ttInventoryValue, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttInventoryValue:HANDLE .
 

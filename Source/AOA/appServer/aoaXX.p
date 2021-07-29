@@ -132,7 +132,7 @@ FUNCTION fTemplate RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
     EMPTY TEMP-TABLE ttTemplate.
 
     /* subject business logic */
-    RUN aoa/BL/template.p (OUTPUT TABLE ttTemplate, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/template.p (OUTPUT TABLE ttTemplate, ipcCompany, ipiBatch, ipcUserID).
 
     RETURN TEMP-TABLE ttTemplate:HANDLE .
 

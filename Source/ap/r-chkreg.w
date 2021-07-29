@@ -1971,6 +1971,9 @@ PROCEDURE run-report :
     DEFINE VARIABLE cNotesMessage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTempPath       AS CHARACTER NO-UNDO.  
     DEFINE VARIABLE lCreated        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDataList       AS CHARACTER NO-UNDO.
     
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
@@ -2181,6 +2184,8 @@ END. /* gdm - 05210901 end */
   IF FIRST-OF(ap-sel.check-no) THEN v-fst-chk = YES.
   IF LAST-OF(ap-sel.check-no)  THEN V-lst-chk = YES.
 
+  ASSIGN cBankCode = ap-sel.bank-code .
+  
   IF ap-sel.vend-no EQ "VOID" THEN DO:
     DISPLAY ap-sel.check-no    FORMAT "zzzzzzz9"
             ap-sel.vend-no
@@ -2644,6 +2649,30 @@ IF tb_prt-acc THEN DO:
                         FORMAT "->>,>>>,>>9.99" TO 130
       SKIP(2).
 END.
+
+ASSIGN 
+   cAPIID       = "SendBankCheck"
+   cTriggerID   = "PrintCheck"
+   cPrimaryID   = "Check " 
+   cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
+   cDataList = STRING(post-manual) + ","
+               + STRING(cocode)
+   .
+           
+RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+    INPUT  cocode,                     /* Company Code (Mandatory) */
+    INPUT  locode,                     /* Location Code (Mandatory) */
+    INPUT  cAPIID,                     /* API ID (Mandatory) */
+    INPUT  cBankCode,                  /* Client ID (Optional) - Pass empty in case to make request for all clients */
+    INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+    INPUT  "PostManual,Company",       /* Comma separated list of table names for which data being sent (Mandatory) */
+    INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+    INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+    INPUT  cDescription,               /* Event's description (Optional) */
+    OUTPUT lSuccess,                   /* Success/Failure flag */
+    OUTPUT cMessage                    /* Status message */
+    ) NO-ERROR.     
+
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.

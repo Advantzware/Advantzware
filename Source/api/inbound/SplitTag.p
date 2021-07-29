@@ -208,6 +208,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
                 INPUT  "",                   /* status id */
                 INPUT  ?,                    /* On Hold status. Send ? for both yes and no */                      
                 INPUT  cItemTypeFG ,         /* Item Type */
+                INPUT  1000,                 /* Record Limit*/
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage,
                 OUTPUT TABLE ttItem

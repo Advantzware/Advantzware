@@ -121,6 +121,7 @@ DEF TEMP-TABLE tt-text NO-UNDO
     INDEX tt-text IS PRIMARY TYPE tt-line.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdPOProcs      AS HANDLE NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -481,7 +482,7 @@ v-printline = 0.
            PUT "<C46>" "YES" .
            
            PUT "<C50.5>" v-job-no FORM "x(12)" SPACE(1)
-               lv-cost FORM "->>>9.99<<"
+               lv-cost FORM "->>>9.99<<" SPACE(1)
                lv-pr-uom
                po-ordl.t-cost FORM "->>,>>9.99"          
                SKIP.
@@ -513,7 +514,7 @@ v-printline = 0.
             int(po-ordl.under-pct) FORM ">>9" 
             po-ordl.i-name AT 25 FORM "x(30)" 
             "<C50.5>"
-            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(1)
+            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(12)
             v-change-dscr SKIP.
         
         ASSIGN
@@ -651,14 +652,9 @@ v-printline = 0.
 
        /* IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
            PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
-        PUT cFlueTest.
-        IF v-cost GT 0 THEN DO:
-            /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
-               STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
-            PUT "<FCourier New><C64>" v-cost FORM ">>,>>9.99<<" lv-pr-uom SKIP.
-        END.
-        ELSE
-           PUT SKIP.
+        PUT cFlueTest SKIP.
+        
+          
          /*dCoreDia = 0.*/
         IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN DO:
             put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.
@@ -688,7 +684,7 @@ v-printline = 0.
                v-printline = v-printline + 1
                len-score = "".
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         
@@ -727,7 +723,7 @@ v-printline = 0.
             END.
            end.
            END.
-         end.
+         
 
          FOR EACH tt-formtext:
             DELETE tt-formtext.

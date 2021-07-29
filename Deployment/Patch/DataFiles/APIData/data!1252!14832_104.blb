@@ -1,0 +1,41 @@
+{
+      "seller": {
+          "physicalOrigin": {
+              "streetAddress1": "$OriginStreetAddress1$",
+              "streetAddress2": "$OriginStreetAddress2$",
+              "city": "$OriginCity$",
+              "mainDivision": "$OriginState$",
+              "postalCode": "$OriginZip$",
+              "country": "$OriginCountry$"
+           }
+      },
+      "customer": {
+          "customerCode": {
+                 "classCode": "$CustomerClassCode$",
+                 "value": "$CustomerID$"
+        },
+        "destination": {
+          "streetAddress1": "$ShipToStreetAddress1$",
+          "streetAddress2": "$ShipToStreetAddress2$",
+          "city": "$ShipToCity$",
+          "mainDivision": "$ShipToState$",
+          "postalCode": "$ShipToZip$",
+          "country": "$ShipToCountry$"
+        }
+      },
+      "product": {
+        "productClass": "$ItemClassCode$",
+        "value": "$ItemID$"
+      },
+      "quantity": {
+        "value": $ItemQuantity$
+      },
+      "unitPrice": $ItemPrice$,
+      "flexibleFields": {
+        "flexibleCodeFields": [$FlexibleCodeFields$],
+        "flexibleNumericFields": [$FlexibleNumericFields$],
+        "flexibleDateFields": [$FlexibleDateFields$]
+      },
+      "lineItemNumber": $LineID$,
+      "deliveryTerm": "DDP"
+    }$comma$

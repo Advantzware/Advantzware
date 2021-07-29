@@ -1,0 +1,39 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 03/19/20 at 09:57:00                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipConnectDBs in fsInstaller.w                                                             09:57:23
+Initiating ipCompileBase in fsInstaller.w                                                            09:57:26
+**************** PROPATH *****************
+C:\asigui\Environments\16.09.01\Source,
+C:\asigui\Environments\16.09.01\Resources,
+C:\asigui\Environments\16.09.01\Source\Addon,
+C:\asigui\Environments\16.09.01\Resources\Addon,
+C:\asigui\Environments\16.09.01\Source\datadigger,
+C:\Progress\OE116_64\gui,
+C:\Progress\OE116_64\gui\ablunit.pl,
+C:\Progress\OE116_64\gui\adecomm.pl,
+C:\Progress\OE116_64\gui\adecomp.pl,
+C:\Progress\OE116_64\gui\adedesk.pl,
+C:\Progress\OE116_64\gui\adedict.pl,
+C:\Progress\OE116_64\gui\adeedit.pl,
+C:\Progress\OE116_64\gui\adeicon.pl,
+C:\Progress\OE116_64\gui\aderes.pl,
+C:\Progress\OE116_64\gui\adeshar.pl,
+C:\Progress\OE116_64\gui\adeuib.pl,
+C:\Progress\OE116_64\gui\adeweb.pl,
+C:\Progress\OE116_64\gui\adexml.pl,
+C:\Progress\OE116_64\gui\dataadmin.pl,
+C:\Progress\OE116_64\gui\OpenEdge.BusinessLogic.pl,
+C:\Progress\OE116_64\gui\OpenEdge.Core.pl,
+C:\Progress\OE116_64\gui\OpenEdge.ServerAdmin.pl,
+C:\Progress\OE116_64\gui\prodict.pl,
+C:\Progress\OE116_64\gui\protools.pl,
+C:\Progress\OE116_64,
+C:\Progress\OE116_64\bin,
+C:\asigui\Environments\,
+C:\asigui\Environments\16.9.01\Source\,
+C:\asigui\Environments\16.9.01\,
+******************************************
+    ERROR: Compile for C:\asigui\Environments\16.09.01\Source\addon\ap\r-chkreg.w FAILED             09:57:32
+    ERROR:  Unknown database name nosweat. (855)                                                     09:57:32
+    ERROR:  Unknown or ambiguous table _user. (725)                                                  09:57:32

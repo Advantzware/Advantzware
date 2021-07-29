@@ -1,36 +1,38 @@
-/* subjectID139Defs.i - auto generated 10.19.2020 @  5:41:57 pm */
+/* subjectID139Defs.i - auto generated 07.06.2021 @  7:18:40 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE cCompany AS Character NO-UNDO.
-DEFINE VARIABLE lAllMachines AS Logical NO-UNDO.
-DEFINE VARIABLE cStartMachine AS Character NO-UNDO.
-DEFINE VARIABLE cStartMachDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndMachine AS Character NO-UNDO.
-DEFINE VARIABLE cEndMachDescription AS Character NO-UNDO.
-DEFINE VARIABLE lAllDeptNo AS Logical NO-UNDO.
-DEFINE VARIABLE cStartDeptNo AS Character NO-UNDO.
-DEFINE VARIABLE cCStartDeptName AS Character NO-UNDO.
-DEFINE VARIABLE cEndDeptNo AS Character NO-UNDO.
-DEFINE VARIABLE cCEndDeptName AS Character NO-UNDO.
-DEFINE VARIABLE lAllShifts AS Logical NO-UNDO.
-DEFINE VARIABLE cStartShift AS Character NO-UNDO.
-DEFINE VARIABLE cStartShftDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndShift AS Character NO-UNDO.
-DEFINE VARIABLE cEndShftDescription AS Character NO-UNDO.
-DEFINE VARIABLE dtStartTransDate AS Date NO-UNDO.
-DEFINE VARIABLE dtEndTransDate AS Date NO-UNDO.
-DEFINE VARIABLE cTotalBy AS Character NO-UNDO.
-DEFINE VARIABLE lFolding AS Logical NO-UNDO.
-DEFINE VARIABLE lCorrugated AS Logical NO-UNDO.
-DEFINE VARIABLE lJobDetail AS Logical NO-UNDO.
-DEFINE VARIABLE cSortBy AS Character NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllMachines AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartMachDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllDeptNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartDeptNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCStartDeptName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndDeptNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCEndDeptName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllShifts AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartShift AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartShftDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndShift AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndShftDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtStartTransDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtEndTransDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTotalBy AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFolding AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCorrugated AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lJobDetail AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cSortBy AS CHARACTER NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
     ASSIGN
-        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","Company")
+        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
         lAllMachines = DYNAMIC-FUNCTION("fGetDynParamValue","allMachines") EQ "YES"
         cStartMachine = DYNAMIC-FUNCTION("fGetDynParamValue","startMachine")
         cStartMachDescription = DYNAMIC-FUNCTION("fGetDynParamValue","startMachDescription")
@@ -47,7 +49,11 @@ PROCEDURE pAssignParamVariables:
         cEndShift = DYNAMIC-FUNCTION("fGetDynParamValue","endShift")
         cEndShftDescription = DYNAMIC-FUNCTION("fGetDynParamValue","endShftDescription")
         dtStartTransDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startTransDate"))
+        cDatePickList-1 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-1")
+        dtStartTransDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-1,dtStartTransDate)
         dtEndTransDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endTransDate"))
+        cDatePickList-2 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-2")
+        dtEndTransDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-2,dtEndTransDate)
         cTotalBy = DYNAMIC-FUNCTION("fGetDynParamValue","TotalBy")
         lFolding = DYNAMIC-FUNCTION("fGetDynParamValue","Folding") EQ "YES"
         lCorrugated = DYNAMIC-FUNCTION("fGetDynParamValue","Corrugated") EQ "YES"

@@ -23,6 +23,8 @@
     
     DEFINE BUFFER bf-vend FOR vend.
     
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
     IF ipcRequestHandler NE "" THEN 
         RUN VALUE(ipcRequestHandler) (
             INPUT  TABLE ttArgs,

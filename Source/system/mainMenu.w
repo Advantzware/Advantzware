@@ -34,14 +34,8 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
-    RETURN.
-END.
-
-ON 'CTRL-ALT-R':U ANYWHERE
-DO:
-    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
-    RETURN.
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynParam.w PERSISTENT.
 END.
 
 ON 'CTRL-ALT-P':U ANYWHERE

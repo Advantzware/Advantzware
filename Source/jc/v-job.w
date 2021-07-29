@@ -1219,6 +1219,7 @@ PROCEDURE local-copy-record :
   IF noDate THEN
   ASSIGN
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
+    job.close-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
     job.due-date:SCREEN-VALUE = ''
     job.promiseDate:SCREEN-VALUE = ''.
 
@@ -2862,13 +2863,19 @@ PROCEDURE validate-start-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT job.start-date:SCREEN-VALUE,
-                                 OUTPUT ll-valid).
-        IF NOT ll-valid THEN
-            APPLY "entry" TO job.start-date.
+                                 OUTPUT cMessage).
+        ll-valid = YES.                         
+        IF cMessage NE "" THEN
+        DO:
+           MESSAGE cMessage 
+                 VIEW-AS ALERT-BOX WARNING.
+           ll-valid = YES.      
+        END.  
+
     END.
 /*   DEF VAR lv-msg AS CHAR NO-UNDO.                            */
 /*                                                              */

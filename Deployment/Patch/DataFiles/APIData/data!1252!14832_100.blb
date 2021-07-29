@@ -1,0 +1,14 @@
+<JobPreps>
+<Blank>$Blank$</Blank>
+<PrepCode>$PrepCode$</PrepCode>
+<CostPerM>$CostPerM$</CostPerM>
+<Form>$Form$</Form>
+<MachineOrLabor>$MachineOrLabor$</MachineOrLabor>
+<Posted>$Posted$</Posted>
+<PreperationDate>$PreperationDate$</PreperationDate>
+<PreperationTime>$PreperationTime$</PreperationTime>
+<Quantity>$Quantity$</Quantity>
+<UOM>$UOM$</UOM>
+<SIMON>$SIMON$</SIMON>
+<ItemStandardCost>$ItemStandardCost$</ItemStandardCost>
+</JobPreps>

@@ -95,9 +95,8 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
-{api/CommonAPIProcs.i}
 {sys/ref/CustList.i NEW}
-{AOA/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2456,7 +2455,7 @@ FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
 
     DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
         cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
-        RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+        RUN Format_UpdateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue, "").        
     END.   
     RETURN ipcMessage.
 

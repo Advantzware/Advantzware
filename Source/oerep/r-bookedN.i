@@ -735,7 +735,7 @@ FORMAT wkrecap.procat
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.
-      IF tb_excel THEN DO:
+      IF rd-dest = 3 THEN DO:
        cExcelDisplay = '"' + w-data.sman + '",' +
                        '"' + v-sname    + '",' +
                       cExcelDisplay.
@@ -824,7 +824,7 @@ FORMAT wkrecap.procat
           
          END.
          PUT UNFORMATTED "       * REP TOTALS *" SUBSTRING(cDisplay,22,300) SKIP.
-         IF tb_excel THEN DO:
+         IF rd-dest = 3 THEN DO:
              cExcelDisplay = '"' + "" + '",' +
                  '"' + ""    + '",' +
                  cExcelDisplay.
@@ -993,7 +993,7 @@ FORMAT wkrecap.procat
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.
-      IF tb_excel THEN DO:
+      IF rd-dest = 3 THEN DO:
        cExcelDisplay = '"' + w-data.sman + '",' +
                        '"' + v-sname    + '",' +
                        cExcelDisplay.
@@ -1079,7 +1079,7 @@ FORMAT wkrecap.procat
           
          END.
          PUT UNFORMATTED "       * REP TOTALS *" SUBSTRING(cDisplay,22,300) SKIP.
-         IF tb_excel THEN DO:
+         IF rd-dest = 3 THEN DO:
              cExcelDisplay = '"' + "" + '",' +
                  '"' + ""    + '",' +
                  cExcelDisplay.

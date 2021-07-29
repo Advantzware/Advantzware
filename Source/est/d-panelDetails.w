@@ -885,22 +885,26 @@ DO:
             INPUT iBlankNo,
             INPUT TABLE ttPanel
             ).
-    ELSE IF ipcType EQ "po-ordl" THEN DO:
+    ELSE IF ipcType EQ "po-ordl" THEN DO:                
+        DO TRANSACTION: 
+            FIND FIRST bf-po-ordl EXCLUSIVE-LOCK
+                WHERE ROWID(bf-po-ordl) EQ ipriInput
+                NO-ERROR.
+            IF AVAILABLE bf-po-ordl THEN
+                bf-po-ordl.spare-char-1 = IF rdPanelType:SCREEN-VALUE EQ "1" THEN
+                    "WIDTH"
+                    ELSE
+                    "LENGTH".
+        END.           
+        RELEASE bf-po-ordl.
+        
         RUN UpdatePanelDetailsForPO IN hdFormulaProcs (
             INPUT cCompany,
             INPUT iPOId,
             INPUT iPOLine,
             INPUT TABLE ttPanel
             ).
-        
-        FIND FIRST bf-po-ordl EXCLUSIVE-LOCK
-             WHERE ROWID(bf-po-ordl) EQ ipriInput
-             NO-ERROR.
-        IF AVAILABLE bf-po-ordl THEN
-            bf-po-ordl.spare-char-1 = IF rdPanelType:SCREEN-VALUE EQ "1" THEN
-                                          "WIDTH"
-                                      ELSE
-                                          "LENGTH".           
+
     END.
     ELSE IF ipcType EQ "style" THEN
         RUN UpdatePanelDetailsForStyle IN hdFormulaProcs (
@@ -1715,7 +1719,13 @@ PROCEDURE pInit :
             INPUT  iPOID,
             INPUT  iPOLine,
             OUTPUT TABLE ttPanel
-            ).        
+            ).     
+        
+        RUN Formula_GetFormulaFromttPanel IN hdFormulaProcs (
+            INPUT  TABLE ttPanel BY-REFERENCE,
+            OUTPUT cFormulaLength,
+            OUTPUT cFormulaWidth
+            ).               
     END.
 
     IF cCurrentSizeFormat NE cSizeFormatDecimal THEN DO:

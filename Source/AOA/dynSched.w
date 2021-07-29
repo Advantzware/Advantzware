@@ -141,7 +141,7 @@ AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
 
 
 /* Definitions for BROWSE taskBrowse                                    */
-&Scoped-define FIELDS-IN-QUERY-taskBrowse Task.scheduled Task.taskName fPrgmTitle(Task.prgmName) Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.lastOfMonth Task.runSync Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.startDate Task.endDate Task.paramValueID Task.taskID Task.module Task.prgmName Task.user-id Task.securityLevel Task.recipients   
+&Scoped-define FIELDS-IN-QUERY-taskBrowse Task.scheduled Task.taskName Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.lastOfMonth Task.runSync Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.startDate Task.endDate Task.paramValueID Task.taskID Task.module Task.prgmName Task.user-id Task.securityLevel Task.recipients   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-taskBrowse   
 &Scoped-define SELF-NAME taskBrowse
 &Scoped-define QUERY-STRING-taskBrowse FOR EACH Task WHERE (Task.paramValueID EQ iParamValueID OR iParamValueID EQ 0)   AND Task.securityLevel LE iUserSecurityLevel   AND Task.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -251,13 +251,6 @@ FUNCTION fNextTaskID RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPrgmTitle C-Win 
-FUNCTION fPrgmTitle RETURNS CHARACTER
-  (ipcPrgmName AS CHARACTER)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fValidTime C-Win 
 FUNCTION fValidTime RETURNS LOGICAL
   (iphTime AS HANDLE)  FORWARD.
@@ -327,7 +320,7 @@ DEFINE BUTTON btnAdd
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
 DEFINE BUTTON btnAddEmail 
-     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
@@ -487,7 +480,6 @@ DEFINE BROWSE taskBrowse
   QUERY taskBrowse DISPLAY
       Task.scheduled LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
 Task.taskName LABEL-BGCOLOR 14
-fPrgmTitle(Task.prgmName) FORMAT "x(40)" LABEL "Title"
 Task.frequency LABEL-BGCOLOR 14
 Task.cTaskTime LABEL-BGCOLOR 14
 Task.cFromTime LABEL-BGCOLOR 14
@@ -1679,30 +1671,32 @@ DO:
             VIEW-AS ALERT-BOX ERROR.
             RETURN NO-APPLY.
         END. /* if task id eq 0 */
-        ASSIGN
-            Task.user-id:SCREEN-VALUE  = ""
-            Task.prgmName:SCREEN-VALUE = ""
-            Task.module:SCREEN-VALUE   = ""
-            cPrgmTitle:SCREEN-VALUE    = ""
-            .
         FIND FIRST bDynParamValue NO-LOCK
              WHERE bDynParamValue.paramValueID EQ INTEGER(SELF:SCREEN-VALUE)
              NO-ERROR.
         IF AVAILABLE bDynParamValue THEN DO:
-            ASSIGN
-                Task.subjectID:SCREEN-VALUE = STRING(bDynParamValue.subjectID)
-                Task.taskName:SCREEN-VALUE  = bDynParamValue.paramTitle + " - "
-                                            + bDynParamValue.paramDescription
-                Task.user-id:SCREEN-VALUE   = bDynParamValue.user-id
-                Task.prgmName:SCREEN-VALUE  = bDynParamValue.prgmName
-                Task.module:SCREEN-VALUE    = bDynParamValue.module
-                Task.runSync:SCREEN-VALUE   = STRING(bDynParamValue.runSync)
-                .
-            FIND FIRST prgrms NO-LOCK
-                 WHERE prgrms.prgmName EQ bDynParamValue.prgmName
-                 NO-ERROR.
-            IF AVAILABLE prgrms THEN
-            cPrgmTitle:SCREEN-VALUE  = prgrms.prgTitle.
+            IF cMode EQ "Add" THEN DO:
+                ASSIGN
+                    Task.user-id:SCREEN-VALUE  = ""
+                    Task.prgmName:SCREEN-VALUE = ""
+                    Task.module:SCREEN-VALUE   = ""
+                    cPrgmTitle:SCREEN-VALUE    = ""
+                    .
+                ASSIGN
+                    Task.subjectID:SCREEN-VALUE = STRING(bDynParamValue.subjectID)
+                    Task.taskName:SCREEN-VALUE  = bDynParamValue.paramTitle + " - "
+                                                + bDynParamValue.paramDescription
+                    Task.user-id:SCREEN-VALUE   = bDynParamValue.user-id
+                    Task.prgmName:SCREEN-VALUE  = bDynParamValue.prgmName
+                    Task.module:SCREEN-VALUE    = bDynParamValue.module
+                    Task.runSync:SCREEN-VALUE   = STRING(bDynParamValue.runSync)
+                    .
+                FIND FIRST prgrms NO-LOCK
+                     WHERE prgrms.prgmName EQ bDynParamValue.prgmName
+                     NO-ERROR.
+                IF AVAILABLE prgrms THEN
+                cPrgmTitle:SCREEN-VALUE  = prgrms.prgTitle.
+            END. /* if add */
         END. /* if avail */
         ELSE DO:
             MESSAGE
@@ -2675,7 +2669,6 @@ FUNCTION fAllData RETURNS CHARACTER
         Task.frequency + "|" +
         Task.taskFormat + "|" +
         Task.recipients + "|" +
-        fPrgmTitle(Task.prgmName) + "|" +
         Task.access + "|" +
         Task.lastUser
         .
@@ -2724,23 +2717,6 @@ FUNCTION fNextTaskID RETURNS INTEGER
              NO-ERROR.
     END. /* do with frame */
     RETURN IF AVAILABLE bTask THEN bTask.taskID + 1 ELSE 1.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPrgmTitle C-Win 
-FUNCTION fPrgmTitle RETURNS CHARACTER
-  (ipcPrgmName AS CHARACTER) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    FIND FIRST prgrms NO-LOCK
-         WHERE prgrms.prgmname EQ ipcPrgmName
-         NO-ERROR.
-    RETURN IF AVAILABLE prgrms THEN prgrms.prgtitle ELSE "".
 
 END FUNCTION.
 
