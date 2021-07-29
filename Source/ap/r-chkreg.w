@@ -171,7 +171,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /*
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
-    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+    lAPInvoiceLength = LOGICAL(cNK1Value) NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BankTransmittalLocation", "l" /* Logical */, NO /* check by cust */,
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -306,39 +306,39 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 10.71.
 
-DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL NO 
      LABEL "Transmit File" 
      VIEW-AS TOGGLE-BOX
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL NO 
      LABEL "Create AP Check File?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL NO 
      LABEL "Print Invoice & GL Account Detail?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_void AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_void AS LOGICAL INITIAL NO 
      LABEL "Void Skipped Checks?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -408,15 +408,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -494,7 +494,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1019,7 +1019,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          THEN DO:
 
           IF v-fileFormat EQ "Positive Pay-Santander" THEN
-              ASSIGN fi_CheckFile = "PositivePay_" + STRING(year(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99")
+              ASSIGN fi_CheckFile = "PositivePay_" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99")
                                + "_" + STRING(TIME) + ".txt".
           ELSE
               ASSIGN fi_CheckFile = STRING(TODAY,"99999999") + 
@@ -1507,7 +1507,7 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN do:
+ IF rd_print-apfile EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "D"
      STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
@@ -1573,7 +1573,7 @@ IF tb_APcheckFile THEN DO:
      v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
      v-check-date = v-check-date + iAPCheckFile.
 
-  IF rd_print-apfile EQ "Text" THEN do:
+  IF rd_print-apfile EQ "Text" THEN DO:
      PUT STREAM checkFile UNFORMATTED
      IF ap-sel.vend-no EQ "VOID"
           THEN "V" ELSE "I"      ","                                 /* Void Indicator */
@@ -1625,7 +1625,7 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code /*"6017"*/ NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN do:
+ IF rd_print-apfile EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "6217    6017          "
      STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
@@ -1633,7 +1633,7 @@ IF tb_APcheckFile THEN DO:
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") 
                                                                  /* Amount         */ 
      IF dtCheckDate NE ? 
-        THEN SUBstring(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
+        THEN SUBSTRING(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
              STRING(MONTH(dtCheckDate),"99")  +     
              STRING(DAY(dtCheckDate),"99")   
         ELSE "000000"                                          /* Issue Date     */
@@ -1696,7 +1696,7 @@ IF tb_APcheckFile THEN DO:
        '"' STRING(INT(ap-sel.check-no),"9999999999")                                '",'  /* Check Number     */
        '"' STRING(vend.NAME)                                                        '",'  /* Vendor Name    */
        '"' STRING(dtCheckDate)                                                      '",'  /* Check Date     */
-       '"' STRING(ap-sel.amt-paid)                                                  '",'  /* Check amount paid */
+       '"' STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                                                  '",'  /* Check amount paid */
        SKIP .
 
 
@@ -1741,7 +1741,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-sel.inv-no),
+                        STRING(ap-sel.inv-no),
                         "AP").
 
      RUN GL_SpCreateGLHist(cocode,
@@ -1754,7 +1754,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-sel.inv-no),
+                        STRING(ap-sel.inv-no),
                         "AP").
     END.
   END.
@@ -1925,7 +1925,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        STRING(ap-inv.inv-no),
                         "AP").
     END.
 
@@ -2169,7 +2169,7 @@ IF tb_excel THEN DO:
 END.
 
 /* gdm - 05210901 */
-IF tb_APcheckFile THEN do:
+IF tb_APcheckFile THEN DO:
    
     IF rd_print-apfile EQ "Text" THEN
     DO:
@@ -2181,7 +2181,7 @@ IF tb_APcheckFile THEN do:
         
         OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
     END.    
-    ELSE do:
+    ELSE DO:
        RUN sys/ref/ExcelNameExt.p (INPUT fi_CheckFile,OUTPUT cAPFileName) .
         OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
         IF v-fileFormat EQ "Positive Pay" THEN
@@ -2466,7 +2466,7 @@ END. /* each ap-sel */
         WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b1 WIDTH 132 STREAM-IO.
     END.
 
-IF tb_APcheckFile THEN do:
+IF tb_APcheckFile THEN DO:
     IF rd_print-apfile EQ "Text" THEN
         OUTPUT STREAM checkFile CLOSE.
     ELSE 
