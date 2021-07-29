@@ -2258,7 +2258,7 @@ PROCEDURE ipConvertPolScore PRIVATE:
     
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
-    FOR EACH bf-company NO-LOCK:
+    FOR EACH bf-company NO-LOCK: 
         RUN sys/ref/nk1look.p (
             INPUT bf-company.company,     /* Company Code */ 
             INPUT "CECSCRN",      /* sys-ctrl name */
@@ -3776,6 +3776,8 @@ PROCEDURE ipDataFix210300:
     RUN ipStatus ("  Data Fix 210300...").
 
     RUN ipRemoveBadApiOutboundRecs.
+    RUN ipConvertPolScore.
+    RUN ipJobMchSequenceFix.
     
 END PROCEDURE.
     
