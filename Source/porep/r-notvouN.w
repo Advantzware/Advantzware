@@ -75,7 +75,7 @@ DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD item-no LIKE po-ordl.i-no
     FIELD descr   AS CHAR FORMAT "X(15)"
     FIELD prod-cat AS CHAR
-    FIELD qty-to-inv AS DEC format "->>,>>>,>>9.9"
+    FIELD qty-to-inv AS DEC format "->>,>>>,>>9.99"
     FIELD whse AS CHAR
     FIELD cost-each AS DEC format ">>>,>>9.99<<<<"
     FIELD amt-to-inv AS DEC format "->>,>>>,>>9.99"
@@ -105,7 +105,7 @@ form temp-po-rec.vend-no    COLUMN-LABEL "Vendor"
                             format "x(15)" 
      temp-po-rec.prod-cat   column-label "Prod!Cat" FORMAT "X(5)"
      temp-po-rec.qty-to-inv column-label "Quantity!To Invoice"
-                            format "->>,>>>,>>9.9"
+                            format "->>,>>>,>>9.99"
      temp-po-rec.whse       column-label "Whse" FORMAT "X(5)"
      temp-po-rec.cost-each  column-label "Cost Each"
                             format ">>>,>>9.99<<<<"
@@ -1191,7 +1191,7 @@ PROCEDURE display-data-proc :
                          WHEN "item"   THEN cVarValue = STRING(temp-po-rec.item-no,"x(15)") .
                          WHEN "desc"  THEN cVarValue = STRING(temp-po-rec.descr,"x(25)") .
                          WHEN "cat"   THEN cVarValue = STRING(temp-po-rec.prod-cat,"x(6)") .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(temp-po-rec.qty-to-inv,"->>,>>>,>>9.9") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(temp-po-rec.qty-to-inv,"->>,>>>,>>9.99") .
                          WHEN "whse"  THEN cVarValue = STRING(temp-po-rec.whse,"x(5)") .
                          WHEN "cost"   THEN cVarValue = STRING(temp-po-rec.cost-each,">>>>>>9.99<<<<") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(temp-po-rec.amt-to-inv,"->>,>>>,>>9.99") .
@@ -1241,7 +1241,7 @@ PROCEDURE display-data-proc :
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-tot-qty,"->>,>>>,>>9.9") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-tot-qty,"->>,>>>,>>9.99") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-tot-amt,"->>,>>>,>>9.99") .
@@ -1260,12 +1260,13 @@ PROCEDURE display-data-proc :
                        substring(cExcelDisplay,4,300) SKIP(1).
              END.
 
-      assign
-       v-grand-tot-qty = v-grand-tot-qty + v-tot-qty
-       v-grand-tot-amt = v-grand-tot-amt + v-tot-amt
-       v-tot-qty = 0
-       v-tot-amt = 0.
+      
     end.
+    assign
+        v-grand-tot-qty = v-grand-tot-qty + v-tot-qty
+        v-grand-tot-amt = v-grand-tot-amt + v-tot-amt
+        v-tot-qty       = 0
+        v-tot-amt       = 0.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1724,9 +1725,6 @@ display "" with frame r-top.
                     (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                      ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
-       IF po-ordl.pr-qty-uom NE "EA" THEN
-                 RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
-                               po-ordl.cost, OUTPUT v-cost).
 
            CREATE temp-po-rec.
            ASSIGN
@@ -1738,10 +1736,10 @@ display "" with frame r-top.
               temp-po-rec.item-no = po-ordl.i-no
               temp-po-rec.descr = po-ordl.i-name  
               temp-po-rec.prod-cat = v-procat
-              temp-po-rec.qty-to-inv = po-ordl.t-rec-qty - po-ordl.t-inv-qty
+              temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
               temp-po-rec.whse = po-ord.loc
               temp-po-rec.cost-each = v-cost
-              temp-po-rec.amt-to-inv = temp-po-rec.qty-to-inv * po-ordl.cost.
+              temp-po-rec.amt-to-inv =  v-amt-r - v-amt-i.
            RELEASE temp-po-rec.
          end.
       END.
@@ -1788,7 +1786,7 @@ down 2 with frame detail.*/
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.9") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.99") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
@@ -2105,9 +2103,6 @@ display "" with frame r-top.
                         (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                          ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
-                     IF po-ordl.pr-qty-uom NE "EA" THEN
-                         RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
-                                                 po-ordl.cost, OUTPUT v-cost).
 
                CREATE temp-po-rec.
                ASSIGN
@@ -2119,10 +2114,10 @@ display "" with frame r-top.
                   temp-po-rec.item-no = po-ordl.i-no
                   temp-po-rec.descr = po-ordl.i-name  
                   temp-po-rec.prod-cat = v-procat
-                  temp-po-rec.qty-to-inv = po-ordl.t-rec-qty - po-ordl.t-inv-qty
+                  temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
                   temp-po-rec.whse = po-ord.loc
                   temp-po-rec.cost-each = v-cost
-                  temp-po-rec.amt-to-inv = temp-po-rec.qty-to-inv * po-ordl.cost.
+                  temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
                RELEASE temp-po-rec.
             end.
             ELSE
@@ -2332,7 +2327,7 @@ PUT str-line SKIP.
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.9") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.99") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
