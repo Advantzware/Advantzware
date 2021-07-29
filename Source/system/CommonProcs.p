@@ -289,6 +289,34 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pGetServerDateTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetServerDateTime Procedure
+PROCEDURE pGetServerDateTime PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the DB server date and time
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdttzCurrentDateTime AS DATETIME-TZ NO-UNDO.
+
+    DEFINE VARIABLE cSessionTimeSource AS CHARACTER NO-UNDO.
+    
+    cSessionTimeSource = SESSION:TIME-SOURCE.
+    
+    SESSION:TIME-SOURCE = LDBNAME("ASI").
+    
+    opdttzCurrentDateTime = NOW.
+    
+    SESSION:TIME-SOURCE = cSessionTimeSource.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pGetTimeInGMT) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeInGMT Procedure 
@@ -543,18 +571,19 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spCommon_GetCurrentGMTTime) = 0 &THEN
+&IF DEFINED(EXCLUDE-spCommon_GetGMTTime) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetCurrentGMTTime Procedure 
-PROCEDURE spCommon_GetCurrentGMTTime :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetGMTTime Procedure 
+PROCEDURE spCommon_GetGMTTime :
 /*------------------------------------------------------------------------------
  Purpose: Returns current GMT Time
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdttzCurrentTime    AS DATETIME-TZ NO-UNDO.
     DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATETIME-TZ NO-UNDO.
     
     RUN pGetTimeInGMT(
-        INPUT  NOW,
+        INPUT  ipdttzCurrentTime,
         OUTPUT opdttzCurrentGMTTime
         ).
 END PROCEDURE.
@@ -586,6 +615,29 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_GetServerGMTTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetServerGMTTime Procedure
+PROCEDURE spCommon_GetServerTime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATETIME-TZ NO-UNDO.
+    
+    RUN pGetServerDateTime(
+        OUTPUT opdttzCurrentGMTTime
+        ).   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCommon_ParseTime) = 0 &THEN
 

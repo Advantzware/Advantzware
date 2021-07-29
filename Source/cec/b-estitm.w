@@ -8754,7 +8754,7 @@ PROCEDURE pUpdateRecord :
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        RUN est/dAddMoldEst.w(INPUT "Edit", "C", INPUT ROWID(eb)) .
        RUN local-open-query.
