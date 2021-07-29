@@ -98,14 +98,16 @@ DEFINE VARIABLE cBankTransmitRecValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFullFilePath AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFileName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
-DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iAPCheckFile AS INTEGER  NO-UNDO.
+DEFINE VARIABLE cRecValue                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound                 AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAPCheckFile              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lBankTransmittalLocation  AS LOGICAL   NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 DEF STREAM excel.
-DEFINE STREAM ap-excel.
+DEF STREAM checkFile.
+DEF STREAM ap-excel.
 
 DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id    AS ROWID
                                FIELD ex-rate   LIKE currency.ex-rate INIT 1
@@ -170,8 +172,14 @@ RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /*
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
-    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.
+    lAPInvoiceLength = LOGICAL(cNK1Value) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BankTransmittalLocation", "l" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBankTransmittalLocation = LOGICAL(cNK1Value) NO-ERROR.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -299,39 +307,39 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 10.71.
 
-DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL NO 
      LABEL "Transmit File" 
      VIEW-AS TOGGLE-BOX
      SIZE 15.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL NO 
      LABEL "Create AP Check File?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL NO 
      LABEL "Print Invoice & GL Account Detail?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_void AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_void AS LOGICAL INITIAL NO 
      LABEL "Void Skipped Checks?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -401,15 +409,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -487,7 +495,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1012,7 +1020,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          THEN DO:
 
           IF v-fileFormat EQ "Positive Pay-Santander" THEN
-              ASSIGN fi_CheckFile = "PositivePay_" + STRING(year(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99")
+              ASSIGN fi_CheckFile = "PositivePay_" + STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99")
                                + "_" + STRING(TIME) + ".txt".
           ELSE
               ASSIGN fi_CheckFile = STRING(TODAY,"99999999") + 
@@ -1121,7 +1129,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
                                                            + cBankTransmitFileName
         .
-                
+    IF NOT lBankTransmittalLocation THEN
+        ASSIGN
+        tbTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
+        fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+        
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1231,8 +1243,8 @@ IF AVAILABLE(asi._lock) THEN DO:
 
     FIND FIRST asi._connect WHERE _connect-usr = _lock-usr NO-LOCK.
     IF AVAIL(asi._connect) AND asi._connect._connect-name = "" THEN
-        FIND nosweat._user 
-          WHERE nosweat._user._user_number EQ asi._connect._connect-usr
+        FIND asi._user 
+          WHERE asi._user._user_number EQ asi._connect._connect-usr
         NO-LOCK NO-ERROR.
     ASSIGN oplLocked = YES
            opcUsr    = asi._connect._connect-usr
@@ -1240,10 +1252,10 @@ IF AVAILABLE(asi._lock) THEN DO:
            opcDevice = _connect-device.
 
     IF asi._connect._connect-name EQ "" THEN
-        FIND nosweat._connect WHERE nosweat._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
+        FIND asi._connect WHERE asi._connect._connect-usr EQ asi._connect._connect-usr NO-LOCK.
 
-    IF AVAIL(nosweat._connect) THEN
-       opcName = nosweat._connect._connect-name.    
+    IF AVAIL(asi._connect) THEN
+       opcName = asi._connect._connect-name.    
 
 END.
 
@@ -1496,7 +1508,8 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN do:
+ 
+ IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "D"
      STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
@@ -1562,7 +1575,7 @@ IF tb_APcheckFile THEN DO:
      v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
      v-check-date = v-check-date + iAPCheckFile.
 
-  IF rd_print-apfile EQ "Text" THEN do:
+  IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
      PUT STREAM checkFile UNFORMATTED
      IF ap-sel.vend-no EQ "VOID"
           THEN "V" ELSE "I"      ","                                 /* Void Indicator */
@@ -1614,7 +1627,7 @@ IF tb_APcheckFile THEN DO:
     FIND FIRST bank NO-LOCK
         WHERE bank.company EQ cocode
           AND bank.bank-code EQ ap-sel.bank-code /*"6017"*/ NO-ERROR.
- IF rd_print-apfile EQ "Text" THEN do:
+ IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "6217    6017          "
      STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999999")   /* Account Number */
@@ -1622,7 +1635,7 @@ IF tb_APcheckFile THEN DO:
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") 
                                                                  /* Amount         */ 
      IF dtCheckDate NE ? 
-        THEN SUBstring(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
+        THEN SUBSTRING(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
              STRING(MONTH(dtCheckDate),"99")  +     
              STRING(DAY(dtCheckDate),"99")   
         ELSE "000000"                                          /* Issue Date     */
@@ -1666,6 +1679,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE StandardCSV C-Win 
+PROCEDURE StandardCSV :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: gdm - 05210901
+------------------------------------------------------------------------------*/   
+DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+IF tb_APcheckFile 
+AND rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "CSV" THEN DO:
+   FIND FIRST ap-chk WHERE
+          ap-chk.company  EQ ap-sel.company AND
+          ap-chk.check-no EQ ap-sel.check-no
+          NO-LOCK NO-ERROR.
+          IF ap-chk.check-date NE ? THEN ASSIGN dtCheckDate = ap-chk.check-date .
+  /* excel output */
+  PUT STREAM ap-excel UNFORMATTED
+       '"' STRING(INT(ap-sel.check-no),"9999999999")                                '",'  /* Check Number     */
+       '"' STRING(vend.NAME)                                                        '",'  /* Vendor Name    */
+       '"' STRING(dtCheckDate)                                                      '",'  /* Check Date     */
+       '"' STRING(ap-sel.amt-paid,"->>>>>>>>9.99")                                                  '",'  /* Check amount paid */
+       SKIP .
+
+
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
 /*------------------------------------------------------------------------------
@@ -1700,7 +1744,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-sel.inv-no),
+                        STRING(ap-sel.inv-no),
                         "AP").
 
      RUN GL_SpCreateGLHist(cocode,
@@ -1713,7 +1757,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-sel.inv-no),
+                        STRING(ap-sel.inv-no),
                         "AP").
     END.
   END.
@@ -1884,7 +1928,7 @@ DEF VAR lv-check-no LIKE ap-chk.check-no NO-UNDO.
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        STRING(ap-inv.inv-no),
                         "AP").
     END.
 
@@ -2128,7 +2172,7 @@ IF tb_excel THEN DO:
 END.
 
 /* gdm - 05210901 */
-IF tb_APcheckFile THEN do:
+IF tb_APcheckFile THEN DO:
    
     IF rd_print-apfile EQ "Text" THEN
     DO:
@@ -2140,11 +2184,13 @@ IF tb_APcheckFile THEN do:
         
         OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
     END.    
-    ELSE do:
+    ELSE DO:
        RUN sys/ref/ExcelNameExt.p (INPUT fi_CheckFile,OUTPUT cAPFileName) .
         OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
         IF v-fileFormat EQ "Positive Pay" THEN
            excelheader = "Bank No,Bank Code,Account Number,Check Number,Amount,Issue Date,Payee Name,Void Indicator" .
+        ELSE IF v-fileFormat EQ "StandardCSV" THEN
+            excelheader = "Check Number,Vendor Name,Check Date,Check Amount Paid" .
         ELSE
             excelheader = "Void Indicator,Account Number,Check Number,Payee Name,Amount,Issue Date" .
              
@@ -2423,8 +2469,8 @@ END. /* each ap-sel */
         WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b1 WIDTH 132 STREAM-IO.
     END.
 
-IF tb_APcheckFile THEN do:
-    IF rd_print-apfile EQ "Text" THEN
+IF tb_APcheckFile THEN DO:
+    IF rd_print-apfile:SCREEN-VALUE IN FRAME {&frame-name} EQ "Text" THEN
         OUTPUT STREAM checkFile CLOSE.
     ELSE 
         OUTPUT STREAM ap-excel CLOSE.
