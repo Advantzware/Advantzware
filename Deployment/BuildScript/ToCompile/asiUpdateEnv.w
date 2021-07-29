@@ -3786,28 +3786,6 @@ END PROCEDURE.
 
 
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210300 C-Win
-PROCEDURE ipDataFix210300:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
-
-    RUN ipStatus ("  Data Fix 210300...").
- 
-    RUN ipConvertPolScore.
-    RUN ipJobMchSequenceFix.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
