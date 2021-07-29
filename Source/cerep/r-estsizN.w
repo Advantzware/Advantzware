@@ -52,7 +52,7 @@ DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
 ASSIGN cTextListToSelect = "Length,Width,Depth,Style,Material,Adder 1,Adder 2,Adder 3," +
                            "Customer Part#,Est#,Last Ord Date,Customer Name,Last User,# Up,Sales Rep,Commission %" 
@@ -84,14 +84,12 @@ ASSIGN cTextListToDefault  = "Length,Width,Depth,Style,Material,Adder 1,Adder 2,
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_style end_style begin_flute end_flute begin_test end_test ~
 begin_die-no end_die-no rd_sortby tb_fold tb_corr sl_avail Btn_Def ~
-sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file ~
+tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_style ~
 end_style begin_flute end_flute begin_test end_test begin_die-no end_die-no ~
-lbl-sortby rd_sortby tb_fold lbl-industry tb_corr sl_avail sl_selected ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
-tb_excel tb_runExcel fi_file 
+rd_sortby tb_fold tb_corr sl_avail sl_selected rd-dest td-show-parm fi_file ~
+tb_runExcel tbAutoClose lbl-sortby lbl-industry 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -109,95 +107,95 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_die-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Die#" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_flute AS CHARACTER FORMAT "X(15)" 
      LABEL "Beginning Flute" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_style AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Style" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE begin_test AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Test" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE end_die-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Die#" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_flute AS CHARACTER FORMAT "X(15)" INITIAL "zzz" 
      LABEL "Ending Flute" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE end_style AS CHARACTER FORMAT "X(30)" INITIAL "zzzz" 
      LABEL "Ending Style" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE end_test AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Test" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-estsiz.csv" 
-     LABEL "If Yes, File Name" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-estsiz.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE
      SIZE 43.6 BY 1
-     FGCOLOR 9 .
+     FGCOLOR 0 .
 
 DEFINE VARIABLE lbl-industry AS CHARACTER FORMAT "X(256)":U INITIAL "Industry Type?" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 16 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lbl-sortby AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1 NO-UNDO.
+      VIEW-AS TEXT 
+     SIZE 10 BY .62 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -225,11 +223,8 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 19 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_sortby AS CHARACTER INITIAL "Length" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -240,11 +235,11 @@ DEFINE VARIABLE rd_sortby AS CHARACTER INITIAL "Length"
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.48.
+     SIZE 90 BY 5.48.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.52.
+     SIZE 90 BY 8.81.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -253,6 +248,11 @@ DEFINE VARIABLE sl_avail AS CHARACTER
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_corr AS LOGICAL INITIAL yes 
      LABEL "Corrugated" 
@@ -268,13 +268,13 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
 DEFINE VARIABLE tb_fold AS LOGICAL INITIAL yes 
      LABEL "Folding" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81 NO-UNDO.
+     SIZE 12 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY 1.05
-     BGCOLOR 3  NO-UNDO.
+     SIZE 15.4 BY 1.05
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
@@ -289,64 +289,66 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      end_cust-no AT ROW 2.43 COL 68 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_style AT ROW 3.38 COL 27 COLON-ALIGNED HELP
+     begin_style AT ROW 3.52 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Style"
-     end_style AT ROW 3.38 COL 68 COLON-ALIGNED HELP
+     end_style AT ROW 3.52 COL 68 COLON-ALIGNED HELP
           "Enter Ending Style"
-     begin_flute AT ROW 4.33 COL 27 COLON-ALIGNED HELP
+     begin_flute AT ROW 4.62 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Flute"
-     end_flute AT ROW 4.33 COL 68 COLON-ALIGNED HELP
+     end_flute AT ROW 4.62 COL 68 COLON-ALIGNED HELP
           "Enter Ending Flute"
-     begin_test AT ROW 5.29 COL 27 COLON-ALIGNED HELP
+     begin_test AT ROW 5.71 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Test"
-     end_test AT ROW 5.29 COL 68 COLON-ALIGNED HELP
+     end_test AT ROW 5.71 COL 68 COLON-ALIGNED HELP
           "Enter Ending Test"
-     begin_die-no AT ROW 6.29 COL 27 COLON-ALIGNED HELP
+     begin_die-no AT ROW 6.86 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Die#" WIDGET-ID 8
-     end_die-no AT ROW 6.29 COL 68 COLON-ALIGNED HELP
+     end_die-no AT ROW 6.86 COL 68 COLON-ALIGNED HELP
           "Enter Ending Die#" WIDGET-ID 10
-     lbl-sortby AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL
-     rd_sortby AT ROW 7.67 COL 43 NO-LABEL
-     tb_fold AT ROW 8.86 COL 43
-     lbl-industry AT ROW 9.1 COL 25 COLON-ALIGNED NO-LABEL
-     tb_corr AT ROW 9.57 COL 43
-     sl_avail AT ROW 11.33 COL 4.4 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 11.33 COL 40.4 HELP
+     rd_sortby AT ROW 8.24 COL 43 NO-LABEL
+     tb_fold AT ROW 9.29 COL 43.4
+     tb_corr AT ROW 9.29 COL 56.8
+     sl_avail AT ROW 11.81 COL 3.6 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 11.81 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 11.33 COL 59.8 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 12.33 COL 40.4 HELP
+     sl_selected AT ROW 11.81 COL 60.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 12.81 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 13.33 COL 40.4 HELP
+     Btn_Remove AT ROW 13.81 COL 40.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 14.38 COL 40.4 WIDGET-ID 40
-     btn_down AT ROW 15.38 COL 40.4 WIDGET-ID 42
-     rd-dest AT ROW 17.52 COL 6 NO-LABEL
+     btn_Up AT ROW 14.86 COL 40.4 WIDGET-ID 40
+     btn_down AT ROW 15.86 COL 40.4 WIDGET-ID 42
+     rd-dest AT ROW 18.62 COL 6 NO-LABEL
+     tb_excel AT ROW 18.62 COL 56 RIGHT-ALIGNED WIDGET-ID 4
+     lv-font-no AT ROW 18.62 COL 34 COLON-ALIGNED
      lv-ornt AT ROW 18.71 COL 31 NO-LABEL
-     lines-per-page AT ROW 18.71 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 20.14 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 21.1 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 22.76 COL 31
-     tb_excel AT ROW 24.05 COL 51 RIGHT-ALIGNED WIDGET-ID 4
-     tb_runExcel AT ROW 24.05 COL 73.6 RIGHT-ALIGNED WIDGET-ID 6
-     fi_file AT ROW 25.24 COL 29.2 COLON-ALIGNED HELP
+     lv-font-name AT ROW 18.86 COL 27 COLON-ALIGNED NO-LABEL
+     lines-per-page AT ROW 18.86 COL 54 COLON-ALIGNED
+     td-show-parm AT ROW 20.52 COL 40
+     fi_file AT ROW 21.38 COL 27 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
-     btn-ok AT ROW 26.91 COL 21
-     btn-cancel AT ROW 26.91 COL 60
+     tb_runExcel AT ROW 21.38 COL 87.4 RIGHT-ALIGNED WIDGET-ID 6
+     tbAutoClose AT ROW 23.43 COL 30.2 WIDGET-ID 16
+     btn-ok AT ROW 24.19 COL 29.8
+     btn-cancel AT ROW 24.19 COL 52
+     lbl-sortby AT ROW 8.48 COL 30 COLON-ALIGNED NO-LABEL
+     lbl-industry AT ROW 9.43 COL 25 COLON-ALIGNED NO-LABEL
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10.62 COL 5.2 WIDGET-ID 38
+          SIZE 29 BY .62 AT ROW 11.1 COL 12 WIDGET-ID 38
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.62 COL 59.8 WIDGET-ID 44
+          SIZE 34 BY .62 AT ROW 11.1 COL 59.8 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
+          SIZE 21 BY .71 AT ROW 1.57 COL 4.4
+          BGCOLOR 15 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.71 COL 3
-     RECT-6 AT ROW 17.1 COL 1
-     RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 18 BY .62 AT ROW 17.33 COL 4.6
+     RECT-6 AT ROW 17.67 COL 3.6
+     RECT-7 AT ROW 1.95 COL 3.6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 27.52.
+         SIZE 95.2 BY 27.52
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -366,7 +368,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Estimates by Size Report"
-         HEIGHT             = 27.76
+         HEIGHT             = 24.71
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -375,7 +377,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
-         BGCOLOR            = ?
+         BGCOLOR            = 15
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
@@ -400,16 +402,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -425,6 +417,14 @@ ASSIGN
 ASSIGN 
        begin_test:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "Parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -458,8 +458,26 @@ ASSIGN
        lbl-sortby:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_sortby".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        rd_sortby:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -469,8 +487,9 @@ ASSIGN
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -490,7 +509,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -615,6 +634,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+   IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-estsiz.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   RUN GetSelectionList.
   run run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -622,7 +648,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
 
            {custom/asifax.i &begin_cust=begin_cust-no
@@ -654,6 +682,8 @@ DO:
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+   IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,9 +846,10 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+     fi_file = ''.
+     //assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -888,6 +919,17 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+    IF rd-dest = 3 THEN
+        ASSIGN
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -992,7 +1034,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -1043,10 +1085,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
   RUN DisplaySelectionList.
+    btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
+    Btn_Def:load-image("Graphics/32x32/default.png").
+    Btn_Add:load-image("Graphics/32x32/additem.png").
+    Btn_Remove:load-image("Graphics/32x32/remove.png").
+    btn_Up:load-image("Graphics/32x32/moveup.png").
+    btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-
+  ASSIGN rd-dest.
+  APPLY 'VALUE-CHANGED' TO rd-dest.
   {methods/nowait.i}
-
+  {sys/inc/reportsConfigNK1.i "ER8" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
@@ -1206,16 +1261,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_style end_style begin_flute end_flute 
-          begin_test end_test begin_die-no end_die-no lbl-sortby rd_sortby 
-          tb_fold lbl-industry tb_corr sl_avail sl_selected rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          begin_test end_test begin_die-no end_die-no rd_sortby tb_fold tb_corr 
+          sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel 
+          tbAutoClose lbl-sortby lbl-industry 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_style end_style 
          begin_flute end_flute begin_test end_test begin_die-no end_die-no 
          rd_sortby tb_fold tb_corr sl_avail Btn_Def sl_selected Btn_Add 
-         Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file tb_runExcel 
+         tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1376,7 +1430,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(179)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(179)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(179)" NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 /*{sys/form/r-top5DL3.f} */
 
@@ -1390,7 +1444,7 @@ form  header skip(1)
       tim_str str-tit2 format "x(112)" "{1}" at 123 skip(1) 
       str-tit3 format "x(130)" SKIP
       with frame r-top row 1 column 1 stream-io width 180
-	   no-labels no-box no-underline page-top.
+           no-labels no-box no-underline page-top.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
@@ -1403,7 +1457,7 @@ form header
      str-tit5 SKIP
     with frame r-top.
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1450,7 +1504,7 @@ DEF VAR cslist AS cha NO-UNDO.
 if td-show-parm then run show-param.
 
 /* gdm - 10130806 */
-IF tb_excel THEN do:
+IF rd-dest = 3  THEN do:
     OUTPUT STREAM excel TO VALUE(cFileName).  
     /*PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.*/
 END.
@@ -1504,7 +1558,7 @@ for each eb
     page.
 
     /* gdm - 10130806 */
-    IF tb_excel THEN DO:
+    IF rd-dest = 3  THEN DO:
 
         PUT STREAM excel UNFORMATTED
           '"' v-indtype '"'
@@ -1576,7 +1630,7 @@ for each eb
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest = 3  THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -1584,12 +1638,12 @@ for each eb
 
   /* gdm - 10130806 */
   IF LAST-OF(if eb.est-type GE 5 THEN 1 ELSE 2) THEN 
-      IF tb_excel THEN 
+      IF rd-dest = 3  THEN 
           PUT STREAM excel UNFORMATTED SKIP(1).
 
 end.
 /* gdm - 10130806 */
-IF tb_excel THEN DO:
+IF rd-dest = 3  THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).

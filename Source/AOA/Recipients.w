@@ -133,7 +133,7 @@ ENABLE
 ttEmail.isActive
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 78 BY 24.76
+    WITH NO-ROW-MARKERS NO-COLUMN-SCROLLING SEPARATORS SIZE 78 BY 24.76
          TITLE "Recipient Emails".
 
 
@@ -171,7 +171,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB recipients searchBar Dialog-Frame */
+/* BROWSE-TAB recipients RECT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.

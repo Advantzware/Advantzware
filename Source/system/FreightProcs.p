@@ -20,15 +20,15 @@ DEFINE VARIABLE ghInventoryProcs         AS HANDLE  NO-UNDO.
 
 DEFINE TEMP-TABLE ttBOLLine
     FIELD riBOLLine AS ROWID
-    FIELD dMSF AS DECIMAL 
-    FIELD dLbs AS DECIMAL 
-    FIELD dPallets AS DECIMAL
+    FIELD dMSF      AS DECIMAL 
+    FIELD dLbs      AS DECIMAL 
+    FIELD dPallets  AS DECIMAL
     .
 DEFINE TEMP-TABLE ttFreightClass
     FIELD cFreightClass AS CHARACTER 
-    FIELD dMSF AS DECIMAL 
-    FIELD dLbs AS DECIMAL 
-    FIELD dPallets AS DECIMAL
+    FIELD dMSF          AS DECIMAL 
+    FIELD dLbs          AS DECIMAL 
+    FIELD dPallets      AS DECIMAL
     . 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -60,7 +60,7 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
     ipcDimUOM AS CHARACTER) FORWARD.
 
 FUNCTION fUseFreightClassForDestination RETURNS LOGICAL PRIVATE
-	(ipcCompany AS CHARACTER) FORWARD.
+    (ipcCompany AS CHARACTER) FORWARD.
 
 FUNCTION HasReleases RETURNS LOGICAL 
     (ipriEb AS ROWID) FORWARD.
@@ -170,7 +170,6 @@ PROCEDURE GetFreightForBOL:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
-    DEFINE BUFFER bf-oe-boll  FOR oe-boll.
     DEFINE BUFFER bf-carrier  FOR carrier.
     DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
     DEFINE BUFFER bf-shipto   FOR shipto.
@@ -183,82 +182,25 @@ PROCEDURE GetFreightForBOL:
     DEFINE VARIABLE dFreight    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dFreightMin AS DECIMAL   NO-UNDO.
     
-    EMPTY TEMP-TABLE ttBOLLine.
-    EMPTY TEMP-TABLE ttFreightClass.
+    RUN pGetBOLHeaderBuffer(ipriBOL, BUFFER bf-oe-bolh, OUTPUT oplError, OUTPUT opcMessage).
+    IF oplError OR NOT AVAILABLE bf-oe-bolh THEN RETURN.
+
+    RUN pGetShiptoBuffer(BUFFER bf-oe-bolh, BUFFER bf-shipto, OUTPUT oplError, OUTPUT opcMessage).
+    IF oplError OR NOT AVAILABLE bf-shipto THEN RETURN.
     
-    FIND FIRST oe-bolh NO-LOCK
-        WHERE ROWID(oe-bolh) EQ ipriBOL
-        NO-ERROR.
-    IF NOT AVAILABLE oe-bolh THEN 
-    DO: 
-        ASSIGN
-            oplError   = YES
-            opcMessage = "Invalid ROWID for BOL"
-            .
-        RETURN.  
-    END.
-    /*Get shipto either for the BOL customer or customer X*/
-    RUN oe/custxship.p (oe-bolh.company,
-                        oe-bolh.cust-no,
-                        oe-bolh.ship-id,
-                        BUFFER bf-shipto).
-                        
-    IF NOT AVAILABLE bf-shipto THEN 
-    DO: 
-        ASSIGN
-            oplError   = YES
-            opcMessage = "Invalid Ship To (" + oe-bolh.ship-id + ") for BOL"
-            .
-        RETURN.  
-    END.
     cShipFrom = bf-shipto.loc.
-    /*Process Each Line - Calculate Totals*/
-    FOR EACH oe-boll NO-LOCK 
-        WHERE oe-boll.company EQ oe-bolh.company
-        AND oe-boll.b-no EQ oe-bolh.b-no,
-        FIRST itemfg NO-LOCK 
-        WHERE itemfg.company EQ oe-boll.company
-        AND itemfg.i-no EQ oe-boll.i-no
-        BREAK BY itemfg.i-no
-        BY oe-boll.line:
-        
-        IF FIRST(oe-boll.line) THEN 
-            cShipFrom = oe-boll.loc.
-        IF FIRST-OF(itemfg.i-no) THEN
-            RUN fg/GetFGArea.p (ROWID(itemfg),"MSF", OUTPUT dMSF).    
-        
-        FIND FIRST ttFreightClass
-            WHERE ttFreightClass.cFreightClass EQ itemfg.frt-class
-            NO-ERROR.
-        IF NOT AVAILABLE ttFreightClass THEN DO: 
-            CREATE ttFreightClass.
-            ASSIGN 
-                ttFreightClass.cFreightClass = itemfg.frt-class
-                .
-        END.
-        CREATE ttBOLLine.
-        ASSIGN 
-            ttBOLLine.riBOLLine   = ROWID(oe-boll)
-            ttBOLLine.dLbs = oe-boll.weight
-            ttBOLLine.dPallets = oe-boll.tot-pallets
-            ttBOLLine.dMSF = dMSF * oe-boll.qty
-            dTotPallets = dTotPallets + ttBOLLine.dPallets
-            dTotMSF     = dTotMSF + ttBOLLine.dMSF
-            dTotLbs     = dTotLbs + ttBOLLine.dLbs
-            ttFreightClass.dLbs = ttFreightClass.dLbs + ttBOLLine.dLbs
-            ttFreightClass.dMSF = ttFreightClass.dMSF + ttBOLLine.dMSF
-            ttFreightClass.dPallets = ttFreightClass.dPallets + ttBOLLine.dPallets
-            .
-    END.  /*each oe-boll*/
+
+    RUN pProcessBOLLines(BUFFER bf-oe-bolh, INPUT-OUTPUT cShipFrom, OUTPUT dTotPallets, OUTPUT dTotLbs, OUTPUT dTotMSF).
     
-    IF fUseFreightClassForDestination(oe-bolh.company) THEN DO:
+    IF fUseFreightClassForDestination(bf-oe-bolh.company) THEN 
+    DO:
         FOR EACH ttFreightClass:
-            RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, ttFreightClass.cFreightClass, bf-shipto.ship-zip,
-               ttFreightClass.dPallets, ttFreightClass.dLbs, ttFreightClass.dMSF, 
+            RUN GetFreightForCarrierZone (bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, ttFreightClass.cFreightClass, bf-shipto.ship-zip,
+                ttFreightClass.dPallets, ttFreightClass.dLbs, ttFreightClass.dMSF, 
                 OUTPUT dFreight, OUTPUT dFreightMin,
                 OUTPUT oplError, OUTPUT opcMessage).
             IF oplError THEN 
-                RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
+                RUN GetFreightForCarrierZone (bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
                     ttFreightClass.dPallets, ttFreightClass.dLbs, ttFreightClass.dMSF,
                     OUTPUT dFreight, OUTPUT dFreightMin,
                     OUTPUT oplError, OUTPUT opcMessage).
@@ -266,41 +208,21 @@ PROCEDURE GetFreightForBOL:
         END.
     END. 
     ELSE 
-        RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
+        RUN GetFreightForCarrierZone (bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
             dTotPallets, dTotLbs, dTotMSF, 
             OUTPUT opdFreight, OUTPUT dFreightMin,
             OUTPUT oplError, OUTPUT opcMessage).  
     
     IF iplUpdate THEN /*assign freight and prorated freight per line*/
     DO:
-        RUN pGetCarrierBuffers(oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip, 
+        RUN pGetCarrierBuffers(bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip, 
             BUFFER bf-carrier, BUFFER bf-carr-mtx, 
             OUTPUT oplError, OUTPUT opcMessage).
-        IF AVAILABLE bf-carrier THEN DO:
-            FOR EACH bf-oe-boll EXCLUSIVE-LOCK 
-                WHERE bf-oe-boll.company EQ oe-bolh.company
-                AND bf-oe-boll.b-no EQ oe-bolh.b-no, 
-                FIRST ttBOLLine
-                WHERE ttBOLLine.riBOLLine EQ ROWID(bf-oe-boll): 
-                    CASE bf-carrier.chg-method:
-                        WHEN "P" THEN 
-                            bf-oe-boll.freight = ttBOLLine.dPallets / dTotPallets * opdFreight.
-                        WHEN "W" THEN 
-                            bf-oe-boll.freight = ttBOLLine.dLbs / dTotLbs * opdFreight.
-                        OTHERWISE 
-                            bf-oe-boll.freight = ttBOLLine.dMSF / dTotMSF * opdFreight.
-                    END CASE.
-            END. /*Each bf-oe-boll - exclusive*/
-            
-            /*update bol-header*/
-            FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK 
-                WHERE ROWID(bf-oe-bolh) EQ ROWID(oe-bolh)
-                NO-ERROR.
-            IF AVAILABLE bf-oe-bolh THEN 
-                bf-oe-bolh.freight = opdFreight.
-            
-            RELEASE bf-oe-bolh.
-            RELEASE bf-oe-boll.
+        IF AVAILABLE bf-carrier THEN 
+        DO:
+            RUN pProrateFreightAcrossBOLLines(BUFFER bf-oe-bolh, bf-carrier.chg-method, opdFreight, dTotPallets, dTotLbs, dTotMSF).
+            RUN pUpdateBOLFreight(ROWID(bf-oe-bolh), opdFreight).
+
         END. /*available bf-carrier*/
     END. /*iplUpdate = YES*/
     
@@ -385,7 +307,7 @@ PROCEDURE CreateEstReleaseForEstBlank:
 
     DEFINE BUFFER bf-estRelease FOR estRelease.
     DEFINE VARIABLE cCarrierDefault AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
       
     FIND FIRST eb NO-LOCK 
         WHERE ROWID(eb) EQ ipriEstBlank
@@ -402,28 +324,30 @@ PROCEDURE CreateEstReleaseForEstBlank:
     IF NOT iplRelForAllQty THEN 
     DO:
         RUN pCreateEstReleaseBuffer(eb.company, eb.est-no, eb.form-no, eb.blank-no, eb.eqty, 
-        OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
+            OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
         IF AVAILABLE bf-estRelease THEN 
         DO:
             RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
         END. 
     END.
-    ELSE DO:
+    ELSE 
+    DO:
         FIND FIRST est-qty NO-LOCK
-         WHERE est-qty.company EQ eb.company
-         AND est-qty.est-no EQ eb.est-no
-         AND est-qty.eqty EQ eb.eqty NO-ERROR .
+            WHERE est-qty.company EQ eb.company
+            AND est-qty.est-no EQ eb.est-no
+            AND est-qty.eqty EQ eb.eqty NO-ERROR .
         
         IF avail est-qty THEN 
         DO iCount = 1 TO EXTENT(est-qty.qty):
-             IF est-qty.qty[iCount] NE 0 THEN DO:
+            IF est-qty.qty[iCount] NE 0 THEN 
+            DO:
                 RUN pCreateEstReleaseBuffer(eb.company, eb.est-no, eb.form-no, eb.blank-no, est-qty.qty[iCount], 
-                      OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
+                    OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
                 IF AVAILABLE bf-estRelease THEN 
                 DO:
                     RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
                 END.              
-             END.     
+            END.     
         END.    
     END.   /* iplRelForAllQty*/
     
@@ -694,6 +618,115 @@ PROCEDURE GetShipToCarrierAndZone:
             oplError   = YES
             opcMessage = "Invalid Shipto " + ipcShipToID + " for customer " + ipcCustomerID
             . 
+
+END PROCEDURE.
+
+PROCEDURE pGetBOLHeaderBuffer PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given ROWID for BOL, get oe-bol buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriOeBolh AS ROWID NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-oe-bolh FOR oe-bolh.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST opbf-oe-bolh NO-LOCK
+        WHERE ROWID(opbf-oe-bolh) EQ ipriOeBolh
+        NO-ERROR.
+    IF NOT AVAILABLE opbf-oe-bolh THEN 
+    DO: 
+        ASSIGN
+            oplError   = YES
+            opcMessage = "Invalid ROWID for BOL"
+            .
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pGetShipToBuffer PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an oe-bolh buffer, return the shipto buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-bolh FOR oe-bolh.
+    DEFINE PARAMETER BUFFER opbf-shipto  FOR shipto.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    /*Get shipto either for the BOL customer or customer X*/
+    RUN oe/custxship.p (ipbf-oe-bolh.company,
+        ipbf-oe-bolh.cust-no,
+        ipbf-oe-bolh.ship-id,
+        BUFFER opbf-shipto).
+                        
+    IF NOT AVAILABLE opbf-shipto THEN 
+    DO: 
+        ASSIGN
+            oplError   = YES
+            opcMessage = "Invalid Ship To (" + ipbf-oe-bolh.ship-id + ") for BOL"
+            . 
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pProcessBOLLines PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Builds the ttBOLLine and ttFreightClass tables for a given BOL
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-bolh FOR oe-bolh.
+    DEFINE INPUT-OUTPUT PARAMETER iopcShipFrom AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalPallets AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalLbs AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalMSF AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+        
+    DEFINE VARIABLE dMSF AS DECIMAL NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBOLLine.
+    EMPTY TEMP-TABLE ttFreightClass.
+    
+    FOR EACH bf-oe-boll NO-LOCK 
+        WHERE bf-oe-boll.company EQ ipbf-oe-bolh.company
+        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no,
+        FIRST bf-itemfg NO-LOCK 
+        WHERE bf-itemfg.company EQ bf-oe-boll.company
+        AND bf-itemfg.i-no EQ bf-oe-boll.i-no
+        BREAK BY bf-itemfg.i-no
+        BY bf-oe-boll.line:
+        
+        IF FIRST(bf-oe-boll.line) THEN 
+            iopcShipFrom = bf-oe-boll.loc.
+        IF FIRST-OF(bf-itemfg.i-no) THEN
+            RUN fg/GetFGArea.p (ROWID(bf-itemfg),"MSF", OUTPUT dMSF).    
+        
+        FIND FIRST ttFreightClass
+            WHERE ttFreightClass.cFreightClass EQ bf-itemfg.frt-class
+            NO-ERROR.
+        IF NOT AVAILABLE ttFreightClass THEN 
+        DO: 
+            CREATE ttFreightClass.
+            ASSIGN 
+                ttFreightClass.cFreightClass = bf-itemfg.frt-class
+                .
+        END.
+        CREATE ttBOLLine.
+        ASSIGN 
+            ttBOLLine.riBOLLine     = ROWID(bf-oe-boll)
+            ttBOLLine.dLbs          = bf-oe-boll.weight
+            ttBOLLine.dPallets      = bf-oe-boll.tot-pallets
+            ttBOLLine.dMSF          = dMSF * bf-oe-boll.qty 
+            opdTotalPallets         = opdTotalPallets + ttBOLLine.dPallets
+            opdTotalMSF             = opdTotalMSF + ttBOLLine.dMSF
+            opdTotalLbs             = opdTotalLbs + ttBOLLine.dLbs
+            ttFreightClass.dLbs     = ttFreightClass.dLbs + ttBOLLine.dLbs
+            ttFreightClass.dMSF     = ttFreightClass.dMSF + ttBOLLine.dMSF
+            ttFreightClass.dPallets = ttFreightClass.dPallets + ttBOLLine.dPallets
+            .
+    END.  /*Each bf-oe-boll*/
 
 END PROCEDURE.
 
@@ -1071,6 +1104,128 @@ PROCEDURE pGetStorageAndHandling PRIVATE:
         END.
     END.
     
+END PROCEDURE.
+
+PROCEDURE pProrateFreightAcrossBOLLines PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a BOL buffer, charge method BOL Totals for Freight, Pallets, Weight and MSF
+        Prorate each line of the BOL using the charge method given.  
+        Requires creation the ttBOLLine temp-table records.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-bolh FOR oe-bolh.
+    DEFINE INPUT PARAMETER ipcChargeMethod AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipdTotalFreight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalPallets AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalLbs AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalMSF AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll FOR oe-boll. 
+    
+    DEFINE VARIABLE dNewLineFreight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightTotalSoFar AS DECIMAL NO-UNDO.
+    
+    FOR EACH bf-oe-boll EXCLUSIVE-LOCK 
+        WHERE bf-oe-boll.company EQ ipbf-oe-bolh.company
+        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no, 
+        FIRST ttBOLLine
+        WHERE ttBOLLine.riBOLLine EQ ROWID(bf-oe-boll)
+        BREAK BY bf-oe-boll.b-no: 
+        CASE ipcChargeMethod:
+            WHEN "P" THEN DO:
+                IF ipdTotalPallets GT 0 THEN 
+                    dNewLineFreight = ttBOLLine.dPallets / ipdTotalPallets * ipdTotalFreight.
+                ELSE 
+                    dNewLineFreight = 0.
+            END.
+            WHEN "W" THEN DO: 
+                IF ipdTotalLbs GT 0 THEN 
+                    dNewLineFreight = ttBOLLine.dLbs / ipdTotalLbs * ipdTotalFreight.
+                ELSE 
+                    dNewLineFreight = 0.
+            END.
+            OTHERWISE DO:
+                IF ipdTotalMSF GT 0 THEN 
+                    dNewLineFreight = ttBOLLine.dMSF / ipdTotalMSF * ipdTotalFreight.
+                ELSE 
+                    dNewLineFreight = 0.
+            END.
+        END CASE.
+        IF dNewLineFreight EQ ? THEN dNewLineFreight = 0.
+        
+        IF LAST-OF(bf-oe-boll.b-no) THEN   
+            dNewLineFreight = ipdTotalFreight - dFreightTotalSoFar.
+        ELSE
+            dFreightTotalSoFar = dFreightTotalSoFar + dNewLineFreight.
+        
+        bf-oe-boll.freight = dNewLineFreight.
+        
+    END. /*Each bf-oe-boll - exclusive*/
+                       
+    RELEASE bf-oe-boll.
+    
+END PROCEDURE.
+
+PROCEDURE ProrateFreightAcrossBOLLines:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a BOL rowid, and manual freight (should usually be oe-bolh.freight)
+        prorate each line of the BOL based on the charge method of the bol carrier.  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriBOL AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdFreight AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
+    DEFINE BUFFER bf-shipto   FOR shipto.
+    
+    DEFINE VARIABLE dTotPallets AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotMSF     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotLbs     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMSF        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cShipFrom   AS CHARACTER NO-UNDO.
+    
+    RUN pGetBOLHeaderBuffer(ipriBOL, BUFFER bf-oe-bolh, OUTPUT oplError, OUTPUT opcMessage).
+    IF oplError OR NOT AVAILABLE bf-oe-bolh THEN RETURN.
+
+    RUN pGetShiptoBuffer(BUFFER bf-oe-bolh, BUFFER bf-shipto, OUTPUT oplError, OUTPUT opcMessage).
+    IF oplError OR NOT AVAILABLE bf-shipto THEN RETURN.
+    
+    cShipFrom = bf-shipto.loc.
+
+    RUN pProcessBOLLines(BUFFER bf-oe-bolh, INPUT-OUTPUT cShipFrom, OUTPUT dTotPallets, OUTPUT dTotLbs, OUTPUT dTotMSF).
+   
+    RUN pGetCarrierBuffers(bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip, 
+        BUFFER bf-carrier, BUFFER bf-carr-mtx, 
+        OUTPUT oplError, OUTPUT opcMessage).
+    IF AVAILABLE bf-carrier THEN 
+    DO:
+        RUN pProrateFreightAcrossBOLLines(BUFFER bf-oe-bolh, bf-carrier.chg-method, ipdFreight, dTotPallets, dTotLbs, dTotMSF).
+    END. /*available bf-carrier*/
+    
+END PROCEDURE.
+
+PROCEDURE pUpdateBOLFreight PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a rowid for oe-bolh, update the freight field
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriBOL AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdFreight AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    
+    FIND bf-oe-bolh EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-oe-bolh) EQ ipriBOL
+        NO-ERROR.
+    IF AVAILABLE bf-oe-bolh THEN 
+        bf-oe-bolh.freight = ipdFreight.
+    
+    RELEASE bf-oe-bolh.
+
 END PROCEDURE.
 
 PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:

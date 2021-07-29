@@ -26,6 +26,7 @@ DEFINE INPUT  PARAMETER iplIncludeEmptyTag  AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcStatus           AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplOnHold           AS LOGICAL   NO-UNDO. /* Send ? as input to ignore onHold in query filter */
 DEFINE INPUT  PARAMETER ipcItemType         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiRecordLimit      AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE               FOR ttItem. 
@@ -64,6 +65,7 @@ ASSIGN
     lValidPoID    = ipiPoID NE 0
     lValidStatus  = ipcStatus NE ""
     lValidOnHold  = iplOnHold NE ?
+    lValidPoID    = ipiPoID NE 0
     lValidCompany = YES
     ipcItemType   = IF ipcItemType EQ "" THEN
                         cItemTypeFG
@@ -81,19 +83,7 @@ IF NOT lValidCompany THEN DO:
         .
     RETURN.
 END.
-
-IF NOT lValidLoc AND 
-   NOT lValidBin AND
-   NOT lValidTag AND
-   NOT lValidItem THEN DO:
-    ASSIGN 
-        opcMessage = "Enter value for warehouse & location / tag / item to get inventory details"
-        oplSuccess = NO 
-        .
-        
-    RETURN.
-END.   
-
+          
 IF (lValidLoc AND NOT lValidBin) OR
    (lValidBin AND NOT lValidLoc) OR 
    (lValidLoc AND lValidBin) THEN DO:
@@ -104,14 +94,15 @@ IF (lValidLoc AND NOT lValidBin) OR
         ipcWareHouseID,
         OUTPUT lValidLoc
         ).
-    IF NOT lValidLoc THEN DO:
+    IF ipcWareHouseID EQ "" AND lValidStatus AND lValidBin THEN     
+    lValidLoc = NO .
+    ELSE IF NOT lValidLoc THEN DO:
         ASSIGN 
             opcMessage = "Invalid WareHouseID"                     
             oplSuccess = NO
-            .
-            
+            .              
         RETURN.
-    END.
+    END.  
     
     /* Validate location */
     RUN ValidateBin IN hdInventoryProcs (
@@ -121,6 +112,7 @@ IF (lValidLoc AND NOT lValidBin) OR
         OUTPUT lValidBin
         ).
 
+    IF lValidStatus AND ipcWareHouseID EQ "" AND ipcLocationID NE "" THEN lValidBin = TRUE.
     IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
         ASSIGN 
             opcMessage = "Invalid LocationID"
@@ -195,13 +187,28 @@ IF lValidItem THEN DO:
         END.
      END.
 END.
+
+/* Validate Po#   */
+IF lValidPoID THEN DO:
+FIND FIRST po-ord NO-LOCK
+         WHERE po-ord.company   EQ ipcCompany
+           AND po-ord.po-no EQ ipiPoID           
+         NO-ERROR.
+    IF NOT AVAILABLE po-ord THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid PO#"
+            oplSuccess = NO
+            .
+            
+        RETURN.
+    END.
+
+END.
   
 /* Writes response data to temp table*/
 IF ipcItemType EQ cItemTypeFG THEN DO:
-    CREATE BUFFER hdBuffer FOR TABLE cTableFG.
-    CREATE QUERY hdQuery.
-    
-    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"
+       
+    cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"             
            + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
            + (IF iplIncludeEmptyTag THEN " AND fg-bin.tag NE ''" ELSE "")
            + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
@@ -214,19 +221,22 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
            + (IF lValidStatus THEN " AND fg-bin.statusID EQ '" + ipcStatus + "'" ELSE "")
            + (IF lValidOnHold THEN " AND fg-bin.onHold EQ " + STRING(iplOnHold) ELSE "") 
            + (IF iplIncludeZeroQty THEN " AND fg-bin.qty NE 0 " + " AND fg-bin.qty NE ?" ELSE "")
-           .
-       
+           + (IF lValidPoID THEN " USE-INDEX po-no" ELSE IF lValidJobNo THEN " USE-INDEX job-no" ELSE IF lValidStatus THEN " USE-INDEX statusID" ELSE " USE-INDEX onHold")
+           .                           
+              
+    CREATE BUFFER hdBuffer FOR TABLE cTableFG.
+    CREATE QUERY hdQuery.          
     hdQuery:SET-BUFFERS(hdBuffer).
     hdQuery:QUERY-PREPARE(cQuery).
     hdQuery:QUERY-OPEN().
     hdQuery:GET-FIRST().
     
-    REPEAT:
+    REPEAT:   
         iCount = iCount + 1.
         
-        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN DO:
-            IF iCount GT 1000 THEN
-                opcMessage = "Large number of records available for this search. Limiting to 1000 records".
+        IF hdQuery:QUERY-OFF-END OR iCount GT ipiRecordLimit THEN DO:  
+            IF iCount GT ipiRecordLimit THEN
+                opcMessage = "Large number of records available for this search. Limiting to " + STRING(ipiRecordLimit) +  " records".
             LEAVE.
         END.
         
@@ -307,9 +317,9 @@ ELSE DO:
     REPEAT:
         iCount = iCount + 1.
         
-        IF hdQuery:QUERY-OFF-END OR iCount GT 1000 THEN DO:
-            IF iCount GT 1000 THEN
-                opcMessage = "Large number of records available for this search. Limiting to 1000 records".
+        IF hdQuery:QUERY-OFF-END OR iCount GT ipiRecordLimit THEN DO:
+            IF iCount GT ipiRecordLimit THEN
+                opcMessage = "Large number of records available for this search. Limiting to " + STRING(ipiRecordLimit) + " records".
             LEAVE.
         END.
     

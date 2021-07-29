@@ -101,7 +101,8 @@ oe-prmtx.qty[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.uom[3] ~
 oe-prmtx.qty[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.uom[5] ~
 oe-prmtx.qty[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.uom[7] ~
 oe-prmtx.qty[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.uom[9] ~
-oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty
+oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty ~
+oe-prmtx.quoteID
 &Scoped-define ENABLED-TABLES oe-prmtx
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 

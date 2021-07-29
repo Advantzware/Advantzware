@@ -25,20 +25,32 @@
 
 
 /* ***************************  Main Block  *************************** */
-
+    DEFINE BUFFER bf-notes FOR notes.
+    
     IF ipcText NE "" THEN 
     DO:
-        CREATE notes.
-        ASSIGN
-            notes.rec_key    = ipcRecKey
-            notes.note_date  = TODAY
-            notes.note_time  = TIME
-            notes.note_text  = ipcText
-            notes.note_title = ipcTitle
-            notes.note_code  = ipcCode
-            notes.user_id    = USERID("NOSWEAT")
-            notes.note_type  = ipcType
+        FIND FIRST bf-notes EXCLUSIVE-LOCK 
+            WHERE bf-notes.rec_key EQ ipcRecKey 
+            AND bf-notes.note_text EQ ipcText 
+            AND bf-notes.note_title EQ ipcTitle 
+            AND bf-notes.note_code EQ ipcCode 
+            AND bf-notes.note_type EQ ipcType 
+            NO-ERROR.
+        IF NOT AVAILABLE bf-notes THEN DO: 
+            CREATE bf-notes.
+            ASSIGN
+                bf-notes.rec_key    = ipcRecKey
+                bf-notes.note_text  = ipcText
+                bf-notes.note_title = ipcTitle
+                bf-notes.note_code  = ipcCode
+                bf-notes.note_type  = ipcType
+                .
+        END.
+        ASSIGN 
+            bf-notes.note_date  = TODAY
+            bf-notes.note_time  = TIME            
+            bf-notes.user_id    = USERID("NOSWEAT")            
             .
-        opriNotes = ROWID(notes).                    
+        opriNotes = ROWID(bf-notes).                    
     END.      
     

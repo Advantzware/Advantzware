@@ -190,6 +190,8 @@
 
 
 /* ***************************  Main Block  *************************** */
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
     IF ipcRequestHandler NE "" THEN
          RUN VALUE(ipcRequestHandler) (
              INPUT TABLE ttArgs,

@@ -17,13 +17,10 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
 {system/TaxProcs.i}
 {api/ttAPIOutboundEvent.i}
-
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN FileSys_GetTempDirectory (
     OUTPUT cTempDir
@@ -59,6 +56,8 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.    
     DEFINE OUTPUT PARAMETER TABLE FOR ttAPIOutboundEvent.
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
         
     RUN pUpdateAccessToken (
         INPUT  ipcCompany,
@@ -67,6 +66,10 @@ PROCEDURE pCallOutboundAPI PRIVATE:
         ).
     IF NOT oplSuccess THEN
         RETURN.
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    EMPTY TEMP-TABLE ttAPIOutboundEvent.
         
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipcCompany,                      /* Company Code (Mandatory) */
@@ -85,11 +88,13 @@ PROCEDURE pCallOutboundAPI PRIVATE:
     
     IF oplSuccess THEN DO:
         RUN Outbound_GetEvents IN hdOutboundProcs (
-            OUTPUT TABLE ttAPIOutboundEvent
+            OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
             ).
     END.
     
     RUN Outbound_ResetContext IN hdOutboundProcs.
+    
+    DELETE PROCEDURE hdOutboundProcs.
 END PROCEDURE.
 
 PROCEDURE pUpdateAccessToken PRIVATE:
@@ -101,26 +106,25 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cClientID       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cClientSecret   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAPIKey         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAPIPassword    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCommand        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cGrantType      AS CHARACTER NO-UNDO INITIAL "password". /* Grant Type */
-    DEFINE VARIABLE cAccessTokenURL AS CHARACTER NO-UNDO INITIAL "https://auth.vertexsmb.com/identity/connect/token". /* API URL */
-    DEFINE VARIABLE cScope          AS CHARACTER NO-UNDO INITIAL "calc-rest-api".
-    DEFINE VARIABLE cResponseFile   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
     
+    DEFINE VARIABLE dttzServerDateTimeTZ     AS DATETIME-TZ NO-UNDO.    
     DEFINE VARIABLE dttzCurrentGMTDateTimeTZ AS DATETIME-TZ NO-UNDO.
     DEFINE VARIABLE dttzSysCtrlDateTimeTZ    AS DATETIME-TZ NO-UNDO.
     
     DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
-    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
-    
+    DEFINE BUFFER bf-APIOutbound      FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
+        
     /* Code to find and extract the GMT Date and time from current date amnd time */
-    RUN spCommon_GetCurrentGMTTime (
+    RUN spCommon_GetServerTime (
+        OUTPUT dttzServerDateTimeTZ
+        ).
+        
+    RUN spCommon_GetGMTTime (
+        INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
@@ -142,26 +146,6 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         END.
     END.
     
-    RUN pGetClientID (
-        INPUT  ipcCompany,
-        OUTPUT cClientID
-        ).
-
-    RUN pGetClientSecret (
-        INPUT  ipcCompany,
-        OUTPUT cClientSecret
-        ).
-
-    RUN pGetAPIKey (
-        INPUT  ipcCompany,
-        OUTPUT cAPIKey
-        ).
-
-    RUN pGetAPIPassword (
-        INPUT  ipcCompany,
-        OUTPUT cAPIPassword
-        ).
-
     FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiID EQ "CalculateTax"
            AND NOT bf-APIOutbound.clientID BEGINS "_default"
@@ -173,54 +157,55 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             .
         RETURN.        
     END.
-    
-    ASSIGN
-        cResponseFile            = cTempDir + "\vertex_access_token" + STRING(MTIME) + ".txt"
-        FIX-CODEPAGE(lcResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") 
-                                 + (IF bf-APIOutbound.isSSLEnabled THEN
-                                        ""
-                                    ELSE
-                                        " --insecure ")
-                                 + ' -X POST "' 
-                                 + cAccessTokenURL + '" '
-                                 + '-H "Content-Type:application/x-www-form-urlencoded" '
-                                 + '--data-urlencode "client_id=' + cClientID + '" '
-                                 + '--data-urlencode "client_secret=' + cClientSecret + '" '
-                                 + '--data-urlencode "username=' + cAPIKey + '" '
-                                 + '--data-urlencode "password=' + cAPIPassword + '" '
-                                 + '--data-urlencode "grant_type=' + cGrantType + '" '
-                                 + '--data-urlencode "scope=' + cScope + '"'
-        .
 
-    /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand (
-        INPUT  cCommand,             /* Command string to run */
-        INPUT  cResponseFile,        /* File name to write the command output */
-        INPUT  TRUE,                 /* Run with SILENT option */
-        INPUT  FALSE,                /* Run with NO-WAIT option */
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+        
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ipcCompany,                      /* Company Code (Mandatory) */
+        INPUT  "",                              /* Location Code (Mandatory) */
+        INPUT  "CalculateTaxToken",             /* API ID (Mandatory) */
+        INPUT  "",                              /* Scope ID */
+        INPUT  "",                              /* Scope Type */
+        INPUT  "GetRefreshToken",               /* Trigger ID (Mandatory) */
+        INPUT  "Tax",                           /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  "Tax",                           /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  USERID("ASI"),                   /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Vertex Refresh Token",          /* Event's description (Optional) */
+        OUTPUT oplSuccess,                      /* Success/Failure flag */
+        OUTPUT opcMessage                       /* Status message */
         ) NO-ERROR.
-    IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Error excuting curl command"
-            . 
-            
-       OS-DELETE VALUE(cResponseFile).             
-       RETURN.
+    
+    IF oplSuccess THEN DO:
+        RUN Outbound_GetEvents IN hdOutboundProcs (
+            OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
+            ).
     END.
     
-    COPY-LOB FILE cResponseFile TO lcResponse.
+    DELETE PROCEDURE hdOutboundProcs.
 
-    IF lcResponse EQ "" THEN DO:
+    FIND FIRST ttAPIOutboundEvent NO-ERROR.
+    IF NOT AVAILABLE ttAPIOutboundEvent THEN DO:
         ASSIGN
+            opcMessage = "Error while generating access token"
             oplSuccess = FALSE
-            opcMessage = "Empty response"
             .
-        RETURN.
+        RETURN.    
     END.
+    
+    FIND FIRST bf-APIOutboundEvent NO-LOCK
+         WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-APIOutboundEvent THEN DO:
+        ASSIGN
+            opcMessage = "Error while generating access token"
+            oplSuccess = FALSE
+            .
+        RETURN.    
+    END.
+    
+    FIX-CODEPAGE(lcResponse) = "utf-8".
+    
+    lcResponse = bf-APIOutboundEvent.responseData.
     
     ASSIGN
         oObject      = CAST(oModelParser:Parse(INPUT lcResponse),JsonObject).
@@ -235,8 +220,13 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         RETURN.
     END.
 
-    /* Code to find and extract the GMT Date and time from current date amnd time */
-    RUN spCommon_GetCurrentGMTTime (
+    RUN spCommon_GetServerTime (
+        OUTPUT dttzServerDateTimeTZ
+        ).
+
+    /* Code to find and extract the GMT Date and time from current date amnd time */        
+    RUN spCommon_GetGMTTime (
+        INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
@@ -256,100 +246,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE bf-APIOutbound THEN
         bf-APIOutbound.password = cAccessToken.
-    
-    OS-DELETE VALUE(cResponseFile).            
-END PROCEDURE.
 
-PROCEDURE pGetClientID PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Returns the client ID from sys-ctrl 
- Notes: 
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcClientID AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "VertexClientID", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientID, 
-        OUTPUT lFound
-        ).
-END PROCEDURE.
-
-PROCEDURE pGetClientSecret PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Returns the client secret from sys-ctrl
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcClientSecret AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "VertexClientSecret", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientSecret, 
-        OUTPUT lFound
-        ).
-END PROCEDURE.
-
-PROCEDURE pGetAPIKey PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Returns the api key from sys-ctrl
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcAPIKey  AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "VertexAPIKey", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcAPIKey, 
-        OUTPUT lFound
-        ).
-END PROCEDURE.
-
-PROCEDURE pGetAPIPassword PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Returns the api password from sys-ctrl
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcAPIPassword AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "VertexAPIPassword", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcAPIPassword, 
-        OUTPUT lFound
-        ).
 END PROCEDURE.
 
 PROCEDURE pGetTaxAmounts PRIVATE:
@@ -358,6 +255,7 @@ PROCEDURE pGetTaxAmounts PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
@@ -396,6 +294,8 @@ PROCEDURE pGetTaxAmounts PRIVATE:
     DEFINE VARIABLE cFieldID           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldValue        AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-stax   FOR stax.
+    
     EMPTY TEMP-TABLE tttaxDetail.
     
     IF iplcResponseData EQ "" THEN DO:
@@ -426,6 +326,12 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         oplSuccess = FALSE.
         RETURN.        
     END. 
+    
+    RUN pSetStaxBuffer(
+        INPUT  ipcCompany, 
+        INPUT  ipcTaxCode, 
+        BUFFER bf-stax
+        ).
     
     ASSIGN
         opdInvoiceTotal    = DECIMAL(oObject:GetJsonText('total'))
@@ -494,15 +400,15 @@ PROCEDURE pGetTaxAmounts PRIVATE:
                     ttTaxDetail.invoiceLineType        = cLineType
                     ttTaxDetail.invoiceLineRecKey      = cLineRecKey
                     ttTaxDetail.taxLine                = iLineNo
-                    ttTaxDetail.taxGroup               = ""
+                    ttTaxDetail.taxGroup               = IF AVAIL bf-stax THEN bf-stax.tax-group ELSE ""
                     ttTaxDetail.taxGroupLine           = iCount3
                     ttTaxDetail.isFreight              = isFreight
                     ttTaxDetail.isTaxOnFreight         = isFreightTaxable                    
                     ttTaxDetail.taxGroupTaxAmountLimit = 0
-                    ttTaxDetail.taxCode                = ""
-                    ttTaxDetail.taxCodeDescription     = ""
+                    ttTaxDetail.taxCode                = IF AVAIL bf-stax THEN bf-stax.tax-code1[1] ELSE ""
+                    ttTaxDetail.taxCodeDescription     = IF AVAIL bf-stax THEN bf-stax.tax-dscr1[1] ELSE ""
                     ttTaxDetail.taxCodeRate            = dEffectiveRate
-                    ttTaxDetail.taxCodeAccount         = ""
+                    ttTaxDetail.taxCodeAccount         = IF AVAIL bf-stax THEN bf-stax.tax-acc1[1] ELSE ""
                     ttTaxDetail.taxCodeTaxAmount       = dCalculatedTax
                     ttTaxDetail.taxCodeTaxableAmount   = dTaxable
                     .
@@ -514,6 +420,22 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         oplSuccess = TRUE 
         opcMessage = "Success"
         .    
+
+END PROCEDURE.
+
+PROCEDURE pSetStaxBuffer PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the Stax buffer given company and tax group
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTaxGroup AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-stax FOR stax.
+
+    FIND FIRST ipbf-stax NO-LOCK 
+        WHERE ipbf-stax.company EQ ipcCompany
+        AND ipbf-stax.tax-group EQ ipcTaxGroup
+        NO-ERROR.
 
 END PROCEDURE.
 
@@ -595,6 +517,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
 
             RUN pGetTaxAmounts (
                 INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
@@ -684,7 +607,8 @@ PROCEDURE Vertex_CalculateTaxForArInv:
             lcResponseData = bf-APIOutboundEvent.responseData.
 
             RUN pGetTaxAmounts (
-                INPUT  bf-ar-inv.company,            
+                INPUT  bf-ar-inv.company, 
+                INPUT  bf-ar-inv.tax-code,
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,

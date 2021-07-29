@@ -39,6 +39,7 @@ DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+{api/ttAPIOutboundEvent.i}
 
 assign
  cocode = gcompany
@@ -3095,6 +3096,8 @@ PROCEDURE pCallOutboundAPI PRIVATE :
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
+    
     IF AVAILABLE ipbf-job THEN DO:
         IF iplReprint THEN 
             cTriggerID = "RePrintJob".
@@ -3106,6 +3109,8 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
             .
+        
+        IF lExportXML THEN
         RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
             INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
             INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
@@ -3119,6 +3124,37 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             OUTPUT lSuccess,                   /* Success/Failure flag */
             OUTPUT cMessage                    /* Status message */
             ).
+        
+        cAPIId = "SendJobAMS".
+        
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
+            INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "",                         /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-Job)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).            
+
+        IF lExportXML THEN DO:
+            RUN Outbound_GetEvents IN hdOutboundProcs (
+                OUTPUT TABLE ttAPIOutboundEvent BY-REFERENCE
+                ).
+            FIND FIRST ttAPIOutboundEvent NO-ERROR.            
+            IF AVAILABLE ttAPIOutboundEvent THEN DO:
+                FIND FIRST bf-APIOutboundEvent NO-LOCK
+                     WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
+                     NO-ERROR.
+                IF AVAILABLE bf-APIOutboundEvent AND bf-APIOutboundEvent.apiID EQ "SendJob" THEN 
+                    STATUS DEFAULT "XML Export complete" IN WINDOW THIS-PROCEDURE:CURRENT-WINDOW.
+            END.
+        END.
+                        
         /* Reset context at the end of API calls to clear temp-table 
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs. 

@@ -223,6 +223,8 @@ PROCEDURE pFullPalletOnly PRIVATE:
     DEFINE VARIABLE lFullPalletOnly   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cQtyMismatchLines AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCaseCount        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCasePallet       AS INTEGER NO-UNDO.
 
     RUN sys/ref/nk1look.p (
         INPUT  ipbf-oe-ord.company, /* Company Code */ 
@@ -252,7 +254,10 @@ PROCEDURE pFullPalletOnly PRIVATE:
         IF NOT AVAILABLE bf-itemfg THEN
             NEXT.
         
-        IF bf-oe-ordl.qty MOD ((bf-itemfg.case-count * bf-itemfg.case-pall) + bf-itemfg.quantityPartial) EQ 0 THEN
+        iCaseCount  = IF bf-itemfg.case-count NE 0 THEN bf-itemfg.case-count ELSE 1 .
+        iCasePallet = IF bf-itemfg.case-pall  NE 0 THEN bf-itemfg.case-pall  ELSE 1 .
+        
+        IF bf-oe-ordl.qty MOD ((iCaseCount * iCasePallet) + bf-itemfg.quantityPartial) EQ 0 THEN
             NEXT.
 
         cQtyMismatchLines = cQtyMismatchLines + "Item:" + STRING(bf-oe-ordl.i-no) + " " 

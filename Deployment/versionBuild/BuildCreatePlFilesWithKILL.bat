@@ -22,6 +22,7 @@ XCOPY c:\asigui\environments\Devel\Programs\adm2\*.* .\PLBuild\adm2 /q /s >NUL
 CD PLBuild
 %DLCBIN%/prolib asiGraphics.pl -create
 %DLCBIN%/prolib asiObjects.pl -create
+%DLCBIN%/prolib asiDataDigger.pl -create
 
 %DLCBIN%/prolib asiGraphics.pl -add Graphics/*.*
 %DLCBIN%/prolib asiGraphics.pl -add Graphics/16x16/*.*
@@ -35,6 +36,11 @@ CD PLBuild
 %DLCBIN%/prolib asiObjects.pl -add adm2/image/*.*
 %DLCBIN%/prolib asiObjects.pl -add adm2/support/*.*
 
+%DLCBIN%/prolib asiDataDigger.pl -add DataDigger/*.*
+%DLCBIN%/prolib asiDataDigger.pl -add DataDigger/backup/*.*
+%DLCBIN%/prolib asiDataDigger.pl -add DataDigger/cache/*.*
+%DLCBIN%/prolib asiDataDigger.pl -add DataDigger/Image/*.*
+
 ::Kill instances of prowin and prowin32 to apply pls to /Dev environment
 TASKKILL /F /IM prowin.exe >NUL
 TASKKILL /F /IM prowin32.exe >NUL
@@ -42,8 +48,9 @@ TASKKILL /F /IM ASIbranchTest.exe >NUL
 
 XCOPY asiGraphics.pl C:\asigui\Environments\Devel /q >NUL
 XCOPY asiObjects.pl C:\asigui\Environments\Devel /q >NUL
+XCOPY asiDataDigger.pl C:\asigui\Environments\Devel /q >NUL
 
-
+EXIT
 
 
 

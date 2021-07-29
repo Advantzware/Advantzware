@@ -107,7 +107,7 @@ for each job-hdr NO-LOCK
           BREAK BY job-hdr.job-no
                 BY job-hdr.job-no2 :
          /* Trigger Outbound API to send Job XML */        
-    IF lExportXML AND (FIRST-OF(job-hdr.job-no) OR FIRST-OF(job-hdr.job-no2)) THEN 
+    IF FIRST-OF(job-hdr.job-no) OR FIRST-OF(job-hdr.job-no2) THEN 
         RUN pCallOutboundAPI(
             BUFFER job,
             INPUT reprint

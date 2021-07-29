@@ -175,6 +175,62 @@ PROCEDURE CalculatePanels:
         ).
 END PROCEDURE.
 
+PROCEDURE Formula_GetFormulaFromttPanel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER TABLE FOR ttPanel.
+    DEFINE OUTPUT PARAMETER opcFormulaLength AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFormulaWidth  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAddBraces               AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iChar                    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFormula                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceLength AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lAddScoreAllowanceWidth  AS LOGICAL   NO-UNDO.
+    
+    FOR EACH ttPanel
+        BY ttPanel.iPanelNum:
+        lAddBraces = FALSE.
+        
+        DO iChar = 1 TO LENGTH(gcValidOperators):
+            IF INDEX(ttPanel.cPanelFormula, SUBSTRING(gcValidOperators, iChar, 1)) GT 0 THEN DO:
+                lAddBraces = TRUE.
+                LEAVE.
+            END.
+        END.
+        
+        cFormula = ttPanel.cPanelFormula.
+        IF lAddBraces THEN
+            cFormula = "(" + cFormula + ")".
+            
+        IF ttPanel.cPanelType EQ "W" THEN DO:
+            opcFormulaWidth = opcFormulaWidth + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceWidth = lAddScoreAllowanceWidth OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.
+        ELSE IF ttPanel.cPanelType EQ "L" THEN DO:
+            opcFormulaLength = opcFormulaLength + "+" + cFormula.
+            
+            /* If atleast one of the panel size from formula does not match panel size then score allowance is added */
+            lAddScoreAllowanceLength = lAddScoreAllowanceLength OR ttPanel.dPanelSizeFromFormula NE ttPanel.dPanelSize.
+        END.  
+    END.
+    
+    IF lAddScoreAllowanceLength THEN
+        opcFormulaLength = opcFormulaLength + "+" + "S".
+
+    IF lAddScoreAllowanceWidth THEN
+        opcFormulaWidth = opcFormulaWidth + "+" + "S".
+
+    ASSIGN
+        opcFormulaLength = TRIM(opcFormulaLength, "+")
+        opcFormulaWidth  = TRIM(opcFormulaWidth, "+")
+        .        
+END PROCEDURE.
+
 PROCEDURE GetSizeFactor:
 /*------------------------------------------------------------------------------
  Purpose: Fetch the decimal factor from NK1 CECSCRN
@@ -522,7 +578,9 @@ PROCEDURE pAdjustSquareBoxFit:
     DEFINE VARIABLE cSizeFormat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCecScrnLog   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dSquareBoxFit AS DECIMAL   NO-UNDO.
-
+    DEFINE VARIABLE cChar         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iChar         AS INTEGER   NO-UNDO.
+    
     DEFINE BUFFER bf-reftable FOR reftable.
         
     RUN GetSizeFactor (
@@ -541,20 +599,21 @@ PROCEDURE pAdjustSquareBoxFit:
         IF AVAILABLE bf-reftable THEN 
             dSquareBoxFit = bf-reftable.val[1].        
     END.    
-
-    FIND FIRST ttPanel
-         WHERE ttPanel.cPanelType BEGINS "W"
-           AND ttPanel.iPanelNum  EQ 1
-         NO-ERROR.
-    IF AVAILABLE ttPanel THEN
-        ttPanel.dPanelSize = ttPanel.dPanelSize - dSquareBoxFit.
-        
+    
+    /* Subtract square fit score from all the panels that contains "W" in its panel formula */
     FOR EACH ttPanel
         WHERE ttPanel.cPanelType BEGINS "W"
         BY ttPanel.iPanelNum DESCENDING:
-        IF ttPanel.dPanelSize NE 0 THEN DO:
-            ttPanel.dPanelSize = ttPanel.dPanelSize - dSquareBoxFit.
-            LEAVE.
+        IF INDEX(ttPanel.cPanelFormula, "W") EQ 0 THEN
+            NEXT.
+            
+        DO iChar = 1 TO LENGTH(ttPanel.cPanelFormula):
+            cChar = SUBSTRING(ttPanel.cPanelFormula, iChar, 1).
+            IF cChar EQ "W" THEN 
+                ASSIGN
+                    ttPanel.dScoringAllowance = ttPanel.dScoringAllowance - dSquareBoxFit
+                    ttPanel.dPanelSize        = ttPanel.dPanelSize - dSquareBoxFit
+                    .
         END.
     END.
 END PROCEDURE.
@@ -1099,7 +1158,7 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
             ).       
     END.
     
-    IF iplSave THEN
+    IF iplSave AND AVAILABLE bf-eb THEN
         RUN pUpdatePanelDetails (
             INPUT  gcPanelLinkTypePO,
             INPUT  bf-eb.company,
@@ -1681,6 +1740,82 @@ PROCEDURE Convert32ndsToDecimal:
         ).    
 END PROCEDURE.
 
+PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Updates the legacy reftable based on Panel Details
+     Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+     callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND FIRST bf-po-ordl NO-LOCK 
+        WHERE bf-po-ordl.company EQ ipcCompany
+        AND bf-po-ordl.po-no EQ ipiPoID
+        AND bf-po-ordl.line EQ ipiPoLine 
+        NO-ERROR.
+    IF AVAILABLE bf-po-ordl AND bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "2", "L", TABLE ttPanel BY-REFERENCE). 
+    ELSE 
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "1", "W", TABLE ttPanel BY-REFERENCE).
+        
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacyDetail PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Purpose:  Updates the legacy reftable based on Panel Details
+         Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+         callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcReftableLoc AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    
+    DEFINE BUFFER bf-scoreReftable FOR reftable.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dScore AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-scoreReftable EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable.reftable EQ "POLSCORE"
+        AND bf-scoreReftable.company  EQ ipcCompany
+        AND bf-scoreReftable.loc      EQ  ipcReftableLoc  //1 for Width 2 for Length
+        AND bf-scoreReftable.code     EQ STRING(ipiPoID,"9999999999")
+        AND bf-scoreReftable.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+    IF AVAILABLE bf-scoreReftable THEN 
+    DO:
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable.val  = 0
+            bf-scoreReftable.dscr = ""
+            . 
+        FOR EACH ttPanel
+            WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
+            BY ttPanel.iPanelNum:
+            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
+                NEXT.
+            ASSIGN 
+                iIndex = iIndex + 1
+                dScore = ttPanel.dPanelSize
+                .
+            RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
+                                    
+            ASSIGN 
+                bf-scoreReftable.val[iIndex] = dScore
+                bf-scoreReftable.dscr        = bf-scoreReftable.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE ttPanel.cScoreType)
+                .                                    
+        END.
+    END.  
+    RELEASE bf-scoreReftable.
+
+END PROCEDURE.
+
 PROCEDURE SwitchPanelSizeFormat:
 /*------------------------------------------------------------------------------
  Purpose: Converts the size format among 16th's, 32nd's and decimal
@@ -1804,6 +1939,14 @@ PROCEDURE UpdatePanelDetailsForPO:
         INPUT  "",                   /* Score set Type */
         INPUT  TABLE ttPanel
         ). 
+    
+    //Deprecate when POLSCORE Reftable is removed
+    RUN pUpdatePanelDetailsPOLegacy(
+        INPUT ipcCompany,
+        INPUT ipiPOID,
+        INPUT ipiPOLine,
+        INPUT TABLE ttPanel BY-REFERENCE).
+        
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForStyle:

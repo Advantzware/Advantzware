@@ -429,38 +429,17 @@ PROCEDURE pCreateNewInvoiceAR:
     DEFINE OUTPUT PARAMETER opriARInv AS ROWID.
     
     DEFINE VARIABLE iNextInvoiceNumber     AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNextInvoiceLinkNumber AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
     ASSIGN
-        iNextInvoiceNumber     = 0
-        iNextInvoiceLinkNumber = 0.
-    FIND LAST bf-ar-inv NO-LOCK 
-        USE-INDEX x-no 
-        NO-ERROR.
-    iNextInvoiceLinkNumber = IF AVAILABLE bf-ar-inv THEN bf-ar-inv.x-no + 1 ELSE 1.
+        iNextInvoiceNumber     = 0.
     FIND FIRST ar-ctrl NO-LOCK  
         WHERE ar-ctrl.company EQ ipcCompany
         NO-ERROR.
     iNextInvoiceNumber = IF AVAILABLE ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
-    DO WHILE TRUE:
-        FIND FIRST bf-ar-inv NO-LOCK 
-            WHERE bf-ar-inv.company EQ ipcCompany
-            AND bf-ar-inv.inv-no  EQ iNextInvoiceLinkNumber
-            NO-ERROR.
-        FIND FIRST inv-head NO-LOCK 
-            WHERE inv-head.company EQ ipcCompany
-            AND inv-head.inv-no  EQ iNextInvoiceLinkNumber
-            NO-ERROR.
-        IF NOT AVAILABLE bf-ar-inv AND NOT AVAILABLE inv-head THEN LEAVE.
-        iNextInvoiceLinkNumber = iNextInvoiceLinkNumber + 1.
-    END. 
     CREATE ar-inv.
     ASSIGN
         ar-inv.company  = ipcCompany
         ar-inv.inv-no   = iNextInvoiceNumber 
-        ar-inv.x-no     = iNextInvoiceLinkNumber 
         ar-inv.inv-date = TODAY 
         ar-inv.cust-no  = ipcCustomer
         .
@@ -476,7 +455,13 @@ PROCEDURE pCreateNewInvoiceAR:
             ar-inv.terms        = cust.terms
             ar-inv.carrier      = cust.carrier
             ar-inv.tax-code     = cust.tax-gr
-            ar-inv.curr-code[1] = cust.curr-code.
+            ar-inv.curr-code[1] = cust.curr-code
+            ar-inv.addr[1]      = cust.addr[1]
+            ar-inv.addr[2]      = cust.addr[2]
+            ar-inv.city         = cust.city
+            ar-inv.state        = cust.state
+            ar-inv.zip          = cust.zip
+            .
         IF cust.curr-code = "" THEN 
         DO:
             FIND company NO-LOCK 

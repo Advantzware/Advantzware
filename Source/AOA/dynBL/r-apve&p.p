@@ -10,10 +10,11 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttAPInvoicePosting 
-{aoa/tempTable/ttAPInvoicePosting.i}
-{aoa/tempTable/ttAPInvoicePostingGL.i}
-{aoa/tempTable/ttAPInvoicePostingSummary.i}
-{aoa/tempTable/ttAPInvoicePostingMsg.i}
+{AOA/tempTable/ttAPInvoicePosting.i}
+{AOA/tempTable/ttAPInvoicePostingGL.i}
+{AOA/tempTable/ttAPInvoicePostingSummary.i}
+{AOA/tempTable/ttAPInvoicePostingMsg.i}
+RUN spSetSessionParam ("SummaryTables", "3").
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD actnum   LIKE account.actnum
@@ -209,7 +210,7 @@ PROCEDURE pBusinessLogic:
     END. /* ttAPInvoicePostingMsg */
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 80, 100). 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingMsg}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingMsg}
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 100, 100). 
 END PROCEDURE.
@@ -705,7 +706,7 @@ PROCEDURE pEditReport:
         END. /* if last-of */
     END. /* each tt-report */
     
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingGL}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingGL}
     
     FOR EACH tt-report,
         FIRST ap-inv NO-LOCK
@@ -875,7 +876,7 @@ PROCEDURE pEditReport:
     END. /* last-of */
     dFrtTotal  = (ACCUM TOTAL ap-inv.freight).
 
-    {AOA/BL/exportDynTempTable.i ttAPInvoicePostingSummary}
+    {AOA/dynBL/exportDynTempTable.i ttAPInvoicePostingSummary}
     
 END PROCEDURE.
 

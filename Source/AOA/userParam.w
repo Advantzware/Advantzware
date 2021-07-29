@@ -104,7 +104,7 @@ FUNCTION fSetShowAll RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddEmail 
-     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
@@ -638,9 +638,9 @@ PROCEDURE pCheckIfModified:
 
     IF lModified THEN DO:
         RUN pSave (OUTPUT oplRunTask).
-        IF oplRunTask AND lModified EQ YES THEN
+        IF oplRunTask AND lModified EQ NO THEN
         MESSAGE 
-            "Auto Saved Parameter Setting Changes"
+            "Auto Saved Parameter Value Changes"
         VIEW-AS ALERT-BOX WARNING.
     END. /* if lmodified */
     ELSE

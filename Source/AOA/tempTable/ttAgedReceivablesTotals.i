@@ -17,3 +17,6 @@ DEFINE TEMP-TABLE ttAgedReceivablesTotals NO-UNDO
     FIELD xxSort         AS CHARACTER LABEL "Sort"        FORMAT "x(100)"
         INDEX ttAgedReceivablesTotals IS PRIMARY rowType xxSort
     .
+RUN spSetSessionParam ("SummaryTables", "1").
+RUN spSetSessionParam ("SummaryHandle1", TEMP-TABLE ttAgedReceivablesTotals:HANDLE).
+RUN spSetSessionParam ("SummaryTitle1", "Aged Receivables Totals").

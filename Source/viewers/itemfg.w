@@ -452,35 +452,35 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      itemfg.std-mat-cost AT ROW 16.52 COL 88.6 COLON-ALIGNED
-          LABEL "Std Mat'l Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Std Mat'l Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.std-lab-cost AT ROW 17.48 COL 88.6 COLON-ALIGNED
-          LABEL "Std Labor Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Std Labor Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.std-var-cost AT ROW 18.43 COL 88.6 COLON-ALIGNED
-          LABEL "Std Var OH Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Std Var OH Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.std-fix-cost AT ROW 19.38 COL 88.6 COLON-ALIGNED
-          LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.spare-dec-1 AT ROW 20.33 COL 88.6 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Full Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Full Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.total-std-cost AT ROW 16.52 COL 124.6 COLON-ALIGNED
-          LABEL "Total Std Cost" FORMAT "->>>>>>>9.99"
+          LABEL "Total Std Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.avg-cost AT ROW 17.48 COL 124.6 COLON-ALIGNED
-          LABEL "Average Cost" FORMAT ">>>>>>>9.99"
+          LABEL "Average Cost" FORMAT ">>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      itemfg.last-cost AT ROW 18.43 COL 124.6 COLON-ALIGNED
-          LABEL "Last Cost" FORMAT ">>>>>>>9.99"
+          LABEL "Last Cost" FORMAT ">>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      fi_type-dscr AT ROW 6.57 COL 122 COLON-ALIGNED NO-LABEL

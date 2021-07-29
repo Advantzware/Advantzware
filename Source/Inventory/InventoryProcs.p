@@ -2031,7 +2031,8 @@ PROCEDURE pCreateRMIssueFromTag PRIVATE:
     FOR EACH bf-rm-bin NO-LOCK
         WHERE bf-rm-bin.company EQ ipcCompany
           AND bf-rm-bin.i-no    EQ bf-loadtag.i-no
-          AND bf-rm-bin.tag     EQ bf-loadtag.tag-no:
+          AND bf-rm-bin.tag     EQ bf-loadtag.tag-no
+          AND bf-rm-bin.qty     GT 0:
         RUN pGetJobFromPOAndRMItem (
             INPUT  bf-rm-bin.company,
             INPUT  bf-rm-bin.i-no,
@@ -4776,6 +4777,7 @@ PROCEDURE CreatePrintInventory:
      Notes: 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPrintInventoryStock.
     
     DEFINE VARIABLE cCustName LIKE oe-ord.cust-name NO-UNDO.
     DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.

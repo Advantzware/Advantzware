@@ -478,6 +478,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeOrphanRecords C-Win 
+PROCEDURE pPurgeOrphanRecords PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:Private procedure to delete orphan records 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+                  
+    /* Delete ar-ledger records with no customer ,*/
+    FOR EACH ar-ledger EXCLUSIVE-LOCK 
+        WHERE ar-ledger.company EQ ipcCompany
+          AND ar-ledger.cust-no  EQ ""         
+          :                              
+           EXPORT STREAM out5 ar-ledger.
+                DELETE ar-ledger.
+                ASSIGN
+                    iPurgeCount5 = iPurgeCount5 + 1. 
+                                   
+    END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeArLedger C-Win 
+PROCEDURE pPurgeArLedger PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:Private procedure to delete ar-ledger records 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRefNum       AS CHARACTER NO-UNDO.
+                  
+    FOR EACH ar-ledger EXCLUSIVE WHERE
+                ar-ledger.company EQ ipcCompany AND
+                ar-ledger.ref-num EQ ipcRefNum:
+                EXPORT STREAM out5 ar-ledger.
+                DELETE ar-ledger.
+                ASSIGN
+                    iPurgeCount5 = iPurgeCount5 + 1.
+    END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunPurge C-Win 
 PROCEDURE ipRunPurge :
 /*------------------------------------------------------------------------------
@@ -488,7 +534,8 @@ PROCEDURE ipRunPurge :
     DEFINE VARIABLE cOutputArInv AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArInvl AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArCash AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOutputArCashl AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE cOutputArCashl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputArLedger AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
@@ -512,7 +559,11 @@ PROCEDURE ipRunPurge :
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d" .
-      
+                                
+      cOutputArLedger =  "c:\tmp\ar-ledger" +
+                                STRING(YEAR(TODAY),"9999") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d" .          
       
     RUN FileSys_GetUniqueFileName (
         INPUT  cOutputArInv,
@@ -546,11 +597,19 @@ PROCEDURE ipRunPurge :
         OUTPUT cMessage  
         ).         
     
-    
+    RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArLedger,
+        INPUT  YES,    
+        OUTPUT cOutputArLedger, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).
+        
     OUTPUT STREAM out1 TO VALUE(cOutputArInv).
     OUTPUT STREAM out2 TO VALUE(cOutputArInvl).
     OUTPUT STREAM out3 TO VALUE(cOutputArCash).
-    OUTPUT STREAM out4 TO VALUE(cOutputArCashl).                                    
+    OUTPUT STREAM out4 TO VALUE(cOutputArCashl).
+    OUTPUT STREAM out5 TO VALUE(cOutputArLedger).
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
@@ -562,6 +621,7 @@ PROCEDURE ipRunPurge :
     DISABLE TRIGGERS FOR LOAD OF ar-invl.
     DISABLE TRIGGERS FOR LOAD OF ar-cash.
     DISABLE TRIGGERS FOR LOAD OF ar-cashl.
+    DISABLE TRIGGERS FOR LOAD OF ar-ledger.
 
     MAIN-LOOP:
     FOR EACH ar-inv WHERE 
@@ -629,6 +689,7 @@ PROCEDURE ipRunPurge :
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
                     IF NOT AVAIL b-ar-cashl THEN DO:
+                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,"99999999") + "A/R").
                         EXPORT STREAM out3 ar-cash.
                         DELETE ar-cash.
                         ASSIGN
@@ -650,6 +711,8 @@ PROCEDURE ipRunPurge :
                 ASSIGN
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
+                                    
+            RUN pPurgeArLedger(cocode, "INV# " + STRING(ar-inv.inv-no)). 
 
             EXPORT STREAM out1 ar-inv.
             DELETE ar-inv.
@@ -657,6 +720,8 @@ PROCEDURE ipRunPurge :
                 iPurgeCount4 = iPurgeCount4 + 1.
         END.
     END.
+    
+    RUN pPurgeOrphanRecords(cocode).
 
     SESSION:SET-WAIT-STATE("").
     
@@ -664,6 +729,7 @@ PROCEDURE ipRunPurge :
     OUTPUT STREAM out2 CLOSE.
     OUTPUT STREAM out3 CLOSE.
     OUTPUT STREAM out4 CLOSE.
+    OUTPUT STREAM out5 CLOSE.
     
     MESSAGE  
         "Purge process completed." SKIP
@@ -671,6 +737,7 @@ PROCEDURE ipRunPurge :
         STRING(iPurgeCount3) + " invoice line records were deleted." SKIP
         STRING(iPurgeCount) + " ar-cash records were deleted." SKIP
         STRING(iPurgeCount2) + " ar-cashl records were deleted." SKIP
+         STRING(iPurgeCount5) + " ar-ledger records were deleted." SKIP
         STRING(totWriteOff,"->>>,>>>,>>9.99") + " dollars were written off." SKIP
         "Backup files were placed in then C:\tmp directory" SKIP
         "for retrieval if necessary."

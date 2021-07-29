@@ -126,20 +126,20 @@ for each xef
 
   /* board */
   if xef.board ne "" then do with frame aa no-labels STREAM-IO no-box:
-    find first est-op
+    find first est-op NO-LOCK
         where est-op.company eq xef.company
           and est-op.est-no  eq xef.est-no
           and est-op.s-num   eq xef.form-no
           and est-op.line    gt 500
-        no-lock.
+        NO-ERROR.
 
     assign
      v-setup  = 0
                 
      /* msf for  job */
      b-qty = (if v-corr then (xef.gsh-len * xef.gsh-wid * .007)
-                        else (xef.gsh-len * xef.gsh-wid / 144)) *
-             est-op.num-sh / 1000.
+                        else (xef.gsh-len * xef.gsh-wid / 144)) *                      
+            (IF AVAIL est-op THEN est-op.num-sh / 1000 ELSE 1 ). 
 
     {ce/pr4-brd.i}
 

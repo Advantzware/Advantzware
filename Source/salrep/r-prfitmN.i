@@ -208,7 +208,11 @@
          v-wid = 0
          v-dep = 0
          v-date = "" 
-         v-order-date = "".
+         v-order-date = ""
+         iBolNo = 0
+         iOrdNo = 0
+         cPoNo = ""
+         .
 
       find first itemfg
           where itemfg.company eq cocode
@@ -268,7 +272,11 @@
          v-po-no-po  = ar-invl.po-no-po
          v-qty[1]    = IF ar-invl.ship-qty GT 0 THEN ar-invl.ship-qty ELSE ar-invl.inv-qty
          v-amt[1]    = ar-invl.amt
-         v-msf[1]    = ar-invl.amt-msf.
+         v-msf[1]    = ar-invl.amt-msf
+         iBolNo      = ar-invl.bol-no
+         iOrdNo      = ar-invl.ord-no
+         cPoNo       = ar-invl.po-no
+         .
 
         FIND FIRST oe-ord WHERE oe-ord.company = cocode 
                             AND oe-ord.ord-no  = ar-inv.ord-no NO-LOCK NO-ERROR.
@@ -526,6 +534,9 @@
                         WHEN "lnth"        THEN cVarValue = STRING(v-len)  .   
                         WHEN "wdth"        THEN cVarValue = STRING(v-wid)  .   
                         WHEN "dpth"        THEN cVarValue = STRING(v-dep)  .   
+                        WHEN "bol-no"      THEN cVarValue = STRING(iBolNo,">>>>>>>9")  .   
+                        WHEN "ord-no"      THEN cVarValue = STRING(iOrdNo,">>>>>9")  .   
+                        WHEN "po-no"       THEN cVarValue = STRING(cPoNo)  .   
                                                               
                     END CASE.
                       
@@ -750,6 +761,9 @@
                         WHEN "lnth"        THEN cVarValue = "".
                         WHEN "wdth"        THEN cVarValue = "".
                         WHEN "dpth"        THEN cVarValue = "".
+                        WHEN "bol-no"      THEN cVarValue = "".   
+                        WHEN "ord-no"      THEN cVarValue = "".   
+                        WHEN "po-no"       THEN cVarValue = "".
                                                               
                     END CASE.
                       
@@ -868,6 +882,9 @@
                         WHEN "lnth"        THEN cVarValue = "".
                         WHEN "wdth"        THEN cVarValue = "".
                         WHEN "dpth"        THEN cVarValue = "".
+                        WHEN "bol-no"      THEN cVarValue = "".   
+                        WHEN "ord-no"      THEN cVarValue = "".   
+                        WHEN "po-no"       THEN cVarValue = "".
                                                               
                     END CASE.
                       
@@ -989,6 +1006,9 @@
                         WHEN "lnth"        THEN cVarValue = "".
                         WHEN "wdth"        THEN cVarValue = "".
                         WHEN "dpth"        THEN cVarValue = "".
+                        WHEN "bol-no"      THEN cVarValue = "".   
+                        WHEN "ord-no"      THEN cVarValue = "".   
+                        WHEN "po-no"       THEN cVarValue = "".
                                                               
                     END CASE.
                       

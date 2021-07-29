@@ -525,6 +525,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add W-Win
 ON CHOOSE OF btn-add IN FRAME F-Main /* Add */
 DO:
+   
+   IF AVAIL tt-sel AND {&browse-name}:NUM-SELECTED-ROWS = 0 THEN
+        {&browse-name}:SELECT-FOCUSED-ROW().      
    ASSIGN
    lv-in-add = YES
    tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = NO
@@ -760,7 +763,13 @@ END.
 ON CHOOSE OF btn-delete IN FRAME F-Main /* Delete */
 DO:
     DEF VAR ll-dum AS LOG NO-UNDO.
- IF AVAIL tt-sel THEN DO WITH FRAME {&FRAME-NAME}:
+    IF {&browse-name}:NUM-SELECTED-ROWS EQ 0 THEN
+    DO:
+       MESSAGE "No Selected Records to Delete."
+           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+       RETURN.
+    END.   
+    IF AVAIL tt-sel THEN DO WITH FRAME {&FRAME-NAME}:
     message "Delete Currently Selected Record?" view-as alert-box question
           button yes-no update ll-ans as log.
     if not ll-ans then return .
@@ -904,7 +913,10 @@ DO:
         btn-change:LABEL = "Update".
         APPLY "choose" TO btn-change.  
       END.
-      ELSE APPLY "choose" TO btn-add.
+      ELSE do:
+         {&open-query-{&browse-name}}
+         APPLY "choose" TO btn-add.
+      END.
       RETURN NO-APPLY.
     END.
 

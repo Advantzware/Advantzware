@@ -430,8 +430,8 @@ v-printline = 0.
             "<C21>" po-ordl.i-no FORM "x(30)"
             "<C52.5>" po-ordl.due-date.
         IF lPrintPrice THEN DO:
-            IF po-ordl.cost LE 99999.99 THEN
-                PUT "<C60.5>" po-ordl.cost FORM "->>>>9.99"
+            IF po-ordl.cost LE 99999.9999 THEN
+                PUT "<C60.5>" po-ordl.cost FORM "->>>>9.99<<"
                 "<C68.5>" po-ordl.pr-uom.
             PUT "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99".
         END.

@@ -1298,7 +1298,7 @@ PROCEDURE pRunReport :
     END. /* each w-bolh */
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}
 
 /* ************************  Function Implementations ***************** */
 

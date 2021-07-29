@@ -132,7 +132,7 @@ Notes:
     EMPTY TEMP-TABLE ttReOrderingAdvice.
     
     /* subject business logic */
-    RUN aoa/BL/r-reordr.p (OUTPUT TABLE ttReOrderingAdvice, ipcCompany, ipiBatch, ipcUserID).
+    RUN AOA/dynBL/r-reordr.p (OUTPUT TABLE ttReOrderingAdvice, ipcCompany, ipiBatch, ipcUserID).
     
     RETURN TEMP-TABLE ttReOrderingAdvice:HANDLE .
 

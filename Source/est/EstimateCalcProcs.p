@@ -91,7 +91,8 @@ FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     (ipiEstCostOperationID AS INT64,
-    ipiDefaultOut AS INTEGER) FORWARD.
+    ipiDefaultOut AS INTEGER,
+    INPUT ipdEstOPQty AS DECIMAL) FORWARD.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER,
@@ -117,6 +118,9 @@ FUNCTION fUseNew RETURNS LOGICAL
 
 FUNCTION IsComboType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION IsFoamStyle RETURNS LOGICAL 
+	(ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER) FORWARD.
 
 FUNCTION IsMiscType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
@@ -1053,14 +1057,9 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.isCoater = YES.
         IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID) THEN 
         DO: 
-            IF NOT CAN-FIND(FIRST estCostOperation 
-                WHERE estCostOperation.estCostHeaderID EQ opbf-estCostOperation.estCostHeaderID
-                AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostOperation.isNetSheetMaker
-                AND estCostOperation.estCostOperationID NE opbf-estCostOperation.estCostOperationID) THEN   
-                opbf-estCostOperation.isNetSheetMaker = YES.
-            
-            opbf-estCostOperation.outputType      = "S".
+            ASSIGN
+                opbf-estCostOperation.isNetSheetMaker = YES
+                opbf-estCostOperation.outputType      = "S".
         END.
         IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
@@ -1097,7 +1096,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
+                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet, ipbf-est-op.qty)
                 .
         IF opbf-estCostOperation.isBlankMaker THEN 
             ASSIGN 
@@ -3226,6 +3225,7 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE BUFFER bf-estMaterial FOR estMaterial.
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
+    DEFINE BUFFER bfUnitize-estCostForm FOR estCostForm.
     
     DEFINE VARIABLE dSqFtPerEA AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCases AS INTEGER NO-UNDO.
@@ -3233,13 +3233,21 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE VARIABLE iQuantityInEA AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
     
+    IF ipbf-estCostHeader.isUnitizedSet  THEN 
+    DO:
+        /*Establish unitization form (Form 1)*/
+        FIND FIRST bfUnitize-estCostForm NO-LOCK 
+            WHERE bfUnitize-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+            AND bfUnitize-estCostForm.formNo EQ 1
+            NO-ERROR.
+    END.
     
     FOR EACH bf-estMaterial NO-LOCK 
         WHERE bf-estMaterial.company EQ ipbf-estCostHeader.company
         AND bf-estMaterial.estimateNo EQ ipbf-estCostHeader.estimateNo,
         FIRST bf-estCostForm NO-LOCK 
-        WHERE bf-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostheaderID
-        AND bf-estCostForm.formNo EQ bf-estMaterial.formNo:
+            WHERE bf-estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostheaderID
+            AND bf-estCostForm.formNo EQ bf-estMaterial.formNo:
         ASSIGN 
             iCases = 0
             iPallets = 0
@@ -3304,7 +3312,17 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-estCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-estCostMaterial.quantityRequiredNoWaste
             bf-estCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-estCostMaterial.quantityRequiredNoWaste
             .
-        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+        IF bf-estCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-estCostForm THEN 
+        DO:
+            /*Associate Form 0 materials to the unitize form (Form 1)*/
+            ASSIGN 
+                bf-estCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
+                bf-estCostMaterial.estCostBlankID = 0
+                .
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm).
+        END. 
+        ELSE     
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
         
     END.
     
@@ -5084,7 +5102,7 @@ FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
-    (ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER):
+    (ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER, INPUT ipdEstOPQty AS DECIMAL):
     /*------------------------------------------------------------------------------
      Purpose:  Given an operation buffer, return the # out based on the 
      specific net sheet pass of the operation
@@ -5092,21 +5110,47 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE BUFFER bf-ef-nsh           FOR ef-nsh.
     DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
-    DEFINE VARIABLE iOut AS INTEGER.
+    DEFINE BUFFER bf-est-op            FOR est-op.
     
+    DEFINE VARIABLE iOut AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lFoam AS LOGICAL NO-UNDO.
     
     FIND FIRST bf-estCostOperation NO-LOCK 
         WHERE bf-estCostOperation.estCostOperationID EQ ipiEstCostOperationID
         NO-ERROR.
     IF AVAILABLE bf-estCostOperation THEN
-        FIND FIRST bf-ef-nsh NO-LOCK    
-            WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
-            AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
-            AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
-            AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
-            NO-ERROR.
-    IF AVAILABLE bf-ef-nsh THEN 
-        iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
+    DO:
+         lFoam = IsFoamStyle (bf-estCostOperation.company, bf-estCostOperation.estimateNo, bf-estCostOperation.formNo).
+         
+        IF lFoam THEN
+        DO:
+            FIND FIRST bf-ef-nsh NO-LOCK    
+                WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
+                AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
+                AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
+                AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
+                NO-ERROR.
+            
+            IF AVAILABLE bf-ef-nsh THEN 
+                iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
+        END.
+        ELSE
+        DO: 
+            /* pull Numout for sheeters */
+            FIND FIRST bf-est-op NO-LOCK
+                WHERE bf-est-op.company EQ bf-estCostOperation.company
+                AND bf-est-op.est-no    EQ bf-estCostOperation.estimateNo
+                AND bf-est-op.s-num     EQ bf-estCostOperation.formNo
+                AND bf-est-op.b-num     EQ bf-estCostOperation.blankNo
+                AND bf-est-op.op-Pass   EQ bf-estCostOperation.pass
+                AND bf-est-op.line      LT 500
+                AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
+                
+           IF AVAILABLE bf-est-op THEN     
+                iOut = IF bf-est-op.n-out GT 0 THEN bf-est-op.n-out ELSE 1.
+           
+        END.
+    END.
 	
     IF iOut LE 0 THEN 
         iOut = ipiDefaultOut.
@@ -5243,6 +5287,35 @@ FUNCTION IsComboType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/    
     RETURN ipcEstType EQ gcTypeCombo.
     
+END FUNCTION.
+
+FUNCTION IsFoamStyle RETURNS LOGICAL 
+	(ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if any Item is Foam type in the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+	DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-Style FOR Style.
+    DEFINE BUFFER bf-eb    FOR eb.
+    
+    FIND FIRST bf-eb
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no  EQ ipcEstNo
+        AND bf-eb.form-no EQ ipiFormNo
+        AND bf-eb.pur-man EQ NO
+        AND CAN-FIND(FIRST bf-Style
+        WHERE bf-Style.company EQ bf-eb.company
+        AND bf-Style.style   EQ bf-eb.style
+        AND bf-Style.type    EQ "F")
+        NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE bf-eb THEN
+        lResult = YES.
+
+    RETURN lResult.
 END FUNCTION.
 
 FUNCTION IsMiscType RETURNS LOGICAL 

@@ -1,0 +1,7 @@
+         <Part Code="$Item$" Description="$FGItemName$" Quantity="$Quantity|>>>>>>9|INT|$" Action="Create">
+            <Attributes>
+            </Attributes>
+                <Tasks>
+                    $JobMachine$
+                </Tasks>
+            </Part>

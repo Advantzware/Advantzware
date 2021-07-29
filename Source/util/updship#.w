@@ -54,6 +54,7 @@ ASSIGN
     locode = g_loc.
 DEFINE VARIABLE cChar AS CHARACTER.
 DEFINE VARIABLE lCheckPro AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lNewShipTo AS LOGICAL NO-UNDO.
 DEFINE TEMP-TABLE tt-oe-shipto 
     FIELD tt-recid    AS RECID
     FIELD ship-id     LIKE shipto.ship-id
@@ -455,6 +456,7 @@ DO:
             RETURN NO-APPLY.
         END.
 
+        lNewShipTo = NO.
         FIND FIRST bf-shipto NO-LOCK
             WHERE bf-shipto.company EQ cocode
             AND bf-shipto.cust-no EQ cust.cust-no
@@ -462,12 +464,8 @@ DO:
             NO-ERROR.
 
         IF NOT AVAILABLE bf-shipto THEN 
-        DO:
-            MESSAGE "You must enter a valid Ship Id" VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO fi_ship-id.
-            RETURN NO-APPLY.
-        END.
-
+        lNewShipTo = YES.
+       
         i = 0 .
         FOR EACH tt-oe-shipto WHERE tt-oe-shipto.IS-SELECTED:
             i = i + 1.
@@ -709,6 +707,8 @@ PROCEDURE run-process :
     DEFINE VARIABLE lOrder   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lInv     AS LOGICAL NO-UNDO.*/
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    DEFINE BUFFER bff-shipto FOR shipto.
+    DEFINE BUFFER bf-get-shipto FOR shipto.
     SESSION:SET-WAIT-STATE("General").
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -718,14 +718,36 @@ PROCEDURE run-process :
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ cocode
         AND cust.cust-no EQ begin_cust
-        NO-ERROR .
+        NO-ERROR .  
+        
+    IF lNewShipTo THEN
+    DO:         
+       FIND FIRST tt-oe-shipto WHERE tt-oe-shipto.IS-SELECTED NO-LOCK NO-ERROR.
+       FIND FIRST bff-shipto NO-LOCK
+            WHERE recid(bff-shipto) EQ tt-oe-shipto.tt-recid NO-ERROR .
+             
+       IF AVAIL bff-shipto THEN
+       DO:
+           FIND LAST bf-get-shipto NO-LOCK
+                WHERE bf-get-shipto.company EQ cocode
+                AND bf-get-shipto.cust-no EQ begin_cust                
+                USE-INDEX ship-no NO-ERROR.
+                
+           CREATE bf-shipto.
+           BUFFER-COPY bff-shipto EXCEPT rec_key ship-id ship-no TO bf-shipto.
+           ASSIGN
+             bf-shipto.ship-no = (IF AVAIL bf-get-shipto THEN bf-get-shipto.ship-no ELSE 0) + 1
+             bf-shipto.ship-id = fi_ship-id:SCREEN-VALUE.
+           RELEASE bf-shipto.   
+       END.                
+    END.
   
     FIND FIRST bf-shipto NO-LOCK
         WHERE bf-shipto.company EQ cocode
         AND bf-shipto.cust-no EQ cust.cust-no
         AND bf-shipto.ship-id EQ fi_ship-id:SCREEN-VALUE
         NO-ERROR.
-    
+        
     IF fi_ship-id NE "" THEN 
     DO:
 

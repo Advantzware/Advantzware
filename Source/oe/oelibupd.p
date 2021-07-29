@@ -1129,7 +1129,7 @@ PROCEDURE display-cust-detail :
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4].
        
-    IF cust.active EQ "X" THEN set-sv("fi_type", "T").
+    IF cust.internal THEN set-sv("fi_type", "T").
     
     IF INDEX("HA",get-sv("oe-ord.stat")) = 0 THEN DO:
       RUN oe/creditck.p (ROWID(cust), NO).
@@ -1522,7 +1522,7 @@ IF AVAIL xest THEN DO:
       IF AVAIL terms THEN  set-sv("oe-ord.terms-d", terms.dscr).
       ELSE set-sv("oe-ord.terms-d", "").
 
-      IF cust.active EQ "X" THEN set-sv("fi_type", "T").
+      IF cust.internal THEN set-sv("fi_type", "T").
  
       v-factor = IF xest.est-type GE 1 AND xest.est-type LE 4 THEN  /* wfk - replace lastship-dec */ 0
                  ELSE 1. 

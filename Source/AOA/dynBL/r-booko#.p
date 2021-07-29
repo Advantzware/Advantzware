@@ -433,4 +433,4 @@ PROCEDURE pCalcPOMSF:
     END. /* else */ 
 END PROCEDURE.
 
-{aoa/BL/pBuildCustList.i}
+{AOA/dynBL/pBuildCustList.i}

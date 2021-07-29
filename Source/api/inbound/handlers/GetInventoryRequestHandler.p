@@ -160,6 +160,7 @@ PROCEDURE pProcessInputs:
         INPUT  "",           /* status id */
         INPUT  ?,            /* On Hold status. Send ? for both yes and no */      
         INPUT  cItemType,
+        INPUT  1000,         /* Record Limit */
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
         OUTPUT TABLE ttItem

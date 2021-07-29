@@ -690,7 +690,10 @@ PROCEDURE pCreateLoadTag:
             ipbf-ttLoadTag.createdTime  = bf-loadtag.tag-time
             ipbf-ttLoadTag.tagStatus    = "Created"
             .
-           
+
+        IF ipbf-ttLoadTag.recordSource EQ "BOL" THEN
+            RETURN.
+
         IF glCreateFGReceipts AND glCheckClosedStatus THEN DO:
             RUN po/POProcs.p PERSISTENT SET hdPOProcs.
             

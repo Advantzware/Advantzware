@@ -776,8 +776,7 @@ DO:
 
    IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag THEN RETURN.
    ASSIGN
-        lv-do-leave-tag = NO
-        lCheckTagHoldMessage = NO
+        lv-do-leave-tag = NO          
         .
 
    FIND FIRST oe-relh
@@ -3677,7 +3676,7 @@ PROCEDURE validate-tag-status :
     IF AVAILABLE oe-relh THEN
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ cocode
-         AND cust.cust-no EQ oe-bolh.cust-no NO-ERROR.
+         AND cust.cust-no EQ oe-relh.cust-no NO-ERROR.
     IF AVAILABLE cust AND AVAILABLE oe-relh THEN
     cTagStatus = cust.tagStatus.
    
@@ -3694,20 +3693,7 @@ PROCEDURE validate-tag-status :
        oplReturnError = YES.
        RETURN .
     END.     
-  
-    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
-    THEN DO:        
-        IF lTagStatusOnHold THEN DO:
-          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
-          IF NOT lMessageValue THEN
-          DO:
-              APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
-              oplReturnError = YES .
-          END.
-          ELSE lCheckTagHoldMessage = YES.
-        END.
         
-    END.      
   END.
 
   {methods/lValidateError.i NO}

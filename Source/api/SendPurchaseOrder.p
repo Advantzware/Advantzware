@@ -108,6 +108,7 @@
     DEFINE VARIABLE cTimeLiberty         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMaxOverPct          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMinUnderPct         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrencyCode        AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                    AS CHARACTER NO-UNDO.
@@ -197,7 +198,8 @@
     DEFINE VARIABLE cVendItemNoBoard           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoAdders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoBoardAndAdders  AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cTotalLineCost             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGLAccountNumber           AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -309,7 +311,8 @@
 FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
     (  ) FORWARD.
     
-      
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+          
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -508,6 +511,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                  ELSE 
                                      "ORIGIN"
             cTotalCost         = STRING(po-ord.t-cost)
+            cCurrencyCode      = po-ord.curr-code[1]            
             cCurrentDateTime   = STRING(DATETIME(TODAY,MTIME))
             cHeaderUnderPct    = STRING(po-ord.under-pct)
             cHeaderOverPct     = STRING(po-ord.over-pct)
@@ -700,12 +704,13 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cLineDueDate                = STRING(po-ordl.due-date)
                 dCostInMSF                  = po-ordl.cost
                 dQuantityInSF               = po-ordl.ord-qty
+                cTotalLineCost              = STRING(po-ordl.t-cost)
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
                                               + "-" + STRING(po-ordl.s-num,"99")
-                                                
+                cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
@@ -1027,6 +1032,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
+            
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "company", cCompany).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poID", cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
@@ -1149,9 +1155,12 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEAAdders",STRING(dCostPerEAAdders)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEA",STRING(dCostPerEA)).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "BoardSetupCost",cBoardSetupCost).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MaxOverPct",cMaxOverPct).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MinUnderPct",cMinUnderPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "MaxOverPct",cMaxOverPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "MinUnderPct",cMinUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalLineCost", cTotalLineCost).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "GLAccountNumber", cGLAccountNumber).
+            
             cItemWithAdders = cItemID.
             
             EMPTY TEMP-TABLE ttVendItemNumberAdders.
@@ -1608,6 +1617,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPlantID",cGPPlantID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto). 
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeLiberty",cTimeLiberty). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyCode",cCurrencyCode).
             
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$detail$", lcConcatLineData).

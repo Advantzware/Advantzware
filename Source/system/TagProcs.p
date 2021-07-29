@@ -101,12 +101,15 @@ PROCEDURE AddTagInfoForGroup:
     DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcGroup       AS CHARACTER NO-UNDO.
 
-    IF NOT CAN-FIND(FIRST tag 
+    FIND FIRST tag NO-LOCK 
         WHERE tag.linkRecKey  EQ ipcLinkRecKey
         AND tag.tagType     EQ gcTypeInfo 
         AND tag.linkTable   EQ ipcLinkTable
         AND tag.description EQ ipcDescription
-        AND tag.groupCode   EQ ipcGroup) THEN 
+        AND tag.groupCode   EQ ipcGroup
+        NO-ERROR.
+    IF AVAIL tag THEN RETURN. 
+        
         RUN pAddTag(
             INPUT ipcLinkRecKey,
             INPUT gcTypeInfo,
@@ -134,7 +137,7 @@ PROCEDURE AddTagInactive:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeInactive 
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","").
+    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","","").
 
 END PROCEDURE.
 
@@ -150,7 +153,7 @@ PROCEDURE AddTagRelease:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeRelease
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","").
+    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","","").
                                        
 END PROCEDURE.
 

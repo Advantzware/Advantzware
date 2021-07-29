@@ -891,7 +891,7 @@ DO:
     APPLY "choose" TO btn_go.
   END.
   */
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
   END.

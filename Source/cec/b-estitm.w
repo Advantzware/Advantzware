@@ -850,7 +850,7 @@ DO:
            IF AVAIL style AND style.type = "f" THEN  DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
-                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
                 RUN new-board.
                 APPLY "ENTRY":U TO ef.board.
               END.
@@ -2001,9 +2001,11 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR dep-num AS INT NO-UNDO.
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
    IF LASTKEY <> -1 THEN
    DO:
+      
       v-dec = DECIMAL(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0).
       IF v-dec >= v-16-or-32 THEN DO:
          MESSAGE "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
@@ -8752,7 +8754,7 @@ PROCEDURE pUpdateRecord :
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        RUN est/dAddMoldEst.w(INPUT "Edit", "C", INPUT ROWID(eb)) .
        RUN local-open-query.

@@ -27,7 +27,6 @@ def var v-wid like ef.gsh-wid NO-UNDO.
 def var v-dep like ef.gsh-dep NO-UNDO.
 def var v-nsh like ef.nsh-wid NO-UNDO.
 def var v-out like ef.n-out NO-UNDO.
-def var v-cut like ef.n-cuts NO-UNDO.
 def var v-hed like ef.n-cuts NO-UNDO.
 DEF VAR v-n-out AS INT NO-UNDO.
 DEF VAR v-yld AS DEC NO-UNDO.
@@ -83,9 +82,6 @@ if avail est-op then do:
   if v-hed eq ? then v-hed = 0.
 end.
 
-v-cut = if xef.n-cuts eq (xef.n-out - 1) + (xef.n-out-l - 1) then
-          max(v-out - if v-nsh * v-out lt v-wid then 0 else 1,v-hed)
-        else xef.n-cuts.
 {cec/msfcalc.i}
 
 if v-corr then
@@ -283,7 +279,7 @@ do while avail {1} and x eq 0:
 
   else
   if mstd.{3}-x eq 23 then
-    {cec/kxy2.i "{1}" col v-cut}
+    {cec/kxy2.i "{1}" col xef.n-cuts}
 
   else
   if mstd.{3}-x eq 24 then
@@ -431,7 +427,7 @@ do while avail {1} and y eq 0:
 
   else
   if mstd.{3}-y eq 23 then
-    {cec/kxy2.i "{1}" row v-cut}
+    {cec/kxy2.i "{1}" row xef.n-cuts}
 
   else
   if mstd.{3}-y eq 24 then

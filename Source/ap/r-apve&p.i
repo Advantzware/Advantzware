@@ -289,40 +289,7 @@ for each tt-report,
     USE-INDEX vend NO-LOCK
     
     break by ap-inv.vend-no:
-
-  for each ap-invl
-      where ap-invl.i-no    eq ap-inv.i-no
-        and ap-invl.posted  eq no
-      USE-INDEX i-no NO-LOCK,
-
-      FIRST tt-ap-invl WHERE tt-ap-invl.row-id EQ ROWID(ap-invl):
-
-    find first po-ordl NO-LOCK
-        where po-ordl.company eq cocode
-          and po-ordl.po-no   eq (if ap-invl.po-no eq 0 then ap-inv.po-no
-                                                        else ap-invl.po-no)
-          and po-ordl.line    eq {ap/invlline.i -1}
-        USE-INDEX po-no no-error.
-
-    IF AVAIL po-ordl AND po-ordl.item-type AND
-       ap-invl.amt NE 0 AND rmpostgl       THEN DO:
-      FIND FIRST item
-          WHERE item.company EQ cocode
-            AND item.i-no    EQ po-ordl.i-no
-          NO-LOCK NO-ERROR.
-
-      RELEASE costtype.
-      IF AVAIL item THEN
-      FIND FIRST costtype
-          WHERE costtype.company   EQ cocode
-            AND costtype.cost-type EQ item.cost-type
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL costtype AND costtype.ap-accrued NE "" THEN /* Debit RM AP Accrued */
-        tt-ap-invl.actnum = costtype.ap-accrued.
-    END.
-  end.
-    
+        
   if ap-inv.freight ne 0 then do:
     if v-loop eq 1 then do:
       v-loop = 2.

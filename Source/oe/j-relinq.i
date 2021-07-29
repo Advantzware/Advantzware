@@ -77,26 +77,17 @@ IF fi_ord-no NE 0 OR fi_i-no NE "" THEN DO:
 END.
 
 ELSE
-IF fi_cust-no NE '' THEN DO:
-    {&for-each1} 
-        USE-INDEX r-no NO-LOCK 
-        BREAK BY oe-relh.r-no DESC:
-        iCount = iCount + 1.
-        iRelNo = oe-relh.release#.
-        IF iCount GE sys-ctrl.int-fld THEN 
-            LEAVE.
-    END.
+IF fi_cust-no NE '' THEN DO:    
   &SCOPED-DEFINE open-query              ~
       OPEN QUERY {&browse-name}          ~
           {&for-each1}                   ~
-           AND oe-relh.release# GE iRelNo ~
-              USE-INDEX release# NO-LOCK, ~
+           USE-INDEX cust NO-LOCK, ~
               {&for-each2}
 
 
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}. 
-END.
+END.  
 
 ELSE DO:
 

@@ -445,7 +445,7 @@ PROCEDURE pProcessRecord PRIVATE:
          END CASE.           
      
       IF lookup(STRING(bf-quotehd.q-no),cAddedNewQuote) NE 0 THEN 
-      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .  
+      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.effectiveDate - 1) .  
       
       IF lQuotePriceMatrix AND bf-quotehd.approved AND lEditRecord THEN
       RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q") .

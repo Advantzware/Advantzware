@@ -11,7 +11,7 @@
     Created     : Thu Apr 30 14:34:07 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-
+BLOCK-LEVEL ON ERROR UNDO, THROW. 
 /* ***************************  Definitions  ************************** */
 {system\TaxProcs.i}
 {oe\PostInvoice.i}
@@ -199,6 +199,8 @@ PROCEDURE pAddFGItemToUpdate PRIVATE:
         ttFGItemToUpdate.quantityShippedTotal     = ttFGItemToUpdate.quantityShippedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityAllocatedTotal   = ttFGItemToUpdate.quantityAllocatedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityInvoicedMSFTotal = ttFGItemToUpdate.quantityInvoicedMSFTotal + ipbf-ttInvoiceLineToPost.quantityInvoicedMSF
+        ttFGItemToUpdate.invOrder                 = ipbf-ttInvoiceLineToPost.orderID
+        ttFGItemToUpdate.bNo                      = ipbf-ttInvoiceLineToPost.bNo
         .
         
 END PROCEDURE.
@@ -257,26 +259,34 @@ PROCEDURE pAddGLTransactionsForFG PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster     FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
     
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountDLCogs, ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountDLFG, - ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountFOCogs, ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountFOFG, - ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountVOCogs, ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+    IF ipbf-ttInvoiceLIneToPost.accountDLCogs NE ipbf-ttInvoiceLineToPost.accountDLFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountDLCogs, ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountDLFG, - ipbf-ttInvoiceLineToPost.costDirectLabor, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountFOCogs NE ipbf-ttInvoiceLineToPost.accountFOFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountFOCogs, ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountFOFG, - ipbf-ttInvoiceLineToPost.costFixedOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountVOCogs NE ipbf-ttInvoiceLineToPost.accountVOFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountVOCogs, ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
         "FG", ipbf-ttInvoiceLineToPost.accountVOFG, - ipbf-ttInvoiceLineToPost.costVariableOverhead, ipbf-ttInvoiceLineToPost.costUOM).
-
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "COGS", ipbf-ttInvoiceLineToPost.accountDMCogs, ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
-    RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
-        "FG", ipbf-ttInvoiceLineToPost.accountDMFG, - ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
-
+    END.
+    
+    IF ipbf-ttInvoiceLineToPost.accountDMCogs NE ipbf-ttInvoiceLineToPost.accountDMFG THEN DO:
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "COGS", ipbf-ttInvoiceLineToPost.accountDMCogs, ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
+        RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
+            "FG", ipbf-ttInvoiceLineToPost.accountDMFG, - ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
@@ -424,7 +434,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.isFreightBillable = ipbf-ttInvoiceToPost.isFreightBillable
         ttInvoiceLineToPost.orderLine         = ipbf-inv-line.line
         ttInvoiceLineToPost.iEnum             = ipbf-inv-line.e-num
-         
+        ttInvoiceLineToPost.bNo               = ipbf-inv-line.b-no
          
         .
     FIND FIRST bf-sman NO-LOCK 
@@ -1122,21 +1132,16 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     DEFINE OUTPUT PARAMETER opriArInv AS ROWID.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
-      
-    DEFINE VARIABLE iNextXNo    AS INTEGER NO-UNDO.
-    
+          
     /*used for Terms procedures*/
     DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
-    
-    iNextXNO = fGetNextXNo().
-    
+        
     CREATE bf-ar-inv.
     DISABLE TRIGGERS FOR LOAD OF ar-inv.
     ASSIGN
-        bf-ar-inv.x-no         = iNextXNO
         bf-ar-inv.company      = ipbf-inv-head.company
         bf-ar-inv.ord-no       = ipbf-ttInvoiceToPost.orderID
         bf-ar-inv.ord-date     = ipbf-ttInvoiceToPost.orderDate
@@ -2527,12 +2532,6 @@ PROCEDURE pPostInvoices PRIVATE:
         :
         opiCountPosted = opiCountPosted + 1.
 
-        RUN pCreateEDI(BUFFER bf-inv-head).
-
-        RUN pPostSalesTaxForInvHead (
-            INPUT ROWID(bf-inv-head)
-            ).
-        
         /*Create ar-inv based on inv-head and return writeable buffer*/
         RUN pCreateARInvHeader(BUFFER bf-inv-head, BUFFER ttInvoiceToPost, OUTPUT riArInv).  
         FIND FIRST bf-ar-inv NO-LOCK
@@ -2544,7 +2543,14 @@ PROCEDURE pPostInvoices PRIVATE:
                 iXNo = bf-ar-inv.x-no
                 . 
             RUN pCopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
-        END.            
+        END.      
+              
+        RUN pCreateEDI(BUFFER bf-inv-head).
+
+        RUN pPostSalesTaxForInvHead (
+            INPUT ROWID(bf-inv-head)
+            ).
+
         iLine = 1.
         FOR EACH ttInvoiceLineToPost
             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo 
@@ -2824,9 +2830,7 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 
-    IF AVAILABLE ipbf-inv-head THEN 
-    DO:
-    
+    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 THEN DO:    
         ASSIGN 
             cAPIID       = "SendInvoice"
             cTriggerID   = "PostInvoice"
@@ -3070,6 +3074,11 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
                 .
+            IF ttFGItemToUpdate.invOrder EQ 0 THEN 
+            DO:   
+               FIND CURRENT bf-itemfg NO-LOCK NO-ERROR.
+               RUN pUpdateWarehouseQty(rowid(bf-itemfg), INPUT ttFGItemToUpdate.quantityShippedTotal, INPUT ttFGItemToUpdate.bNo).                
+            END.
             
             DELETE ttFGItemToUpdate.
             
@@ -3181,6 +3190,86 @@ PROCEDURE pUpdateTax PRIVATE:
             .
          
 
+END PROCEDURE.
+
+PROCEDURE pUpdateWarehouseQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:   
+     tax.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwFGRowid  AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdShipQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo  AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cCalcLoc AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER b-itemfg    FOR itemfg.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    
+    FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+        WHERE ROWID(bf-itemfg) EQ iprwFGRowid 
+        NO-ERROR.         
+        
+    bf-itemfg.q-alloc = bf-itemfg.q-alloc - ipdShipQty.
+    IF bf-itemfg.q-alloc LT 0 THEN bf-itemfg.q-alloc = 0.
+    
+    ASSIGN
+        bf-itemfg.q-onh   = bf-itemfg.q-onh - ipdShipQty
+        bf-itemfg.q-avail = bf-itemfg.q-onh + bf-itemfg.q-ono - bf-itemfg.q-alloc.
+     
+    FIND FIRST oe-boll NO-LOCK
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no      EQ ipiBNo          
+        AND oe-boll.i-no      EQ bf-itemfg.i-no        
+        NO-ERROR.
+    IF AVAILABLE oe-boll THEN
+        cCalcLoc = oe-boll.loc.
+    ELSE
+        cCalcLoc = bf-itemfg.loc. 
+        
+    RUN fg/chkfgloc.p (INPUT bf-itemfg.i-no, INPUT cCalcLoc).
+    FIND FIRST itemfg-loc EXCLUSIVE-LOCK
+        WHERE itemfg-loc.company EQ bf-itemfg.company
+        AND itemfg-loc.i-no    EQ bf-itemfg.i-no
+        AND itemfg-loc.loc     EQ cCalcLoc
+        NO-ERROR.
+               
+    IF AVAILABLE itemfg-loc THEN
+        ASSIGN itemfg-loc.q-onh   = itemfg-loc.q-onh - ipdShipQty
+            itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
+    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.        
+        
+    FOR EACH oe-boll
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no    EQ ipiBNo      
+        AND oe-boll.i-no    EQ bf-itemfg.i-no
+        ,      
+        FIRST oe-bolh
+        WHERE oe-bolh.company  EQ oe-boll.company
+        AND oe-bolh.b-no     EQ oe-boll.b-no
+        BREAK BY oe-boll.i-no :         
+       
+            FIND FIRST fg-bin  EXCLUSIVE-LOCK
+                WHERE fg-bin.company  EQ oe-boll.company
+                AND fg-bin.job-no   EQ oe-boll.job-no
+                AND fg-bin.job-no2  EQ oe-boll.job-no2
+                AND fg-bin.i-no     EQ oe-boll.i-no
+                AND fg-bin.loc      EQ oe-boll.loc
+                AND fg-bin.loc-bin  EQ oe-boll.loc-bin
+                AND fg-bin.tag      EQ oe-boll.tag
+                AND (fg-bin.cust-no EQ "" OR oe-boll.s-code NE "I")
+                USE-INDEX i-no NO-ERROR.
+        
+            IF AVAILABLE fg-bin THEN
+            DO:
+                fg-bin.qty  = fg-bin.qty - oe-boll.qty.
+                fg-bin.partial-count = fg-bin.partial-count - oe-boll.partial.
+                RUN fg/cre-pchr.p (ROWID(fg-bin), "S", oe-boll.qty, oe-boll.partial,"").
+            END.         
+    END. 
+    RELEASE fg-bin.
+    RELEASE bf-itemfg.
 END PROCEDURE.
 
 PROCEDURE ValidateInvoices:

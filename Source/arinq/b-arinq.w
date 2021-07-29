@@ -58,6 +58,19 @@ DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 
+DEFINE VARIABLE lButtongoPressed AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cFirstRecKey       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLastRecKey        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lShowAll           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
+
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     RUN sys/inc/custlistform.p ("AQ1",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
@@ -65,58 +78,58 @@ DO TRANSACTION:
 
 &SCOPED-DEFINE key-phrase ar-invl.company EQ cocode AND ar-invl.posted EQ YES
 
-&SCOPED-DEFINE for-each1                            ~
-    FOR EACH ar-invl                                ~
-        WHERE {&key-phrase}                         ~
-          AND ar-invl.cust-no   BEGINS fi_cust-no   ~
-          AND ar-invl.i-no      BEGINS fi_i-no      ~
-          AND ar-invl.est-no    BEGINS fi_est-no    ~
-          AND ar-invl.part-no   BEGINS fi_part-no   ~
-          AND ar-invl.po-no     BEGINS fi_po-no     ~
-          AND ar-invl.actnum    BEGINS fi_actnum    ~
-          AND ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") ~
-          AND (ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) ~
-          AND (ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) ~
-          AND (ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0)
-
-&SCOPED-DEFINE for-each11                           ~
-    FOR EACH ar-invl                                ~
-        WHERE ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") AND ~
-        {&key-phrase}
-
-&SCOPED-DEFINE for-each2                     ~
-    FIRST ar-inv                             ~
-    WHERE ar-inv.x-no EQ ar-invl.x-no        ~
-      AND (ar-inv.inv-date GE fi_bdate)        ~
-      AND (ar-inv.inv-date LE fi_edate)        ~
-      AND ((ar-inv.due NE 0 AND tb_open)      ~
-       OR  (ar-inv.due EQ 0 AND NOT tb_open)  ~
-       OR  (ar-inv.due EQ 0 AND tb_paid)      ~
-       OR  (ar-inv.due NE 0 AND NOT tb_paid)) ~
-    NO-LOCK,                                  ~
-    FIRST cust OF ar-inv NO-LOCK
-
-&SCOPED-DEFINE sortby-log                                                                                                                                ~
-    IF lv-sort-by EQ "ord-no"  THEN STRING(ar-invl.ord-no,"9999999999")                                                                             ELSE ~
-    IF lv-sort-by EQ "actnum"  THEN ar-invl.actnum                                                                                                  ELSE ~
-    IF lv-sort-by EQ "cust-no" THEN ar-invl.cust-no                                                                                                 ELSE ~
-    IF lv-sort-by EQ "i-no"    THEN ar-invl.i-no                                                                                                    ELSE ~
-    IF lv-sort-by EQ "est-no"  THEN ar-invl.est-no                                                                                                  ELSE ~
-    IF lv-sort-by EQ "inv-no"  THEN STRING(ar-invl.inv-no,"9999999999")                                                                             ELSE ~
-    IF lv-sort-by EQ "bol-no"  THEN STRING(ar-invl.bol-no,"9999999999")                                                                             ELSE ~
-    IF lv-sort-by EQ "po-no"   THEN ar-invl.po-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "part-no" THEN ar-invl.part-no                                                                                                 ELSE ~
-                                    STRING(YEAR(ar-inv.inv-date),"9999") + STRING(MONTH(ar-inv.inv-date),"99") + STRING(DAY(ar-inv.inv-date),"99")
-
-&SCOPED-DEFINE sortby BY ar-invl.inv-no BY ar-invl.bol-no DESC BY ar-invl.i-no BY ar-invl.line
-
-&SCOPED-DEFINE sortby-phrase-asc  ~
-    BY ({&sortby-log})            ~
-    {&sortby}
-
-&SCOPED-DEFINE sortby-phrase-desc ~
-    BY ({&sortby-log}) DESC       ~
-    {&sortby}
+/*&SCOPED-DEFINE for-each1                            ~                                                                                                     */
+/*    FOR EACH ar-invl                                ~                                                                                                     */
+/*        WHERE {&key-phrase}                         ~                                                                                                     */
+/*          AND ar-invl.cust-no   BEGINS fi_cust-no   ~                                                                                                     */
+/*          AND ar-invl.i-no      BEGINS fi_i-no      ~                                                                                                     */
+/*          AND ar-invl.est-no    BEGINS fi_est-no    ~                                                                                                     */
+/*          AND ar-invl.part-no   BEGINS fi_part-no   ~                                                                                                     */
+/*          AND ar-invl.po-no     BEGINS fi_po-no     ~                                                                                                     */
+/*          AND ar-invl.actnum    BEGINS fi_actnum    ~                                                                                                     */
+/*          AND ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") ~                                                    */
+/*          AND (ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) ~                                                                                     */
+/*          AND (ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) ~                                                                                     */
+/*          AND (ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0)                                                                                       */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE for-each11                           ~                                                                                                     */
+/*    FOR EACH ar-invl                                ~                                                                                                     */
+/*        WHERE ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") AND ~                                                */
+/*        {&key-phrase}                                                                                                                                     */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE for-each2                     ~                                                                                                            */
+/*    FIRST ar-inv                             ~                                                                                                            */
+/*    WHERE ar-inv.x-no EQ ar-invl.x-no        ~                                                                                                            */
+/*      AND (ar-inv.inv-date GE fi_bdate)        ~                                                                                                          */
+/*      AND (ar-inv.inv-date LE fi_edate)        ~                                                                                                          */
+/*      AND ((ar-inv.due NE 0 AND tb_open)      ~                                                                                                           */
+/*       OR  (ar-inv.due EQ 0 AND NOT tb_open)  ~                                                                                                           */
+/*       OR  (ar-inv.due EQ 0 AND tb_paid)      ~                                                                                                           */
+/*       OR  (ar-inv.due NE 0 AND NOT tb_paid)) ~                                                                                                           */
+/*    NO-LOCK,                                  ~                                                                                                           */
+/*    FIRST cust OF ar-inv NO-LOCK                                                                                                                          */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE sortby-log                                                                                                                                ~*/
+/*    IF lv-sort-by EQ "ord-no"  THEN STRING(ar-invl.ord-no,"9999999999")                                                                             ELSE ~*/
+/*    IF lv-sort-by EQ "actnum"  THEN ar-invl.actnum                                                                                                  ELSE ~*/
+/*    IF lv-sort-by EQ "cust-no" THEN ar-invl.cust-no                                                                                                 ELSE ~*/
+/*    IF lv-sort-by EQ "i-no"    THEN ar-invl.i-no                                                                                                    ELSE ~*/
+/*    IF lv-sort-by EQ "est-no"  THEN ar-invl.est-no                                                                                                  ELSE ~*/
+/*    IF lv-sort-by EQ "inv-no"  THEN STRING(ar-invl.inv-no,"9999999999")                                                                             ELSE ~*/
+/*    IF lv-sort-by EQ "bol-no"  THEN STRING(ar-invl.bol-no,"9999999999")                                                                             ELSE ~*/
+/*    IF lv-sort-by EQ "po-no"   THEN ar-invl.po-no                                                                                                   ELSE ~*/
+/*    IF lv-sort-by EQ "part-no" THEN ar-invl.part-no                                                                                                 ELSE ~*/
+/*                                    STRING(YEAR(ar-inv.inv-date),"9999") + STRING(MONTH(ar-inv.inv-date),"99") + STRING(DAY(ar-inv.inv-date),"99")        */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE sortby BY ar-invl.inv-no BY ar-invl.bol-no DESC BY ar-invl.i-no BY ar-invl.line                                                            */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE sortby-phrase-asc  ~                                                                                                                       */
+/*    BY ({&sortby-log})            ~                                                                                                                       */
+/*    {&sortby}                                                                                                                                             */
+/*                                                                                                                                                          */
+/*&SCOPED-DEFINE sortby-phrase-desc ~                                                                                                                       */
+/*    BY ({&sortby-log}) DESC       ~                                                                                                                       */
+/*    {&sortby}                                                                                                                                             */
 
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 
@@ -186,7 +199,21 @@ fi_po-no fi_bol-no fi_est-no
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  (ipcTable AS CHARACTER, ipcCustListCheck AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -458,8 +485,9 @@ ASSIGN
        Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 3
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+ASSIGN 
+       btn_show:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_sortBy IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -575,7 +603,8 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
-  APPLY "choose" TO btn_go.
+  RUN dispatch ("open-query").
+  
   {methods/template/sortindicatorend.i}
 END.
 
@@ -664,7 +693,8 @@ DO:
      fi_part-no
      fi_bdate
      fi_edate
-     ll-first = NO.
+     ll-first = NO
+     lButtongoPressed = YES.
      IF fi_cust-no EQ "" AND fi_i-no EQ "" AND fi_po-no EQ "" AND
         fi_inv-no:SCREEN-VALUE EQ "" AND fi_ord-no:SCREEN-VALUE EQ "" AND fi_bol-no:SCREEN-VALUE EQ "" AND 
         fi_est-no:SCREEN-VALUE EQ "" AND fi_actnum:SCREEN-VALUE EQ "" AND fi_part-no EQ "" AND
@@ -674,30 +704,17 @@ DO:
     RUN dispatch ('open-query').
 
     GET FIRST Browser-Table .
-     IF NOT AVAIL ar-invl THEN DO:
+     IF NOT AVAIL ar-invl AND custcount NE "" THEN DO:
          IF fi_cust-no <> "" THEN DO:
              v-cust-no = fi_cust-no .
          END.
-         ELSE DO:
-             
-             FIND FIRST bf-ar-invl WHERE bf-ar-invl.company = cocode
-                 AND (bf-ar-invl.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
-                 AND (bf-ar-invl.i-no BEGINS fi_i-no OR fi_i-no = "")
-                 AND (bf-ar-invl.est-no BEGINS fi_est-no OR fi_est-no = "")
-                 AND (bf-ar-invl.part-no BEGINS fi_part-no OR fi_part-no = "")
-                 AND (bf-ar-invl.po-no BEGINS fi_po-no OR fi_po-no = "")
-                 AND (bf-ar-invl.actnum BEGINS fi_actnum OR fi_actnum = "")
-                 AND (bf-ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) 
-                 AND (bf-ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) 
-                 AND (bf-ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0) NO-LOCK NO-ERROR.
-
-             IF AVAIL bf-ar-invl THEN
-                 v-cust-no = bf-ar-invl.cust-no .
-             ELSE v-cust-no = "".
+         ELSE DO:                           
+           RUN pCheckCustUserRecord(OUTPUT v-cust-no).   
          END.
 
          FIND FIRST cust WHERE cust.company = cocode 
-             AND cust.cust-no = v-cust-no NO-LOCK NO-ERROR.
+             AND cust.cust-no = v-cust-no
+             AND cust.cust-no NE "" NO-LOCK NO-ERROR. 
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
@@ -729,7 +746,8 @@ DO:
      fi_actnum:SCREEN-VALUE  = ""
      fi_part-no:SCREEN-VALUE = ""
      fi_bdate:SCREEN-VALUE  = "01/01/0001" 
-     fi_edate:SCREEN-VALUE  = STRING(TODAY) .
+     fi_edate:SCREEN-VALUE  = STRING(TODAY) 
+     lShowAll = YES.
 
     APPLY "choose" TO btn_go.
   END.
@@ -800,6 +818,7 @@ DO:
     APPLY "choose" TO btn_go.
   END.
   */
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF NOT AVAIL cust THEN DO:
        FIND FIRST cust WHERE cust.cust-no = fi_cust-no:SCREEN-VALUE 
            AND cust.company = cocode NO-LOCK NO-ERROR.
@@ -813,7 +832,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
-  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF LASTKEY EQ 32 THEN {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 2. /* res */
 END.
 
@@ -1123,43 +1141,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-query B-table-Win 
-PROCEDURE first-query :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-ar-inv FOR ar-inv.
-
-  DEF VAR li AS INT NO-UNDO.
-  DEF VAR lv-x-no LIKE ar-invl.x-no NO-UNDO.
-
-  RUN set-defaults.
-  {&for-each11}
-      USE-INDEX x-no NO-LOCK,
-      {&for-each2}
-      BREAK BY ar-invl.x-no DESC:
-    IF FIRST-OF(ar-invl.x-no) THEN li = li + 1.
-    lv-x-no = ar-invl.x-no.
-    IF li GE 30 THEN LEAVE.
-  END.
-
-
-  &SCOPED-DEFINE open-query                   ~
-      OPEN QUERY {&browse-name}               ~
-        {&for-each11}                          ~
-              AND ar-invl.x-no GE lv-x-no ~
-            USE-INDEX x-no NO-LOCK,         ~
-            {&for-each2}
-
-  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-InvNoteKey B-table-Win 
 PROCEDURE get-InvNoteKey :
@@ -1214,6 +1195,14 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  "AQ1",
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1263,12 +1252,33 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  IF ll-first THEN RUN first-query.
-  ELSE DO:
-    {arinq/j-arinq.i}
-  END.
+  IF ll-first THEN RUN set-defaults.
+  
+  IF lShowAll THEN do:         
+        RUN pPrepareAndExecuteQueryForShowAll.
+  END.      
+  ELSE 
+      RUN pPrepareAndExecuteQuery(
+          INPUT IF lButtongoPressed THEN NO ELSE YES /* If Button go is pressed then only show the limit alert */ 
+          ).
 
+    IF lButtongoPressed THEN 
+        lButtongoPressed = NO.
+          
   ll-first = NO.
+  
+  IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
+  DO:
+       GET LAST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-last-rowid    = ROWID({&first-table-in-query-{&browse-name}})
+                   lv-last-rowid2   = ROWID(ar-inv).    
+        
+        GET FIRST {&browse-name}.
+        IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN
+            ASSIGN lv-frst-rowid    = ROWID({&first-table-in-query-{&browse-name}})
+                lv-frst-rowid2      = ROWID(ar-inv).
+  END.                
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT AVAIL cust THEN DO:
@@ -1428,6 +1438,207 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignCommonRecords B-table-Win
+PROCEDURE pAssignCommonRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Assign Common Records for the query
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcQueryBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldBuffer      AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldName        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplIsBreakByUsed    AS LOGICAL   NO-UNDO.  
+          
+    ASSIGN         
+        iopcQueryBuffer   = "ar-invl,ar-inv,cust"
+        iopcFieldBuffer   = "ar-invl"
+        iopcFieldName     = "inv-no" 
+        ioplIsBreakByUsed = YES 
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForShowAll B-table-Win 
+PROCEDURE pPrepareAndExecuteQueryForShowAll PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to show all records in browse
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cShowAllQuery AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse     AS CHARACTER NO-UNDO.
+               
+    cShowAllQuery = "FOR EACH ar-invl NO-LOCK"
+                    + " WHERE ar-invl.company EQ " + QUOTER(cocode)
+                    + " AND ar-invl.posted EQ YES " 
+                    + pGetWhereCriteria("ar-invl",YES)                    
+                    + " ,FIRST ar-inv  no-lock"
+                    + " WHERE ar-inv.x-no EQ ar-invl.x-no "
+                    + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
+                    + " AND ar-inv.inv-date LE " + quoter(fi_edate)
+                    + " " + pGetWhereCriteria("ar-inv",YES)
+                    + " ,FIRST cust OF ar-inv NO-LOCK "
+                    + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY ar-invl.inv-no BY ar-invl.bol-no BY ar-invl.i-no BY ar-invl.line "
+                    .             
+    RUN Browse_PrepareAndExecuteBrowseQuery(
+        INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+        INPUT  cShowAllQuery,               /* BRowse Query */             
+        INPUT  NO,                          /* Show limit alert? */        
+        INPUT  0,                           /* Record limit */             
+        INPUT  0,                           /* Time Limit */               
+        INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+        OUTPUT cResponse                                                  
+        ).
+    lShowAll = NO.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win 
+PROCEDURE pPrepareAndExecuteQuery :
+/*------------------------------------------------------------------------------
+ Purpose: Private procedure to prepare and execute query in browse
+ Notes:
+------------------------------------------------------------------------------*/     
+    DEFINE INPUT PARAMETER iplInitialLoad    AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cLimitingQuery        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrowseQuery          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderTypeWhereClause AS CHARACTER NO-UNDO.
+    
+    RUN pAssignCommonRecords(
+        INPUT-OUTPUT cQueryBuffers,
+        INPUT-OUTPUT cFieldBuffer,
+        INPUT-OUTPUT cFieldName,
+        INPUT-OUTPUT lIsBreakByUsed
+        ).
+          
+    cLimitingQuery = "FOR EACH ar-invl NO-LOCK"
+                     + " WHERE ar-invl.company EQ " + QUOTER(cocode)
+                     + " AND ar-invl.posted EQ YES " 
+                     + pGetWhereCriteria("ar-invl",YES)
+                     + " USE-INDEX inv-no-desc "                    
+                     + " ,FIRST ar-inv  no-lock"
+                     + " WHERE ar-inv.x-no EQ ar-invl.x-no "
+                     + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
+                     + " AND ar-inv.inv-date LE " + quoter(fi_edate)
+                     + "  " + pGetWhereCriteria("ar-inv",YES) 
+                     + " ,FIRST cust OF ar-inv NO-LOCK "
+                     + " BREAK BY ar-invl.inv-no DESC"
+                     .  
+                                 
+    /* Limit the query if order no is 0 or cadd No is Blank */                    
+    IF fi_inv-no EQ 0 THEN             
+        RUN Browse_PrepareAndExecuteLimitingQuery(
+            INPUT  cLimitingQuery,   /* Query */
+            INPUT  cQueryBuffers,    /* Buffers Name */
+            INPUT  iRecordLimit,     /* Record Limit */
+            INPUT  dQueryTimeLimit,  /* Time Limit*/
+            INPUT  lEnableShowAll,   /* Enable ShowAll Button? */
+            INPUT  cFieldBuffer,     /* Buffer name to fetch the field's value*/
+            INPUT  cFieldName,       /* Field Name*/
+            INPUT  iplInitialLoad,   /* Initial Query*/
+            INPUT  lIsBreakByUsed,   /* Is breakby used */
+            OUTPUT cResponse           
+            ).       
+  
+    ELSE 
+        cResponse = "InvoiceNo". /* For identification purpose */
+        
+    IF cResponse EQ "" AND lButtongoPressed THEN  
+        MESSAGE "No Records Found..."
+            VIEW-AS ALERT-BOX ERROR.
+              
+    ELSE IF cResponse EQ "ShowALL" THEN 
+        RUN pPrepareAndExecuteQueryForShowAll.
+            
+    ELSE DO:
+                
+        cBrowseWhereClause = (IF fi_inv-no EQ 0 THEN " AND ar-invl.inv-no  GE " + STRING(INTEGER(cResponse)) ELSE "").        
+               
+        cBrowseQuery = "FOR EACH ar-invl NO-LOCK"
+                       + " WHERE ar-invl.company EQ " + QUOTER(cocode)
+                       + " AND ar-invl.posted EQ YES "
+                       + cBrowseWhereClause   
+                       + pGetWhereCriteria("ar-invl",YES)
+                       + " USE-INDEX inv-no-desc"             
+                       + " ,FIRST ar-inv  no-lock"
+                       + " WHERE ar-inv.x-no EQ ar-invl.x-no "
+                       + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
+                       + " AND ar-inv.inv-date LE " + quoter(fi_edate)
+                       + "  " + pGetWhereCriteria("ar-inv",YES) 
+                       + " ,FIRST cust OF ar-inv NO-LOCK "                        
+                       + " BY " + pGetSortCondition(lv-sort-by,lv-sort-by-lab) + ( IF ll-sort-asc THEN  "" ELSE " DESC") +  " BY ar-invl.inv-no BY ar-invl.bol-no BY ar-invl.i-no BY ar-invl.line"
+                       .                                                               
+        RUN Browse_PrepareAndExecuteBrowseQuery(
+            INPUT  BROWSE {&BROWSE-NAME}:QUERY, /* Browse Query Handle */      
+            INPUT  cBrowseQuery,                /* BRowse Query */             
+            INPUT  NO,                          /* Show limit alert? */        
+            INPUT  0,                           /* Record limit */             
+            INPUT  0,                           /* Time Limit */               
+            INPUT  lEnableShowAll,              /* Enable ShowAll Button */    
+            OUTPUT cResponse                                                   
+            ).
+    END.                                     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckCustUserRecord B-table-Win 
+PROCEDURE pCheckCustUserRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opcCustNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cGetQueryString AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE h_buffer2        AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.
+  DEFINE VARIABLE fhCustomer as handle no-undo.
+                               
+        cGetQueryString = "FOR EACH ar-invl NO-LOCK"
+                     + " WHERE ar-invl.company EQ " + QUOTER(cocode)                     
+                     + pGetWhereCriteria("ar-invl", NO) 
+                     + " ,FIRST ar-inv  no-lock"
+                     + " WHERE ar-inv.x-no EQ ar-invl.x-no "
+                     + " AND ar-inv.inv-date GE " + quoter(fi_bdate)    
+                     + " AND ar-inv.inv-date LE " + quoter(fi_edate)       
+                     .  
+        CREATE BUFFER h_buffer FOR TABLE "ar-invl".
+        CREATE BUFFER h_buffer2 FOR TABLE "ar-inv".
+        CREATE QUERY h_lquery.                     
+        
+        h_lquery:ADD-BUFFER(h_buffer).
+        h_lquery:ADD-BUFFER(h_buffer2).
+        h_lquery:QUERY-PREPARE(cGetQueryString).
+        h_lquery:QUERY-OPEN().
+     
+        h_lquery:GET-FIRST().
+        MAIN-LOOP:
+        REPEAT:            
+            IF h_lquery:QUERY-OFF-END THEN
+                LEAVE MAIN-LOOP.  
+            fhCustomer = h_buffer:BUFFER-FIELD("cust-no" ).
+            opcCustNo = fhCustomer:BUFFER-VALUE .   
+            LEAVE MAIN-LOOP.           
+        END.
+        DELETE OBJECT h_lquery.
+        DELETE OBJECT h_buffer .    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-defaults B-table-Win 
 PROCEDURE set-defaults :
 /*------------------------------------------------------------------------------
@@ -1488,6 +1699,74 @@ PROCEDURE state-changed :
   END CASE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+ /* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetWhereCriteria B-table-Win
+FUNCTION pGetWhereCriteria RETURNS CHARACTER 
+  ( ipcTable AS CHARACTER, ipcCustListCheck AS LOGICAL ):
+/*------------------------------------------------------------------------------
+ Purpose: Prepares and returns the where clause criteria based on table name
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cWhereCriteria AS CHARACTER NO-UNDO.    
+       IF ipcTable EQ "ar-invl" THEN
+       DO:
+        IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
+        cWhereCriteria = cWhereCriteria 
+                         + (IF custCount  NE "" AND ipcCustListCheck THEN " AND ((LOOKUP(ar-invl.cust-no," + QUOTER(custcount) + ") NE 0" + " AND ar-invl.cust-no NE '') OR " + QUOTER(custcount) + " EQ '')" ELSE "") 
+                         + (IF fi_i-no    NE ""  THEN " AND ar-invl.i-no  BEGINS "    + QUOTER(fi_i-no)   ELSE "")
+                         + (IF fi_cust-no NE "" THEN " AND ar-invl.cust-no BEGINS "   + QUOTER(fi_cust-no)  ELSE "")
+                         + (IF fi_est-no  NE "" THEN " AND ar-invl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
+                         + (IF fi_part-no NE "" THEN " AND ar-invl.part-no BEGINS "    + QUOTER(fi_part-no)   ELSE "")
+                         + (IF fi_po-no   NE "" THEN " AND ar-invl.po-no EQ " + QUOTER(fi_po-no)  ELSE "")
+                         + (IF fi_actnum  NE "" THEN " AND ar-invl.actnum   BEGINS "    + QUOTER (fi_actnum)    ELSE "")
+                         + (IF fi_inv-no NE 0 THEN " AND ar-invl.inv-no EQ " + QUOTER(fi_inv-no)  ELSE "")
+                         + (IF fi_bol-no NE 0 THEN " AND ar-invl.bol-no EQ " + QUOTER(fi_bol-no)  ELSE "")
+                         + (IF fi_ord-no NE 0 THEN " AND ar-invl.ord-no EQ " + QUOTER(fi_ord-no)  ELSE ""). 
+       END.
+       ELSE IF ipcTable EQ "ar-inv" THEN
+       DO:
+          cWhereCriteria = cWhereCriteria + " AND ("                           
+                         + (IF tb_open     THEN " ar-inv.due NE 0 " ELSE "")
+                         + (IF NOT tb_open THEN " ar-inv.due EQ 0 " ELSE "")
+                         + (IF tb_paid     THEN " OR ar-inv.due EQ 0 " ELSE "")
+                         + (IF NOT tb_paid THEN " OR ar-inv.due NE 0 " ELSE "")  
+                         + " )"
+                        .               
+       END.
+    
+    RETURN cWhereCriteria.      
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetSortCondition B-table-Win
+FUNCTION pGetSortCondition RETURNS CHARACTER 
+  (ipcSortBy AS CHARACTER,ipcSortLabel AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Retuns the sort condition based on the input 
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    RETURN (IF ipcSortBy EQ 'ord-no'    THEN "STRING(ar-invl.ord-no,'9999999999')"        ELSE ~
+            IF ipcSortBy EQ 'actnum'    THEN "ar-invl.actnum"                             ELSE ~
+            IF ipcSortBy EQ 'cust-no'   THEN "ar-invl.cust-no"                            ELSE ~
+            IF ipcSortBy EQ 'i-no'      THEN "ar-invl.i-no"                               ELSE ~              
+            IF ipcSortBy EQ 'est-no'    THEN "ar-invl.est-no"                             ELSE ~
+            IF ipcSortBy EQ 'inv-no'    THEN "STRING(ar-invl.inv-no,'9999999999')"        ELSE ~
+            IF ipcSortBy EQ 'bol-no'    THEN "STRING(ar-invl.bol-no,'9999999999')"        ELSE ~
+            IF ipcSortBy EQ 'po-no'     THEN "ar-invl.po-no"                              ELSE ~
+            IF ipcSortBy EQ 'part-no'   THEN "ar-invl.part-no"                            ELSE ~                      
+                                             "STRING(YEAR(ar-inv.inv-date),'9999')
+                                             + STRING(MONTH(ar-inv.inv-date),'99')
+                                             + STRING(DAY(ar-inv.inv-date),'99')"
+            ).
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

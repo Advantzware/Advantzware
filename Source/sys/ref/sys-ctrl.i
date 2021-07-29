@@ -18,8 +18,8 @@ name-fld-list =
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187       188       189            190 */
 "CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource," +
-/*  191          192                193             194       195               196                  197   */
-"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC" 
+/*  191          192                193             194       195               196                  197        198          199                 200  */
+"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod" 
 .
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
@@ -44,7 +44,7 @@ ASSIGN
                 "BlueRX,ImperiaX,ColoniaX,Indiana,ArgrovX,AgMach,HPB,PPI,ABC,Fibrex," +
                 "TriLakes,Nosco,Nosco1,Southpakl,Androp,Packrite," +
                 "Rosmar,Badger,Badger-Emailed,AllWest,Simkins,ACPI,ColorX,Loylang," +
-                "ColonialLot#,LoylangJIT,Carded,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
+                "ColonialLot#,LoylangJIT,Carded,Carded2,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
                 "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
@@ -65,7 +65,7 @@ ASSIGN
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,PremTarget,CSC-GA,CardedX," +
                 "Protagon,Peachtree,ACPI,Soule,NStock,Multicell,Prystup,Metro,StClair," +
-                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest,RFC"
+                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest,RFC,CardedX2"
  str-init[10] = "ASI,1/2 Page,Royal,ContSrvc,Superior,Premier,Warren,PAC 1/2," +
                 "Imperial,P&P,Triad,TriState,BlueRidg,BlueRidg2,Sonoco,HOP,CCC," +
                 "Boxtech,Empire,Brick,AllPkg,Fibre,Maxpak,Oracle,Harwell,Century," +
@@ -77,7 +77,7 @@ ASSIGN
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
                 "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,PremierXFooter,Wingate-BOL,BOLfmt15,LancoYork,Delta2,GPI2,bolfmt 30," +
-                "BOLFMT-Mex,PREMDSG,PremCAN,Mclean-Excel,Henry"    
+                "BOLFMT-Mex,PREMDSG,PremCAN,Mclean-Excel,Henry,GPI2_I,CardedBC_I"    
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -291,6 +291,9 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[195] = "First Board,First Item,User Select"
        str-init[196] = "Entry,Update"
        str-init[197] = "RequestAlways,Yield Always,RequestNewOnly,YieldNewOnly"
+       str-init[198] = "cURL,Internal"
+       str-init[199] = "Manual,AutoSetOnAdd"
+       str-init[200] = "Up To,From"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

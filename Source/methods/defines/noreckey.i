@@ -2,6 +2,7 @@
 
 &Global-define NORECKEY ~
 acctcost ~
+ar-mcashl ~
 e-item ~
 emailcod ~
 hlp-head ~

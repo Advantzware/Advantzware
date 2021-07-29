@@ -117,6 +117,8 @@ DEFINE TEMP-TABLE tt-VendItemCost
 FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
+FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD.    
 
 /* ***************************  Main Block  *************************** */
 
@@ -182,6 +184,40 @@ PROCEDURE pCreateOePrmtxTT PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProcat         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-prmtx  FOR oe-prmtx. 
+    
+    FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
+        WHERE bf-oe-prmtx.company    EQ ipcCompany
+          AND bf-oe-prmtx.cust-no    EQ ipcCustNo
+          AND bf-oe-prmtx.i-no       EQ ipcItemID
+          AND bf-oe-prmtx.custype    EQ ipcCustType
+          AND bf-oe-prmtx.custShipID EQ ipcShipID
+          AND bf-oe-prmtx.procat     EQ ipcProcat 
+          AND bf-oe-prmtx.quoteID    NE 0
+          BREAK BY bf-oe-prmtx.cust-no DESC
+          BY bf-oe-prmtx.i-no DESC
+          BY bf-oe-prmtx.custype DESC
+          BY bf-oe-prmtx.custShipID DESC
+          BY bf-oe-prmtx.procat DESC
+          BY bf-oe-prmtx.eff-date DESC: 
+          
+          IF NOT FIRST-OF(bf-oe-prmtx.procat) THEN
+          bf-oe-prmtx.quoteID = 0.
+    END.          
+    RELEASE bf-oe-prmtx.      
+END PROCEDURE.          
 
 PROCEDURE pExpireOldPrices PRIVATE:
 /*------------------------------------------------------------------------------
@@ -209,7 +245,18 @@ PROCEDURE pExpireOldPrices PRIVATE:
           INPUT ipcShipID,
           INPUT ipcCustNo,
           INPUT ipcCustType
-          ).   
+          ).
+          
+      IF iplExpire THEN    
+      RUN pCheckDuplicateQuoteEntry(
+                   INPUT ipcCompany,
+                   INPUT ipcItemID,
+                   INPUT ipcShipID,
+                   INPUT ipcCustNo,
+                   INPUT ipcCustType,
+                   INPUT ipcProcat
+                   ).
+                   
     FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
         WHERE bf-oe-prmtx.company    EQ ipcCompany
           AND bf-oe-prmtx.cust-no    EQ ipcCustNo
@@ -285,7 +332,6 @@ PROCEDURE pExpireOldPrices PRIVATE:
                     do:
                      ASSIGN
                         bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.                        
-                        bf-oe-prmtx.quoteID  = 0.
                     END.    
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.                         
@@ -1704,17 +1750,37 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
     DEFINE OUTPUT PARAMETER oplQtyDistinctMatch AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLevelQty AS INTEGER NO-UNDO.
+    
     ASSIGN 
         opiQtyLevel         = 0
         oplQtyDistinctMatch = NO 
         ipiLevelStart       = IF ipiLevelStart EQ 0 THEN 1 ELSE ipiLevelStart
         .
     IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
- 
+    
+    cPriceMatrixPricingMethod = fGetNk1PriceMatrixPricingMethod(ipbf-oe-prmtx.company).
+      
+    IF cPriceMatrixPricingMethod EQ "From" AND ipdQuantityTarget LT ipbf-oe-prmtx.minOrderQty THEN RETURN.        
+      
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
-        IF ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
+        IF cPriceMatrixPricingMethod EQ "From" THEN 
+        DO:
+            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+                oplQtyDistinctMatch = YES. 
+            
+            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] THEN
+            iLevelQty = ipbf-oe-prmtx.qty[iLevel] .
+            
+            IF ipdQuantityTarget LE (ipbf-oe-prmtx.qty[iLevel] - 1) AND ipdQuantityTarget GE iLevelQty AND iLevelQty GT 0 THEN
+            DO:                          
+                IF opiQtyLevel = 0 THEN 
+                    opiQtyLevel = (iLevel - 1).
+            END.        
+        END. /* cPriceMatrixPricingMethod EQ "From" */
+        ELSE IF cPriceMatrixPricingMethod EQ "Up To" AND ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
             IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
                 oplQtyDistinctMatch = YES.
@@ -1722,7 +1788,7 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
                 opiQtyLevel = iLevel.
         END. /*Qty LE oe-prmtx qty*/
     END.
-
+          
 END PROCEDURE.
 
 PROCEDURE Price_ExpirePriceMatrixByItem:
@@ -1870,3 +1936,27 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 	
 END FUNCTION.
 
+FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns whether LastPrice is option set for NK1 SELLPRIC 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE lFound                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn                   AS CHARACTER NO-UNDO. 
+    
+    RUN sys/ref/nk1look.p (ipcCompany,
+        "PriceMatrixPricingMethod",
+        "C",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    cPriceMatrixPricingMethod = cReturn.
+    RETURN cPriceMatrixPricingMethod.
+	
+END FUNCTION.
