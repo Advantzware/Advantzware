@@ -8,7 +8,7 @@
     RETURN NO-APPLY.
   END. */
   
-  initialDir = '{&scenarios}/' + ID.
+  initialDir = REPLACE('{&scenarios}/' + ID,"/","~\").
   IF scenario EQ '<New>' THEN DO:
     ASSIGN
       scenario = 'sb-'

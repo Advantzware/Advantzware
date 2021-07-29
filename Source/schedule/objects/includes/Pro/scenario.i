@@ -21,7 +21,7 @@
         RETURN NO-APPLY.
       END. /* new  */
       WHEN '<Open>' THEN DO:
-        initialDir = '{&scenarios}/' + ID.
+        initialDir = REPLACE('{&scenarios}/' + ID,"/","~\").
         SYSTEM-DIALOG GET-FILE scenario
           TITLE 'Choose Scenario File'
           INITIAL-DIR initialDir
