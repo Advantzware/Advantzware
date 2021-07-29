@@ -134,7 +134,7 @@ ASSIGN
  str-init[42] = "Item,Set" 
  str-init[43] = ",Bin>Qty,AutoSelectShipFrom"
  str-init[44] = "Fibre,ASI,Stock/Custom" 
- str-init[45] = "Due Date,LastShip,DueDate+1Day" 
+ str-init[45] = "Due Date,LastShip,DueDate+1Day,DueDateLessTransitDays" 
  str-init[46] = "Expense,Vendor,ExpVend,Asset" 
  str-init[47] = "JobClose,FGPost" 
  str-init[48] = "EA,M" 
