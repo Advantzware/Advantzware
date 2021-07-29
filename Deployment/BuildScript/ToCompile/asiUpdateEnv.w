@@ -2258,8 +2258,7 @@ PROCEDURE ipConvertPolScore PRIVATE:
     
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
-    FOR EACH bf-company NO-LOCK 
-        WHERE bf-company.company = "001":
+    FOR EACH bf-company NO-LOCK:
         RUN sys/ref/nk1look.p (
             INPUT bf-company.company,     /* Company Code */ 
             INPUT "CECSCRN",      /* sys-ctrl name */
@@ -3757,8 +3756,6 @@ PROCEDURE ipDataFix210200:
     RUN ipStatus ("  Data Fix 210200...").
 
     RUN ipAssignARInvXNoSeq.
-    RUN ipConvertPolScore.
-    RUN ipJobMchSequenceFix.
     RUN ipConvertCustomerX.
     
 END PROCEDURE.
@@ -3782,6 +3779,28 @@ PROCEDURE ipDataFix210300:
     
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210300 C-Win
+PROCEDURE ipDataFix210300:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210300...").
+ 
+    RUN ipConvertPolScore.
+    RUN ipJobMchSequenceFix.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -7746,7 +7765,7 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
     
     DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
     
-    FOR EACH job NO-LOCK WHERE job.company = "001":
+    FOR EACH job NO-LOCK:
         lResequence = FALSE.
         FOR EACH job-mch NO-LOCK WHERE job-mch.company = job.company
             AND job-mch.job = job.job BY job-mchid:
