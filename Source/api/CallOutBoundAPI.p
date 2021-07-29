@@ -351,9 +351,9 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
 
     IF gcRequestVerb EQ "POST" THEN        
         oplcResponseData = oAPIHandler:Post(gcEndPoint, iplcRequestData).
-    ELSE IF gcRequestDataType EQ "GET" THEN 
+    ELSE IF gcRequestVerb EQ "GET" THEN 
         oplcResponseData = oAPIHandler:Get(gcEndPoint).
-    ELSE IF gcRequestDataType EQ "DELETE" THEN 
+    ELSE IF gcRequestVerb EQ "DELETE" THEN 
         oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
     
     cResponseCode = oAPIHandler:GetResponseStatusCode().
