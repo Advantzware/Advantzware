@@ -962,13 +962,12 @@ FOR EACH ef
            cSetFGItem = bff-eb.stock-no  .
            lPrintSetHeader = TRUE.
            RUN pPrintData(ROWID(bff-eb)).
-           RUN pPrintDetail(ROWID(bff-eb)).
            PAGE.
        END.
    END.
       
     IF FIRST-OF(eb.form-no) THEN do:
-      RUN pPrintData(ROWID(eb)) . 
+      IF est.est-type GT 2 THEN RUN pPrintData(ROWID(eb)) . 
                      
     END.  /* first-of eb */
     
@@ -1332,7 +1331,7 @@ PROCEDURE pPrintDetail:
                   
 
         PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  job-hdr.ord-no  FORMAT ">>>>>9"  SKIP        
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-no) ELSE "")  SKIP        
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP 
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
