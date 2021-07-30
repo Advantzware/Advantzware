@@ -75,7 +75,7 @@ DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD item-no LIKE po-ordl.i-no
     FIELD descr   AS CHAR FORMAT "X(15)"
     FIELD prod-cat AS CHAR
-    FIELD qty-to-inv AS DEC format "->>,>>>,>>9.99"
+    FIELD qty-to-inv AS DEC format "->>,>>>,>>9.9"
     FIELD whse AS CHAR
     FIELD cost-each AS DEC format ">>>,>>9.99<<<<"
     FIELD amt-to-inv AS DEC format "->>,>>>,>>9.99"
@@ -105,7 +105,7 @@ form temp-po-rec.vend-no    COLUMN-LABEL "Vendor"
                             format "x(15)" 
      temp-po-rec.prod-cat   column-label "Prod!Cat" FORMAT "X(5)"
      temp-po-rec.qty-to-inv column-label "Quantity!To Invoice"
-                            format "->>,>>>,>>9.99"
+                            format "->>,>>>,>>9.9"
      temp-po-rec.whse       column-label "Whse" FORMAT "X(5)"
      temp-po-rec.cost-each  column-label "Cost Each"
                             format ">>>,>>9.99<<<<"
