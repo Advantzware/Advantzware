@@ -1191,7 +1191,7 @@ PROCEDURE display-data-proc :
                          WHEN "item"   THEN cVarValue = STRING(temp-po-rec.item-no,"x(15)") .
                          WHEN "desc"  THEN cVarValue = STRING(temp-po-rec.descr,"x(25)") .
                          WHEN "cat"   THEN cVarValue = STRING(temp-po-rec.prod-cat,"x(6)") .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(temp-po-rec.qty-to-inv,"->>,>>>,>>9.99") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(temp-po-rec.qty-to-inv,"->>,>>>,>>9.9") .
                          WHEN "whse"  THEN cVarValue = STRING(temp-po-rec.whse,"x(5)") .
                          WHEN "cost"   THEN cVarValue = STRING(temp-po-rec.cost-each,">>>>>>9.99<<<<") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(temp-po-rec.amt-to-inv,"->>,>>>,>>9.99") .
@@ -1241,7 +1241,7 @@ PROCEDURE display-data-proc :
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-tot-qty,"->>,>>>,>>9.99") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-tot-qty,"->>,>>>,>>9.9") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-tot-amt,"->>,>>>,>>9.99") .
@@ -1786,7 +1786,7 @@ down 2 with frame detail.*/
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.99") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.9") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
@@ -2327,7 +2327,7 @@ PUT str-line SKIP.
                          WHEN "item"   THEN cVarValue = "" .
                          WHEN "desc"  THEN cVarValue = "" .
                          WHEN "cat"   THEN cVarValue = "" .
-                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.99") .
+                         WHEN "inv-qty"  THEN cVarValue = STRING(v-grand-tot-qty,"->>,>>>,>>9.9") .
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
