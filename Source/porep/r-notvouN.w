@@ -68,6 +68,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEF STREAM excel.
 DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD po-no AS INT
+    FIELD po-line AS INT
     FIELD vend-no AS CHAR FORMAT "X(8)"
     FIELD gl-acct LIKE po-ordl.actnum
     FIELD date-rec AS DATE
@@ -84,6 +85,7 @@ DEF TEMP-TABLE temp-po-rec NO-UNDO
 
 DEF TEMP-TABLE tt-neg-po-line NO-UNDO
     FIELD po-no AS INT
+    FIELD po-line AS INT
     FIELD i-no AS CHAR
     FIELD item-type AS LOG
     FIELD qty LIKE fg-rdtlh.qty
@@ -122,13 +124,17 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE cFileName as character NO-UNDO .
 
-ASSIGN cTextListToSelect = "Vendor,G/L Account,PO#,Date Rec,Item Number,Description,Cat," +
-                           "Inv Qty,Whse,Cost Each,Invoice Amt" 
+ASSIGN cTextListToSelect = "Vendor,G/L Account,PO#,PO Line,Date Rec,Item Number,Description,Cat," +
+                           "Inv Qty,Whse,Cost Each,Invoice Amt," +
+                           "Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value," +
+                           "Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount"
 
-       cFieldListToSelect = "vend,act,po,date,item,desc,cat," +
-                            "inv-qty,whse,cost,inv-amt"
-       cFieldLength = "8,25,6,8,15,25,6," + "13,5,10,14"
-       cFieldType = "c,c,i,c,c,c,c," + "i,c,i,i" 
+       cFieldListToSelect = "vend,act,po,po-line,date,item,desc,cat," +
+                            "inv-qty,whse,cost,inv-amt," +
+                            "rec-date,rec-job,rec-loc,rec-bin,rec-qty,rec-qty-uom,rec-cost,rec-cost-uom,rec-ext-value," +
+                            "inv-no,inv-date,inv-qty2,inv-qty-uom,inv-price,inv-price-uom,inv-line-amount"
+       cFieldLength = "8,25,6,8,8,15,25,6," + "13,5,10,14," + "12,10,8,8,12,10,14,10,14," + "20,12,12,11,13,10,15"
+       cFieldType = "c,c,i,c,c,c,c,c," + "i,c,i,i," + "c,c,c,c,i,c,i,c,i," + "c,c,i,c,i,c,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -154,11 +160,11 @@ ASSIGN cTextListToDefault  = "Vendor,G/L Account,PO#,Date Rec,Item Number,Descri
 begin_po-no end_po-no begin_po-i-no end_po-i-no begin_rdate end_rdate ~
 begin_vend end_vend scr-neg-rec tb_in-po rd_sort sl_avail Btn_Def ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm fi_file ~
-tb_runExcel tbAutoClose btn-ok btn-cancel 
+tb_show-details tb_print-subtotals tb_runExcel tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_po-no end_po-no ~
 begin_po-i-no end_po-i-no begin_rdate end_rdate begin_vend end_vend ~
 scr-neg-rec tb_in-po rd_sort sl_avail sl_selected rd-dest td-show-parm ~
-fi_file tb_runExcel tbAutoClose 
+tb_show-details tb_print-subtotals fi_file tb_runExcel tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -346,6 +352,16 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 15 BY .81
      BGCOLOR 15  NO-UNDO.
+     
+DEFINE VARIABLE tb_show-details AS LOGICAL INITIAL no 
+     LABEL "Show Details" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
+     
+DEFINE VARIABLE tb_print-subtotals AS LOGICAL INITIAL no 
+     LABEL "Print Subtotals" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.     
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -373,7 +389,9 @@ DEFINE FRAME FRAME-A
      end_vend AT ROW 6.67 COL 68 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
      scr-neg-rec AT ROW 7.86 COL 29 WIDGET-ID 2
+     tb_show-details AT ROW 7.86 COL 62.4 WIDGET-ID 60
      tb_in-po AT ROW 8.67 COL 29 WIDGET-ID 58
+     tb_print-subtotals AT ROW 8.67 COL 62.4 WIDGET-ID 62
      rd_sort AT ROW 9.62 COL 29 NO-LABEL
      sl_avail AT ROW 11.71 COL 3.6 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 11.71 COL 41.2 HELP
@@ -1168,6 +1186,7 @@ PROCEDURE display-data-proc :
                          WHEN "vend"    THEN cVarValue = string(temp-po-rec.vend-no,"x(8)") .
                          WHEN "act"   THEN cVarValue = string(temp-po-rec.gl-acct,"x(25)").
                          WHEN "po"   THEN cVarValue = STRING(temp-po-rec.po-no,">>>>>9").
+                         WHEN "po-line"   THEN cVarValue = IF temp-po-rec.po-line NE 0 THEN STRING(temp-po-rec.po-line,">9") ELSE "".
                          WHEN "date"  THEN cVarValue = IF temp-po-rec.date-rec NE ? THEN STRING(temp-po-rec.date-rec,"99/99/99") ELSE "" .
                          WHEN "item"   THEN cVarValue = STRING(temp-po-rec.item-no,"x(15)") .
                          WHEN "desc"  THEN cVarValue = STRING(temp-po-rec.descr,"x(25)") .
@@ -1176,7 +1195,7 @@ PROCEDURE display-data-proc :
                          WHEN "whse"  THEN cVarValue = STRING(temp-po-rec.whse,"x(5)") .
                          WHEN "cost"   THEN cVarValue = STRING(temp-po-rec.cost-each,">>>>>>9.99<<<<") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(temp-po-rec.amt-to-inv,"->>,>>>,>>9.99") .
-
+                         OTHERWISE cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1189,14 +1208,19 @@ PROCEDURE display-data-proc :
             IF rd-dest = 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
-             END.
+            END.
+            
+            IF logical(tb_show-details) THEN
+            RUN pPrintDetail( INPUT temp-po-rec.vend-no,
+                              INPUT temp-po-rec.po-no,
+                              INPUT temp-po-rec.po-line).
 
    assign
       v-tot-qty = v-tot-qty + temp-po-rec.qty-to-inv
       v-tot-amt = v-tot-amt + temp-po-rec.amt-to-inv.
 
 
-   if ip-last-of and v-tot-amt ne 0 then do:
+   IF tb_print-subtotals AND ip-last-of and v-tot-amt ne 0 then do:
      /* underline temp-po-rec.qty-to-inv temp-po-rec.amt-to-inv with frame detail.
       display v-tot-qty @ temp-po-rec.qty-to-inv v-tot-amt @ temp-po-rec.amt-to-inv with frame detail.
       down 2 with frame detail.*/
@@ -1221,7 +1245,7 @@ PROCEDURE display-data-proc :
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-tot-amt,"->>,>>>,>>9.99") .
-
+                         OTHERWISE cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1236,12 +1260,13 @@ PROCEDURE display-data-proc :
                        substring(cExcelDisplay,4,300) SKIP(1).
              END.
 
-      assign
-       v-grand-tot-qty = v-grand-tot-qty + v-tot-qty
-       v-grand-tot-amt = v-grand-tot-amt + v-tot-amt
-       v-tot-qty = 0
-       v-tot-amt = 0.
+      
     end.
+    assign
+        v-grand-tot-qty = v-grand-tot-qty + v-tot-qty
+        v-grand-tot-amt = v-grand-tot-amt + v-tot-amt
+        v-tot-qty       = 0
+        v-tot-amt       = 0.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1373,13 +1398,13 @@ PROCEDURE enable_UI :
   DISPLAY begin_date end_date begin_po-no end_po-no begin_po-i-no end_po-i-no 
           begin_rdate end_rdate begin_vend end_vend scr-neg-rec tb_in-po rd_sort 
           sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel 
-          tbAutoClose 
+          tbAutoClose tb_show-details tb_print-subtotals
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_po-no end_po-no begin_po-i-no 
          end_po-i-no begin_rdate end_rdate begin_vend end_vend scr-neg-rec 
          tb_in-po rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
          btn_Up btn_down rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
-         btn-ok btn-cancel 
+         tb_show-details tb_print-subtotals btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1557,7 +1582,8 @@ assign
  frdat   = begin_rdate
  trdat   = end_rdate
  fvend   = begin_vend
- tvend   = END_vend. 
+ tvend   = END_vend
+ str-line = "". 
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1582,7 +1608,7 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
-
+   
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1699,14 +1725,12 @@ display "" with frame r-top.
                     (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                      ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
-       IF po-ordl.pr-qty-uom NE "EA" THEN
-                 RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
-                               v-cost, OUTPUT v-cost).
 
            CREATE temp-po-rec.
            ASSIGN
               temp-po-rec.vend-no = v-vend-no
               temp-po-rec.po-no = po-ordl.po-no
+              temp-po-rec.po-line = po-ordl.LINE
               temp-po-rec.gl-acct = po-ordl.actnum
               temp-po-rec.date-rec = v-date
               temp-po-rec.item-no = po-ordl.i-no
@@ -1715,7 +1739,7 @@ display "" with frame r-top.
               temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
               temp-po-rec.whse = po-ord.loc
               temp-po-rec.cost-each = v-cost
-              temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
+              temp-po-rec.amt-to-inv =  v-amt-r - v-amt-i.
            RELEASE temp-po-rec.
          end.
       END.
@@ -1766,7 +1790,7 @@ down 2 with frame detail.*/
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
-
+                         OTHERWISE cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1850,7 +1874,8 @@ assign
  frdat   = begin_rdate
  trdat   = end_rdate
  fvend   = begin_vend
- tvend   = END_vend. 
+ tvend   = END_vend
+ str-line = "". 
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -2079,14 +2104,12 @@ display "" with frame r-top.
                         (((IF v-qty-r LT 0 THEN -1 ELSE 1) * v-qty-r) +
                          ((IF v-qty-i LT 0 THEN -1 ELSE 1) * v-qty-i)).
 
-                     IF po-ordl.pr-qty-uom NE "EA" THEN
-                         RUN sys/ref/convcuom.p( po-ordl.pr-qty-uom, "EA", 0, 0, 0, 0,
-                                                 v-cost, OUTPUT v-cost).
 
                CREATE temp-po-rec.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
                   temp-po-rec.po-no = po-ordl.po-no
+                  temp-po-rec.po-line = po-ordl.LINE
                   temp-po-rec.gl-acct = po-ordl.actnum
                   temp-po-rec.date-rec = v-date
                   temp-po-rec.item-no = po-ordl.i-no
@@ -2095,7 +2118,7 @@ display "" with frame r-top.
                   temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
                   temp-po-rec.whse = po-ord.loc
                   temp-po-rec.cost-each = v-cost
-                  temp-po-rec.amt-to-inv = /*v-amt-r -*/ v-amt-i.
+                  temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
                RELEASE temp-po-rec.
             end.
             ELSE
@@ -2137,6 +2160,7 @@ display "" with frame r-top.
                      ASSIGN
                         temp-po-rec.vend-no = v-vend-no
                         temp-po-rec.po-no = po-ordl.po-no
+                        temp-po-rec.po-line = po-ordl.LINE
                         temp-po-rec.gl-acct = po-ordl.actnum
                         temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                         temp-po-rec.item-no = po-ordl.i-no
@@ -2191,6 +2215,7 @@ display "" with frame r-top.
                   ASSIGN
                      temp-po-rec.vend-no = v-vend-no
                      temp-po-rec.po-no = po-ordl.po-no
+                     temp-po-rec.po-line = po-ordl.LINE
                      temp-po-rec.gl-acct = po-ordl.actnum
                      temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                      temp-po-rec.item-no = po-ordl.i-no
@@ -2245,6 +2270,7 @@ display "" with frame r-top.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
                   temp-po-rec.po-no = po-ordl.po-no
+                  temp-po-rec.po-line = po-ordl.LINE
                   temp-po-rec.gl-acct = po-ordl.actnum
                   temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                   temp-po-rec.item-no = po-ordl.i-no
@@ -2306,7 +2332,7 @@ PUT str-line SKIP.
                          WHEN "whse"  THEN cVarValue = "" .
                          WHEN "cost"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-grand-tot-amt,"->>,>>>,>>9.99") .
-
+                         OTHERWISE cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2329,6 +2355,261 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintDetail C-Win 
+PROCEDURE pPrintDetail :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcVender AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine AS INTEGER NO-UNDO.
+  
+    DEFINE VARIABLE excelheader  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityRec AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUom     AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+  
+    FIND FIRST bf-po-ord NO-LOCK
+        WHERE bf-po-ord.company EQ cocode
+        AND bf-po-ord.po-no EQ ipiPoNo NO-ERROR.
+       
+    FIND FIRST bf-po-ordl NO-LOCK
+        WHERE bf-po-ordl.company EQ cocode
+        AND bf-po-ordl.po-no EQ ipiPoNo
+        AND bf-po-ordl.LINE EQ ipiPoLine NO-ERROR.         
+       
+    IF bf-po-ordl.item-type  THEN
+    DO:     
+        FOR EACH rm-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom)
+            WHERE rm-rcpth.company    EQ cocode
+            AND rm-rcpth.i-no       EQ bf-po-ordl.i-no
+            AND rm-rcpth.po-no      EQ string(bf-po-ordl.po-no) 
+            AND rm-rcpth.po-line    EQ bf-po-ordl.LINE
+            AND rm-rcpth.trans-date GE begin_rdate
+            AND rm-rcpth.trans-date LE end_rdate
+            AND rm-rcpth.rita-code  EQ "R"
+            USE-INDEX item-po NO-LOCK,
+
+            EACH rm-rdtlh FIELDS(loc loc-bin qty trans-date cost frt-cost)
+            WHERE rm-rdtlh.r-no   EQ rm-rcpth.r-no               
+            NO-LOCK:
+             
+            IF rm-rcpth.job-no NE "" THEN
+                cJobNo =  rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2,"99") .        
+            ELSE 
+                cJobNo = "".
+               
+            ASSIGN 
+                cDisplay       = ""
+                cTmpField      = ""
+                cVarValue      = ""
+                cExcelDisplay  = ""
+                cExcelVarValue = "".
+      
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                CASE cTmpField:             
+                    WHEN "rec-date"    THEN 
+                        cVarValue = STRING(rm-rcpth.trans-date,"99/99/9999") .
+                    WHEN "rec-job"   THEN 
+                        cVarValue = STRING(cJobNo,"x(10)").
+                    WHEN "rec-loc"   THEN 
+                        cVarValue = STRING(rm-rdtlh.loc,"x(8)").
+                    WHEN "rec-bin"   THEN 
+                        cVarValue = STRING(rm-rdtlh.loc-bin,"x(8)").
+                    WHEN "rec-qty"  THEN 
+                        cVarValue = STRING(rm-rdtlh.qty,"->>>,>>>,>>9")  .
+                    WHEN "rec-qty-uom"   THEN 
+                        cVarValue = STRING(rm-rcpth.pur-uom,"x(10)") .
+                    WHEN "rec-cost"  THEN 
+                        cVarValue = STRING(rm-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
+                    WHEN "rec-cost-uom"   THEN 
+                        cVarValue = STRING(rm-rcpth.pur-uom,"x(10)") .
+                    WHEN "rec-ext-value"  THEN 
+                        cVarValue = STRING(rm-rdtlh.qty * rm-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
+                    OTHERWISE 
+                    cVarValue = "".
+                END CASE.
+
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                    FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            END.
+
+            IF cDisplay NE "" THEN PUT UNFORMATTED cDisplay SKIP.
+            IF rd-dest = 3 AND cExcelDisplay NE "" THEN 
+            DO:
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.                        
+            END.
+             
+        END.
+    END.
+    ELSE 
+    DO:
+      
+        FOR EACH fg-rcpth FIELDS(r-no rita-code i-no job-no job-no2 trans-date po-line pur-uom)
+            WHERE fg-rcpth.company    EQ cocode
+            AND fg-rcpth.i-no       EQ bf-po-ordl.i-no
+            AND fg-rcpth.po-no      EQ string(bf-po-ordl.po-no)
+            AND fg-rcpth.po-line    EQ bf-po-ordl.LINE
+            AND fg-rcpth.rita-code  EQ "R"
+            AND fg-rcpth.trans-date GE begin_rdate
+            AND fg-rcpth.trans-date LE end_rdate
+            USE-INDEX item-po NO-LOCK,
+            FIRST fg-rdtlh FIELDS(loc loc-bin qty trans-date cost) WHERE
+            fg-rdtlh.r-no EQ fg-rcpth.r-no AND
+            fg-rdtlh.rita-code EQ fg-rcpth.rita-code                 
+            NO-LOCK:
+                  
+            IF fg-rcpth.job-no NE "" THEN
+                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"99") .        
+            ELSE 
+                cJobNo = "".
+                
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ cocode
+                 AND itemfg.i-no    EQ fg-rcpth.i-no
+                 USE-INDEX i-no NO-ERROR.
+            cCostUom = IF AVAIL itemfg THEN itemfg.pur-uom ELSE "EA".      
+                
+            RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  bf-po-ordl.company,
+                    INPUT  bf-po-ordl.i-no,
+                    INPUT  "FG",
+                    INPUT  fg-rdtlh.qty,
+                    INPUT  cCostUom, 
+                    INPUT  fg-rcpth.pur-uom,
+                    INPUT  0,
+                    INPUT  bf-po-ordl.s-len,
+                    INPUT  bf-po-ordl.s-wid,
+                    INPUT  bf-po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityRec,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).                                                           
+                    
+            ASSIGN 
+                cDisplay       = ""
+                cTmpField      = ""
+                cVarValue      = ""
+                cExcelDisplay  = ""
+                cExcelVarValue = "".
+
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                CASE cTmpField:             
+                    WHEN "rec-date"    THEN 
+                        cVarValue = STRING(fg-rcpth.trans-date,"99/99/9999") .
+                    WHEN "rec-job"   THEN 
+                        cVarValue = STRING(cJobNo,"x(10)").
+                    WHEN "rec-loc"   THEN 
+                        cVarValue = STRING(fg-rdtlh.loc,"x(8)").
+                    WHEN "rec-bin"   THEN 
+                        cVarValue = STRING(fg-rdtlh.loc-bin,"x(8)").
+                    WHEN "rec-qty"  THEN 
+                        cVarValue = STRING(fg-rdtlh.qty,"->>>,>>>,>>9")  .
+                    WHEN "rec-qty-uom"   THEN 
+                        cVarValue = STRING(fg-rcpth.pur-uom,"x(10)") .
+                    WHEN "rec-cost"  THEN 
+                        cVarValue = STRING(fg-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
+                    WHEN "rec-cost-uom"   THEN 
+                        cVarValue = STRING(fg-rcpth.pur-uom,"x(10)") .
+                    WHEN "rec-ext-value"  THEN 
+                        cVarValue = STRING(dQuantityRec * fg-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
+                    OTHERWISE 
+                    cVarValue = "".
+                END CASE.
+
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                    FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            END.
+
+            IF cDisplay NE "" THEN PUT UNFORMATTED cDisplay SKIP.
+            IF rd-dest = 3 AND cExcelDisplay NE "" THEN 
+            DO:
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.                        
+            END.                 
+        END.        
+    END.
+  
+    FOR EACH reftable
+        {ap/ap-reftbW.i bf-po-ordl.po-no}
+        NO-LOCK,
+               each ap-inv WHERE
+                    ap-inv.company eq cocode AND
+                    ap-inv.i-no    eq int(reftable.code2) AND
+                    ap-inv.vend-no eq bf-po-ord.vend-no AND
+                    (ap-inv.po-no  eq bf-po-ordl.po-no or ap-inv.po-no eq 0) AND
+                    ap-inv.posted  eq yes
+                    use-index i-no no-lock,
+               each ap-invl WHERE
+                    ap-invl.i-no       eq ap-inv.i-no AND
+                    (ap-invl.po-no     eq bf-po-ordl.po-no or ap-inv.po-no ne 0) AND
+                    {ap/invlline.i -1} eq bf-po-ordl.LINE 
+                    use-index i-no no-lock:
+
+    ASSIGN 
+        cDisplay       = ""
+        cTmpField      = ""
+        cVarValue      = ""
+        cExcelDisplay  = ""
+        cExcelVarValue = "".
+                   
+    DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+        CASE cTmpField:             
+            WHEN "inv-no"    THEN 
+                cVarValue = STRING(ap-inv.inv-no,"x(20)") .
+            WHEN "inv-date"   THEN 
+                cVarValue = STRING(ap-inv.inv-date,"99/99/9999").
+            WHEN "inv-qty2"   THEN 
+                cVarValue = STRING(ap-invl.qty,"->>>,>>9.99").
+            WHEN "inv-qty-uom"   THEN 
+                cVarValue = STRING(ap-invl.cons-uom,"x(10)").
+            WHEN "inv-price"  THEN 
+                cVarValue = STRING(ap-invl.unit-pr,"->,>>>,>>9.99<<<<")  .
+            WHEN "inv-price-uom"   THEN 
+                cVarValue = STRING(ap-invl.pr-qty-uom,"x(10)") .
+            WHEN "inv-line-amount"  THEN 
+                cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99<<<<") .                                 
+            OTHERWISE 
+            cVarValue = "".
+        END CASE.
+
+        cExcelVarValue = cVarValue.
+        cDisplay = cDisplay + cVarValue +
+            FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+    END.
+
+    PUT UNFORMATTED cDisplay SKIP.
+    IF rd-dest = 3 THEN 
+    DO:
+        PUT STREAM excel UNFORMATTED  
+            cExcelDisplay SKIP.                        
+    END.  
+
+END.   
+  
+   
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
