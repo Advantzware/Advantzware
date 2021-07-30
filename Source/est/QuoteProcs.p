@@ -730,6 +730,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
         AND bf-quotehd.cust-no EQ quotehd.cust-no
         AND bf-quotehd.ship-id EQ quotehd.ship-id
         AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
+        AND bf-quotehd.effectiveDate LE TODAY
         AND rowid(bf-quotehd) NE iprwRowid ,
         EACH quoteitm NO-LOCK
              WHERE quoteitm.company EQ bf-quotehd.company
