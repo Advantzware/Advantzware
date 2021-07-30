@@ -66,29 +66,54 @@ FOR EACH fg-bin NO-LOCK
 
   CREATE tt-fg-bin.
   BUFFER-COPY fg-bin TO tt-fg-bin.
-   
-  FOR EACH fg-rcpth FIELDS(r-no rita-code po-no) WHERE
-      fg-rcpth.company EQ io-itemfg.company AND
-      fg-rcpth.i-no EQ io-itemfg.i-no AND
-      fg-rcpth.job-no EQ fg-bin.job-no AND
-      fg-rcpth.job-no2 EQ fg-bin.job-no2 AND
-      fg-rcpth.po-no NE "" AND
-      fg-rcpth.rita-code EQ "R"
-      NO-LOCK,
-      FIRST fg-rdtlh fields() WHERE
-            fg-rdtlh.r-no EQ fg-rcpth.r-no AND
-            fg-rdtlh.rita-code EQ fg-rcpth.rita-code AND
-            fg-rdtlh.loc EQ fg-bin.loc AND
-            fg-rdtlh.loc-bin EQ fg-bin.loc-bin AND
-            fg-rdtlh.tag EQ fg-bin.tag AND
-            fg-rdtlh.cust-no EQ fg-bin.cust-no AND
-            fg-rdtlh.bol-no EQ fg-bin.bol-no AND
-            fg-rdtlh.inv-no EQ fg-bin.inv-no
-            NO-LOCK
-      BY fg-rcpth.trans-date DESC
-      BY fg-rdtlh.trans-time DESC:
-
-      tt-fg-bin.po-no = fg-rcpth.po-no.
+  
+  IF TRIM(fg-bin.tag) EQ "" THEN DO:
+      FOR EACH fg-rcpth NO-LOCK
+          WHERE fg-rcpth.company   EQ fg-bin.company
+            AND fg-rcpth.i-no      EQ fg-bin.i-no
+            AND fg-rcpth.job-no    EQ fg-bin.job-no
+            AND fg-rcpth.job-no2   EQ fg-bin.job-no2
+            AND fg-rcpth.rita-code EQ "R"
+            AND fg-rcpth.po-no     NE ""
+          USE-INDEX tran,    
+          FIRST fg-rdtlh NO-LOCK 
+          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            AND fg-rdtlh.loc       EQ fg-bin.loc
+            AND fg-rdtlh.loc-bin   EQ fg-bin.loc-bin
+            AND fg-rdtlh.tag       EQ fg-bin.tag
+            AND fg-rdtlh.cust-no   EQ fg-bin.cust-no
+            AND fg-rdtlh.bol-no    EQ fg-bin.bol-no
+            AND fg-rdtlh.inv-no    EQ fg-bin.inv-no
+          USE-INDEX rm-rdtl
+          BREAK BY fg-rcpth.trans-date DESCENDING
+                BY fg-rdtlh.trans-time DESCENDING:
+          tt-fg-bin.po-no = fg-rcpth.po-no.
+      END.
+  END.
+  ELSE DO:
+      FOR EACH fg-rdtlh NO-LOCK
+          WHERE fg-rdtlh.company      EQ fg-bin.company
+            AND fg-rdtlh.tag          EQ fg-bin.tag
+            AND fg-rdtlh.loc          EQ fg-bin.loc
+            AND fg-rdtlh.loc-bin      EQ fg-bin.loc-bin
+            AND fg-rdtlh.cust-no      EQ fg-bin.cust-no 
+            AND fg-rdtlh.bol-no       EQ fg-bin.bol-no
+            AND fg-rdtlh.inv-no       EQ fg-bin.inv-no        
+            AND fg-rdtlh.rita-code    EQ "R"
+          USE-INDEX tag,
+          FIRST fg-rcpth NO-LOCK
+          WHERE fg-rcpth.r-no         EQ fg-rdtlh.r-no
+            AND fg-rcpth.i-no         EQ fg-bin.i-no
+            AND fg-rcpth.job-no       EQ fg-bin.job-no
+            AND fg-rcpth.job-no2      EQ fg-bin.job-no2
+            AND fg-rcpth.rita-code    EQ fg-rdtlh.rita-code
+            AND fg-rcpth.trans-date   LE TODAY
+          USE-INDEX r-no
+          BREAK BY fg-rcpth.trans-date DESCENDING
+                BY fg-rdtlh.trans-time DESCENDING:
+          tt-fg-bin.po-no = fg-rcpth.po-no.
+      END.
   END.
   /* At this point, we know the inventory value for the as-of date,
      so need to backtrack through the receipts only until the
