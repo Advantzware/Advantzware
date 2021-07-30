@@ -14,6 +14,7 @@ DEF VAR lv-part-dscr2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-i-coldscr AS cha NO-UNDO.
 DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 def shared buffer xquo for quotehd.
+def var dWeight as int no-undo.
 def buffer xqitm for quoteitm.
 def buffer xqqty for quoteqty.
 def buffer xqchg for quotechg.

@@ -647,7 +647,7 @@ v-printline = 0.
             END.
            end.
            END.
-         
+        END.
 
          FOR EACH tt-formtext:
             DELETE tt-formtext.

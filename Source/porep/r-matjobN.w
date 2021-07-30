@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdPOProcs AS HANDLE NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
