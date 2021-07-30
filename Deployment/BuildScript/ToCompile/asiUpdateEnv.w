@@ -7742,6 +7742,15 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-job-mch FOR job-mch.
     
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+
     DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
     
     FOR EACH job NO-LOCK:
@@ -7765,6 +7774,10 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
         IF lResequence THEN
             RUN ipUpdateJobMchLines(BUFFER job).
     END.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
