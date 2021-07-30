@@ -208,11 +208,12 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnReset ~
+&Scoped-Define ENABLED-OBJECTS scenario btnSave btnReset btnRemove ~
 btnJobSeqScan btnPending btnPendingJobs btnDatePrompt btnShowDowntime ~
-btnDetail btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate ~
-btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
-btnResourceList btnNext btnLast btnSetColorType resourceList 
+btnDetail btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate ~
+boardDate btnCalendar btnTimeLine intervals timeValue btnPrevInterval ~
+btnNextInterval btnResourceList btnNext btnLast btnSetColorType ~
+resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
 resourceList day-1 day-2 day-3 day-4 day-5 day-6 day-7 day-8 day-9 day-10 ~
 day-11 day-12 day-13 day-14 day-15 day-16 day-17 day-18 day-19 day-20 ~
@@ -386,6 +387,11 @@ DEFINE BUTTON btnPrevious
      LABEL "Previous" 
      SIZE 4.4 BY 1.05 TOOLTIP "Previous Resource".
 
+DEFINE BUTTON btnRemove 
+     IMAGE-UP FILE "schedule/images/cancel.bmp":U
+     LABEL "&Remove" 
+     SIZE 5.2 BY 1.05 TOOLTIP "Remove Scenario".
+
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "schedule/images/rollback.bmp":U
      LABEL "&Reset" 
@@ -430,7 +436,7 @@ DEFINE VARIABLE intervals AS CHARACTER FORMAT "X(256)":U INITIAL "1 Hour"
 DEFINE VARIABLE scenario AS CHARACTER FORMAT "X(256)":U INITIAL "Actual" 
      LABEL "Scenari&o" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 20
-     LIST-ITEMS "<New>" 
+     LIST-ITEMS "<New>","<Open>" 
      DROP-DOWN-LIST
      SIZE 12 BY 1 TOOLTIP "Select Board Scenario" NO-UNDO.
 
@@ -1025,10 +1031,12 @@ DEFINE FRAME boardFrame
           "Click to Save Scenario"
      btnReset AT ROW 1.05 COL 97.2 HELP
           "Reset Scenario"
-     btnJobSeqScan AT ROW 1.05 COL 102 HELP
-          "Job Sequence Scan" WIDGET-ID 4
+     btnRemove AT ROW 1.05 COL 102 HELP
+          "Remove Scenario"
      btnToolTip AT ROW 1.05 COL 107.6 HELP
           "Click to Show ToolTip" WIDGET-ID 2
+     btnJobSeqScan AT ROW 1.05 COL 107.6 HELP
+          "Job Sequence Scan" WIDGET-ID 4
      btnPending AT ROW 1.05 COL 113 HELP
           "Click to Access Pending by Job"
      btnPendingJobs AT ROW 1.05 COL 118 HELP
@@ -1092,13 +1100,13 @@ DEFINE FRAME boardFrame
      day-12 AT ROW 2.19 COL 85.4 COLON-ALIGNED NO-LABEL
      day-13 AT ROW 2.19 COL 90.8 COLON-ALIGNED NO-LABEL
      day-14 AT ROW 2.19 COL 96.2 COLON-ALIGNED NO-LABEL
-     day-15 AT ROW 2.19 COL 101.6 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME boardFrame
+     day-15 AT ROW 2.19 COL 101.6 COLON-ALIGNED NO-LABEL
      day-16 AT ROW 2.19 COL 107 COLON-ALIGNED NO-LABEL
      day-17 AT ROW 2.19 COL 112.4 COLON-ALIGNED NO-LABEL
      day-18 AT ROW 2.19 COL 117.8 COLON-ALIGNED NO-LABEL
@@ -1158,6 +1166,12 @@ DEFINE FRAME boardFrame
      boardGrid-19 AT ROW 3.38 COL 125.2
      boardGrid-4 AT ROW 3.38 COL 44.2
      boardGrid-13 AT ROW 3.38 COL 92.8
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME boardFrame
      boardGrid-15 AT ROW 3.38 COL 103.6
      resourceGrid AT ROW 3.38 COL 1
      SPACE(130.00) SKIP(0.00)
@@ -1925,6 +1939,18 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRemove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove s-object
+ON CHOOSE OF btnRemove IN FRAME boardFrame /* Remove */
+DO:
+  {{&includes}/{&Board}/btnRemove.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME btnReset

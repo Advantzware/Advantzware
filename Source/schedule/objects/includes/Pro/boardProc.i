@@ -1410,9 +1410,16 @@ PROCEDURE saveScenario :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipInitialDir AS CHARACTER NO-UNDO.
 
+  DEFINE VARIABLE scenarioDat AS CHARACTER NO-UNDO.
+
   RUN msgFrame ('Saving Board to ' + scenario).
   asOfTime = {{&includes}/asOfTime.i}.
-  OUTPUT TO VALUE(SEARCH(ipInitialDir + '/' + scenario + '.dat')).
+  scenarioDat = ipInitialDir + '/' + scenario + '.dat'.
+  IF SEARCH(scenarioDat) EQ ? THEN DO:
+      OUTPUT TO VALUE(scenarioDat).
+      OUTPUT CLOSE.
+  END. /* if search */
+  OUTPUT TO VALUE(SEARCH(scenarioDat)).
   EXPORT '{&version}' asOfTime.
   FOR EACH ttblJob NO-LOCK:
     EXPORT
