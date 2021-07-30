@@ -142,8 +142,12 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
 
 DEFINE VARIABLE hNotesProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE  NO-UNDO.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 RUN oe/OrderProcs.p    PERSISTENT SET hdOrderProcs.
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
 
 DO TRANSACTION:
     {sys/inc/boltransfer.i}
@@ -215,19 +219,26 @@ DO TRANSACTION:
     scInstance:DeleteValue("RNoOERelh"). /* Delete stale data, if any */
     
     RUN ipProcessBackorders.
-    RUN ipUpdateReleaseStat.    
-
+    RUN ipUpdateReleaseStat. 
+    
 END. /* Do trans */
 RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
 
 RUN ipProcessShipOnly.
 RUN ipCalcHeaderTotals.
 
+/* InterCompanyBilling AU1 */     
+RUN ipCreateInterCompanyBilling.
+
 RUN ipUpsFile.
 RUN ipEndLog.
 DELETE OBJECT hNotesProcs.
 IF VALID-HANDLE(hdOrderProcs) THEN 
     DELETE PROCEDURE hdOrderProcs.
+IF VALID-HANDLE(hdCustomerProcs) THEN 
+    DELETE PROCEDURE hdCustomerProcs. 
+IF VALID-HANDLE(hdInvoiceProcs) THEN 
+    DELETE PROCEDURE hdInvoiceProcs.    
 
 STATUS DEFAULT.
 
@@ -516,6 +527,51 @@ PROCEDURE ipCreateInvLine:
     oprInvLinerow = ROWID(inv-line).
 END PROCEDURE.
 
+PROCEDURE ipCreateInterCompanyBilling:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lCustExist AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    MAIN-LOOP:
+    FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
+
+        FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ tt-report.rec-id,
+        
+        FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
+        BREAK BY oe-boll.bol-no BY oe-boll.i-no BY oe-boll.ord-no:
+        STATUS DEFAULT "Processing BOL Posting 5........ BOL#: " + STRING(oe-bolh.bol-no).
+
+        IF LAST-OF(oe-boll.bol-no) THEN 
+        DO: 
+           RUN ipGetNk1ForCustomer(
+                       INPUT cocode,
+                       INPUT oe-bolh.cust-no,
+                       OUTPUT lCustExist
+                       ). 
+                       
+           IF NOT lCustExist THEN NEXT MAIN-LOOP.
+           
+           RUN Customer_InterCompanyTrans IN hdCustomerProcs(
+                                      INPUT cocode,
+                                      INPUT oe-bolh.cust-no,
+                                      INPUT oe-bolh.ship-id,
+                                      OUTPUT lError,
+                                      OUTPUT cMessage
+                                      ).  
+            
+           RUN Invoice_CreateInterCompanyBilling IN hdInvoiceProcs( 
+                                            INPUT ROWID(oe-bolh),
+                                            OUTPUT lError,
+                                            OUTPUT cMessage
+                                            ).           
+        END. /* last-of bol-no */
+    END. /* each tt-report */
+
+END PROCEDURE.
+
 PROCEDURE ipCreateUPS:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -554,6 +610,26 @@ PROCEDURE ipEndLog:
     ------------------------------------------------------------------------------*/
     OUTPUT STREAM sDebug CLOSE. 
     OS-APPEND VALUE(cDebugLog) VALUE("custfiles\logs\" + "oebolp3Errors.log") .
+
+END PROCEDURE.
+
+PROCEDURE ipGetNk1ForCustomer:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturn   AS LOGICAL NO-UNDO. 
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+        
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnValue, OUTPUT lRecFound).
+    IF lRecFound THEN
+      oplReturn = LOGICAL(cReturnValue) NO-ERROR.           
 
 END PROCEDURE.
 
@@ -1448,9 +1524,8 @@ PROCEDURE ipSetNK1Values:
         OUTPUT invstatus-char, OUTPUT v-rec-found).
     /* UPSFILE to for CSV creation in oe-bolh.trailer = "UPS"  */
     RUN sys/ref/nk1look.p (cocode, "UPSFILE", "C", NO, NO, "", "", 
-        OUTPUT upsFile, OUTPUT v-rec-found).
-
-
+        OUTPUT upsFile, OUTPUT v-rec-found).          
+   
     FIND FIRST sys-ctrl
         WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "INVPRINT"

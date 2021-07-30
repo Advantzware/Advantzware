@@ -19,23 +19,24 @@ DEFINE VARIABLE dv-ord-qty               AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lCkeckRec          AS LOGICAL INIT NO NO-UNDO .
 DEFINE NEW SHARED VARIABLE v-basis-w AS DECIMAL NO-UNDO.
 
-{sys/inc/var.i SHARED}
-{sys/form/s-top.f}
+//{sys/inc/var.i SHARED}
+//{sys/form/s-top.f}
 
 FIND po-ordl WHERE RECID(po-ordl) EQ ip-recid NO-LOCK NO-ERROR.
                      
 IF AVAIL po-ordl THEN
 FIND FIRST po-ord NO-LOCK
-    WHERE po-ord.company EQ cocode
+    WHERE po-ord.company EQ po-ordl.company
       AND po-ord.po-no   EQ po-ordl.po-no
     NO-ERROR.
 
 IF AVAIL po-ord THEN
   IF po-ordl.item-type THEN DO:
     FOR EACH rm-rcpth NO-LOCK
-        WHERE rm-rcpth.company     EQ cocode
+        WHERE rm-rcpth.company     EQ po-ordl.company
           AND rm-rcpth.i-no        EQ po-ordl.i-no
           AND rm-rcpth.po-no       EQ STRING(po-ordl.po-no)
+          AND (rm-rcpth.po-line EQ po-ordl.line OR rm-rcpth.po-line EQ 0)
           AND rm-rcpth.job-no      EQ po-ordl.job-no
           AND rm-rcpth.job-no2     EQ po-ordl.job-no2
           AND rm-rcpth.rita-code   EQ "R"
@@ -55,7 +56,7 @@ IF AVAIL po-ord THEN
        v-dep = 0.
 
       FIND FIRST item NO-LOCK
-          WHERE item.company EQ cocode
+          WHERE item.company EQ po-ordl.company
             AND item.i-no    EQ po-ordl.i-no
           NO-ERROR. 
 
@@ -81,6 +82,7 @@ IF AVAIL po-ord THEN
         WHERE rm-rcpth.company   EQ po-ord.company
           AND rm-rcpth.vend-no   EQ po-ord.vend-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ord.po-no,">>>>>>>>>>"))
+          AND (rm-rcpth.po-line EQ po-ordl.line OR rm-rcpth.po-line EQ 0)
           AND rm-rcpth.rita-code EQ "I"
           AND rm-rcpth.trans-date  GE ip-from-date
           AND rm-rcpth.trans-date  LE ip-to-date
@@ -106,14 +108,15 @@ IF AVAIL po-ord THEN
        .
        
         FIND FIRST itemfg NO-LOCK
-           WHERE itemfg.company EQ cocode
+           WHERE itemfg.company EQ po-ordl.company
            AND itemfg.i-no    EQ po-ordl.i-no
            NO-ERROR.
           
       FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
-          WHERE fg-rcpth.company   EQ cocode
+          WHERE fg-rcpth.company   EQ po-ordl.company
             AND fg-rcpth.i-no      EQ po-ordl.i-no
             AND fg-rcpth.po-no     EQ STRING(po-ordl.po-no)
+            AND (fg-rcpth.po-line   EQ po-ordl.line OR fg-rcpth.po-line EQ 0)
             AND fg-rcpth.rita-code EQ "R"
             AND fg-rcpth.trans-date  GE ip-from-date
             AND fg-rcpth.trans-date  LE ip-to-date

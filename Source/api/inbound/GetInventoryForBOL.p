@@ -92,6 +92,7 @@ FOR EACH  oe-boll NO-LOCK
         INPUT  "",              /* status id */
         INPUT  ?,               /* On Hold status. Send ? for both yes and no */              
         INPUT  cItemFG ,        /* Item Type */
+        INPUT  1000,            /* Record Limit*/
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
         OUTPUT TABLE ttItem

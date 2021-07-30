@@ -1402,7 +1402,7 @@ PROCEDURE pExport :
                     cProdAceWO = pendingJob.job + '.'
                                + STRING(INT(pendingJob.userField19)) + '.'
                                + STRING(INT(pendingJob.userField20)) + '.'
-                               + ttblJob.resource
+                               + pendingJob.resource
                                .
                     idx = idx + 1.
                     PUT UNFORMATTED 

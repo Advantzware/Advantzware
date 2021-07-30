@@ -34,12 +34,19 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+
+{sys/inc/var.i NEW SHARED}
+
+ASSIGN
+ cocode = g_company.
 
 {src/adm2/widgetprto.i}  
  
 DEF TEMP-TABLE tt-oe-rell LIKE oe-rell
-   FIELD availBol AS LOGICAL LABEL "Avail!BOL" 
-   FIELD availRel AS LOGICAL LABEL "Avail!Rel"
+   FIELD iRNo      AS INTEGER FORM ">>>>>>9" LABEL "r-no"
+   FIELD availBol  AS LOGICAL LABEL "Avail!BOL" 
+   FIELD availRel  AS LOGICAL LABEL "Avail!Rel"
    FIELD availRelh AS LOGICAL LABEL "Avail!Relh"
    FIELD releaseNo LIKE oe-relh.release#
    FIELD iSeq AS INTEGER  LABEL "Sequence"
@@ -89,7 +96,7 @@ DEFINE BUTTON btGetInfo
      LABEL "Show Release Info" 
      SIZE 33 BY 1.14.
 
-DEFINE VARIABLE fiCompany AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiCompany AS CHARACTER FORMAT "X(256)":U
      LABEL "Company" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
@@ -217,9 +224,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFix wWin
 ON CHOOSE OF btFix IN FRAME fMain /* Fix Release Status */
 DO:
-  DEF VAR cnt AS INT NO-UNDO.
-  DEF VAR v-num-found AS INT NO-UNDO.
-  v-num-found = 0.
+  DEFINE VARIABLE cnt         AS INT              NO-UNDO.
+  DEFINE VARIABLE v-num-found AS INT              NO-UNDO.
+  DEFINE VARIABLE lFixStatus  AS LOGICAL EXTENT 2 NO-UNDO.
+  ASSIGN 
+      v-num-found = 0
+      lFixStatus  = NO
+      .
   
   FOR FIRST oe-relh NO-LOCK 
     WHERE oe-relh.company EQ fiCompany:SCREEN-VALUE IN FRAME fMain
@@ -239,7 +250,7 @@ DO:
     find oe-ordl where oe-ordl.company = oe-rell.company
       and oe-ordl.ord-no = oe-rell.ord-no
       and oe-ordl.line = oe-rell.line no-lock no-error.
-     
+    ASSIGN lFixstatus[1] = YES.
   END.
 
   FOR FIRST oe-relh EXCLUSIVE-LOCK 
@@ -261,9 +272,13 @@ DO:
       and oe-ordl.line = oe-rell.line no-lock no-error.      
     IF NOT AVAIL oe-rel THEN
      run c:\temp\asi\oe\cleanrel.p (input rowid(oe-ordl)).
-     
+    
+    ASSIGN lFixStatus[2] = YES. 
   END.
-
+  IF lFixStatus[1] AND lFixStatus[2] THEN
+    MESSAGE "Process Completed." VIEW-AS ALERT-BOX INFO .
+  
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,11 +371,12 @@ FOR FIRST oe-relh NO-LOCK
       CREATE tt-oe-rell .
       BUFFER-COPY oe-rell TO tt-oe-rell.
        ASSIGN             
-          tt-oe-rell.availBol = AVAIL(oe-boll)
-          tt-oe-rell.availRel = AVAIL(oe-rel)
+          tt-oe-rell.iRNo      = oe-rell.r-no
+          tt-oe-rell.availBol  = AVAIL(oe-boll)
+          tt-oe-rell.availRel  = AVAIL(oe-rel)
           tt-oe-rell.availRelh = AVAIL(oe-relh)
           tt-oe-rell.releaseNo =  IF AVAIL oe-relh THEN oe-relh.release# ELSE 0
-          tt-oe-rell.iSeq  = iSeq .         
+          tt-oe-rell.iSeq      = iSeq .         
     
       iSeq = iSeq + 1.       
      
@@ -401,6 +417,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
+  ASSIGN fiCompany = cocode .
   DISPLAY fiCompany fiOrder 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE fiCompany fiOrder btGetInfo btFix 
@@ -458,7 +475,7 @@ CREATE BROWSE hBrowse
 
     END.       
 hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.ord-no").
-hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.r-no").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.iRNo").
 
 hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.Printed").
 hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.Posted").

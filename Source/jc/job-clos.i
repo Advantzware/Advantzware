@@ -107,7 +107,19 @@ DEF VAR ll-set AS LOG NO-UNDO.
          job.stat        = "C"
          job.close-date  = close_date.
 
-
+        RUN api/ProcessOutboundRequest.p (
+            INPUT  job.company,                                     /* Company Code (Mandatory) */
+            INPUT  job.loc,                                         /* Location Code (Mandatory) */
+            INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+            INPUT  "",                                              /* Scope ID */
+            INPUT  "",                                              /* Scope Type */
+            INPUT  "CloseJob",                                      /* Trigger ID (Mandatory) */
+            INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Job Close triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+            ) NO-ERROR.
+        
         RUN jc/jobnotes.p (BUFFER job).
 
         RUN jc/job-cls2.p (RECID(job)).

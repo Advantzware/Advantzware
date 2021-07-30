@@ -69,6 +69,7 @@ DEFINE VARIABLE rThisUser       AS ROWID     NO-UNDO.
 DEFINE VARIABLE lAdd            AS LOG       NO-UNDO.
 DEFINE VARIABLE lCopy           AS LOG       NO-UNDO.
 DEFINE VARIABLE lPwdChanged     AS LOG       NO-UNDO.
+DEFINE VARIABLE lWarnedOnce     AS LOG       NO-UNDO.
 DEFINE VARIABLE cOldPwd         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuperAdmin     AS LOGICAL   NO-UNDO.
@@ -1001,6 +1002,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME slEnvironments
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvironments V-table-Win
+ON VALUE-CHANGED OF slEnvironments IN FRAME F-Main /* Environments */
+OR VALUE-CHANGED OF slDatabases
+OR VALUE-CHANGED OF slModes
+DO:
+  
+    IF SELF:MODIFIED  
+    AND NOT lAdd
+    AND NOT lWarnedOnce THEN DO:
+        MESSAGE 
+            "NOTE: Changing an alias (above) or permissions will affect" SKIP 
+            "this user in ALL environments, and for ALL databases."
+            VIEW-AS ALERT-BOX.
+        ASSIGN 
+            lWarnedOnce = TRUE.
+    END.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME colorChoice-0
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL colorChoice-0 V-table-Win
@@ -1194,6 +1218,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userAlias V-table-Win
 ON LEAVE OF users.userAlias IN FRAME F-Main /* Login Alias */
 DO:
+    
     IF SELF:SCREEN-VALUE <> "" THEN DO:
         FIND FIRST ttUsers NO-LOCK WHERE 
             ttUsers.ttfuserAlias = SELF:SCREEN-VALUE AND
@@ -1209,7 +1234,18 @@ DO:
             APPLY 'entry' TO SELF.
             RETURN NO-APPLY.
         END.
+        
+        IF SELF:MODIFIED  
+        AND NOT lWarnedOnce THEN DO:
+            MESSAGE 
+                "NOTE: Changing an alias or permissions (below) will affect" SKIP 
+                "this user in ALL environments, and for ALL databases."
+                VIEW-AS ALERT-BOX.
+            ASSIGN 
+                lWarnedOnce = TRUE.
+        END.
     END.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1274,6 +1310,12 @@ END.
 ON LEAVE OF users.user_id IN FRAME F-Main /* User ID */
 DO:
     IF SELF:SCREEN-VALUE <> "" THEN DO:
+        /* Comma not allowed in userid */
+        IF INDEX(users.user_id:SCREEN-VALUE,",") NE 0 THEN
+            users.user_id:SCREEN-VALUE = REPLACE(users.user_id:SCREEN-VALUE,",","") .
+        users.user_id:SCREEN-VALUE = TRIM(users.user_id:SCREEN-VALUE) .
+
+        /* Check for duplicate */
         FIND FIRST lUsers NO-LOCK WHERE 
             lUsers.userAlias = SELF:SCREEN-VALUE
             NO-ERROR.
@@ -1286,12 +1328,26 @@ DO:
             APPLY 'entry' TO SELF.
             RETURN NO-APPLY.
         END.
-        IF INDEX(users.user_id:SCREEN-VALUE,",") NE 0 THEN
-           users.user_id:SCREEN-VALUE = REPLACE(users.user_id:SCREEN-VALUE,",","") .
-        users.user_id:SCREEN-VALUE = TRIM(users.user_id:SCREEN-VALUE) .
         
         IF users.user_program[3]:SCREEN-VALUE  EQ "" THEN ASSIGN 
             users.user_program[3]:SCREEN-VALUE = cSysTemp + "\" + SELF:SCREEN-VALUE.
+            
+        FIND FIRST ttUsers WHERE
+            ttUsers.ttfUserID EQ SELF:SCREEN-VALUE AND 
+            ttUsers.ttfPdbname EQ "*"
+            NO-ERROR.
+        IF AVAIL ttUsers THEN DO:
+            ASSIGN 
+                users.userAlias:SCREEN-VALUE = ""
+                slDatabases:SCREEN-VALUE = "" 
+                slEnvironments:SCREEN-VALUE = ""   
+                slModes:SCREEN-VALUE = ""
+                users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias
+                slDatabases:SCREEN-VALUE = IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE slDatabases:LIST-ITEMS 
+                slEnvironments:SCREEN-VALUE = IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE slEnvironments:LIST-ITEMS   
+                slModes:SCREEN-VALUE = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS.
+        END.     
+        
     END.
   
 END.
@@ -1546,9 +1602,9 @@ PROCEDURE ipCheckPwd :
             ASSIGN
                 lPwdOK = FALSE.
             MESSAGE
-                "Your Password contains invalid characters.  Please limit your password to" skip
-                "letters (A-Z,a-z), numbers (0-9), or the following valid characters:" skip
-                "!,@,#,$,%,^,*,-,_,+,=,[,],/,\,<,>,?,|,;,:,comma,period" skip
+                "Your Password contains invalid characters.  Please limit your password to" SKIP
+                "letters (A-Z,a-z), numbers (0-9), or the following valid characters:" SKIP
+                "!,@,#,$,%,^,*,-,_,+,=,[,],/,\,<,>,?,|,;,:,comma,period" SKIP
                 "(NOTE - apostrophe, dbl-quote marks and parentheses are NOT allowed.)"
                 VIEW-AS ALERT-BOX.
             RETURN.
@@ -1730,7 +1786,7 @@ PROCEDURE ipReadIniFile :
 ------------------------------------------------------------------------------*/
     DEF VAR cIniLine AS CHAR NO-UNDO.
     
-    IF SEARCH(cIniLoc) NE ? THEN do:
+    IF SEARCH(cIniLoc) NE ? THEN DO:
         INPUT FROM VALUE(SEARCH(cIniLoc)) .
         REPEAT:
             IMPORT UNFORMATTED cIniLine.
@@ -1759,7 +1815,7 @@ PROCEDURE ipReadUsrFile :
 ------------------------------------------------------------------------------*/
     DEF VAR cUsrLine AS CHAR NO-UNDO.
     
-    IF SEARCH(cUsrLoc) NE ? THEN do:
+    IF SEARCH(cUsrLoc) NE ? THEN DO:
         INPUT FROM VALUE(SEARCH(cUsrLoc)).
         REPEAT:
             IMPORT UNFORMATTED cUsrLine.
@@ -1773,6 +1829,7 @@ PROCEDURE ipReadUsrFile :
                     ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
                     ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
                     .
+                    
             END.
         END.
         INPUT CLOSE.
@@ -1801,7 +1858,7 @@ PROCEDURE ipWriteUsrFile :
     DEF VAR cOutString AS CHAR.
     
     OUTPUT TO VALUE(cUsrLoc).
-    FOR EACH ttUsers BY ttUsers.ttfPdbname by ttUsers.ttfUserID:
+    FOR EACH ttUsers BY ttUsers.ttfPdbname BY ttUsers.ttfUserID:
         ASSIGN cOutString = 
                 ttUsers.ttfUserID + "|" + 
                 ttUsers.ttfPdbName + "|" +
@@ -1842,7 +1899,7 @@ PROCEDURE local-add-record :
         
         
         
-    APPLY 'entry' to users.user_id IN FRAME {&FRAME-NAME}.
+    APPLY 'entry' TO users.user_id IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -2001,17 +2058,6 @@ PROCEDURE local-delete-record :
         DELETE cueCardText.
     END.
    
-    FIND ttUsers EXCLUSIVE WHERE
-        ttUsers.ttfPdbname = "*" AND
-        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        NO-ERROR.
-    IF AVAIL ttUsers THEN DO:
-        DELETE ttUsers.
-        RUN ipWriteUsrFile.
-        EMPTY TEMP-TABLE ttUsers.
-        RUN ipReadUsrFile.
-    END.
-    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
     {methods/template/local/deleteAfter.i}
@@ -2064,11 +2110,11 @@ PROCEDURE local-display-fields :
         END.
 
         ASSIGN 
-            fi_phone-area:screen-value = substring(users.phone,1,3)
-            lv-phone-num:screen-value = substring(users.phone,4)
+            fi_phone-area:screen-value = SUBSTRING(users.phone,1,3)
+            lv-phone-num:screen-value = SUBSTRING(users.phone,4)
             cbUserType:screen-value = users.userType
-            slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
-            slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+            slEnvironments:screen-value = IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE slEnvironments:list-items
+            slDatabases:screen-value = IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE slDatabases:list-items
             slModes:SCREEN-VALUE = IF ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList ELSE slModes:LIST-ITEMS 
             users.userAlias:SCREEN-VALUE = users.userAlias
             users.userAlias:modified = FALSE
@@ -2168,7 +2214,7 @@ PROCEDURE local-update-record :
         .
 
     RUN validate-userid NO-ERROR.
-    IF error-status:error THEN RETURN.
+    IF ERROR-STATUS:ERROR THEN RETURN.
 
     IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
         IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" 
@@ -2179,9 +2225,9 @@ PROCEDURE local-update-record :
 
         FILE-INFO:FILE-NAME = users.user_program[2]:SCREEN-VALUE.
         cFilePath = FILE-INFO:FILE-NAME.
-        IF FILE-INFO:FILE-type eq ? then do:
+        IF FILE-INFO:FILE-TYPE EQ ? THEN DO:
             MESSAGE 
-                "Document Path does not exist. Do you want to create it?" 
+                "Report Path does not exist. Do you want to create it?" 
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
             IF v-ans THEN DO:
               RUN FileSys_CreateDirectory(
@@ -2207,9 +2253,9 @@ PROCEDURE local-update-record :
          
         FILE-INFO:FILE-NAME = users.USER_program[3]:SCREEN-VALUE.
         cFilePath = FILE-INFO:FILE-NAME.
-        IF FILE-INFO:FILE-type eq ? then do:
+        IF FILE-INFO:FILE-TYPE EQ ? THEN DO:
             MESSAGE 
-                "Document Path does not exist. Do you want to create it?" 
+                "Label Path does not exist. Do you want to create it?" 
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans2 AS LOG.
             IF v-ans2 THEN DO:
               RUN FileSys_CreateDirectory(
@@ -2232,7 +2278,7 @@ PROCEDURE local-update-record :
             "user. Would you like to do so now?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lNewPwd AS LOG.
         IF lNewPwd THEN DO:
-            APPLY 'entry' to fiPassword.
+            APPLY 'entry' TO fiPassword.
             RETURN.
         END.
         ELSE DO:
@@ -2353,7 +2399,7 @@ PROCEDURE local-update-record :
             END.
         END. /* lCopy */
     END. /* lAdd */
-
+    
         /* Add usr record for new user */
         FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
         IF NOT AVAIL usr THEN DO:
@@ -2362,13 +2408,13 @@ PROCEDURE local-update-record :
                 usr.uid = users.user_id:SCREEN-VALUE
                 usr.usr-lang = "English".
             IF lPwdChanged THEN ASSIGN
-                usr.last-chg = today.
+                usr.last-chg = TODAY.
         END.
         ELSE DO:
             IF usr.usr-lang = "EN" THEN ASSIGN
                 usr.usr-lang = "English".
             IF lPwdChanged THEN ASSIGN
-                usr.last-chg = today.
+                usr.last-chg = TODAY.
         END.
 
         /* "Limit" elements come from the 'generic' ttUser (ttfPdbname = '*') */
@@ -2384,9 +2430,9 @@ PROCEDURE local-update-record :
         END.
         ASSIGN
             ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-            ttUsers.ttfEnvList = if slEnvironments:SCREEN-VALUE <> slEnvironments:list-items then slEnvironments:SCREEN-VALUE else ""
-            ttUsers.ttfDbList = if slDatabases:SCREEN-VALUE <> slDatabases:list-items then slDatabases:SCREEN-VALUE else ""
-            ttUsers.ttfModeList = if slModes:SCREEN-VALUE <> slModes:list-items then slModes:SCREEN-VALUE else ""
+            ttUsers.ttfEnvList = IF slEnvironments:SCREEN-VALUE <> slEnvironments:list-items THEN slEnvironments:SCREEN-VALUE ELSE ""
+            ttUsers.ttfDbList = IF slDatabases:SCREEN-VALUE <> slDatabases:list-items THEN slDatabases:SCREEN-VALUE ELSE ""
+            ttUsers.ttfModeList = IF slModes:SCREEN-VALUE <> slModes:list-items THEN slModes:SCREEN-VALUE ELSE ""
             .
 
          ASSIGN iSecLevel = INTEGER(users.securityLevel:SCREEN-VALUE) . 
@@ -2402,7 +2448,7 @@ PROCEDURE local-update-record :
         NO-ERROR.
     IF AVAIL users THEN DO:
         ASSIGN 
-            users.userAlias = users.userAlias:screen-value in frame {&frame-name}
+            users.userAlias =  ttUsers.ttfUserAlias
             users.securityLevel = iSecLevel 
             users.sessionLimit = INTEGER(users.sessionLimit:SCREEN-VALUE)
             users.purchaseLimit = DECIMAL(users.purchaseLimit:SCREEN-VALUE)
@@ -2536,6 +2582,7 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   
     ASSIGN 
         users.use_colors:SENSITIVE IN FRAME {&frame-name} = lAdmin
         users.use_fonts:SENSITIVE     = lAdmin          

@@ -297,6 +297,8 @@ PROCEDURE pProcessRecord PRIVATE:
     
     DEFINE VARIABLE dtEffDate AS DATE NO-UNDO.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+    RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
     
     dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
     
@@ -380,9 +382,13 @@ PROCEDURE pProcessRecord PRIVATE:
         INPUT bf-oe-prmtx.custype,
         INPUT bf-oe-prmtx.procat
         ).
+    IF bf-oe-prmtx.quoteID NE 0 THEN    
+    RUN UpdateQuotePriceFromMatrix IN hdQuoteProcs(ROWID(bf-oe-prmtx)). 
+    
     RELEASE bf-oe-prmtx.
     
-    
+    IF VALID-HANDLE(hdQuoteProcs) THEN 
+        DELETE OBJECT hdQuoteProcs.
 END PROCEDURE.
 
 

@@ -50,6 +50,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "InvoiceApprovalExpectZero,CEFormatConfig,JobType,ApplyInvoiceApprovals,APIOrderSurchargeSameDay,APIOrderSurchargeWeekendDelivery,APIOrderSurchargeWeekendOrder,APIOrderSurchargeNextDay,"
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
+           + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
+           + "CEVendorDefault"
            .
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1597,7 +1599,40 @@ CASE ip-nk1-value:
             INPUT 0,                                    /* Int value */
             INPUT NO,                                  /* Logical value */ 
             INPUT 0                                     /* Dec value*/
-            ).     
+            ).  
+    WHEN "PriceMatrixPricingMethod" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Global Pricing Method for determining selling prices", /* Description */
+            INPUT "Up To",                             /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                  /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).
+   WHEN "CaseLabel" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Case Label",                   /* Description */
+            INPUT "",                             /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).        
+    WHEN "InterCompanyBilling" THEN     
+        RUN sys/inc/addnk1.p (            
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Auto invoice creation for Inter Company transactions", /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).            
 END CASE.
 ELSE
 CASE ip-nk1-value:

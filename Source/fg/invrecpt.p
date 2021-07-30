@@ -231,7 +231,8 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
       FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-inv.row-id NO-LOCK
       BREAK BY fg-rctd.r-no:
 
-    
+    lInvFrt = NO.
+    dBillAmt = 0.
     RUN get-ord-recs (ROWID(fg-rctd),
                       BUFFER po-ordl,
                       BUFFER po-ord,
@@ -440,6 +441,9 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
   FOR EACH w-inv,
       FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-inv.row-id NO-LOCK
       BREAK BY w-inv.r-no:
+      
+    lInvFrt = NO. 
+    dBillAmt = 0.
     RUN get-ord-recs (ROWID(fg-rctd),
                       BUFFER po-ordl,
                       BUFFER po-ord,

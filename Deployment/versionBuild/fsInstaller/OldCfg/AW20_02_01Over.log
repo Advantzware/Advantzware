@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 01/08/21 at 10:42:42                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipCreateObject in fsInstaller.w                                                           10:42:44
+Completing ipCreateObject in fsInstaller.w                                                           10:42:44
+ 
+Initiating ipConnectDBs in fsInstaller.w                                                             10:42:44
+Completing ipConnectDBs in fsInstaller.w                                                             10:42:45
+ 
+Initiating ipCompileBase in fsInstaller.w                                                            10:42:45
+**************** PROPATH *****************
+   (PROPATH display suppressed. See config file for PROPATH details.
+******************************************
+    ERROR: Compile for C:\ASIgui\Environments\20.02.01\Oversource\cXML\cXMLInvoice3.p FAILED         10:42:49
+    ERROR:  ** Unknown Field or Variable name - invoiceLineType. (201)                               10:42:49
+    ERROR:  ** C:\ASIgui\Environments\20.02.01\Oversource\cXML\cXMLInvoice3.p Could not understand line 407. (196)10:42:49
+    ERROR: Compile for C:\ASIgui\Environments\20.02.01\Oversource\oe\rep\invpremx3.p FAILED          10:42:52
+    ERROR:  ** Unknown Field or Variable name - invoiceLineType. (201)                               10:42:52
+    ERROR:  ** C:\ASIgui\Environments\20.02.01\Oversource\oe\rep\invpremx3.p Could not understand line 813. (196)10:42:52
+  Base Code compile (67 entries) completed with 2 errors                                             10:42:53
+Completing ipCompileBase in fsInstaller.w                                                            10:42:53
+ 
+-------------------------------------------------------------------------------------------------------------
+Ending run of fsInstaller system on 01/08/21 at 10:42:53                                    Elapsed: 00:00:11
+-------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 

@@ -599,7 +599,7 @@ DEFINE BUTTON btnSubstr
      SIZE 10 BY 1.05 TOOLTIP "Substring".
 
 DEFINE BUTTON btnSyntax 
-     IMAGE-UP FILE "AOA/images/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Syntax" 
      SIZE 4.4 BY 1 TOOLTIP "Check Query Syntax".
 
@@ -816,7 +816,7 @@ DEFINE VARIABLE tableMatches AS LOGICAL INITIAL no
      SIZE 11 BY 1 NO-UNDO.
 
 DEFINE BUTTON btnAddEmail 
-     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
@@ -934,17 +934,17 @@ DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes
      SIZE 18 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnCloseParam 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Close Parameter Screen" 
      SIZE 4.4 BY .95 TOOLTIP "Close Parameter Screen".
 
 DEFINE BUTTON btnCloseResults 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Close Results" 
      SIZE 4.4 BY 1 TOOLTIP "Close Results".
 
 DEFINE BUTTON btnSaveResults 
-     IMAGE-UP FILE "AOA/images/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Save Results" 
      SIZE 4.4 BY 1 TOOLTIP "Save Results".
 

@@ -1219,6 +1219,7 @@ PROCEDURE local-copy-record :
   IF noDate THEN
   ASSIGN
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
+    job.close-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
     job.due-date:SCREEN-VALUE = ''
     job.promiseDate:SCREEN-VALUE = ''.
 

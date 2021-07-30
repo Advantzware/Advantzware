@@ -731,7 +731,7 @@
          END. 
       END.
       PUT UNFORMATTED cDisplay SKIP.
-      IF tb_excel THEN DO:
+      IF rd-dest = 3 THEN DO:
        cExcelDisplay = cExcelDisplay.
        PUT STREAM st-excell UNFORMATTED  
                cExcelDisplay SKIP.

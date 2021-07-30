@@ -25,6 +25,6 @@ DEFINE VARIABLE cType  AS CHARACTER NO-UNDO INITIAL "Detail".
 
 /* **********************  Internal Procedures  *********************** */
 
-{AOA\dynBL/r-araged.i}
+{AOA/dynBL/r-araged.i}
 
 {AOA/dynBL/pGetCustInfo.i}

@@ -256,16 +256,16 @@ DEFINE BROWSE Browser-Table
       oe-prmtx.eff-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       oe-prmtx.exp-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       oe-prmtx.quoteID FORMAT ">>>>>>>>>":U
-      oe-prmtx.price[1] COLUMN-LABEL "Price01" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[2] COLUMN-LABEL "Price02" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[3] COLUMN-LABEL "Price03" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[4] COLUMN-LABEL "Price04" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[5] COLUMN-LABEL "Price05" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[6] COLUMN-LABEL "Price06" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[7] COLUMN-LABEL "Price07" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[8] COLUMN-LABEL "Price08" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[9] COLUMN-LABEL "Price09" FORMAT ">>>,>>9.99<<":U
-      oe-prmtx.price[10] COLUMN-LABEL "Price10" FORMAT ">>>,>>9.99<<":U
+      oe-prmtx.price[1] COLUMN-LABEL "Price01" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[2] COLUMN-LABEL "Price02" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[3] COLUMN-LABEL "Price03" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[4] COLUMN-LABEL "Price04" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[5] COLUMN-LABEL "Price05" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[6] COLUMN-LABEL "Price06" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[7] COLUMN-LABEL "Price07" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[8] COLUMN-LABEL "Price08" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[9] COLUMN-LABEL "Price09" FORMAT ">,>>>,>>9.99<<":U
+      oe-prmtx.price[10] COLUMN-LABEL "Price10" FORMAT ">,>>>,>>9.99<<":U
       oe-prmtx.online FORMAT "yes/no":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -433,25 +433,25 @@ AND ASI.oe-prmtx.cust-no EQ ""zzzzzzzz"""
      _FldNameList[8]   > ASI.oe-prmtx.quoteID
 "quoteID" ? ">>>>>>>>>" "int64" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-prmtx.price[1]
-"price[1]" "Price01" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[1]" "Price01" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-prmtx.price[2]
-"price[2]" "Price02" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[2]" "Price02" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-prmtx.price[3]
-"price[3]" "Price03" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[3]" "Price03" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-prmtx.price[4]
-"price[4]" "Price04" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[4]" "Price04" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-prmtx.price[5]
-"price[5]" "Price05" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[5]" "Price05" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-prmtx.price[6]
-"price[6]" "Price06" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[6]" "Price06" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-prmtx.price[7]
-"price[7]" "Price07" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[7]" "Price07" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-prmtx.price[8]
-"price[8]" "Price08" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[8]" "Price08" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-prmtx.price[9]
-"price[9]" "Price09" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[9]" "Price09" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.oe-prmtx.price[10]
-"price[10]" "Price10" ">>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"price[10]" "Price10" ">,>>>,>>9.99<<" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.oe-prmtx.online
 "online" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

@@ -54,7 +54,7 @@ DEFINE VARIABLE cFieldType         AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER  NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE  cTextListToDefault AS CHARACTER  NO-UNDO.
-
+DEFINE VARIABLE cFileName as character NO-UNDO .
 ASSIGN cTextListToSelect = "Company Name,Address1,Address2,City,State,Zip,Rep," +
     "Qty,Price/M,Rel,Cust Part#,Item Name,Size,Style,Board,Colors,Quote#,Est#,Date"
        cFieldListToSelect = "comp-name,add1,add2,city,state,zip,rep," +
@@ -123,23 +123,23 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.05.
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
@@ -171,7 +171,7 @@ DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-quolst.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(49)" INITIAL "c:~\tmp~\r-quolst.csv" 
      LABEL "Name" 
      VIEW-AS FILL-IN NATIVE 
      SIZE 45 BY 1.
@@ -181,17 +181,16 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To Email", 3,
 "To CSV", 4
      SIZE 14 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 4.76.
+     SIZE 90 BY 4.76.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 4.76.
+     SIZE 90 BY 4.76.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -201,12 +200,12 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 14 BY .81
@@ -242,20 +241,20 @@ DEFINE FRAME FRAME-A
      fi_file AT ROW 16.95 COL 25.4 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
      tb_runExcel AT ROW 17.05 COL 87 RIGHT-ALIGNED WIDGET-ID 12
-     tbAutoClose AT ROW 19.1 COL 26.2 WIDGET-ID 16
-     btn-ok AT ROW 20.24 COL 25.8
-     btn-cancel AT ROW 20.24 COL 48.4
+     tbAutoClose AT ROW 18.86 COL 26.2 WIDGET-ID 16
+     btn-ok AT ROW 19.71 COL 25.8
+     btn-cancel AT ROW 19.71 COL 48.4
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 6.71 COL 3.6 WIDGET-ID 38
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.29 COL 3
-          BGCOLOR 15 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.24 COL 2.8
+          SIZE 29 BY .62 AT ROW 6.71 COL 11.6 WIDGET-ID 38
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 6.71 COL 59.8 WIDGET-ID 44
-     RECT-6 AT ROW 13.62 COL 2
-     RECT-7 AT ROW 1.67 COL 2
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.24 COL 3.6
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.29 COL 3.6
+          BGCOLOR 15 
+     RECT-6 AT ROW 13.62 COL 2.8
+     RECT-7 AT ROW 1.67 COL 2.8
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -280,21 +279,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Quoted Price List"
-         HEIGHT             = 21.1
+         HEIGHT             = 20.33
          WIDTH              = 94
          MAX-HEIGHT         = 46.48
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 46.48
          VIRTUAL-WIDTH      = 256
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -357,7 +356,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -388,6 +387,54 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME FRAME-A
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A C-Win
+ON HELP OF FRAME FRAME-A
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
+    CASE FOCUS:NAME :
+        WHEN "begin_cust-no" OR 
+        WHEN "end_cust-no"  THEN DO:
+            RUN system/openLookup.p (
+            INPUT  g_company, 
+            INPUT  "",  /* Lookup ID */
+            INPUT  23,  /* Subject ID */
+            INPUT  "",  /* User ID */
+            INPUT  0,   /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+        END.
+        WHEN "begin_slsmn" OR 
+        WHEN "end_slsmn"  THEN 
+            DO:
+                RUN system/openLookup.p (
+                    INPUT  g_company, 
+                    INPUT  "",  /* Lookup ID */
+                    INPUT  29,  /* Subject ID */
+                    INPUT  "",  /* User ID */
+                    INPUT  0,   /* Param Value ID */
+                    OUTPUT cFieldsValue, 
+                    OUTPUT cFoundValue, 
+                    OUTPUT recFoundRecID
+                    ).   
+                IF cFoundValue <> "" THEN 
+                    ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
+            END.
+
+    END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -446,7 +493,13 @@ DO:
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
     END.
-
+ IF rd-dest = 4 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-quolst.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   RUN GetSelectionList.
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -565,56 +618,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME DEFAULT-FRAME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A C-Win
-ON HELP OF FRAME FRAME-A
-DO:
-    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
-    
-    CASE FOCUS:NAME :
-        WHEN "begin_cust-no" OR 
-        WHEN "end_cust-no"  THEN DO:
-            RUN system/openLookup.p (
-            INPUT  g_company, 
-            INPUT  "",  /* Lookup ID */
-            INPUT  23,  /* Subject ID */
-            INPUT  "",  /* User ID */
-            INPUT  0,   /* Param Value ID */
-            OUTPUT cFieldsValue, 
-            OUTPUT cFoundValue, 
-            OUTPUT recFoundRecID
-            ).   
-            IF cFoundValue <> "" THEN 
-                ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
-        END.
-        WHEN "begin_slsmn" OR 
-        WHEN "end_slsmn"  THEN 
-            DO:
-                RUN system/openLookup.p (
-                    INPUT  g_company, 
-                    INPUT  "",  /* Lookup ID */
-                    INPUT  29,  /* Subject ID */
-                    INPUT  "",  /* User ID */
-                    INPUT  0,   /* Param Value ID */
-                    OUTPUT cFieldsValue, 
-                    OUTPUT cFoundValue, 
-                    OUTPUT recFoundRecID
-                    ).   
-                IF cFoundValue <> "" THEN 
-                    ASSIGN FOCUS:SCREEN-VALUE = cFoundValue.         
-            END.
-
-    END CASE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
@@ -652,7 +655,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     ASSIGN {&self-name}.
+     fi_file = ''.
+     //ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -803,7 +807,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'VALUE-CHANGED' TO rd-dest.
 
   {methods/nowait.i}
-
+ /* {sys/inc/reportsConfigNK1.i "ER9" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .*/
    /* gdm - 10130807 */
    DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
@@ -1139,13 +1148,13 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 str-tit = coname + " - " + loname.
 {sys/inc/ctrtext.i str-tit 112}. 

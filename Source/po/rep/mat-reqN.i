@@ -359,7 +359,7 @@ for each {1}report where {1}report.term-id eq v-term,
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
         END.
@@ -408,7 +408,7 @@ for each {1}report where {1}report.term-id eq v-term,
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
         END.

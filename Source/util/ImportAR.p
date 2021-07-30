@@ -455,7 +455,13 @@ PROCEDURE pCreateNewInvoiceAR:
             ar-inv.terms        = cust.terms
             ar-inv.carrier      = cust.carrier
             ar-inv.tax-code     = cust.tax-gr
-            ar-inv.curr-code[1] = cust.curr-code.
+            ar-inv.curr-code[1] = cust.curr-code
+            ar-inv.addr[1]      = cust.addr[1]
+            ar-inv.addr[2]      = cust.addr[2]
+            ar-inv.city         = cust.city
+            ar-inv.state        = cust.state
+            ar-inv.zip          = cust.zip
+            .
         IF cust.curr-code = "" THEN 
         DO:
             FIND company NO-LOCK 

@@ -46,6 +46,10 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-new-shipto AS LOGICAL  INIT NO  NO-UNDO.
 DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTransCompany AS CHARACTER INIT "002" NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
 {oe/ttCombInv.i NEW}
@@ -96,7 +100,7 @@ inv-head.t-inv-freight inv-head.t-inv-cost
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 &Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO cBillFreightDscr ~
-dBillableFreight  
+dBillableFreight fi_Cust-stat fi_Shipto-stat 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -150,6 +154,13 @@ FUNCTION getCashSaleLog RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-tax-stat V-table-Win 
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER, ipcShipto AS CHARACTER, ipcTable AS CHARACTER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -178,7 +189,17 @@ DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U
      LABEL "Cust PO#" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
-
+     
+DEFINE VARIABLE fi_Cust-stat AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Customer Taxable" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_Shipto-stat AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Ship To Taxable" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.     
+     
 DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U 
      LABEL "Status" 
      VIEW-AS FILL-IN 
@@ -272,6 +293,9 @@ DEFINE FRAME F-Main
      inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     fi_Cust-stat AT ROW 9.33 COL 58.6 COLON-ALIGNED 
+     fi_Shipto-stat AT ROW 9.33 COL 92.6 COLON-ALIGNED
+            
      fi_PO AT ROW 9.33 COL 113 COLON-ALIGNED WIDGET-ID 4
      inv-head.terms AT ROW 10.29 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -1573,6 +1597,11 @@ PROCEDURE local-display-fields :
        ELSE
            btnTags:SENSITIVE = FALSE.
   END.
+  IF AVAILABLE inv-head THEN
+  DO:
+      ASSIGN fi_Cust-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,"", "cust")).
+      ASSIGN fi_Shipto-stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(get-tax-stat(cocode,inv-head.cust-no,inv-head.sold-no, "shipto")).
+  END.
   
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
 
@@ -1656,10 +1685,16 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
   DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cCustomerNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iInterCompanyBolNo AS INTEGER NO-UNDO.  
   DEFINE BUFFER bf-inv-head FOR inv-head .
+  DEFINE BUFFER bf-ar-inv FOR ar-inv.
+  DEFINE BUFFER bf-ar-invl FOR ar-invl.
   
   IF AVAIL inv-head AND inv-head.bol-no NE 0 THEN
-  DO:    
+  DO: 
+    iInterCompanyBolNo = inv-head.bol-no.
+    cCustomerNo = inv-head.cust-no.
     FIND FIRST bf-inv-head NO-LOCK
          WHERE bf-inv-head.company EQ cocode
          AND bf-inv-head.bol-no EQ inv-head.bol-no 
@@ -1691,7 +1726,24 @@ PROCEDURE local-delete-record :
       DELETE  bf-inv-head. 
     END.
   END.
+  
+  RUN pGetInterCompanyBilling(INPUT cocode,
+                              INPUT cCustomerNo, 
+                              OUTPUT lInterCompanyBilling,
+                              INPUT-OUTPUT cTransCompany).
+  IF lInterCompanyBilling THEN 
+  do:
+      FIND FIRST bf-ar-invl NO-LOCK
+           WHERE bf-ar-invl.company EQ cTransCompany
+           AND bf-ar-invl.bol-no EQ iInterCompanyBolNo NO-ERROR.
+      FIND FIRST bf-ar-inv EXCLUSIVE-LOCK
+           WHERE bf-ar-inv.company EQ cTransCompany
+           AND bf-ar-inv.x-no EQ bf-ar-invl.x-no NO-ERROR.
+      IF avail bf-ar-inv THEN     
+      DELETE  bf-ar-inv. 
+  END.
   RELEASE bf-inv-head.
+  RELEASE bf-ar-inv.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1724,6 +1776,50 @@ PROCEDURE pGetInvHead :
   IF AVAIL inv-head THEN
   ASSIGN oplCheckData = TRUE .
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnLogValue AS LOGICAL NO-UNDO.
+  DEFINE INPUT-OUTPUT PARAMETER iopcReturnCharValue AS CHARACTER NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+  
+  RUN sys/ref/nk1look.p (INPUT ipcCompany,
+                         INPUT "InterCompanyBilling",
+                         INPUT "L" /* Logical */,
+                         INPUT YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */,
+                         INPUT ipcCustomer /* cust */,
+                         INPUT "" /* ship-to*/,
+                         OUTPUT cRtnChar,
+                         OUTPUT lRecFound).
+
+  oplReturnLogValue = LOGICAL(cRtnChar) NO-ERROR. 
+
+  RUN sys/ref/nk1look.p (INPUT ipcCompany,
+                         INPUT "InterCompanyBilling",
+                         INPUT "C" /* Logical */,
+                         INPUT YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */,
+                         INPUT ipcCustomer /* cust */,
+                         INPUT "" /* ship-to*/,
+                         OUTPUT cRtnChar,
+                         OUTPUT lRecFound). 
+    
+  iopcReturnCharValue = IF cRtnChar NE "" THEN STRING(cRtnChar) ELSE iopcReturnCharValue NO-ERROR. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2193,4 +2289,25 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+ 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-tax-stat V-table-Win 
+FUNCTION get-tax-stat RETURNS LOGICAL
+  (INPUT ipcCompany AS CHARACTER, INPUT ipcCustNo AS CHARACTER ,INPUT ipcShipto AS CHARACTER,INPUT ipcTable  AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+IF ipcTable  EQ "cust" THEN
+DO:
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo,"","", OUTPUT lTaxable).
+END.
+ELSE DO:  
+    RUN Tax_GetTaxableAR  (ipcCompany, ipcCustNo, ipcShipto,"", OUTPUT lTaxable).
+END.
+RETURN lTaxable.
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   

@@ -137,7 +137,7 @@ PROCEDURE AddTagInactive:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeInactive 
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","").
+    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive","","").
 
 END PROCEDURE.
 
@@ -153,7 +153,7 @@ PROCEDURE AddTagRelease:
                     WHERE tag.linkRecKey EQ ipcLinkRecKey 
                       AND tag.tagType    EQ gcTypeRelease
                       AND tag.linkTable  EQ ipcLinkTable) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","").
+    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold","","").
                                        
 END PROCEDURE.
 

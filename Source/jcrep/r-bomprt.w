@@ -65,6 +65,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName as character NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -88,11 +89,11 @@ IF lRecFound THEN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job1 begin_job2 end_job1 ~
-end_job2 tb_prt-revise rd_po-part lines-per-page rd-dest lv-ornt ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+end_job2 tb_prt-revise rd_po-part rd-dest td-show-parm fi_file tb_runExcel ~
+tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
-tb_prt-revise rd_po-part lines-per-page rd-dest lv-ornt lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+tb_prt-revise rd_po-part rd-dest td-show-parm fi_file tb_runExcel ~
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -111,16 +112,16 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "x(6)" 
      LABEL "Beginning  Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0 
      LABEL "-" 
@@ -130,18 +131,18 @@ DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">9" INITIAL 0
 DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "x(6)" INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE VARIABLE end_job2 AS INTEGER FORMAT ">9" INITIAL 99 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(40)" INITIAL "c:~\tmp~\r-bilmat.csv" 
-     LABEL "If Yes, File Name" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\r-bilmat.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
      SIZE 43 BY 1
-     FGCOLOR 9 .
+     FGCOLOR 0 .
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 60 
      LABEL "Lines Per Page" 
@@ -150,7 +151,7 @@ DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 60
 
 DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
      VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+     SIZE 53 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
@@ -169,11 +170,9 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 19 BY 6.67 NO-UNDO.
+"To CSV", 3
+     SIZE 16 BY 3.81 NO-UNDO.
 
 DEFINE VARIABLE rd_po-part AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -184,11 +183,16 @@ DEFINE VARIABLE rd_po-part AS INTEGER
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 9.29.
+     SIZE 88 BY 5.14.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 4.76.
+     SIZE 88 BY 4.29.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -202,10 +206,10 @@ DEFINE VARIABLE tb_prt-revise AS LOGICAL INITIAL no
      SIZE 32 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3  NO-UNDO.
+     SIZE 14.4 BY .81
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -226,29 +230,31 @@ DEFINE FRAME FRAME-A
           "Enter Ending Run#"
      tb_prt-revise AT ROW 3.38 COL 32
      rd_po-part AT ROW 4.33 COL 32 NO-LABEL WIDGET-ID 2
+     lv-ornt AT ROW 6.48 COL 34 NO-LABEL
+     lv-font-no AT ROW 6.48 COL 36 COLON-ALIGNED
      lines-per-page AT ROW 6.48 COL 55 COLON-ALIGNED
+     lv-font-name AT ROW 6.71 COL 28 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 6.71 COL 56 RIGHT-ALIGNED
      rd-dest AT ROW 7.19 COL 6 NO-LABEL
-     lv-ornt AT ROW 7.91 COL 32 NO-LABEL
-     lv-font-no AT ROW 9.57 COL 36 COLON-ALIGNED
-     lv-font-name AT ROW 10.52 COL 30 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 11.95 COL 32
-     tb_excel AT ROW 13.1 COL 70.4 RIGHT-ALIGNED
-     tb_runExcel AT ROW 13.1 COL 91.6 RIGHT-ALIGNED
-     fi_file AT ROW 13.95 COL 48 COLON-ALIGNED HELP
+     td-show-parm AT ROW 9.05 COL 37.8
+     fi_file AT ROW 9.95 COL 27.4 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 16 COL 23
-     btn-cancel AT ROW 16 COL 57
+     tb_runExcel AT ROW 9.95 COL 86.4 RIGHT-ALIGNED
+     tbAutoClose AT ROW 11.86 COL 28 WIDGET-ID 16
+     btn-ok AT ROW 12.76 COL 27.8
+     btn-cancel AT ROW 12.76 COL 49
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 6.24 COL 4
+          SIZE 18 BY .62 AT ROW 6 COL 4.8
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     RECT-6 AT ROW 6 COL 2
-     RECT-7 AT ROW 1 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+          SIZE 21 BY .71 AT ROW 1.24 COL 4.8
+          BGCOLOR 15 
+     RECT-6 AT ROW 6.33 COL 3.6
+     RECT-7 AT ROW 1.48 COL 3.6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.29
-         SIZE 97.8 BY 16.86.
+         SIZE 97.8 BY 16.86
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -268,16 +274,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Bill of Materials"
-         HEIGHT             = 17.29
-         WIDTH              = 99.8
+         HEIGHT             = 13.71
+         WIDTH              = 93
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
+         MAX-BUTTON         = no
+         RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
-         BGCOLOR            = ?
+         BGCOLOR            = 15
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
@@ -302,16 +309,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 /* SETTINGS FOR FILL-IN begin_job1 IN FRAME FRAME-A
    1                                                                    */
 ASSIGN 
@@ -323,6 +320,14 @@ ASSIGN
 ASSIGN 
        begin_job2:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN end_job1 IN FRAME FRAME-A
    1                                                                    */
@@ -340,17 +345,34 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        rd_po-part:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm,rd_po-part".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -372,7 +394,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -467,7 +489,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-
+ IF rd-dest = 3 THEN
+  do:
+    fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv".
+    assign fi_file.
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    fi_file:SCREEN-VALUE =  cFileName.
+  end.
   lv-pdf-file = INIT-dir +  "\Job" + STRING(begin_job1).
 
   RUN run-report.
@@ -475,7 +503,9 @@ DO:
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
-       when 3 then run output-to-file.
+       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+                   VIEW-AS ALERT-BOX.
+                   //run output-to-file.
        when 4 then do:
          run output-to-fax.
        END.
@@ -485,6 +515,8 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case.
   SESSION:SET-WAIT-STATE ("").
+    IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -517,9 +549,10 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
+    // assign {&self-name}.
+    fi_file = ''.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,6 +624,18 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+    IF rd-dest = 3 THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -632,7 +677,7 @@ END.
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -682,7 +727,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-
+  btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
 
   FIND FIRST users WHERE
@@ -695,11 +741,29 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   {methods/nowait.i}
-
+ {sys/inc/reportsConfigNK1.i "ER5" }
+  assign
+    td-show-parm:sensitive = lShowParameters
+    td-show-parm:hidden = not lShowParameters
+    td-show-parm:visible = lShowParameters
+    .
+    
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
 
-    APPLY "entry" TO begin_job1.    
+    APPLY "entry" TO begin_job1.  
+   IF rd-dest:SCREEN-VALUE = '3' THEN
+        ASSIGN
+            fi_file:SCREEN-VALUE = "c:\tmp\r-bilmat.csv"
+            fi_file:sensitive     = TRUE  
+            tb_runExcel:sensitive = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:sensitive     = FALSE  
+            tb_runExcel:checked   = FALSE
+            tb_runExcel:sensitive = FALSE
+            . 
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -743,12 +807,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job1 begin_job2 end_job1 end_job2 tb_prt-revise rd_po-part 
-          lines-per-page rd-dest lv-ornt lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+          rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_prt-revise 
-         rd_po-part lines-per-page rd-dest lv-ornt td-show-parm tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel 
+         rd_po-part rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -903,12 +966,12 @@ PROCEDURE run-report :
 {sys/inc/outprint.i value(lines-per-page) } 
 
 DEFINE  VARIABLE excelheader AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN s-print-revised = tb_prt-revise
-                  v-export           = tb_excel
+                  v-export           = (if rd-dest = 3 then Yes else No)
                   v-exp-name         = cFileName.    
 
 if td-show-parm then run show-param.
@@ -930,7 +993,7 @@ END.
 ELSE IF rd-dest = 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
 PUT "</PROGRESS>".
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
    output stream s-temp to value(v-exp-name).
 /*   excelheader = "Job No, Job2,Customer Name,Due Date,Ship To,Estimate,Printed Date,Time,Status," +
                            "Form,Blank,Description,Form Qty,Part #,PO#,FG Item#,Style,Size,CAD#".
@@ -940,7 +1003,7 @@ END.
 
 RUN cerep/bomcbox2.p (rd_po-part EQ 2).
 
-IF tb_excel THEN DO:
+IF rd-dest = 3 THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).

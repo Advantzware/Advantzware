@@ -25,6 +25,7 @@ DEFINE VARIABLE lMatchFGItem AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lMatchPart AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lMatchCad AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lUpdInks AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lUpdUnit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lUpdPack AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lUpdFreight AS LOGICAL NO-UNDO.
 
@@ -54,6 +55,7 @@ DO:
 
     ASSIGN 
         lUpdInks = (ipiType LE 2 OR ipiType EQ ?)
+        lUpdUnit = (ipiType EQ 2 OR ipiType EQ ?)
         lUpdPack = (ipiType EQ 3 OR ipiType EQ ?)
         lUpdFreight = (ipiType EQ 4 OR ipiType EQ ?)
         .

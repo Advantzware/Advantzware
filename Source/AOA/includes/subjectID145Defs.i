@@ -1,39 +1,41 @@
-/* subjectID145Defs.i - auto generated 10.19.2020 @  5:41:43 pm */
+/* subjectID145Defs.i - auto generated 07.06.2021 @  7:19:03 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE cCompany AS Character NO-UNDO.
-DEFINE VARIABLE cLocation AS Character NO-UNDO.
-DEFINE VARIABLE lAllDeptNo AS Logical NO-UNDO.
-DEFINE VARIABLE cStartDeptNo AS Character NO-UNDO.
-DEFINE VARIABLE cCStartDeptName AS Character NO-UNDO.
-DEFINE VARIABLE cEndDeptNo AS Character NO-UNDO.
-DEFINE VARIABLE cCEndDeptName AS Character NO-UNDO.
-DEFINE VARIABLE lAllMachines AS Logical NO-UNDO.
-DEFINE VARIABLE cStartMachine AS Character NO-UNDO.
-DEFINE VARIABLE cStartMachDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndMachine AS Character NO-UNDO.
-DEFINE VARIABLE cEndMachDescription AS Character NO-UNDO.
-DEFINE VARIABLE lAllShifts AS Logical NO-UNDO.
-DEFINE VARIABLE cStartShift AS Character NO-UNDO.
-DEFINE VARIABLE cStartShftDescription AS Character NO-UNDO.
-DEFINE VARIABLE cEndShift AS Character NO-UNDO.
-DEFINE VARIABLE cEndShftDescription AS Character NO-UNDO.
-DEFINE VARIABLE dtStartTransDate AS Date NO-UNDO.
-DEFINE VARIABLE dtEndTransDate AS Date NO-UNDO.
-DEFINE VARIABLE cStartTime AS Character NO-UNDO.
-DEFINE VARIABLE cEndTime AS Character NO-UNDO.
-DEFINE VARIABLE lAllCodeNo AS Logical NO-UNDO.
-DEFINE VARIABLE cStartCodeNo AS Character NO-UNDO.
-DEFINE VARIABLE cStartCodeName AS Character NO-UNDO.
-DEFINE VARIABLE cEndCodeNo AS Character NO-UNDO.
-DEFINE VARIABLE cEndCodeName AS Character NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllDeptNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartDeptNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCStartDeptName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndDeptNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCEndDeptName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllMachines AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartMachDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllShifts AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartShift AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartShftDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndShift AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndShftDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtStartTransDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-1 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtEndTransDate AS DATE NO-UNDO.
+DEFINE VARIABLE cDatePickList-2 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartTime AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndTime AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllCodeNo AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartCodeNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartCodeName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCodeNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCodeName AS CHARACTER NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
     ASSIGN
-        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","Company")
+        cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
         cLocation = DYNAMIC-FUNCTION("fGetDynParamValue","location")
         lAllDeptNo = DYNAMIC-FUNCTION("fGetDynParamValue","allDeptNo") EQ "YES"
         cStartDeptNo = DYNAMIC-FUNCTION("fGetDynParamValue","StartDeptNo")
@@ -51,7 +53,11 @@ PROCEDURE pAssignParamVariables:
         cEndShift = DYNAMIC-FUNCTION("fGetDynParamValue","endShift")
         cEndShftDescription = DYNAMIC-FUNCTION("fGetDynParamValue","endShftDescription")
         dtStartTransDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startTransDate"))
+        cDatePickList-1 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-1")
+        dtStartTransDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-1,dtStartTransDate)
         dtEndTransDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endTransDate"))
+        cDatePickList-2 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-2")
+        dtEndTransDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-2,dtEndTransDate)
         cStartTime = DYNAMIC-FUNCTION("fGetDynParamValue","StartTime")
         cEndTime = DYNAMIC-FUNCTION("fGetDynParamValue","EndTime")
         lAllCodeNo = DYNAMIC-FUNCTION("fGetDynParamValue","allCodeNo") EQ "YES"

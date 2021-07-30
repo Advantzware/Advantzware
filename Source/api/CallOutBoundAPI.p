@@ -58,6 +58,7 @@ DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
@@ -350,10 +351,12 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
 
     IF gcRequestVerb EQ "POST" THEN        
         oplcResponseData = oAPIHandler:Post(gcEndPoint, iplcRequestData).
-    ELSE IF gcRequestDataType EQ "GET" THEN 
+    ELSE IF gcRequestVerb EQ "GET" THEN 
         oplcResponseData = oAPIHandler:Get(gcEndPoint).
-    ELSE IF gcRequestDataType EQ "DELETE" THEN 
+    ELSE IF gcRequestVerb EQ "DELETE" THEN 
         oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
+    
+    cResponseCode = oAPIHandler:GetResponseStatusCode().
                             
     IF VALID-OBJECT(oAPIHandler) THEN
         DELETE OBJECT oAPIHandler.    
@@ -362,6 +365,7 @@ END.
 /* Read Response  */
 RUN pReadResponse (
     INPUT  oplcResponseData,
+    INPUT  cResponseCode,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
@@ -382,6 +386,7 @@ PROCEDURE pReadResponse PRIVATE:
     ------------------------------------------------------------------------------*/
     
     DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcResponseCode  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
     
@@ -390,7 +395,10 @@ PROCEDURE pReadResponse PRIVATE:
     IF iplcResponseData EQ "" THEN DO:
         ASSIGN
             oplSuccess  = NO
-            opcMessage  = "Could not get any response"
+            opcMessage  = IF ipcResponseCode NE "" THEN
+                              ipcResponseCode
+                          ELSE
+                              "Could not get any response"
             .
 
         RETURN.

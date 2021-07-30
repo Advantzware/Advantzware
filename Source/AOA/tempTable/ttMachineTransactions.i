@@ -2,7 +2,7 @@
 
 /* Machine Transactions.rpa */
 DEFINE TEMP-TABLE ttMachineTransactions NO-UNDO
-    {aoa/tempTable/ttFields.i}
+    {AOA/tempTable/ttFields.i}
     FIELD machine         LIKE machtran.machine       LABEL "Machine"
     FIELD custPartNo      AS CHARACTER                LABEL "Cust Part"        FORMAT "x(15)"
     FIELD custName        AS CHARACTER                LABEL "Customer"         FORMAT "x(30)"

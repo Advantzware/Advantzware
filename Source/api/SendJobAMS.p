@@ -272,6 +272,8 @@ DEFINE BUFFER bf-job-mat                  FOR job-mat.
 
 /* **********************  Internal Procedures  *********************** */
 
+RUN pSetRequestDataType (INPUT "XML").
+
 IF ipcRequestHandler NE "" THEN
     RUN VALUE(ipcRequestHandler) (
         INPUT TABLE ttArgs,

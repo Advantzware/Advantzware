@@ -1110,7 +1110,7 @@ DO:
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
                    IF AVAIL oe-ord THEN
-                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,oe-ord.ord-no) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1907,7 +1907,7 @@ DO:
             . 
             
    IF AVAIL oe-ord THEN
-      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,0) .
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id,oe-ord.ord-no) .
       
   IF ll-bypass THEN DO:
     ll-bypass = NO.
@@ -3483,7 +3483,7 @@ PROCEDURE check-quote :
   DEF VAR ldQuotePrice AS DEC NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL xest AND v-quo-price-log                             AND
+    IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log      AND
       v-quo-price-dec EQ 1 AND oe-ordl.est-no:SCREEN-VALUE NE "" THEN DO:
 
       FOR EACH quotehd
@@ -3616,6 +3616,13 @@ DEF VAR lcChoice AS CHAR NO-UNDO.
 DEFINE VARIABLE iQutNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cQuoteEst AS CHARACTER NO-UNDO.
+
+IF lQuotePriceMatrix THEN
+DO:
+   MESSAGE "Quotes should not be used as NK1 = QuotePriceMatrix is set such that only the price matrix should be used."
+           VIEW-AS ALERT-BOX INFO .
+   RETURN.        
+END.
 
 DO WITH FRAME {&FRAME-NAME}:
     cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
@@ -4028,14 +4035,11 @@ RUN ask-release-questions (INPUT ROWID(oe-ordl),
                            OUTPUT v-num-shipto).
 
 /* prompt is in ask-release-questions */
-IF v-relflg2 THEN DO:
+IF v-relflg2 THEN DO:  
   {oe/oe-rel.a &fil="oe-ordl"}.
   /* stores oe-rel due date */
-  IF lfirstReleaseofItem THEN DO:
-
-    oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
-    IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-      oe-rel.rel-date = get-colonial-rel-date(ROWID(oe-rel)).
+  IF lfirstReleaseofItem THEN DO:  
+    oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".     
   END.
     
 END.
@@ -4696,7 +4700,7 @@ PROCEDURE display-est-detail :
               DATE(oe-ordl.prom-date:SCREEN-VALUE) THEN
              oe-ordl.prom-date:SCREEN-VALUE = oe-ordl.req-date:SCREEN-VALUE.
         END.
-        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,0) .
+        RUN pGetOverUnderPct(b-eb.cust-no,b-eb.ship-id,ip-ord-no) .
      END. /*avail b-eb*/
 
      IF lastship-cha = "Stock/Custom" THEN DO:
@@ -4736,7 +4740,7 @@ PROCEDURE display-est-detail :
          WHERE est-qty.company EQ est.company
            AND est-qty.est-no  EQ est.est-no
          NO-ERROR.
-     IF v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
+     IF NOT lQuotePriceMatrix AND v-quo-price-log AND AVAIL est-qty AND est-qty.qty[1] NE 0 AND
         (est-qty.qty[2] NE 0 OR est-qty.qty[3] NE 0 OR est-qty.qty[4] NE 0) AND
         NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
@@ -4748,8 +4752,7 @@ PROCEDURE display-est-detail :
               WHERE quotehd.company EQ est.company AND
               quotehd.est-no EQ est.est-no AND 
               quotehd.quo-date LE TODAY AND
-              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) AND
-              ((quotehd.effectiveDate LE TODAY AND quotehd.approved) OR NOT lQuotePriceMatrix) NO-ERROR .
+              (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)  NO-ERROR .
            
           IF AVAIL quotehd THEN do:
            RUN oe/d-ordqty.w (RECID(est-qty), OUTPUT lv-qty, OUTPUT lv-price, OUTPUT lv-pr-uom,
@@ -4774,7 +4777,7 @@ PROCEDURE display-est-detail :
            END.
                  
         END.
-     ELSE IF CAN-FIND(FIRST tt-item-qty-price WHERE
+     ELSE IF NOT lQuotePriceMatrix AND CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
            (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
@@ -4844,7 +4847,7 @@ PROCEDURE display-est-detail :
    lv-pr-uom = oe-ordl.pr-uom:SCREEN-VALUE
    lv-qty    = dec(oe-ordl.qty:SCREEN-VALUE).
    cQuoteEst = IF oe-ordl.SourceEstimateID:SCREEN-VALUE NE "" THEN oe-ordl.SourceEstimateID:SCREEN-VALUE ELSE oe-ordl.est-no:SCREEN-VALUE .
-  IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
+  IF NOT lQuotePriceMatrix AND AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND
       NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
@@ -6379,11 +6382,10 @@ PROCEDURE get-price :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR lv-price-ent LIKE price-ent NO-UNDO.
   DEFINE VARIABLE dTotalPrice AS DECIMAL NO-UNDO.
-
+          
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT price-ent                           AND
-       AVAIL oe-ordl                           AND
-       TRIM(oe-ordl.est-no:SCREEN-VALUE) EQ "" THEN DO:
+       AVAIL oe-ordl                           THEN DO:
 
       lv-price-ent = price-ent.
       IF NOT lv-add-mode THEN price-ent = YES.
@@ -6938,7 +6940,7 @@ PROCEDURE leave-qty :
 
           ll-got-qtprice = YES.
 
-          IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
+          IF NOT lQuotePriceMatrix AND NOT CAN-FIND(FIRST tt-item-qty-price WHERE
              tt-item-qty-price.tt-selected = YES AND
              (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
              (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
@@ -6957,7 +6959,7 @@ PROCEDURE leave-qty :
                   INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                   ).
           END.
-          ELSE
+          ELSE IF NOT lQuotePriceMatrix THEN
           DO:
              FIND FIRST tt-item-qty-price WHERE
                   tt-item-qty-price.tt-selected = YES AND
@@ -7530,9 +7532,47 @@ PROCEDURE OnSaveButton :
                     xoe-ordl.prom-date = oe-ordl.prom-date.
             END.
         END.
+                  
+        IF lv-change-cst-po THEN 
+        DO:  
+            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
+                AND xoe-ordl.ord-no EQ oe-ord.ord-no
+                AND recid(xoe-ordl) NE recid(oe-ordl):
+                ASSIGN 
+                    xoe-ordl.po-no = oe-ordl.po-no.
+            END.
+        END.
+        IF lv-change-inv-po THEN 
+        DO:    
+            RUN oe/poNoChange.p (INPUT g_company,
+                INPUT oe-ord.ord-no,
+                INPUT oe-ordl.po-no,
+                INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
+        END.
+        RELEASE xoe-ordl.
+
+        RUN update-itemfg.
+
+        ASSIGN {&list-2} .  /* job-no job-no2 */
+
+        FIND CURRENT oe-ordl NO-LOCK.
+    END. /* trans */
+
+    IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
+        RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
+  
+
+    IF oereleas-log THEN 
+        IF ll-new-record THEN RUN create-release.
+        ELSE RUN update-release.
+        
+  
+    DO  TRANSACTION :
+        FIND CURRENT oe-ordl EXCLUSIVE.
+        FIND CURRENT oe-ord EXCLUSIVE.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
-        DO:
+        DO:      
             IF NOT cPromManualChanged AND cDueManualChanged THEN 
             DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -7569,43 +7609,6 @@ PROCEDURE OnSaveButton :
                 oe-ordl.prom-date = dCalcPromDate.
             END.
         END.
-  
-        IF lv-change-cst-po THEN 
-        DO:  
-            FOR EACH xoe-ordl WHERE xoe-ordl.company EQ g_company
-                AND xoe-ordl.ord-no EQ oe-ord.ord-no
-                AND recid(xoe-ordl) NE recid(oe-ordl):
-                ASSIGN 
-                    xoe-ordl.po-no = oe-ordl.po-no.
-            END.
-        END.
-        IF lv-change-inv-po THEN 
-        DO:    
-            RUN oe/poNoChange.p (INPUT g_company,
-                INPUT oe-ord.ord-no,
-                INPUT oe-ordl.po-no,
-                INPUT (IF lv-change-cst-po THEN "" ELSE oe-ordl.i-no)).
-        END.
-        RELEASE xoe-ordl.
-
-        RUN update-itemfg.
-
-        ASSIGN {&list-2} .  /* job-no job-no2 */
-
-        FIND CURRENT oe-ordl NO-LOCK.
-    END. /* trans */
-
-    IF ip-type NE "update" AND oe-ordl.est-no NE "" THEN
-        RUN oe/ordlmisc.p (ROWID(oe-ordl), oe-ordl.qty).
-  
-
-    IF oereleas-log THEN 
-        IF ll-new-record THEN RUN create-release.
-        ELSE RUN update-release.
-  
-    DO  TRANSACTION :
-        FIND CURRENT oe-ordl EXCLUSIVE.
-        FIND CURRENT oe-ord EXCLUSIVE.
     
         RUN final-steps.
     END. /* Transaction */
@@ -10875,8 +10878,23 @@ FUNCTION get-colonial-rel-date RETURNS DATE
      AND bf-oe-ord.ord-no EQ bf-oe-rel.ord-no
      NO-LOCK NO-ERROR.
   /* order header due-date - dock appt days, adjusted for weekends */
-  IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN
-     opRelDate = get-date(bf-oe-ord.due-date, bf-shipto.spare-int-2, "-").
+  IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN do:      
+     IF oereleas-cha EQ "LastShip" THEN
+        opRelDate = bf-oe-ord.last-date.
+     ELSE IF oereleas-cha EQ "Due Date" THEN
+        opRelDate = oe-ordl.req-date.
+     ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
+        opRelDate = oe-ordl.req-date - (IF AVAIL bf-shipto THEN bf-shipto.del-time ELSE 0).
+     ELSE /*DueDate+1Day*/
+     DO:
+        opRelDate = oe-ordl.req-date + 1.
+        IF WEEKDAY(opRelDate) EQ 7 THEN
+        opRelDate = oe-rel.rel-date + 2.
+        ELSE
+        IF WEEKDAY(opRelDate) EQ 1 THEN
+        opRelDate = opRelDate + 1.
+    END.
+  END.   
   RETURN opRelDate.
 
 END FUNCTION.

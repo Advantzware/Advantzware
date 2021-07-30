@@ -107,6 +107,7 @@ DEF VAR lv-char AS cha NO-UNDO.
 DEF VAR lv-char-list AS cha NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
+
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -449,7 +450,7 @@ v-printline = 0.
            PUT "<C46>" "YES" .
            
            PUT "<C50.5>" v-job-no FORM "x(12)" SPACE(1)
-               lv-cost FORM "->>>9.99<<"
+               lv-cost FORM "->>>9.99<<" SPACE(1)
                lv-pr-uom
                po-ordl.t-cost FORM "->>,>>9.99"          
                SKIP.
@@ -481,7 +482,7 @@ v-printline = 0.
             int(po-ordl.under-pct) FORM ">>9" 
             po-ordl.i-name AT 25 FORM "x(30)"
             "<C50.5>"
-            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(1)
+            "SETUP: $" TRIM(STRING(po-ordl.setup)) SPACE(12)
             v-change-dscr SKIP.
         
         ASSIGN
@@ -583,15 +584,9 @@ v-printline = 0.
         END.
         
         /* PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
-        PUT cFlueTest .
+        PUT cFlueTest SKIP .
         
-        IF v-cost GT 0 THEN DO:
-            /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
-               STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
-            PUT "<FCourier New><C64>" v-cost FORM ">>,>>9.99<<" lv-pr-uom SKIP.
-        END.
-        ELSE
-           PUT SKIP.
+         
       /* IF ITEM.flute NE "" AND ITEM.reg-no NE "" THEN DO:*/
         IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN DO:
             put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.
@@ -613,7 +608,7 @@ v-printline = 0.
                v-printline = v-printline + 1
                len-score = "".
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         
@@ -652,7 +647,7 @@ v-printline = 0.
             END.
            end.
            END.
-         end.
+         
 
          FOR EACH tt-formtext:
             DELETE tt-formtext.
