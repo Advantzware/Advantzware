@@ -200,3 +200,6 @@
 "" "202106221157007443292" "SendVendor" "UpdateVendor" "Trigger to process the request when vendor is updated" no 2021-06-23T15:28:36.207 "asi" "_default1" 205 41
 "" "202106212061807443212" "SendReceipt" "CreateReceipt" "Trigger to process the request when receipt is created" no 2021-06-23T15:26:25.592 "asi" "_default" 206 39
 "" "202106235557407443565" "SendReceipt" "UpdateReceipt" "Trigger to process the request when receipt is updated" no 2021-06-23T15:26:14.248 "asi" "_default" 207 39
+"" "202106284869307444552" "CalculateTaxToken" "GetRefreshToken" "Trigger to fetch the Vertex access token" no 2021-06-28T13:31:33.649 "asi" "_default" 208 42
+"" "202107062593307682615" "SendBankCheck" "PrintCheck" "Generate cXML file on print of check" no 2021-07-06T07:12:13.463 "asi" "_default" 209 43
+"" "202107232927407771461" "SendJobAMS" "CloseJob" "Trigger to send job close command" no 2021-07-23T08:11:58.304 "asi" "_default1" 210 44

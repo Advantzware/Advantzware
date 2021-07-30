@@ -1,4 +1,5 @@
 0 1 "EACH" "dynParamValue" "Dynamic Parameter Values" "" "ASI" "201911064565904356483"
+1 1 "EACH" "ttMachineTransactions" "" "" "ASI" "201911064565904356487"
 2 2 "EACH" "AuditDtl" "Audit Detail" "" "AUDIT" "201911064565904356484"
 2 1 "EACH" "AuditHdr" "Audit Header" "" "AUDIT" "201911064565904356485"
 3 1 "EACH" "job-hdr" "Job Header " "" "ASI" "201911064565904356486"
@@ -101,6 +102,7 @@
 97 4 "FIRST" "fgcat" "FG Category Master" "" "ASI" "202003126931304706765"
 97 3 "FIRST" "itemfg" "FG Item Master" "" "ASI" "202003126931304706764"
 98 1 "EACH" "naics" "NAICS Codes" "" "ASI" "202003248479904739303"
+99 1 "EACH" "est" "Estimate Master" "" "ASI" "202004174460705123491"
 100 1 "EACH" "eb" "Estimate Blank" "" "ASI" "202004132816605008234"
 100 2 "FIRST" "est" "Estimate Master" "" "ASI" "202004132816605008233"
 101 1 "EACH" "inventoryStatusType" "Inventory Status Type" "" "ASI" "202004145646705125961"
@@ -175,3 +177,4 @@
 172 2 "FIRST" "oe-ord" "OE Order Master" "" "ASI" "202104268090707176932"
 173 1 "EACH" "prgrms" "Program Master " "" "ASI" "202105135933607285528"
 174 1 "EACH" "ttFGPostHist" "" "" "ASI" "202105128290807242244"
+177 1 "EACH" "ap-inv" "A/P Invoice Header" "" "ASI" "202107191875207795026"

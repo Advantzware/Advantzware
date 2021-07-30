@@ -2259,17 +2259,16 @@ PROCEDURE ipConvertPolScore PRIVATE:
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     FOR EACH bf-company NO-LOCK: 
-        RUN sys/ref/nk1look.p (
-            INPUT bf-company.company,     /* Company Code */ 
-            INPUT "CECSCRN",      /* sys-ctrl name */
-            INPUT "C",            /* Output return value */
-            INPUT NO,             /* Use ship-to */
-            INPUT NO,             /* ship-to vendor */
-            INPUT "",             /* ship-to vendor value */
-            INPUT "",             /* shi-id value */
-            OUTPUT cSizeFormat, 
-            OUTPUT lRecFound
-            ).
+
+        FIND FIRST sys-ctrl NO-LOCK WHERE 
+            sys-ctrl.company EQ bf-company.company AND
+            sys-ctrl.name EQ "CECSCRN"
+            NO-ERROR.
+        IF NOT AVAIL sys-ctrl THEN FIND FIRST sys-ctrl NO-LOCK WHERE 
+            sys-ctrl.name EQ "CECSCRN"
+            NO-ERROR.
+        ASSIGN
+            cSizeFormat = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "16th's".
         
         FOR EACH bf-po-ordl NO-LOCK 
             WHERE bf-po-ordl.company = bf-company.company:

@@ -2,6 +2,7 @@
 "202005285503905315489" "001" "_ANY_" "_ANY_" "_default" "CheckTransfer" "_ANY_" no
 "202005285503905315490" "001" "_ANY_" "_ANY_" "_default" "SendAdvancedShipNotice" "_ANY_" no
 "202005285503905315492" "001" "_ANY_" "_ANY_" "_default1" "SendAdvancedShipNotice" "_ANY_" no
+"202107072372207688369" "001" "_ANY_" "_ANY_" "_default" "SendBankCheck" "_ANY_" no
 "202005285503905315493" "001" "_ANY_" "_ANY_" "_default" "SendCustomer" "_ANY_" no
 "202005285503905315494" "001" "_ANY_" "_ANY_" "_default" "SendFinishedGood" "_ANY_" no
 "202005285504005315496" "001" "_ANY_" "_ANY_" "_default" "SendInvoice" "_ANY_" no
