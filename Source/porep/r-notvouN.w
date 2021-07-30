@@ -1874,7 +1874,8 @@ assign
  frdat   = begin_rdate
  trdat   = end_rdate
  fvend   = begin_vend
- tvend   = END_vend. 
+ tvend   = END_vend
+ str-line = "". 
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -2370,8 +2371,12 @@ PROCEDURE pPrintDetail :
     DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiPoLine AS INTEGER NO-UNDO.
   
-    DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE excelheader  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityRec AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUom     AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
     DEFINE BUFFER bf-po-ord  FOR po-ord.
   
@@ -2428,11 +2433,11 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-qty-uom"   THEN 
                         cVarValue = STRING(rm-rcpth.pur-uom,"x(10)") .
                     WHEN "rec-cost"  THEN 
-                        cVarValue = STRING(rm-rdtlh.cost,"->>,>>>,>>9.99") .
+                        cVarValue = STRING(rm-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
                     WHEN "rec-cost-uom"   THEN 
                         cVarValue = STRING(rm-rcpth.pur-uom,"x(10)") .
                     WHEN "rec-ext-value"  THEN 
-                        cVarValue = STRING(rm-rdtlh.qty * rm-rdtlh.cost,"->>,>>>,>>9.9") .
+                        cVarValue = STRING(rm-rdtlh.qty * rm-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
                     OTHERWISE 
                     cVarValue = "".
                 END CASE.
@@ -2473,7 +2478,30 @@ PROCEDURE pPrintDetail :
                 cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"99") .        
             ELSE 
                 cJobNo = "".
-                  
+                
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ cocode
+                 AND itemfg.i-no    EQ fg-rcpth.i-no
+                 USE-INDEX i-no NO-ERROR.
+            cCostUom = IF AVAIL itemfg THEN itemfg.pur-uom ELSE "EA".      
+                
+            RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  bf-po-ordl.company,
+                    INPUT  bf-po-ordl.i-no,
+                    INPUT  "FG",
+                    INPUT  fg-rdtlh.qty,
+                    INPUT  cCostUom, 
+                    INPUT  fg-rcpth.pur-uom,
+                    INPUT  0,
+                    INPUT  bf-po-ordl.s-len,
+                    INPUT  bf-po-ordl.s-wid,
+                    INPUT  bf-po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityRec,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).                                                           
+                    
             ASSIGN 
                 cDisplay       = ""
                 cTmpField      = ""
@@ -2497,11 +2525,11 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-qty-uom"   THEN 
                         cVarValue = STRING(fg-rcpth.pur-uom,"x(10)") .
                     WHEN "rec-cost"  THEN 
-                        cVarValue = STRING(fg-rdtlh.cost,"->>,>>>,>>9.99") .
+                        cVarValue = STRING(fg-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
                     WHEN "rec-cost-uom"   THEN 
                         cVarValue = STRING(fg-rcpth.pur-uom,"x(10)") .
                     WHEN "rec-ext-value"  THEN 
-                        cVarValue = STRING(fg-rdtlh.qty * fg-rdtlh.cost,"->>,>>>,>>9.9") .
+                        cVarValue = STRING(dQuantityRec * fg-rdtlh.cost,"->>,>>>,>>9.99<<<<") .
                     OTHERWISE 
                     cVarValue = "".
                 END CASE.
@@ -2552,15 +2580,15 @@ PROCEDURE pPrintDetail :
             WHEN "inv-date"   THEN 
                 cVarValue = STRING(ap-inv.inv-date,"99/99/9999").
             WHEN "inv-qty2"   THEN 
-                cVarValue = STRING(ap-invl.qty,"->>>,>>9.9<<").
+                cVarValue = STRING(ap-invl.qty,"->>>,>>9.99").
             WHEN "inv-qty-uom"   THEN 
                 cVarValue = STRING(ap-invl.cons-uom,"x(10)").
             WHEN "inv-price"  THEN 
-                cVarValue = STRING(ap-invl.unit-pr,"->,>>>,>>9.99<<")  .
+                cVarValue = STRING(ap-invl.unit-pr,"->,>>>,>>9.99<<<<")  .
             WHEN "inv-price-uom"   THEN 
                 cVarValue = STRING(ap-invl.pr-qty-uom,"x(10)") .
             WHEN "inv-line-amount"  THEN 
-                cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99") .                                 
+                cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99<<<<") .                                 
             OTHERWISE 
             cVarValue = "".
         END CASE.
