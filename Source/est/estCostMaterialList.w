@@ -1,13 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-/* Connected Databases 
-          asi              PROGRESS
-*/
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: util/estCostMaterial.w
+  File: util/estCostMaterialList.w
 
   Description: 
 
@@ -34,19 +31,14 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
-/* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipiEstCostHeaderID   AS INTEGER      NO-UNDO.
-DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO. 
-/* Local Variable Definitions ---                                       */
+{est\ttEstCostHeaderToCalc.i}
 {methods/defines/hndldefs.i}
-//{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
-//DEFINE VARIABLE  ipiEstCostHeaderID AS INTEGER NO-UNDO.
-//DEFINE VARIABLE oplVendorUpdated    AS LOGICAL      NO-UNDO. 
-//ipiEstCostHeaderID = 7.
+/* Parameters Definitions ---                                           */
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstCostHeaderToCalc. 
+/* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -64,16 +56,24 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 &Scoped-define BROWSE-NAME brEstCostMaterial
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES estCostMaterial
+&Scoped-define INTERNAL-TABLES ttEstCostHeaderToCalc estCostHeader ~
+estCostMaterial
 
 /* Definitions for BROWSE brEstCostMaterial                             */
-&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityRequiredTotalInCUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
+&Scoped-define FIELDS-IN-QUERY-brEstCostMaterial estCostHeader.quantityMaster estCostMaterial.formNo estCostMaterial.blankNo estCostMaterial.itemID estCostMaterial.vendorID estCostMaterial.quantityRequiredTotal estCostMaterial.quantityUOM estCostMaterial.costPerUOM estCostMaterial.costUOM estCostMaterial.costSetup estCostMaterial.costTotal   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brEstCostMaterial   
 &Scoped-define SELF-NAME brEstCostMaterial
-&Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-brEstCostMaterial estCostMaterial
-&Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial estCostMaterial
+&Scoped-define QUERY-STRING-brEstCostMaterial FOR EACH ttEstCostHeaderToCalc, ~
+           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-brEstCostMaterial OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostHeaderToCalc, ~
+           FIRST estCostHeader NO-LOCK     WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID, ~
+           EACH estCostMaterial NO-LOCK     WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID     AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc ~
+estCostHeader estCostMaterial
+&Scoped-define FIRST-TABLE-IN-QUERY-brEstCostMaterial ttEstCostHeaderToCalc
+&Scoped-define SECOND-TABLE-IN-QUERY-brEstCostMaterial estCostHeader
+&Scoped-define THIRD-TABLE-IN-QUERY-brEstCostMaterial estCostMaterial
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -82,9 +82,8 @@ DEFINE OUTPUT PARAMETER oplVendorUpdated    AS LOGICAL      NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 brEstCostMaterial bOk bCancel ~
-fiEstimatNo fiCalculationquantity 
-&Scoped-Define DISPLAYED-OBJECTS fiEstimatNo fiCalculationquantity estimate ~
-calculationQuantity 
+fiEstimateNo 
+&Scoped-Define DISPLAYED-OBJECTS fiEstimateNo estimate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,22 +107,12 @@ DEFINE BUTTON bOk
      LABEL "Choose Vendor" 
      SIZE 17.6 BY 1.38.
 
-DEFINE VARIABLE calculationQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Calculation Quantity:" 
-      VIEW-AS TEXT 
-     SIZE 24 BY .62
-     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
-
 DEFINE VARIABLE estimate AS CHARACTER FORMAT "X(8)":U INITIAL "Estimate#:" 
       VIEW-AS TEXT 
      SIZE 12.6 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fiCalculationquantity AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 14.2 BY 1.1
-     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
-
-DEFINE VARIABLE fiEstimatNo AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEstimateNo AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 17.2 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
@@ -136,6 +125,8 @@ DEFINE RECTANGLE RECT-13
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY brEstCostMaterial FOR 
+      ttEstCostHeaderToCalc, 
+      estCostHeader, 
       estCostMaterial SCROLLING.
 &ANALYZE-RESUME
 
@@ -143,6 +134,8 @@ DEFINE QUERY brEstCostMaterial FOR
 DEFINE BROWSE brEstCostMaterial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brEstCostMaterial C-Win _FREEFORM
   QUERY brEstCostMaterial NO-LOCK DISPLAY
+      estCostHeader.quantityMaster              COLUMN-LABEL "Master Qty"
+            LABEL-BGCOLOR 14    FORMAT '>,>>>,>>9'
       estCostMaterial.formNo                    COLUMN-LABEL "Form"       
             LABEL-BGCOLOR 14    FORMAT '>9'
       estCostMaterial.blankNo                   COLUMN-LABEL "Blank"    
@@ -166,7 +159,7 @@ DEFINE BROWSE brEstCostMaterial
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 169.8 BY 15.19
-         FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
+         FONT 34 ROW-HEIGHT-CHARS .9.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -175,10 +168,8 @@ DEFINE FRAME DEFAULT-FRAME
      brEstCostMaterial AT ROW 3.67 COL 171 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 19.19 COL 3 WIDGET-ID 342
      bCancel AT ROW 19.19 COL 155.8 WIDGET-ID 356
-     fiEstimatNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
-     fiCalculationquantity AT ROW 1.67 COL 61 NO-LABEL WIDGET-ID 344
+     fiEstimateNo AT ROW 1.67 COL 17.8 NO-LABEL WIDGET-ID 66
      estimate AT ROW 1.91 COL 4.4 NO-LABEL WIDGET-ID 64
-     calculationQuantity AT ROW 1.91 COL 36.2 NO-LABEL WIDGET-ID 346
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -210,16 +201,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 199.8
-         MAX-BUTTON         = NO
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         MAX-BUTTON         = no
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -239,22 +230,15 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
        brEstCostMaterial:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
-/* SETTINGS FOR FILL-IN calculationQuantity IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN estimate IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN fiCalculationquantity IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiEstimateNo IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
 ASSIGN 
-       fiCalculationquantity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
-
-/* SETTINGS FOR FILL-IN fiEstimatNo IN FRAME DEFAULT-FRAME
-   ALIGN-L                                                              */
-ASSIGN 
-       fiEstimatNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiEstimateNo:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -265,7 +249,13 @@ THEN C-Win:HIDDEN = NO.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brEstCostMaterial
 /* Query rebuild information for BROWSE brEstCostMaterial
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH estCostMaterial where estCostMaterial.estCostHeaderID = ipiEstCostHeaderID and estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
+OPEN QUERY {&SELF-NAME}
+FOR EACH ttEstCostHeaderToCalc,
+    FIRST estCostHeader NO-LOCK
+    WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID,
+    EACH estCostMaterial NO-LOCK
+    WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
+    AND estCostMaterial.isPrimarySubstrate ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -319,10 +309,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bOk C-Win
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Choose Vendor */
 DO:
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
+     
      
     IF AVAILABLE estCostMaterial THEN
     RUN system/vendorcostSelector.w(
@@ -348,13 +341,21 @@ DO:
     ).
     
     FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
-        FIND CURRENT estCostMaterial EXCLUSIVE-LOCK NO-ERROR.
-        IF AVAILABLE estCostMaterial THEN 
+        FIND bf-estCostMaterial EXCLUSIVE-LOCK
+            WHERE ROWID(bf-estCostMaterial) EQ ROWID(estCostMaterial) NO-ERROR.
+        IF AVAILABLE bf-estCostMaterial THEN 
         DO:          
-            estCostMaterial.vendorId = ttVendItemCost.vendorID.
-            oplVendorUpdated = TRUE.
+            ASSIGN 
+                bf-estCostMaterial.vendorId = ttVendItemCost.vendorID  
+                bf-estCostMaterial.costUOM = ttVendItemCost.vendorUOM 
+                bf-estCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
+                bf-estCostMaterial.costSetup = ttVendItemCost.costSetup
+                bf-estCostMaterial.costTotal = ttVendItemCost.costTotal
+                .
+            IF AVAILABLE ttEstCostHeaderToCalc THEN 
+                ttEstCostHeaderToCalc.lRecalcRequired = TRUE.
         END.
-        FIND CURRENT estCostMaterial NO-LOCK NO-ERROR.  
+        RELEASE bf-estCostMaterial.  
     END.
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
@@ -422,10 +423,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     RUN enable_UI.
-    FOR FIRST estCostHeader WHERE estCostHeader.estCostHeaderID = ipiEstCostHeaderID:
+    FOR FIRST ttEstCostHeaderToCalc,
+        FIRST estCostHeader NO-LOCK 
+            WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderToCalc.iEstCostHeaderID:
         ASSIGN
-            fiEstimatNo:SCREEN-VALUE           = estCostHeader.estimateNo
-            fiCalculationquantity:SCREEN-VALUE = STRING(estCostHeader.quantityMaster)
+            fiEstimateNo:SCREEN-VALUE = estCostHeader.estimateNo
             .
 
     END.
@@ -434,6 +436,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 END.
 
 &Scoped-define sdBrowseName brEstCostMaterial
+{methods/sortByProc.i "pByQtyMaster" "estCostHeader.quantityMaster"}
 {methods/sortByProc.i "pByFormNo" "estCostMaterial.formNo"}
 {methods/sortByProc.i "pByBlankNo" "estCostMaterial.blankNo"}
 {methods/sortByProc.i "pByItemID" "estCostMaterial.itemID"}
@@ -444,7 +447,6 @@ END.
 {methods/sortByProc.i "pByCostUOM" "estCostMaterial.costUOM"}
 {methods/sortByProc.i "pByCostSetup" "estCostMaterial.costSetup"}
 {methods/sortByProc.i "pByCostTotal" "estCostMaterial.costTotal"}
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -482,10 +484,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiEstimatNo fiCalculationquantity estimate calculationQuantity 
+  DISPLAY fiEstimateNo estimate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimatNo 
-         fiCalculationquantity 
+  ENABLE RECT-13 brEstCostMaterial bOk bCancel fiEstimateNo 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -501,6 +502,8 @@ PROCEDURE pReOpenBrowse :
  Notes:
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
+        WHEN "quantityMaster" THEN
+            RUN pByQtyMaster.
         WHEN "formNo" THEN
             RUN pByFormNo.
         WHEN "blankNo" THEN

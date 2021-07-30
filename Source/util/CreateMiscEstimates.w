@@ -910,7 +910,7 @@ PROCEDURE run-process :
      
         IF tb_cal-est EQ TRUE AND AVAILABLE bff-eb THEN 
         DO:
-            RUN CalculateEstimateWithPrompts IN hdEstimateCalcProcs (bff-eb.company, bff-eb.est-no, lPurge).   
+            RUN CalculateEstimate IN hdEstimateCalcProcs (bff-eb.company, bff-eb.est-no, lPurge).   
             PUT UNFORMATTED  
                 'Calculate Estimate ' STRING(bff-eb.est-no)   SKIP.
             ttEstimate.lCalculateEst = YES. 

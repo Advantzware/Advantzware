@@ -1568,6 +1568,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         ELSE 
         DO: /*Separate Billed Freight*/
             RUN pAddEstMisc(BUFFER ipbf-estCostForm, BUFFER bf-estCostMisc).
+            
             IF AVAILABLE bf-estCostMisc THEN 
             DO:
                 ASSIGN 
@@ -1763,7 +1764,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
-    EMPTY TEMP-TABLE ttEstHeaderToCalc.
+    EMPTY TEMP-TABLE ttEstCostHeaderToCalc.
     FIND FIRST bf-est NO-LOCK 
         WHERE bf-est.company EQ ipcCompany
         AND bf-est.est-no EQ ipcEstimateNo
@@ -1772,9 +1773,9 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     IF ipiQuantityOverride NE 0 THEN 
     DO:
         RUN pAddHeader(BUFFER bf-est, ipiQuantityOverride, 1, ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-        CREATE ttEstHeaderToCalc.
+        CREATE ttEstCostHeaderToCalc.
         ASSIGN 
-            ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+            ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
     END.
     ELSE 
     DO:
@@ -1791,9 +1792,9 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
                 DO:
                     RUN pAddHeader(BUFFER bf-est, iQty, MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
                         ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-                    CREATE ttEstHeaderToCalc.
+                    CREATE ttEstCostHeaderToCalc.
                     ASSIGN 
-                        ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                        ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
                 END.
             END.
     END.
@@ -2041,7 +2042,7 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
-    RUN pBuildFreightCostDetails(ipiEstCostHeaderID).
+
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
     RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
@@ -2068,11 +2069,11 @@ PROCEDURE pCalcEstimate PRIVATE:
         RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
         
     RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
-    FOR EACH ttEstHeaderToCalc: 
-        RUN pCalcHeader(ttEstHeaderToCalc.iEstCostHeaderID).
+    FOR EACH ttEstCostHeaderToCalc: 
+        RUN pCalcHeader(ttEstCostHeaderToCalc.iEstCostHeaderID).
     END.
     IF iplPrompt THEN 
-        RUN pPromptForCalculationChanges(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
+        RUN pPromptForCalculationChanges.
     
 
 END PROCEDURE.
@@ -2185,6 +2186,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalcWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
+        RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
         
         RUN pCalcHeaderCosts(bf-estCostHeader.estCostHeaderID).        
         
@@ -4877,49 +4879,18 @@ PROCEDURE pPromptForCalculationChanges PRIVATE:
      Purpose: Create Prompt for Calculation Changes
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO. 
-    
-    DEFINE VARIABLE lChangesMade AS LOGICAL NO-UNDO.
     
     IF glPromptForMaterialVendor THEN 
     DO:
         //run prompt for vendors
-        FOR EACH estCostHeader NO-LOCK 
-            WHERE estCostHeader.company     EQ ipcCompany
-            AND estCostHeader.estimateNo    EQ ipcEstimateNo
-            AND estCostHeader.jobID         EQ ipcJobID
-            AND estCostHeader.jobID2        EQ ipiJobID2:
-            
-            RUN est/EstCostMaterial.w(
-                estCostHeader.estCostHeaderID,
-                OUTPUT lChangesMade).
-        END.
+        RUN est/estCostMaterialList.w (INPUT-OUTPUT TABLE ttEstCostHeaderToCalc BY-REFERENCE).
         
-    /*    FOR EACH estCostHeader NO-LOCK 
-            WHERE estCostHeader.company EQ ipcCompany
-            AND estCostHeader.estimateNo EQ ipcEstimateNo
-            AND estCostHeader.jobID EQ ipcJobID
-            AND estCostHeader.jobID2 EQ ipiJobID2
-            ,
-            EACH estCostMaterial EXCLUSIVE-LOCK 
-            WHERE estCostMaterial.estCostHeaderID EQ estCostHeader.estCostHeaderID
-            AND estCostMaterial.isPrimarySubstrate:
-            
-            UPDATE estCostHeader.quantityMaster estCostMaterial.vendorID .
-            lChangesMade = YES.
-        END. */
-        IF lChangesMade THEN
-            FOR EACH estCostHeader NO-LOCK 
-                WHERE estCostHeader.company EQ ipcCompany
-                AND estCostHeader.estimateNo EQ ipcEstimateNo
-                AND estCostHeader.jobID EQ ipcJobID
-                AND estCostHeader.jobID2 EQ ipiJobID2:
-                RUN pRecalcMaterials(estCostHeader.estCostHeaderID).
-                RUN pCalcHeaderCosts(estCostHeader.estCostHeaderID).
-            END.
+        FOR EACH ttEstCostHeaderToCalc
+            WHERE ttEstCostHeaderToCalc.lRecalcRequired EQ YES:
+                
+            RUN pRecalcMaterials(ttEstCostHeaderToCalc.iEstCostHeaderID).
+            RUN pCalcHeaderCosts(ttEstCostHeaderToCalc.iEstCostHeaderID).
+        END.
     END.
     
 END PROCEDURE.
