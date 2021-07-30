@@ -184,7 +184,7 @@ PROCEDURE outputGLaccountFile:
         BY ttGLHistList.cAccount
         BY ttGLHistList.daTxnDate:
         
-        IF first-of(ttGLHistList.cAccount) THEN
+        IF FIRST-OF(ttGLHistList.cAccount) THEN
         DO:         
             cWarning = "".
             cAmount = 0.
@@ -396,7 +396,7 @@ PROCEDURE pTestGlhist:
         
     FOR EACH bglhist NO-LOCK WHERE 
         bglhist.company EQ ipcCompany AND 
-        bglhist.entryType NE "B" AND  
+/*        bglhist.entryType NE "B" AND*/
             /* If the year and period are included in the gl-hist use them */ 
         (bglhist.yr EQ ipiYear AND bglhist.period EQ ipiPeriod) OR 
             /* or, if not, use the trans-date to find qualifying records.
@@ -426,8 +426,8 @@ PROCEDURE pTestGlhist:
         IF NOT bglhist.posted THEN
         DO:
            FIND FIRST bf-glhist EXCLUSIVE-LOCK
-                WHERE rowid(bf-glhist) EQ ROWID(bglhist) NO-ERROR.
-           IF avail bf-glhist THEN
+                WHERE ROWID(bf-glhist) EQ ROWID(bglhist) NO-ERROR.
+           IF AVAIL bf-glhist THEN
            bf-glhist.posted = YES.
            RELEASE bf-glhist.
         END.
@@ -1127,7 +1127,7 @@ PROCEDURE purgeGLhistFromFile:
     
     ASSIGN 
         cOutputDir = REPLACE(ipcFileName,"\" + ipcFileNameExt ,"").
-    EMPTY TEMP-TABLE ttGLHistList.
+    
     IF SEARCH (ipcFileName) EQ ? THEN 
     DO:
         ASSIGN 
@@ -1143,30 +1143,7 @@ PROCEDURE purgeGLhistFromFile:
     END.
     ELSE DO:
         OUTPUT STREAM sDump TO VALUE (cOutputDir + "\glhist.d").
-        INPUT FROM VALUE(ipcFileName).
-        IMPORT UNFORMATTED cRawRow. /* Get rid of Title row */
-        REPEAT:
-            IMPORT UNFORMATTED cRawRow.
-            CREATE ttGLHistList.
-            ASSIGN 
-                ttGLHistList.lPosted        = IF ENTRY(1,cRawRow,",") = "POSTED" THEN TRUE ELSE FALSE 
-                ttGLHistList.iYear          = INT(ENTRY(2,cRawRow,","))
-                ttGLHistList.iPeriod        = INT(ENTRY(3,cRawRow,","))
-                ttGLHistList.cAccount       = ENTRY(4,cRawRow,",")
-                ttGLHistList.cJournal       = ENTRY(5,cRawRow,",")
-                ttGLHistList.daTxnDate      = DATE(ENTRY(6,cRawRow,","))
-                ttGLHistList.deAmount       = DECIMAL(ENTRY(7,cRawRow,","))
-                ttGLHistList.cCurrency      = ENTRY(8,cRawRow,",")
-                ttGLHistList.cDescription   = ENTRY(9,cRawRow,",")
-                ttGLHistList.cType          = ENTRY(10,cRawRow,",")
-                ttGLHistList.cCreatedBy     = ENTRY(11,cRawRow,",")
-                ttGLHistList.cFileName      = ENTRY(12,cRawRow,",")
-                ttGLHistList.cReckey        = ENTRY(13,cRawRow,",")
-                ttGLHistList.rRowID         = TO-ROWID(ENTRY(14,cRawRow,","))                
-                .
-        END.
-        INPUT CLOSE.
-        
+                   
         FOR EACH ttGLHistList 
             BREAK BY ttGLHistList.iYear
             BY ttGLHistList.iPeriod
@@ -1180,7 +1157,7 @@ PROCEDURE purgeGLhistFromFile:
             ASSIGN 
                 deSummaryAmount = deSummaryAmount + ttGLHistList.deAmount.
             FIND FIRST period NO-LOCK WHERE 
-                period.company EQ ipcCompany and
+                period.company EQ ipcCompany AND
                 period.pst LE ttGLHistList.daTxnDate AND 
                 period.pend GE ttGLHistList.daTxnDate
                 NO-ERROR.
@@ -1200,7 +1177,7 @@ PROCEDURE purgeGLhistFromFile:
                     bglhist.actnum      = ttGLHistList.cAccount     
                     bglhist.company     = ipcCompany
                     bglhist.createdBy   = USERID(LDBNAME(1))
-                    bglhist.createdDate = today
+                    bglhist.createdDate = TODAY
                     bglhist.curr-code[1]= ttGLHistList.cCurrency
                     bglhist.documentID  = ""
                     bglhist.entryType   = "B"
@@ -1531,10 +1508,10 @@ FUNCTION dynExport RETURNS CHARACTER
                         cTmp = '"' + STRING(hFld:BUFFER-VALUE) + '"'.
                     WHEN "datetime" OR 
                     WHEN "datetime-tz" THEN ASSIGN 
-                        cTmp = string(year(hFld:BUFFER-VALUE),"9999") 
-                            + "-" + string(month(hFld:BUFFER-VALUE),"99") 
-                            + "-" + string(day(hFld:BUFFER-VALUE),"99") 
-                            + "T" + substring(string(hFld:BUFFER-VALUE),12).
+                        cTmp = STRING(YEAR(hFld:BUFFER-VALUE),"9999") 
+                            + "-" + string(MONTH(hFld:BUFFER-VALUE),"99") 
+                            + "-" + string(DAY(hFld:BUFFER-VALUE),"99") 
+                            + "T" + substring(STRING(hFld:BUFFER-VALUE),12).
                     OTHERWISE  
                     cTmp = STRING(hFld:BUFFER-VALUE).
                 END CASE.
@@ -1556,10 +1533,10 @@ FUNCTION dynExport RETURNS CHARACTER
                             cTmp = '"' + STRING(hFld:BUFFER-VALUE(iExtnt)) + '"'.
                         WHEN "datetime" OR 
                         WHEN "datetime-tz" THEN 
-                            cTmp = string(year(hFld:BUFFER-VALUE(iExtnt)),"9999") 
-                                + "-" + string(month(hFld:BUFFER-VALUE(iExtnt)),"99") 
-                                + "-" + string(day(hFld:BUFFER-VALUE(iExtnt)),"99") 
-                                + "T" + substring(string(hFld:BUFFER-VALUE(iExtnt)),12).
+                            cTmp = STRING(YEAR(hFld:BUFFER-VALUE(iExtnt)),"9999") 
+                                + "-" + string(MONTH(hFld:BUFFER-VALUE(iExtnt)),"99") 
+                                + "-" + string(DAY(hFld:BUFFER-VALUE(iExtnt)),"99") 
+                                + "T" + substring(STRING(hFld:BUFFER-VALUE(iExtnt)),12).
                         OTHERWISE  
                         cTmp = STRING(hFld:BUFFER-VALUE(iExtnt)).
                     END CASE.
