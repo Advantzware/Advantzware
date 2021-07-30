@@ -1,7 +1,7 @@
-DEFINE VARIABLE hdPOProcs AS HANDLE NO-UNDO.
 
 RUN po/POProcs.p PERSISTENT SET hdPOProcs.
 
+DO: /* Replaces old IF THEN DO start */
 ASSIGN
    lv-val     = 0
    lv-typ     = "".
