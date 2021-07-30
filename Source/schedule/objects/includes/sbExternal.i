@@ -171,7 +171,7 @@ RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w.
 &ELSEIF '{&sbExternal}' EQ 'sbHTML' &THEN
-RUN {&objects}/sbHTML.p (g_company, 0, YES, YES, "Capacity HTML Page").
+RUN {&objects}/sbHTML.p (g_company, 0, YES, NO, YES, "Capacity HTML Page").
 &ENDIF
 
 /* *** internal procedures ********************************************* */
