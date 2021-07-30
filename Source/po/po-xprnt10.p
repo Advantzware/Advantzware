@@ -121,7 +121,6 @@ DEF TEMP-TABLE tt-text NO-UNDO
     INDEX tt-text IS PRIMARY TYPE tt-line.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdPOProcs      AS HANDLE NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -723,7 +722,7 @@ v-printline = 0.
             END.
            end.
            END.
-         
+         END.
 
          FOR EACH tt-formtext:
             DELETE tt-formtext.

@@ -60,7 +60,6 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdPOProcs      AS HANDLE    NO-UNDO.
 
 /*ASSIGN ls-image1 = "images\pacific1.bmp"
        ls-image2 = "images\pacific2.bmp"
@@ -699,7 +698,7 @@ v-printline = 0.
             END.
           end.
           END.
-        
+        END.
 
         IF lPrintMach THEN DO:
          cMachCode = "" .

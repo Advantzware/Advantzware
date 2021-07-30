@@ -111,7 +111,6 @@ DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE hdPOProcs AS HANDLE     NO-UNDO.
 
 
 v-dash-line = fill ("_",80).
@@ -636,7 +635,7 @@ v-printline = 0.
             END.
           end.
           END.
-        
+        END.
 
     FOR EACH tt-formtext:
         DELETE tt-formtext.
