@@ -80,6 +80,7 @@ DEFINE VARIABLE chFile AS CHAR NO-UNDO.
 DEFINE VARIABLE LvLineCnt AS INT NO-UNDO.
 DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
 DEFINE VARIABLE LvCtr as int no-undo.
+DEFINE VARIABLE v-corr    AS LOGICAL                      NO-UNDO.
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE SHARED TEMP-TABLE tt-filelist

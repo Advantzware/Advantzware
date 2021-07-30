@@ -113,13 +113,13 @@ PROCEDURE pBusinessLogic:
                 IF AVAILABLE bOERel AND
                    NOT(bOERel.spare-char-1 GE cStartShipFromNo
                    AND bOERel.spare-char-1 LE cEndShipFromNo) THEN NEXT.
-                ELSE IF NOT AVAILABLE bOERel AND NOT lOrdWithNoRel THEN NEXT.                
+                ELSE IF NOT AVAILABLE bOERel AND NOT lLOrdWithNoRel THEN NEXT.                
             END.
             ELSE DO:   
                 IF AVAILABLE oe-rel AND
                    NOT (oe-rel.spare-char-1 GE cStartShipFromNo
                    AND oe-rel.spare-char-1  LE cEndShipFromNo) THEN NEXT.
-                ELSE IF NOT AVAILABLE oe-rel AND NOT lOrdWithNoRel THEN NEXT.    
+                ELSE IF NOT AVAILABLE oe-rel AND NOT lLOrdWithNoRel THEN NEXT.    
             END. /* else */
             lExclude = YES.
             DO idx = 1 TO 3:
