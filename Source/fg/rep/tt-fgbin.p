@@ -108,6 +108,7 @@ FOR EACH fg-bin NO-LOCK
             AND fg-rcpth.job-no       EQ fg-bin.job-no
             AND fg-rcpth.job-no2      EQ fg-bin.job-no2
             AND fg-rcpth.rita-code    EQ fg-rdtlh.rita-code
+            AND fg-rcpth.po-no        NE ""
             AND fg-rcpth.trans-date   LE TODAY
           USE-INDEX r-no
           BREAK BY fg-rcpth.trans-date DESCENDING
