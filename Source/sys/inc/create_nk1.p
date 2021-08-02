@@ -1610,6 +1610,7 @@ CASE ip-nk1-value:
             INPUT 0                               /* Dec value*/
             ).        
     WHEN "InterCompanyBilling" THEN     
+        RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,           

@@ -1,3 +1,4 @@
+DEFINE VARIABLE hdPOProcs AS HANDLE NO-UNDO.
 
 def new shared workfile w-box-design-line no-undo
   field line-no         like box-design-line.line-no
