@@ -355,7 +355,7 @@ FOR EACH po-ordl
 
   
 
-  run po/po-ordls.p (recid(po-ordl)).
+
             
   {po/poprints.i}
 

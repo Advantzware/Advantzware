@@ -410,7 +410,7 @@ assign
                    v-printline = v-printline + 1.
         END.
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
             
         {po/poprints.i}
             
