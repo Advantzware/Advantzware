@@ -89,14 +89,19 @@
                 and b-f-rc.job-no2    eq fg-rcpth.job-no2
                 and b-f-rc.rita-code  eq "R"
                 and b-f-rc.trans-date lt v-date
-                AND CAN-FIND(FIRST b-f-rd WHERE b-f-rd.r-no      EQ b-f-rc.r-no
-                                            AND b-f-rd.rita-code EQ b-f-rc.rita-code
-                                            AND b-f-rd.qty       GT 0)
-              no-lock
               by b-f-rc.trans-date desc
               by b-f-rc.r-no       desc:
-            v-date = b-f-rc.trans-date.
-            leave.
+                    
+              FIND FIRST b-f-rd NO-LOCK
+                   WHERE b-f-rd.r-no      EQ b-f-rc.r-no
+                     AND b-f-rd.rita-code EQ b-f-rc.rita-code
+                     AND b-f-rd.qty       GT 0
+                   NO-ERROR.
+              IF NOT AVAILABLE b-f-rd THEN
+                  NEXT.
+              
+              v-date = b-f-rc.trans-date.
+              leave.
           end.
         end.
 
