@@ -625,7 +625,7 @@ PROCEDURE pCRUD :
     DEFINE VARIABLE rwRowid        AS ROWID     NO-UNDO.      
        
     DO WITH FRAME {&FRAME-NAME}:
-        IF (iphMode:LABEL EQ "Update" OR iphMode:LABEL EQ "Copy") AND NOT AVAIL setting THEN
+        IF (iphMode:LABEL EQ "Update" OR iphMode:LABEL EQ "Copy") AND NOT AVAIL settingType THEN
         RETURN NO-APPLY.
         
         CASE iphMode:LABEL:
