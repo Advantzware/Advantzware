@@ -1322,6 +1322,7 @@ PROCEDURE local-display-fields :
   IF AVAIL gl-rpt THEN DO:
      fil_id = recid(gl-rpt).
      v-rpt = gl-rpt.rpt.
+     v-per = FALSE.   
      run gl/gl-rptg.p (input fil_id, input no).
      ASSIGN v-hdr-1 = v-hdr[1]
             v-hdr-2 = v-hdr[2]

@@ -1103,7 +1103,8 @@ FOR EACH gl-rpt
    r-top2  = ""
    r-top3  = ""
    r-top4  = ""
-   v-hdr   = "".
+   v-hdr   = ""
+   v-per = FALSE.
 
   fil_id = recid(gl-rpt).
   run gl/gl-rptg.p (input fil_id, input no).
