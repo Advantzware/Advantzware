@@ -63,7 +63,7 @@ DEFINE QUERY external_tables FOR setting.
 cSettingName cDescription btnUpdate-2 cSettingValue lInactive cScopeTable ~
 cScopeField1 cScopeField2 
 &Scoped-Define DISPLAYED-OBJECTS cSettingName cDescription cSettingValue ~
-lbl_sort-2 lInactive lbl_sort cScopeTable cScopeField1 cScopeField2 ~
+lbl_inactive lInactive lbl_scope cScopeTable cScopeField1 cScopeField2 ~
 cScopeField3 
 
 /* Custom List Definitions                                              */
@@ -172,11 +172,11 @@ DEFINE VARIABLE cSettingValue AS CHARACTER FORMAT "X(100)":U
     SIZE 45 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort      AS CHARACTER FORMAT "X(256)":U INITIAL "Scope Table:" 
+DEFINE VARIABLE lbl_scope      AS CHARACTER FORMAT "X(256)":U INITIAL "Scope Table:" 
     VIEW-AS FILL-IN 
     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort-2    AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive:" 
+DEFINE VARIABLE lbl_inactive    AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive:" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
@@ -229,9 +229,9 @@ DEFINE FRAME F-Main
     btnUpdate-2 AT ROW 11.95 COL 24 HELP
     "Update/Save" WIDGET-ID 18
     cSettingValue AT ROW 3.71 COL 20.4 COLON-ALIGNED
-    lbl_sort-2 AT ROW 4.76 COL 9 COLON-ALIGNED NO-LABELS WIDGET-ID 4
+    lbl_inactive AT ROW 4.76 COL 9 COLON-ALIGNED NO-LABELS WIDGET-ID 4
     lInactive AT ROW 4.86 COL 23
-    lbl_sort AT ROW 6.71 COL 5 COLON-ALIGNED NO-LABELS WIDGET-ID 2
+    lbl_scope AT ROW 6.71 COL 5 COLON-ALIGNED NO-LABELS WIDGET-ID 2
     cScopeTable AT ROW 6.76 COL 23.2 NO-LABELS
     cScopeField1 AT ROW 8 COL 20.6 COLON-ALIGNED
     cScopeField2 AT ROW 9.14 COL 20.6 COLON-ALIGNED
@@ -308,15 +308,15 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cScopeField3 IN FRAME F-Main
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN lbl_sort IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_scope IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_sort:PRIVATE-DATA IN FRAME F-Main = "rd_print".
+    lbl_scope:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
-/* SETTINGS FOR FILL-IN lbl_sort-2 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_inactive IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_sort-2:PRIVATE-DATA IN FRAME F-Main = "rd_print".
+    lbl_inactive:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
 /* SETTINGS FOR RECTANGLE transPanel-3 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -579,11 +579,13 @@ PROCEDURE local-display-fields :
                     cScopeTable:SCREEN-VALUE  = scope.scopeTable
                     cScopeField1:SCREEN-VALUE = scope.scopeField1
                     cScopeField2:SCREEN-VALUE = scope.scopeField2
-                    cScopeField3:SCREEN-VALUE = scope.scopeField3. 
-            DISABLE  cSettingName cDescription cSettingValue lInactive
-                cScopeTable cScopeField1 cScopeField2 cScopeField3 . 
-        
+                    cScopeField3:SCREEN-VALUE = scope.scopeField3.         
         END.
+        DISABLE  cSettingName cDescription cSettingValue lInactive
+                cScopeTable cScopeField1 cScopeField2 cScopeField3 .
+         
+        lbl_scope:SCREEN-VALUE = "Scope Table:".
+        lbl_inactive:SCREEN-VALUE = "Inactive:".
     END.
 
 END PROCEDURE.
@@ -668,6 +670,9 @@ PROCEDURE pCRUD :
     END.    
        
     DO WITH FRAME {&FRAME-NAME}:
+        IF (iphMode:LABEL EQ "Update" OR iphMode:LABEL EQ "Copy") AND NOT AVAIL setting THEN
+        RETURN NO-APPLY.
+    
         CASE iphMode:LABEL:
             WHEN "Add" OR 
             WHEN "Copy" OR 
@@ -868,7 +873,8 @@ PROCEDURE pSetScope :
         FIND FIRST bf-settingType NO-LOCK 
             WHERE bf-settingType.settingName EQ cSettingValue:SCREEN-VALUE NO-ERROR.
         IF AVAILABLE bf-settingType AND  bf-settingType.hasContext THEN
-            ENABLE cScopeTable cScopeField1 cScopeField2 cScopeField3 .      
+            ENABLE cScopeTable cScopeField1 cScopeField2 cScopeField3 .
+        ELSE DISABLE cScopeTable cScopeField1 cScopeField2 cScopeField3 .   
     END. 
 
     {methods/lValidateError.i NO}  

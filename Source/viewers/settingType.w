@@ -62,9 +62,9 @@ DEFINE QUERY external_tables FOR settingType.
 &Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-1 lIsPassword cSettingName ~
 lHasContext cDescription cDataType cSecurityLevel btnCopy-2 cDefaultValue ~
 cValidValueMin btnDelete-2 btnUpdate-2 cValidValue cCategoryTags cValidValueMax
-&Scoped-Define DISPLAYED-OBJECTS lIsPassword cSettingName lbl_sort-2 ~
-lHasContext cDescription lbl_sort-3 lbl_sort cDataType cSecurityLevel ~
-lbl_sort-4 cDefaultValue cValidValueMin cValidValueMax cValidValue ~
+&Scoped-Define DISPLAYED-OBJECTS lIsPassword cSettingName lbl_ispassword ~
+lHasContext cDescription lbl_hascon lbl_datatype cDataType cSecurityLevel ~
+lbl_catag cDefaultValue cValidValueMin cValidValueMax cValidValue ~
 cCategoryTags 
 
 /* Custom List Definitions                                              */
@@ -194,19 +194,19 @@ DEFINE VARIABLE cValidValueMin AS CHARACTER FORMAT "X(30)":U
     SIZE 53.6 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort       AS CHARACTER FORMAT "X(256)":U INITIAL "Data Type:" 
+DEFINE VARIABLE lbl_datatype       AS CHARACTER FORMAT "X(256)":U INITIAL "Data Type:" 
     VIEW-AS FILL-IN 
     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort-2     AS CHARACTER FORMAT "X(256)":U INITIAL "Is Password?" 
+DEFINE VARIABLE lbl_ispassword     AS CHARACTER FORMAT "X(256)":U INITIAL "Is Password?" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort-3     AS CHARACTER FORMAT "X(256)":U INITIAL "Has Context?" 
+DEFINE VARIABLE lbl_hascon     AS CHARACTER FORMAT "X(256)":U INITIAL "Has Context?" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort-4     AS CHARACTER FORMAT "X(256)":U INITIAL "Category Tags" 
+DEFINE VARIABLE lbl_catag     AS CHARACTER FORMAT "X(256)":U INITIAL "Category Tags" 
     VIEW-AS FILL-IN 
     SIZE 18.6 BY 1 NO-UNDO.
 
@@ -249,17 +249,17 @@ DEFINE FRAME F-Main
     lHasContext AT ROW 2.62 COL 123.6 WIDGET-ID 32
     cSecurityLevel AT ROW 3.86 COL 104.2 COLON-ALIGNED WIDGET-ID 34
     
-    lbl_sort-2 AT ROW 1.52 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 4
+    lbl_ispassword AT ROW 1.52 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 4
     
     cCategoryTags AT ROW 6.29 COL 85.6 COLON-ALIGNED NO-LABELS WIDGET-ID 36 HELP
     "Enter comma-separated values"
-    lbl_sort-3 AT ROW 2.67 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 30
+    lbl_hascon AT ROW 2.67 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 30
     btnCancel-2 AT ROW 14.52 COL 80.4 HELP
     "Cancel" WIDGET-ID 28
-    lbl_sort AT ROW 3.81 COL 12 COLON-ALIGNED NO-LABELS WIDGET-ID 2
+    lbl_datatype AT ROW 3.81 COL 12 COLON-ALIGNED NO-LABELS WIDGET-ID 2
     
     
-    lbl_sort-4 AT ROW 5.19 COL 85.4 COLON-ALIGNED NO-LABELS WIDGET-ID 38
+    lbl_catag AT ROW 5.19 COL 85.4 COLON-ALIGNED NO-LABELS WIDGET-ID 38
     btnCopy-2 AT ROW 14.52 COL 56.4 HELP
     "Copy" WIDGET-ID 24
     
@@ -335,25 +335,17 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnReset-2 IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl_sort IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_datatype IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-    lbl_sort:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
-/* SETTINGS FOR FILL-IN lbl_sort-2 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_ispassword IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-    lbl_sort-2:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
-/* SETTINGS FOR FILL-IN lbl_sort-3 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_hascon IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-    lbl_sort-3:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
-/* SETTINGS FOR FILL-IN lbl_sort-4 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN lbl_catag IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-    lbl_sort-4:PRIVATE-DATA IN FRAME F-Main = "rd_print".
 
 /* SETTINGS FOR RECTANGLE transPanel-3 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -578,6 +570,11 @@ PROCEDURE local-display-fields :
     /* Code placed here will execute AFTER standard behavior.    */
      
     DO WITH FRAME {&FRAME-NAME}:
+        lbl_datatype:SCREEN-VALUE  = "Data Type:".
+        lbl_ispassword:SCREEN-VALUE =  "Is Password?".
+        lbl_hascon:SCREEN-VALUE = "Has Context?".
+        lbl_catag:SCREEN-VALUE = "Category Tags".            
+        DISPLAY lbl_datatype lbl_ispassword lbl_hascon lbl_catag. 
   
         IF AVAILABLE settingType THEN  
         DO:    
@@ -593,12 +590,11 @@ PROCEDURE local-display-fields :
                 cValidValueMax:SCREEN-VALUE = settingType.validValueMax
                 cValidValue:SCREEN-VALUE    = settingType.validValues   
                 cCategoryTags:SCREEN-VALUE  = settingType.categoryTags  
-                .           
-       
-            DISABLE  lIsPassword cSettingName lHasContext cDescription
-                cDataType cSecurityLevel cDefaultValue cValidValueMin
-                cValidValueMax cValidValue cCategoryTags.          
+                .                         
         END.         
+        DISABLE  lIsPassword cSettingName lHasContext cDescription
+                cDataType cSecurityLevel cDefaultValue cValidValueMin
+                cValidValueMax cValidValue cCategoryTags.
     END.
 
 END PROCEDURE.
@@ -629,6 +625,9 @@ PROCEDURE pCRUD :
     DEFINE VARIABLE rwRowid        AS ROWID     NO-UNDO.      
        
     DO WITH FRAME {&FRAME-NAME}:
+        IF (iphMode:LABEL EQ "Update" OR iphMode:LABEL EQ "Copy") AND NOT AVAIL setting THEN
+        RETURN NO-APPLY.
+        
         CASE iphMode:LABEL:
             WHEN "Add" OR 
             WHEN "Copy" OR 
