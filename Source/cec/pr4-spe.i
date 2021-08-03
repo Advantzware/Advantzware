@@ -1,5 +1,6 @@
 /* -------------------------------------------------- cec/pr4-spe.i 07/96 JLF */
-DEFINE VARIABLE dSetupCost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dSetupCostQtyUOM  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
    /* special */
    do i = 1 to 8 with frame ac4  down no-labels no-box:
       if xef.spec-no[i] ne "" then do:
@@ -16,14 +17,18 @@ DEFINE VARIABLE dSetupCost AS DECIMAL NO-UNDO.
          RELEASE e-item.
          IF lNewVendorItemCost AND v-vend-no NE "" THEN
          DO:
-            RUN est/getVendorCost.p(Item.company, 
-                                    item.i-no, 
-                                    "RM", 
-                                    v-vend-no,
-                                    s-qty[i],
-                                    "EA",
-                                    OUTPUT s-cost[i],
-                                    OUTPUT dSetupCost).         
+             RUN est/getVendorCostinQtyUOM.p(Item.company, 
+                 item.i-no, 
+                 "RM", 
+                 v-vend-no,
+                 xeb.est-no,
+                 xeb.form-no,
+                 xeb.blank-no,
+                 s-qty[i],
+                 item.cons-uom,
+                 OUTPUT dCostQtyUOM,
+                 OUTPUT dSetupCostQtyUOM,
+                 OUTPUT s-cost[i]).         
          END.
          ELSE
          DO:
@@ -40,9 +45,10 @@ DEFINE VARIABLE dSetupCost AS DECIMAL NO-UNDO.
                                            
              {est/matcost.i s-qty[i] s-cost[i] spe}
              
-             dSetupCost = lv-setup-spe.
+             s-cost[i] = (s-cost[i] * s-qty[i]) + lv-setup-spe.   
+             
          END.
-         s-cost[i] = (s-cost[i] * s-qty[i]) + dSetupCost.         
+               
          find first brd where brd.form-no = xef.form-no and
                               brd.i-no    = xef.spec-no[i]
                               no-error.
