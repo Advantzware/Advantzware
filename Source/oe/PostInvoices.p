@@ -1095,6 +1095,50 @@ PROCEDURE pCheckAccount PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCloseOrders PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Will process orders to update outside of Posting transaction
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFullyClosed AS LOGICAL   NO-UNDO.
+       
+    /*REFACTOR - This could be major source of slowness*/
+    FOR EACH ttOrderToUpdate,
+        FIRST bf-oe-ord NO-LOCK
+        WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
+        lFullyClosed = YES.
+        FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
+            WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
+            AND bf-oe-ordl.stat    NE "C":
+            /* No UI */
+            RUN oe/CloseOrder.p(INPUT ROWID(bf-oe-ordl),
+                INPUT NO,
+                OUTPUT cStatus,
+                OUTPUT cReason).
+            /* No UI */
+            IF cStatus EQ 'C' THEN
+                RUN oe/closelin.p (INPUT ROWID(bf-oe-ordl),YES).
+            ELSE 
+                lFullyClosed = NO.
+        END.
+        IF lFullyClosed THEN 
+        DO:
+            RUN oe\close.p(RECID(bf-oe-ord), YES).
+            ASSIGN
+                ttOrderToUpdate.isClosed = YES
+                ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
+        END.
+    END. /* Each w-ord */            
+    
+
+END PROCEDURE.
+
 PROCEDURE pCopyNotesFromInvHeadToArInv PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Copies Notes from inv-head to ar-inv
@@ -2490,6 +2534,7 @@ PROCEDURE pPostAll PRIVATE:
         RUN pUpdateCustomers.
         RUN pUpdateEstPreps.
         RUN pUpdateFGItems.
+        RUN pCloseOrders.
     END.
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
@@ -3096,11 +3141,6 @@ PROCEDURE pUpdateOrders PRIVATE:
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
-    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
-    
-    DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFullyClosed AS LOGICAL   NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
     DISABLE TRIGGERS FOR LOAD OF oe-ordm.
@@ -3137,34 +3177,6 @@ PROCEDURE pUpdateOrders PRIVATE:
         END. /*avail bf-oe-ordm to write*/
         
     END. /*each ttOrderMiscToUpdate*/
-    
-    /*REFACTOR - This could be major source of slowness*/
-    FOR EACH ttOrderToUpdate,
-        FIRST bf-oe-ord NO-LOCK
-        WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
-        lFullyClosed = YES.
-        FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
-            WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
-            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
-            AND bf-oe-ordl.stat    NE "C":
-            /* No UI */
-            RUN oe/CloseOrder.p(INPUT ROWID(bf-oe-ordl),
-                INPUT NO,
-                OUTPUT cStatus,
-                OUTPUT cReason).
-            /* No UI */
-            IF cStatus EQ 'C' THEN
-                RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
-            ELSE 
-                lFullyClosed = NO.
-        END.
-        IF lFullyClosed THEN DO:
-            RUN oe\close.p(RECID(bf-oe-ord), YES).
-            ASSIGN
-                ttOrderToUpdate.isClosed = YES
-                ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
-        END.
-    END. /* Each w-ord */            
     
     
 END PROCEDURE.
