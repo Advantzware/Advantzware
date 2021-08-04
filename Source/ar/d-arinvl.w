@@ -74,7 +74,8 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num ~
+ar-invl.taxGroup
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
 ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ~
@@ -115,7 +116,8 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num ~
+ar-invl.taxGroup
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -310,6 +312,10 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED
+     ar-invl.taxGroup AT ROW 12.48 COL 85 COLON-ALIGNED
+          LABEL "Tax Group" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
      Btn_OK AT ROW 17.05 COL 37
      Btn_Done AT ROW 17 COL 57
      Btn_Cancel AT ROW 17 COL 77.2
@@ -423,6 +429,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-invl.e-num IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN ar-invl.taxGroup IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */    
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1155,6 +1163,7 @@ PROCEDURE create-item :
             ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
             ar-invl.actnum =  ar-ctrl.sales
             ar-invl.inv-date = ar-inv.inv-date
+            ar-invl.taxGroup = ar-inv.tax-code
                 .
 
          FIND FIRST account WHERE account.company = g_company
@@ -1214,7 +1223,7 @@ PROCEDURE display-item :
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
                ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc ar-invl.ship-qty 
-               ar-invl.e-num
+               ar-invl.e-num ar-invl.taxGroup
             WITH FRAME Dialog-Frame.
     END.
 

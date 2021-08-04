@@ -895,13 +895,18 @@ PROCEDURE run-report :
                         and ar-inv.cust-no        eq cust.cust-no
                         and ar-inv.tax-code       ne ""
                         and ar-inv.posted         eq yes
-                        use-index inv-date no-lock:
+                        use-index inv-date no-lock,
+                        EACH ar-invl WHERE ar-invl.posted
+                        AND ar-invl.company EQ ar-inv.company 
+                        AND ar-invl.inv-no EQ ar-inv.inv-no:
 
          create tt-report.
          assign
             tt-report.term-id = v-term
-            tt-report.key-01  = ar-inv.tax-code
-            tt-report.rec-id  = recid(ar-inv).
+            tt-report.key-01  = IF ar-invl.taxGroup NE "" THEN ar-invl.taxGroup ELSE ar-inv.tax-code
+            tt-report.rec-id  = recid(ar-invl)
+            tt-report.key-05  = string(ar-invl.inv-no,"9999999")
+            tt-report.key-06 = string(ar-invl.LINE,"99").
       END. /* for each ar-inv */
 
       for each ar-cash where ar-cash.company    eq cocode
@@ -970,7 +975,7 @@ PROCEDURE run-report :
             x           = (27 - length(trim(substr(tt-stax.tax-dscr[1],1,23)))) / 2
             v-head1[i]  = "   " + fill("*",x - 1) + " " +
                                   trim(substr(tt-stax.tax-dscr[1],1,23)) +
-                                  " " + fill("*",x - 1)
+                                  " " + fill("*",x - 1)    
             v-head2[i]  = "      Taxable $          Tax $"
             v-head3[i]  = fill("-",30)
             v-tax-gr[i] = tt-stax.tax-group
@@ -999,8 +1004,10 @@ PROCEDURE run-report :
          v-tax-amt = 0.
 
       for each tt-report where tt-report.term-id eq v-term
-                      break by tt-report.key-01:
-
+                      break by tt-report.key-01
+                            BY tt-report.key-05
+                            BY tt-report.key-06:
+                                        
          if first-of(tt-report.key-01) then do:
             assign
                v-rate   = 0
@@ -1037,59 +1044,35 @@ PROCEDURE run-report :
             END.
          END.
 
-         find first ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock no-error.
+         find first ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock no-error.
 
-         if avail ar-inv then do:
-            if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
-               ld = ar-inv.net.
-            else
-               ld = ar-inv.gross.
-            v-sal-amt[1] = v-sal-amt[1] + (ld - ar-inv.tax-amt).
+         if avail ar-invl then do:
+         
+            FIND FIRST ar-inv NO-LOCK 
+                 WHERE ar-inv.company EQ ar-invl.company
+                 AND ar-inv.inv-no EQ ar-invl.inv-no NO-ERROR.              
+            
+            ld = ar-invl.amt.
+                     
+            v-sal-amt[1] = v-sal-amt[1] + (ld /*- ar-inv.tax-amt*/ ).
             DO i = 1 TO 5:
                IF v-rate[i] EQ 0 THEN NEXT.
 
-               v-taxable[i] = v-taxable[i] + (ld - ar-inv.tax-amt).
-               IF ar-inv.f-bill AND v-frtr-s > 0 THEN
-                  IF ld - ar-inv.tax-amt NE 0 THEN DO:
-
-                     assign
-                        v-inv-tax = ar-inv.tax-amt * ((ld - ar-inv.tax-amt - ar-inv.freight) / (ld - ar-inv.tax-amt))
-                        v-frt-tax = ar-inv.tax-amt * (ar-inv.freight / (ld - ar-inv.tax-amt)).
-                  END.
-                  else.
-
-               else
+               v-taxable[i] = v-taxable[i] + (ld /*- ar-inv.tax-amt*/).
+               
                   assign
-                     v-inv-tax    = ar-inv.tax-amt
-                     v-frt-tax    = 0.
+                     v-inv-tax    = ar-invl.amt
+                     v-frt-tax    = ar-inv.freight.    
 
                if v-rate-tt[i] ne 0 then
-                  v-tax-amt[i] = v-tax-amt[i] + (v-inv-tax * (v-rate[i] / v-rate-tt[i])).
-
-               if v-frtr-tt[i] ne 0 THEN DO:
-                   v-tax-amt[i] = v-tax-amt[i] + (v-frt-tax * (v-frtr[i] / v-frtr-tt[i])).
+                  v-tax-amt[i] = v-tax-amt[i] + ROUND(v-inv-tax * v-rate[i] / 100,2 /*/ v-rate-tt[i]*/).
+                   
+               IF FIRST-OF(tt-report.key-05) AND v-frtr-tt[i] ne 0 AND ar-inv.f-bill THEN DO:
+                   v-tax-amt[i] = v-tax-amt[i] + ROUND(v-frt-tax *  v-frtr[i] / 100,2 ).
               END.
 
-            END. /* DO i = 1 TO 5: */
-
-
-            for each ar-invl FIELDS(amt tax t-freight) where ar-invl.company       eq ar-inv.company
-                                               and ar-invl.cust-no       eq ar-inv.cust-no
-                                               and ar-invl.inv-no        eq ar-inv.inv-no
-                                               and ar-invl.posted no-lock:
-
-               do i = 1 to 5:
-                  if v-rate[i] eq 0 then next.
-                  if not ar-invl.tax THEN DO:
-
-                     v-taxable[i] = v-taxable[i] - ar-invl.amt.
-
-                  END.
-/*                   ELSE                                                 */
-/*                       IF v-frtr[i] = 0 AND ar-inv.freight > 0 THEN     */
-/*                          v-taxable[i] = v-taxable[i] - ar-inv.freight. */
-               end.
-            end. /* for each ar-invl */
+            END. /* DO i = 1 TO 5: */  
+            
          end. /* avail ar-inv */
          else
             if tt-report.key-02 eq stax.tax-acc1[1] then do:

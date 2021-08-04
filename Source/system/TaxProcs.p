@@ -62,7 +62,7 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
         DO:
             RUN pCalculate (
                 INPUT  ipbf-inv-head.company,
-                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  (IF bf-inv-line.taxGroup NE "" THEN bf-inv-line.taxGroup ELSE ipbf-inv-head.tax-gr),
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-inv-line.t-price,
                 INPUT  ipbf-inv-head.cust-no,
@@ -85,11 +85,11 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
         AND bf-inv-misc.bill    EQ "Y":     
         opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
 
-        IF ipbf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN 
+        IF bf-inv-misc.spare-char-1 NE "" AND bf-inv-misc.tax THEN 
         DO:
             RUN pCalculate (
                 INPUT  ipbf-inv-head.company,
-                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  bf-inv-misc.spare-char-1,
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-inv-misc.amt,
                 INPUT  ipbf-inv-head.cust-no,
@@ -1314,7 +1314,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
         IF bf-ar-inv.tax-code NE "" AND bf-ar-invl.tax THEN DO:
             RUN pCalculate (
                 INPUT  bf-ar-inv.company,
-                INPUT  bf-ar-inv.tax-code,
+                INPUT  (IF bf-ar-invl.taxGroup NE "" THEN bf-ar-invl.taxGroup ELSE bf-ar-inv.tax-code),
                 INPUT  FALSE,   /* Is this freight */
                 INPUT  bf-ar-invl.amt,
                 INPUT  bf-ar-inv.cust-no,
@@ -1332,7 +1332,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
             IF bf-ar-inv.f-bill THEN DO:
                 RUN pCalculate (
                     INPUT  bf-ar-invl.company,
-                    INPUT  bf-ar-inv.tax-code,
+                    INPUT  (IF bf-ar-invl.taxGroup NE "" THEN bf-ar-invl.taxGroup ELSE bf-ar-inv.tax-code),
                     INPUT  TRUE,   /* Is this freight */
                     INPUT  bf-ar-invl.t-freight,
                     INPUT  bf-ar-inv.cust-no,

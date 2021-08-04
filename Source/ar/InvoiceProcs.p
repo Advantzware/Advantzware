@@ -938,6 +938,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.costStdDeviation   = bf-inv-line.costStdDeviation
                 bf-ar-invl.costStdManufacture = bf-inv-line.costStdManufacture                        
                 bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
+                bf-ar-invl.taxGroup           = bf-inv-line.taxGroup
                 .    
             
             FIND FIRST bf-itemfg NO-LOCK
@@ -996,7 +997,8 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.spare-char-1   = bf-inv-misc.spare-char-1
                 bf-ar-invl.posted         = NO
                 bf-ar-invl.inv-date       = bf-inv-head.inv-date
-                bf-ar-invl.e-num          = bf-inv-misc.spare-int-4.
+                bf-ar-invl.e-num          = bf-inv-misc.spare-int-4
+                bf-ar-invl.taxGroup       = bf-inv-misc.spare-char-1.
 
             IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0. 
             iLine = iLine + 1.

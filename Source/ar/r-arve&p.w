@@ -1211,6 +1211,8 @@ do transaction on error undo with width 255:
          ELSE /*EA*/
             ar-invl.t-cost = ar-invl.cost * ar-invl.inv-qty.
       END.
+      
+      RUN pCreateInvoiceLineTax(BUFFER ar-invl).
   
     end. /* for each ar-invl */
 
@@ -1245,7 +1247,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateInvoiceLineTax C-Win
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ar-invl   FOR ar-invl.
+    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
+    FOR EACH ttTaxDetail NO-LOCK
+        WHERE ttTaxDetail.invoiceLineRecKey EQ ipbf-ar-invl.rec_key:         
+                    
+        CREATE bf-InvoiceLineTax.
+        ASSIGN            
+            bf-InvoiceLineTax.invoiceLineRecKey  = ipbf-ar-invl.rec_key             
+            bf-InvoiceLineTax.isFreight          = ttTaxDetail.isFreight
+            bf-InvoiceLineTax.isTaxOnFreight     = ttTaxDetail.isTaxOnFreight
+            bf-InvoiceLineTax.isTaxOnTax         = ttTaxDetail.isTaxOnTax
+            bf-InvoiceLineTax.taxCode            = ttTaxDetail.taxCode
+            bf-InvoiceLineTax.taxCodeAccount     = ttTaxDetail.taxCodeAccount
+            bf-InvoiceLineTax.taxCodeDescription = ttTaxDetail.taxCodeDescription
+            bf-InvoiceLineTax.taxCodeRate        = ttTaxDetail.taxCodeRate 
+            bf-InvoiceLineTax.taxableAmount      = ttTaxDetail.taxCodeTaxableAmount 
+            bf-InvoiceLineTax.taxAmount          = ttTaxDetail.taxCodeTaxAmount 
+            bf-InvoiceLineTax.taxGroup           = ttTaxDetail.taxGroup
+            bf-InvoiceLineTax.taxGroupLine       = ttTaxDetail.taxGroupLine 
+            bf-InvoiceLineTax.company            =  ipbf-ar-invl.company
+            bf-InvoiceLineTax.invoiceNo          = ipbf-ar-invl.inv-no
+            bf-InvoiceLineTax.invoiceLineID      = ipbf-ar-invl.LINE
+            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttTaxDetail.taxGroupTaxAmountLimit
+            .
+        RELEASE bf-InvoiceLineTax.
+    END.   
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win
 PROCEDURE pPostSalesTax PRIVATE:
