@@ -4828,16 +4828,15 @@ PROCEDURE pDisplay :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME viewFrame:
         IF AVAILABLE dynSubject THEN DO:
-            IF lSuperAdmin OR dynSubject.subjectID GE 5000 THEN DO:
-                ASSIGN
-                    dynSubject.custListID:SCREEN-VALUE   = " "
-                    dynSubject.module:SCREEN-VALUE       = " "
-                    dynSubject.subjectGroup:SCREEN-VALUE = " "
-                    dynSubject.udfGroup:SCREEN-VALUE     = " "
-                    .
-                DISPLAY {&displayFields}.
-                ENABLE {&transInit}.
-            END. /* if super admin or 5000 */
+            ASSIGN
+                dynSubject.custListID:SCREEN-VALUE   = " "
+                dynSubject.module:SCREEN-VALUE       = " "
+                dynSubject.subjectGroup:SCREEN-VALUE = " "
+                dynSubject.udfGroup:SCREEN-VALUE     = " "
+                .
+            DISPLAY {&displayFields}.
+            IF lSuperAdmin OR dynSubject.subjectID GE 5000 THEN
+            ENABLE {&transInit}.
             ELSE DO:
                 DISABLE {&transPanel} btnPageFormat-2.
                 ENABLE btnCloseView.
