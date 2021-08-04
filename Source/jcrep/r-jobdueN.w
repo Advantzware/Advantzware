@@ -249,7 +249,7 @@ DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no
      SIZE 14.6 BY .81
      BGCOLOR 15 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -883,6 +883,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   btn_Up:load-image("Graphics/32x32/moveup.png").
   btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
+  APPLY 'VALUE-CHANGED' TO rd-dest.
   {methods/nowait.i}
   {sys/inc/reportsConfigNK1.i "JL1" }
   ASSIGN
@@ -893,8 +894,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-    APPLY 'VALUE-CHANGED' TO rd-dest.
-    ASSIGN fi_file:SCREEN-VALUE = fi_file .
     RUN DisplaySelectionList2 .    
     APPLY "entry" TO thru_date.
   END.

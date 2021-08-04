@@ -883,6 +883,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
+  APPLY 'VALUE-CHANGED' TO rd-dest.
   {methods/nowait.i}
   {sys/inc/reportsConfigNK1.i "JL2" }
   ASSIGN
@@ -894,8 +895,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-    APPLY 'VALUE-CHANGED' TO rd-dest.
-    ASSIGN fi_file:SCREEN-VALUE = fi_file .
     RUN DisplaySelectionList2 .
     APPLY "entry" TO begin_dept.
   END.
