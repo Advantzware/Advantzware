@@ -1005,8 +1005,8 @@ PROCEDURE run-report :
 
       for each tt-report where tt-report.term-id eq v-term
                       break by tt-report.key-01
-                            BY tt-report.key-05
-                            BY tt-report.key-06:
+                            BY tt-report.key-05  /*Invoice No*/
+                            BY tt-report.key-06: /* Invoice Line*/
                                         
          if first-of(tt-report.key-01) then do:
             assign

@@ -25,7 +25,7 @@ DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -1497,38 +1497,16 @@ PROCEDURE pCreateInvoiceLineTax PRIVATE:
      Notes:          
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.     
-   
-    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
-    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.  
     
-    FIND FIRST bf-ar-invl NO-LOCK
-         WHERE ROWID(bf-ar-invl) EQ ipriInvoiceLine NO-ERROR.    
-               
-    FOR EACH ttInvoiceTaxDetail NO-LOCK
-        WHERE ttInvoiceTaxDetail.invoiceLineRecKey EQ ipcRecKey:         
-                      
-        CREATE bf-InvoiceLineTax.
-        ASSIGN            
-            bf-InvoiceLineTax.invoiceLineRecKey  = bf-ar-invl.rec_key             
-            bf-InvoiceLineTax.isFreight          = ttInvoiceTaxDetail.isFreight
-            bf-InvoiceLineTax.isTaxOnFreight     = ttInvoiceTaxDetail.isTaxOnFreight
-            bf-InvoiceLineTax.isTaxOnTax         = ttInvoiceTaxDetail.isTaxOnTax
-            bf-InvoiceLineTax.taxCode            = ttInvoiceTaxDetail.taxCode
-            bf-InvoiceLineTax.taxCodeAccount     = ttInvoiceTaxDetail.taxCodeAccount
-            bf-InvoiceLineTax.taxCodeDescription = ttInvoiceTaxDetail.taxCodeDescription
-            bf-InvoiceLineTax.taxCodeRate        = ttInvoiceTaxDetail.taxCodeRate 
-            bf-InvoiceLineTax.taxableAmount      = ttInvoiceTaxDetail.taxCodeTaxableAmount 
-            bf-InvoiceLineTax.taxAmount          = ttInvoiceTaxDetail.taxCodeTaxAmount 
-            bf-InvoiceLineTax.taxGroup           = ttInvoiceTaxDetail.taxGroup
-            bf-InvoiceLineTax.taxGroupLine       = ttInvoiceTaxDetail.taxGroupLine 
-            bf-InvoiceLineTax.company            =  bf-ar-invl.company
-            bf-InvoiceLineTax.invoiceNo          = bf-ar-invl.inv-no
-            bf-InvoiceLineTax.invoiceLineID      = bf-ar-invl.LINE
-            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttInvoiceTaxDetail.taxGroupTaxAmountLimit
-            .
-        RELEASE bf-InvoiceLineTax.
-    END.
+    RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
+    
+    RUN invoice_pCreateInvoiceLineTax IN hdInvoiceProcs (
+                                     INPUT ipcRecKey,
+                                     INPUT ipriInvoiceLine,                                      
+                                     INPUT TABLE ttTaxDetail 
+                                     ).
+    DELETE OBJECT hdInvoiceProcs.       
     
 END PROCEDURE.
 

@@ -55,6 +55,22 @@ PROCEDURE invoice_CreateInterCompanyBilling:
                   ).
 END PROCEDURE.
 
+PROCEDURE invoice_pCreateInvoiceLineTax:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR ttTaxDetail.
+        
+    RUN pCreateInvoiceLineTax(
+                  INPUT ipcRecKey,
+                  INPUT ipriInvoiceLine /*,
+                  INPUT TABLE ttTaxDetail*/ 
+                  ).
+END PROCEDURE.
+
 
 PROCEDURE pAssignCommonHeaderData PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1007,6 +1023,47 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
        
     
 END PROCEDURE. 
+
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  create GL InvoiceLineTax
+     Notes:          
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO. 
+       
+    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-invl NO-LOCK
+         WHERE ROWID(bf-ar-invl) EQ ipriInvoiceLine NO-ERROR.    
+               
+    FOR EACH ttTaxDetail NO-LOCK
+        WHERE ttTaxDetail.invoiceLineRecKey EQ ipcRecKey:         
+                     
+        CREATE bf-InvoiceLineTax.
+        ASSIGN            
+            bf-InvoiceLineTax.invoiceLineRecKey  = bf-ar-invl.rec_key             
+            bf-InvoiceLineTax.isFreight          = ttTaxDetail.isFreight
+            bf-InvoiceLineTax.isTaxOnFreight     = ttTaxDetail.isTaxOnFreight
+            bf-InvoiceLineTax.isTaxOnTax         = ttTaxDetail.isTaxOnTax
+            bf-InvoiceLineTax.taxCode            = ttTaxDetail.taxCode
+            bf-InvoiceLineTax.taxCodeAccount     = ttTaxDetail.taxCodeAccount
+            bf-InvoiceLineTax.taxCodeDescription = ttTaxDetail.taxCodeDescription
+            bf-InvoiceLineTax.taxCodeRate        = ttTaxDetail.taxCodeRate 
+            bf-InvoiceLineTax.taxableAmount      = ttTaxDetail.taxCodeTaxableAmount 
+            bf-InvoiceLineTax.taxAmount          = ttTaxDetail.taxCodeTaxAmount 
+            bf-InvoiceLineTax.taxGroup           = ttTaxDetail.taxGroup
+            bf-InvoiceLineTax.taxGroupLine       = ttTaxDetail.taxGroupLine 
+            bf-InvoiceLineTax.company            = bf-ar-invl.company
+            bf-InvoiceLineTax.invoiceNo          = bf-ar-invl.inv-no
+            bf-InvoiceLineTax.invoiceLineID      = bf-ar-invl.LINE
+            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttTaxDetail.taxGroupTaxAmountLimit
+            .
+        RELEASE bf-InvoiceLineTax.
+    END.
+    
+END PROCEDURE.
 
 PROCEDURE pGetNk1TransCompany:
     /*------------------------------------------------------------------------------

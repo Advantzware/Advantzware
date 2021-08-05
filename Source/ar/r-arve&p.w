@@ -89,6 +89,7 @@ DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 find first sys-ctrl
@@ -1255,31 +1256,16 @@ PROCEDURE pCreateInvoiceLineTax PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ar-invl   FOR ar-invl.
     DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
-    FOR EACH ttTaxDetail NO-LOCK
-        WHERE ttTaxDetail.invoiceLineRecKey EQ ipbf-ar-invl.rec_key:         
-                    
-        CREATE bf-InvoiceLineTax.
-        ASSIGN            
-            bf-InvoiceLineTax.invoiceLineRecKey  = ipbf-ar-invl.rec_key             
-            bf-InvoiceLineTax.isFreight          = ttTaxDetail.isFreight
-            bf-InvoiceLineTax.isTaxOnFreight     = ttTaxDetail.isTaxOnFreight
-            bf-InvoiceLineTax.isTaxOnTax         = ttTaxDetail.isTaxOnTax
-            bf-InvoiceLineTax.taxCode            = ttTaxDetail.taxCode
-            bf-InvoiceLineTax.taxCodeAccount     = ttTaxDetail.taxCodeAccount
-            bf-InvoiceLineTax.taxCodeDescription = ttTaxDetail.taxCodeDescription
-            bf-InvoiceLineTax.taxCodeRate        = ttTaxDetail.taxCodeRate 
-            bf-InvoiceLineTax.taxableAmount      = ttTaxDetail.taxCodeTaxableAmount 
-            bf-InvoiceLineTax.taxAmount          = ttTaxDetail.taxCodeTaxAmount 
-            bf-InvoiceLineTax.taxGroup           = ttTaxDetail.taxGroup
-            bf-InvoiceLineTax.taxGroupLine       = ttTaxDetail.taxGroupLine 
-            bf-InvoiceLineTax.company            =  ipbf-ar-invl.company
-            bf-InvoiceLineTax.invoiceNo          = ipbf-ar-invl.inv-no
-            bf-InvoiceLineTax.invoiceLineID      = ipbf-ar-invl.LINE
-            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttTaxDetail.taxGroupTaxAmountLimit
-            .
-        RELEASE bf-InvoiceLineTax.
-    END.   
-
+    
+    RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
+    
+    RUN invoice_pCreateInvoiceLineTax IN hdInvoiceProcs (
+                                     INPUT ipbf-ar-invl.rec_key,
+                                     INPUT ROWID(ipbf-ar-invl),                                      
+                                     INPUT TABLE ttTaxDetail BY-REFERENCE  
+                                     ).
+    DELETE OBJECT hdInvoiceProcs.
+                                   
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

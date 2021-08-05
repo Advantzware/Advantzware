@@ -1475,7 +1475,13 @@ PROCEDURE local-assign-record :
   IF cOldTaxGroup NE inv-head.tax-gr THEN
   DO:
       cTagDescription = IF AVAIL cust AND cust.tax-gr EQ inv-head.tax-gr THEN "Customer Tax Group  Cust:" + cust.cust-no ELSE "Manually Enter Tax Group". 
+      
+      MESSAGE "Update all lines with new tax group" 
+          VIEW-AS ALERT-BOX QUESTION 
+          BUTTONS YES-NO UPDATE lcheckflg as logical. 
+      IF lcheckflg THEN    
       RUN pUpdateTaxGroup.
+      
       RUN ClearTagsForGroup(
             INPUT inv-head.rec_key,
             INPUT "Tax Group"
@@ -1896,7 +1902,7 @@ PROCEDURE pUpdateTaxGroup :
   DO:
      FOR EACH bf-inv-line EXCLUSIVE-LOCK
          WHERE bf-inv-line.company EQ inv-head.company
-         AND bf-inv-line.inv-no EQ inv-head.inv-no:
+         AND bf-inv-line.r-no EQ inv-head.r-no:
          ASSIGN
          bf-inv-line.taxGroup = inv-head.tax-gr.
      END.
