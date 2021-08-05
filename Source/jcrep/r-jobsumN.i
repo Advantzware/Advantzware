@@ -106,7 +106,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
           "Customer:   "
           v-cust.
 
-       IF tb_excel2 THEN
+       IF rd-dest EQ 3 THEN
          PUT STREAM excel2 UNFORMATTED                       
             '"' "Job Number: "                '",'           
             '"' STRING(trim(job.job-no) + "-" + string(job.job-no2,"99"))               '",'
@@ -130,7 +130,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
           fg-str-tit2 skip
           /*fill("-",137) format "x(137)"*/ fg-str-tit3  skip.
 
-      IF tb_excel2 THEN DO:
+      IF rd-dest EQ 3 THEN DO:
           PUT STREAM excel2 UNFORMATTED '"' REPLACE(excelheader1,',','","') '"' SKIP.
       END.
 
@@ -249,7 +249,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             
            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
                        cExcelDisplay SKIP(1) .
              END.
@@ -389,7 +389,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             mach-str-tit3 SKIP
             /*fill("-", 135) format "x(135)" skip*/   .
         
-        IF tb_excel2 THEN DO:
+        IF rd-dest EQ 3 THEN DO:
             PUT STREAM excel2 UNFORMATTED '"' REPLACE(excelheader2,',','","') '"' SKIP.
         END.
       END.
@@ -503,7 +503,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             
            if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -573,7 +573,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP .
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -694,7 +694,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
              item-str-tit3 SKIP
              /*fill("-",105) format "x(105)" skip*/ .
          
-         IF tb_excel2 THEN DO:
+         IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel2 UNFORMATTED SKIP(1) '"' REPLACE(excelheader3,',','","') '"' SKIP.
          END.
       END.
@@ -782,7 +782,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
                 misc-str-tit3 SKIP
                 /*fill("-",80) format "x(80)" skip*/  .
 
-        IF tb_excel2 THEN DO:
+        IF rd-dest EQ 3 THEN DO:
             PUT STREAM excel2 UNFORMATTED SKIP(1) '"' REPLACE(excelheader4,',','","') '"' SKIP.
         END.
       END.
@@ -840,7 +840,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                 PUT STREAM excel2 UNFORMATTED  
                       cExcelDisplay SKIP.
             END.
@@ -1063,7 +1063,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             '"' STRING(cPressMachine)                       '",'
             SKIP.     
 
-      IF tb_excel2 THEN DO:
+      IF rd-dest EQ 3 THEN DO:
           PUT STREAM excel2 UNFORMATTED  SKIP(2) .
       END.
      
