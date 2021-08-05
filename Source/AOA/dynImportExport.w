@@ -901,11 +901,21 @@ PROCEDURE pImport :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDynamicFile  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDynamicTable AS CHARACTER NO-UNDO INITIAL "prgrms,dynLookup,dynPrgrmsPage,".    
-    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cDynamicTable AS CHARACTER NO-UNDO INITIAL "prgrms,dynLookup,dynPrgrmsPage,".
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
 
-    RUN pImportExportFolder (OUTPUT lContinue).
-    IF NOT lContinue THEN RETURN.
+    RUN FileSys_ValidateDirectory (
+        cImportExportFolder,
+        OUTPUT lContinue,
+        OUTPUT cMessage
+        ).
+    IF NOT lContinue THEN DO:
+        MESSAGE 
+            cMessage
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END. /* lcontinue */
 
     MESSAGE
         "Import Dynamic Tables from Folder: ~"" + cImportExportFolder + "~"?"
