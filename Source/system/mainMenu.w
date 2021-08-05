@@ -61,6 +61,12 @@ DO:
     RUN AOA/dynSync.w PERSISTENT.
 END.
 
+ON 'CTRL-ALT-F':U ANYWHERE
+DO:
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
+    RUN AOA/dynForm.w PERSISTENT.
+END.
+
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */

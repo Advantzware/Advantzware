@@ -11,6 +11,7 @@ DEFINE VARIABLE hAppSrv     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iAuditID    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
 
 {AOA/includes/pCalcNextRun.i}
 
@@ -53,9 +54,10 @@ IF AVAILABLE dynParamValue THEN DO:
                     Task.rec_key,
                     OUTPUT cJasperFile
                     ).
-                IF cJasperFile NE "" THEN DO:
+                IF cJasperFile NE "" THEN
+                DO idx = 1 TO NUM-ENTRIES(cJasperFile):
                     RUN pCreateAuditHdr.
-                    RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
+                    RUN spCreateAuditDtl (iAuditID, "programID", 0, ENTRY(idx,cJasperFile), Task.prgmName,  NO).
                     IF Task.recipients NE "" THEN DO:
                         IF AVAILABLE config THEN DO:
                             IF config.taskName THEN
@@ -76,7 +78,7 @@ IF AVAILABLE dynParamValue THEN DO:
                                 taskEmail.subject    = cSubject
                                 taskEmail.body       = IF AVAILABLE emailConfig AND emailConfig.body NE "" THEN
                                                        emailConfig.body ELSE "AOA Task Result Attached"
-                                taskEmail.attachment = cJasperFile
+                                taskEmail.attachment = ENTRY(idx,cJasperFile)
                                 taskEmail.recipients = Task.recipients
                                 taskEmail.mustExist  = YES
                                 taskEmail.rec_key    = Task.rec_key
@@ -90,7 +92,7 @@ IF AVAILABLE dynParamValue THEN DO:
                             ASSIGN
                                 taskEmail.subject    = "Submitted Run Now Request"
                                 taskEmail.body       = ""
-                                taskEmail.attachment = cJasperFile
+                                taskEmail.attachment = ENTRY(idx,cJasperFile)
                                 taskEmail.recipients = "Cue Card Message"
                                 taskEmail.user-id    = Task.user-id
                                 taskEmail.mustExist  = YES
@@ -98,7 +100,7 @@ IF AVAILABLE dynParamValue THEN DO:
                                 .
                         END. /* if avail */
                     END. /* else if runnow */
-                END. /* if cjasperfile ne "" */
+                END. /* do idx */
                 ELSE DO:
                     RUN pCreateAuditHdr.
                     RUN spCreateAuditDtl (

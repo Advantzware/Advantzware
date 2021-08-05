@@ -16,6 +16,7 @@ DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumResults   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iRecordCount  AS INTEGER   NO-UNDO.
 
@@ -31,126 +32,139 @@ FIND FIRST dynParamValue NO-LOCK
      NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
 
+RUN pClearTaskFiles. /* spJasper.p */
+
 OS-CREATE-DIR "users".
 OS-CREATE-DIR "users\_default".
 OS-CREATE-DIR VALUE("users\" + ipcUserID).
 OS-CREATE-DIR VALUE("users\" + ipcUserID + "\Jasper").
-ASSIGN
-    cJasonName    = REPLACE(ipcSubjectName," ","") + "." + ipcTaskRecKey
-    opcJasperFile = "users\" + ipcUserID + "\"
-                  + cJasonName
-                  + ".json"
-                  .
-OUTPUT STREAM sJasperJSON TO VALUE(opcJasperFile).
-PUT STREAM sJasperJSON UNFORMATTED
-    "~{" SKIP
-    FILL(" ",2)
-    "~"" REPLACE(ipcSubjectName," ","_") "~": ~{" SKIP
-    FILL(" ",4)
-    "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
-    .
 iphQuery:QUERY-OPEN.
 {AOA/includes/iNumResults.i}
-iphQuery:GET-FIRST().
-IF NOT iphQuery:QUERY-OFF-END THEN
-REPEAT:
-    iRecordCount = iRecordCount + 1.
-    IF iplProgressBar THEN
-    RUN spProgressBar (ipcSubjectName, iRecordCount, iNumResults).
-    PUT STREAM sJasperJSON UNFORMATTED
-        FILL(" ",6) "~{" SKIP
-        .
-    FOR EACH dynValueColumn NO-LOCK
-        WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
-          AND dynValueColumn.user-id      EQ dynParamValue.user-id
-          AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
-          AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
-           BY dynValueColumn.sortOrder
-        :
-        IF dynValueColumn.isCalcField THEN DO:
-            cFullName = dynValueColumn.colName.
-            IF dynValueColumn.calcProc NE "" THEN
-            RUN spDynCalcField IN hDynCalcField (
-                iphQuery:HANDLE,
-                dynValueColumn.calcProc,
-                dynValueColumn.calcParam,
-                dynValueColumn.dataType,
-                dynValueColumn.colFormat,
-                OUTPUT cBufferValue
-                ).
-            ELSE
-            IF dynValueColumn.calcFormula NE "" AND
-               INDEX(dynValueColumn.calcFormula,"$") EQ 0 THEN
-            RUN spDynCalcField IN hDynCalcField (
-                iphQuery:HANDLE,
-                "Calculator",
-                dynValueColumn.calcFormula,
-                dynValueColumn.dataType,
-                dynValueColumn.colFormat,
-                OUTPUT cBufferValue
-                ).
-            ELSE
-            IF dynValueColumn.calcFormula NE "" THEN NEXT.
-        END. /* if calc field */
-        ELSE
-        ASSIGN
-            hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
-            cFieldName   = ENTRY(2,dynValueColumn.colName,".")
-            cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-            cBufferValue = REPLACE(cBufferValue,"~"","''")
-            cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
-            cBufferValue = REPLACE(cBufferValue,CHR(10)," ")
-            cFullName    = REPLACE(dynValueColumn.colName,".","__")
-            cFullName    = REPLACE(cFullName,"[","")
-            cFullName    = REPLACE(cFullName,"]","")
-            .
-        IF dynParamValue.outputFormat EQ "HTML" THEN
-        cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
-        /* handle how jasper auto multiplies % formatted fields by 100 */
-        IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
-        ASSIGN
-            cBufferValue = REPLACE(cBufferValue,"%","")
-            cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
-            cBufferValue = cBufferValue + "%"
-            .
-        IF dynValueColumn.sortOrder GT 1 THEN
-        PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+IF iNumResults GT 0 THEN DO:
+    iphQuery:GET-FIRST().
+    IF NOT iphQuery:QUERY-OFF-END THEN
+    REPEAT:
+        iRecordCount = iRecordCount + 1.
+        IF dynParamValue.onePer OR iRecordCount EQ 1 THEN
+        RUN pTaskFile (iRecordCount).
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcSubjectName, iRecordCount, iNumResults).
         PUT STREAM sJasperJSON UNFORMATTED
-            FILL(" ",8)
-            "~"" cFullName "~": ~""
-            IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
-            ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
-            ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
-            "~""
+            FILL(" ",6) "~{" SKIP
             .
-    END. /* each dynvaluecolumn */
-    PUT STREAM sJasperJSON UNFORMATTED SKIP FILL(" ",6) "}".
-    iphQuery:GET-NEXT().
-    IF iphQuery:QUERY-OFF-END THEN LEAVE.
-    PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
-END. /* repeat */
-ELSE
-PUT STREAM sJasperJSON UNFORMATTED
-    FILL(" ",8) "~{" SKIP
-    FILL(" ",12)
-    "~"NoDataMessage~": ~"No Data Exists for the Selected Parameter Value(s)~"" SKIP
-    FILL(" ",8) "}" SKIP
-    .
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueColumn.sortOrder
+            :
+            IF dynValueColumn.isCalcField THEN DO:
+                cFullName = dynValueColumn.colName.
+                IF dynValueColumn.calcProc NE "" THEN
+                RUN spDynCalcField IN hDynCalcField (
+                    iphQuery:HANDLE,
+                    dynValueColumn.calcProc,
+                    dynValueColumn.calcParam,
+                    dynValueColumn.dataType,
+                    dynValueColumn.colFormat,
+                    OUTPUT cBufferValue
+                    ).
+                ELSE
+                IF dynValueColumn.calcFormula NE "" AND
+                   INDEX(dynValueColumn.calcFormula,"$") EQ 0 THEN
+                RUN spDynCalcField IN hDynCalcField (
+                    iphQuery:HANDLE,
+                    "Calculator",
+                    dynValueColumn.calcFormula,
+                    dynValueColumn.dataType,
+                    dynValueColumn.colFormat,
+                    OUTPUT cBufferValue
+                    ).
+                ELSE
+                IF dynValueColumn.calcFormula NE "" THEN NEXT.
+            END. /* if calc field */
+            ELSE
+            ASSIGN
+                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
+                cFieldName   = ENTRY(2,dynValueColumn.colName,".")
+                cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
+                cBufferValue = REPLACE(cBufferValue,"~"","''")
+                cBufferValue = REPLACE(cBufferValue,"~\","~\~\")
+                cBufferValue = REPLACE(cBufferValue,CHR(10),"~\n")
+                cFullName    = REPLACE(dynValueColumn.colName,".","__")
+                cFullName    = REPLACE(cFullName,"[","")
+                cFullName    = REPLACE(cFullName,"]","")
+                .
+            IF dynParamValue.outputFormat EQ "HTML" THEN
+            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
+            /* handle how jasper auto multiplies % formatted fields by 100 */
+            IF INDEX(dynValueColumn.colFormat,"%") NE 0 THEN
+            ASSIGN
+                cBufferValue = REPLACE(cBufferValue,"%","")
+                cBufferValue = STRING(DECIMAL(cBufferValue) / 100)
+                cBufferValue = cBufferValue + "%"
+                .
+            IF dynValueColumn.sortOrder GT 1 THEN
+            PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+            PUT STREAM sJasperJSON UNFORMATTED
+                FILL(" ",8)
+                "~"" cFullName "~": ~""
+                IF cBufferValue EQ ? AND dynValueColumn.dataType EQ "Character" THEN " "
+                ELSE IF cBufferValue EQ ? AND dynValueColumn.dataType NE "Character" THEN "0"
+                ELSE IF cBufferValue NE "" THEN cBufferValue ELSE " "
+                "~""
+                .
+        END. /* each dynvaluecolumn */
+        PUT STREAM sJasperJSON UNFORMATTED SKIP FILL(" ",6) "}".
+        iphQuery:GET-NEXT().
+        IF iphQuery:QUERY-OFF-END THEN LEAVE.
+        IF dynParamValue.onePer AND iRecordCount GT 0 THEN DO:
+            PUT STREAM sJasperJSON UNFORMATTED
+                SKIP
+                FILL(" ",4) "]"
+                .
+            RUN pSubDataSet ("Detail").
+            RUN pSubDataSet ("Summary").
+            PUT STREAM sJasperJSON UNFORMATTED
+                SKIP
+                FILL(" ",2) "}" SKIP
+                "}" SKIP
+                .
+            OUTPUT STREAM sJasperJSON CLOSE.
+        END.
+        ELSE
+        PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
+    END. /* repeat */
+    PUT STREAM sJasperJSON UNFORMATTED
+        SKIP
+        FILL(" ",4) "]"
+        .
+    RUN pSubDataSet ("Detail").
+    RUN pSubDataSet ("Summary").
+/*    OUTPUT STREAM sJasperJSON CLOSE.*/
+END. /* inumresults gt 0 */
+ELSE DO:
+    RUN pTaskFile (0).
+    PUT STREAM sJasperJSON UNFORMATTED
+        FILL(" ",8) "~{" SKIP
+        FILL(" ",12)
+        "~"NoDataMessage~": ~"No Data Exists for the Selected Parameter Value(s)~"" SKIP
+        FILL(" ",8) "}" SKIP
+        FILL(" ",4) "]"
+        .
+END. /* else */
 PUT STREAM sJasperJSON UNFORMATTED
     SKIP
-    FILL(" ",4) "]"
-    .
-RUN pSubDataSet ("Detail").
-RUN pSubDataSet ("Summary").
-PUT STREAM sJasperJSON UNFORMATTED SKIP
     FILL(" ",2) "}" SKIP
     "}" SKIP
     .
 OUTPUT STREAM sJasperJSON CLOSE.
 oplOK = TRUE.
 iphQuery:QUERY-CLOSE().
-
 DELETE PROCEDURE hDynCalcField.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pSubDataSet:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
@@ -159,6 +173,7 @@ PROCEDURE pSubDataSet:
     DEFINE VARIABLE cFormat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHandle   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTables   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cWhere    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hQuery    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable    AS HANDLE    NO-UNDO.
@@ -180,10 +195,15 @@ PROCEDURE pSubDataSet:
             "~"" ipcType STRING(idx) "~": [" SKIP
             .
         /* scroll returned temp-table records */
+        cWhere = "FOR EACH " + hTable:NAME.
+        IF dynParamValue.onePer AND iRecordCount GT 0 THEN
+        cWhere = cWhere + " WHERE " + hTable:NAME + ".recordID EQ "
+               + STRING(iRecordCount)
+               .
         CREATE QUERY hQuery.
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
         hQuery:SET-BUFFERS(hTable:HANDLE).
-        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-PREPARE(cWhere).
         hQuery:QUERY-OPEN.
         hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
         hQuery:GET-FIRST().
@@ -243,5 +263,34 @@ PROCEDURE pSubDataSet:
         DELETE OBJECT hQuery.
         DELETE OBJECT hQueryBuf.
     END. /* do idx */
+
+END PROCEDURE.
+
+PROCEDURE pTaskFile:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiRecordID AS INTEGER NO-UNDO.
+
+    ASSIGN
+        cJasonName    = REPLACE(ipcSubjectName," ","") + "." + ipcTaskRecKey
+                      + IF NOT dynParamValue.onePer THEN ""
+                        ELSE IF ipiRecordID NE 0 THEN STRING(ipiRecordId)
+                        ELSE ""
+        opcJasperFile = "users\" + ipcUserID + "\"
+                      + cJasonName
+                      + ".json"
+                      .
+    RUN pCreateTaskFileRecord (opcJasperFile).
+    OUTPUT STREAM sJasperJSON TO VALUE(opcJasperFile).
+    PUT STREAM sJasperJSON UNFORMATTED
+        "~{" SKIP
+        FILL(" ",2)
+        "~"" REPLACE(ipcSubjectName," ","_") "~": ~{" SKIP
+        FILL(" ",4)
+        "~"" REPLACE(ipcSubjectName," ","") "~": [" SKIP
+        .
+
 
 END PROCEDURE.

@@ -53,6 +53,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.isLookup         = dynSubject.isLookup
             dynParamValue.runSync          = dynSubject.runSync
             dynParamValue.autoClose        = dynSubject.autoClose
+            dynParamValue.onePer           = dynSubject.onePer
             dynParamValue.custListID       = dynSubject.custListID
             dynParamValue.useCustList      = dynSubject.useCustList
             dynParamValue.mnemonic         = dynSubject.mnemonic

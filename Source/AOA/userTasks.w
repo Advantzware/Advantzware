@@ -84,6 +84,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD runSync          LIKE dynParamValue.runSync
     FIELD autoClose        LIKE dynParamValue.autoClose
+    FIELD onePer           LIKE dynParamValue.onePer
     FIELD saveLastRun      LIKE dynParamValue.saveLastRun
     FIELD scheduled          AS LOGICAL LABEL "Sched"
     FIELD securityLevel    LIKE dynParamValue.securityLevel
@@ -293,6 +294,7 @@ ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.runSync VIEW-AS TOGGLE-BOX
 ttDynParamValue.autoClose VIEW-AS TOGGLE-BOX
+ttDynParamValue.onePer VIEW-AS TOGGLE-BOX
 ttDynParamValue.subjectType
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
@@ -1116,6 +1118,7 @@ PROCEDURE pGetParamValue :
                 ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
                 ttDynParamValue.mnemonic         = dynParamValue.mnemonic
                 ttDynParamValue.module           = dynParamValue.module
+                ttDynParamValue.onePer           = dynParamValue.onePer
                 ttDynParamValue.outputFormat     = dynParamValue.outputFormat
                 ttDynParamValue.paramDescription = dynParamValue.paramDescription
                 ttDynParamValue.paramTitle       = dynParamValue.paramTitle
@@ -1377,6 +1380,7 @@ PROCEDURE pResultsJasper :
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     RUN AOA/spJasper.p PERSISTENT SET hJasper.
+    SESSION:ADD-SUPER-PROCEDURE (hJasper).
     RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
     RUN pGetDynParamValue (
         ttDynParamValue.subjectID,

@@ -396,12 +396,13 @@ DO:
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
     UPDATE lDelete AS LOGICAL.
     IF lDelete THEN DO TRANSACTION:
-        OS-DELETE VALUE(taskResult.folderFile).
         ASSIGN
             cFolderFile = taskResult.folderFile
             cFolderFile = SUBSTRING(cFolderFile,1,R-INDEX(cFolderFile,".")) + "err"
             .
         OS-DELETE VALUE(cFolderFile).
+        OS-DELETE VALUE(taskResult.folderFile).
+        OS-DELETE VALUE(taskResult.folderFile + "_files") RECURSIVE.
         FIND CURRENT taskResult EXCLUSIVE-LOCK.
         DELETE taskResult.
         {&OPEN-QUERY-{&BROWSE-NAME}}

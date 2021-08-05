@@ -43,12 +43,17 @@ DEFINE VARIABLE svShowGroupFooter   AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
 
+DEFINE TEMP-TABLE ttTaskFile NO-UNDO
+    FIELD taskFile AS CHARACTER
+    .
+
 {AOA/includes/ttColumn.i}
 {AOA/includes/aoaProcedures.i}
 {AOA/includes/pRunBusinessLogic.i}
 
 DEFINE STREAM sLocalCSV.
 DEFINE STREAM sJasper.
+DEFINE STREAM sTemplate.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -168,6 +173,25 @@ lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pClearTaskFiles) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearTaskFiles Procedure
+PROCEDURE pClearTaskFiles:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttTaskFile.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pCreateDir) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDir Procedure
@@ -194,6 +218,31 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pCreateTaskFileRecord) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTaskFileRecord Procedure
+PROCEDURE pCreateTaskFileRecord:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTaskFile AS CHARACTER NO-UNDO.
+
+    IF NOT CAN-FIND(FIRST ttTaskFile
+                    WHERE ttTaskFile.taskFile EQ ipcTaskFile) THEN DO:
+        CREATE ttTaskFile.
+        ttTaskFile.taskFile = ipcTaskFile.
+    END. /* if not can-find */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pDeleteSessionParam) = 0 &THEN
 
@@ -1492,77 +1541,118 @@ PROCEDURE pJasperStarter :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcJastFile   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 5.
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTemplate      AS CHARACTER NO-UNDO EXTENT 2.
+    DEFINE VARIABLE cText          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     RUN pCreateDir (OUTPUT cUserFolder).
-    ASSIGN
-        dtDate         = TODAY
-        iTime          = TIME
-        cFileName      = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
-        cJasperFile[1] = SEARCH(cUserFolder + cFileName + ".jrxml")
-        cJasperFile[2] = SEARCH(cUserFolder + cFileName + ".json")
-        cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
-        cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
-        cJasperFile[4] = "TaskResults/"
-                       + REPLACE(aoaTitle," ","") + "."
-                       + STRING(YEAR(dtDate),"9999")
-                       + STRING(MONTH(dtDate),"99")
-                       + STRING(DAY(dtDate),"99") + "."
-                       + STRING(iTime,"99999")
-        cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[1],".jrxml",".err")
-                         ELSE cJasperFile[4] + ".err"
-        opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
-        cJasperStarter = "jasperstarter process "
-                       + "-f " + LC(ipcType) + " "
-                       + "-t json "
-                       + "-o " + cJasperFile[4] + " "
-                       + "--data-file "
-                       + cJasperFile[2] + " "
-                       + "--json-query "
-                       + REPLACE(aoaTitle," ","_")
-                       + "." + REPLACE(aoaTitle," ","") + " "
-                       +  cJasperFile[1]
-                       + " 1>NUL 2>"
-                       + cJasperFile[5]
-                       .
-    DO idx = 1 TO EXTENT(cJasperFile) - 1:
-        IF cJasperFile[idx] EQ ? THEN DO:
-            MESSAGE 
-                "Unable to run" aoaTitle "Jasper Report" SKIP 
-                "Jasper Files .jrxml and/or .json not found!"
-            VIEW-AS ALERT-BOX ERROR.
-            RETURN.
-        END. /* if ? */
-    END. /* do idx */
-    
-    IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
-        CREATE TaskResult.
-        ASSIGN
-            TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
-            TaskResult.fileType     = ipcType
-            TaskResult.user-id      = aoaUserID
-            TaskResult.folderFile   = opcJastFile
-            .
-    END. /* if not can-do */
-    /* log jasperstarter command for debug purposes if needed */
     OUTPUT TO VALUE(cUserFolder + "JasperStarter.log").
-    PUT UNFORMATTED cJasperStarter SKIP.
-    PUT UNFORMATTED
-        REPLACE(
-        REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
-        REPLACE(cUserFolder,"/","~\"),"")
-        SKIP.
     OUTPUT CLOSE.
-    OS-DELETE VALUE(cJasperFile[3]).
-    OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+    FOR EACH ttTaskFile:
+        ASSIGN
+            idx          = idx + 1
+            cFileName    = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
+            cTemplate[1] = SEARCH(cUserFolder + cFileName + ".jrxml")
+            cTemplate[2] = cTemplate[1]
+            .
+        IF dynParamValue.onePer AND cTemplate[1] NE ? THEN DO:
+            cTemplate[2] = REPLACE(cTemplate[1],".jrxml",STRING(idx) + ".jrxml").
+            INPUT STREAM sTemplate FROM VALUE(cTemplate[1]) NO-ECHO.
+            OUTPUT STREAM sJasper TO VALUE(cTemplate[2]).
+            REPEAT:
+                IMPORT STREAM sTemplate UNFORMATTED cText.
+                IF INDEX(cText,"net.sf.jasperreports.data.adapter") NE 0 THEN NEXT.
+
+                IF INDEX(cText,"com.jaspersoft.studio.data.defaultdataadapter") NE 0 THEN
+                cText = '    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>'.
+
+                IF INDEX(cText,"jsonFormFile") NE 0 THEN
+                cText = REPLACE(cText,"jsonFormFile",ttTaskFile.taskFile).
+
+                IF cText NE "" THEN
+                PUT STREAM sJasper UNFORMATTED cText SKIP.
+                ELSE
+                PUT STREAM sJasper UNFORMATTED SKIP(1).
+            END. /* repeat */
+            OUTPUT STREAM sJasper CLOSE.
+            INPUT STREAM sTemplate CLOSE.
+        END. /* if oneper */
+        ASSIGN
+            dtDate         = TODAY
+            iTime          = TIME
+            cJasperFile[1] = SEARCH(cTemplate[2])
+            cJasperFile[2] = ttTaskFile.taskFile //SEARCH(cUserFolder + cFileName + ".json")
+            cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
+            cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
+            cJasperFile[4] = "TaskResults/"
+                           + REPLACE(aoaTitle," ","") + "."
+                           + STRING(YEAR(dtDate),"9999")
+                           + STRING(MONTH(dtDate),"99")
+                           + STRING(DAY(dtDate),"99") + "."
+                           + STRING(iTime,"99999")
+            cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[2],".json",".err")
+                             ELSE cJasperFile[4] + ".err"
+            opcJasperFile  = opcJasperFile + cJasperFile[4] + "." + LC(ipcType) + ","
+            jdx            = jdx + 1
+            cJasperStarter = "jasperstarter process "
+                           + "-f " + LC(ipcType) + " "
+                           + "-t json "
+                           + "-o " + cJasperFile[4] + " "
+                           + "--data-file "
+                           + cJasperFile[2] + " "
+                           + "--json-query "
+                           + REPLACE(aoaTitle," ","_")
+                           + "." + REPLACE(aoaTitle," ","") + " "
+                           +  cJasperFile[1] + " "
+/*                           + (IF dynParamValue.onePer THEN "-P jsonData=~"" + cJasperFile[2] + "~" " ELSE "")*/
+                           + "1>NUL 2>"
+                           + cJasperFile[5]
+                           .
+        DO idx = 1 TO EXTENT(cJasperFile) - 1:
+            IF cJasperFile[idx] EQ ? THEN DO:
+                MESSAGE 
+                    "Unable to run" aoaTitle "Jasper Report" SKIP 
+                    "Jasper Files .jrxml and/or .json not found!"
+                VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END. /* if ? */
+        END. /* do idx */
+        
+        IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
+            CREATE TaskResult.
+            ASSIGN
+                TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
+                TaskResult.fileType     = ipcType
+                TaskResult.user-id      = aoaUserID
+                TaskResult.folderFile   = ENTRY(jdx,opcJasperFile)
+                .
+        END. /* if not can-do */
+        /* log jasperstarter command for debug purposes if needed */
+        OUTPUT TO VALUE(cUserFolder + "JasperStarter.log") APPEND.
+        PUT UNFORMATTED cJasperStarter SKIP.
+        PUT UNFORMATTED
+            REPLACE(
+            REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
+            REPLACE(cUserFolder,"/","~\"),"")
+            SKIP(1)
+            .
+        OUTPUT CLOSE.
+        OS-DELETE VALUE(cJasperFile[3]).
+        IF ipcType EQ "view" THEN
+        OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
+        ELSE
+        OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+    END. /* each tttaskfile */
+    opcJasperFile = TRIM(opcJasperFile,",").
 
 END PROCEDURE.
 
@@ -2172,7 +2262,6 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-pSetColumnOrder) = 0 &THEN
 
