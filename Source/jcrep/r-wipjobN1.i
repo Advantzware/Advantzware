@@ -133,7 +133,7 @@
             END.
    END.
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN 
+        IF rd-dest EQ 3 THEN 
             PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
 
