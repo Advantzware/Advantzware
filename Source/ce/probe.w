@@ -2554,8 +2554,8 @@ PROCEDURE pCalculateEstimate PRIVATE:
     
     IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
         RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
-    RUN CalculateEstimate IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
-    
+    RUN CalculateEstimateWithPrompts IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
+     
 
 END PROCEDURE.
 	

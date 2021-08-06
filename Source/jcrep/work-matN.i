@@ -91,7 +91,7 @@
             END.
             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -170,7 +170,7 @@ IF work-mat.mat-type = "B" THEN
             END.
             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel2 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
