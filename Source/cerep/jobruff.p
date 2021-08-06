@@ -967,7 +967,7 @@ FOR EACH ef
    END.
       
     IF FIRST-OF(eb.form-no) THEN do:
-      IF est.est-type GT 2 THEN RUN pPrintData(ROWID(eb)) . 
+      IF est.est-type NE 2 THEN RUN pPrintData(ROWID(eb)) . 
                      
     END.  /* first-of eb */
     
