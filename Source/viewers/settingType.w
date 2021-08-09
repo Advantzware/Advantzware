@@ -5,9 +5,23 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: viewers/setting.w
+  File:
+
+  Description: from VIEWER.W - Template for SmartViewer Objects
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -23,17 +37,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
-{custom/globdefs.i}
-{custom/gcompany.i}
-
-DEFINE VARIABLE cMode        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE scInstance   AS CLASS     system.SettingType NO-UNDO.
-DEFINE VARIABLE lReturnError AS LOGICAL   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,7 +54,7 @@ DEFINE VARIABLE lReturnError AS LOGICAL   NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -59,17 +65,28 @@ DEFINE VARIABLE lReturnError AS LOGICAL   NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR settingType.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-1 lIsPassword cSettingName ~
-lHasContext cDescription cDataType cSecurityLevel btnCopy-2 cDefaultValue ~
-cValidValueMin btnDelete-2 btnUpdate-2 cValidValue cCategoryTags cValidValueMax
-&Scoped-Define DISPLAYED-OBJECTS lIsPassword cSettingName lbl_ispassword ~
-lHasContext cDescription lbl_hascon lbl_datatype cDataType cSecurityLevel ~
-lbl_catag cDefaultValue cValidValueMin cValidValueMax cValidValue ~
-cCategoryTags 
+&Scoped-Define ENABLED-FIELDS settingType.settingName ~
+settingType.hasContext settingType.description settingType.isPassword ~
+settingType.securityLevel settingType.dataType settingType.defaultValue ~
+settingType.validValueMax settingType.validValueMin 
+&Scoped-define ENABLED-TABLES settingType
+&Scoped-define FIRST-ENABLED-TABLE settingType
+&Scoped-Define ENABLED-OBJECTS RECT-2 categoryTags validValues 
+&Scoped-Define DISPLAYED-FIELDS settingType.settingName ~
+settingType.hasContext settingType.description settingType.isPassword ~
+settingType.securityLevel settingType.dataType settingType.defaultValue ~
+settingType.validValueMax settingType.validValueMin 
+&Scoped-define DISPLAYED-TABLES settingType
+&Scoped-define FIRST-DISPLAYED-TABLE settingType
+&Scoped-Define DISPLAYED-OBJECTS fiCategoryTag fiValidValue categoryTags ~
+validValues 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,SELECTION-LIST-WIDGETS,List-4,List-5,List-6 */
+&Scoped-define SELECTION-LIST-WIDGETS btCategoryTagsInsert ~
+btCategoryTagsRemove fiCategoryTag btValidValuesInsert btValidValuesRemove ~
+fiValidValue 
+&Scoped-define List-4 fiValidValue 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -101,180 +118,94 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnAdd-2 
-    IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Add" 
-    SIZE 8 BY 1.91 TOOLTIP "Add".
+DEFINE BUTTON btCategoryTagsInsert 
+     LABEL "Insert" 
+     SIZE 13 BY 1.14.
 
-DEFINE BUTTON btnCancel-2 
-    IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91 TOOLTIP "Cancel".
+DEFINE BUTTON btCategoryTagsRemove 
+     LABEL "Remove" 
+     SIZE 13 BY 1.14.
 
-DEFINE BUTTON btnCopy-2 
-    IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Copy" 
-    SIZE 8 BY 1.91 TOOLTIP "Copy".
+DEFINE BUTTON btValidValuesInsert 
+     LABEL "Insert" 
+     SIZE 13 BY 1.14.
 
-DEFINE BUTTON btnDelete-2 
-    IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Delete" 
-    SIZE 8 BY 1.91 TOOLTIP "Delete".
+DEFINE BUTTON btValidValuesRemove 
+     LABEL "Remove" 
+     SIZE 13 BY 1.14.
 
-DEFINE BUTTON btnReset-2 
-    IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Reset" 
-    SIZE 8 BY 1.91 TOOLTIP "Reset".
+DEFINE VARIABLE fiCategoryTag AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 50 BY 1 NO-UNDO.
 
-DEFINE BUTTON btnUpdate-2 
-    IMAGE-UP FILE "Graphics/32x32/pencil.png":U
-    IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Update" 
-    SIZE 8 BY 1.91 TOOLTIP "Update/Save".
+DEFINE VARIABLE fiValidValue AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 50 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cDataType      AS CHARACTER FORMAT "x(20)" 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    LIST-ITEM-PAIRS "Character","Character",
-    "Integer","Integer",
-    "Logical","Logical",
-    "Decimal","Decimal"
-    DROP-DOWN-LIST
-    SIZE 27.8 BY 1
-    BGCOLOR 15 FONT 1 DROP-TARGET NO-UNDO.
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 206.2 BY 18.86.
 
-DEFINE VARIABLE cCategoryTags  AS CHARACTER FORMAT "X(200)":U 
-    VIEW-AS EDITOR SCROLLBAR-VERTICAL 
-    SIZE 41.4 BY 6.14
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE categoryTags AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 77 BY 6.19 NO-UNDO.
 
-DEFINE VARIABLE cValidValue    AS CHARACTER FORMAT "X(1000)":U 
-    LABEL "Valid Value" 
-    VIEW-AS EDITOR SCROLLBAR-VERTICAL
-    SIZE 53.6 BY 2.81
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cDefaultValue  AS CHARACTER FORMAT "X(100)":U 
-    LABEL "Default Value" 
-    VIEW-AS FILL-IN 
-    SIZE 53.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cDescription   AS CHARACTER FORMAT "X(100)":U 
-    LABEL "Description" 
-    VIEW-AS FILL-IN 
-    SIZE 45 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cSecurityLevel AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Security Level" 
-    VIEW-AS FILL-IN 
-    SIZE 20.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cSettingName   AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Name" 
-    VIEW-AS FILL-IN 
-    SIZE 45 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cValidValueMax AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Maximum Valid Value" 
-    VIEW-AS FILL-IN 
-    SIZE 53.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE cValidValueMin AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Minimun Valid Value" 
-    VIEW-AS FILL-IN 
-    SIZE 53.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_datatype       AS CHARACTER FORMAT "X(256)":U INITIAL "Data Type:" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_ispassword     AS CHARACTER FORMAT "X(256)":U INITIAL "Is Password?" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_hascon     AS CHARACTER FORMAT "X(256)":U INITIAL "Has Context?" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lbl_catag     AS CHARACTER FORMAT "X(256)":U INITIAL "Category Tags" 
-    VIEW-AS FILL-IN 
-    SIZE 18.6 BY 1 NO-UNDO.
-
-DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 131 BY 12.71.
-
-DEFINE RECTANGLE transPanel-3
-    EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-    SIZE 50 BY 2.38
-    BGCOLOR 15 .
-
-DEFINE VARIABLE lHasContext AS LOGICAL INITIAL NO 
-    LABEL "" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE lIsPassword AS LOGICAL INITIAL NO 
-    LABEL "" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE validValues AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 77 BY 6.19 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    btnAdd-2 AT ROW 14.52 COL 48.4 HELP
-    "Add" WIDGET-ID 20       
-    cSettingName AT ROW 1.52 COL 27.6 COLON-ALIGNED
-    cDescription AT ROW 2.67 COL 27.6 COLON-ALIGNED
-    cDataType AT ROW 3.86 COL 27.6 COLON-ALIGNED NO-LABELS
-    cValidValue AT ROW 5.1 COL 27.6 COLON-ALIGNED  HELP
-    "Enter comma-separated values"
-    cDefaultValue AT ROW 8.29 COL 27.6 COLON-ALIGNED
-    cValidValueMin AT ROW 9.48 COL 27.6 COLON-ALIGNED
-    cValidValueMax AT ROW 10.67 COL 27.6 COLON-ALIGNED
-    lIsPassword AT ROW 1.48 COL 123.6
-    lHasContext AT ROW 2.62 COL 123.6 WIDGET-ID 32
-    cSecurityLevel AT ROW 3.86 COL 104.2 COLON-ALIGNED WIDGET-ID 34
-    
-    lbl_ispassword AT ROW 1.52 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 4
-    
-    cCategoryTags AT ROW 6.29 COL 85.6 COLON-ALIGNED NO-LABELS WIDGET-ID 36 HELP
-    "Enter comma-separated values"
-    lbl_hascon AT ROW 2.67 COL 103.6 COLON-ALIGNED NO-LABELS WIDGET-ID 30
-    btnCancel-2 AT ROW 14.52 COL 80.4 HELP
-    "Cancel" WIDGET-ID 28
-    lbl_datatype AT ROW 3.81 COL 12 COLON-ALIGNED NO-LABELS WIDGET-ID 2
-    
-    
-    lbl_catag AT ROW 5.19 COL 85.4 COLON-ALIGNED NO-LABELS WIDGET-ID 38
-    btnCopy-2 AT ROW 14.52 COL 56.4 HELP
-    "Copy" WIDGET-ID 24
-    
-    btnDelete-2 AT ROW 14.52 COL 64.4 HELP
-    "Delete" WIDGET-ID 26
-    btnReset-2 AT ROW 14.52 COL 72.4 HELP
-    "Reset" WIDGET-ID 22
-    btnUpdate-2 AT ROW 14.52 COL 40.4 HELP
-    "Update/Save" WIDGET-ID 18      
-    RECT-1 AT ROW 1.14 COL 2
-    transPanel-3 AT ROW 14.33 COL 39.4 WIDGET-ID 16
+     settingType.settingName AT ROW 1.24 COL 26 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     settingType.hasContext AT ROW 1.24 COL 131 WIDGET-ID 10
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .81
+     settingType.description AT ROW 2.43 COL 28 NO-LABEL WIDGET-ID 16
+          VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+          SIZE 77 BY 4
+     settingType.isPassword AT ROW 2.43 COL 131 WIDGET-ID 12
+          VIEW-AS TOGGLE-BOX
+          SIZE 18 BY .81
+     settingType.securityLevel AT ROW 3.62 COL 134 COLON-ALIGNED WIDGET-ID 2 FORMAT ">>>9"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     settingType.dataType AT ROW 6.62 COL 26 COLON-ALIGNED WIDGET-ID 14
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEMS "Character","Integer","Decimal","Logical","Date" 
+          DROP-DOWN-LIST
+          SIZE 23.6 BY 1
+     btCategoryTagsInsert AT ROW 7.67 COL 175.2 WIDGET-ID 36
+     btCategoryTagsRemove AT ROW 7.67 COL 188.8 WIDGET-ID 34
+     fiCategoryTag AT ROW 7.76 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     btValidValuesInsert AT ROW 7.81 COL 78.6 WIDGET-ID 28
+     btValidValuesRemove AT ROW 7.81 COL 92.2 WIDGET-ID 30
+     fiValidValue AT ROW 7.9 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     categoryTags AT ROW 8.95 COL 124.6 NO-LABEL WIDGET-ID 42
+     validValues AT ROW 9.1 COL 28 NO-LABEL WIDGET-ID 24
+     settingType.defaultValue AT ROW 15.48 COL 26 COLON-ALIGNED WIDGET-ID 44
+          VIEW-AS FILL-IN 
+          SIZE 76.8 BY 1
+     settingType.validValueMax AT ROW 16.62 COL 26 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     settingType.validValueMin AT ROW 17.81 COL 26 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 38 BY 1
+     "Category Tags:" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 9.05 COL 106.4 WIDGET-ID 40
+     "Valid Values:" VIEW-AS TEXT
+          SIZE 14.5 BY .62 AT ROW 9.05 COL 13.4 WIDGET-ID 26
+     "Description:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 2.43 COL 14 WIDGET-ID 18
+     RECT-2 AT ROW 1 COL 1 WIDGET-ID 46
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1 SCROLLABLE 
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 15 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -282,7 +213,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.setting
+   External Tables: ASI.settingType
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -291,11 +222,10 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN 
-DO:
-    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+  RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -305,8 +235,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.76
-         WIDTH              = 133.4.
+         HEIGHT             = 18.86
+         WIDTH              = 206.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -318,7 +248,9 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-                
+
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -326,29 +258,25 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
-    FRAME F-Main:SCROLLABLE = FALSE
-    FRAME F-Main:HIDDEN     = TRUE.
+       FRAME F-Main:SCROLLABLE       = FALSE
+       FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btnCancel-2 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnReset-2 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN lbl_datatype IN FRAME F-Main
-   NO-ENABLE                                                            */
-
-/* SETTINGS FOR FILL-IN lbl_ispassword IN FRAME F-Main
-   NO-ENABLE                                                            */
-
-/* SETTINGS FOR FILL-IN lbl_hascon IN FRAME F-Main
-   NO-ENABLE                                                            */
-
-/* SETTINGS FOR FILL-IN lbl_catag IN FRAME F-Main
-   NO-ENABLE                                                            */
-
-/* SETTINGS FOR RECTANGLE transPanel-3 IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btCategoryTagsInsert IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR BUTTON btCategoryTagsRemove IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR BUTTON btValidValuesInsert IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR BUTTON btValidValuesRemove IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN fiCategoryTag IN FRAME F-Main
+   NO-ENABLE 3                                                          */
+/* SETTINGS FOR FILL-IN fiValidValue IN FRAME F-Main
+   NO-ENABLE 3 4                                                        */
+/* SETTINGS FOR FILL-IN settingType.securityLevel IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -364,122 +292,86 @@ ASSIGN
 
  
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
+/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
+/* SmartViewer,ab,49270
+Destroy on next read */
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btnAdd-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd-2 V-table-Win
-ON CHOOSE OF btnAdd-2 IN FRAME F-Main /* Add */
-    DO:
-        RUN pCRUD (SELF).
+&Scoped-define SELF-NAME btCategoryTagsInsert
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCategoryTagsInsert V-table-Win
+ON CHOOSE OF btCategoryTagsInsert IN FRAME F-Main /* Insert */
+DO:
+    DEFINE VARIABLE cCategoryTagsList AS CHARACTER NO-UNDO.
+    
+    IF fiCategoryTag:SCREEN-VALUE NE "" THEN DO:
+        IF LOOKUP (fiCategoryTag:SCREEN-VALUE, CategoryTags:LIST-ITEMS) EQ 0 OR CategoryTags:LIST-ITEMS EQ ? THEN DO:
+            cCategoryTagsList = CategoryTags:LIST-ITEMS + "," + fiCategoryTag:SCREEN-VALUE.
+            
+            IF cCategoryTagsList EQ ? THEN
+                cCategoryTagsList = fiCategoryTag:SCREEN-VALUE.
+                
+            cCategoryTagsList = TRIM(cCategoryTagsList, ",").
+            
+            CategoryTags:LIST-ITEMS = cCategoryTagsList.
+        END.
     END.
+    
+    fiCategoryTag:SCREEN-VALUE = "".
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnCancel-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel-2 V-table-Win
-ON CHOOSE OF btnCancel-2 IN FRAME F-Main /* Cancel */
-    DO:
-        RUN pCRUD (SELF).
-    END.
+&Scoped-define SELF-NAME btCategoryTagsRemove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCategoryTagsRemove V-table-Win
+ON CHOOSE OF btCategoryTagsRemove IN FRAME F-Main /* Remove */
+DO:
+    categoryTags:DELETE(categoryTags:SCREEN-VALUE).  
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnCopy-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy-2 V-table-Win
-ON CHOOSE OF btnCopy-2 IN FRAME F-Main /* Copy */
-    DO:
-        RUN pCRUD (SELF).
+&Scoped-define SELF-NAME btValidValuesInsert
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btValidValuesInsert V-table-Win
+ON CHOOSE OF btValidValuesInsert IN FRAME F-Main /* Insert */
+DO:
+    DEFINE VARIABLE cValidValuesList AS CHARACTER NO-UNDO.
+    
+    IF fiValidValue:SCREEN-VALUE NE "" THEN DO:
+        IF LOOKUP (fiValidValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ 0 OR validValues:LIST-ITEMS EQ ? THEN DO:
+            cValidValuesList = validValues:LIST-ITEMS + "," + fiValidValue:SCREEN-VALUE.
+            
+            IF cValidValuesList EQ ? THEN
+                cValidValuesList = fiValidValue:SCREEN-VALUE.
+                
+            cValidValuesList = TRIM(cValidValuesList, ",").
+            
+            validValues:LIST-ITEMS = cValidValuesList.
+        END.
     END.
+    
+    fiValidValue:SCREEN-VALUE = "".
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnDelete-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete-2 V-table-Win
-ON CHOOSE OF btnDelete-2 IN FRAME F-Main /* Delete */
-    DO:
-        RUN pCRUD (SELF).
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnReset-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset-2 V-table-Win
-ON CHOOSE OF btnReset-2 IN FRAME F-Main /* Reset */
-    DO:
-        RUN pCRUD (SELF).
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnUpdate-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate-2 V-table-Win
-ON CHOOSE OF btnUpdate-2 IN FRAME F-Main /* Update */
-    DO:
-        RUN pCRUD (SELF).
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cCategoryTags
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCategoryTags V-table-Win
-ON HELP OF cCategoryTags IN FRAME F-Main
-    DO:
-  //{sys/ref/char-fld-help.i}
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME cSettingName
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cSettingName V-table-Win
-ON LEAVE OF cSettingName IN FRAME F-Main
-    DO:
-        STATUS INPUT ''.
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-SettingName(OUTPUT lReturnError) NO-ERROR.
-            IF lReturnError THEN RETURN NO-APPLY.
-        END.   
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cValidValue
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cValidValue V-table-Win
-ON HELP OF cValidValue IN FRAME F-Main /* Data Type */
-    DO:
- 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cValidValue V-table-Win
-ON LEAVE OF cValidValue IN FRAME F-Main /* Data Type */
-    DO:
-        STATUS INPUT ''.
-        IF LASTKEY NE -1 THEN 
-        DO:
-  
-        END.   
-
-    END.
+&Scoped-define SELF-NAME btValidValuesRemove
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btValidValuesRemove V-table-Win
+ON CHOOSE OF btValidValuesRemove IN FRAME F-Main /* Remove */
+DO:
+    validValues:DELETE(validValues:SCREEN-VALUE).  
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -491,11 +383,11 @@ ON LEAVE OF cValidValue IN FRAME F-Main /* Data Type */
 
 
 /* ***************************  Main Block  *************************** */
-//{custom/getcmpny.i}
-  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
 
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,324 +398,206 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Create a list of all the tables that we need to get.            */
-    {src/adm/template/row-list.i "settingType"}
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "settingType"}
 
-    /* Get the record ROWID's from the RECORD-SOURCE.                  */
-    {src/adm/template/row-get.i}
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
 
-    /* FIND each record specified by the RECORD-SOURCE.                */
-    {src/adm/template/row-find.i "settingType"}
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "settingType"}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME F-Main.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAILABLE settingType THEN
+        ASSIGN
+            settingType.validValues = IF validValues:LIST-ITEMS EQ "" OR validValues:LIST-ITEMS EQ ? THEN
+                                          ""
+                                      ELSE
+                                          validValues:LIST-ITEMS
+            settingType.categoryTags = IF categoryTags:LIST-ITEMS EQ "" OR categoryTags:LIST-ITEMS EQ ? THEN
+                                          ""
+                                      ELSE
+                                          categoryTags:LIST-ITEMS
+            .                                          
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE {&SELECTION-LIST-WIDGETS}.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    
+    ASSIGN
+        validValues:LIST-ITEMS IN FRAME {&FRAME-NAME} = ""
+        categoryTags:LIST-ITEMS = ""
+        .
 
     /* Code placed here will execute AFTER standard behavior.    */
-     
+    ASSIGN
+        fiValidValue:SCREEN-VALUE  = ""
+        fiCategoryTag:SCREEN-VALUE = ""
+        .
+    
+    IF AVAILABLE settingType THEN
+        ASSIGN
+            validValues:LIST-ITEMS  = settingType.validValues
+            categoryTags:LIST-ITEMS = settingType.categoryTags
+            .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
     DO WITH FRAME {&FRAME-NAME}:
-        lbl_datatype:SCREEN-VALUE  = "Data Type:".
-        lbl_ispassword:SCREEN-VALUE =  "Is Password?".
-        lbl_hascon:SCREEN-VALUE = "Has Context?".
-        lbl_catag:SCREEN-VALUE = "Category Tags".            
-        DISPLAY lbl_datatype lbl_ispassword lbl_hascon lbl_catag. 
-  
-        IF AVAILABLE settingType THEN  
-        DO:    
-            ASSIGN
-                lIsPassword:SCREEN-VALUE    = STRING(settingType.isPassword)
-                cSettingName:SCREEN-VALUE   = settingType.settingName
-                lHasContext:SCREEN-VALUE    = STRING(settingType.hasContext)
-                cDescription:SCREEN-VALUE   = STRING(settingType.description)        
-                cDataType:SCREEN-VALUE      = settingType.dataType
-                cSecurityLevel:SCREEN-VALUE = STRING(settingType.securityLevel)
-                cDefaultValue:SCREEN-VALUE  = settingType.defaultValue
-                cValidValueMin:SCREEN-VALUE = STRING(settingType.validValueMin)        
-                cValidValueMax:SCREEN-VALUE = settingType.validValueMax
-                cValidValue:SCREEN-VALUE    = settingType.validValues   
-                cCategoryTags:SCREEN-VALUE  = settingType.categoryTags  
-                .                         
-        END.         
-        DISABLE  lIsPassword cSettingName lHasContext cDescription
-                cDataType cSecurityLevel cDefaultValue cValidValueMin
-                cValidValueMax cValidValue cCategoryTags.
+        ENABLE {&SELECTION-LIST-WIDGETS}.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win
+PROCEDURE local-update-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
     END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRUD V-table-Win 
-PROCEDURE pCRUD :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/  
-
-    DEFINE INPUT PARAMETER iphMode AS HANDLE NO-UNDO.
-    
-    DEFINE VARIABLE lContinue      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hWidget        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE rRowID         AS ROWID     NO-UNDO.
-    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCustVend      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lUpdateReports AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iSettingTypeId AS INTEGER   NO-UNDO.
-    
-    DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE rwRowid        AS ROWID     NO-UNDO.      
-       
-    DO WITH FRAME {&FRAME-NAME}:
-        IF (iphMode:LABEL EQ "Update" OR iphMode:LABEL EQ "Copy") AND NOT AVAIL settingType THEN
-        RETURN NO-APPLY.
-        
-        CASE iphMode:LABEL:
-            WHEN "Add" OR 
-            WHEN "Copy" OR 
-            WHEN "Update" THEN 
-                DO:
-                
-                    ENABLE btnReset-2 btnCancel-2 .
-                    ENABLE lIsPassword cSettingName lHasContext cDescription
-                        cDataType cSecurityLevel cDefaultValue cValidValueMin
-                        cValidValue cCategoryTags cValidValueMax.
-                    DISABLE btnAdd-2 btnCopy-2 btnDelete-2.                  
-                
-                    btnUpdate-2:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
-                
-                    IF iphMode:LABEL EQ "Add" THEN 
-                    DO:
-                        ASSIGN
-                            cSettingName:SCREEN-VALUE   = ""
-                            cDescription:SCREEN-VALUE   = "" 
-                            cDataType:SCREEN-VALUE      = "" 
-                            lIsPassword:SCREEN-VALUE    = "No"
-                            lHasContext:SCREEN-VALUE    = "No"
-                            cSecurityLevel:SCREEN-VALUE = "0"
-                            cDefaultValue:SCREEN-VALUE  = ""
-                            cValidValueMin:SCREEN-VALUE = ""
-                            cValidValue:SCREEN-VALUE    = ""
-                            cCategoryTags:SCREEN-VALUE  = ""
-                            cValidValueMax:SCREEN-VALUE = "".
-                        DISABLE btnReset-2.
-                        APPLY "ENTRY":U TO cSettingName.
-                    END. /* add */
-                    ELSE IF iphMode:LABEL EQ "Update" THEN 
-                        DO:
-                            DISABLE cSettingName. 
-                            APPLY "ENTRY":U TO cDescription .                    
-                        END.
-                    ASSIGN                    
-                        cMode             = iphMode:LABEL
-                        btnUpdate-2:LABEL = "Save"
-                        .                
-                END. /* add copy update */
-            WHEN "Cancel" OR 
-            WHEN "Save" THEN 
-                DO:
-                    IF iphMode:LABEL EQ "Save" THEN 
-                    DO:
-                        IF cMode EQ "Add" OR cMode EQ "Copy" THEN 
-                        DO:
-                    
-                            RUN valid-SettingName(OUTPUT lReturnError) NO-ERROR.
-                            IF lReturnError THEN RETURN NO-APPLY.
-                    
-                         //IF scInstance EQ ? THEN 
-                            scInstance = NEW system.SettingType().                    
-                         
-                            scInstance:Update(INPUT 0,                                             
-                                INPUT cSettingName:SCREEN-VALUE,
-                                INPUT cDescription:SCREEN-VALUE,
-                                INPUT cDataType:SCREEN-VALUE,
-                                INPUT cValidValue:SCREEN-VALUE,
-                                INPUT cDefaultValue:SCREEN-VALUE,
-                                INPUT cValidValueMin:SCREEN-VALUE,
-                                INPUT cValidValueMax:SCREEN-VALUE,
-                                INPUT LOGICAL(lIsPassword:SCREEN-VALUE),
-                                INPUT LOGICAL(lHasContext:SCREEN-VALUE),                                           
-                                INPUT INTEGER(cSecurityLevel:SCREEN-VALUE),                                           
-                                INPUT cCategoryTags:SCREEN-VALUE,
-                                OUTPUT iSettingTypeId 
-                                ). 
-                                           
-                            FIND FIRST settingType NO-LOCK
-                                WHERE settingType.settingTypeID EQ iSettingTypeId NO-ERROR.
-                           
-                            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).  
-
-                            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-                                RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(settingType)).                         
-                        
-                        END. /* if add/copy */
-                        ELSE IF cMode EQ "Update" THEN 
-                            DO:
-                    
-                                scInstance = NEW system.SettingType().
-                     
-                                scInstance:Update(INPUT INTEGER(settingType.settingTypeID),                                             
-                                    INPUT cSettingName:SCREEN-VALUE,
-                                    INPUT cDescription:SCREEN-VALUE,
-                                    INPUT cDataType:SCREEN-VALUE,
-                                    INPUT cValidValue:SCREEN-VALUE,
-                                    INPUT cDefaultValue:SCREEN-VALUE,
-                                    INPUT cValidValueMin:SCREEN-VALUE,
-                                    INPUT cValidValueMax:SCREEN-VALUE,
-                                    INPUT LOGICAL(lIsPassword:SCREEN-VALUE),
-                                    INPUT LOGICAL(lHasContext:SCREEN-VALUE),                                           
-                                    INPUT INTEGER(cSecurityLevel:SCREEN-VALUE),                                           
-                                    INPUT cCategoryTags:SCREEN-VALUE,
-                                    OUTPUT iSettingTypeId 
-                                    ).                                             
-                            END.   
-                   
-                   
-                    END. /* save */
-                    IF iphMode:LABEL EQ "Cancel" THEN 
-                    DO:
-                        RUN pDisplaySetting.
-                    END.
-                    DISABLE lIsPassword cSettingName lHasContext cDescription
-                        cDataType cSecurityLevel cDefaultValue cValidValueMin
-                        cValidValue cCategoryTags cValidValueMax .
-                    btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.png").
-                    btnUpdate-2:LABEL = "Update".
-                    ENABLE btnAdd-2 btnCopy-2 btnDelete-2.
-                    DISABLE btnReset-2 btnCancel-2 .
-                    
-                END. /* cancel save */
-            WHEN "Delete" THEN 
-                DO:
-                    IF AVAILABLE settingType THEN 
-                    DO:
-                        MESSAGE
-                            "Delete Currently Selected Record?"
-                            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-                            UPDATE lContinue.
-                        IF lContinue THEN 
-                        DO:
-                    
-                            scInstance = NEW system.SettingType().
-                        
-                            scInstance:DELETE(INPUT INTEGER(settingType.settingTypeID)).
-                        
-                            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).  
-
-                            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-                                RUN repo-query IN WIDGET-HANDLE(char-hdl) (rwRowid). 
-                        
-                        END. /* if lcontinue */
-                    END. /* if avail */
-                END. /* delete */
-            WHEN "Reset" THEN
-            RUN pDisplaySetting.
-        END CASE.
-    END. /* with frame */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplaySetting V-table-Win 
-PROCEDURE pDisplaySetting :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF AVAILABLE settingType THEN
-        DO:
-            ASSIGN           
-                cSettingName:SCREEN-VALUE   = settingType.settingName
-                cDescription:SCREEN-VALUE   = settingType.description
-                cDataType:SCREEN-VALUE      = settingType.dataType
-                cValidValue:SCREEN-VALUE    = settingType.validValues
-                cDefaultValue:SCREEN-VALUE  = settingType.defaultValue
-                cValidValueMin:SCREEN-VALUE = settingType.validValueMin
-                cValidValueMax:SCREEN-VALUE = settingType.validValueMax
-                lIsPassword:SCREEN-VALUE    = STRING(settingType.isPassword)
-                lHasContext:SCREEN-VALUE    = STRING(settingType.hasContext)
-                cSecurityLevel:SCREEN-VALUE = STRING(settingType.securityLevel)
-                cCategoryTags:SCREEN-VALUE  = settingType.categoryTags.
-          
-        END.
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF settingType.defaultValue:SCREEN-VALUE NE "" THEN DO:
+        IF LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ 0 OR LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ ? THEN DO:
+            MESSAGE "Default value has to one the value from Valid Values list"  
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.
+        END. 
     END.
 
-END PROCEDURE.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "settingType"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "settingType"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -832,46 +606,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    -------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-    CASE p-state:
-        /* Object instance CASEs can go here to replace standard behavior
-           or add new cases. */
-        {src/adm/template/vstates.i}
-    END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-SettingName V-table-Win 
-PROCEDURE valid-SettingName :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-    DEFINE BUFFER bf-settingType FOR settingType.
-    {methods/lValidateError.i YES}
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST bf-settingType NO-LOCK 
-            WHERE bf-settingType.settingName EQ cSettingName:SCREEN-VALUE NO-ERROR.
-        IF AVAILABLE bf-settingType THEN
-        DO:
-            MESSAGE "Name is already exist, Please enter another name" VIEW-AS ALERT-BOX ERROR.
-            oplReturnError = YES .
-            APPLY "entry" TO cSettingName.
-        END.  
-    END.
-    {methods/lValidateError.i NO}  
+  CASE p-state:
+      /* Object instance CASEs can go here to replace standard behavior
+         or add new cases. */
+      {src/adm/template/vstates.i}
+  END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
