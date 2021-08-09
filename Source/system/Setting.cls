@@ -200,6 +200,31 @@ CLASS system.Setting:
 		DEFINE BUFFER bf-settingType FOR settingType.
 		DEFINE BUFFER bf-scope FOR scope.
 
+        FIND FIRST ttSetting NO-LOCK
+             WHERE ttSetting.settingName EQ ipcSettingName
+               AND ttSetting.scopeTable  EQ ipcScopeTable
+               AND ttSetting.scopeField1 EQ ipcScopeField1
+               AND ttSetting.scopeField2 EQ ipcScopeField2
+               AND ttSetting.scopeField3 EQ ipcScopeField3
+               AND ttSetting.inactive    EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName EQ ipcSettingName
+                   AND ttSetting.scopeTable  EQ "Company"
+                   AND ttSetting.scopeField1 EQ cCompany
+                   AND ttSetting.inactive    EQ FALSE
+                 NO-ERROR.
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName EQ ipcSettingName
+                   AND ttSetting.scopeTable  EQ "System"
+                   AND ttSetting.inactive    EQ FALSE
+                 NO-ERROR.
+
+        IF AVAILABLE ttSetting THEN
+            RETURN ttSetting.settingValue.
+                                     
         IF ipcScopeTable NE "" THEN
             FIND FIRST bf-scope NO-LOCK
                  WHERE bf-scope.scopeTable  EQ ipcScopeTable
@@ -375,7 +400,8 @@ CLASS system.Setting:
             cSettingQuery = " FOR EACH bf-setting NO-LOCK ".           
         END.
 
-        IF ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR ipcScopeTable NE "" OR ipcScopeField1 NE "" OR ipcScopeField2 NE "" OR ipcScopeField3 NE "" THEN
+        IF ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR 
+           ipcScopeTable NE "" OR ipcScopeField1 NE "" OR ipcScopeField2 NE "" OR ipcScopeField3 NE "" THEN
             cSettingQuery = cSettingQuery + " WHERE TRUE ".
         
         IF ipcSettingName NE "" THEN
