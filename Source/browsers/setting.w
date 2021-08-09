@@ -42,11 +42,18 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER      NO-UNDO.
 
-DEFINE VARIABLE hdScopeField1 AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdScopeField2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdScopeField3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdScopeField1 AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdScopeField2 AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdScopeField3 AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cSaveType     AS CHARACTER NO-UNDO.
 
 {system/ttSetting.i}
+
+&SCOP adm-attribute-dlg browsers\setting-support.w
+
+&IF DEFINED(adm-attribute-list) = 0 &THEN
+&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY
+&ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -587,7 +594,10 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+  RUN set-attribute-list ("SAVE-TYPE=DATABASE, 
+                           BROWSE-COLUMNS=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
+                           BROWSE-COLUMNS-DISPLAY=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser"). 
+                     
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -750,6 +760,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplayColumns B-table-Win 
+PROCEDURE DisplayColumns :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iColumn  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdBrowse AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hdColumn AS HANDLE  NO-UNDO.
+    
+    DEFINE VARIABLE cBrowseCols AS CHARACTER NO-UNDO.
+    
+    RUN get-attribute IN THIS-PROCEDURE ('SAVE-TYPE':U).
+
+    cSaveType = RETURN-VALUE.
+    IF cSaveType EQ "" OR cSaveType EQ ? THEN
+        cSaveType = "DATABASE".
+        
+    hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
+
+    RUN get-attribute IN THIS-PROCEDURE ('BROWSE-COLUMNS-DISPLAY':U).
+    
+    cBrowseCols = RETURN-VALUE.
+    
+    DO iColumn = 1 TO hdBrowse:NUM-COLUMNS :
+        hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumn).
+
+        hdColumn:VISIBLE = LOOKUP(hdColumn:NAME, cBrowseCols, "|") GT 0.
+    END.   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
 PROCEDURE export-xl :
 /*------------------------------------------------------------------------------
@@ -794,7 +838,8 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    DELETE OBJECT oSetting.
+    IF VALID-OBJECT(oSetting) THEN
+        DELETE OBJECT oSetting.
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
@@ -881,6 +926,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN DisplayColumns.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -934,7 +998,8 @@ PROCEDURE pInit :
         .
     
     /* Do not pass temp-table with BY-REFERENCE option */     
-    oSetting:GetAll(OUTPUT TABLE ttSetting).
+    IF cSaveType EQ "DATABASE" THEN
+        oSetting:GetAll(OUTPUT TABLE ttSetting).
     
     RUN spGetSessionParam (
         INPUT  "Company",
@@ -1177,8 +1242,6 @@ PROCEDURE UpdateSetting :
             OUTPUT iSettingID        
             ).
         
-        ttSetting.settingID = iSettingID.
-        
         IF cMessage NE "" THEN DO:
             oplError = TRUE.
             MESSAGE cMessage
@@ -1187,6 +1250,8 @@ PROCEDURE UpdateSetting :
             RETURN.
         END.
 
+        ttSetting.settingID = iSettingID.
+        
         oSetting:Refresh (BUFFER ttSetting).
         
         RUN dispatch("open-query").

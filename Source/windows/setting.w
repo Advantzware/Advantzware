@@ -122,6 +122,7 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -330,7 +331,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'SAVE-TYPE = DATABASE,
+                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
+                     BROWSE-COLUMNS-DISPLAY = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser':U ,
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 5.38 , 1.60 ) NO-ERROR.
        RUN set-size IN h_setting ( 27.14 , 186.00 ) NO-ERROR.
