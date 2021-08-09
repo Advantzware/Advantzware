@@ -23,8 +23,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -40,35 +40,35 @@ assign
  cocode = gcompany
  locode = gloc.
 
-def var v-per-rpt   as   log format "PTD/YTD" init yes.
-def var v-period    as   int init 1.
-def var v-cat       like itemfg.procat.
-def var v-sman      as   char format "x(3)" extent 2 init ["", "zzz"].
-def var v-date      as   date extent 2 init [01/01/01, today].
-def var v-cust      as   character extent 2 init ["", "zzzzzzzz"].
-def var v-cust-typ  as   character extent 2 init ["", "zzzzzzzz"].
-def var v-sumdet    as   log format "Summary/Detail" init yes.
-def var v-cost1     as   char.
-def var v-year      as   integer.
-DEF VAR v-calc-cat  AS   CHAR.
-DEF VAR cSlsList AS CHAR NO-UNDO.
-DEF VAR deUseCost   AS DEC NO-UNDO.
+DEFINE VARIABLE v-per-rpt   AS   LOG FORMAT "PTD/YTD" INIT YES.
+DEFINE VARIABLE v-period    AS   INT INIT 1.
+DEFINE VARIABLE v-cat       LIKE itemfg.procat.
+DEFINE VARIABLE v-sman      AS   CHAR FORMAT "x(3)" EXTENT 2 INIT ["", "zzz"].
+DEFINE VARIABLE v-date      AS   DATE EXTENT 2 INIT [01/01/01, TODAY].
+DEFINE VARIABLE v-cust      AS   CHARACTER EXTENT 2 INIT ["", "zzzzzzzz"].
+DEFINE VARIABLE v-cust-typ  AS   CHARACTER EXTENT 2 INIT ["", "zzzzzzzz"].
+DEFINE VARIABLE v-sumdet    AS   LOG FORMAT "Summary/Detail" INIT YES.
+DEFINE VARIABLE v-cost1     AS   CHAR.
+DEFINE VARIABLE v-year      AS   INTEGER.
+DEFINE VARIABLE v-calc-cat  AS   CHAR.
+DEFINE VARIABLE cSlsList    AS   CHAR NO-UNDO.
+DEFINE VARIABLE deUseCost   AS   DEC  NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER c-itemfg FOR itemfg.
 
-def TEMP-TABLE w-comm    no-undo
-    FIELD sman    as   char
-    field samt    like ar-invl.amt
-    field camt    like ar-invl.amt
-    field cost    like ar-invl.amt
+DEF TEMP-TABLE w-comm    NO-UNDO
+    FIELD sman    AS   CHAR
+    FIELD samt    LIKE ar-invl.amt
+    FIELD camt    LIKE ar-invl.amt
+    FIELD cost    LIKE ar-invl.amt
     INDEX sman sman.
 
 DEF TEMP-TABLE tt-slsrp
-    FIELD sman    as   char
-    field samt    like ar-invl.amt
-    field camt    like ar-invl.amt
-    field cost    like ar-invl.amt
+    FIELD sman    AS   CHAR
+    FIELD samt    LIKE ar-invl.amt
+    FIELD camt    LIKE ar-invl.amt
+    FIELD cost    LIKE ar-invl.amt
     FIELD scat    AS   CHAR
     INDEX i1 sman scat.
 
@@ -76,18 +76,19 @@ DEF TEMP-TABLE tt-slsrp
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD row-id AS ROWID.
 
-DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
-DEF VAR is-xprint-form AS LOGICAL.
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
+DEFINE VARIABLE v-print-fmt         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form      AS LOGICAL.
+DEFINE VARIABLE ls-fax-file         AS CHARACTER NO-UNDO.
 DEF STREAM st-excell.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO. 
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF VAR cTextListToDefault AS cha NO-UNDO.
-DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE ldummy              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTextListToSelect   AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cFieldListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lChoice             AS LOGICAL   NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
                             "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF," +
@@ -122,11 +123,11 @@ ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,I
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
 tgFullCost sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest td-show-parm fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS lbl_ptd rd_ptd begin_period begin_date ~
 end_date begin_slsmn end_slsmn tgChooseSalesReps begin_cust-no end_cust-no ~
 begin_cust-type end_cust-type begin_group end_group fg-cat tb_prep tgCatSum ~
-tgFullCost sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel ~
+tgFullCost sl_avail sl_selected rd-dest td-show-parm fi_file tb_OpenCSV ~
 tbAutoClose 
 
 /* Custom List Definitions                                              */
@@ -242,7 +243,7 @@ DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-cusitm.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN 
+     VIEW-AS FILL-IN NATIVE
      SIZE 43 BY 1.
 
 DEFINE VARIABLE lbl_ptd AS CHARACTER FORMAT "X(256)":U INITIAL "PTD / YTD?" 
@@ -307,18 +308,12 @@ DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .95
-     BGCOLOR 3  NO-UNDO.
-
 DEFINE VARIABLE tb_prep AS LOGICAL INITIAL no 
      LABEL "Show Prep Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
      LABEL "Open CS?" 
      VIEW-AS TOGGLE-BOX
      SIZE 14.2 BY .81
@@ -392,11 +387,10 @@ DEFINE FRAME FRAME-A
      rd-dest AT ROW 21.38 COL 6 NO-LABEL
      lv-ornt AT ROW 21.43 COL 31 NO-LABEL
      lv-font-no AT ROW 21.57 COL 34 COLON-ALIGNED
-     tb_excel AT ROW 21.62 COL 67.8 RIGHT-ALIGNED
      td-show-parm AT ROW 23.24 COL 40.2
      fi_file AT ROW 24.14 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_runExcel AT ROW 24.19 COL 87.4 RIGHT-ALIGNED
+     tb_OpenCSV AT ROW 24.19 COL 87.4 RIGHT-ALIGNED
      tbAutoClose AT ROW 26.1 COL 28.4 WIDGET-ID 16
      btn-ok AT ROW 27.05 COL 28.4
      btn-cancel AT ROW 27.05 COL 52
@@ -562,21 +556,14 @@ ASSIGN
        rd_ptd:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
-ASSIGN 
-       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
-       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 ASSIGN 
        tb_prep:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -653,23 +640,40 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  IF rd-dest = 3 THEN
-  do:
+  IF rd-dest EQ 3 THEN
+  DO:
     fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
-    assign fi_file.
+    ASSIGN fi_file.
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
+  END.
   RUN GetSelectionList.
-  run run-report. 
+  RUN run-report. 
   STATUS DEFAULT "Processing Complete". 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
-       //run output-to-file.
-       when 4 then do:
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN DO:
+           IF tb_OpenCSV THEN DO:        
+               MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
+               VIEW-AS ALERT-BOX.
+           END.
+           ELSE DO:
+               MESSAGE "Want to open CSV file?" SKIP(1)
+                       "~"No~" to Close."
+               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               TITLE "" UPDATE lChoice AS LOGICAL.
+               
+               IF lChoice THEN
+               DO:
+                  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
+               END.
+               ELSE DO:
+                  APPLY 'CLOSE' TO THIS-PROCEDURE.
+               END.
+           END.
+       END. /* WHEN 3 THEN DO: */
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer "
                             &begin_cust= "begin_cust-no"
@@ -678,7 +682,7 @@ DO:
                             &fax-body=c-win:TITLE
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       WHEN 5 THEN DO:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Customer "
                              &begin_cust= "begin_cust-no"
@@ -697,8 +701,7 @@ DO:
 
            END.
        END.
-      WHEN 6 THEN RUN OUTPUT-TO-PORT.
-  end case. 
+  END CASE. 
   IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
@@ -860,7 +863,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
+  IF rd-dest EQ 3 THEN
+        ASSIGN
+            fi_file:SENSITIVE    = TRUE  
+            tb_OpenCSV:SENSITIVE = TRUE
+            .
+    ELSE
+        ASSIGN
+            fi_file:SENSITIVE    = FALSE  
+            tb_OpenCSV:CHECKED   = FALSE
+            tb_OpenCSV:SENSITIVE = FALSE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,17 +969,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_excel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
-ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
-DO:
-  assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME tb_prep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prep C-Win
 ON VALUE-CHANGED OF tb_prep IN FRAME FRAME-A /* Show Prep Charges? */
@@ -977,9 +980,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CS? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CS? */
 DO:
   assign {&self-name}.
 END.
@@ -1064,21 +1067,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   fi_file = "c:\tmp\commrpt.csv".
 
   RUN DisplaySelectionList.
-        btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     Btn_Def:load-image("Graphics/32x32/default.png").
     Btn_Add:load-image("Graphics/32x32/additem.png").
     Btn_Remove:load-image("Graphics/32x32/remove.png").
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
-  RUN enable_UI.
-{sys/inc/reportsConfigNK1.i "OR6" }
-assign
-td-show-parm:sensitive = lShowParameters
-td-show-parm:hidden = not lShowParameters
-td-show-parm:visible = lShowParameters
-.
-  {methods/nowait.i}
+    RUN enable_UI.
+    APPLY 'VALUE-CHANGED' TO rd-dest.
+    {sys/inc/reportsConfigNK1.i "OR6" }
+    {methods/nowait.i}
+    ASSIGN
+    td-show-parm:SENSITIVE = lShowParameters
+    td-show-parm:HIDDEN = NOT lShowParameters
+    td-show-parm:VISIBLE = lShowParameters
+    .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
@@ -1249,14 +1253,14 @@ PROCEDURE enable_UI :
   DISPLAY lbl_ptd rd_ptd begin_period begin_date end_date begin_slsmn end_slsmn 
           tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
           end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
-          sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel 
+          sl_avail sl_selected rd-dest td-show-parm fi_file tb_OpenCSV 
           tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rd_ptd begin_period begin_date end_date begin_slsmn 
          end_slsmn tgChooseSalesReps begin_cust-no end_cust-no begin_cust-type 
          end_cust-type begin_group end_group fg-cat tb_prep tgCatSum tgFullCost 
          sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         rd-dest td-show-parm fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1532,7 +1536,7 @@ END.*/
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF rd-dest = 3 THEN DO:
+IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM st-excell TO VALUE(cFileName).
   PUT STREAM st-excell UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1546,9 +1550,9 @@ if td-show-parm then run show-param.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-IF rd-dest = 3 THEN DO:
+IF rd-dest EQ 3 THEN DO:
    OUTPUT STREAM st-excell CLOSE.
-   IF tb_runExcel THEN
+   IF tb_OpenCSV THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.                  
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
