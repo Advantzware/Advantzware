@@ -525,14 +525,14 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
                                trim(string(oe-ordl.over-pct,">>9.99")) + "/" +
                                trim(string(oe-ordl.under-pct,">>9.99"))
                  ELSE ""              
-       v-over% = IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE 0
-       v-under% = IF AVAIL oe-ordl THEN oe-ordl.under-pct ELSE 0
        v-req-date = IF AVAIL oe-ordl THEN oe-ordl.req-date ELSE ?.
        FIND FIRST cust WHERE cust.company = job-hdr.company AND
                               cust.cust-no = bf-jobhdr.cust-no NO-LOCK NO-ERROR.
        v-cust-name = IF AVAIL oe-ord THEN oe-ord.cust-name 
                      ELSE IF AVAIL cust THEN cust.name
                      ELSE bf-jobhdr.cust-no.
+       v-over%  = IF AVAIL cust THEN cust.over-pct  ELSE 0.
+       v-under% = IF AVAIL cust THEN cust.under-pct ELSE 0.              
        FIND FIRST eb WHERE eb.company = est.company
                        AND eb.est-no = est.est-no
                        AND eb.form-no <> 0
