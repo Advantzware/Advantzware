@@ -388,7 +388,7 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 OR RETURN OF browse-1
 DO:
    ASSIGN cFGFlag = f_FGStatus(ip-company,eb.stock-no) .
-   IF cFGFlag EQ "InActive" THEN
+   IF cFGFlag EQ "InActive" AND eb.stock-no NE "" THEN
    DO:
        MESSAGE "Item is inactive." VIEW-AS ALERT-BOX WARNING.
    END.
@@ -459,7 +459,7 @@ END.
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
    ASSIGN cFGFlag = f_FGStatus(ip-company,eb.stock-no) .
-   IF cFGFlag EQ "InActive" THEN
+   IF cFGFlag EQ "InActive" AND eb.stock-no NE "" THEN
    DO:
        MESSAGE "Item is inactive." VIEW-AS ALERT-BOX WARNING.
    END.
@@ -699,6 +699,7 @@ FUNCTION f_FGStatus RETURNS CHARACTER
             AND itemfg.i-no EQ eb.stock-no NO-ERROR .
       IF AVAIL itemfg THEN
             ASSIGN cFGStat = itemfg.stat.
+      ELSE cFGStat = "A".      
       
       IF cFGStat EQ "A" THEN 
             opcFGStatus = "Active" . 
