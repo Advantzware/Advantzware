@@ -8,6 +8,9 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR ldt AS DATE NO-UNDO.
+DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE w-{&TABLENAME} FIELD qty      AS DEC
                               FIELD uom      AS CHAR
@@ -75,6 +78,12 @@ ASSIGN
  {&TABLENAME}.price    = 0
  {&TABLENAME}.discount = 0
  li                    = 0.
+ 
+RUN sys/ref/nk1look.p (INPUT {&TABLENAME}.company, "PriceMatrixPricingMethod", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cPriceMatrixPricingMethod = cRtnChar NO-ERROR.  
 
 FOR EACH w-{&TABLENAME}
     WHERE w-{&TABLENAME}.qty GT 0
@@ -83,7 +92,7 @@ FOR EACH w-{&TABLENAME}
 
   IF li LE EXTENT({&TABLENAME}.qty) THEN
     ASSIGN
-     {&TABLENAME}.qty[li]      = IF LAST(w-{&TABLENAME}.qty) THEN 99999999
+     {&TABLENAME}.qty[li]      = IF LAST(w-{&TABLENAME}.qty) AND cPriceMatrixPricingMethod EQ "Up To" THEN 99999999
                                  ELSE w-{&TABLENAME}.qty
      {&TABLENAME}.uom[li]      = w-{&TABLENAME}.uom
      {&TABLENAME}.price[li]    = w-{&TABLENAME}.price
