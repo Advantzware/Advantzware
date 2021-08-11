@@ -694,17 +694,19 @@ FUNCTION f_FGStatus RETURNS CHARACTER
   DEFINE VARIABLE opcFGStatus AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cFGStat     AS CHARACTER NO-UNDO.
   
+  IF eb.stock-no NE "" THEN
   FIND FIRST itemfg NO-LOCK
           WHERE itemfg.company EQ ipcompany 
             AND itemfg.i-no EQ eb.stock-no NO-ERROR .
       IF AVAIL itemfg THEN
             ASSIGN cFGStat = itemfg.stat.
+      ELSE cFGStat = "A".      
       
       IF cFGStat EQ "A" THEN 
             opcFGStatus = "Active" . 
       ELSE  opcFGStatus = "InActive" .
       
-      
+  RELEASE itemfg.    
   RETURN opcFGStatus.   /* Function return value. */
 
 END FUNCTION.
