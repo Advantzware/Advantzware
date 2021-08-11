@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/settingType.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -475,6 +475,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win
+PROCEDURE local-delete-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {custom/askdel.i}
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :

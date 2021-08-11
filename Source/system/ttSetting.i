@@ -24,4 +24,7 @@ DEFINE {1} TEMP-TABLE ttSetting NO-UNDO
     FIELD scopeField2     AS CHARACTER LABEL "Scope Field 2"
     FIELD scopeField3     AS CHARACTER LABEL "Scope Field 3"
     FIELD recordSource    AS CHARACTER 
+    INDEX settingID IS PRIMARY settingID
+    INDEX settingType settingTypeID settingID settingUser scopeTable scopeField1 scopeField2 scopeField3
+    INDEX recordSource recordSource
     .

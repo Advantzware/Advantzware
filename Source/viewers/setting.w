@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iSettingTypeID   AS INT64     NO-UNDO.
 DEFINE VARIABLE iSettingID       AS INT64     NO-UNDO.
 DEFINE VARIABLE cSettingName     AS CHARACTER NO-UNDO.
@@ -90,10 +91,11 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-3 RECT-4 edSettingDesc ~
-btnCopy-2 btnDelete-2 btnUpdate-2 
+slCategoryTags btnCopy-2 btnDelete-2 btnUpdate-2 
 &Scoped-Define DISPLAYED-OBJECTS fiRecordSource fiSettingName edSettingDesc ~
-fiSettingValue cbSettingValue tbInactive fiSettingUser fiProgramID ~
-cbScopeTable fiScopeField1 fiScopeField2 fiScopeField3 
+fiSettingValue cbSettingValue tbInactive fiSettingUser tbCurrentUser ~
+fiProgramID slCategoryTags cbScopeTable fiScopeField1 fiScopeField2 ~
+fiScopeField3 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ENABLED-FIELDS,List-4,List-5,List-6 */
@@ -178,7 +180,7 @@ DEFINE VARIABLE cbSettingValue AS CHARACTER FORMAT "X(256)":U
      SIZE 52 BY 1 NO-UNDO.
 
 DEFINE VARIABLE edSettingDesc AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 52 BY 4 NO-UNDO.
 
 DEFINE VARIABLE fiProgramID AS CHARACTER FORMAT "X(256)":U 
@@ -213,7 +215,7 @@ DEFINE VARIABLE fiSettingName AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiSettingUser AS CHARACTER FORMAT "X(256)":U 
      LABEL "User" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 21.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSettingValue AS CHARACTER FORMAT "X(256)":U 
      LABEL "Value" 
@@ -222,7 +224,7 @@ DEFINE VARIABLE fiSettingValue AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 70 BY 10.24.
+     SIZE 70 BY 15.43.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -233,6 +235,15 @@ DEFINE RECTANGLE transPanel-3
      SIZE 50 BY 2.38
      BGCOLOR 15 .
 
+DEFINE VARIABLE slCategoryTags AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     SIZE 52 BY 4.95 NO-UNDO.
+
+DEFINE VARIABLE tbCurrentUser AS LOGICAL INITIAL no 
+     LABEL "Apply this for me only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.4 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
@@ -242,7 +253,7 @@ DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnAdd-2 AT ROW 18.14 COL 20 HELP
+     btnAdd-2 AT ROW 23.24 COL 20.2 HELP
           "Add" WIDGET-ID 46
      fiRecordSource AT ROW 1.14 COL 1.4 NO-LABEL WIDGET-ID 60
      fiSettingName AT ROW 2.48 COL 16 COLON-ALIGNED WIDGET-ID 2
@@ -251,26 +262,32 @@ DEFINE FRAME F-Main
      cbSettingValue AT ROW 7.95 COL 16 COLON-ALIGNED WIDGET-ID 12
      tbInactive AT ROW 9.1 COL 18 WIDGET-ID 16
      fiSettingUser AT ROW 10.05 COL 15.8 COLON-ALIGNED WIDGET-ID 28
+     tbCurrentUser AT ROW 10.05 COL 41.4 WIDGET-ID 68
      fiProgramID AT ROW 11.24 COL 15.8 COLON-ALIGNED WIDGET-ID 30
-     cbScopeTable AT ROW 12.86 COL 15.4 COLON-ALIGNED WIDGET-ID 18
-     fiScopeField1 AT ROW 14.05 COL 15.4 COLON-ALIGNED WIDGET-ID 20
-     btnCancel-2 AT ROW 18.14 COL 52 HELP
+     slCategoryTags AT ROW 12.48 COL 17.8 NO-LABEL WIDGET-ID 62
+     btnCancel-2 AT ROW 23.24 COL 52.2 HELP
           "Cancel" WIDGET-ID 48
-     btnCopy-2 AT ROW 18.14 COL 28 HELP
+     btnCopy-2 AT ROW 23.24 COL 28.2 HELP
           "Copy" WIDGET-ID 50
-     fiScopeField2 AT ROW 15.29 COL 15.4 COLON-ALIGNED WIDGET-ID 22
-     fiScopeField3 AT ROW 16.52 COL 15.4 COLON-ALIGNED WIDGET-ID 24
-     btnDelete-2 AT ROW 18.14 COL 36 HELP
+     cbScopeTable AT ROW 18.05 COL 15.8 COLON-ALIGNED WIDGET-ID 18
+     fiScopeField1 AT ROW 19.24 COL 15.8 COLON-ALIGNED WIDGET-ID 20
+     btnDelete-2 AT ROW 23.24 COL 36.2 HELP
           "Delete" WIDGET-ID 52
-     btnReset-2 AT ROW 18.14 COL 44 HELP
+     btnReset-2 AT ROW 23.24 COL 44.2 HELP
           "Reset" WIDGET-ID 54
-     btnUpdate-2 AT ROW 18.14 COL 12 HELP
+     fiScopeField2 AT ROW 20.48 COL 15.8 COLON-ALIGNED WIDGET-ID 22
+     btnUpdate-2 AT ROW 23.24 COL 12.2 HELP
           "Update/Save" WIDGET-ID 56
+     fiScopeField3 AT ROW 21.71 COL 15.8 COLON-ALIGNED WIDGET-ID 24
+     "Tags:" VIEW-AS TEXT
+          SIZE 6.6 BY .62 AT ROW 13.24 COL 11.2 WIDGET-ID 66
+     "Category" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 12.57 COL 6.4 WIDGET-ID 64
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 3.62 COL 3.8 WIDGET-ID 34
      RECT-3 AT ROW 2.24 COL 1 WIDGET-ID 4
-     RECT-4 AT ROW 12.52 COL 1 WIDGET-ID 26
-     transPanel-3 AT ROW 17.95 COL 11 WIDGET-ID 58
+     RECT-4 AT ROW 17.71 COL 1 WIDGET-ID 26
+     transPanel-3 AT ROW 23.05 COL 11.2 WIDGET-ID 58
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -303,7 +320,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.62
+         HEIGHT             = 27.14
          WIDTH              = 82.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -374,6 +391,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fiSettingValue:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tbCurrentUser IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       tbCurrentUser:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tbInactive IN FRAME F-Main
    NO-ENABLE 3                                                          */
@@ -622,6 +644,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tbCurrentUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbCurrentUser V-table-Win
+ON VALUE-CHANGED OF tbCurrentUser IN FRAME F-Main /* Apply this for me only */
+DO:
+    IF SELF:CHECKED THEN
+        fiSettingUser:SCREEN-VALUE = cUser.
+    ELSE
+        fiSettingUser:SCREEN-VALUE = "".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tbInactive
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbInactive V-table-Win
 ON VALUE-CHANGED OF tbInactive IN FRAME F-Main /* Inactive */
@@ -787,6 +823,8 @@ PROCEDURE pCRUD :
                     /* Add logic goes here. Call a lookup to copy setting */
                     {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
                     
+                    ENABLE tbCurrentUser.
+                    
                     DISABLE btnReset-2.
                 END. /* add */
                 ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
@@ -795,6 +833,8 @@ PROCEDURE pCRUD :
                 ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
                     {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
                     
+                    ENABLE tbCurrentUser.
+                     
                     DISABLE btnReset-2.
                 END.
             END. /* add copy update */
@@ -879,6 +919,11 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
 
+    RUN spGetSessionParam (
+        INPUT  "UserID",
+        OUTPUT cUser
+        ).
+
     oSetting = NEW system.Setting().        
 END PROCEDURE.
 
@@ -914,6 +959,9 @@ PROCEDURE pUpdateFields :
             fiScopeField1:SCREEN-VALUE  = ""
             fiScopeField2:SCREEN-VALUE  = ""
             fiScopeField3:SCREEN-VALUE  = ""
+            slCategoryTags:LIST-ITEMS   = ""
+            tbCurrentUser:CHECKED       = FALSE
+            tbCurrentUser:HIDDEN        = TRUE
             lRecordAvailable            = FALSE
             .
         
@@ -958,7 +1006,8 @@ PROCEDURE pUpdateFields :
                 cbScopeTable:SCREEN-VALUE   = cScopeTable
                 fiScopeField1:SCREEN-VALUE  = cScopeField1
                 fiScopeField2:SCREEN-VALUE  = cScopeField2
-                fiScopeField3:SCREEN-VALUE  = cScopeField3        
+                fiScopeField3:SCREEN-VALUE  = cScopeField3  
+                slCategoryTags:LIST-ITEMS   = cCategoryTags      
                 .    
 
             IF cRecordSource EQ "SettingType" THEN

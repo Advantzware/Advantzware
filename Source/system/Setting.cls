@@ -19,15 +19,17 @@ CLASS system.Setting:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeTypeWithContextList    AS CHARACTER NO-UNDO INITIAL "System,Company,Customer,ShipTo,Vendor".
     DEFINE VARIABLE cScopeTypeWithoutContextList AS CHARACTER NO-UNDO INITIAL "System,Company".
-            
+               
     {system/ttSetting.i}
-
+ 
 	CONSTRUCTOR PUBLIC Setting (  ):
 		SUPER ().
 		
 		RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
+		RUN spGetSessionParam (INPUT "UserID", OUTPUT cUser).
 	END CONSTRUCTOR.
 
 	/*------------------------------------------------------------------------------
@@ -35,9 +37,21 @@ CLASS system.Setting:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
-	METHOD PUBLIC CHARACTER Delete( ipiSettingID AS INT64 ):
+	METHOD PUBLIC CHARACTER Delete( ipiSettingID AS INT64, iplSaveLocally AS LOGICAL ):
         DEFINE BUFFER bf-setting FOR setting.
 		
+		IF iplSaveLocally THEN DO:
+            FIND FIRST ttSetting EXCLUSIVE-LOCK
+                 WHERE ttSetting.settingID EQ ipiSettingID
+                 NO-ERROR.
+            IF NOT AVAILABLE ttSetting THEN
+                RETURN "Setting is invalid or locked".
+            
+            DELETE ttSetting.
+            
+            RETURN "".
+	    END.
+	    
 		FIND FIRST bf-setting EXCLUSIVE-LOCK
 		     WHERE bf-setting.settingID EQ ipiSettingID
 		     NO-ERROR.
@@ -46,6 +60,12 @@ CLASS system.Setting:
 		
 		DELETE bf-setting.
 		
+        FIND FIRST ttSetting EXCLUSIVE-LOCK
+             WHERE ttSetting.settingID EQ ipiSettingID
+             NO-ERROR.
+        IF AVAILABLE ttSetting THEN
+            DELETE ttSetting.
+            		
 		RETURN "".
 	END METHOD.
 
@@ -84,9 +104,8 @@ CLASS system.Setting:
                  WHERE bf-scope.scopeID EQ bf-setting.scopeID
                  NO-ERROR.
             IF AVAILABLE bf-scope THEN
-                BUFFER-COPY bf-scope TO iopttSetting.
+                BUFFER-COPY bf-scope EXCEPT rec_key TO iopttSetting.
         END.
-
     END METHOD.
 
 	/*------------------------------------------------------------------------------
@@ -206,20 +225,69 @@ CLASS system.Setting:
                AND ttSetting.scopeField1 EQ ipcScopeField1
                AND ttSetting.scopeField2 EQ ipcScopeField2
                AND ttSetting.scopeField3 EQ ipcScopeField3
+               AND ttSetting.settingUser EQ cUser
                AND ttSetting.inactive    EQ FALSE
              NO-ERROR.
+        IF NOT AVAILABLE ttSetting THEN             
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName EQ ipcSettingName
+                   AND ttSetting.scopeTable  EQ ipcScopeTable
+                   AND ttSetting.scopeField1 EQ ipcScopeField1
+                   AND ttSetting.scopeField2 EQ ipcScopeField2
+                   AND ttSetting.scopeField3 EQ ipcScopeField3
+                   AND ttSetting.settingUser EQ ""
+                   AND ttSetting.inactive    EQ FALSE
+                 NO-ERROR.
+                     
         IF NOT AVAILABLE ttSetting THEN
             FIND FIRST ttSetting NO-LOCK
                  WHERE ttSetting.settingName EQ ipcSettingName
                    AND ttSetting.scopeTable  EQ "Company"
                    AND ttSetting.scopeField1 EQ cCompany
+                   AND ttSetting.settingUser EQ cUser
                    AND ttSetting.inactive    EQ FALSE
                  NO-ERROR.
         IF NOT AVAILABLE ttSetting THEN
             FIND FIRST ttSetting NO-LOCK
                  WHERE ttSetting.settingName EQ ipcSettingName
-                   AND ttSetting.scopeTable  EQ "System"
+                   AND ttSetting.scopeTable  EQ "Company"
+                   AND ttSetting.scopeField1 EQ cCompany
+                   AND ttSetting.settingUser EQ ""
                    AND ttSetting.inactive    EQ FALSE
+                 NO-ERROR.
+
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName  EQ ipcSettingName
+                   AND ttSetting.scopeTable   EQ "System"
+                   AND ttSetting.settingUser  EQ cUser
+                   AND ttSetting.recordSource EQ "Setting"
+                   AND ttSetting.inactive     EQ FALSE
+                 NO-ERROR.                                  
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName  EQ ipcSettingName
+                   AND ttSetting.scopeTable   EQ "System"
+                   AND ttSetting.settingUser  EQ ""
+                   AND ttSetting.recordSource EQ "Setting"
+                   AND ttSetting.inactive     EQ FALSE
+                 NO-ERROR.
+
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName  EQ ipcSettingName
+                   AND ttSetting.scopeTable   EQ "System"
+                   AND ttSetting.settingUser  EQ cUser
+                   AND ttSetting.recordSource EQ "SettingType"
+                   AND ttSetting.inactive     EQ FALSE
+                 NO-ERROR.                                  
+        IF NOT AVAILABLE ttSetting THEN
+            FIND FIRST ttSetting NO-LOCK
+                 WHERE ttSetting.settingName  EQ ipcSettingName
+                   AND ttSetting.scopeTable   EQ "System"
+                   AND ttSetting.settingUser  EQ ""
+                   AND ttSetting.recordSource EQ "SettingType"
+                   AND ttSetting.inactive     EQ FALSE
                  NO-ERROR.
 
         IF AVAILABLE ttSetting THEN
@@ -246,7 +314,7 @@ CLASS system.Setting:
 	    IF AVAILABLE bf-scope THEN DO:
             FIND FIRST bf-setting NO-LOCK
                  WHERE bf-setting.settingName EQ ipcSettingName
-                   AND bf-setting.settingUser EQ USERID("ASI")
+                   AND bf-setting.settingUser EQ cUser
                    AND bf-setting.scopeID     EQ bf-scope.scopeID
                    AND bf-setting.inactive    EQ FALSE
                  NO-ERROR.
@@ -286,8 +354,8 @@ CLASS system.Setting:
         ipcScopeField3        AS CHARACTER,
         ipcUser               AS CHARACTER, 
         ipcProgram            AS CHARACTER,
-        iplDefaultsOnly       AS LOGICAL,
-        OUTPUT TABLE ttSetting  ):
+        ipcRecordSource       AS CHARACTER,
+        OUTPUT TABLE ttSetting ):
 		
 		pGetAll (
 		   ipcSettingName,
@@ -299,7 +367,7 @@ CLASS system.Setting:
            ipcScopeField3,
            ipcUser,
            ipcProgram,
-           iplDefaultsOnly,
+           ipcRecordSource,
            OUTPUT TABLE ttSetting
            ).
 	END METHOD.
@@ -319,7 +387,7 @@ CLASS system.Setting:
 	    ipcScopeField3        AS CHARACTER,
         ipcUser               AS CHARACTER, 
         ipcProgram            AS CHARACTER,
-        iplDefaultsOnly       AS LOGICAL,
+        ipcRecordSource       AS CHARACTER,
 	    OUTPUT TABLE ttSetting):
 
         EMPTY TEMP-TABLE ttSetting.
@@ -335,7 +403,8 @@ CLASS system.Setting:
 		DEFINE BUFFER bf-scope       FOR scope.
 		DEFINE BUFFER bf-ttSetting   FOR ttSetting.		
 		
-		IF iplInactive NE TRUE AND (ipcScopeTable EQ "" OR ipcScopeTable EQ "System") THEN DO:
+		IF ((ipcRecordSource EQ "" OR ipcRecordSource EQ "SettingType") AND iplInactive NE TRUE AND (ipcScopeTable EQ "" OR ipcScopeTable EQ "System"))
+		   OR ipcCategory NE "" THEN DO:
 		    FIND FIRST bf-scope NO-LOCK
 		         WHERE bf-scope.scopeTable EQ "System"
 		         NO-ERROR.
@@ -370,9 +439,8 @@ CLASS system.Setting:
                     ttSetting.inactive        = FALSE
                     ttSetting.recordSource    = "SettingType"
                     .	            
-                
-                IF AVAILABLE bf-scope THEN
-                    BUFFER-COPY bf-scope TO ttSetting.
+
+                BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
                     
     	        hdSettingTypeQuery:GET-NEXT ().
     	    END.
@@ -381,53 +449,100 @@ CLASS system.Setting:
     
     	    DELETE OBJECT hdSettingTypeQuery.
 	    END.	    
-
-        IF iplDefaultsOnly THEN
-            RETURN.
-
-        CREATE QUERY hdSettingQuery.
+        
+        /* This is important. AS sometimes the temp-table record is not committed and can't get found in next queries */
+        RELEASE ttSetting.
+        
+        IF ipcRecordSource EQ "" OR ipcRecordSource EQ "Setting" THEN DO:
+            CREATE QUERY hdSettingQuery.
+                            
+            IF ipcCategory NE "" THEN DO:
+                hdSettingQuery:ADD-BUFFER(BUFFER bf-ttSetting:HANDLE).
+                hdSettingQuery:ADD-BUFFER (BUFFER bf-setting:HANDLE).
                 
-        IF ipcCategory NE "" AND iplInactive NE TRUE THEN DO:
-            hdSettingQuery:ADD-BUFFER(BUFFER bf-ttSetting:HANDLE).
-            hdSettingQuery:ADD-BUFFER (BUFFER bf-setting:HANDLE).
+                cSettingQuery = cSettingQuery + " FOR EACH bf-ttSetting WHERE bf-ttSetting.recordSource EQ 'SettingType' ".
+                cSettingQuery = cSettingQuery + " , EACH bf-setting NO-LOCK WHERE bf-setting.settingTypeID EQ bf-ttSetting.settingTypeID ".
+            END.
+            ELSE DO:
+                hdSettingQuery:ADD-BUFFER (BUFFER bf-setting:HANDLE).
+                
+                cSettingQuery = " FOR EACH bf-setting NO-LOCK ".           
+            END.
+    
+            IF ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR 
+               ipcScopeTable NE "" OR ipcScopeField1 NE "" OR ipcScopeField2 NE "" OR ipcScopeField3 NE "" THEN
+                cSettingQuery = cSettingQuery + IF INDEX(cSettingQuery, "WHERE") EQ 0 THEN " WHERE TRUE " ELSE "".
             
-            cSettingQuery = cSettingQuery + " FOR EACH bf-ttSetting ".
-            cSettingQuery = cSettingQuery + " , EACH bf-setting NO-LOCK ".
-        END.
-        ELSE DO:
-            hdSettingQuery:ADD-BUFFER (BUFFER bf-setting:HANDLE).
-
-            cSettingQuery = " FOR EACH bf-setting NO-LOCK ".           
-        END.
-
-        IF ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR 
-           ipcScopeTable NE "" OR ipcScopeField1 NE "" OR ipcScopeField2 NE "" OR ipcScopeField3 NE "" THEN
-            cSettingQuery = cSettingQuery + " WHERE TRUE ".
-        
-        IF ipcSettingName NE "" THEN
-            cSettingQuery = cSettingQuery + ' AND bf-setting.settingName BEGINS ' + QUOTER(ipcSettingname).                   
-
-        IF iplInactive NE ? THEN
-            cSettingQuery = cSettingQuery + ' AND bf-setting.inactive EQ ' + STRING(iplInactive).
-        
-        IF ipcUser NE "" THEN
-            cSettingQuery = cSettingQuery + ' AND bf-setting.settingUser EQ ' + QUOTER(ipcUser).
-
-        IF ipcProgram NE "" THEN
-            cSettingQuery = cSettingQuery + ' AND bf-setting.programID EQ ' + QUOTER(ipcProgram).
-
-        hdSettingQuery:QUERY-PREPARE (cSettingQuery).
-        
-        hdSettingQuery:QUERY-OPEN().
-
-        hdSettingQuery:GET-NEXT().
-        
-        DO WHILE NOT hdSettingQuery:QUERY-OFF-END:        
-            FIND FIRST bf-scope NO-LOCK
-                 WHERE bf-scope.scopeID EQ bf-setting.scopeID
-                 NO-ERROR.
+            IF ipcSettingName NE "" THEN
+                cSettingQuery = cSettingQuery + ' AND bf-setting.settingName BEGINS ' + QUOTER(ipcSettingname).                   
+    
+            IF iplInactive NE ? THEN
+                cSettingQuery = cSettingQuery + ' AND bf-setting.inactive EQ ' + STRING(iplInactive).
             
-            IF AVAILABLE bf-scope THEN DO:            
+            IF ipcUser NE "" THEN
+                cSettingQuery = cSettingQuery + ' AND bf-setting.settingUser EQ ' + QUOTER(ipcUser).
+    
+            IF ipcProgram NE "" THEN
+                cSettingQuery = cSettingQuery + ' AND bf-setting.programID EQ ' + QUOTER(ipcProgram).
+            
+            IF ipcScopeTable NE "" THEN DO:
+                IF ipcScopeTable EQ "System" THEN
+                    FIND FIRST bf-scope NO-LOCK 
+                         WHERE bf-scope.scopeTable  EQ ipcScopeTable
+                           AND bf-scope.scopeField1 EQ ""
+                           AND bf-scope.scopeField2 EQ ""
+                           AND bf-scope.scopeField3 EQ ""
+                         NO-ERROR.                
+                ELSE IF ipcScopeTable EQ "Company" AND ipcScopeField1 NE "" THEN
+                    FIND FIRST bf-scope NO-LOCK 
+                         WHERE bf-scope.scopeTable  EQ ipcScopeTable
+                           AND bf-scope.scopeField1 EQ ipcScopeField1
+                           AND bf-scope.scopeField2 EQ ""
+                           AND bf-scope.scopeField3 EQ ""                           
+                         NO-ERROR.
+                ELSE IF ipcScopeTable EQ "Customer" AND ipcScopeField1 NE "" AND ipcScopeField2 NE "" THEN
+                    FIND FIRST bf-scope NO-LOCK 
+                         WHERE bf-scope.scopeTable  EQ ipcScopeTable
+                           AND bf-scope.scopeField1 EQ ipcScopeField1
+                           AND bf-scope.scopeField2 EQ ipcScopeField2
+                           AND bf-scope.scopeField3 EQ ""                           
+                         NO-ERROR.
+                ELSE IF ipcScopeTable EQ "Vendor" AND ipcScopeField1 NE "" AND ipcScopeField2 NE "" THEN
+                    FIND FIRST bf-scope NO-LOCK 
+                         WHERE bf-scope.scopeTable  EQ ipcScopeTable
+                           AND bf-scope.scopeField1 EQ ipcScopeField1
+                           AND bf-scope.scopeField2 EQ ipcScopeField2
+                           AND bf-scope.scopeField3 EQ ""                           
+                         NO-ERROR.                         
+                ELSE IF ipcScopeTable EQ "ShipTo" AND ipcScopeField1 NE "" AND ipcScopeField2 NE "" AND ipcScopeField3 NE "" THEN
+                    FIND FIRST bf-scope NO-LOCK 
+                         WHERE bf-scope.scopeTable  EQ ipcScopeTable
+                           AND bf-scope.scopeField1 EQ ipcScopeField1
+                           AND bf-scope.scopeField2 EQ ipcScopeField2
+                           AND bf-scope.scopeField3 EQ ipcScopeField3                        
+                         NO-ERROR.      
+                
+                IF AVAILABLE bf-scope THEN
+                    cSettingQuery = cSettingQuery + ' AND bf-setting.scopeID EQ ' + STRING(bf-scope.scopeID).                   
+            END.
+
+            hdSettingQuery:QUERY-PREPARE (cSettingQuery).
+
+            hdSettingQuery:QUERY-OPEN().
+
+            hdSettingQuery:GET-NEXT().
+
+            DO WHILE NOT hdSettingQuery:QUERY-OFF-END:
+                FIND FIRST bf-scope NO-LOCK
+                     WHERE bf-scope.scopeID EQ bf-setting.scopeID
+                     NO-ERROR.
+                         
+                IF NOT AVAILABLE bf-scope THEN DO:
+                    hdSettingQuery:GET-NEXT().
+                    
+                    NEXT.
+                END.
+                
                 IF (ipcScopeTable  NE "" AND bf-scope.scopeTable  NE ipcScopeTable) OR
                    (ipcScopeField1 NE "" AND bf-scope.scopeField1 NE ipcScopeField1) OR
                    (ipcScopeField2 NE "" AND bf-scope.scopeField2 NE ipcScopeField2) OR
@@ -437,16 +552,17 @@ CLASS system.Setting:
                     NEXT.
                 END.
                 
-                FIND FIRST ttSetting NO-LOCK
-                     WHERE ttSetting.settingTypeID EQ bf-setting.settingTypeID
-                       AND ttSetting.scopeID       EQ bf-setting.scopeID
-                       AND ttSetting.settingUser   EQ bf-setting.settingUser
-                       AND ttSetting.programID     EQ bf-setting.programID
-                       AND ttSetting.inactive      EQ bf-setting.inactive
-                     NO-ERROR.
-                IF NOT AVAILABLE ttSetting THEN DO:
-                    CREATE ttSetting.
-                    
+                CREATE ttSetting.
+
+                IF NOT AVAILABLE bf-ttSetting THEN
+                    FIND FIRST bf-ttSetting NO-LOCK
+                         WHERE bf-ttSetting.settingTypeID EQ bf-setting.settingTypeID
+                         NO-ERROR.
+
+                IF AVAILABLE bf-ttSetting THEN DO:
+                    BUFFER-COPY bf-ttSetting TO ttSetting.
+                END.
+                ELSE DO:
                     FIND FIRST bf-settingType NO-LOCK
                          WHERE bf-settingType.settingTypeID EQ bf-setting.settingTypeID
                          NO-ERROR.
@@ -460,27 +576,26 @@ CLASS system.Setting:
                 BUFFER-COPY bf-setting TO ttSetting.
                 ttSetting.recordSource = "Setting".
                 
-                BUFFER-COPY bf-scope TO ttSetting.
+                BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
+                
+                hdSettingQuery:GET-NEXT().                
             END.
             
-            hdSettingQuery:GET-NEXT().                
-        END.
-        
-        hdSettingQuery:QUERY-CLOSE().
-        
-        FOR EACH ttSetting:           
-            IF ipcUser NE "" AND NOT ttSetting.settingUser BEGINS ipcUser THEN DO:
-                DELETE ttSetting.
-                NEXT.
-            END.  
-
-            IF ipcProgram NE "" AND NOT ttSetting.programID BEGINS ipcProgram THEN DO:
-                DELETE ttSetting.
-                NEXT.
-            END.  
+            hdSettingQuery:QUERY-CLOSE().
+            
+            DELETE OBJECT hdSettingQuery.	
         END.
 
-        DELETE OBJECT hdSettingQuery.	    
+        /* All the records that are required from settingType which are not part of the filters are deleted here */
+        FOR EACH ttSetting
+            WHERE (ipcRecordSource EQ "Setting" AND ttSetting.recordSource EQ "SettingType")
+               OR (ipcUser NE "" AND NOT ttSetting.settingUser BEGINS ipcUser)
+               OR (ipcProgram NE "" AND NOT ttSetting.programID BEGINS ipcProgram)
+               OR (ipcScopeTable NE "" AND ttSetting.scopeTable NE ipcScopetable)
+               OR (iplInactive NE ? AND ttSetting.inactive NE iplInactive):  
+            DELETE ttSetting.
+        END.
+            
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -488,7 +603,7 @@ CLASS system.Setting:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    METHOD PUBLIC VOID GetByUser ( ipcUser AS CHARACTER, OUTPUT TABLE ttSetting ):
+    METHOD PUBLIC VOID LoadByUser ( ipcUser AS CHARACTER ):
         pGetAll(
            "",    /* SettingName  */
            ?,     /* Inactive     */
@@ -499,7 +614,7 @@ CLASS system.Setting:
            "",    /* ScopeField3  */
            ipcUser,    /* User         */
            "",    /* Program      */  
-           FALSE,  /* Defaults Only */
+           "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).        
     END METHOD.
@@ -509,7 +624,7 @@ CLASS system.Setting:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
-	METHOD PUBLIC VOID GetByCategory(ipcCategory AS CHARACTER, OUTPUT TABLE ttSetting ):
+	METHOD PUBLIC VOID LoadByCategory(ipcCategory AS CHARACTER ):
         pGetAll(
            "",    /* SettingName  */
            ?,     /* Inactive     */
@@ -520,7 +635,7 @@ CLASS system.Setting:
            "",    /* ScopeField3  */
            "",    /* User         */
            "",    /* Program      */  
-           FALSE, /* Defaults Only */
+           "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).
 	END METHOD.
@@ -541,10 +656,19 @@ CLASS system.Setting:
            "",    /* ScopeField3  */
            "",    /* User         */
            "",    /* Program      */ 
-           FALSE, /* Defaults Only */  
+           "",    /* Record Source */
            OUTPUT TABLE ttSetting).
     END METHOD.
-    
+
+    /*------------------------------------------------------------------------------
+     Purpose: Send the current settings in ttSetting
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC VOID GetCurrentSetting( OUTPUT TABLE ttSetting):
+
+    END METHOD.
+        
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
@@ -615,18 +739,135 @@ CLASS system.Setting:
         ipcScopeField1   AS CHARACTER, 
         ipcScopeField2   AS CHARACTER, 
         ipcScopeField3   AS CHARACTER,
+        iplSaveLocally   AS LOGICAL,
         OUTPUT opiSettingID AS INTEGER):
         
-        DEFINE VARIABLE iScopeID AS INTEGER NO-UNDO.   
+        DEFINE VARIABLE iScopeID   AS INTEGER   NO-UNDO.   
+        DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE iSettingID AS INT64     NO-UNDO.
          
         DEFINE BUFFER bf-setting     FOR setting.
         DEFINE BUFFER bf-settingType FOR settingType.
+        DEFINE BUFFER bf-ttSetting   FOR ttSetting.
+        
+        cMessage = Validate(
+            ipiSettingTypeID,
+            ipiSettingID,
+            ipcSettingValue,
+            ipcSettingDesc,
+            ipcSettingUser,
+            ipcProgramID,
+            iplInactive,
+            ipcScopeTable,
+            ipcScopeField1,
+            ipcScopeField2,
+            ipcScopeField3
+            ).
+        IF cMessage NE "" THEN
+            RETURN cMessage.
+
+        FIND FIRST bf-settingType NO-LOCK
+             WHERE bf-settingType.settingTypeID EQ ipiSettingTypeID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-settingType THEN
+            RETURN "SettingType ID is not valid".
+
+        /* If settingID is 0, then the setting is newly created */
+        FIND FIRST bf-ttSetting
+             WHERE bf-ttSetting.settingID EQ ipiSettingID
+               AND bf-ttSetting.settingID NE 0
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttSetting THEN DO:
+            FIND LAST ttSetting USE-INDEX settingID NO-ERROR.
+            IF AVAILABLE ttSetting THEN
+                iSettingID = ttSetting.settingID + 1.
+            ELSE
+                iSettingID = iSettingID + 1.
+
+            CREATE bf-ttSetting.
+            ASSIGN
+                bf-ttSetting.settingID     = iSettingID
+                bf-ttSetting.settingName   = bf-settingType.settingName
+                bf-ttSetting.settingTypeID = bf-settingType.settingTypeID
+                .                
+        END.
+        
+        ASSIGN
+            bf-ttSetting.settingValue = ipcSettingValue
+            bf-ttSetting.description  = ipcSettingDesc
+            bf-ttSetting.programID    = ipcProgramID
+            bf-ttSetting.settingUser  = ipcSettingUser                
+            bf-ttSetting.inactive     = iplInactive  
+            bf-ttSetting.scopeTable   = ipcScopeTable
+            bf-ttSetting.scopeField1  = ipcScopeField1
+            bf-ttSetting.scopeField2  = ipcScopeField2
+            bf-ttSetting.scopeField3  = ipcScopeField3        
+            opiSettingID              = bf-ttSetting.settingID
+            .
+        
+        IF iplSaveLocally THEN
+            RETURN "".
+                    
+        FIND FIRST bf-setting EXCLUSIVE-LOCK
+             WHERE bf-setting.settingID EQ ipiSettingID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-setting THEN DO:
+            CREATE bf-setting.
+            ASSIGN
+                bf-setting.settingName   = bf-settingType.settingName
+                bf-setting.settingTypeID = bf-settingType.settingTypeID
+                .
+        END.
+        
+        ASSIGN
+            bf-setting.settingValue = ipcSettingValue
+            bf-setting.description  = ipcSettingDesc
+            bf-setting.programID    = ipcProgramID
+            bf-setting.settingUser  = ipcSettingUser                
+            bf-setting.inactive     = iplInactive          
+            opiSettingID            = bf-setting.settingID
+            .
+        
+        iScopeID = pCreateScope (ipcScopeTable, ipcScopeField1, ipcScopeField2, ipcScopeField3).
+            
+        bf-setting.scopeID = iScopeID.
+        
+        /* Save ttSetting record as well */
+        ASSIGN
+            bf-ttSetting.settingID = bf-setting.settingID
+            bf-ttSetting.scopeID   = bf-setting.scopeID
+            .
+
+        RETURN "".
+        
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC CHARACTER Validate( 
+	    ipiSettingTypeID AS INT64, 
+        ipiSettingID     AS INT64,
+        ipcSettingValue  AS CHARACTER, 
+        ipcSettingDesc   AS CHARACTER, 
+        ipcSettingUser   AS CHARACTER, 
+        ipcProgramID     AS CHARACTER,
+        iplInactive      AS LOGICAL, 
+        ipcScopeTable    AS CHARACTER, 
+        ipcScopeField1   AS CHARACTER, 
+        ipcScopeField2   AS CHARACTER, 
+        ipcScopeField3   AS CHARACTER):
+		         
+        DEFINE BUFFER bf-setting     FOR setting.
+        DEFINE BUFFER bf-settingType FOR settingType.
         DEFINE BUFFER bf-scope       FOR scope.
-		DEFINE BUFFER bf-company     FOR company.
-		DEFINE BUFFER bf-cust        FOR cust.
-		DEFINE BUFFER bf-shipto      FOR shipto.
-		DEFINE BUFFER bf-vend        FOR vend.
-		
+        DEFINE BUFFER bf-company     FOR company.
+        DEFINE BUFFER bf-cust        FOR cust.
+        DEFINE BUFFER bf-shipto      FOR shipto.
+        DEFINE BUFFER bf-vend        FOR vend.
+        
         FIND FIRST bf-settingType NO-LOCK
              WHERE bf-settingType.settingTypeID EQ ipiSettingTypeID
              NO-ERROR.
@@ -689,33 +930,8 @@ CLASS system.Setting:
             IF AVAILABLE bf-setting AND bf-setting.settingID NE ipiSettingID THEN
                 RETURN "Setting already exists. Please enter a different scope/user/program".
         END.
-        
-        FIND FIRST bf-setting EXCLUSIVE-LOCK
-             WHERE bf-setting.settingID EQ ipiSettingID
-             NO-ERROR.
-        IF NOT AVAILABLE bf-setting THEN DO:
-            CREATE bf-setting.
-            ASSIGN
-                bf-setting.settingName   = bf-settingType.settingName
-                bf-setting.settingTypeID = bf-settingType.settingTypeID
-                .
-        END.
-        
-        ASSIGN
-            bf-setting.settingValue = ipcSettingValue
-            bf-setting.description  = ipcSettingDesc
-            bf-setting.programID    = ipcProgramID
-            bf-setting.settingUser  = ipcSettingUser                
-            bf-setting.inactive     = iplInactive          
-            opiSettingID            = bf-setting.settingID
-            .
-        
-        iScopeID = pCreateScope (ipcScopeTable, ipcScopeField1, ipcScopeField2, ipcScopeField3).
-            
-        bf-setting.scopeID = iScopeID.
-        
+		
         RETURN "".
-        
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

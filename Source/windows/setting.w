@@ -101,19 +101,19 @@ DEFINE FRAME F-Main
          SIZE 188 BY 34.43
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 12 ROW 1
-         SIZE 11 BY 2
-         BGCOLOR 15  WIDGET-ID 300.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 56.6 ROW 1.95
          SIZE 39 BY 2
          BGCOLOR 15  WIDGET-ID 200.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 12 ROW 1
+         SIZE 11 BY 2
+         BGCOLOR 15  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -333,7 +333,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'SAVE-TYPE = DATABASE,
                      BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
-                     BROWSE-COLUMNS-DISPLAY = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser':U ,
+                     BROWSE-COLUMNS-DISPLAY = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
+                     HIDE-SEARCH = FALSE':U ,
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 5.38 , 1.60 ) NO-ERROR.
        RUN set-size IN h_setting ( 27.14 , 186.00 ) NO-ERROR.
@@ -352,7 +353,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_setting-2 ).
        RUN set-position IN h_setting-2 ( 5.76 , 61.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.10 , 70.00 ) */
+       /* Size in UIB:  ( 19.33 , 70.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

@@ -42,17 +42,23 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER      NO-UNDO.
 
-DEFINE VARIABLE hdScopeField1 AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdScopeField2 AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdScopeField3 AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSaveType     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdScopeField1   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdScopeField2   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdScopeField3   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cSaveType       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lHideSearch     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lLoadDataFromTT AS LOGICAL   NO-UNDO.
+
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 {system/ttSetting.i}
 
 &SCOP adm-attribute-dlg browsers\setting-support.w
 
 &IF DEFINED(adm-attribute-list) = 0 &THEN
-&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY
+&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY,HIDE-SEARCH,LOAD-DATA-FROM-TT
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -92,10 +98,11 @@ DEFINE VARIABLE cSaveType     AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btSearch fiSettingName ~
-cbCategory cbScope cbStatus fiUser fiProgram tbDefaultsOnly br_table 
+cbCategory cbScope cbStatus fiUser fiProgram tbDefaultsOnly ~
+tbNonDefaultsOnly br_table 
 &Scoped-Define DISPLAYED-OBJECTS fiSettingName cbCategory cbScope ~
 fiScopeField1 cbStatus fiUser fiScopeField2 fiProgram fiScopeField3 ~
-tbDefaultsOnly 
+tbDefaultsOnly tbNonDefaultsOnly 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -220,6 +227,11 @@ DEFINE VARIABLE tbDefaultsOnly AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 19.2 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tbNonDefaultsOnly AS LOGICAL INITIAL no 
+     LABEL "Non-Defaults Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -230,7 +242,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttSetting.settingName  FORMAT "X(100)" WIDTH 32
+      ttSetting.settingName  FORMAT "X(100)" WIDTH 35
 ttSetting.description  FORMAT "X(100)" WIDTH 40
 ttSetting.settingValue FORMAT "X(30)" WIDTH 25
 ttSetting.scopeTable   FORMAT "X(15)" WIDTH 12
@@ -258,7 +270,8 @@ DEFINE FRAME F-Main
      fiScopeField2 AT ROW 2.52 COL 153.2 COLON-ALIGNED WIDGET-ID 30
      fiProgram AT ROW 3.71 COL 11 COLON-ALIGNED WIDGET-ID 36
      fiScopeField3 AT ROW 3.71 COL 153.2 COLON-ALIGNED WIDGET-ID 32
-     tbDefaultsOnly AT ROW 3.76 COL 59.6 WIDGET-ID 38
+     tbDefaultsOnly AT ROW 3.81 COL 49 WIDGET-ID 38
+     tbNonDefaultsOnly AT ROW 3.81 COL 71.4 WIDGET-ID 40
      br_table AT ROW 5.1 COL 1
      RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 18
      RECT-2 AT ROW 1.05 COL 98 WIDGET-ID 22
@@ -318,7 +331,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table tbDefaultsOnly F-Main */
+/* BROWSE-TAB br_table tbNonDefaultsOnly F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -588,6 +601,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tbDefaultsOnly
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbDefaultsOnly B-table-Win
+ON VALUE-CHANGED OF tbDefaultsOnly IN FRAME F-Main /* Defaults Only */
+DO:
+    IF SELF:CHECKED AND tbNonDefaultsOnly:CHECKED THEN
+        tbNonDefaultsOnly:CHECKED = FALSE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbNonDefaultsOnly
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbNonDefaultsOnly B-table-Win
+ON VALUE-CHANGED OF tbNonDefaultsOnly IN FRAME F-Main /* Non-Defaults Only */
+DO:
+    IF SELF:CHECKED AND tbDefaultsOnly:CHECKED THEN
+        tbDefaultsOnly:CHECKED = FALSE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -596,7 +633,9 @@ END.
 /* ***************************  Main Block  *************************** */
   RUN set-attribute-list ("SAVE-TYPE=DATABASE, 
                            BROWSE-COLUMNS=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
-                           BROWSE-COLUMNS-DISPLAY=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser"). 
+                           BROWSE-COLUMNS-DISPLAY=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
+                           HIDE-SEARCH=FALSE,
+                           LOAD-DATA-FROM-TT=FALSE"). 
                      
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -635,13 +674,16 @@ PROCEDURE AddSetting :
         ). 
 
     IF lookupField NE "" THEN DO:
-        CREATE bf-ttSetting.
-        bf-ttSetting.settingName = lookupField.
-        rittSetting = ROWID(bf-ttSetting).
-        
-        oSetting:Refresh(BUFFER bf-ttSetting).
-        
-        bf-ttSetting.recordSource = "New".
+        /* For some reason and only some times, the open-query is not displaying the new record. Enclosing in DO TRANSACTION works */
+        DO TRANSACTION:
+            CREATE bf-ttSetting.
+            bf-ttSetting.settingName = lookupField.
+            rittSetting = ROWID(bf-ttSetting).
+            
+            oSetting:Refresh(BUFFER bf-ttSetting).
+            
+            bf-ttSetting.recordSource = "New".
+        END.
         
         RUN dispatch ("open-query").
         
@@ -689,18 +731,21 @@ PROCEDURE CopySetting :
     DEFINE BUFFER bf-ttSetting FOR ttSetting.
     
     IF AVAILABLE ttSetting THEN DO:
-        CREATE bf-ttSetting.
-        BUFFER-COPY ttSetting EXCEPT settingID TO bf-ttSetting.
-        
-        ASSIGN
-            rittSetting               = ROWID(bf-ttSetting)        
-            bf-ttSetting.recordSource = "New"
-            .
+        /* For some reason and only some times, the open-query is not displaying the new record. Enclosing in DO TRANSACTION works */
+        DO TRANSACTION:
+            CREATE bf-ttSetting.
+            BUFFER-COPY ttSetting EXCEPT settingID settingUser programID inactive TO bf-ttSetting.
+            
+            ASSIGN
+                rittSetting               = ROWID(bf-ttSetting)        
+                bf-ttSetting.recordSource = "New"
+                .
+        END.
         
         RUN dispatch ("open-query").
-        
+
         RUN RepositionSetting(rittSetting).
-    
+
         RUN dispatch ("row-changed").
     END.    
 END PROCEDURE.
@@ -723,7 +768,10 @@ PROCEDURE DeleteSetting :
             DELETE ttSetting.
         END.
         ELSE DO:
-            cMessage = oSetting:Delete(ttSetting.settingID).
+            cMessage = oSetting:Delete(
+                ttSetting.settingID,
+                cSaveType EQ "TEMP-TABLE"
+                ).
             
             IF cMessage NE "" THEN DO:
                 oplError = TRUE.
@@ -777,7 +825,19 @@ PROCEDURE DisplayColumns :
     cSaveType = RETURN-VALUE.
     IF cSaveType EQ "" OR cSaveType EQ ? THEN
         cSaveType = "DATABASE".
-        
+
+    RUN get-attribute IN THIS-PROCEDURE ('HIDE-SEARCH':U).
+
+    lHideSearch = LOGICAL(RETURN-VALUE).
+    IF lHideSearch  EQ ? THEN
+        lHideSearch = FALSE.
+
+    RUN get-attribute IN THIS-PROCEDURE ('LOAD-DATA-FROM-TT':U).
+
+    lLoadDataFromTT = LOGICAL(RETURN-VALUE).
+    IF lLoadDataFromTT EQ ? THEN
+        lLoadDataFromTT = FALSE.
+                         
     hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
 
     RUN get-attribute IN THIS-PROCEDURE ('BROWSE-COLUMNS-DISPLAY':U).
@@ -838,7 +898,7 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-OBJECT(oSetting) THEN
+    IF VALID-OBJECT(oSetting) AND NOT lLoadDataFromTT THEN
         DELETE OBJECT oSetting.
     
     /* Dispatch standard ADM method.                             */
@@ -857,31 +917,33 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cSettingName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStatus       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCategory     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUser         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cProgram      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScopeTable   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScopeField1  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScopeField2  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScopeField3  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDefaultsOnly AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSettingName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStatus          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCategory        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProgram         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeTable      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeField1     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeField2     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeField3     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDefaultsOnly    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNonDefaultsOnly AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     ASSIGN
-        cSettingName  = fiSettingName:SCREEN-VALUE
-        cStatus       = cbStatus:SCREEN-VALUE
-        cCategory     = cbCategory:SCREEN-VALUE
-        cUser         = fiUser:SCREEN-VALUE
-        cProgram      = fiProgram:SCREEN-VALUE
-        cScopeTable   = cbScope:SCREEN-VALUE
-        cScopeField1  = fiScopeField1:SCREEN-VALUE
-        cScopeField2  = fiScopeField2:SCREEN-VALUE
-        cScopeField3  = fiScopeField3:SCREEN-VALUE   
-        lDefaultsOnly = tbDefaultsOnly:CHECKED             
+        cSettingName     = fiSettingName:SCREEN-VALUE
+        cStatus          = cbStatus:SCREEN-VALUE
+        cCategory        = cbCategory:SCREEN-VALUE
+        cUser            = fiUser:SCREEN-VALUE
+        cProgram         = fiProgram:SCREEN-VALUE
+        cScopeTable      = cbScope:SCREEN-VALUE
+        cScopeField1     = fiScopeField1:SCREEN-VALUE
+        cScopeField2     = fiScopeField2:SCREEN-VALUE
+        cScopeField3     = fiScopeField3:SCREEN-VALUE   
+        lDefaultsOnly    = tbDefaultsOnly:CHECKED     
+        lNonDefaultsOnly = tbNonDefaultsOnly:CHECKED        
         .
 
     /* Code placed here will execute PRIOR to standard behavior. */
@@ -901,6 +963,7 @@ PROCEDURE local-display-fields :
         fiScopeField2:SCREEN-VALUE  = cScopeField2
         fiScopeField3:SCREEN-VALUE  = cScopeField3
         tbDefaultsOnly:CHECKED      = lDefaultsOnly
+        tbNonDefaultsOnly:CHECKED   = lNonDefaultsOnly
         .    
 END PROCEDURE.
 
@@ -977,8 +1040,6 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    oSetting = NEW system.Setting().
-
     DO iBrowseColumn = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS :
         IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "scopeField1" THEN
             hdScopeField1 = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
@@ -987,28 +1048,48 @@ PROCEDURE pInit :
         ELSE IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "scopeField3" THEN
             hdScopeField3 = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).            
     END.
+    
+    IF lHideSearch THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            DISABLE fiSettingName cbCategory cbStatus fiUser fiProgram tbDefaultsOnly 
+                cbScope fiScopeField1 fiScopeField2 fiScopeField3 btSearch tbNonDefaultsOnly.
+        END.            
+    END.
+    
+    IF NOT lLoadDataFromTT THEN DO:
+        oSetting = NEW system.Setting().
+
+        ASSIGN
+            cCategoryTagsList         = "All," + oSetting:GetCategoryTagsList()
+            cScopeList                = "All," + oSetting:GetScopeList(TRUE)
+            cCategoryTagsList         = TRIM(cCategoryTagsList, ",")
+            cScopeList                = TRIM(cScopeList, ",")
+            cbCategory:LIST-ITEMS     = cCategoryTagsList
+            cbScope:LIST-ITEMS        = cScopeList
+            cbCategory:SCREEN-VALUE   = "All"
+            cbScope:SCREEN-VALUE      = "All"
+            tbNonDefaultsOnly:CHECKED = TRUE
+            .
         
-    ASSIGN
-        cCategoryTagsList     = "All," + oSetting:GetCategoryTagsList()
-        cScopeList            = "All," + oSetting:GetScopeList(TRUE)
-        cCategoryTagsList     = TRIM(cCategoryTagsList, ",")
-        cScopeList            = TRIM(cScopeList, ",")
-        cbCategory:LIST-ITEMS = cCategoryTagsList
-        cbScope:LIST-ITEMS    = cScopeList
-        .
-    
-    /* Do not pass temp-table with BY-REFERENCE option */     
-    IF cSaveType EQ "DATABASE" THEN
-        oSetting:GetAll(OUTPUT TABLE ttSetting).
-    
+/*        oSetting:GetAll(OUTPUT TABLE ttSetting BY-REFERENCE).*/
+
+        RUN pSearch.
+    END.
+    ELSE DO:        
+        {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}
+
+        IF VALID-OBJECT(oSetting) THEN
+            oSetting:GetCurrentSetting(OUTPUT TABLE ttSetting).
+
+        RUN dispatch (
+            INPUT "open-query"
+            ).            
+    END.
+            
     RUN spGetSessionParam (
         INPUT  "Company",
         OUTPUT cCompany
-        ).
-        
-    RUN dispatch (
-        INPUT "open-query"
-        ).
+        ).        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1030,7 +1111,7 @@ PROCEDURE pSearch :
     DEFINE VARIABLE cScopeField1  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeField2  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeField3  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDefaultsOnly AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRecordSource AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1056,12 +1137,16 @@ PROCEDURE pSearch :
         cScopeField1  = fiScopeField1:SCREEN-VALUE
         cScopeField2  = fiScopeField2:SCREEN-VALUE
         cScopeField3  = fiScopeField3:SCREEN-VALUE                
-        lDefaultsOnly = tbDefaultsOnly:CHECKED
+        cRecordSource = IF tbDefaultsOnly:CHECKED THEN 
+                            "SettingType"
+                        ELSE IF tbNonDefaultsOnly:CHECKED THEN
+                            "Setting"
+                        ELSE
+                            ""
         .
 
     SESSION:SET-WAIT-STATE ("GENERAL").
-
-    /* Do not pass temp-table with BY-REFERENCE option */    
+    
     oSetting:GetBySearch(
         INPUT  cSettingName,
         INPUT  lStatus,
@@ -1072,8 +1157,8 @@ PROCEDURE pSearch :
         INPUT  cScopeField3,
         INPUT  cUser,
         INPUT  cProgram,
-        INPUT  lDefaultsOnly,
-        OUTPUT TABLE ttSetting
+        INPUT  cRecordSource,
+        OUTPUT TABLE ttSetting BY-REFERENCE
         ).
 
     RUN dispatch (
@@ -1180,6 +1265,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetSettingConfiguration B-table-Win 
+PROCEDURE SetSettingConfiguration :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
+    
+    oSetting = ipoSetting.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1226,7 +1326,6 @@ PROCEDURE UpdateSetting :
     
     IF AVAILABLE ttSetting THEN DO:
         rittSetting = ROWID(ttSetting).
-        
         cMessage = oSetting:Update (
             INPUT  ttSetting.settingTypeID,
             INPUT  ttSetting.settingID,
@@ -1239,6 +1338,7 @@ PROCEDURE UpdateSetting :
             INPUT  ipcScopeField1,
             INPUT  ipcScopeField2,
             INPUT  ipcScopeField3,
+            INPUT  cSaveType EQ "TEMP-TABLE",
             OUTPUT iSettingID        
             ).
         
@@ -1251,12 +1351,28 @@ PROCEDURE UpdateSetting :
         END.
 
         ttSetting.settingID = iSettingID.
-        
-        oSetting:Refresh (BUFFER ttSetting).
-        
-        RUN dispatch("open-query").
-        
-        RUN RepositionSetting(INPUT rittSetting).
+
+        IF cSaveType EQ "DATABASE" THEN DO:
+    
+            oSetting:Refresh (BUFFER ttSetting).
+            
+            RUN dispatch("open-query").
+            
+            RUN RepositionSetting(INPUT rittSetting).
+        END.
+        ELSE DO:       
+            ASSIGN
+                ttSetting.description  = ipcSettingDesc
+                ttSetting.settingValue = ipcSettingValue
+                ttSetting.programID    = ipcProgramID   
+                ttSetting.inactive     = iplInactive    
+                ttSetting.settingUser  = ipcSettingUser 
+                ttSetting.scopeTable   = ipcScopeTable  
+                ttSetting.scopeField1  = ipcScopeField1 
+                ttSetting.scopeField2  = ipcScopeField2 
+                ttSetting.scopeField3  = ipcScopeField3
+                .                
+        END.
     END.
     
     BROWSE {&BROWSE-NAME}:REFRESH().
