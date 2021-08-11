@@ -956,7 +956,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 oplError   = NO
                 opcMessage = ""
                 .
-            IF lError THEN NEXT.
+            IF lErrorOnInvoice THEN NEXT.
                 
             FOR EACH bf-inv-line NO-LOCK
                 WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
