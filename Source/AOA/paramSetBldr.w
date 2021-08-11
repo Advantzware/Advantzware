@@ -799,6 +799,7 @@ PROCEDURE pViewAs :
             dParamWidth,
             CAN-DO(cAction,"LIST-ITEM-PAIRS"),
             cInitialItems,
+            CAN-DO(cAction,"SORT"),
             dynParam.paramFormat,
             cInitialValue,
             dynParam.innerLines,
