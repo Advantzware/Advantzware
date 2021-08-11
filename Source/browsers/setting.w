@@ -98,11 +98,10 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 btSearch fiSettingName ~
-cbCategory cbScope cbStatus fiUser fiProgram tbDefaultsOnly ~
-tbNonDefaultsOnly br_table 
+cbCategory cbScope cbStatus fiUser fiProgram cbSettingType br_table 
 &Scoped-Define DISPLAYED-OBJECTS fiSettingName cbCategory cbScope ~
-fiScopeField1 cbStatus fiUser fiScopeField2 fiProgram fiScopeField3 ~
-tbDefaultsOnly tbNonDefaultsOnly 
+fiScopeField1 cbStatus fiUser fiScopeField2 fiProgram cbSettingType ~
+fiScopeField3 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -177,6 +176,13 @@ DEFINE VARIABLE cbScope AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      DROP-DOWN-LIST
      SIZE 22 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cbSettingType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+     LABEL "Setting Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Default","Non-Default" 
+     DROP-DOWN-LIST
+     SIZE 25.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Status" 
      VIEW-AS COMBO-BOX INNER-LINES 3
@@ -187,7 +193,7 @@ DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 DEFINE VARIABLE fiProgram AS CHARACTER FORMAT "X(256)":U 
      LABEL "Program" 
      VIEW-AS FILL-IN 
-     SIZE 32.4 BY 1 NO-UNDO.
+     SIZE 28 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiScopeField1 AS CHARACTER FORMAT "X(256)":U 
      LABEL "" 
@@ -221,16 +227,6 @@ DEFINE RECTANGLE RECT-1
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 80 BY 4.
-
-DEFINE VARIABLE tbDefaultsOnly AS LOGICAL INITIAL no 
-     LABEL "Defaults Only" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 19.2 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tbNonDefaultsOnly AS LOGICAL INITIAL no 
-     LABEL "Non-Defaults Only" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -269,9 +265,8 @@ DEFINE FRAME F-Main
      fiUser AT ROW 2.52 COL 57.6 COLON-ALIGNED WIDGET-ID 34
      fiScopeField2 AT ROW 2.52 COL 153.2 COLON-ALIGNED WIDGET-ID 30
      fiProgram AT ROW 3.71 COL 11 COLON-ALIGNED WIDGET-ID 36
+     cbSettingType AT ROW 3.71 COL 57.6 COLON-ALIGNED WIDGET-ID 42
      fiScopeField3 AT ROW 3.71 COL 153.2 COLON-ALIGNED WIDGET-ID 32
-     tbDefaultsOnly AT ROW 3.81 COL 49 WIDGET-ID 38
-     tbNonDefaultsOnly AT ROW 3.81 COL 71.4 WIDGET-ID 40
      br_table AT ROW 5.1 COL 1
      RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 18
      RECT-2 AT ROW 1.05 COL 98 WIDGET-ID 22
@@ -331,7 +326,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table tbNonDefaultsOnly F-Main */
+/* BROWSE-TAB br_table fiScopeField3 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -595,30 +590,6 @@ DO:
         END CASE.
     END.  
   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tbDefaultsOnly
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbDefaultsOnly B-table-Win
-ON VALUE-CHANGED OF tbDefaultsOnly IN FRAME F-Main /* Defaults Only */
-DO:
-    IF SELF:CHECKED AND tbNonDefaultsOnly:CHECKED THEN
-        tbNonDefaultsOnly:CHECKED = FALSE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tbNonDefaultsOnly
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbNonDefaultsOnly B-table-Win
-ON VALUE-CHANGED OF tbNonDefaultsOnly IN FRAME F-Main /* Non-Defaults Only */
-DO:
-    IF SELF:CHECKED AND tbDefaultsOnly:CHECKED THEN
-        tbDefaultsOnly:CHECKED = FALSE.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -926,8 +897,7 @@ PROCEDURE local-display-fields :
     DEFINE VARIABLE cScopeField1     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeField2     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeField3     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDefaultsOnly    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lNonDefaultsOnly AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSettingType     AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -942,8 +912,7 @@ PROCEDURE local-display-fields :
         cScopeField1     = fiScopeField1:SCREEN-VALUE
         cScopeField2     = fiScopeField2:SCREEN-VALUE
         cScopeField3     = fiScopeField3:SCREEN-VALUE   
-        lDefaultsOnly    = tbDefaultsOnly:CHECKED     
-        lNonDefaultsOnly = tbNonDefaultsOnly:CHECKED        
+        cSettingType     = cbSettingType:SCREEN-VALUE        
         .
 
     /* Code placed here will execute PRIOR to standard behavior. */
@@ -962,8 +931,7 @@ PROCEDURE local-display-fields :
         fiScopeField1:SCREEN-VALUE  = cScopeField1
         fiScopeField2:SCREEN-VALUE  = cScopeField2
         fiScopeField3:SCREEN-VALUE  = cScopeField3
-        tbDefaultsOnly:CHECKED      = lDefaultsOnly
-        tbNonDefaultsOnly:CHECKED   = lNonDefaultsOnly
+        cbSettingType:SCREEN-VALUE  = cSettingType
         .    
 END PROCEDURE.
 
@@ -1051,8 +1019,8 @@ PROCEDURE pInit :
     
     IF lHideSearch THEN DO:
         DO WITH FRAME {&FRAME-NAME}:
-            DISABLE fiSettingName cbCategory cbStatus fiUser fiProgram tbDefaultsOnly 
-                cbScope fiScopeField1 fiScopeField2 fiScopeField3 btSearch tbNonDefaultsOnly.
+            DISABLE fiSettingName cbCategory cbStatus fiUser fiProgram cbSettingType 
+                cbScope fiScopeField1 fiScopeField2 fiScopeField3 btSearch.
         END.            
     END.
     
@@ -1060,15 +1028,16 @@ PROCEDURE pInit :
         oSetting = NEW system.Setting().
 
         ASSIGN
-            cCategoryTagsList         = "All," + oSetting:GetCategoryTagsList()
-            cScopeList                = "All," + oSetting:GetScopeList(TRUE)
-            cCategoryTagsList         = TRIM(cCategoryTagsList, ",")
-            cScopeList                = TRIM(cScopeList, ",")
-            cbCategory:LIST-ITEMS     = cCategoryTagsList
-            cbScope:LIST-ITEMS        = cScopeList
-            cbCategory:SCREEN-VALUE   = "All"
-            cbScope:SCREEN-VALUE      = "All"
-            tbNonDefaultsOnly:CHECKED = TRUE
+            cCategoryTagsList          = "All," + oSetting:GetCategoryTagsList()
+            cScopeList                 = "All," + oSetting:GetScopeList(TRUE)
+            cCategoryTagsList          = TRIM(cCategoryTagsList, ",")
+            cScopeList                 = TRIM(cScopeList, ",")
+            cbCategory:LIST-ITEMS      = cCategoryTagsList
+            cbScope:LIST-ITEMS         = cScopeList
+            cbCategory:SCREEN-VALUE    = "All"
+            cbScope:SCREEN-VALUE       = "All"
+            cbSettingType:SCREEN-VALUE = "All"
+            cbStatus                   = "All"
             .
         
 /*        oSetting:GetAll(OUTPUT TABLE ttSetting BY-REFERENCE).*/
@@ -1118,12 +1087,12 @@ PROCEDURE pSearch :
     
     ASSIGN
         cSettingName  = fiSettingName:SCREEN-VALUE
-        lStatus       = IF cbStatus:SCREEN-VALUE EQ "All" THEN
-                            ?
-                        ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN
+        lStatus       = IF cbStatus:SCREEN-VALUE EQ "Active" THEN
                             FALSE
-                        ELSE
+                        ELSE IF cbStatus:SCREEN-VALUE EQ "Inactive" THEN
                             TRUE
+                        ELSE
+                            ?
         cCategory     = IF cbCategory:SCREEN-VALUE EQ "All" THEN
                             ""
                         ELSE
@@ -1137,9 +1106,9 @@ PROCEDURE pSearch :
         cScopeField1  = fiScopeField1:SCREEN-VALUE
         cScopeField2  = fiScopeField2:SCREEN-VALUE
         cScopeField3  = fiScopeField3:SCREEN-VALUE                
-        cRecordSource = IF tbDefaultsOnly:CHECKED THEN 
+        cRecordSource = IF cbSettingType:SCREEN-VALUE EQ "Default" THEN 
                             "SettingType"
-                        ELSE IF tbNonDefaultsOnly:CHECKED THEN
+                        ELSE IF cbSettingType:SCREEN-VALUE EQ "Non-Default" THEN
                             "Setting"
                         ELSE
                             ""
