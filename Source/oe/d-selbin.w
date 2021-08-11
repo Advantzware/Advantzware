@@ -145,8 +145,8 @@ w-bin.units ~
 &Scoped-define ENABLED-TABLES-IN-QUERY-br-bin w-bin
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-bin w-bin
 &Scoped-define SELF-NAME br-bin
-&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin WHERE w-bin.loc begins fiLocationID and w-bin.loc-bin begins fiBinID and ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin WHERE w-bin.loc begins fiLocationID and w-bin.loc-bin begins fiBinID and ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br-bin w-bin
 &Scoped-define FIRST-TABLE-IN-QUERY-br-bin w-bin
 
@@ -156,9 +156,9 @@ w-bin.units ~
     ~{&OPEN-QUERY-br-bin}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br-bin RECT-4 browse-order Btn_Clear_Find ~
-auto_find Btn_OK Btn_Cancel Btn_move-sort 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby fi_seq ~
+&Scoped-Define ENABLED-OBJECTS br-bin RECT-4 Btn_Clear_Find ~
+fiLocationID fiBinID Btn_OK Btn_Cancel Btn_move-sort Btn_Search 
+&Scoped-Define DISPLAYED-OBJECTS fiLocationID fiBinID fi_sortby fi_seq ~
 v-help 
 
 /* Custom List Definitions                                              */
@@ -190,7 +190,12 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
 
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear" 
-     SIZE 8 BY 1
+     SIZE 12 BY 1
+     FONT 4.
+ 
+DEFINE BUTTON Btn_Search 
+     LABEL "&Go" 
+     SIZE 12 BY 1
      FONT 4.
 
 DEFINE BUTTON Btn_move-sort 
@@ -202,10 +207,20 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Find" 
+DEFINE VARIABLE fiLocationID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Location" 
      VIEW-AS FILL-IN 
-     SIZE 24.6 BY 1 NO-UNDO.
+     SIZE 15.0 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "auto find" 
+     VIEW-AS FILL-IN 
+     SIZE 24.6 BY 1 NO-UNDO.     
+     
+DEFINE VARIABLE fiBinID AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 15.0 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE fi_seq AS INTEGER FORMAT "->,>>>,>>>":U INITIAL 0 
      LABEL "Sequence#" 
@@ -220,12 +235,6 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE v-help AS CHARACTER FORMAT "X(256)":U INITIAL "Click Tag to Select or Cntrl and Click for Random Tags. For Range of Tags, click 1st Record, Press Shift and Click on Last Record." 
       VIEW-AS TEXT 
      SIZE 128 BY .95 NO-UNDO.
-
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 56 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -287,19 +296,22 @@ DEFINE BROWSE br-bin
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     br-bin AT ROW 1 COL 1
-     browse-order AT ROW 17.71 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     Btn_Clear_Find AT ROW 17.71 COL 130.6 HELP
-          "CLEAR AUTO FIND Value"
-     auto_find AT ROW 17.76 COL 100 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     fi_sortby AT ROW 17.81 COL 61.8 COLON-ALIGNED NO-LABEL
+     br-bin AT ROW 1 COL 1       
+     Btn_Clear_Find AT ROW 17.71 COL 115.6 HELP
+          "CLEAR AUTO FIND Value"        
+     fiLocationID AT ROW 17.76 COL 20 COLON-ALIGNED HELP
+          "Enter Location Value"
+     fiBinID AT ROW 17.76 COL 70 COLON-ALIGNED HELP
+          "Enter Bin Value"  
+     Btn_Search AT ROW 17.71 COL 130.6 HELP
+          "Search Value"        
+     fi_sortby AT ROW 17.81 COL 76.80 COLON-ALIGNED NO-LABEL
      fi_seq AT ROW 19.71 COL 13 COLON-ALIGNED
      Btn_OK AT ROW 19.71 COL 54
      Btn_Cancel AT ROW 19.71 COL 85
      Btn_move-sort AT ROW 19.71 COL 129.2 WIDGET-ID 4
      v-help AT ROW 16.24 COL 1.6 NO-LABEL
+     auto_find  AT ROW 16.24 COL 1.6 
      /*"Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 17.81 COL 55*/
      RECT-4 AT ROW 17.48 COL 1.2
@@ -326,7 +338,6 @@ DEFINE FRAME Dialog-Frame
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {custom/yellowColumns.i}
-{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -360,9 +371,12 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br-bin
 /* Query rebuild information for BROWSE br-bin
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH w-bin
+OPEN QUERY {&SELF-NAME} FOR EACH w-bin WHERE (~{&KEY-PHRASE}) AND
+      w-bin.loc begins fiLocationID and w-bin.loc-bin begins fiBinID
+      ~{&SORTBY-PHRASE}.
      _END_FREEFORM
-     _Query            is OPENED
+     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
+     _Query            is NOT OPENED
 */  /* BROWSE br-bin */
 &ANALYZE-RESUME
 
@@ -424,7 +438,8 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
 ON DEFAULT-ACTION OF br-bin IN FRAME Dialog-Frame
 DO:
    DO WITH FRAME {&FRAME-NAME}:
@@ -481,11 +496,113 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Search
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Search Dialog-Frame
+ON CHOOSE OF Btn_Search IN FRAME Dialog-Frame /* Search */
+DO:
+   ASSIGN 
+       fiLocationID
+       fiBinID.     
+  {&open-query-{&browse-name}}
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Clear_Find
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear_Find Dialog-Frame
+ON CHOOSE OF Btn_Clear_Find IN FRAME Dialog-Frame /* Clear */
+DO:
+   ASSIGN 
+       fiLocationID:SCREEN-VALUE = ""
+       fiBinID:SCREEN-VALUE = ""       
+       fiLocationID
+       fiBinID
+       .     
+     {&open-query-{&browse-name}}
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_move-sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_move-sort Dialog-Frame
 ON CHOOSE OF Btn_move-sort IN FRAME Dialog-Frame /* Move Columns */
 DO:
   RUN move-columns.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiLocationID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID Dialog-Frame
+ON HELP OF fiLocationID IN FRAME Dialog-Frame /* Location */
+DO:
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+   
+   RUN system/openlookup.p (
+        INPUT  cocode, 
+        INPUT  "",        /* Lookup ID */
+        INPUT  150,               /* Subject ID */
+        INPUT  "",              /* User ID */
+        INPUT  0,               /* Param Value ID */
+        OUTPUT cFieldsValue, 
+        OUTPUT cFoundValue, 
+        OUTPUT recFoundRecID
+        ).
+     fiLocationID:SCREEN-VALUE = cFoundValue.
+     DO WITH FRAME {&FRAME-NAME}:
+        APPLY "choose" TO Btn_Search.
+     END.
+     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiLocationID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID Dialog-Frame
+ON LEAVE OF fiLocationID IN FRAME Dialog-Frame /* Location */
+DO:    
+     DO WITH FRAME {&FRAME-NAME}:
+        APPLY "entry" TO fiBinID.
+        APPLY "choose" TO Btn_Search.
+     END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiBinID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBinID Dialog-Frame
+ON HELP OF fiBinID IN FRAME Dialog-Frame /* Bin */
+DO:
+   DEFINE VARIABLE cCharVal AS CHARACTER NO-UNDO.
+   RUN windows/l-locbin.w (cocode,fiLocationID:screen-value, fiBinID:SCREEN-VALUE, output cCharVal).
+   IF cCharVal <> "" THEN
+   fiBinID:SCREEN-VALUE = entry(1,cCharVal).
+   DO WITH FRAME {&FRAME-NAME}:
+      APPLY "choose" TO Btn_Search.
+   END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiBinID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBinID Dialog-Frame
+ON LEAVE OF fiBinID IN FRAME Dialog-Frame /* Bin */
+DO:     
+   DO WITH FRAME {&FRAME-NAME}:
+      APPLY "choose" TO Btn_Search.
+   END.     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -784,7 +901,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       w-bin.case-count:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.partial-count :READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.stack-code :READ-ONLY IN BROWSE {&browse-name} = YES
-      .
+      auto_find:HIDDEN IN FRAME {&FRAME-NAME} = YES .
 
 /*   IF ll-display-recptdt NE "BIN/TAG" THEN                           */
 /*   ASSIGN                                                            */
@@ -1012,10 +1129,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY browse-order auto_find fi_sortby fi_seq v-help 
+  DISPLAY fiLocationID fiBinID fi_sortby fi_seq v-help 
       WITH FRAME Dialog-Frame.
-  ENABLE br-bin RECT-4 browse-order Btn_Clear_Find auto_find Btn_OK 
-         Btn_Cancel Btn_move-sort 
+  ENABLE br-bin RECT-4 Btn_Clear_Find fiLocationID fiBinID Btn_OK 
+         Btn_Cancel Btn_move-sort Btn_Search
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1048,12 +1165,14 @@ IF ip-run EQ 1 OR ip-run EQ 4 THEN DO:
    v-job-no2 = xoe-rell.job-no2
    v-qty     = xoe-rell.qty
    lv-select = "Release"
-   lv-select-desc = "Actual Release".
+   lv-select-desc = "Actual Release"
+   fiLocationID = xoe-rell.loc.
    FIND FIRST oe-relh WHERE oe-relh.company = cocode
                        AND oe-relh.r-no = xoe-rell.r-no
                      NO-LOCK NO-ERROR.
    IF AVAIL oe-relh THEN
-   ASSIGN v-cust = oe-relh.cust-no.                  
+   ASSIGN v-cust = oe-relh.cust-no
+         .
 END.
 
 ELSE 
@@ -1067,12 +1186,14 @@ IF ip-run EQ 2 THEN DO:
    v-job-no2 = xoe-boll.job-no2
    v-qty     = xoe-boll.qty
    lv-select = "BOL"
-   lv-select-desc = "BOL" .
+   lv-select-desc = "BOL"
+   fiLocationID = xoe-boll.loc.
 
   FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ xoe-boll.b-no NO-LOCK.       /*Task# 12231304*/ 
   IF AVAIL oe-bolh THEN
-   ASSIGN v-cust = oe-bolh.cust-no.
-
+   ASSIGN v-cust = oe-bolh.cust-no
+          .
+          
    FIND FIRST oe-rell 
       WHERE oe-rell.company  EQ xoe-boll.company
         AND oe-rell.ord-no   EQ xoe-boll.ord-no
