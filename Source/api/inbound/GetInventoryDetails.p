@@ -98,7 +98,7 @@ IF (lValidLoc AND NOT lValidBin) OR
     lValidLoc = NO .
     ELSE IF NOT lValidLoc THEN DO:
         ASSIGN 
-            opcMessage = "Invalid WareHouseID"                     
+            opcMessage = "Invalid Location"                     
             oplSuccess = NO
             .              
         RETURN.
@@ -111,11 +111,12 @@ IF (lValidLoc AND NOT lValidBin) OR
         ipcLocationID,
         OUTPUT lValidBin
         ).
-
+        
     IF lValidStatus AND ipcWareHouseID EQ "" AND ipcLocationID NE "" THEN lValidBin = TRUE.
-    IF ipcLocationID EQ "" OR NOT lValidBin THEN DO:
+    IF ipcLocationID EQ "" THEN lValidBin = FALSE.
+    IF NOT lValidBin AND ipcLocationID NE "" THEN DO:
         ASSIGN 
-            opcMessage = "Invalid LocationID"
+            opcMessage = "Invalid Bin"
             oplSuccess = NO 
             .
             
