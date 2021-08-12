@@ -134,9 +134,12 @@ FOR EACH eb NO-LOCK
 
     ASSIGN
      w-qty.num-up          = v-num-up
-     t-shtfrm[xef.form-no] = v-eb-qty / w-qty.num-up
      vn-out                = 1.
-
+     
+     /* let's find blank that needs most # sheets for this form */
+     IF (v-eb-qty / w-qty.num-up) GT t-shtfrm[xef.form-no] THEN
+        t-shtfrm[xef.form-no] = v-eb-qty / w-qty.num-up.
+        
     {sys/inc/roundup.i t-shtfrm[xef.form-no]}
   END.
 
