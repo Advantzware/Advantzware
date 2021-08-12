@@ -562,8 +562,22 @@ DO:
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN MESSAGE "CSV file " + exp-name:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
+       WHEN 3 THEN DO:
+           IF tb_OpenCSV THEN DO:        
+                  MESSAGE "CSV file " + exp-name:SCREEN-VALUE + " have been created."
+                  VIEW-AS ALERT-BOX.
+              END.
+              ELSE DO:
+                  MESSAGE "Want to open CSV file?"
+                  VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                  TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                  IF lChoice THEN
+                  DO:
+                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                  END.
+              END.
+           END. /* WHEN 3 THEN DO: */
   END CASE.
   SESSION:SET-WAIT-STATE (""). 
 
@@ -777,6 +791,7 @@ DO:
         ASSIGN
             exp-name:SENSITIVE   = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN
