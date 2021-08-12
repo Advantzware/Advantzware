@@ -460,7 +460,7 @@ PROCEDURE GetVendorCostNextBreak:
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO: 
-            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+            RUN pConvertQuantity(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
                 ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
                 OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
         END.
@@ -526,8 +526,8 @@ PROCEDURE GetVendorCost:
         ASSIGN 
             opcCostUOM = bf-vendItemCost.vendorUOM.
         IF opcCostUOM NE ipcQuantityUOM THEN 
-        DO: 
-            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+        DO:  
+            RUN pConvertQuantity(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
                 ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
                 OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
         END.
@@ -1056,6 +1056,8 @@ PROCEDURE Vendor_CheckPriceHoldForPo:
                 DO: 
                     RUN pConvertQuantity (
                         bf-po-ord.company,
+                        bf-po-ordl.i-no,
+                        (IF bf-po-ordl.item-type THEN "RM" ELSE "FG"),
                         bf-po-ordl.ord-qty,
                         bf-po-ordl.pr-qty-uom,
                         cCostUOM, 
@@ -1315,7 +1317,7 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
         ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Not Yet Effective,".
         
     IF ttVendItemCost.quantityTargetUOM NE ttVendItemCost.vendorUOM THEN
-        RUN pConvertQuantity(ipbf-vendItemCost.company, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
+        RUN pConvertQuantity(ipbf-vendItemCost.company, ipbf-vendItemCost.itemID, ipbf-vendItemCost.itemType, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
             ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
             OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
     IF ipcDimUOM NE ipbf-vendItemCost.dimUOM THEN 
@@ -1984,6 +1986,8 @@ PROCEDURE pConvertQuantity PRIVATE:
             OUTPUT dQtyInToUOM, OUTPUT oplError, INPUT-OUTPUT iopcMessage).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdQtyInFromUOM AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
@@ -2001,6 +2005,7 @@ PROCEDURE pConvertQuantity PRIVATE:
     DEFINE VARIABLE dDimLengthInIN          AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dDimWidthInIN           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dDimDepthInIN           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cMessage                AS CHARACTER NO-UNDO.
 
     /*Refactor handling of non-assumed UOMs of "IN" and "LBS/MSF" and handle error & message propagation*/
     ASSIGN 
@@ -2009,10 +2014,17 @@ PROCEDURE pConvertQuantity PRIVATE:
         dDimWidthInIN           = ipdDimWidth
         dDimDepthInIN           = ipdDimDepth
         .
-
-    RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM, 
-        dBasisWeightInLBSPerMSF, dDimLengthInIN, dDimWidthInIN, dDimDepthInIN,
-        ipdQtyInFromUOM, OUTPUT opdQtyInToUOM).      
+    RUN Conv_QuantityFromUOMToUOM (ipcCompany, ipcItemID, ipcItemType, ipdQtyInFromUOM, ipcFromUOM , ipcToUOM, 
+        dBasisWeightInLBSPerMSF,
+        dDimLengthInIN, 
+        dDimWidthInIN, 
+        dDimDepthInIN, 
+        0,
+        OUTPUT opdQtyInToUOM,
+        OUTPUT oplError,
+        OUTPUT cMessage
+        ). 
+    iopcMessage = iopcMessage + cMessage.
 
 END PROCEDURE.
 
