@@ -211,7 +211,8 @@ PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
           BY bf-oe-prmtx.custype DESC
           BY bf-oe-prmtx.custShipID DESC
           BY bf-oe-prmtx.procat DESC
-          BY bf-oe-prmtx.eff-date DESC: 
+          BY bf-oe-prmtx.eff-date DESC
+          BY bf-oe-prmtx.quoteID DESC: 
           
           IF NOT FIRST-OF(bf-oe-prmtx.procat) THEN
           bf-oe-prmtx.quoteID = 0.
