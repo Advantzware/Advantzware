@@ -95,7 +95,6 @@ DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lChoice             AS LOGICAL   NO-UNDO.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -987,17 +986,13 @@ IF rd-dest EQ 3 THEN
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
-               END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
                END.
            END.
        END. /* WHEN 3 THEN DO: */
@@ -1300,6 +1295,7 @@ DO:
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN

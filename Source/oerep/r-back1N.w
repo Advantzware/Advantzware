@@ -716,31 +716,26 @@ DO:
   STATUS DEFAULT "Processing Complete". 
   SESSION:SET-WAIT-STATE("").
 
-  case rd-dest:
-
-  when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
            IF tb_OpenCSV THEN DO:        
                MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
                END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
-               END.
            END.
        END. /* WHEN 3 THEN DO: */
-       when 4 then do:
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
                             &begin_cust=begin_cust-no
@@ -749,7 +744,7 @@ DO:
                             &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       WHEN 5 THEN DO:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Customer"
                              &begin_cust= begin_cust-no
@@ -767,7 +762,6 @@ DO:
                                   &mail-file=list-name }
            END.
        END.
-       WHEN 6 THEN RUN OUTPUT-to-port.
   END CASE.
     IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -785,18 +779,6 @@ DO:
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
-  /*
-  DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -984,11 +966,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
   IF rd-dest EQ 3 THEN
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN
