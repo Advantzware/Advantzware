@@ -55,6 +55,22 @@ PROCEDURE invoice_CreateInterCompanyBilling:
                   ).
 END PROCEDURE.
 
+PROCEDURE invoice_pCreateInvoiceLineTax:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR ttTaxDetail.
+        
+    RUN pCreateInvoiceLineTax(
+                  INPUT ipcRecKey,
+                  INPUT ipriInvoiceLine /*,
+                  INPUT TABLE ttTaxDetail*/ 
+                  ).
+END PROCEDURE.
+
 
 PROCEDURE pAssignCommonHeaderData PRIVATE:
     /*------------------------------------------------------------------------------
@@ -938,6 +954,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.costStdDeviation   = bf-inv-line.costStdDeviation
                 bf-ar-invl.costStdManufacture = bf-inv-line.costStdManufacture                        
                 bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
+                bf-ar-invl.taxGroup           = bf-inv-line.taxGroup
                 .    
             
             FIND FIRST bf-itemfg NO-LOCK
@@ -996,7 +1013,8 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
                 bf-ar-invl.spare-char-1   = bf-inv-misc.spare-char-1
                 bf-ar-invl.posted         = NO
                 bf-ar-invl.inv-date       = bf-inv-head.inv-date
-                bf-ar-invl.e-num          = bf-inv-misc.spare-int-4.
+                bf-ar-invl.e-num          = bf-inv-misc.spare-int-4
+                bf-ar-invl.taxGroup       = bf-inv-misc.spare-char-1.
 
             IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0. 
             iLine = iLine + 1.
@@ -1005,6 +1023,47 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
        
     
 END PROCEDURE. 
+
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  create GL InvoiceLineTax
+     Notes:          
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO. 
+       
+    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-invl NO-LOCK
+         WHERE ROWID(bf-ar-invl) EQ ipriInvoiceLine NO-ERROR.    
+               
+    FOR EACH ttTaxDetail NO-LOCK
+        WHERE ttTaxDetail.invoiceLineRecKey EQ ipcRecKey:         
+                     
+        CREATE bf-InvoiceLineTax.
+        ASSIGN            
+            bf-InvoiceLineTax.invoiceLineRecKey  = bf-ar-invl.rec_key             
+            bf-InvoiceLineTax.isFreight          = ttTaxDetail.isFreight
+            bf-InvoiceLineTax.isTaxOnFreight     = ttTaxDetail.isTaxOnFreight
+            bf-InvoiceLineTax.isTaxOnTax         = ttTaxDetail.isTaxOnTax
+            bf-InvoiceLineTax.taxCode            = ttTaxDetail.taxCode
+            bf-InvoiceLineTax.taxCodeAccount     = ttTaxDetail.taxCodeAccount
+            bf-InvoiceLineTax.taxCodeDescription = ttTaxDetail.taxCodeDescription
+            bf-InvoiceLineTax.taxCodeRate        = ttTaxDetail.taxCodeRate 
+            bf-InvoiceLineTax.taxableAmount      = ttTaxDetail.taxCodeTaxableAmount 
+            bf-InvoiceLineTax.taxAmount          = ttTaxDetail.taxCodeTaxAmount 
+            bf-InvoiceLineTax.taxGroup           = ttTaxDetail.taxGroup
+            bf-InvoiceLineTax.taxGroupLine       = ttTaxDetail.taxGroupLine 
+            bf-InvoiceLineTax.company            = bf-ar-invl.company
+            bf-InvoiceLineTax.invoiceNo          = bf-ar-invl.inv-no
+            bf-InvoiceLineTax.invoiceLineID      = bf-ar-invl.LINE
+            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttTaxDetail.taxGroupTaxAmountLimit
+            .
+        RELEASE bf-InvoiceLineTax.
+    END.
+    
+END PROCEDURE.
 
 PROCEDURE pGetNk1TransCompany:
     /*------------------------------------------------------------------------------

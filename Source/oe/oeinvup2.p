@@ -54,7 +54,7 @@ IF AVAIL inv-head THEN DO:
         /* Run the tax rate calculation program. */
         RUN Tax_Calculate  (
             INPUT  inv-head.company,
-            INPUT  inv-head.tax-gr,
+            INPUT  (IF inv-line.taxGroup NE "" THEN inv-line.taxGroup ELSE inv-head.tax-gr),
             INPUT  FALSE,   /* Is this freight */
             INPUT  inv-line.t-price,
             INPUT  inv-line.i-no,
