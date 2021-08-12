@@ -1104,26 +1104,22 @@ IF rd-dest EQ 3 THEN
   STATUS DEFAULT "Processing Complete". 
   SESSION:SET-WAIT-STATE("").
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
            IF tb_OpenCSV THEN DO:        
                MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
-               END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
                END.
            END.
        END. /* WHEN 3 THEN DO: */
@@ -1137,7 +1133,7 @@ IF rd-dest EQ 3 THEN
                             &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       WHEN 5 THEN DO:
            is-xprint-form = YES.
 
             IF is-xprint-form THEN DO:
@@ -1160,7 +1156,6 @@ IF rd-dest EQ 3 THEN
                                   &mail-file=list-name }
            END.
        END. 
-      WHEN 6 THEN RUN output-to-port.
   END CASE. 
   IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -1442,6 +1437,7 @@ DO:
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN

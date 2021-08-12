@@ -65,10 +65,10 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
-DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
 
 
 ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL Date,On-Time," +
@@ -611,17 +611,13 @@ SESSION:SET-WAIT-STATE("general").
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
-               END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
                END.
            END.
        END. /* WHEN 3 THEN DO: */
@@ -653,7 +649,6 @@ SESSION:SET-WAIT-STATE("general").
 
            END.
        END. 
-       WHEN 6  THEN RUN output-to-port.
   END CASE. 
     IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -877,6 +872,7 @@ DO:
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN

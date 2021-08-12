@@ -73,7 +73,6 @@ DEFINE VARIABLE v-lst-m-code        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lChoice             AS LOGICAL   NO-UNDO.
 
 ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Order#,Rel#,Item,Description," +  /*9*/
                            "Rel Qty,Rel Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Rel Stat,Cust#,Customer Part#," + /*12*/
@@ -1154,17 +1153,13 @@ DO:
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
-               END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
                END.
            END.
        END. /* WHEN 3 THEN DO: */
@@ -1514,6 +1509,7 @@ DO:
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN

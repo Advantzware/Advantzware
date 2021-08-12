@@ -35,8 +35,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
-DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name   AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE init-dir    AS CHARACTER          NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
@@ -52,15 +52,15 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {custom/formtext.i NEW}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 {sys/ref/CustList.i NEW}
 
-DEFINE VARIABLE v-program          AS character NO-UNDO.
+DEFINE VARIABLE v-program          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form     AS LOGICAL   NO-UNDO.
-DEFINE {1} SHARED var v-print-fmt  AS character NO-UNDO.
-DEFINE VARIABLE ls-fax-file        AS character NO-UNDO.
+DEFINE {1} SHARED var v-print-fmt  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-fax-file        AS CHARACTER NO-UNDO.
 
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report 
@@ -74,15 +74,15 @@ DEFINE TEMP-TABLE tt-report-oh NO-UNDO LIKE report
 DEFINE STREAM excel.
 
 DEFINE VARIABLE ldummy             AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cTextListToSelect  AS character NO-UNDO.
-DEFINE VARIABLE cFieldListToSelect AS character NO-UNDO.
-DEFINE VARIABLE cFieldLength       AS character NO-UNDO.
-DEFINE VARIABLE cFieldType         AS character NO-UNDO.
+DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glCustListActive   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
-DEFINE VARIABLE cTextListToDefault AS character NO-UNDO.
-DEFINE VARIABLE glCustListActive   AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE cFileName          AS character NO-UNDO .
 
 
 ASSIGN cTextListToSelect = "Customer,Ship-To,FOB,City,St,Zip,Customer PO,Order,R#," +
@@ -186,7 +186,7 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/0001 
      LABEL "From Release Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
@@ -813,30 +813,26 @@ DO:
   END.
   run run-report. 
   STATUS DEFAULT "Processing Complete". 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
            IF tb_OpenCSV THEN DO:        
                MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
                VIEW-AS ALERT-BOX.
            END.
            ELSE DO:
-               MESSAGE "Want to open CSV file?" SKIP(1)
-                       "~"No~" to Close."
-               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+               MESSAGE "Want to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                TITLE "" UPDATE lChoice AS LOGICAL.
                
                IF lChoice THEN
                DO:
                   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
                END.
-               ELSE DO:
-                  APPLY 'CLOSE' TO THIS-PROCEDURE.
-               END.
            END.
        END. /* WHEN 3 THEN DO: */
-       when 4 then do:
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
                             &begin_cust=begin_cust-no
@@ -864,8 +860,7 @@ DO:
 
            END.
        END. 
-      WHEN 6 THEN RUN output-to-port.
-  end case.
+  END CASE.
     IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
@@ -1121,6 +1116,7 @@ DO:
         ASSIGN
             fi_file:SENSITIVE    = TRUE  
             tb_OpenCSV:SENSITIVE = TRUE
+            tb_OpenCSV:CHECKED   = TRUE
             .
     ELSE
         ASSIGN
