@@ -129,7 +129,7 @@ eb.part-dscr1 eb.stock-no f_FGStatus() @ cFGStatus
       AND itemfg.company eq eb.company ~
 and itemfg.i-no eq eb.stock-no ~
 and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
-    ~{&SORTBY-PHRASE} BY eb.est-no desc
+    ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} ~
       AND eb.company = ip-company AND ~
 ((eb.est-type ge 1 and eb.est-type le 4 and ip-est-type ge 1 and ip-est-type le 4) or ~
@@ -141,7 +141,7 @@ and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
       AND itemfg.company eq eb.company ~
 and itemfg.i-no eq eb.stock-no ~
 and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
-    ~{&SORTBY-PHRASE} BY eb.est-no desc.
+    ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 eb ef est itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 eb
 &Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 ef
