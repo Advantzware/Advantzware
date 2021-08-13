@@ -563,12 +563,9 @@ DO:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
-           IF tb_OpenCSV THEN DO:        
-                  MESSAGE "CSV file " + exp-name:SCREEN-VALUE + " have been created."
-                  VIEW-AS ALERT-BOX.
-              END.
-              ELSE DO:
-                  MESSAGE "Want to open CSV file?"
+           IF NOT tb_OpenCSV THEN DO:        
+                  MESSAGE "CSV file have been created." SKIP(1)
+                           "~"OK"~"Want to open CSV file?"
                   VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
                   TITLE "" UPDATE lChoice AS LOGICAL.
                  
