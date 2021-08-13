@@ -196,6 +196,7 @@ PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
     DEFINE INPUT PARAMETER ipcCustType       AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcProcat         AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE iQuoteNo AS INT64 NO-UNDO.
     DEFINE BUFFER bf-oe-prmtx  FOR oe-prmtx. 
     
     FOR EACH bf-oe-prmtx EXCLUSIVE-LOCK 
@@ -212,9 +213,12 @@ PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
           BY bf-oe-prmtx.custShipID DESC
           BY bf-oe-prmtx.procat DESC
           BY bf-oe-prmtx.eff-date DESC
-          BY bf-oe-prmtx.quoteID DESC: 
+          BY bf-oe-prmtx.quoteID DESC:
           
-          IF NOT FIRST-OF(bf-oe-prmtx.procat) THEN
+          IF FIRST-OF(bf-oe-prmtx.procat) THEN
+           iQuoteNo = bf-oe-prmtx.quoteID.
+           
+          IF NOT FIRST-OF(bf-oe-prmtx.procat) AND iQuoteNo NE bf-oe-prmtx.quoteID THEN
           bf-oe-prmtx.quoteID = 0.
     END.          
     RELEASE bf-oe-prmtx.      
