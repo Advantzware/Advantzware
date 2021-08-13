@@ -129,7 +129,7 @@ DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U
 
 DEFINE FRAME F-Main
      btChange AT ROW 3.19 COL 61.6 WIDGET-ID 14 NO-TAB-STOP 
-     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18 NO-TAB-STOP 
+     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18
      fiTag AT ROW 4.81 COL 17.8 COLON-ALIGNED WIDGET-ID 8
      fiTrailer AT ROW 4.81 COL 117.4 COLON-ALIGNED WIDGET-ID 10
      btDelete AT ROW 12.57 COL 175.6 WIDGET-ID 16 NO-TAB-STOP 
@@ -302,8 +302,6 @@ END.
 &ANALYZE-RESUME
 
 
-
-
 &Scoped-define SELF-NAME fiTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* Tag # */
@@ -327,7 +325,9 @@ DO:
     RUN state-changed (
             INPUT THIS-PROCEDURE,
             INPUT "scan-tag"
-            ).    
+            ).  
+    
+    RETURN NO-APPLY.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
