@@ -2681,6 +2681,8 @@ PROCEDURE pCheckReleaseQty :
         OUTPUT iTotalReleaseQuantity
         ). 
 
+    opiQuantityToScan = ipiScannedQuantity.
+    
     IF lBOLQtyPopup THEN DO:
         IF (ipiScannedQuantity + iTotalScannedQuantity) GT iTotalReleaseQuantity THEN DO:
             MESSAGE  "Tag qty exceeds Scheduled Release Qty " SKIP  
@@ -2689,29 +2691,29 @@ PROCEDURE pCheckReleaseQty :
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                 UPDATE lQuantitySelection AS LOGICAL.
             
-            opiQuantityToScan = ipiScannedQuantity.
+            IF lQuantitySelection THEN DO:
+                opiQuantityToScan = ipiScannedQuantity.
             
-            IF lQuantitySelection THEN
                 RETURN.
-                
-            oplUseReleaseQty = NOT lQuantitySelection.             
+            END.
+            ELSE DO:
+                ASSIGN
+                    oplUseReleaseQty  = TRUE
+                    opiQuantityToScan = iTotalReleaseQuantity - iTotalScannedQuantity   
+                    opiQuantityToScan = MINIMUM(opiQuantityToScan, ipiScannedQuantity)
+                    opiQuantityToScan = MAXIMUM(opiQuantityToScan, 0)
+                    .
+                    
+                RETURN.
+            END.             
         END.     
     END.
-
-    IF iTotalScannedQuantity GE iTotalReleaseQuantity THEN DO:
-         oplError = TRUE.
-
-         MESSAGE "Cannot scan more than Scheduled Release quantity '" + STRING(iTotalReleaseQuantity) + "'" 
-            VIEW-AS ALERT-BOX ERROR.
- 
-        RETURN.             
+    ELSE IF (ipiScannedQuantity + iTotalScannedQuantity) GT iTotalReleaseQuantity THEN DO:
+        /* Just show a warning and let them continue with the scanned quantity */
+        MESSAGE "Shipping more than scheduled Release quantity '" + STRING(iTotalReleaseQuantity) + "'" 
+            VIEW-AS ALERT-BOX WARNING.
     END.
-    
-    ASSIGN
-        oplUseReleaseQty  = TRUE
-        opiQuantityToScan = iTotalReleaseQuantity - iTotalScannedQuantity   
-        opiQuantityToScan = MINIMUM(opiQuantityToScan, ipiScannedQuantity)
-        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

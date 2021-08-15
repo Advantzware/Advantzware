@@ -1101,6 +1101,97 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-purgeEitemRecords) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeEitemRecords Procedure
+PROCEDURE purgeEitemRecords:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCompany AS CHAR.
+    DEF OUTPUT PARAMETER oplError AS LOG.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    
+    DEF VAR cTempDir AS CHAR NO-UNDO.
+    DEF VAR cPurgeDir AS CHAR NO-UNDO.
+    DEF VAR cPurgeFile AS CHAR NO-UNDO.
+    DEF VAR lDirCreated AS LOG NO-UNDO.
+    DEF VAR cDirMsg AS CHAR NO-UNDO.
+        
+    RUN FileSys_GetTempDirectory (OUTPUT cTempDir).
+    ASSIGN 
+        cPurgeDir = cTempDir + "\eItemPurge" + STRING(YEAR(TODAY),"9999") +
+                                               STRING(MONTH(TODAY),"99") + 
+                                               STRING(DAY(TODAY),"99") +
+                                               STRING(TIME,"99999").
+    RUN FileSys_CreateDirectory (INPUT cPurgeDir,
+                                 OUTPUT lDirCreated,
+                                 OUTPUT cDirMsg).
+    IF NOT lDirCreated THEN DO:
+        ASSIGN 
+            oplError = TRUE
+            opcMessage = cDirMsg.
+        RETURN.
+    END.
+    
+    ASSIGN 
+        opcMessage = cPurgeDir.
+    
+&SCOPED-DEFINE cFileToPurge e-item
+    OUTPUT TO VALUE(cPurgeDir + "\e-item.d").
+    FOR EACH {&cFileToPurge} WHERE 
+        {&cFileToPurge}.company EQ (IF ipcCompany NE "All" THEN ipcCompany ELSE {&cFileToPurge}.company):
+        EXPORT {&cFileToPurge}.
+        DELETE {&cFileToPurge}.
+    END.
+    OUTPUT CLOSE.
+    
+&SCOPED-DEFINE cFileToPurge e-item-vend
+    OUTPUT TO VALUE(cPurgeDir + "\eitmvend.d").
+    FOR EACH {&cFileToPurge} WHERE 
+        {&cFileToPurge}.company EQ (IF ipcCompany NE "All" THEN ipcCompany ELSE {&cFileToPurge}.company):
+        EXPORT {&cFileToPurge}.
+        DELETE {&cFileToPurge}.
+    END.
+    OUTPUT CLOSE.
+    
+&SCOPED-DEFINE cFileToPurge e-itemfg
+    OUTPUT TO VALUE(cPurgeDir + "\e-itemfg.d").
+    FOR EACH {&cFileToPurge} WHERE 
+        {&cFileToPurge}.company EQ (IF ipcCompany NE "All" THEN ipcCompany ELSE {&cFileToPurge}.company):
+        EXPORT {&cFileToPurge}.
+        DELETE {&cFileToPurge}.
+    END.
+    OUTPUT CLOSE.
+    
+&SCOPED-DEFINE cFileToPurge e-itemfg-vend
+    OUTPUT TO VALUE(cPurgeDir + "\e-temfv.d").
+    FOR EACH {&cFileToPurge} WHERE 
+        {&cFileToPurge}.company EQ (IF ipcCompany NE "All" THEN ipcCompany ELSE {&cFileToPurge}.company):
+        EXPORT {&cFileToPurge}.
+        DELETE {&cFileToPurge}.
+    END.
+    OUTPUT CLOSE.
+    
+&SCOPEd-DEFINE cFileToPurge e-item-cust
+    OUTPUT TO VALUE(cPurgeDir + "\e-item-c.d").
+    FOR EACH {&cFileToPurge} WHERE 
+        {&cFileToPurge}.company EQ (IF ipcCompany NE "All" THEN ipcCompany ELSE {&cFileToPurge}.company):
+        EXPORT {&cFileToPurge}.
+        DELETE {&cFileToPurge}.
+    END.
+    OUTPUT CLOSE.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-purgeGLhistFromFile) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeGLhistFromFile Procedure

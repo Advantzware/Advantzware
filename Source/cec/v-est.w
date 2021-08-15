@@ -55,6 +55,7 @@ def new shared var cocode as cha no-undo.
 def new shared var locode as cha no-undo.
 
 {custom/globdefs.i}
+{system\FormulaProcs.i}
 
 assign cocode = g_company
        locode = g_loc.
@@ -90,6 +91,8 @@ DEF VAR cadFile AS CHARACTER NO-UNDO.
 DEF VAR lv-master-est-no LIKE eb.master-est-no NO-UNDO.
 DEF BUFFER b-style FOR style.
 DEF VAR v-count AS INT NO-UNDO.
+
+DEFINE VARIABLE cWidgethandles AS CHARACTER NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -2500,6 +2503,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
 PROCEDURE pCheckAutoLock :
 /*------------------------------------------------------------------------------
@@ -3250,6 +3274,9 @@ PROCEDURE local-assign-record :
 
   {cec/slotheit.i}  
   {cec/slotwidth.i}
+  
+  DEFINE BUFFER bf-style FOR style.
+  
   ASSIGN
    eb.sty-lock = NOT ll-auto-calc-selected
    eb.tab-in   = IF tab-inout EQ "In"  THEN YES ELSE
@@ -3283,6 +3310,42 @@ PROCEDURE local-assign-record :
          ll-blank-size-changed = YES
          eb.k-len-array2[li]   = ld-k-len-array[li].
     END.
+    
+    FIND FIRST bf-style
+         WHERE bf-style.company EQ eb.company
+           AND bf-style.style   EQ eb.style
+         NO-ERROR.
+    IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+        EMPTY TEMP-TABLE ttPanel.
+        
+        DO li = 1 TO EXTENT(eb.k-wid-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "W"
+                ttPanel.cScoreType = eb.k-wid-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-wid-array2[li]
+                .
+        END.
+
+        DO li = 1 TO EXTENT(eb.k-len-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "L"
+                ttPanel.cScoreType = eb.k-len-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-len-array2[li]
+                .
+        END.
+                
+        RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT eb.company,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT TABLE ttPanel
+            ).    
+    END.     
   END.
 
   IF lv-foam THEN
@@ -3675,15 +3738,37 @@ PROCEDURE local-display-fields :
   DEF VAR lv-eqty AS CHAR NO-UNDO.
   DEF VAR lv-image AS CHAR NO-UNDO.
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
 
+  DEFINE BUFFER bf-style FOR style.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   {cec/msfcalc.i}
 
 
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
+  FIND FIRST bf-style NO-LOCK
+       WHERE bf-style.company EQ eb.company
+         AND bf-style.style   EQ eb.style
+       NO-ERROR.
+  IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN DisablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  ELSE DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("EnablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN EnablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  
 DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE

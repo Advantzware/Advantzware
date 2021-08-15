@@ -89,6 +89,7 @@
     DEFINE VARIABLE cFreightTerms        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightFOB          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBuyer               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBuyerEmailID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesHRMS         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesAlliance     AS CHARACTER NO-UNDO.
@@ -287,6 +288,7 @@
     DEFINE BUFFER bf-hrms-reftable      FOR reftable.
     DEFINE BUFFER bf-job-mat            FOR job-mat.
     DEFINE BUFFER bf-item               FOR item.
+    DEFINE BUFFER bf-users              FOR users.
     
     DEFINE TEMP-TABLE ttVendItemNumberAdders
         FIELD sequence       AS INTEGER 
@@ -518,6 +520,14 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             cMaxOverPct        = STRING(100 + po-ord.over-pct)
             cMinUnderPct       = STRING(100 - po-ord.under-pct)
             .
+        
+        IF cBuyer NE "" THEN DO:
+            FIND FIRST bf-users NO-LOCK
+                 WHERE bf-users.user_id EQ cBuyer
+                 NO-ERROR.
+            IF AVAILABLE bf-users THEN
+                cBuyerEmailID = bf-users.image_filename.    
+        END.
         
         ASSIGN
             cClientID        = APIOutbound.clientID
@@ -1108,6 +1118,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "buyer", cBuyer).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerEmailID", cBuyerEmailID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "fobCode", cFOBCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAreaCode", cCustXAreaCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXPhone", cCustXPhone).
@@ -1586,6 +1597,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightTerms", cFreightTerms).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightFOB", cFreightFOB).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "buyer", cBuyer).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BuyerEmailID", cBuyerEmailID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNotes", cPoNotes).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "fobCode", cFOBCode).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custAreaCode", cCustAreaCode).

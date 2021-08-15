@@ -46,6 +46,75 @@ PROCEDURE CheckPOLineStatus:
 
 END PROCEDURE.
 
+PROCEDURE pGetPOLineAdderData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Main logic to process all adders for a given PO line
+        Note - this has the ability to override key dimensions for conversion purposes
+        or for Screen-value processing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPoLine   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPoLen    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPoWid    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPoDep    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUom  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostSetup AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAdderText AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ordl-add FOR po-ordl-add.
+    DEFINE BUFFER bf-item FOR ITEM.
+    
+    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    
+        FOR EACH bf-po-ordl-add NO-LOCK    
+            WHERE bf-po-ordl-add.company EQ ipcCompany
+            AND bf-po-ordl-add.po-no   EQ ipiPoNo
+            AND bf-po-ordl-add.line    EQ ipiPoLine,
+            FIRST bf-item NO-LOCK 
+            WHERE bf-item.company  EQ bf-po-ordl-add.company
+            AND bf-item.i-no     EQ bf-po-ordl-add.adder-i-no
+            AND bf-item.mat-type EQ "A" :
+            
+            IF ipcCostUOM NE bf-po-ordl-add.pr-uom THEN 
+            DO:
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  bf-po-ordl-add.company,
+                    INPUT  bf-po-ordl-add.adder-i-no,
+                    INPUT  "RM",
+                    INPUT  bf-po-ordl-add.cost,
+                    INPUT  bf-po-ordl-add.pr-uom, 
+                    INPUT  ipcCostUOM,
+                    INPUT  bf-item.basis-w,
+                    INPUT  ipdPOLen,
+                    INPUT  ipdPOWid,
+                    INPUT  ipdPODep,
+                    INPUT  0,
+                    OUTPUT dCostPerUOM,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+            END.
+            ELSE 
+                dCostPerUOM = bf-po-ordl-add.cost.
+                 
+            ASSIGN 
+                opdCostPerUOM = opdCostPerUOM + dCostPerUOM
+                opdCostSetup = opdCostSetup + bf-po-ordl-add.setup
+                opcAdderText = opcAdderText + SUBSTR(bf-item.i-name,1,18) +
+                    FILL(' ',19 - LENGTH(SUBSTR(bf-item.i-name,1,18))) +
+                    STRING(bf-po-ordl-add.cost,'-z,zz9.99') + STRING(bf-po-ordl-add.setup,'-zzz9.99') + CHR(10)
+                .          
+        END.
+
+END PROCEDURE.
+
 PROCEDURE PO_GetAddersCostInCostUOM:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -56,55 +125,15 @@ PROCEDURE PO_GetAddersCostInCostUOM:
     DEFINE INPUT  PARAMETER ipiPoLine   AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdPoLen    AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdPoWid    AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipPoDep     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPoDep    AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCostUom  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCost     AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL   NO-UNDO.    
     
-    DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostSetup AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cAdderText AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-item FOR ITEM.
+    RUN pGetPOLineAdderData(ipcCompany, ipiPoNo, ipiPoLine, ipdPoLen, ipdPoWid, ipdPODep, ipcCostUOM, OUTPUT opdCostPerUOM, OUTPUT dCostSetup, OUTPUT cAdderText).
     
-    MainLoop:
-    FOR EACH po-ordl-add NO-LOCK 
-        WHERE po-ordl-add.company EQ ipcCompany
-          AND po-ordl-add.po-no   EQ ipiPoNo
-          AND po-ordl-add.line    EQ ipiPoLine: 
-              
-        IF ipcCostUOM NE po-ordl-add.pr-uom THEN DO:         
-            FIND FIRST bf-item NO-LOCK 
-                 WHERE bf-item.company EQ ipcCompany 
-                   AND bf-item.i-no    EQ po-ordl-add.adder-i-no
-                   AND bf-item.mat-typ EQ "A"
-                 NO-ERROR.
-                 
-            IF NOT AVAILABLE bf-item THEN 
-                NEXT MainLoop. 
-                                      
-            RUN Conv_ValueFromUOMToUOM (
-                INPUT  ipcCompany,
-                INPUT  po-ordl-add.adder-i-no,
-                INPUT  "RM",
-                INPUT  po-ordl-add.cost,
-                INPUT  po-ordl-add.pr-uom, 
-                INPUT  ipcCostUom,
-                INPUT  bf-item.basis-w,
-                INPUT  ipdPoLen,
-                INPUT  ipdPoWid,
-                INPUT  ipPoDep,
-                INPUT  0,
-                OUTPUT dCostPerUOM,
-                OUTPUT lError,
-                OUTPUT cMessage
-                ).
-        END.
-        ELSE 
-            dCostPerUOM = po-ordl-add.cost. 
-                                    
-        opdCost = opdCost + po-ordl-add.cost.         
-    END. 
-
 END PROCEDURE.
 
 PROCEDURE PO_GetAddersText:
@@ -115,24 +144,12 @@ PROCEDURE PO_GetAddersText:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoNo       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoLine     AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcAddersText AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAdderText  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-po-ordl-add FOR po-ordl-add.
-    DEFINE BUFFER bf-item        FOR ITEM.
+    DEFINE VARIABLE dCostSetup AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
     
-    FOR EACH bf-po-ordl-add NO-LOCK    
-        WHERE bf-po-ordl-add.company EQ ipcCompany
-          AND bf-po-ordl-add.po-no   EQ ipiPoNo
-          AND bf-po-ordl-add.line    EQ ipiPoLine,
-        FIRST bf-item NO-LOCK 
-        WHERE bf-item.company  EQ ipcCompany
-          AND bf-item.i-no     EQ bf-po-ordl-add.adder-i-no
-          AND bf-item.mat-type EQ "A" :
-          opcAddersText = opcAddersText + SUBSTR(bf-item.i-name,1,18) +
-                          FILL(' ',19 - LENGTH(SUBSTR(bf-item.i-name,1,18))) +
-                          STRING(bf-po-ordl-add.cost,'-z,zz9.99') + STRING(bf-po-ordl-add.setup,'-zzz9.99') + CHR(10)
-                          .          
-    END.          
+    RUN pGetPOLineAdderData(ipcCompany, ipiPoNo, ipiPoLine, 0, 0, 0, "", OUTPUT dCostPerUOM, OUTPUT dCostSetup, OUTPUT opcAdderText).
 
 END PROCEDURE.
 
@@ -238,6 +255,18 @@ PROCEDURE PO_GetLineScoresAndTypes:
     
 END PROCEDURE.
 
+PROCEDURE PO_RecalculateCostsPO:
+/*------------------------------------------------------------------------------
+ Purpose: Public wrapper for pRecalculateCostPO
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriPOOrd AS ROWID NO-UNDO.
+    
+    RUN pRecalculateCostsPO(ipriPOOrd).
+    
+
+END PROCEDURE.
+
 PROCEDURE PO_UpdatePoAdders:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -294,5 +323,149 @@ PROCEDURE PO_CheckPurchaseLimit:
     DO:
         oplCheckHold = YES .
     END.
+END PROCEDURE.
+
+PROCEDURE pRecalculateCostsPO PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Runs pRecalculateCostPOLine for each po line of a given po-ord
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriPOOrd AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ord FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND bf-po-ord NO-LOCK 
+        WHERE ROWID(bf-po-ord) EQ ipriPOOrd NO-ERROR.
+    IF AVAILABLE bf-po-ord THEN DO:
+        FOR EACH bf-po-ordl NO-LOCK 
+            WHERE bf-po-ordl.company EQ bf-po-ord.company
+            AND bf-po-ordl.po-no EQ bf-po-ord.po-no:
+            RUN pRecalculateCostsPOLine(ROWID(bf-po-ordl)).
+        END.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pRecalculateCostsPOLine PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given a PO line, recalculate the unit, setup, adder and total costs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriPOOrdl AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ord FOR po-ord.
+    DEFINE BUFFER bf-item FOR ITEM.
+    
+    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostSetup AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cItemType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQtyInCostUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMAdders AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostSetupAdders AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cAdderText AS CHARACTER NO-UNDO.
+    
+    FOR bf-po-ordl NO-LOCK 
+        WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
+        ,
+        FIRST bf-po-ord NO-LOCK 
+        WHERE bf-po-ord.company EQ bf-po-ordl.company
+        AND bf-po-ord.po-no EQ bf-po-ordl.po-no:
+        
+        IF bf-po-ordl.item-type THEN DO:
+            cItemType = 'RM'.
+            FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ bf-po-ordl.company
+            AND bf-item.i-no EQ bf-po-ordl.i-no
+            NO-ERROR.
+            IF AVAILABLE bf-item THEN 
+                dBasisWeight = bf-item.basis-w.
+            
+            RUN pGetPOLineAdderData(bf-po-ordl.company, 
+                bf-po-ordl.po-no, 
+                bf-po-ordl.line, 
+                bf-po-ordl.s-len, 
+                bf-po-ordl.s-wid, 
+                bf-po-ordl.s-dep, 
+                bf-po-ordl.pr-uom,
+                OUTPUT dCostPerUOMAdders,
+                OUTPUT dCostSetupAdders,
+                OUTPUT cAdderText).                    
+        END.
+        ELSE 
+            cItemType = 'FG'.
+            
+        RUN GetVendorCost(bf-po-ordl.company, 
+            bf-po-ordl.i-no, 
+            cItemType, 
+            bf-po-ord.vend-no, 
+            bf-po-ordl.cust-no, 
+            "", 0, 0, /*Estimate/F/B*/
+            bf-po-ordl.ord-qty, 
+            bf-po-ordl.pr-qty-uom,
+            bf-po-ordl.s-len, 
+            bf-po-ordl.s-wid, 
+            bf-po-ordl.s-dep, 
+            "IN", 
+            IF AVAILABLE bf-item THEN bf-item.basis-w ELSE 0, 
+            "LB/EA", 
+            NO,
+            OUTPUT dCostPerUOM, 
+            OUTPUT dCostSetup, 
+            OUTPUT cCostUOM,
+            OUTPUT dCostTotal, 
+            OUTPUT lError, 
+            OUTPUT cMessage).  
+        
+        IF lError THEN RETURN.
+        
+        
+        ASSIGN 
+            dCostPerUOM = dCostPerUOM + dCostPerUOMAdders
+            dCostSetup = dCostSetup + dCostSetupAdders
+            .
+        
+        IF bf-po-ordl.pr-uom NE bf-po-ordl.pr-qty-uom THEN 
+            RUN Conv_QuantityFromUOMToUOM (
+                bf-po-ordl.company,
+                bf-po-ordl.i-no,
+                cItemType,
+                bf-po-ordl.ord-qty,
+                bf-po-ordl.pr-qty-uom, 
+                bf-po-ordl.pr-uom,
+                dBasisWeight,
+                bf-po-ordl.s-len, 
+                bf-po-ordl.s-wid, 
+                bf-po-ordl.s-dep,
+                0,
+                OUTPUT dQtyInCostUOM,
+                OUTPUT lError,
+                OUTPUT cMessage
+                ). 
+        ELSE 
+            dQtyInCostUOM = bf-po-ordl.ord-qty.
+                
+        dCostTotal = dQtyInCostUOM * dCostPerUOM + dCostSetup.  
+                                  
+        IF bf-po-ordl.disc NE 0 THEN
+            dCostTotal = dCostTotal * (1 - (bf-po-ordl.disc / 100)).
+        IF dCostTotal NE 0 THEN DO:
+            FIND CURRENT bf-po-ordl EXCLUSIVE-LOCK. 
+            ASSIGN 
+                bf-po-ordl.cost = dCostPerUOM
+                bf-po-ordl.pr-uom = cCostUOM
+                bf-po-ordl.setup = dCostSetup
+                bf-po-ordl.t-cost = dCostTotal
+                .
+            FIND CURRENT bf-po-ordl NO-LOCK.             
+        END.
+    END.
+
 END PROCEDURE.
 

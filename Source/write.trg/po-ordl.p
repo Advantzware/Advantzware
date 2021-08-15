@@ -23,6 +23,8 @@ DEF VAR ll-error AS LOG NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 /*DEF VAR cReturn AS CHAR NO-UNDO.*/
 DEF VAR poPaperClip-int AS INT NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 {sys/inc/venditemcost.i}
 
 RUN po/updordpo.p (BUFFER {&TABLENAME}).
@@ -80,10 +82,24 @@ IF {&TABLENAME}.pr-uom NE "" THEN DO:
        ({&TABLENAME}.item-type                           OR
         NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {&TABLENAME}.pr-qty-uom) OR
         NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, {&TABLENAME}.pr-uom))   THEN
-      RUN sys/ref/convquom.p({&TABLENAME}.pr-qty-uom, {&TABLENAME}.pr-uom,
-                             v-basis-w, v-len, v-wid, v-dep,
-                             ld-qty, OUTPUT ld-qty).
-
+        DO:   
+          FIND FIRST itemfg
+               WHERE itemfg.company EQ {&TABLENAME}.company
+                 AND itemfg.i-no    EQ {&TABLENAME}.i-no
+               NO-LOCK NO-ERROR.
+          IF AVAIL itemfg THEN               
+          RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                itemfg.i-no, "FG", 
+                ld-qty,  {&TABLENAME}.pr-qty-uom ,
+                {&TABLENAME}.pr-uom, 
+                v-basis-w, v-len, v-wid, v-dep, 0, 
+                OUTPUT  ld-qty, OUTPUT lError, OUTPUT cMessage).                   
+          ELSE
+          RUN sys/ref/convquom.p({&TABLENAME}.pr-qty-uom, {&TABLENAME}.pr-uom,
+                                 v-basis-w, v-len, v-wid, v-dep,
+                                 ld-qty, OUTPUT ld-qty).  
+        END.                     
+          
     {&TABLENAME}.t-cost = (ld-qty * {&TABLENAME}.cost) + {&TABLENAME}.setup.
   END.
 
