@@ -113,19 +113,22 @@ ASSIGN cTextListToDefault  = "GL Acct#,Description,Vendor,Inv#,Journal,Run#,Date
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend end_vend begin_date ~
-end_date begin_acct end_acct rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def sl_selected ~
-Btn_Add Btn_Remove btn_Up btn_down
-&Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend begin_date end_date ~
-begin_acct end_acct rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_run end_run begin_vend ~
+end_vend begin_date end_date begin_acct end_acct td-sub-total sl_avail ~
+Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down lv-ornt ~
+lines-per-page rd-dest lv-font-no tb_excel tb_runExcel td-show-parm fi_file ~
+btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_run end_run begin_vend end_vend ~
+begin_date end_date begin_acct end_acct td-sub-total sl_avail sl_selected ~
+lv-ornt lines-per-page rd-dest lv-font-no lv-font-name tb_excel tb_runExcel ~
+td-show-parm fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -135,6 +138,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -180,6 +184,11 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_run AS INTEGER FORMAT "->>>>>>>":U INITIAL 0 
+     LABEL "Beginning Run#" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Vend#" 
      VIEW-AS FILL-IN 
@@ -192,6 +201,11 @@ DEFINE VARIABLE end_acct AS CHARACTER FORMAT "X(20)":U INITIAL "zzzzzzzzzzzzzzzz
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_run AS INTEGER FORMAT "->>>>>>>":U INITIAL 99999999 
+     LABEL "Ending Run#" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
@@ -240,7 +254,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.14.
+     SIZE 94 BY 8.81.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -267,59 +281,69 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE td-sub-total AS LOGICAL INITIAL no 
+     LABEL "Include Subtotals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_vend AT ROW 3.38 COL 19 COLON-ALIGNED HELP
+     begin_run AT ROW 2.76 COL 19 COLON-ALIGNED HELP
+          "Enter Beginning Run" WIDGET-ID 58
+     end_run AT ROW 2.76 COL 63 COLON-ALIGNED HELP
+          "Enter Ending Vendor Number" WIDGET-ID 60
+     begin_vend AT ROW 4.05 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend AT ROW 3.38 COL 63 COLON-ALIGNED HELP
+     end_vend AT ROW 4.05 COL 63 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     begin_date AT ROW 4.81 COL 19 COLON-ALIGNED HELP
+     begin_date AT ROW 5.48 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_date AT ROW 4.81 COL 63 COLON-ALIGNED HELP
+     end_date AT ROW 5.48 COL 63 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     begin_acct AT ROW 6.24 COL 19 COLON-ALIGNED HELP
+     begin_acct AT ROW 6.91 COL 19 COLON-ALIGNED HELP
           "Enter Beginning GL Account Number"
-     end_acct AT ROW 6.24 COL 63 COLON-ALIGNED HELP
+     end_acct AT ROW 6.91 COL 63 COLON-ALIGNED HELP
           "Enter Ending GL Account Number"
-     sl_avail AT ROW 9 COL 4.4 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 9 COL 40.4 HELP
+     td-sub-total AT ROW 8.48 COL 21 WIDGET-ID 62
+     sl_avail AT ROW 10.67 COL 4.4 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 10.67 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 9 COL 59.8 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 10 COL 40.4 HELP
+     sl_selected AT ROW 10.67 COL 59.8 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 11.67 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11 COL 40.4 HELP
+     Btn_Remove AT ROW 12.67 COL 40.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.05 COL 40.4 WIDGET-ID 40
-     btn_down AT ROW 13.05 COL 40.4 WIDGET-ID 42
-     lv-ornt AT ROW 15.52 COL 30 NO-LABEL
-     lines-per-page AT ROW 15.52 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 15.62 COL 6 NO-LABEL
-     lv-font-no AT ROW 17.19 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 18.14 COL 27 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 19.33 COL 65 RIGHT-ALIGNED
-     tb_runExcel AT ROW 19.33 COL 89 RIGHT-ALIGNED
-     td-show-parm AT ROW 19.43 COL 6
-     fi_file AT ROW 20.43 COL 43 COLON-ALIGNED HELP
+     btn_Up AT ROW 13.71 COL 40.4 WIDGET-ID 40
+     btn_down AT ROW 14.71 COL 40.4 WIDGET-ID 42
+     lv-ornt AT ROW 17.19 COL 30 NO-LABEL
+     lines-per-page AT ROW 17.19 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 17.29 COL 6 NO-LABEL
+     lv-font-no AT ROW 18.86 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 19.81 COL 27 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 21 COL 65 RIGHT-ALIGNED
+     tb_runExcel AT ROW 21 COL 89 RIGHT-ALIGNED
+     td-show-parm AT ROW 21.1 COL 6
+     fi_file AT ROW 22.1 COL 43 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 22.67 COL 21
-     btn-cancel AT ROW 22.67 COL 61
+     btn-ok AT ROW 24.1 COL 21
+     btn-cancel AT ROW 24.1 COL 61
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 8.29 COL 59.8 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.91 COL 4
+          SIZE 34 BY .62 AT ROW 9.95 COL 59.8 WIDGET-ID 44
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 9.95 COL 5.2 WIDGET-ID 38
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 8.29 COL 5.2 WIDGET-ID 38
-     RECT-6 AT ROW 14.57 COL 1
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.57 COL 4
+     RECT-6 AT ROW 16.24 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 23.38.
+         SIZE 95.2 BY 24.91.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -339,7 +363,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "AP Accounts by Vendor"
-         HEIGHT             = 23.62
+         HEIGHT             = 25.24
          WIDTH              = 96.6
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -373,16 +397,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -392,8 +406,20 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_run:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -401,6 +427,10 @@ ASSIGN
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_run:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -431,7 +461,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -485,6 +515,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_run
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_run C-Win
+ON LEAVE OF begin_run IN FRAME FRAME-A /* Beginning Run# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend C-Win
 ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vend# */
@@ -529,6 +570,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -608,6 +650,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME end_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_acct C-Win
 ON LEAVE OF end_acct IN FRAME FRAME-A /* Ending Acct# */
@@ -622,6 +665,17 @@ END.
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_run
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_run C-Win
+ON LEAVE OF end_run IN FRAME FRAME-A /* Ending Run# */
 DO:
   assign {&self-name}.
 END.
@@ -720,6 +774,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -782,6 +837,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -807,6 +863,17 @@ END.
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME td-sub-total
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-sub-total C-Win
+ON VALUE-CHANGED OF td-sub-total IN FRAME FRAME-A /* Include Subtotals? */
 DO:
   assign {&self-name}.
 END.
@@ -1068,14 +1135,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_vend end_vend begin_date end_date begin_acct end_acct rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file sl_avail sl_selected
+  DISPLAY begin_run end_run begin_vend end_vend begin_date end_date begin_acct 
+          end_acct td-sub-total sl_avail sl_selected lv-ornt lines-per-page 
+          rd-dest lv-font-no lv-font-name tb_excel tb_runExcel td-show-parm 
+          fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 begin_vend end_vend begin_date end_date begin_acct 
-         end_acct rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def sl_selected 
-         Btn_Add Btn_Remove btn_Up btn_down
+  ENABLE RECT-6 RECT-7 begin_run end_run begin_vend end_vend begin_date 
+         end_date begin_acct end_acct td-sub-total sl_avail Btn_Def sl_selected 
+         Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest 
+         lv-font-no tb_excel tb_runExcel td-show-parm fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1355,6 +1423,8 @@ FOR EACH ap-ledger
       AND ap-ledger.vend-no NE ""
       AND ap-ledger.tr-date GE begin_date
       AND ap-ledger.tr-date LE end_date
+      AND ap-ledger.trnum GE begin_run
+      AND ap-ledger.trnum LE end_run
     NO-LOCK:
 
     {custom/statusMsg.i " 'Processing Vendor#  '  + ap-ledger.vend-no "}
@@ -1642,6 +1712,7 @@ FOR EACH tt-report
     USE-INDEX detail
     BREAK BY tt-report.actnum
           BY tt-report.vend-no
+          BY tt-report.trnum
           BY tt-report.inv-no
           BY tt-report.jrnl:
 
@@ -1657,62 +1728,14 @@ FOR EACH tt-report
   IF AVAIL vend THEN
       {custom/statusMsg.i " 'Processing Vendor#  '  + vend.vend-no "}
 
-  lv-amt[1] = lv-amt[1] + tt-report.amt.
-
-  /*DISPLAY tt-report.actnum WHEN FIRST-OF(tt-report.actnum)
-          account.dscr WHEN AVAIL account AND FIRST-OF(tt-report.actnum)
-              "Not on File" WHEN NOT AVAIL account AND FIRST-OF(tt-report.actnum)
-                @ account.dscr
-      WITH FRAME detail.  */
+  lv-amt[1] = lv-amt[1] + tt-report.amt. 
+  
   lv-excel-descr = account.dscr.
   IF tt-report.dscr NE "" THEN DO:
    /* IF AVAIL account AND FIRST-OF(tt-report.actnum) THEN DOWN.
     DISPLAY tt-report.dscr @ account.dscr. */
     lv-excel-descr = tt-report.dscr.
   END. 
-
-  /*DISPLAY tt-report.vend-no WHEN FIRST-OF(tt-report.vend-no)
-          /*vend.name WHEN AVAIL vend AND FIRST-OF(tt-report.vend-no)
-              "Not on File" WHEN NOT AVAIL vend AND FIRST-OF(tt-report.vend-no)
-                @ vend.name*/
-          tt-report.inv-no
-          tt-report.jrnl
-          tt-report.trnum
-          tt-report.tr-date
-          tt-report.amt
-      WITH FRAME detail.
-  DOWN WITH FRAME detail. */
-
- /* IF tb_excel THEN  
-      EXPORT STREAM excel DELIMITER ","
-      /*  gdm - 11130906
-            (IF FIRST-OF(tt-report.actnum) 
-                THEN tt-report.actnum
-                ELSE "")
-
-            (IF AVAIL account THEN 
-                IF FIRST-OF(tt-report.actnum) 
-                   THEN account.dscr
-                   ELSE ""
-             ELSE 
-                "Not on file")         
-
-            (IF FIRST-OF(tt-report.vend-no)
-                THEN tt-report.vend-no
-                ELSE "")
-      */    
-            tt-report.actnum
-            /* account.dscr */ lv-excel-descr
-            tt-report.vend-no
-       /* gdm - 11130906 end */
-
-            tt-report.inv-no
-            tt-report.jrnl
-            tt-report.trnum
-            tt-report.tr-date
-            tt-report.amt 
-            SKIP. */
-
 
   ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1746,27 +1769,12 @@ FOR EACH tt-report
              END.
 
   IF LAST-OF(tt-report.vend-no) THEN DO:
-    PUT SKIP(1).
-
-   /* UNDERLINE tt-report.amt.
-    DISPLAY "  Vendor" @ tt-report.vend-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[1]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN  
-       EXPORT STREAM excel DELIMITER ","
-              " "
-              " "
-              " "
-              "Vendor Totals"
-              " "
-              " "
-              " "                           
-              lv-amt[1]
-              SKIP. */
-    PUT SKIP str-line SKIP .
-    ASSIGN cDisplay = ""
+    IF td-sub-total THEN
+    DO:      
+        PUT SKIP(1). 
+    
+        PUT SKIP str-line SKIP .
+        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
@@ -1795,36 +1803,21 @@ FOR EACH tt-report
                 PUT STREAM excel UNFORMATTED  
                     "Vendor Total " + substring(cExcelDisplay,3,300) SKIP.
             END.
-
+            PUT SKIP(1).
+    END.
     ASSIGN
      lv-amt[2] = lv-amt[2] + lv-amt[1]
      lv-amt[1] = 0.
 
-    PUT SKIP(1).
+    
   END.
 
   IF LAST-OF(tt-report.actnum) THEN DO:
-    PUT SKIP(1).
-
-  /*  UNDERLINE tt-report.amt.
-    DISPLAY "   Acct#" @ tt-report.vend-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[2]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN  
-       EXPORT STREAM excel DELIMITER ","
-              " "
-              " "
-              " "
-              "Acct# Totals"
-              " "
-              " "
-              " "                          
-              lv-amt[2]
-              SKIP. */
-    PUT SKIP str-line SKIP .
-    ASSIGN cDisplay = ""
+    IF td-sub-total THEN
+    DO:
+       PUT SKIP(1).   
+       PUT SKIP str-line SKIP .
+       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
                    cExcelDisplay = ""
@@ -1853,33 +1846,17 @@ FOR EACH tt-report
                 PUT STREAM excel UNFORMATTED  
                     "Acct# Total " + substring(cExcelDisplay,3,300) SKIP.
             END.
-
+            PUT SKIP(3).
+    END.
     ASSIGN lv-amt[3] = lv-amt[3] + lv-amt[2]
            lv-amt[2] = 0.
 
-    PUT SKIP(3).
+    
   END.
 
   IF LAST(tt-report.actnum) THEN DO:
-    PUT SKIP(1).
-
-  /*  UNDERLINE tt-report.amt.
-    DISPLAY "   Grand" @ tt-report.vend-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[3]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN  
-       EXPORT STREAM excel DELIMITER ","
-              " "
-              " "
-              " "
-              "Grand Totals"
-              " "
-              " "
-              " "                            
-              lv-amt[3]
-              SKIP.    */
+    PUT SKIP(1). 
+  
     PUT SKIP str-line SKIP .
     ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -2000,7 +1977,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
@@ -2017,5 +1993,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

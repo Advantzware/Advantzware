@@ -1,0 +1,23 @@
+Hotfix List (Override directory)  
+-------------------------------------------------------------------------------------------
+Hotfix ID   Ticket  Date   Description
+-------------------------------------------------------------------------------------------
+21.03.01     65975  08/13/21    E-C Estimate Error Message and Importing Invalid Machine from Style File
+21.03.01     97428  08/13/21    Add fields in FG history to combine 2 history tables together
+21.03.01    100629  08/13/21    line items not closing when combining OE by PO
+21.03.01    101754  08/13/21    JobcardF-Carded2 - Overs Unders on Job Ticket
+21.03.01    101937  08/13/21    Scores not transferring to PO
+21.03.01    101973  08/13/21    % of Sales Column
+21.03.01    102167  08/13/21    Remove old e-item data
+21.03.01    102221  08/13/21    PO Cost Issue
+21.03.01    102316  08/13/21    Add the Option to print the A/P invoices for a GL Run number
+21.03.01    102358  08/13/21    Add Run # to detail screen
+21.03.01    102362  08/13/21    Auto Price Brake 9999 Under Price Basis From (100369 Follow Up)
+21.03.01    102378  08/13/21    Trying to add an estimate to a combo, if the FG item is blank, message 'Item is
+21.03.01    102379  08/13/21    OU1: changes since update
+21.03.01    102392  08/13/21    Follow Up- Chrome River API- Add Buyer to Template
+21.03.01    102409  08/13/21    OU1- Transfer Qty Column
+21.03.01    102425  08/13/21    Validation Not Removed From Warehouse IQ3 (99301 Follow Up)
+21.03.01    102497  08/13/21    NA1- Amazon ASN Print Trigger Failure
+21.03.01    102498  08/13/21    Performance to Enter Estimate For Duplicate Customer Part Number
+21.03.01    102526  08/13/21    BOL Qty Scan - Allow over shipping

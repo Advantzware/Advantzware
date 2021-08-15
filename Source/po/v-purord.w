@@ -1908,10 +1908,16 @@ PROCEDURE local-assign-record :
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-anse AS LOG.
 
      IF ll-anse THEN 
-         FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
+         IF lNewVendorItemCost THEN 
+         DO:
+            RUN PO_RecalculateCostsPO IN hdPOProcs (ROWID(po-ord)).
+         END.     
+         ELSE 
+            FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
                             AND po-ordl.po-no = po-ord.po-no:
-          {po/vend-cost.i YES }
-     END.
+                {po/vend-cost.i YES }
+            END.
+        
   END.  /* change vender */
 
   FIND CURRENT po-ord NO-LOCK NO-ERROR.

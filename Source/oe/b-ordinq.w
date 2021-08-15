@@ -280,7 +280,9 @@ oe-ordl.e-num getTotalReturned() @ dTotQtyRet getReturnedInv() @ dTotRetInv ~
 oe-ordl.s-man[1] oe-ordl.cost pGetSellPrice() @ dSellPrice ~
 pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
-fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance get-bal(li-qoh) @ li-bal
+fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance get-bal(li-qoh) @ li-bal ~
+get-xfer-qty () @ ld-xfer-qty get-act-bol-qty() @ li-act-bol-qty ~
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.ord-date oe-ordl.req-date oe-ord.cust-name ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no ~
@@ -687,6 +689,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 16
       fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
       get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U
+      get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
+      get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
+      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
   ENABLE
       oe-ordl.ord-no
       oe-ordl.cust-no
@@ -927,6 +932,12 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 "itemfg.q-onh" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[37]   > "_<CALC>"
 "fnProdBalance(oe-ordl.qty,get-prod(li-bal)) @ dProdBalance" "Prod. Balance" "->>,>>>,>>9.9<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[38]   > "_<CALC>"
+"get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[39]   > "_<CALC>"
+"get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[40]   > "_<CALC>"
+"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
