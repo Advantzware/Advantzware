@@ -1688,6 +1688,7 @@ ASSIGN
                                        INPUT cocode,
                                        INPUT cust.cust-no,
                                        INPUT shipto.ship-id,
+                                       INPUT "",
                                        OUTPUT lError,
                                        OUTPUT cMessage
                                        ).      
