@@ -54,7 +54,6 @@ DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
 DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
-DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -695,7 +694,7 @@ DO:
 
     DEF VAR v-locbin AS cha NO-UNDO.
     
-    RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
+    RUN Inventory_GetWarehouseLength IN hInventoryProcs (
         INPUT  cocode,
         OUTPUT iWarehouseLength
         ).
