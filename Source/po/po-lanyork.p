@@ -552,7 +552,7 @@ v-printline = 0.
                 FIND FIRST ef NO-LOCK
                     WHERE ef.company EQ cocode 
                       AND ef.est-no EQ eb.est-no 
-                      AND ef.form-no EQ eb.form-no .
+                      AND ef.form-no EQ eb.form-no NO-ERROR.
 
             IF AVAIL eb THEN
                 FIND FIRST style NO-LOCK
