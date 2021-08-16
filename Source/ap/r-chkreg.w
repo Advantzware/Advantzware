@@ -170,6 +170,7 @@ END.
 
 DEFINE VARIABLE lAPInvoiceLength AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cNK1Value        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRBCCheckFile    AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -182,6 +183,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BankTransmittalLocation", "l" /* Logical *
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lBankTransmittalLocation = LOGICAL(cNK1Value) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "RBCCheckFile", "L" /* Logical */, NO /* check by cust */,
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lRBCCheckFile = LOGICAL(cNK1Value) NO-ERROR.    
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2722,7 +2729,35 @@ PROCEDURE run-report :
         OUTPUT lSuccess,                   /* Success/Failure flag */
         OUTPUT cMessage                    /* Status message */
         ) NO-ERROR.     
+        
+    IF tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} AND lRBCCheckFile THEN
+    DO:      
+        ASSIGN 
+            cAPIID       = "SendBankCheck"
+            cTriggerID   = "RBCCheckFile"
+            cPrimaryID   = "Check " 
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
+            cDataList    = STRING(post-manual) + ","
+                   + STRING(cocode)
+            .
+               
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  cocode,                     /* Company Code (Mandatory) */
+            INPUT  locode,                     /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  cBankCode,                  /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "PostManual,Company",       /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ) NO-ERROR.    
 
+            MESSAGE "EFT transfer for check file is created " + TRIM(STRING(lSuccess, "successfully/failed")) VIEW-AS ALERT-BOX.    
+            
+    END.
 
     IF tb_excel THEN 
     DO:
