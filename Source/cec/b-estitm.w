@@ -5692,6 +5692,9 @@ PROCEDURE local-assign-record :
             bf-eb.stock-no = tt-eb-set-part.header-stock-no
             bf-eb.part-dscr1 = tt-eb-set-part.header-part-dscr1
             bf-eb.part-dscr2 = tt-eb-set-part.header-part-dscr2.
+            {sys/inc/k16bb.i bf-eb.len  } 
+            {sys/inc/k16bb.i bf-eb.wid  } 
+            {sys/inc/k16bb.i bf-eb.dep  } 
        END.
   END.
   
