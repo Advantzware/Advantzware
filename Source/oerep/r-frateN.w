@@ -817,19 +817,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
-  IF rd-dest EQ 3 THEN
-        ASSIGN
-            fi_file:SENSITIVE    = TRUE  
-            tb_OpenCSV:SENSITIVE = TRUE
-            tb_OpenCSV:CHECKED   = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:SENSITIVE    = FALSE  
-            tb_OpenCSV:CHECKED   = FALSE
-            tb_OpenCSV:SENSITIVE = FALSE
-            .
+  ASSIGN {&self-name}.
+  RUN pChangeDest.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -847,28 +836,6 @@ DO:
                ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
-
-
-/* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
-    cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
-         sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
-        sl_selected:NUM-ITEMS
-        SKIP cSelectedList
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -964,7 +931,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
   RUN DisplaySelectionList.
-              btn-ok:load-image("Graphics/32x32/Ok.png").
+    btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     Btn_Def:load-image("Graphics/32x32/default.png").
     Btn_Add:load-image("Graphics/32x32/additem.png").
@@ -972,14 +939,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
-{sys/inc/reportsConfigNK1.i "OR15" }
-assign
-td-show-parm:sensitive = lShowParameters
-td-show-parm:hidden = not lShowParameters
-td-show-parm:visible = lShowParameters
-.
   {methods/nowait.i}
+  {sys/inc/reportsConfigNK1.i "OR15" }
+  ASSIGN
+  td-show-parm:SENSITIVE = lShowParameters
+  td-show-parm:HIDDEN = NOT lShowParameters
+  td-show-parm:VISIBLE = lShowParameters
+  .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
@@ -987,6 +953,8 @@ td-show-parm:visible = lShowParameters
     APPLY "entry" TO begin_inv-date.
   END.
 
+  RUN pChangeDest.
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1787,6 +1755,33 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      IF rd-dest:SCREEN-VALUE EQ "3" THEN
+       ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "Yes"
+        fi_file:SENSITIVE = YES
+        tb_OpenCSV:SENSITIVE = YES       
+       .
+      ELSE 
+        ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "NO"
+        fi_file:SENSITIVE = NO
+        tb_OpenCSV:SENSITIVE = NO       
+       .
+  END.
 
 END PROCEDURE.
 

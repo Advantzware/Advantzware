@@ -964,18 +964,7 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
-  IF rd-dest EQ 3 THEN
-        ASSIGN
-            fi_file:SENSITIVE    = TRUE  
-            tb_OpenCSV:SENSITIVE = TRUE
-            tb_OpenCSV:CHECKED   = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:SENSITIVE    = FALSE  
-            tb_OpenCSV:CHECKED   = FALSE
-            tb_OpenCSV:SENSITIVE = FALSE
-            .
+  RUN pChangeDest.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1188,13 +1177,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
-{sys/inc/reportsConfigNK1.i "OR13" }
-assign
-td-show-parm:sensitive = lShowParameters
-td-show-parm:hidden = not lShowParameters
-td-show-parm:visible = lShowParameters
-.
+  {sys/inc/reportsConfigNK1.i "OR13" }
+  ASSIGN
+  td-show-parm:SENSITIVE = lShowParameters
+  td-show-parm:HIDDEN = NOT lShowParameters
+  td-show-parm:VISIBLE = lShowParameters
+  .
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1203,6 +1191,8 @@ td-show-parm:visible = lShowParameters
     APPLY "entry" TO begin_cust-no.
   END.
 
+  RUN pChangeDest.
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1834,6 +1824,33 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      IF rd-dest:SCREEN-VALUE EQ "3" THEN
+       ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "Yes"
+        fi_file:SENSITIVE = YES
+        tb_OpenCSV:SENSITIVE = YES       
+       .
+      ELSE 
+        ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "NO"
+        fi_file:SENSITIVE = NO
+        tb_OpenCSV:SENSITIVE = NO       
+       .
+  END.
 
 END PROCEDURE.
 

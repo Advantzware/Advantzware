@@ -1241,18 +1241,8 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
-  IF rd-dest EQ 3 THEN
-        ASSIGN
-            fi_file:SENSITIVE    = TRUE  
-            tb_OpenCSV:SENSITIVE = TRUE
-            tb_OpenCSV:CHECKED   = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:SENSITIVE    = FALSE  
-            tb_OpenCSV:CHECKED   = FALSE
-            tb_OpenCSV:SENSITIVE = FALSE
-            .
+  RUN pChangeDest.
+  
   IF rd-dest = 5 THEN DO:
      IF lv-ornt:SCREEN-VALUE BEGINS "p" THEN lines-per-page:SCREEN-VALUE = "60".
      ELSE lines-per-page:SCREEN-VALUE = "45".     
@@ -1513,7 +1503,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
     RUN enable_UI.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
     {sys/inc/reportsConfigNK1.i "OR8" }
     {methods/nowait.i}
     ASSIGN
@@ -1534,6 +1523,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     cColumnInit = NO.
   END.
 
+  RUN pChangeDest.
+  
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'OR8',
                           INPUT NO,
@@ -2582,6 +2573,33 @@ PROCEDURE show-param :
   end.
 
   put fill("-",80) format "x(80)" skip.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      IF rd-dest:SCREEN-VALUE EQ "3" THEN
+       ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "Yes"
+        fi_file:SENSITIVE = YES
+        tb_OpenCSV:SENSITIVE = YES       
+       .
+      ELSE 
+        ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "NO"
+        fi_file:SENSITIVE = NO
+        tb_OpenCSV:SENSITIVE = NO       
+       .
+  END.
 
 END PROCEDURE.
 
