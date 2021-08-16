@@ -1388,10 +1388,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
    newRecord = adm-new-record.
 
-  /* validation ===*/
-   RUN valid-effective-date (OUTPUT lReturnError)NO-ERROR.
-   IF lReturnError THEN RETURN NO-APPLY.
-  
+  /* validation ===*/      
    RUN valid-cust-no NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1978,29 +1975,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-effective-date V-table-Win 
-PROCEDURE valid-effective-date :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:     
-
-    IF quotehd.effectiveDate:SCREEN-VALUE EQ "" THEN DO:     
-        MESSAGE "Effective date is blank, Please enter Effective date..."  VIEW-AS ALERT-BOX.
-        APPLY "entry" TO quotehd.effectiveDate.
-        oplReturnError = TRUE. 
-      END. 
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 
