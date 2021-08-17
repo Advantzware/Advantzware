@@ -232,7 +232,6 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .   
-    DEFINE VARIABLE lEditRecord AS LOGICAL INIT YES NO-UNDO.
     DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
     DEFINE BUFFER bQuoteItm FOR quoteitm.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
@@ -260,8 +259,7 @@ PROCEDURE pProcessRecord PRIVATE:
         IF AVAILABLE bf-ttImportQuote THEN
             cQuoteNumber = bf-ttImportQuote.Quote.
         ELSE 
-            lAutoNumber = YES.
-        lEditRecord = NO.    
+            lAutoNumber = YES.        
     END.
     FIND FIRST bf-quotehd EXCLUSIVE-LOCK
         WHERE bf-quotehd.company  EQ ipbf-ttImportQuote.Company
@@ -284,8 +282,7 @@ PROCEDURE pProcessRecord PRIVATE:
                 ipbf-ttImportQuote.Quote = STRING(bf-quotehd.q-no)
                 .                
             FIND CURRENT ipbf-ttImportQuote NO-LOCK.
-        END.
-        lEditRecord = NO.
+        END.        
     END.
     
     RUN pGetNk1Settings(INPUT ipbf-ttImportQuote.Company, OUTPUT lQuotePriceMatrix).
@@ -349,48 +346,48 @@ PROCEDURE pProcessRecord PRIVATE:
          bf-quoteitm.upd-user = USERID(LDBNAME(1)) .
     END.
     
-    IF lQuotePriceMatrix AND bf-quotehd.approved  THEN
-    DO:
-      RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT bf-quoteitm.qty).
-      RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.price).
-      RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.uom).  
-    END.
-    ELSE do:
-      RUN pAssignValueC (ipbf-ttImportQuote.CustPart, YES, INPUT-OUTPUT bf-quoteitm.part-no).
-      RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT bf-quoteitm.qty).
-      RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.price).
-      RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.uom).
-      RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.part-dscr1).
-      RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr2, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.part-dscr2).
-      RUN pAssignValueC (ipbf-ttImportQuote.Dimensions, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.size).
-      RUN pAssignValueC (ipbf-ttImportQuote.board, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.i-dscr).
-      RUN pAssignValueC (ipbf-ttImportQuote.color1, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.i-coldscr).
+  
+    RUN pAssignValueC (ipbf-ttImportQuote.CustPart, YES, INPUT-OUTPUT bf-quoteitm.part-no).
+    RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT bf-quoteitm.qty).
+    RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.price).
+    RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.uom).
+    RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.part-dscr1).
+    RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr2, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.part-dscr2).
+    RUN pAssignValueC (ipbf-ttImportQuote.Dimensions, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.size).
+    RUN pAssignValueC (ipbf-ttImportQuote.board, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.i-dscr).
+    RUN pAssignValueC (ipbf-ttImportQuote.color1, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.i-coldscr).
 
-      RUN custom/getcpart.p (bf-quotehd.company, bf-quotehd.cust-no,
-                             INPUT-OUTPUT bf-quoteitm.part-no, INPUT-OUTPUT riItemfg).
-      FIND itemfg WHERE ROWID(itemfg) EQ riItemfg NO-LOCK NO-ERROR.
+    RUN custom/getcpart.p (bf-quotehd.company, bf-quotehd.cust-no,
+                           INPUT-OUTPUT bf-quoteitm.part-no, INPUT-OUTPUT riItemfg).
+    FIND itemfg WHERE ROWID(itemfg) EQ riItemfg NO-LOCK NO-ERROR.
 
-      IF NOT AVAILABLE itemfg THEN
-      FIND FIRST itemfg
-          WHERE itemfg.company  EQ bf-quoteitm.company
-            AND itemfg.part-no  EQ bf-quoteitm.part-no
-            AND itemfg.part-no  NE ""
-            AND (itemfg.cust-no EQ bf-quotehd.cust-no OR
-                 itemfg.i-code  EQ "S")
-          NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN
+    FIND FIRST itemfg
+         WHERE itemfg.company  EQ bf-quoteitm.company
+           AND itemfg.part-no  EQ bf-quoteitm.part-no
+           AND itemfg.part-no  NE ""
+           AND (itemfg.cust-no EQ bf-quotehd.cust-no OR
+                itemfg.i-code  EQ "S")
+         NO-LOCK NO-ERROR.
 
 
-      IF ipbf-ttImportQuote.style NE "" THEN
-          RUN pAssignValueC (ipbf-ttImportQuote.style, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.style).
-      ELSE
-          bf-quoteitm.style = IF AVAILABLE itemfg THEN itemfg.style ELSE "" .
+    IF ipbf-ttImportQuote.style NE "" THEN
+        RUN pAssignValueC (ipbf-ttImportQuote.style, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.style).
+    ELSE
+        bf-quoteitm.style = IF AVAILABLE itemfg THEN itemfg.style ELSE "" .
 
-        bf-quoteitm.i-no = IF AVAILABLE itemfg THEN itemfg.i-no ELSE "".
-         IF bf-quoteitm.part-dscr1 EQ "" THEN
-             bf-quoteitm.part-dscr1 = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" .
-         IF bf-quoteitm.SIZE EQ "" THEN
-             bf-quoteitm.SIZE = IF AVAILABLE itemfg THEN  (STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50])) ELSE "" .
-    END.    
+      bf-quoteitm.i-no = IF AVAILABLE itemfg THEN itemfg.i-no ELSE "".
+       IF bf-quoteitm.part-dscr1 EQ "" THEN
+           bf-quoteitm.part-dscr1 = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" .
+       IF bf-quoteitm.SIZE EQ "" THEN
+           bf-quoteitm.SIZE = IF AVAILABLE itemfg THEN  (STRING(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + STRING(itemfg.d-score[50])) ELSE "" .
+      
+    IF lQuotePriceMatrix AND NOT bf-quotehd.approved THEN
+    ASSIGN
+         bf-quotehd.approved = YES
+         bf-quotehd.effectiveDate = TODAY
+         bf-quotehd.expireDate = IF bf-quotehd.expireDate EQ ? THEN 12/31/2099 ELSE bf-quotehd.expireDate.             
+    
       FIND FIRST bf-quoteqty EXCLUSIVE-LOCK
           WHERE bf-quoteqty.company EQ bf-quoteitm.company 
           AND bf-quoteqty.loc EQ bf-quoteitm.loc 
@@ -447,7 +444,7 @@ PROCEDURE pProcessRecord PRIVATE:
       IF lookup(STRING(bf-quotehd.q-no),cAddedNewQuote) NE 0 THEN 
       RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.effectiveDate - 1) .  
       
-      IF lQuotePriceMatrix AND bf-quotehd.approved AND lEditRecord THEN
+      IF lQuotePriceMatrix AND bf-quotehd.approved THEN
       RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, "Q") .
       
       RELEASE bf-quoteitm.
