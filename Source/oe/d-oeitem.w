@@ -6420,7 +6420,7 @@ PROCEDURE get-price :
                     ). 
             END.
         FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
-        DISPLAY oe-ordl.price oe-ordl.pr-uom oe-ordl.t-price.
+        
         RUN Conv_CalcTotalPrice(cocode, 
                         oe-ordl.i-no:SCREEN-VALUE,
                         DECIMAL(oe-ordl.qty:SCREEN-VALUE),
