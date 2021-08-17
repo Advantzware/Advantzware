@@ -641,8 +641,7 @@ DO:
   END.
   IF rd-dest EQ 3 THEN
   DO:
-    fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
-    ASSIGN fi_file.
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
   END.
@@ -1456,16 +1455,6 @@ DEF BUFFER bar-inv FOR ar-inv.
 
 DEFINE VARIABLE dMsfCalc AS DECIMAL NO-UNDO .
 
-//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
-/*FORMAT HEADER
-       v-head[1] SKIP
-       v-head[2] SKIP
-       v-head[3]
-
-    WITH FRAME r-top WIDTH 300. /* 200 */ */
-
-
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (O-R-6)"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1510,10 +1499,6 @@ END.
 
 EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE w-comm.
-
-/*IF tb_excel THEN do:
-  OUTPUT STREAM st-excell TO VALUE(cFileName).
-END.*/
 
 {sys/inc/print1.i}
 
@@ -1669,6 +1654,8 @@ PROCEDURE pChangeDest :
         fi_file:SENSITIVE = NO
         tb_OpenCSV:SENSITIVE = NO       
        .
+       
+     ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\commrpt.csv".
   END.
 
 END PROCEDURE.

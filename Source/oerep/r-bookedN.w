@@ -953,13 +953,12 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-IF rd-dest EQ 3 THEN
-  do:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-booked.csv".
-    assign fi_file.
+  IF rd-dest EQ 3 THEN
+  DO:
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
+  END.
   IF g_batch THEN tb_batch = YES.
   IF tb_batch THEN DO:
      RUN run-batch.
@@ -2348,6 +2347,8 @@ PROCEDURE pChangeDest :
         fi_file:SENSITIVE = NO
         tb_OpenCSV:SENSITIVE = NO       
        .
+       
+     ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-booked.csv".
   END.
 
 END PROCEDURE.
