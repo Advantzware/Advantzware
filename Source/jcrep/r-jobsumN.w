@@ -750,8 +750,7 @@ DO:
 
   IF rd-dest EQ 3 THEN
   DO:
-    fi_file2:SCREEN-VALUE = "c:\tmp\r-jobsumN.csv".
-    ASSIGN fi_file2.
+    ASSIGN fi_file2 = SUBSTRING(fi_file2,1,INDEX(fi_file2,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file2,OUTPUT cFileName2) .
     fi_file2:SCREEN-VALUE =  cFileName2.
   END.  
@@ -1979,6 +1978,7 @@ PROCEDURE pChangeDest :
        fi_file2:SENSITIVE = NO
        tb_OpenCSV:SENSITIVE = NO      
       .
+    ASSIGN fi_file2:SCREEN-VALUE = "c:\tmp\r-jobsumN.csv".   
  END.
 
 END PROCEDURE.

@@ -511,8 +511,7 @@ DO:
   END.
   IF rd-dest EQ 3 THEN
   DO:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-backlo.csv".
-    ASSIGN fi_file.
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
   END.
@@ -1812,6 +1811,7 @@ PROCEDURE pChangeDest :
        fi_file:SENSITIVE = NO
        tb_OpenCSV:SENSITIVE = NO      
       .
+    ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-backlo.csv".
  END.
 
 END PROCEDURE.

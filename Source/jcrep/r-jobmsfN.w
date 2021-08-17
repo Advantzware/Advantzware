@@ -550,8 +550,7 @@ DO:
   
   IF rd-dest EQ 3 THEN
   DO:
-    exp-name:SCREEN-VALUE = "c:\tmp\r-jobmsf.csv".
-    ASSIGN exp-name.
+    ASSIGN exp-name = SUBSTRING(exp-name,1,INDEX(exp-name,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT exp-name,OUTPUT cFileName) .
     exp-name:SCREEN-VALUE =  cFileName.
   END.
@@ -2004,6 +2003,7 @@ PROCEDURE pChangeDest :
        exp-name:SENSITIVE = NO
        tb_OpenCSV:SENSITIVE = NO      
       .
+    ASSIGN exp-name:SCREEN-VALUE = "c:\tmp\r-jobmsf.csv".   
  END.
 
 END PROCEDURE.
