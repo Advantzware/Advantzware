@@ -2974,6 +2974,8 @@ PROCEDURE ipDataFix :
 		RUN ipDataFix210200.
     IF iCurrentVersion LT 21030000 THEN 
         RUN ipDataFix210300.
+    IF iCurrentVersion LT 21030200 THEN 
+        RUN ipDataFix210302.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3778,6 +3780,24 @@ PROCEDURE ipDataFix210300:
     RUN ipConvertPolScore.
     RUN ipJobMchSequenceFix.
     
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210302 C-Win
+PROCEDURE ipDataFix210302 PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 210302...").
+    
+    RUN ipFixEstimateScores.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -7213,6 +7233,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixEstimateScores C-Win
+PROCEDURE ipFixEstimateScores:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+
+    RUN ipStatus ("    Fix Estimate scores").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    RUN util/EstimateScoresFix.p.
+    
+    PROPATH = cOrigPropath.    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
