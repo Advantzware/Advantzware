@@ -1635,7 +1635,7 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
            AND bf-mach.m-code  EQ ipbf-job-mch.m-code
          NO-ERROR.
     IF AVAILABLE bf-mach THEN DO:
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", bf-mach.sch-m-code).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", IF bf-mach.sch-m-code NE "" THEN bf-mach.sch-m-code ELSE cMachineCode).
         RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", bf-mach.industry).
         RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", bf-mach.m-dscr).
     END.
