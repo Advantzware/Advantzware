@@ -185,6 +185,17 @@ DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
         
+DEFINE TEMP-TABLE ttPanel
+    FIELD cPanelType            AS CHARACTER
+    FIELD iPanelNum             AS INTEGER 
+    FIELD cPanelFormula         AS CHARACTER 
+    FIELD dScoringAllowance     AS DECIMAL
+    FIELD cScoreType            AS CHARACTER
+    FIELD dPanelSize            AS DECIMAL
+    FIELD dPanelSizeFromFormula AS DECIMAL
+    FIELD lAddAllowanceToSize   AS LOGICAL
+    .
+    
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -2974,8 +2985,6 @@ PROCEDURE ipDataFix :
 		RUN ipDataFix210200.
     IF iCurrentVersion LT 21030000 THEN 
         RUN ipDataFix210300.
-    IF iCurrentVersion LT 21030200 THEN 
-        RUN ipDataFix210302.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3779,25 +3788,8 @@ PROCEDURE ipDataFix210300:
     RUN ipRemoveBadApiOutboundRecs.
     RUN ipConvertPolScore.
     RUN ipJobMchSequenceFix.
-    
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210302 C-Win
-PROCEDURE ipDataFix210302 PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 210302...").
-    
     RUN ipFixEstimateScores.
-
+    
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -5302,7 +5294,7 @@ PROCEDURE ipLoadDAOAData :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
+        IF ERROR-STATUS:ERROR THEN
             DELETE {&tablename}.
     END.
     INPUT CLOSE.
@@ -7243,6 +7235,12 @@ PROCEDURE ipFixEstimateScores:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCtr           AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-eb    FOR eb.
+    DEFINE BUFFER bf-style FOR style.
 
     RUN ipStatus ("    Fix Estimate scores").
 
@@ -7252,9 +7250,60 @@ PROCEDURE ipFixEstimateScores:
         PROPATH      = cNewPropath
         .
 
-    RUN util/EstimateScoresFix.p.
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    FOR EACH company NO-LOCK:
+        
+        FOR EACH bf-eb NO-LOCK WHERE 
+            bf-eb.company EQ company.company:   
+    
+            FIND FIRST bf-style NO-LOCK
+                 WHERE bf-style.company EQ bf-eb.company
+                   AND bf-style.style   EQ bf-eb.style
+                 NO-ERROR.
+            IF NOT AVAIL bf-style THEN FIND FIRST bf-style NO-LOCK WHERE 
+                bf-style.company EQ "001" AND 
+                bf-style.style EQ bf-eb.style
+                NO-ERROR.
+                     
+            IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+                EMPTY TEMP-TABLE ttPanel.
+            
+                DO iIndex = 1 TO EXTENT(bf-eb.k-wid-array2):
+                    CREATE ttPanel.
+                    ASSIGN
+                        ttPanel.iPanelNum  = iIndex
+                        ttPanel.cPanelType = "W"
+                        ttPanel.cScoreType = bf-eb.k-wid-scr-type2[iIndex]
+                        ttPanel.dPanelSize = bf-eb.k-wid-array2[iIndex]
+                        .
+                END.
+            
+                DO iIndex = 1 TO EXTENT(bf-eb.k-len-array2):
+                    CREATE ttPanel.
+                    ASSIGN
+                        ttPanel.iPanelNum  = iIndex
+                        ttPanel.cPanelType = "L"
+                        ttPanel.cScoreType = bf-eb.k-len-scr-type2[iIndex]
+                        ttPanel.dPanelSize = bf-eb.k-len-array2[iIndex]
+                        .
+                END.
+            
+                RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+                    INPUT bf-eb.company,
+                    INPUT bf-eb.est-no,
+                    INPUT bf-eb.form-no,
+                    INPUT bf-eb.blank-no,
+                    INPUT TABLE ttPanel
+                    ).    
+            END.     
+        END.
+    END.
+    
+    DELETE PROCEDURE hdFormulaProcs.
     
     PROPATH = cOrigPropath.    
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
