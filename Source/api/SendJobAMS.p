@@ -1535,7 +1535,9 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     DEFINE OUTPUT PARAMETER oplcConcatJobMachineDataByItem AS LONGCHAR  NO-UNDO.
 
     DEFINE VARIABLE lcJobMachineDataByItem        AS LONGCHAR  NO-UNDO.
-     
+    
+    DEFINE BUFFER bf-mach FOR mach.
+    
     IF NOT AVAILABLE ipbf-job-mch THEN
         RETURN.
 
@@ -1627,6 +1629,16 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "RunProfitPercentage",cRunProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MRProfitPercentage",cMRProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "WastePercentage",cJobMchWastePct).
-        
+    
+    FIND FIRST bf-mach NO-LOCK
+         WHERE bf-mach.company EQ ipbf-job-mch.company
+           AND bf-mach.m-code  EQ ipbf-job-mch.m-code
+         NO-ERROR.
+    IF AVAILABLE bf-mach THEN DO:
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", bf-mach.sch-m-code).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", bf-mach.industry).
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", bf-mach.m-dscr).
+    END.
+    
     oplcConcatJobMachineDataByItem = oplcConcatJobMachineDataByItem + lcJobMachineDataByItem.         
 END PROCEDURE.   
