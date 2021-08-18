@@ -1016,6 +1016,7 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     DEFINE BUFFER bf-job-mat FOR job-mat.
     DEFINE BUFFER bf-item    FOR item.
     DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-style   FOR style.
     
     FIND FIRST bf-po-ordl NO-LOCK
          WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
@@ -1148,17 +1149,23 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     
     IF AVAILABLE bf-eb THEN DO:
         EMPTY TEMP-TABLE ttPanel.
-        
-        RUN pBuildPanelDetailsForEstimate (
-            INPUT  ROWID(bf-eb),
-            INPUT  FALSE,  /* Re-build */
-            INPUT  FALSE,  /* Save */
-            INPUT  ipcPanelTypes,   /* Panel Types to build */
-            OUTPUT TABLE ttPanel
-            ).       
+
+        FIND FIRST bf-style NO-LOCK
+             WHERE bf-style.company EQ bf-eb.company
+               AND bf-style.style   EQ bf-eb.style
+               AND bf-style.type    EQ "B"
+             NO-ERROR.
+        IF AVAILABLE bf-style THEN        
+            RUN pBuildPanelDetailsForEstimate (
+                INPUT  ROWID(bf-eb),
+                INPUT  FALSE,  /* Re-build */
+                INPUT  FALSE,  /* Save */
+                INPUT  ipcPanelTypes,   /* Panel Types to build */
+                OUTPUT TABLE ttPanel
+                ).       
     END.
     
-    IF iplSave AND AVAILABLE bf-eb THEN
+    IF iplSave AND AVAILABLE bf-eb AND AVAILABLE bf-style THEN
         RUN pUpdatePanelDetails (
             INPUT  gcPanelLinkTypePO,
             INPUT  bf-eb.company,

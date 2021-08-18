@@ -184,7 +184,7 @@ DEF TEMP-TABLE ttledger
 DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
-        
+
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -3777,6 +3777,7 @@ PROCEDURE ipDataFix210300:
     RUN ipRemoveBadApiOutboundRecs.
     RUN ipConvertPolScore.
     RUN ipJobMchSequenceFix.
+    RUN ipFixEstimateScores.
     
 END PROCEDURE.
     
@@ -5282,7 +5283,7 @@ PROCEDURE ipLoadDAOAData :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
+        IF ERROR-STATUS:ERROR THEN
             DELETE {&tablename}.
     END.
     INPUT CLOSE.
@@ -7213,6 +7214,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixEstimateScores C-Win
+PROCEDURE ipFixEstimateScores:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    RUN ipStatus ("    Fix Estimate scores").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    RUN util/dev/EstimateScoresFix.p
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
