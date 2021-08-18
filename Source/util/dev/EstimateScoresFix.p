@@ -86,7 +86,7 @@ FOR EACH company NO-LOCK:
         FIRST bf-style NO-LOCK
         WHERE bf-style.company EQ bf-panelHeader.company
           AND bf-style.style   EQ bf-panelHeader.styleID
-          AND bf-style.style   NE "B":
+          AND bf-style.type    NE "B":
         RUN DeletePanelDetailsForPO IN hdFormulaProcs (
             INPUT bf-po-ordl.company,
             INPUT bf-po-ordl.po-no,
