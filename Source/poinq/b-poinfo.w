@@ -100,6 +100,9 @@ po-ordl.cust-no po-ordl.LINE po-ord.Loc  pGetQtyDue() @ dQtyDue
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH po-ordl WHERE po-ordl.company = itemfg.company  ~
   AND po-ordl.i-no = itemfg.i-no ~
   AND po-ordl.item-type  = no ~
+  AND po-ordl.job-no    EQ "" ~
+  AND po-ordl.opened    EQ YES ~
+  AND po-ordl.stat      NE "C" ~
   NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company eq po-ordl.company and ~
 po-ord.po-no eq po-ordl.po-no  AND (po-ord.loc EQ ipLocation OR ipLocation EQ "*All" ) ~
@@ -108,6 +111,9 @@ po-ord.po-no eq po-ordl.po-no  AND (po-ord.loc EQ ipLocation OR ipLocation EQ "*
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH po-ordl WHERE po-ordl.company = itemfg.company  ~
   AND po-ordl.i-no = itemfg.i-no ~
   AND po-ordl.item-type  = no ~
+  AND po-ordl.job-no    EQ "" ~
+  AND po-ordl.opened    EQ YES ~
+  AND po-ordl.stat      NE "C" ~
   NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company eq po-ordl.company and ~
 po-ord.po-no eq po-ordl.po-no  AND (po-ord.loc EQ ipLocation OR ipLocation EQ "*All" ) ~
@@ -390,6 +396,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 OPEN QUERY {&SELF-NAME} FOR EACH po-ordl WHERE po-ordl.company = itemfg.company  ~
   AND po-ordl.i-no = itemfg.i-no ~
   AND po-ordl.item-type  = no ~
+  AND po-ordl.job-no    EQ "" ~
+  AND po-ordl.opened    EQ YES ~
+  AND po-ordl.stat      NE "C" ~
   NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company eq po-ordl.company and ~
 po-ord.po-no eq po-ordl.po-no  AND (po-ord.loc EQ ipLocation OR ipLocation EQ "*All" ) ~
@@ -540,7 +549,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         OPEN QUERY BROWSE-1 FOR EACH po-ordl WHERE po-ordl.company = itemfg.company 
             AND po-ordl.i-no = itemfg.i-no 
-            AND po-ordl.item-type  = NO 
+            AND po-ordl.job-no    EQ ""
+            AND po-ordl.item-type EQ NO
+            AND po-ordl.opened    EQ YES
+            AND po-ordl.stat      NE "C"
             NO-LOCK, 
             FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND 
             po-ord.po-no EQ po-ordl.po-no AND (po-ord.loc EQ ipLocation OR ipLocation EQ "*All" )
