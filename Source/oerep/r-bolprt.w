@@ -1552,24 +1552,24 @@ DO:
                        NEXT mainblock.
                    END.
                    
-                   IF NOT CAN-FIND(FIRST bf-oe-boll
-                                   WHERE bf-oe-boll.company EQ oe-bolh.company
-                                     AND bf-oe-boll.b-no    EQ oe-bolh.b-no
-                                     AND bf-oe-boll.qty     NE 0)
-                   THEN DO:
-                       IF lSingleBOL THEN
-                           MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) 
-                               VIEW-AS ALERT-BOX ERROR.  
-                       ELSE 
-                           RUN pCreatettExceptionBOL(
-                               INPUT "Quantity is zero for all lines",
-                               INPUT  ROWID(oe-boll)
-                               ).
-                       DELETE tt-post.
-                       NEXT mainblock.
-                   END.
-               END.       
-               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" THEN
+               /*IF NOT CAN-FIND(FIRST bf-oe-boll                                                       */  /* Ticket 102615 */
+               /*                    WHERE bf-oe-boll.company EQ oe-bolh.company                        */
+               /*                      AND bf-oe-boll.b-no    EQ oe-bolh.b-no                           */
+               /*                      AND bf-oe-boll.qty     NE 0)                                     */
+               /*    THEN DO:                                                                           */
+               /*        IF lSingleBOL THEN                                                             */
+               /*            MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) */
+               /*                VIEW-AS ALERT-BOX ERROR.                                               */
+               /*        ELSE                                                                           */
+               /*            RUN pCreatettExceptionBOL(                                                 */
+               /*                INPUT "Quantity is zero for all lines",                                */
+               /*                INPUT  ROWID(oe-boll)                                                  */
+               /*                ).                                                                     */
+               /*        DELETE tt-post.                                                                */
+               /*        NEXT mainblock.                                                                */
+               /*    END.                                                                               */
+               END.                                                                                   
+               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" AND oe-boll.qty NE 0 THEN
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
@@ -1582,7 +1582,7 @@ DO:
                   DELETE tt-post.
                   NEXT mainblock.         
                END.
-               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no THEN 
+               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no AND oe-boll.qty NE 0 THEN 
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 
