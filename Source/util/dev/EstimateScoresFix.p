@@ -25,8 +25,10 @@ DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCtr           AS INTEGER NO-UNDO.
 
-DEFINE BUFFER bf-eb    FOR eb.
-DEFINE BUFFER bf-style FOR style.
+DEFINE BUFFER bf-eb          FOR eb.
+DEFINE BUFFER bf-style       FOR style.
+DEFINE BUFFER bf-po-ordl     FOR po-ordl.
+DEFINE BUFFER bf-panelHeader FOR panelHeader.
 
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
@@ -38,12 +40,7 @@ FOR EACH company NO-LOCK:
         FIND FIRST bf-style NO-LOCK
              WHERE bf-style.company EQ bf-eb.company
                AND bf-style.style   EQ bf-eb.style
-             NO-ERROR.
-        IF NOT AVAIL bf-style THEN FIND FIRST bf-style NO-LOCK WHERE 
-            bf-style.company EQ "001" AND 
-            bf-style.style EQ bf-eb.style
-            NO-ERROR.
-                 
+             NO-ERROR.                 
         IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
             EMPTY TEMP-TABLE ttPanel.
         
@@ -76,6 +73,26 @@ FOR EACH company NO-LOCK:
                 ).    
         END.     
     END.
+
+    FOR EACH bf-po-ordl NO-LOCK
+        WHERE bf-po-ordl.company   EQ company.company
+          AND bf-po-ordl.opened    EQ TRUE
+          AND bf-po-ordl.item-type EQ TRUE,
+        FIRST bf-panelHeader NO-LOCK
+        WHERE bf-panelHeader.company  EQ bf-po-ordl.company
+          AND bf-panelHeader.linkType EQ "P"
+          AND bf-panelHeader.poID     EQ bf-po-ordl.po-no
+          AND bf-panelHeader.poLine   EQ bf-po-ordl.line,
+        FIRST bf-style NO-LOCK
+        WHERE bf-style.company EQ bf-panelHeader.company
+          AND bf-style.style   EQ bf-panelHeader.styleID
+          AND bf-style.style   NE "B":
+        RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+            INPUT bf-po-ordl.company,
+            INPUT bf-po-ordl.po-no,
+            INPUT bf-po-ordl.line
+            ).
+    END.    
 END.
 
 DELETE PROCEDURE hdFormulaProcs.
