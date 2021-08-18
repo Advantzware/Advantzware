@@ -184,18 +184,7 @@ DEF TEMP-TABLE ttledger
 DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
-        
-DEFINE TEMP-TABLE ttPanel
-    FIELD cPanelType            AS CHARACTER
-    FIELD iPanelNum             AS INTEGER 
-    FIELD cPanelFormula         AS CHARACTER 
-    FIELD dScoringAllowance     AS DECIMAL
-    FIELD cScoreType            AS CHARACTER
-    FIELD dPanelSize            AS DECIMAL
-    FIELD dPanelSizeFromFormula AS DECIMAL
-    FIELD lAddAllowanceToSize   AS LOGICAL
-    .
-    
+
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
