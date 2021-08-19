@@ -549,6 +549,9 @@ PROCEDURE ipCreateInterCompanyBilling:
     FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
 
         FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ tt-report.rec-id,
+        FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ oe-boll.company
+        AND oe-ord.ord-no  EQ oe-boll.ord-no,
         
         FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
         BREAK BY oe-boll.bol-no BY oe-boll.i-no BY oe-boll.ord-no:
@@ -568,12 +571,14 @@ PROCEDURE ipCreateInterCompanyBilling:
                                       INPUT cocode,
                                       INPUT oe-bolh.cust-no,
                                       INPUT oe-bolh.ship-id,
+                                      INPUT oe-ord.sold-id,
                                       OUTPUT lError,
                                       OUTPUT cMessage
                                       ).  
             
            RUN Invoice_CreateInterCompanyBilling IN hdInvoiceProcs( 
                                             INPUT ROWID(oe-bolh),
+                                            INPUT oe-ord.sold-id,
                                             OUTPUT lError,
                                             OUTPUT cMessage
                                             ).           

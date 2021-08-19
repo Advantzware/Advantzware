@@ -2749,6 +2749,7 @@ PROCEDURE local-update-record :
                                            INPUT cocode,
                                            INPUT cust.cust-no,
                                            INPUT bf-shipto.ship-id,
+                                           INPUT "",
                                            OUTPUT lError,
                                            OUTPUT cMessage
                                            ).
