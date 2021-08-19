@@ -1552,7 +1552,7 @@ DO:
                        NEXT mainblock.
                    END.
                    
-                   IF NOT lFGTagValidation AND NOT CAN-FIND(FIRST bf-oe-boll
+                   IF NOT CAN-FIND(FIRST bf-oe-boll
                                    WHERE bf-oe-boll.company EQ oe-bolh.company
                                      AND bf-oe-boll.b-no    EQ oe-bolh.b-no
                                      AND bf-oe-boll.qty     NE 0)
