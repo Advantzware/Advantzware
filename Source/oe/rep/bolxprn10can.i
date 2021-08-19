@@ -26,7 +26,7 @@
                 "<R19><C46><FROM><R23><C46><LINE>" SKIP
                 "<R19><C66><FROM><R23><C66><LINE>" SKIP
                 /*"<FArial><=4><R+1>    Date                    PO#                               JOB#                 FOB                  Carrier                                                 Freight Terms" SKIP */
-                "<FArial><=4><R+1>    Date                    Destination                                   Tel:                                 Transporteur/Carrier                 Conditions" SKIP 
+                "<FArial><=4><R+1>    Date                     Destination/FOB                              Tel:                                 Transporteur/Carrier                 Conditions" SKIP 
                 "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) /*v-po-no FORM "x(15)" space(2) v-job-no*/ v-fob space(10) v-ship-phone space(7) carrier.dscr FORMAT "x(21)" space(4) v-frt-terms SKIP
                 "<|10><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    
                 "<R24><C15><FROM><R26><C15><LINE>" SKIP
@@ -37,11 +37,11 @@
                 "<R24><C71><FROM><R26><C71><LINE>" SKIP
                 "<R24><C74><FROM><R26><C74><LINE>" SKIP.
    
-   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                                                                                                    Unitès     Qtè/Unitès            Poids  <FCourier New>" SKIP(1) 
+   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                                                                                                    Unités     Qté/Unités            Poids  <FCourier New>" SKIP(1) 
                                  "<FArial><=5><R+1> Part#/Order#                  PO#                    Finished Good#            Description                            Unit         Qty/Unit     P/C    Weight  <FCourier New>" SKIP(1).
                        ELSE  PUT
-                                "<FArial><=5> Partie#                                  PO#               Finished Good#              Description                        Unitès     Qtè/Unitès  P/C     Poids  <FCourier New>" SKIP(1) 
-                                "<FArial><=5><R+1> Partie#                                  PO#               Finished Good#              Description                         Unites    Qtè/Unitès  P/C     Weight  <FCourier New>" SKIP(1).
+                                "<FArial><=5> Partie#                                  PO#               Finished Good#              Description                        Unités     Qté/Unités  P/C     Poids  <FCourier New>" SKIP(1) 
+                                "<FArial><=5><R+1> Partie#                                  PO#               Finished Good#              Description                         Unités    Qté/Unités  P/C     Weight  <FCourier New>" SKIP(1).
             .
 
             v-printline = v-printline + 16.

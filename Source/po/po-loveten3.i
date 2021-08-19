@@ -3,7 +3,7 @@
          /*v-change-ord
          "P U R C H A S E  O R D E R"       to 80
          "**************************"       to 80*/
-         "<C50><B><P14>Purchase Order</B><P12><C69>Page#:" 
+         "<C50><B><P14>Bon de Commande</B><P12><C69>Page#:" 
                 TRIM(STRING(li-page - v-last-page,">9") /*+
                 " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)" 
          "<P10>" skip(5)
@@ -17,8 +17,8 @@
          "<P12><R-1>" "DATE:"                            to 55
          po-ord.po-date                           FORMAT "99/99/99"
          skip(2)
-         "TO:"                              at 11
-         "SHIP TO:"                         at 50
+         "À:"                               at 11
+         "Livré à:"                         at 50
          vend.name                          at 11
          v-sname                            at 50
          vend.add1                          at 11
@@ -41,7 +41,7 @@
          skip(1)
          "ATTN:"                            at 7
          v-contact
-         "PO#:"                             to 55
+         "Bdc:"                             to 55
          po-ord.po-no SKIP
          /*fill("-",80)                               format "x(80)"*/
          "<C1><R+.5><FROM><C82><LINE><||3>" skip
