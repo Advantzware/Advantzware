@@ -37,11 +37,11 @@
                 "<R24><C71><FROM><R26><C71><LINE>" SKIP
                 "<R24><C74><FROM><R26><C74><LINE>" SKIP.
    
-   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                                                                                               Unités     Qté/Unités           Poids  <FCourier New>" SKIP(1) 
-                                 "<FArial><=5><R+1> Part#/Order#                  PO#                    Finished Good#            Description                        Unit         Qty/Unit     P/C   Weight  <FCourier New>" SKIP(1).
+   IF lv-bolfmt-int = 1 THEN PUT "<FArial><=5> Partie#/Commande#                                                                                                                  Unités     Qté/Unités           Poids  <FCourier New>" SKIP(1) 
+                                 "<FArial><=5><R+1> Part#/Order#                  PO#                    Finished Good#            Description                           Unit         Qty/Unit     P/C   Weight  <FCourier New>" SKIP(1).
                        ELSE  PUT
-                                "<FArial><=5> Partie#                                  PO#               Finished Good#              Description                    Unités     Qté/Unités  P/C    Poids  <FCourier New>" SKIP(1) 
-                                "<FArial><=5><R+1> Partie#                                  PO#               Finished Good#              Description                     Unités    Qté/Unités  P/C    Weight  <FCourier New>" SKIP(1).
+                                "<FArial><=5> Partie#                                  PO#               Finished Good#              Description                       Unités     Qté/Unités  P/C    Poids  <FCourier New>" SKIP(1) 
+                                "<FArial><=5><R+1> Partie#                                  PO#               Finished Good#              Description                        Unités    Qté/Unités  P/C    Weight  <FCourier New>" SKIP(1).
             .
 
             v-printline = v-printline + 16.
