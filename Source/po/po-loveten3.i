@@ -17,8 +17,8 @@
          "<P12><R-1>" "DATE:"                            to 55
          po-ord.po-date                           FORMAT "99/99/99"
          skip(2)
-         "À:"                               at 11
-         "Livré à:"                         at 50
+         "Ã€,To:"                               at 11
+         "LivrÃ© Ã ,Ship To:"                         at 50
          vend.name                          at 11
          v-sname                            at 50
          vend.add1                          at 11
@@ -41,7 +41,7 @@
          skip(1)
          "ATTN:"                            at 7
          v-contact
-         "Bdc:"                             to 55
+         "Bdc,PO#:"                             to 55
          po-ord.po-no SKIP
          /*fill("-",80)                               format "x(80)"*/
          "<C1><R+.5><FROM><C82><LINE><||3>" skip
@@ -49,7 +49,7 @@
          "DESC/NOTES"                       at 8
          "ADDER"                            at 37
          "JOB #"                            at 49
-         "Coût/DUE"                         at 61
+         "CoÃ»t/DUE"                         at 61
          "MSF/TOTALS"                       to 80 SKIP
          /*fill("-",80)                               format "x(80)"*/
          "<C1><R+.5><FROM><C82><LINE><||3>" skip
