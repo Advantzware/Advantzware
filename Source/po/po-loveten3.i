@@ -5,7 +5,8 @@
          "**************************"       to 80*/
          "<C50><B><P14>Bon de Commande</B><P12><C69>Page#:" 
                 TRIM(STRING(li-page - v-last-page,">9") /*+
-                " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)" 
+                " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)" SKIP
+         "<C50><B><P14>Purchase Order</B>"       
          "<P10>" skip(5)
          /*v-comp-add1  AT 3 
          v-comp-add2  AT 8  SKIP*/

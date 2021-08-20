@@ -20,7 +20,7 @@ ELSE DO:
 END.
    PUT
    "<FCourier New>"
-   "<R-1>Facturé à:" SPACE(30) "Vendu à:"  SKIP
+   "<R-1>Facturé à,Bill To:" SPACE(22) "Vendu à,Sold to:"  SKIP
    SPACE(5) oe-ord.cust-name 
     ( IF oe-ord.sold-name = "" THEN oe-ord.cust-name ELSE oe-ord.sold-name) AT 45 FORM "x(30)" SKIP
    SPACE(5) oe-ord.addr[1] 

@@ -7,7 +7,7 @@ PUT "<C1><#2>"
     "<C2><P10><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
     
     "<FCourier New>"
-    space(7) "Facturé À:" SPACE(38) "Expédié À:" SKIP
+    space(7) "Facturé À,Bill To:" SPACE(30) "Expédié À,Ship To:" SKIP
     SPACE(7) inv-head.cust-name v-shipto-name AT 56 skip
     SPACE(7) cust.addr[1] FORMAT "x(42)"    v-shipto-addr[1] AT 56 FORMAT "x(42)" SKIP
     SPACE(7) cust.addr[2] FORMAT "x(42)"  v-shipto-addr[2] AT 56 FORMAT "x(42)" SKIP
@@ -46,7 +46,8 @@ PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
 v-printline = v-printline + 5.
 
 
-PUT "<FArial><=4><R+1>     Expédition              FOB                        Expéditeur                         Termes                      Représentant     Pallets         BOL#" SKIP
+PUT "<FArial><=4>     Ship Date                                               Ship Via                             Terms                          S.Person " SKIP
+    "<FArial><=4><R+1>     Expédition              FOB                        Expéditeur                         Termes                      Représentant     Pallets         BOL#" SKIP
      "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
@@ -65,6 +66,7 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
+PUT "<FArial><=5>  Ordered     Shipped    Order #                                                                                                      Price         UoM          Amount" SKIP(1).
 PUT "<FArial><=5><R+1>Commandé  Expédié  Commande   Item#/CustPart#                       Description                            Prix          UM            Montant" SKIP(1).
 v-printline = v-printline + 4.
            
