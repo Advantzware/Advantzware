@@ -188,6 +188,7 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lNewOrderEntry AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -233,7 +234,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, N
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lCEAddCustomerOption = logical(cRtnChar) NO-ERROR.    
+    lCEAddCustomerOption = logical(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "NewOrderEntry", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lNewOrderEntry = logical(cRtnChar) NO-ERROR.    
 
 /* transaction */
 {sys/inc/f16to32.i}
@@ -2222,7 +2229,9 @@ PROCEDURE add-order :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN dispatch ('add-record').
+  IF lNewOrderEntry THEN
+   RUN oe/dAddOrder.w("Add",ROWID(oe-ordl)).
+  ELSE  RUN dispatch ('add-record').  
 
 END PROCEDURE.
 
