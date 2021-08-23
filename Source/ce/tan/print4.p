@@ -112,12 +112,10 @@ save-lock = xef.op-lock.
 pause 0.
 
 DO TRANSACTION:
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
+  
   ASSIGN
    do-speed = xest.recalc
-   do-mr    = recalc-mr.val[1] EQ 1
+   do-mr    = xest.recalc-mr
    do-gsa   = xest.override.
 
   {sys/inc/cerun.i F}
@@ -163,15 +161,15 @@ hide frame ask no-pause.
 DO TRANSACTION:
   {est/op-lock.i xest}
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
+  
   ASSIGN
    bf-est.recalc    = do-speed
-   recalc-mr.val[1] = INT(do-mr)
+   bf-est.recalc-mr = do-mr
    bf-est.override  = do-gsa
    op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+   op-lock.val[2]   = IF bf-est.recalc-mr THEN 1 ELSE 0.
   FIND CURRENT bf-est NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
+  
   FIND CURRENT op-lock NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(bf-est).   
 END.
