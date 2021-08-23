@@ -1808,7 +1808,7 @@ DEF VAR cslist AS cha NO-UNDO.
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -653,7 +653,7 @@ DISABLE TRIGGERS FOR LOAD OF fg-bin.
         OUTPUT STREAM excel CLOSE.
 
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
     END.
 
     IF NOT tb_pro-only THEN 

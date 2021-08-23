@@ -1938,7 +1938,7 @@ end.
 IF v-export THEN DO:
    OUTPUT STREAM s-excel close.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-exp-name)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(v-exp-name)).
 END.
 
 

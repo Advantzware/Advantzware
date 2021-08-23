@@ -1006,7 +1006,7 @@ RUN cerep/bomcbox2.p (rd_po-part EQ 2).
 IF rd-dest = 3 THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

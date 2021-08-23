@@ -1665,7 +1665,7 @@ SESSION:SET-WAIT-STATE ("").
     IF rd-dest = 3  THEN 
     DO:
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END. 
 
 

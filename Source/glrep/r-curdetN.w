@@ -1651,7 +1651,7 @@ IF tb_excel THEN DO:
    OUTPUT STREAM str-exl CLOSE.
 
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(TRIM(cFileName))).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(TRIM(cFileName))).
 END.
 /* gdm - 10010905 */
 

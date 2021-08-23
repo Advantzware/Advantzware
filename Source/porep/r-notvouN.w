@@ -1808,7 +1808,7 @@ down 2 with frame detail.*/
 
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 /*END.*/
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2347,7 +2347,7 @@ PUT str-line SKIP.
                     substring(cExcelDisplay,4,300) SKIP.
                 OUTPUT STREAM excel CLOSE.
                 IF tb_runExcel THEN
-                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
             END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
