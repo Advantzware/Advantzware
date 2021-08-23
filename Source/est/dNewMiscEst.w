@@ -2288,7 +2288,7 @@ PROCEDURE pDisplayValue :
              cTest:SCREEN-VALUE = eb.test
              cFlute:SCREEN-VALUE = eb.flute
              dMsf:SCREEN-VALUE = string(ef.cost-msh)
-             dForceFrt:SCREEN-VALUE = string(ef.fr-msh)
+             dForceFrt:SCREEN-VALUE = IF ef.fr-uom EQ "CWT" THEN string(eb.fr-out-c) ELSE string(eb.fr-out-m) 
              cCad:SCREEN-VALUE = string(eb.cad-no)
              adder-dscr-1:SCREEN-VALUE = ef.adder[7]
              adder-dscr-2:SCREEN-VALUE = ef.adder[8]
