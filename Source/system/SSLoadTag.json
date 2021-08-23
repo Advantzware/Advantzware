@@ -64,6 +64,10 @@
 		"Description" : "Print loadtag on a valid job scan",
 		"Active" : true	
 	},
+    "AutoPrintLoadtagOnTagScan" : {
+        "Description" : "Print loadtag on a valid tag scan on reprint screen",
+        "Active" : true 
+    },
 	"AutoCreateLoadtagOnJobScan" : {
 		"Description" : "Create a temporary record for verifying before printing a loadtag on a valid job scan",
 		"Active" : true	

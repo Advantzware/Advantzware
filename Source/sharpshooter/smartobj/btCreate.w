@@ -34,10 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
-
-oReleaseHeader = NEW oe.ReleaseHeader().
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -53,10 +49,6 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btFind fiRelease 
-&Scoped-Define DISPLAYED-OBJECTS fiRelease 
-
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -69,25 +61,20 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btFind 
-     LABEL "Find" 
-     SIZE 11 BY 1.48.
-
-DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "Release #" 
-     VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
+DEFINE BUTTON btButton 
+     LABEL "OK" 
+     SIZE 21 BY 1.91
+     FONT 17.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFind AT ROW 1.19 COL 48 WIDGET-ID 4
-     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
+     btButton AT ROW 1 COL 1 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -117,7 +104,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 6.52
-         WIDTH              = 66.4.
+         WIDTH              = 50.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -144,6 +131,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btButton IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -163,79 +152,13 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btFind
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
-ON CHOOSE OF btFind IN FRAME F-Main /* Find */
+&Scoped-define SELF-NAME btButton
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btButton s-object
+ON CHOOSE OF btButton IN FRAME F-Main /* OK */
 DO:
-    APPLY "HELP" TO fiRelease.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiRelease
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
-        APPLY "HELP" TO SELF.
-        
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" THEN
-        APPLY "LEAVE" TO SELF.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    SELF:SET-SELECTION ( 1, -1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON HELP OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        INPUT  "",  /* company */ 
-        INPUT  "",  /* lookup field */
-        INPUT  160, /* Subject ID */
-        INPUT  "",  /* User ID */
-        INPUT  0,   /* Param value ID */
-        OUTPUT returnFields, 
-        OUTPUT lookupField, 
-        OUTPUT recVal
-        ). 
-
-    IF lookupField NE "" THEN DO:
-        SELF:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
-                                ENTRY(2, returnFields, "|")
-                            ELSE
-                                "".
-        
-        APPLY "LEAVE" TO SELF.
-    END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    IF LASTKEY NE -1 AND SELF:SCREEN-VALUE NE "" THEN
-        RUN pReleaseScan.
+    RUN new-state (
+        INPUT "button-clicked"
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,16 +183,35 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableRelease s-object 
-PROCEDURE DisableRelease :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ChangeButtonLabel s-object 
+PROCEDURE ChangeButtonLabel :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLabel AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    btButton:LABEL = ipcLabel.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableButton s-object 
+PROCEDURE DisableButton :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
     
-    btFind:SENSITIVE = FALSE.
+    btButton:SENSITIVE = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,72 +235,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRelease s-object 
-PROCEDURE EnableRelease :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
-
-    btFind:SENSITIVE = TRUE.
-        
-    APPLY "ENTRY" TO fiRelease.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseID s-object 
-PROCEDURE GetReleaseID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
-    
-    opoReleaseHeader = oReleaseHeader.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
-PROCEDURE local-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    RUN pInit.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseScan s-object 
-PROCEDURE pReleaseScan :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableButton s-object 
+PROCEDURE EnableButton :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -367,28 +245,14 @@ PROCEDURE pReleaseScan :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    RUN new-state (
-        INPUT "release-invalid"
-        ).
-    
-    oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
-    
-    IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-    
-    RUN new-state (
-        INPUT "release-valid"
-        ).
+    btButton:SENSITIVE = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
-PROCEDURE Set-Focus :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideButton s-object 
+PROCEDURE HideButton :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -397,7 +261,7 @@ PROCEDURE Set-Focus :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    APPLY "ENTRY" TO fiRelease.
+    btButton:HIDDEN = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,6 +283,22 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UnhideButton s-object 
+PROCEDURE UnhideButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    btButton:HIDDEN = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

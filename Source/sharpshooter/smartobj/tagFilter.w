@@ -10,7 +10,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: sharpshooter/smartobj/tagFilter.w
 
   Description: from SMART.W - Template for basic SmartObject
 
@@ -35,9 +35,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
-
-oReleaseHeader = NEW oe.ReleaseHeader().
+DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,12 +48,12 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btFind fiRelease 
-&Scoped-Define DISPLAYED-OBJECTS fiRelease 
+&Scoped-Define ENABLED-OBJECTS RECT-35 fiTag 
+&Scoped-Define DISPLAYED-OBJECTS fiTag 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,21 +67,23 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btFind 
-     LABEL "Find" 
-     SIZE 11 BY 1.48.
-
-DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "Release #" 
+DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Tag" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
+     SIZE 67 BY 1.38 TOOLTIP "Enter Tag"
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE RECTANGLE RECT-35
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 79 BY 2.38
+     BGCOLOR 26 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFind AT ROW 1.19 COL 48 WIDGET-ID 4
-     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
+     fiTag AT ROW 1.48 COL 7.6 COLON-ALIGNED WIDGET-ID 2
+     RECT-35 AT ROW 1 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -117,7 +117,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 6.52
-         WIDTH              = 66.4.
+         WIDTH              = 86.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -139,7 +139,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -163,79 +163,16 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btFind
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
-ON CHOOSE OF btFind IN FRAME F-Main /* Find */
+&Scoped-define SELF-NAME fiTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON LEAVE OF fiTag IN FRAME F-Main /* Tag */
 DO:
-    APPLY "HELP" TO fiRelease.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiRelease
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
-        APPLY "HELP" TO SELF.
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
+        RETURN. 
         
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" THEN
-        APPLY "LEAVE" TO SELF.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    SELF:SET-SELECTION ( 1, -1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON HELP OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
-  
-    RUN system/openlookup.p (
-        INPUT  "",  /* company */ 
-        INPUT  "",  /* lookup field */
-        INPUT  160, /* Subject ID */
-        INPUT  "",  /* User ID */
-        INPUT  0,   /* Param value ID */
-        OUTPUT returnFields, 
-        OUTPUT lookupField, 
-        OUTPUT recVal
-        ). 
-
-    IF lookupField NE "" THEN DO:
-        SELF:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
-                                ENTRY(2, returnFields, "|")
-                            ELSE
-                                "".
-        
-        APPLY "LEAVE" TO SELF.
-    END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
-DO:
-    IF LASTKEY NE -1 AND SELF:SCREEN-VALUE NE "" THEN
-        RUN pReleaseScan.
+    RUN pScanTag (
+        INPUT SELF:SCREEN-VALUE
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,21 +197,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableRelease s-object 
-PROCEDURE DisableRelease :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
-    
-    btFind:SENSITIVE = FALSE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -293,33 +215,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRelease s-object 
-PROCEDURE EnableRelease :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyTag s-object 
+PROCEDURE EmptyTag :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    fiRelease:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    fiTag:SCREEN-VALUE = "".
 
-    btFind:SENSITIVE = TRUE.
-        
-    APPLY "ENTRY" TO fiRelease.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseID s-object 
-PROCEDURE GetReleaseID :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag s-object 
+PROCEDURE GetTag :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+    DEFINE OUTPUT PARAMETER opoLoadtag AS inventory.Loadtag NO-UNDO.
     
-    opoReleaseHeader = oReleaseHeader.
+    IF VALID-OBJECT(oLoadTag) THEN
+        opoLoadtag = oLoadtag.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-OBJECT(oLoadtag) THEN
+        DELETE OBJECT oLoadtag.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,53 +291,58 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN spGetSessionParam (
+        INPUT  "Company",
+        OUTPUT cCompany
+        ).
+    
+    oLoadtag = NEW inventory.Loadtag().
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseScan s-object 
-PROCEDURE pReleaseScan :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScanTag s-object 
+PROCEDURE pScanTag :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lValidTag AS LOGICAL   NO-UNDO.
     
     RUN new-state (
-        INPUT "release-invalid"
+        INPUT "tag-invalid"
         ).
-    
-    oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
-    
-    IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
+        
+    lValidTag = oLoadTag:SetContext(INPUT cCompany, INPUT ipcTag).
+
+    IF NOT lValidTag THEN DO:
+        MESSAGE "Invalid Tag '" + ipcTag + "'"
             VIEW-AS ALERT-BOX ERROR.
-        RETURN.
+        RETURN.    
     END.
     
     RUN new-state (
-        INPUT "release-valid"
-        ).
+        INPUT "tag-valid"
+        ).        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
-PROCEDURE Set-Focus :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextTag s-object 
+PROCEDURE ScanNextTag :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    APPLY "ENTRY" TO fiRelease.
+    APPLY "ENTRY" TO fiTag.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
