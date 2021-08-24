@@ -31,7 +31,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     WHERE oe-bolh.b-no EQ oe-boll.b-no
       AND CAN-FIND(FIRST b-oe-boll
                    WHERE b-oe-boll.b-no EQ oe-bolh.b-no
-                     AND b-oe-boll.qty  NE 0),
+                     AND b-oe-boll.qty  NE 0), 
     FIRST cust NO-LOCK
     WHERE cust.company EQ oe-bolh.company
       AND cust.cust-no EQ oe-bolh.cust-no,
