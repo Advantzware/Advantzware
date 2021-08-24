@@ -70,24 +70,26 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btFind 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Find" 
-     SIZE 11 BY 1.48.
+     SIZE 8 BY 1.91.
 
 DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "Release #" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
+     SIZE 28 BY 1.38 TOOLTIP "Enter release #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFind AT ROW 1.19 COL 48 WIDGET-ID 4
-     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
+     btFind AT ROW 1 COL 49 WIDGET-ID 4
+     fiRelease AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

@@ -35,12 +35,16 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{sharpshooter/ttReleaseItem.i}
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdReleaseProcs    AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdScannedQtyCol   AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE hdReleaseProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
+
+{sharpshooter/ttReleaseItem.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -152,7 +156,8 @@ quantityOfUnitsRelease COLUMN-LABEL "Released!Units" WIDTH 32
 quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71.
+    WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -161,7 +166,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -220,10 +226,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
-       br_table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE
-       br_table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE
-       br_table:ROW-RESIZABLE IN FRAME F-Main          = TRUE.
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -410,9 +413,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win
-PROCEDURE GetItem:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -429,11 +431,9 @@ PROCEDURE GetItem:
             .
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
 PROCEDURE local-destroy :

@@ -73,7 +73,7 @@ DEFINE VARIABLE glScanTrailer AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL 
+&Scoped-Define ENABLED-OBJECTS btDelete fiTag btPrintBOL btReset 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer 
 
 /* Custom List Definitions                                              */
@@ -93,59 +93,66 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-releaseitems AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-releasetags AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatefirst-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatelast-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatenext-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigateprev-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_releasefilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btChange 
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Change" 
-     SIZE 15 BY 1.48.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete Selected Tag".
 
 DEFINE BUTTON btPrintBOL 
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print BOL" 
-     SIZE 22 BY 1.91.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btReset 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
-     SIZE 15 BY 1.48.
+     SIZE 8 BY 1.91.
 
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag #" 
      VIEW-AS FILL-IN 
-     SIZE 64.2 BY 1.38 TOOLTIP "Enter Tag #" NO-UNDO.
+     SIZE 64.2 BY 1.38 TOOLTIP "Enter Tag #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U 
      LABEL "Trailer #" 
      VIEW-AS FILL-IN 
-     SIZE 27.4 BY 1.38 TOOLTIP "Enter Trailer #" NO-UNDO.
+     SIZE 27.4 BY 1.38 TOOLTIP "Enter Trailer #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btChange AT ROW 3.19 COL 61.6 WIDGET-ID 14 NO-TAB-STOP 
-     btReset AT ROW 4.76 COL 84.8 WIDGET-ID 18
-     fiTag AT ROW 4.81 COL 17.8 COLON-ALIGNED WIDGET-ID 8
-     fiTrailer AT ROW 4.81 COL 117.4 COLON-ALIGNED WIDGET-ID 10
-     btDelete AT ROW 12.57 COL 175.6 WIDGET-ID 16 NO-TAB-STOP 
-     btPrintBOL AT ROW 27.1 COL 153.4 WIDGET-ID 12 NO-TAB-STOP 
+     btDelete AT ROW 23.14 COL 195 WIDGET-ID 16 NO-TAB-STOP 
+     fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
+     fiTrailer AT ROW 3.14 COL 118 COLON-ALIGNED WIDGET-ID 10
+     btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
+     btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
+     btReset AT ROW 2.91 COL 87 WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 204.2 BY 28.33
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
-
-DEFINE FRAME Option-frame
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 192 BY 1.91
-         BGCOLOR 21  WIDGET-ID 200.
+         SIZE 202 BY 32.81
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -164,12 +171,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create BOL"
-         HEIGHT             = 28.33
-         WIDTH              = 183.2
-         MAX-HEIGHT         = 36.57
-         MAX-WIDTH          = 204
-         VIRTUAL-HEIGHT     = 36.57
-         VIRTUAL-WIDTH      = 204
+         HEIGHT             = 32.81
+         WIDTH              = 202
+         MAX-HEIGHT         = 32.81
+         MAX-WIDTH          = 202
+         VIRTUAL-HEIGHT     = 32.81
+         VIRTUAL-WIDTH      = 202
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -198,9 +205,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* REPARENT FRAME */
-ASSIGN FRAME Option-frame:FRAME = FRAME F-Main:HANDLE.
-
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON btChange IN FRAME F-Main
@@ -210,8 +214,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiTrailer IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FRAME Option-frame
-                                                                        */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -401,44 +403,108 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME Option-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 175.40 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/releasefilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_releasefilter ).
-       RUN set-position IN h_releasefilter ( 3.00 , 1.80 ) NO-ERROR.
-       /* Size in UIB:  ( 1.67 , 58.00 ) */
+       RUN set-position IN h_releasefilter ( 1.00 , 1.80 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 56.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_viewfginquiry ).
-       RUN set-position IN h_viewfginquiry ( 4.62 , 158.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.67 , 17.00 ) */
+       RUN set-position IN h_viewfginquiry ( 2.91 , 148.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-releaseitems.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releaseitems ).
-       RUN set-position IN h_b-releaseitems ( 6.52 , 3.40 ) NO-ERROR.
-       RUN set-size IN h_b-releaseitems ( 5.91 , 171.60 ) NO-ERROR.
+       RUN set-position IN h_b-releaseitems ( 5.05 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-releaseitems ( 9.29 , 193.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatefirst-2 ).
+       RUN set-position IN h_navigatefirst-2 ( 6.95 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev-2 ).
+       RUN set-position IN h_navigateprev-2 ( 8.86 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext-2 ).
+       RUN set-position IN h_navigatenext-2 ( 10.76 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatelast-2 ).
+       RUN set-position IN h_navigatelast-2 ( 12.67 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-releasetags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
-       RUN set-position IN h_b-releasetags ( 12.62 , 3.20 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 14.29 , 171.80 ) NO-ERROR.
+       RUN set-position IN h_b-releasetags ( 14.57 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 19.05 , 193.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatefirst ).
+       RUN set-position IN h_navigatefirst ( 19.10 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 21.24 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 25.29 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatelast ).
+       RUN set-position IN h_navigatelast ( 27.19 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).
@@ -452,10 +518,30 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'REL-TAGS':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             FRAME Option-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_releasefilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
              fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
+             h_b-releaseitems , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
+             h_navigatefirst-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
+             h_navigateprev-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
+             h_navigatenext-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releasetags ,
+             h_navigatelast-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
+             h_b-releasetags , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
+             h_navigatefirst , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
+             h_navigateprev , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
+             h_navigatenext , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -519,11 +605,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTag fiTrailer 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btReset fiTag btDelete btPrintBOL 
+  ENABLE btDelete fiTag btPrintBOL btReset 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME Option-frame IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-Option-frame}
   VIEW W-Win.
 END PROCEDURE.
 

@@ -62,8 +62,10 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdjust 
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Adjust" 
-     SIZE 11 BY 2.62 TOOLTIP "Adjust"
+     SIZE 8 BY 1.9 TOOLTIP "Adjust"
      FONT 35.
 
 
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      btAdjust AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
