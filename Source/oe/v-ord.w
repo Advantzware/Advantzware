@@ -2228,9 +2228,16 @@ PROCEDURE add-order :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cSourceValue AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCustomerPo AS CHARACTER NO-UNDO.
   IF lNewOrderEntry THEN
-   RUN oe/dAddOrder.w("Add",ROWID(oe-ordl)).
+  DO:
+   RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo) .
+   
+   RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo).   
+   
+  END. 
   ELSE  RUN dispatch ('add-record').  
 
 END PROCEDURE.

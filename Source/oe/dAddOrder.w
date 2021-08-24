@@ -25,8 +25,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 
-DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
-DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+DEFINE INPUT PARAMETER ipcSourceType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -362,7 +363,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = c
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Set Estimate */
 DO:             
         DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
-        IF ipType EQ "" THEN 
+        /*IF ipType EQ "" THEN 
         DO:
             MESSAGE "Cancelling will not create the estimate and you will lose the data that you entered."
                 SKIP 
@@ -372,12 +373,12 @@ DO:
         ELSE lCheck = TRUE.
                
         IF lCheck THEN 
-        DO:   
+        DO: */  
             EMPTY TEMP-TABLE ttInputOrdLine .
-            //EMPTY TEMP-TABLE tt-eb-set.
+           
         
             APPLY "END-ERROR":U TO SELF.
-        END.
+        /*END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +503,7 @@ DO:
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
         DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
-        IF ipType EQ "" THEN 
+       /* IF ipType EQ "" THEN 
         DO:
             MESSAGE "Cancelling will not create the order and you will lose the data that you entered."
                 SKIP 
@@ -511,11 +512,11 @@ DO:
         END.
         ELSE  lCheck = TRUE.
         IF lCheck THEN 
-        DO:
+        DO: */
             EMPTY TEMP-TABLE ttInputOrdLine .
-           // EMPTY TEMP-TABLE tt-eb-set.
+           
             APPLY "END-ERROR":U TO SELF.
-        END.
+      /*  END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -941,11 +942,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
-        IF ipType EQ "Edit" THEN 
+        IF ipcSourceType EQ "Estimate" THEN 
         DO:
-            RUN pDisplayValue.
-            RUN pDisplayQty.                                              
-            
+            RUN pSelectEstItem.
+                        
             APPLY "entry" TO cEstNo IN FRAME {&FRAME-NAME}.
             
         END.    
@@ -1406,111 +1406,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
-PROCEDURE pDisplayValue :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectEstItem D-Dialog 
+PROCEDURE pSelectEstItem :
 /*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    /*DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-    DEFINE BUFFER bf-eb FOR eb .
-    DEFINE BUFFER bf-ef FOR ef .
-    DO WITH FRAME {&FRAME-NAME}:
-
-        FIND FIRST eb NO-LOCK 
-            WHERE eb.company EQ cocode
-            AND ROWID(eb) EQ ipriRowid NO-ERROR .
+    
+    DO WITH FRAME {&FRAME-NAME}:                   
         
-        IF AVAILABLE eb THEN 
-        DO:
-            FIND FIRST ef NO-LOCK
-                WHERE ef.company EQ eb.company
-                AND ef.est-no EQ eb.est-no
-                AND ef.form-no EQ eb.form-no  
-                NO-ERROR.
-            FIND FIRST bf-eb NO-LOCK
-                WHERE bf-eb.company EQ eb.company
-                AND bf-eb.est-no EQ eb.est-no
-                AND bf-eb.form-no EQ 0 NO-ERROR.
-                 
-            IF AVAILABLE bf-eb THEN do:
-                ASSIGN
-                    quantity:SCREEN-VALUE  = STRING(eb.eqty) 
-                    cCustNo:SCREEN-VALUE   = eb.cust-no
-                    ship-to:SCREEN-VALUE   = eb.ship-id
-                    cCustPart:SCREEN-VALUE = bf-eb.part-no
-                    fg-no:SCREEN-VALUE     = bf-eb.stock-no
-                    item-name:SCREEN-VALUE = bf-eb.part-dscr1
-                    item-dscr:SCREEN-VALUE = bf-eb.part-dscr2
-                    len:SCREEN-VALUE       = STRING(bf-eb.len)
-                    wid:SCREEN-VALUE       = STRING(bf-eb.wid)
-                    dep:SCREEN-VALUE       = STRING(bf-eb.dep)              
-                    fg-cat:SCREEN-VALUE    = bf-eb.procat  
-                    cType:SCREEN-VALUE     = IF bf-eb.set-is-assembled EQ TRUE THEN "Yes" ELSE IF bf-eb.set-is-assembled EQ FALSE THEN "No" ELSE "Q".
-                
-                IF bf-eb.set-is-assembled EQ FALSE AND bf-eb.pur-man THEN
-                ASSIGN 
-                    cType:SCREEN-VALUE = "No".                     
-                ELSE IF bf-eb.set-is-assembled EQ TRUE AND bf-eb.pur-man THEN
-                ASSIGN 
-                    cType:SCREEN-VALUE = "Auto".                    
-                ELSE IF bf-eb.set-is-assembled EQ FALSE AND NOT bf-eb.pur-man THEN
-                ASSIGN
-                    cType:SCREEN-VALUE = "Yes".                    
-                ELSE IF  bf-eb.set-is-assembled EQ TRUE AND NOT bf-eb.pur-man THEN
-                ASSIGN
-                    cType:SCREEN-VALUE = "Q".
-                     .
-            END.
-
-            FIND FIRST cust NO-LOCK WHERE cust.company = cocode
-                AND cust.cust-no EQ cCustNo:SCREEN-VALUE NO-ERROR .
-            IF AVAILABLE cust THEN
-                ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
-
-            FIND FIRST shipto NO-LOCK WHERE shipto.company = cocode
-                AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
-                AND shipto.ship-id EQ ship-to:SCREEN-VALUE NO-ERROR .
-            IF AVAILABLE shipto THEN
-                ASSIGN ship-name:SCREEN-VALUE = shipto.ship-name .
-            
-            FOR EACH bf-eb NO-LOCK
-                WHERE bf-eb.company EQ cocode 
-                AND bf-eb.est-no EQ eb.est-no
-                AND bf-eb.form-no NE 0:
-             
-                FIND FIRST bf-ef NO-LOCK
-                    WHERE bf-ef.company EQ bf-eb.company
-                    AND bf-ef.est-no EQ bf-eb.est-no
-                    AND bf-ef.form-no EQ bf-eb.form-no  
-                    NO-ERROR.
-                
-                CREATE ttInputOrdLine.
-                ASSIGN
-                    ttInputOrdLine.cEstType         = "NewSetEstimate"
-                    ttInputOrdLine.cSetType         = "Set"
-                    ttInputOrdLine.Company         = cocode 
-                    ttInputOrdLine.line          = bf-eb.form-no
-                    ttInputOrdLine.cItemType         = bf-eb.blank-no             
-                    ttInputOrdLine.est-no          = bf-eb.part-no             
-                    ttInputOrdLine.pr-uom        = bf-eb.part-dscr1
-                    ttInputOrdLine.po-no-po = eb.part-dscr2
-                    ttInputOrdLine.qty          = bf-eb.len
-                    ttInputOrdLine.cQtyUom           = bf-eb.wid            
-                    ttInputOrdLine.price           = bf-eb.dep
-                    ttInputOrdLine.cCategory        = bf-eb.procat
-                    ttInputOrdLine.part-no           = IF AVAILABLE bf-ef THEN bf-ef.board ELSE ""
-                    ttInputOrdLine.i-dscr           = bf-eb.style
-                    ttInputOrdLine.i-no       = bf-eb.quantityPerSet
-                    ttInputOrdLine.t-price       = bf-eb.pur-man 
-                    ttInputOrdLine.riParentEst      = ROWID(bf-eb)
-                    ttInputOrdLine.iEstNo           = INTEGER(bf-eb.est-no) .                
-            END.
-            RUN repo-query (lv-rowid).          
-        
-        END.
-    END.  */
+       
+    END. 
 
 END PROCEDURE.
 
