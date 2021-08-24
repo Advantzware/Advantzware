@@ -684,7 +684,7 @@ v-printline = 0.
            PUT SKIP.
            
         IF AVAIL po-ordl THEN DO:
-               PUT "Date Required: " AT 25 po-ordl.due-date FORMAT "99/99/9999" .
+               PUT "Date Required: " AT 25 po-ordl.due-date FORMAT "99/99/9999" SKIP.
                RUN pPageBreak(1,0).
         END.
         
