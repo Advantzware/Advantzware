@@ -5793,6 +5793,36 @@ PROCEDURE ipLoadPrograms :
         END.
         DELETE ttPrgrms.
     END.
+    
+    /* 102427 Permissions to select bins/tags in O-T-1                   */
+    /* set the security on vp-oerell. to inherit permissions from p-ordhd*/
+    DEFINE BUFFER bPrgrms FOR prgrms.
+    
+    FIND FIRST bPrgrms NO-LOCK
+         WHERE bPrgrms.prgmName EQ "p-updhd."
+         NO-ERROR.
+    IF AVAILABLE bPrgrms THEN DO:
+        FIND FIRST prgrms EXCLUSIVE-LOCK
+             WHERE prgrms.prgmName EQ "vp-oerell."
+             NO-ERROR.
+        IF NOT AVAILABLE prgrms THEN DO:
+            CREATE prgrms.
+            ASSIGN
+                prgrms.prgmName  = "vp-oerell."
+                prgrms.prgTitle  = "Access to Release Line Item Buttons"
+                prgrms.dir_group = "oe"
+                prgrms.module    = "OE"
+                prgrms.mfgroup   = "w-oerell."
+                .
+        END.
+        ASSIGN
+            prgrms.can_create = bPrgrms.can_create
+            prgrms.can_delete = bPrgrms.can_delete
+            prgrms.can_run    = bPrgrms.can_run
+            prgrms.can_update = bPrgrms.can_update
+            .
+    END.
+    /*  End 102427 Permissions to select bins/tags in O-T-1                   */
 
     DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
