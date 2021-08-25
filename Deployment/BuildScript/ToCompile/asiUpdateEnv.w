@@ -2974,6 +2974,8 @@ PROCEDURE ipDataFix :
 		RUN ipDataFix210200.
     IF iCurrentVersion LT 21030000 THEN 
         RUN ipDataFix210300.
+    IF iCurrentVersion LT 21040000 THEN 
+        RUN ipDataFix210400.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3778,6 +3780,26 @@ PROCEDURE ipDataFix210300:
     RUN ipConvertPolScore.
     RUN ipJobMchSequenceFix.
     RUN ipFixEstimateScores.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210400 C-Win
+PROCEDURE ipDataFix210400:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210400...").
+
+    RUN ipSetOT1Permissions.
     
 END PROCEDURE.
     
@@ -5794,36 +5816,6 @@ PROCEDURE ipLoadPrograms :
         DELETE ttPrgrms.
     END.
     
-    /* 102427 Permissions to select bins/tags in O-T-1                   */
-    /* set the security on vp-oerell. to inherit permissions from p-ordhd*/
-    DEFINE BUFFER bPrgrms FOR prgrms.
-    
-    FIND FIRST bPrgrms NO-LOCK
-         WHERE bPrgrms.prgmName EQ "p-updhd."
-         NO-ERROR.
-    IF AVAILABLE bPrgrms THEN DO:
-        FIND FIRST prgrms EXCLUSIVE-LOCK
-             WHERE prgrms.prgmName EQ "vp-oerell."
-             NO-ERROR.
-        IF NOT AVAILABLE prgrms THEN DO:
-            CREATE prgrms.
-            ASSIGN
-                prgrms.prgmName  = "vp-oerell."
-                prgrms.prgTitle  = "Access to Release Line Item Buttons"
-                prgrms.dir_group = "oe"
-                prgrms.module    = "OE"
-                prgrms.mfgroup   = "w-oerell."
-                .
-        END.
-        ASSIGN
-            prgrms.can_create = bPrgrms.can_create
-            prgrms.can_delete = bPrgrms.can_delete
-            prgrms.can_run    = bPrgrms.can_run
-            prgrms.can_update = bPrgrms.can_update
-            .
-    END.
-    /*  End 102427 Permissions to select bins/tags in O-T-1                   */
-
     DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
         employee.employeeImage[1] = "Graphics\32x32\user.png".
@@ -7105,6 +7097,51 @@ PROCEDURE ipSetNewDbVersion:
         CREATE config.
     ASSIGN 
         config.databaseVersion = ipcVer.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetOT1Permissions C-Win
+PROCEDURE ipSetOT1Permissions:
+/*------------------------------------------------------------------------------
+ Purpose:   102427 Permissions to select bins/tags in O-T-1
+ Notes:     set the security on vp-oerell. to inherit permissions from p-ordhd
+------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("  Set OT1 Permissions").
+
+    DEFINE BUFFER bPrgrms FOR prgrms.
+    
+    FIND FIRST bPrgrms NO-LOCK
+         WHERE bPrgrms.prgmName EQ "p-updhd."
+         NO-ERROR.
+    IF AVAILABLE bPrgrms THEN DO:
+        FIND FIRST prgrms EXCLUSIVE-LOCK
+             WHERE prgrms.prgmName EQ "vp-oerell."
+             NO-ERROR.
+        IF NOT AVAILABLE prgrms THEN DO:
+            CREATE prgrms.
+            ASSIGN
+                prgrms.prgmName  = "vp-oerell."
+                prgrms.prgTitle  = "Access to Release Line Item Buttons"
+                prgrms.dir_group = "oe"
+                prgrms.module    = "OE"
+                prgrms.mfgroup   = "w-oerell."
+                .
+        END.
+        ASSIGN
+            prgrms.can_create = bPrgrms.can_create
+            prgrms.can_delete = bPrgrms.can_delete
+            prgrms.can_run    = bPrgrms.can_run
+            prgrms.can_update = bPrgrms.can_update
+            .
+    END.
+
 
 END PROCEDURE.
 	
