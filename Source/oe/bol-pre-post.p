@@ -29,9 +29,9 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
 FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     FIRST oe-bolh
     WHERE oe-bolh.b-no EQ oe-boll.b-no
-      AND CAN-FIND(FIRST b-oe-boll
-                   WHERE b-oe-boll.b-no EQ oe-bolh.b-no
-                     AND b-oe-boll.qty  NE 0), 
+      /*AND CAN-FIND(FIRST b-oe-boll                       */ /* Ticket 102615*/
+      /*             WHERE b-oe-boll.b-no EQ oe-bolh.b-no  */
+      /*               AND b-oe-boll.qty  NE 0)            */,
     FIRST cust NO-LOCK
     WHERE cust.company EQ oe-bolh.company
       AND cust.cust-no EQ oe-bolh.cust-no,
@@ -262,7 +262,7 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose:  return Nk1 value 
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnChar AS LOGICAL NO-UNDO. 
@@ -272,5 +272,5 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
         lReturnValue = LOGICAL(cReturnChar).
     
     RETURN lReturnValue.
-    		
+            
 END FUNCTION.
