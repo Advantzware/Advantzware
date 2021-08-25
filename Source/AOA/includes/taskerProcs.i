@@ -453,7 +453,7 @@ PROCEDURE pTaskEmails :
 /*                END. /* repeat */                                  */
 /*                INPUT CLOSE.                                       */
                 cAttachment = REPLACE(SEARCH(cErrorFile),".err",".txt").
-                OS-RENAME VALUE(SEARCH(cErrorFile)) cAttachment.
+                OS-RENAME VALUE(SEARCH(cErrorFile)) VALUE(cAttachment).
                 RUN VALUE(cRunProgram) (
                     bTaskEmail.subject,
                     cEmailBody,
