@@ -23,8 +23,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -68,10 +68,10 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_mach end_mach begin_dept ~
-end_dept tb_show-stds rd-dest td-show-parm tb_runExcel fi_file tbAutoClose ~
+end_dept tb_show-stds rd-dest td-show-parm tb_OpenCSV fi_file tbAutoClose ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_mach end_mach begin_dept end_dept ~
-tb_show-stds rd-dest td-show-parm tb_runExcel fi_file tbAutoClose 
+tb_show-stds rd-dest td-show-parm tb_OpenCSV fi_file tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -167,7 +167,7 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
      LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 14.6 BY 1.05 NO-UNDO.
@@ -177,7 +177,7 @@ DEFINE VARIABLE tb_show-stds AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .95 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -202,7 +202,7 @@ DEFINE FRAME FRAME-A
      lines-per-page AT ROW 7.91 COL 47 COLON-ALIGNED
      rd-dest AT ROW 8.38 COL 5 NO-LABEL
      td-show-parm AT ROW 10.19 COL 35
-     tb_runExcel AT ROW 11 COL 86 RIGHT-ALIGNED WIDGET-ID 6
+     tb_OpenCSV AT ROW 11 COL 86 RIGHT-ALIGNED WIDGET-ID 6
      fi_file AT ROW 11.1 COL 26.2 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 2
      tbAutoClose AT ROW 12.91 COL 29.2 WIDGET-ID 16
@@ -328,10 +328,10 @@ ASSIGN
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -420,22 +420,31 @@ DO:
         ASSIGN {&displayed-objects}.
     END.
 
-  assign rd-dest.
- IF rd-dest = 3 THEN
-  do:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-mach.csv".
-    assign fi_file.
+  ASSIGN rd-dest.
+  IF rd-dest = 3 THEN
+  DO:
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
-  run run-report. 
+  END.
+  RUN run-report. 
 
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
-                   //RUN output-to-file.
+       WHEN 3 THEN DO:
+            IF NOT tb_OpenCSV THEN DO:        
+                MESSAGE "CSV file have been created." SKIP(1)
+                       "~"OK"~"Want to open CSV file?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                TITLE "" UPDATE lChoice AS LOGICAL.
+
+                IF lChoice THEN
+                DO:
+                 OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                END.
+            END.
+       END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type=" "
@@ -573,18 +582,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
-    IF rd-dest = 3 THEN
-        ASSIGN
-            fi_file:sensitive     = TRUE  
-            tb_runExcel:sensitive = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:sensitive     = FALSE  
-            tb_runExcel:checked   = FALSE
-            tb_runExcel:sensitive = FALSE
-            .
+  ASSIGN {&self-name}.
+  RUN pChangeDest .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,9 +601,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 DO:
   assign {&self-name}.
 END.
@@ -665,22 +664,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-      btn-ok:load-image("Graphics/32x32/Ok.png").
-    btn-cancel:load-image("Graphics/32x32/cancel.png").
+  btn-ok:load-image("Graphics/32x32/Ok.png").
+  btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
-  ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
   {methods/nowait.i}
-   /* {sys/inc/reportsConfigNK1.i "OR12" }
-  assign
-    td-show-parm:sensitive = lShowParameters
-    td-show-parm:hidden = not lShowParameters
-    td-show-parm:visible = lShowParameters
-    .*/
+   
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     APPLY 'ENTRY' TO begin_mach.
   END.
+  
+  RUN pChangeDest .
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -722,10 +717,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_mach end_mach begin_dept end_dept tb_show-stds rd-dest 
-          td-show-parm tb_runExcel fi_file tbAutoClose 
+          td-show-parm tb_OpenCSV fi_file tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_mach end_mach begin_dept end_dept tb_show-stds 
-         rd-dest td-show-parm tb_runExcel fi_file tbAutoClose btn-ok btn-cancel 
+         rd-dest td-show-parm tb_OpenCSV fi_file tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1241,7 +1236,7 @@ END.
     /* gdm - 10130802 */
     IF rd-dest = 3  THEN DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
+        IF tb_OpenCSV THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
@@ -1653,3 +1648,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Parameters:  <none>
+ Notes:      
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+     IF rd-dest:SCREEN-VALUE EQ "3" THEN
+      ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "Yes"
+       fi_file:SENSITIVE = YES
+       tb_OpenCSV:SENSITIVE = YES      
+      .
+     ELSE
+       ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "NO"
+       fi_file:SENSITIVE = NO
+       tb_OpenCSV:SENSITIVE = NO      
+      .
+    ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-mach.csv".
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
