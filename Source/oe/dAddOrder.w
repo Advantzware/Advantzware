@@ -65,6 +65,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPROMPT", "L" /* Logical */, NO /* check 
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lOeprompt = LOGICAL(cRtnChar) NO-ERROR.
+    
+DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.    
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -938,24 +940,26 @@ ON HELP OF dtDueDate IN FRAME D-Dialog /* Due Date */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    /*{src/adm/template/dialogmn.i}*/
+    
+    IF ipcSourceType EQ "Estimate" THEN 
+    DO:
+        RUN oe/dSelEstItem.w(INPUT ipcSourceType, INPUT ipcSourceValue, INPUT ipcCustomerPo, OUTPUT lCancel ).
+        IF lCancel THEN RETURN NO-APPLY.
+     END. 
+     
+     
+    
     RUN enable_UI.
-    {methods/nowait.i}     
+    {methods/nowait.i}  
+    
+    RUN pNewEstimate. 
+    
     DO WITH FRAME {&frame-name}:  
         IF ipcSourceType EQ "Estimate" THEN 
-        DO:
-            RUN pSelectEstItem.
-                        
-            APPLY "entry" TO cEstNo IN FRAME {&FRAME-NAME}.
-            
+        DO:             
+            APPLY "entry" TO cEstNo IN FRAME {&FRAME-NAME}.            
         END.    
-        ELSE 
-        DO:
-            RUN pDefaultValue. 
-            
-            APPLY "entry" TO cEstNo IN FRAME {&FRAME-NAME}.              
-        END.
-    /*RUN repo-query.*/          
+                
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
@@ -1209,24 +1213,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDefaultValue D-Dialog 
-PROCEDURE pDefaultValue :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:
-
-           
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewEstimate D-Dialog 
 PROCEDURE pNewEstimate :
@@ -1237,41 +1223,51 @@ PROCEDURE pNewEstimate :
         ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
-    DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:  
+      cEstNo:SCREEN-VALUE = ipcSourceValue.
+      cCustPo:SCREEN-VALUE = ipcCustomerPo.
+      
       FIND FIRST est NO-LOCK
           WHERE est.company EQ g_company
             AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
           NO-ERROR.
       EMPTY TEMP-TABLE ttInputOrd . 
-             
+                   
       IF AVAIL est THEN
-      DO:
-          CREATE ttInputOrd.
-          ASSIGN
-              ttInputOrd.company   = cocode
-              ttInputOrd.est-no    = est.est-no
-              ttInputOrd.cust-no   = cCustNo:SCREEN-VALUE
-              ttInputOrd.ship-id   = ship-to:SCREEN-VALUE
-              ttInputOrd.sold-id   = sold-to:SCREEN-VALUE 
-              ttInputOrd.po-no     = cCustPo:SCREEN-VALUE               
-              ttInputOrd.due-code  = cDue:SCREEN-VALUE
-              ttInputOrd.due-date  = date(dtDueDate:SCREEN-VALUE).
-              ttInputOrd.over-pct  = integer(string(overRun:SCREEN-VALUE,"999")) NO-ERROR.
-              ttInputOrd.under-pct = integer(STRING(underRun:SCREEN-VALUE,"999")) NO-ERROR.
-              EMPTY TEMP-TABLE ttInputOrdLine .
-           iLine = 0.   
+      DO:            
+          EMPTY TEMP-TABLE ttInputOrdLine .
+          iLine = 0.     
+           
           FOR EACH eb NO-LOCK
               WHERE eb.company EQ cocode
-              AND eb.est-no EQ est.est-no:
+              AND eb.est-no EQ est.est-no,
+              FIRST tt-est-item WHERE tt-est-item.IS-SELECTED
+                    AND tt-est-item.est-rowid EQ ROWID(eb) NO-LOCK,
+              FIRST cust NO-LOCK
+                {sys/ref/custW.i}
+              AND cust.cust-no EQ eb.cust-no
+              USE-INDEX cust
+              BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no:
+                    
+                    
               iLine = iLine + 1.
+              
+              ASSIGN
+                  cCustNo:SCREEN-VALUE = eb.cust-no                   
+                  ship-to:SCREEN-VALUE = eb.ship-id
+                  sold-to:SCREEN-VALUE = eb.cust-no                  
+                  cDue:SCREEN-VALUE =  "On"
+                  dtDueDate:SCREEN-VALUE = string(TODAY + cust.ship-days ).
+                  
+               RUN pGetOverUnderPct.   
               
               CREATE ttInputOrdLine.
               ASSIGN
                   ttInputOrdLine.company = cocode
                   ttInputOrdLine.LINE = iLine
                   ttInputOrdLine.cItemType = "Estimate"
-                  ttInputOrdLine.est-no    = eb.est-no
-                  ttInputOrdLine.i-no  = eb.stock-no
+                  ttInputOrdLine.est-no = eb.est-no
+                  ttInputOrdLine.i-no = eb.stock-no
                   ttInputOrdLine.part-no = eb.part-no 
                   ttInputOrdLine.po-no = cCustPo:SCREEN-VALUE
                   ttInputOrdLine.qty = eb.eqty
@@ -1310,119 +1306,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayQty D-Dialog 
-PROCEDURE pDisplayQty :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-eb FOR eb .
-    DO WITH FRAME {&FRAME-NAME}:
-
-      /*  FIND FIRST bf-eb NO-LOCK 
-            WHERE bf-eb.company EQ cocode
-            AND ROWID(bf-eb) EQ ipriRowid NO-ERROR .
-        
-        IF AVAILABLE bf-eb THEN 
-        DO:
-            FIND FIRST est-qty NO-LOCK
-                WHERE est-qty.company EQ bf-eb.company
-                AND est-qty.est-no EQ bf-eb.est-no
-                AND est-qty.eqty EQ bf-eb.eqty NO-ERROR .
-                 
-            IF AVAILABLE est-qty THEN 
-            DO:  
-                ASSIGN
-                    lv-copy-qty[2]  = est-qty.qty[2]
-                    lv-copy-qty[3]  = est-qty.qty[3]
-                    lv-copy-qty[4]  = est-qty.qty[4]
-                    lv-copy-qty[5]  = est-qty.qty[5]
-                    lv-copy-qty[6]  = est-qty.qty[6]
-                    lv-copy-qty[7]  = est-qty.qty[7]
-                    lv-copy-qty[8]  = est-qty.qty[8]
-                    lv-copy-qty[9]  = est-qty.qty[9]
-                    lv-copy-qty[10] = est-qty.qty[10]
-                    lv-copy-qty[11] = est-qty.qty[11]
-                    lv-copy-qty[12] = est-qty.qty[12]
-                    lv-copy-qty[13] = est-qty.qty[13]
-                    lv-copy-qty[14] = est-qty.qty[14]
-                    lv-copy-qty[15] = est-qty.qty[15]
-                    lv-copy-qty[16] = est-qty.qty[16]
-                    lv-copy-qty[17] = est-qty.qty[17]
-                    lv-copy-qty[18] = est-qty.qty[18]
-                    lv-copy-qty[19] = est-qty.qty[19]
-                    lv-copy-qty[20] = est-qty.qty[20].
-                     
-                ASSIGN 
-                    lv-copy-rel[1]  = est-qty.qty[21]
-                    lv-copy-rel[2]  = est-qty.qty[22]
-                    lv-copy-rel[3]  = est-qty.qty[23]
-                    lv-copy-rel[4]  = est-qty.qty[24]
-                    lv-copy-rel[5]  = est-qty.qty[25]
-                    lv-copy-rel[6]  = est-qty.qty[26]
-                    lv-copy-rel[7]  = est-qty.qty[27]
-                    lv-copy-rel[8]  = est-qty.qty[28]
-                    lv-copy-rel[9]  = est-qty.qty[29]
-                    lv-copy-rel[10] = est-qty.qty[30]
-                    lv-copy-rel[11] = est-qty.qty[31]
-                    lv-copy-rel[12] = est-qty.qty[32]
-                    lv-copy-rel[13] = est-qty.qty[33]
-                    lv-copy-rel[14] = est-qty.qty[34]
-                    lv-copy-rel[15] = est-qty.qty[35]
-                    lv-copy-rel[16] = est-qty.qty[36]
-                    lv-copy-rel[17] = est-qty.qty[37]
-                    lv-copy-rel[18] = est-qty.qty[38]
-                    lv-copy-rel[19] = est-qty.qty[39]
-                    lv-copy-rel[20] = est-qty.qty[40].
-                ASSIGN 
-                    cLogicalRunShip[1]  = STRING(est-qty.whsed[1])
-                    cLogicalRunShip[2]  = STRING(est-qty.whsed[2]) 
-                    cLogicalRunShip[3]  = STRING(est-qty.whsed[3])
-                    cLogicalRunShip[4]  = STRING(est-qty.whsed[4])
-                    cLogicalRunShip[5]  = STRING(est-qty.whsed[5])
-                    cLogicalRunShip[6]  = STRING(est-qty.whsed[6])
-                    cLogicalRunShip[7]  = STRING(est-qty.whsed[7])
-                    cLogicalRunShip[8]  = STRING(est-qty.whsed[8])
-                    cLogicalRunShip[9]  = STRING(est-qty.whsed[9])
-                    cLogicalRunShip[10] = STRING(est-qty.whsed[10])
-                    cLogicalRunShip[11] = STRING(est-qty.whsed[11])
-                    cLogicalRunShip[12] = STRING(est-qty.whsed[12])
-                    cLogicalRunShip[13] = STRING(est-qty.whsed[13])
-                    cLogicalRunShip[14] = STRING(est-qty.whsed[14])
-                    cLogicalRunShip[15] = STRING(est-qty.whsed[15])
-                    cLogicalRunShip[16] = STRING(est-qty.whsed[16])
-                    cLogicalRunShip[17] = STRING(est-qty.whsed[17])
-                    cLogicalRunShip[18] = STRING(est-qty.whsed[18])
-                    cLogicalRunShip[19] = STRING(est-qty.whsed[19])
-                    cLogicalRunShip[20] = STRING(est-qty.whsed[20])  .
-
-            END.
-        END.*/
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSelectEstItem D-Dialog 
-PROCEDURE pSelectEstItem :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:                   
-        
-       
-    END. 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query D-Dialog 
 PROCEDURE repo-query :
@@ -1449,23 +1332,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records D-Dialog  _ADM-SEND-RECORDS
-PROCEDURE send-records :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct D-Dialog 
+PROCEDURE pGetOverUnderPct :
 /*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ttInputOrdLine"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
-
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE cTagDesc AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
+  
+  DO WITH FRAME {&FRAME-NAME}:          
+    RUN oe/GetOverUnderPct.p(g_company,
+                           cCustNo:SCREEN-VALUE ,
+                           TRIM(ship-to:SCREEN-VALUE),
+                           "", /* FG Item*/
+                           0,
+                           OUTPUT dOverPer , OUTPUT dUnderPer, OUTPUT cTagDesc ) .  
+      overRun:SCREEN-VALUE = STRING(dOverPer).
+      underRun:SCREEN-VALUE = STRING(dUnderPer). 
+      //RUN pAddTag ("Over Percentage",cTagDesc ).
+      //RUN pAddTag ("Under Percentage",cTagDesc ).
+  END.
+  //  deAutoOverRun = dOverPer.
+   // deAutoUnderRun = dUnderPer.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2231,9 +2231,13 @@ PROCEDURE add-order :
   DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cSourceValue AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cCustomerPo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
+  
   IF lNewOrderEntry THEN
   DO:
-   RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo) .
+   RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo, OUTPUT lCancel) .
+   
+   IF lCancel THEN RETURN NO-APPLY.     
    
    RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo).   
    
