@@ -15,8 +15,7 @@ FIND FIRST sys-ctrl NO-LOCK
     NO-ERROR.
 {1}.recalc = AVAIL sys-ctrl AND sys-ctrl.log-fld.
 
-{est/recalc-mr.i {1}}
-recalc-mr.val[1] = INT({1}.recalc).
+{1}.recalc-mr = AVAIL sys-ctrl AND sys-ctrl.log-fld.
 
 FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ {1}.company
