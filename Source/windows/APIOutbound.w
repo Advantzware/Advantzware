@@ -111,6 +111,7 @@ DEFINE VARIABLE h_p-updapi-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_q-apiclient AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-5
@@ -337,6 +338,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.10 , 19.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (          /*Task # 11081306*/
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 50.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */ 
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apioutbound.w':U ,
@@ -356,6 +365,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_apioutbound. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_apioutbound ).
        RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apioutbound ,
