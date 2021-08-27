@@ -112,10 +112,13 @@ DEFINE VARIABLE cJobNo2                       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstimate                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCSRName                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobStatus                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueTime                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStartDate                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cNotes                        AS CHARACTER NO-UNDO.
     
 /* Job Header Variables*/
 DEFINE VARIABLE iTaskCounter                  AS INTEGER   NO-UNDO.
@@ -135,7 +138,6 @@ DEFINE VARIABLE cStandardFixedOverheadCost    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStandardVariableOverHeadCost AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItem                         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFGItemName                   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCustomer                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cForm                         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBlank                        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDueDate                      AS CHARACTER NO-UNDO.
@@ -150,6 +152,7 @@ DEFINE VARIABLE cOpened                       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrinted                      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPOReceivedDate               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOrderQty                     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dOrderQty                     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cMfgDate                      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoardCode                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cGrain                        AS CHARACTER NO-UNDO.
@@ -263,6 +266,9 @@ DEFINE VARIABLE iAssemblyBlankCount           AS INTEGER   NO-UNDO.
                     
 DEFINE BUFFER bf-APIOutboundDetail        FOR APIOutboundDetail.
 DEFINE BUFFER bf-job-mat                  FOR job-mat.
+DEFINE BUFFER bf-users                    FOR users.
+DEFINE BUFFER bf-notes                    FOR notes.
+
 /**********************  Preprocessor Definitions  ******************** */
 
 
@@ -334,11 +340,30 @@ DO:
         cIsPriority   = STRING(job.priority EQ 1,"true/false")
         cPriority     = STRING(job.priority)
         cCSRID        = job.csrUser_id
+        cJobStatus    = IF job.stat EQ "C" OR job.stat EQ "Z" THEN
+                            "Closed"
+                        ELSE IF job.stat EQ "H" THEN
+                            "OnHold"
+                        ELSE
+                            "ProductionReady"
         cEnteredBy    = job.user-id
         cJobDueDate   = STRING(job.due-date)
         cJobDueTime   = STRING(job.due-time)
         cJobStartDate = STRING(job.start-date)
         .
+    
+    FIND FIRST bf-users NO-LOCK
+         WHERE bf-users.user_id EQ cCSRID
+         NO-ERROR.
+    IF AVAILABLE bf-users THEN
+        cCSRName = bf-users.user_name.    
+
+    FOR EACH bf-notes NO-LOCK
+        WHERE bf-notes.rec_key   EQ job.rec_key
+          AND bf-notes.note_code EQ "SC":
+        cNotes = bf-notes.note_text + " " + cNotes. 
+    END.
+                            
     RUN pProcessAMSData(BUFFER job).
     
     FOR EACH ttPart:
@@ -450,11 +475,14 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "IsPriority",cIsPriority).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Location",cLocation).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Estimate",cEstimate).
-    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRID",cCSRID).                
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRID",cCSRID).              
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRName",cCSRName).  
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "EnteredBy",cEnteredBy).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueDate",cJobDueDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueTime",cJobDueTime).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStartDate",cJobStartDate).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Notes",cNotes).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStatus",cJobStatus).
 
     ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcJobsData).   
 END.                        
@@ -855,6 +883,65 @@ PROCEDURE pCreateMaterials PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE pUpdateCustInfo PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
+    
+    DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerName AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.cust-no EQ ipcCustomerID
+         NO-ERROR.
+    IF AVAILABLE bf-cust THEN
+        ASSIGN
+            cCustomer     = bf-cust.cust-no
+            cCustomerName = bf-cust.name
+            .
+
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerID", cCustomer).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", cCustomerName).            
+END PROCEDURE.
+
+PROCEDURE pUpdateItemInfo PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcItemID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
+    
+    DEFINE VARIABLE cItem        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cProductCode AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany 
+           AND bf-itemfg.i-no    EQ ipcItemID
+         NO-ERROR.
+    IF AVAILABLE bf-itemfg THEN
+        ASSIGN
+            cItem     = bf-itemfg.i-no
+            cItemName = bf-itemfg.i-name
+            cProductCode = bf-itemfg.procat
+            .
+            
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Item", cItem).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FGItemName", cItemName).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ProductCode", cProductCode).    
+END PROCEDURE.
+
 PROCEDURE pIsACombottPart PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -1149,15 +1236,12 @@ PROCEDURE pCreateParts PRIVATE:
     DEFINE INPUT  PARAMETER iplIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
-    DEFINE BUFFER bf-itemfg                    FOR itemfg.
     DEFINE BUFFER bf-combo-APIOutboundDetail   FOR APIOutboundDetail.
     DEFINE BUFFER bf-ef                        FOR ef.
     
     DEFINE VARIABLE lIsNewCalculationMethod AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lIsACombo               AS LOGICAL   NO-UNDO.
 
-    DEFINE VARIABLE cItem                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFGItemName             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cForm                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBlank                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantity               AS CHARACTER NO-UNDO.
@@ -1224,20 +1308,16 @@ PROCEDURE pCreateParts PRIVATE:
             
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
             
-            FIND FIRST bf-itemfg NO-LOCK
-                 WHERE bf-itemfg.company EQ job.company 
-                   AND bf-itemfg.i-no    EQ cItem
-                 NO-ERROR.
-            IF AVAILABLE bf-itemfg THEN
-                cFGItemName = bf-itemfg.i-name.
-                
+            RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+            RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
+
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank", cBlank).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Form", cForm).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Item", cItem).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FGItemName", cFGItemName).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
             
             CREATE ttPart.
             ASSIGN
@@ -1283,21 +1363,17 @@ PROCEDURE pCreateParts PRIVATE:
         
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
         
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ job.company 
-               AND bf-itemfg.i-no    EQ cItem
-             NO-ERROR.
-        IF AVAILABLE bf-itemfg THEN
-            cFGItemName = bf-itemfg.i-name.
+        RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+        RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
             
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank", cBlank).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Form", cForm).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Item", cItem).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FGItemName", cFGItemName).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-                
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+                        
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1341,21 +1417,17 @@ PROCEDURE pCreateParts PRIVATE:
             
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
             
-            FIND FIRST bf-itemfg NO-LOCK
-                 WHERE bf-itemfg.company EQ job.company 
-                   AND bf-itemfg.i-no    EQ cItem
-                 NO-ERROR.
-            IF AVAILABLE bf-itemfg THEN
-                cFGItemName = bf-itemfg.i-name.
+            RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+            RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+            RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
                 
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank", cBlank).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Form", cForm).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Item", cItem).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FGItemName", cFGItemName).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-            
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+                
             CREATE ttPart.
             ASSIGN
                 ttPart.formNo      = job-hdr.frm
@@ -1412,22 +1484,18 @@ PROCEDURE pCreateParts PRIVATE:
             .
         
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
-        
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ job.company 
-               AND bf-itemfg.i-no    EQ cItem
-             NO-ERROR.
-        IF AVAILABLE bf-itemfg THEN
-            cFGItemName = bf-itemfg.i-name.
+
+        RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
+        RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
+        RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
             
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank", cBlank).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Form", cForm).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Item", cItem).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "FGItemName", cFGItemName).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-                
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+                    
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1642,3 +1710,42 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     
     oplcConcatJobMachineDataByItem = oplcConcatJobMachineDataByItem + lcJobMachineDataByItem.         
 END PROCEDURE.   
+
+PROCEDURE pGetOrderQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-hdr FOR job-hdr.
+    DEFINE OUTPUT PARAMETER opdOrderQuantity AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    FIND FIRST bf-oe-ord NO-LOCK 
+         WHERE bf-oe-ord.company EQ ipbf-job-hdr.company 
+           AND bf-oe-ord.ord-no  EQ ipbf-job-hdr.ord-no
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ord THEN 
+    DO:
+        FIND bf-oe-ordl NO-LOCK 
+             WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+               AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
+               AND bf-oe-ordl.i-no    EQ ipbf-job-hdr.i-no 
+               AND bf-oe-ordl.job-no  EQ ipbf-job-hdr.job-no 
+               AND bf-oe-ordl.job-no2 EQ ipbf-job-hdr.job-no2
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-ordl THEN 
+            FIND bf-oe-ordl NO-LOCK 
+                 WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+                   AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+                   AND bf-oe-ordl.i-no    EQ ipbf-job-hdr.i-no 
+                   AND bf-oe-ordl.job-no  EQ ipbf-job-hdr.job-no
+                 NO-ERROR.
+    END.
+        
+    IF AVAILABLE bf-oe-ordl THEN
+        opdOrderQuantity = bf-oe-ordl.qty.
+    ELSE
+        opdOrderQuantity = ipbf-job-hdr.qty. 
+END PROCEDURE.
