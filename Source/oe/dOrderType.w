@@ -71,7 +71,7 @@ ASSIGN
 &Scoped-define INTERNAL-TABLES orderType
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence orderType.createJob orderType.createPurchaseOrder orderType.estimateType 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence orderType.createJob orderType.createPurchaseOrder  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cocode ~         ~{&SORTBY-PHRASE}
@@ -139,19 +139,18 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    orderType.orderTypeID LABEL "Type Id" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
-    orderType.orderTypeDescription LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
-    orderType.orderTypeSource LABEL "Type Source" FORMAT "x(10)" WIDTH 15 LABEL-BGCOLOR 14
-    orderType.orderTypeColor LABEL "Color" FORMAT ">>9"  LABEL-BGCOLOR 14
-    orderType.inactive LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
-    orderType.numberSequence LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
-    orderType.createJob LABEL "Create Job" FORMAT "Yes/No" LABEL-BGCOLOR 14
-    orderType.createPurchaseOrder LABEL "Create Purchase Order" FORMAT "Yes/No" LABEL-BGCOLOR 14
-    orderType.estimateType LABEL "Estimate Type" LABEL-BGCOLOR 14
-    
+    orderType.orderTypeID COLUMN-LABEL "Type" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
+    orderType.orderTypeDescription COLUMN-LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
+    orderType.orderTypeSource COLUMN-LABEL "Source" FORMAT "x(10)" LABEL-BGCOLOR 14
+    orderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>9"  LABEL-BGCOLOR 14
+    orderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
+    orderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
+    orderType.createJob COLUMN-LABEL "Create!Job" FORMAT "Yes/No" LABEL-BGCOLOR 14
+    orderType.createPurchaseOrder COLUMN-LABEL "Create!PO" FORMAT "Yes/No" LABEL-BGCOLOR 14
+        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 155.4 BY 14.52
+    WITH NO-ASSIGN SEPARATORS SIZE 155.4 BY 14.52
          ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
          
 

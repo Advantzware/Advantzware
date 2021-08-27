@@ -126,7 +126,7 @@ DEFINE VARIABLE type-source AS CHARACTER FORMAT "X(10)":U
                      "Transfer","Transfer",
                      "Web","Web",
                      "Rework","Rework",
-                     "Inactive","Inactive"
+                     "Future","Future"
           DROP-DOWN-LIST 
     SIZE 21.6 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
@@ -469,14 +469,9 @@ ON LEAVE OF type-seq IN FRAME Dialog-Frame /* Sequence */
 
 &Scoped-define SELF-NAME type-source
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-source Dialog-Frame
-ON LEAVE OF type-source IN FRAME Dialog-Frame /* Order Type Source */
-    DO:
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-        END.
-               
+ON VALUE-CHANGED OF type-source IN FRAME Dialog-Frame /* Order Type Source */
+    DO:          
+        RUN pSetField.                
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -507,13 +502,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FIND FIRST orderType NO-LOCK
         WHERE ROWID(orderType) EQ iprwRowid NO-ERROR .
     
-    IF ipcType EQ "copy" THEN lv-item-rowid = iprwRowid.
-
-    /*IF iprwRowid EQ ? THEN 
-    DO:
-        //RUN pCreateItem.
-    END.
-    ELSE FIND orderType NO-LOCK WHERE ROWID(orderType) EQ iprwRowid NO-ERROR.      */
+    IF ipcType EQ "copy" THEN lv-item-rowid = iprwRowid.     
 
     IF ipcType NE "view" THEN 
     DO: 
@@ -534,6 +523,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_ok:HIDDEN                             = YES.
         btn_cancel:HIDDEN                         = YES.
     END.
+    RUN pSetField.
     
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -607,38 +597,30 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateItem Dialog-Frame 
-PROCEDURE pCreateItem :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetField Dialog-Frame 
+PROCEDURE pSetField :
 /*------------------------------------------------------------------------------
                       Purpose:     
                       PARAMs:  <none>
                       Notes:       
      ------------------------------------------------------------------------------*/   
-          
-        ASSIGN            
-           
-            tb_inactive   = NO
-            tb_create-job = NO 
-            tb_create-po  = NO .         
-    
-    DISPLAY   
-          type-id item-dscr type-source tb_create-job type-color type-seq 
-          tb_create-po type-est tb_inactive
-        WITH FRAME Dialog-Frame.       
-                                            
-    IF ipcType NE "view" THEN 
+                                
+    IF type-source:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Estimate" THEN 
     DO:
-        ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
+        type-est:HIDDEN IN FRAME {&FRAME-NAME} = NO.
     END.
-
-    VIEW FRAME {&FRAME-NAME}. 
-    APPLY "entry" TO FRAME {&FRAME-NAME}.
-   
-
+    ELSE  
+     type-est:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+     
+     IF INTEGER(type-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}) GE 1 AND INTEGER(type-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}) LE 9 THEN
+     DO:
+        DISABLE item-dscr type-source  WITH FRAME Dialog-Frame .            
+     END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   */
+&ANALYZE-RESUME   
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
@@ -686,55 +668,4 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBoardFromStyle Dialog-Frame 
-PROCEDURE pGetBoardFromStyle :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcStyle AS CHARACTER NO-UNDO .
-    DO WITH FRAME {&FRAME-NAME}:
-    
-        FIND FIRST flute NO-LOCK
-            WHERE flute.company EQ cocode NO-ERROR .
-        IF AVAILABLE flute THEN
-            FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = ipcStyle 
-                AND reftable.loc = flute.code
-                AND reftable.code = "BOARD"
-                NO-LOCK NO-ERROR. 
-        board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME     */
-
-
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style Dialog-Frame 
-PROCEDURE valid-style :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST style
-            WHERE style.company  EQ cocode
-            AND style.style    EQ style-cod:SCREEN-VALUE
-            AND style.industry EQ "2")  THEN 
-        DO:
-            MESSAGE "Invalid Style Code, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO style-cod .
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   */
 

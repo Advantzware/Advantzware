@@ -195,6 +195,8 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 7 FGCOLOR 15 
+     Btn_OrdType  AT ROW 1.24 COL 70 HELP
+          "Update/Save Order Type"      
      n-ord AT ROW 2.43 COL 31 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
           LABEL "Next Order Number"
@@ -223,9 +225,7 @@ DEFINE FRAME oe-ctrl
      oe-ctrl.p-sep AT ROW 11.48 COL 13
           LABEL "Print Separate Invoice per Release"
           VIEW-AS TOGGLE-BOX
-          SIZE 43 BY .81
-     Btn_OrdType  AT ROW 11.48 COL 70 HELP
-          "Update/Save Order Type"     
+          SIZE 43 BY .81            
      Btn_Update AT ROW 25.29 COL 54 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 25.29 COL 70 HELP
