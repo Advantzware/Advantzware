@@ -40,13 +40,15 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-def var char-val as cha no-undo.
-def var ext-cost as decimal no-undo.
+DEF VAR char-val AS cha NO-UNDO.
+DEF VAR ext-cost AS DECIMAL NO-UNDO.
 
-def var ls-prev-po as cha no-undo.
-def var hd-post as widget-handle no-undo.
-def var hd-post-child as widget-handle no-undo.
-def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
+DEF VAR ls-prev-po AS cha NO-UNDO.
+DEF VAR hd-post AS WIDGET-HANDLE NO-UNDO.
+DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
+DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
+DEF VAR lValidationError AS LOG NO-UNDO.
+DEF VAR v-new-mode AS LOG NO-UNDO.
 
 DEF VAR lv-po-wid LIKE po-ordl.s-wid NO-UNDO.
 DEF VAR lv-po-len LIKE po-ordl.s-len NO-UNDO.
@@ -2074,18 +2076,20 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    IF v-new-mode THEN DO:
+        FIND CURRENT rm-rctd EXCLUSIVE NO-ERROR.
+        IF AVAIL rm-rctd THEN 
+            RUN local-delete-record.
+        RUN local-open-query.
+    END.
+                       
+    ELSE RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  /*rm-rctd.qty:READ-ONLY IN BROWSE {&browse-name} = YES.*/
-
-
-  ASSIGN gv-job-no = ""
-         gv-job-no2 = 0
-         gv-item-no = "".
+    ASSIGN
+        v-new-mode = FALSE  
+        gv-job-no = ""
+        gv-job-no2 = 0
+        gv-item-no = "".
 
 END PROCEDURE.
 
@@ -2107,12 +2111,13 @@ PROCEDURE local-create-record :
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
        VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
-
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  assign rm-rctd.company = cocode
+    ASSIGN 
+        v-new-mode = TRUE 
+         rm-rctd.company = cocode
          rm-rctd.loc = locode
          rm-rctd.r-no = li-nxt-r-no
          rm-rctd.rita-code = "I"
@@ -2146,6 +2151,8 @@ PROCEDURE local-delete-record :
     DELETE tt-selected.
   END.
 
+  ASSIGN 
+    v-new-mode = FALSE.
   /*rm-rctd.qty:READ-ONLY IN BROWSE {&browse-name} = YES.*/
 END PROCEDURE.
 
@@ -2161,6 +2168,10 @@ PROCEDURE local-enable-fields :
   DEF VAR li AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF NOT AVAIL rm-rctd THEN DO:
+    {&BROWSE-NAME}:READ-ONLY IN FRAME {&frame-name} = NO.
+    RETURN.
+  END.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
@@ -2219,9 +2230,11 @@ PROCEDURE local-update-record :
   DEFINE BUFFER bf-rm-bin FOR rm-bin.
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  
-  RUN valid-po-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  ASSIGN 
+    lValidationError = FALSE.
+    
+  RUN valid-po-no.
+  IF lValidationError THEN RETURN.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) NE 0 THEN DO:
@@ -2252,14 +2265,14 @@ PROCEDURE local-update-record :
     END.
   END.
 
-  RUN valid-job-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN .
+  RUN valid-job-no.
+  IF lValidationError THEN RETURN.
 
-  RUN valid-job-no2 NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN valid-job-no2.
+  IF lValidationError THEN RETURN.
   
-  RUN valid-all NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN .
+  RUN valid-all.
+  IF lValidationError THEN RETURN.
 
   FOR EACH b-rm-rctd FIELDS(qty) WHERE
       b-rm-rctd.company EQ cocode AND
@@ -2287,7 +2300,7 @@ PROCEDURE local-update-record :
       IF AVAILABLE bf-rm-bin AND lv-qty > bf-rm-bin.qty THEN DO:
           MESSAGE "Quantity entered (" + STRING(lv-qty) + ") is greater than bin quantity (" + STRING(bf-rm-bin.qty) + ")" 
               VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
+          RETURN.
       END.
   END.
 
@@ -2295,14 +2308,17 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN 
+    v-new-mode = FALSE.
+
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
       APPLY 'CURSOR-LEFT':U TO {&BROWSE-NAME}.
     END.
   END.
 
-  RUN multi-issues (ROWID(rm-rctd)) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN multi-issues (ROWID(rm-rctd)).
+  IF lValidationError THEN RETURN.
 
   /*rm-rctd.qty:READ-ONLY IN BROWSE {&browse-name} = YES.*/
 
@@ -2423,8 +2439,8 @@ PROCEDURE multi-issues :
 
         RUN get-matrix (TRUE).
 
-        RUN valid-all NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+        RUN valid-all.
+        IF lValidationError THEN RETURN.
 
         RUN dispatch ('assign-record').
 
@@ -3071,23 +3087,23 @@ PROCEDURE valid-all :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN valid-i-no.
+  IF lValidationError THEN RETURN.
+  
+  RUN valid-loc-bin-tag (3).
+  IF lValidationError THEN RETURN.
 
-  RUN valid-loc-bin-tag (3) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN valid-qty.
+  IF lValidationError THEN RETURN.
 
-  RUN valid-qty NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN valid-uom.
+  IF lValidationError THEN RETURN.
 
-  RUN valid-uom NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN validate-jobmat (NO).
+  IF lValidationError THEN RETURN.
 
-  RUN validate-jobmat (NO) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
-  RUN valid-s-num NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  RUN valid-s-num.
+  IF lValidationError THEN RETURN.
 
 END PROCEDURE.
 
@@ -3164,7 +3180,8 @@ PROCEDURE valid-i-no :
     IF v-msg NE "" THEN DO:
       MESSAGE TRIM(v-msg) + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END.
 
     LEAVE.
@@ -3209,7 +3226,8 @@ PROCEDURE valid-job-no :
                   ", try help..."
               VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
-        RETURN ERROR.
+        ASSIGN lValidationError = TRUE.
+        RETURN.
       END.
     END.
   END.
@@ -3242,14 +3260,16 @@ PROCEDURE valid-job-no2 :
                 ", try help..."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
-        RETURN ERROR.
+        ASSIGN lValidationError = TRUE.
+        RETURN.
       END.
 
       RUN jc/chk-stat.p(RECID(job), 1, YES, OUTPUT ll).
       IF NOT ll THEN DO:
         rm-rctd.job-no:READ-ONLY = NO.
         APPLY 'ENTRY':U TO rm-rctd.job-no IN BROWSE {&BROWSE-NAME}.
-        RETURN ERROR. 
+        ASSIGN lValidationError = TRUE.
+        RETURN.
       END.
     END.
   END.
@@ -3315,7 +3335,8 @@ PROCEDURE valid-loc-bin-tag :
           APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&BROWSE-NAME}.
         ELSE
           APPLY "entry" TO rm-rctd.loc IN BROWSE {&BROWSE-NAME}.
-        RETURN ERROR.
+        ASSIGN lValidationError = TRUE.
+        RETURN.
       END.
     END.
   END.
@@ -3366,7 +3387,8 @@ PROCEDURE valid-po-no :
               " " + v-msg + "..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.po-no IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END.
   END.
 
@@ -3387,7 +3409,8 @@ PROCEDURE valid-qty :
     IF DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 THEN DO:
       MESSAGE "Issued qty may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END.
   END.
 
@@ -3431,7 +3454,8 @@ PROCEDURE valid-qty2 :
       MESSAGE "Issue Quantity exceeds Quantity on Hand for this Warehouse/Bin/Tag Location..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END. /* If quantity is over */
     ELSE DO:
       FIND ITEM WHERE ITEM.company EQ rm-bin.company
@@ -3444,7 +3468,8 @@ PROCEDURE valid-qty2 :
         MESSAGE "Issue Quantity exceeds Quantity on Hand + Unposted Issues for this Warehouse/Bin/Tag Location..."          
             VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO rm-rctd.loc-bin IN BROWSE {&BROWSE-NAME}.
-        RETURN ERROR.
+        ASSIGN lValidationError = TRUE.
+        RETURN.
       END. /* If quantity is over on-hand + issued */ 
     END. /* Else... */
 
@@ -3499,7 +3524,8 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
         rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:                        
       MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END.
   END.
 END PROCEDURE.
@@ -3523,7 +3549,8 @@ PROCEDURE valid-uom :
       MESSAGE TRIM(rm-rctd.pur-uom:LABEL IN BROWSE {&BROWSE-NAME}) +
               " must be " + TRIM(lv-uom-list) + "..."
           VIEW-AS ALERT-BOX ERROR.
-      RETURN ERROR.
+      ASSIGN lValidationError = TRUE.
+      RETURN.
     END. 
   END.
 
@@ -3588,92 +3615,92 @@ PROCEDURE validate-jobmat :
                              AND job.job-no2 = int(rm-rctd.job-no2:SCREEN-VALUE)
                              NO-LOCK NO-ERROR.
             v-job-up = 0.
-            for each job-hdr
-                where job-hdr.company eq cocode
-                  and job-hdr.job     eq job.job
-                  and job-hdr.job-no  eq job.job-no
-                  and job-hdr.job-no2 eq job.job-no2
-                  and job-hdr.frm     eq input rm-rctd.s-num
-                no-lock:
+            FOR EACH job-hdr
+                WHERE job-hdr.company EQ cocode
+                  AND job-hdr.job     EQ job.job
+                  AND job-hdr.job-no  EQ job.job-no
+                  AND job-hdr.job-no2 EQ job.job-no2
+                  AND job-hdr.frm     EQ INPUT rm-rctd.s-num
+                NO-LOCK:
                 v-job-up = v-job-up + job-hdr.n-on.
-            end.
+            END.
 
             RUN lookup-job-mat (ip-for-item-only).
 
-            find job-mat where recid(job-mat) eq fil_id no-error.
+            FIND job-mat WHERE RECID(job-mat) EQ fil_id NO-ERROR.
 
-            if avail job-mat then do:
+            IF AVAIL job-mat THEN DO:
 
-               if index("1234BPR",item.mat-type) gt 0 then do on endkey undo, retry:
-                  assign
+               IF INDEX("1234BPR",item.mat-type) GT 0 THEN DO ON ENDKEY UNDO, RETRY:
+                  ASSIGN
                    v-frm = job-mat.frm
                    v-blk = job-mat.blank-no
                    v-out = job-mat.n-up / v-job-up.
-                   run rm/g-iss2.w ( v-frm, v-blk , input-output v-out ).
+                   RUN rm/g-iss2.w ( v-frm, v-blk , INPUT-OUTPUT v-out ).
                 /*
                   display v-frm v-blk with frame s-b.
                   update v-out with frame s-b.
                 */
-               end.
+               END.
               v-oh-hand = calc-oh().
-              if item.i-code eq "R"
+              IF item.i-code EQ "R"
                   OR (ITEM.i-code = "E"
                       AND rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} GT ""
-                      AND v-oh-hand GT 0 ) then do:
-                 if (item.r-wid ne 0 and  item.r-wid lt job-mat.wid) or
-                    (item.r-wid eq 0 and (item.s-wid lt job-mat.wid or
-                                         item.s-len lt job-mat.len))
-                 then do on endkey undo, retry:
-                     choice = no.
+                      AND v-oh-hand GT 0 ) THEN DO:
+                 IF (item.r-wid NE 0 AND  item.r-wid LT job-mat.wid) OR
+                    (item.r-wid EQ 0 AND (item.s-wid LT job-mat.wid OR
+                                         item.s-len LT job-mat.len))
+                 THEN DO ON ENDKEY UNDO, RETRY:
+                     choice = NO.
 
                      IF ITEM.r-wid <> 0 THEN
-                         run rm/g-iss21.w (job-mat.len, job-mat.len, item.r-wid,job-mat.wid, job-mat.frm,
-                                        output choice)  .
-                     else run rm/g-iss21.w (item.s-len, job-mat.len, item.s-wid,job-mat.wid, job-mat.frm,
-                                        output choice)  .
-                    if not choice then do: release job-mat.
+                         RUN rm/g-iss21.w (job-mat.len, job-mat.len, item.r-wid,job-mat.wid, job-mat.frm,
+                                        OUTPUT choice)  .
+                     ELSE RUN rm/g-iss21.w (item.s-len, job-mat.len, item.s-wid,job-mat.wid, job-mat.frm,
+                                        OUTPUT choice)  .
+                    IF NOT choice THEN DO: RELEASE job-mat.
                        APPLY "entry" TO rm-rctd.job-no.
-                       RETURN error.
+                       RETURN ERROR.
                     END.
                  END.
               END.
-            end. /* avail job-mat */
+            END. /* avail job-mat */
 
-            find first xitem where xitem.company eq cocode
-                    and xitem.i-no    eq job-mat.rm-i-no
-                  no-lock no-error.
-            if not avail xitem then release job-mat.
+            FIND FIRST xitem WHERE xitem.company EQ cocode
+                    AND xitem.i-no    EQ job-mat.rm-i-no
+                  NO-LOCK NO-ERROR.
+            IF NOT AVAIL xitem THEN RELEASE job-mat.
 
-            if avail job-mat then do:
-                create xjob-mat.
-                buffer-copy job-mat to xjob-mat.
+            IF AVAIL job-mat THEN DO:
+                CREATE xjob-mat.
+                BUFFER-COPY job-mat TO xjob-mat.
 
-                find job-mat where recid(job-mat) eq recid(xjob-mat).
+                FIND job-mat WHERE RECID(job-mat) EQ recid(xjob-mat).
 
-                if job-mat.sc-uom eq job-mat.qty-uom then
+                IF job-mat.sc-uom EQ job-mat.qty-uom THEN
                   v-cost = job-mat.std-cost.
-                else
-                  run sys/ref/convcuom.p(job-mat.sc-uom,
+                ELSE
+                  RUN sys/ref/convcuom.p(job-mat.sc-uom,
                                          job-mat.qty-uom,
                                          job-mat.basis-w,
                                          job-mat.len,
                                          job-mat.wid,
                                          item.s-dep,
                                          job-mat.std-cost,
-                                         output v-cost).
+                                         OUTPUT v-cost).
 
                 v-cost = v-cost * job-mat.qty.
 
-                assign
-                 rm-rctd.s-num:SCREEN-VALUE   = string(job-mat.frm)
-                 rm-rctd.b-num:SCREEN-VALUE   = string(job-mat.blank-no)
+                ASSIGN
+                 rm-rctd.s-num:SCREEN-VALUE   = STRING(job-mat.frm)
+                 rm-rctd.b-num:SCREEN-VALUE   = STRING(job-mat.blank-no)
                  job-mat.rm-i-no = item.i-no
                  job-mat.i-no    = item.i-no
                  job-mat.sc-uom  = item.cons-uom
-                 job-mat.wid     = if item.r-wid ne 0 then
-                                     item.r-wid else item.s-wid
-                 job-mat.len     = if item.r-wid ne 0 then
-                                     job-mat.len else item.s-len
+                 job-mat.wid     = IF item.r-wid NE 0 THEN
+                                     item.r-wid ELSE item.s-wid
+                 job-mat.len     = IF item.r-wid NE 0 THEN
+                                     job-mat.len ELSE item.s-len
                  job-mat.basis-w = item.basis-w
                  job-mat.qty     = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                  job-mat.n-up    = v-job-up * v-out
@@ -3683,29 +3710,30 @@ PROCEDURE validate-jobmat :
 
                 v-cost = v-cost / job-mat.qty.
 
-                if job-mat.qty-uom eq job-mat.sc-uom then
+                IF job-mat.qty-uom EQ job-mat.sc-uom THEN
                   job-mat.std-cost = v-cost.
-                else
-                  run sys/ref/convcuom.p(job-mat.qty-uom,
+                ELSE
+                  RUN sys/ref/convcuom.p(job-mat.qty-uom,
                                          job-mat.sc-uom,
                                          job-mat.basis-w,
                                          job-mat.len,
                                          job-mat.wid,
                                          item.s-dep,
                                          v-cost,
-                                         output job-mat.std-cost).
+                                         OUTPUT job-mat.std-cost).
 
-                assign
+                ASSIGN
                  v-bwt = job-mat.basis-w
                  v-len = job-mat.len
                  v-wid = job-mat.wid
                  v-dep = item.s-dep.
-            end. /* avail job-mat */
+            END. /* avail job-mat */
 
-       end.  /* ll-ans = yes */
-       ELSE do:
+       END.  /* ll-ans = yes */
+       ELSE DO:
            APPLY "entry" TO rm-rctd.job-no.
-           RETURN error.  /* not update item */
+           ASSIGN lValidationError = TRUE.
+           RETURN.
        END.
     END. /* not avail job-mat */
 
