@@ -93,14 +93,14 @@ inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.e
 inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] ~
 inv-line.cost inv-line.cas-cnt inv-line.sman[2] inv-line.sname[2] ~
 inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
-inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price inv-line.taxGroup
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame inv-line.ord-no ~
 inv-line.po-no inv-line.job-no inv-line.job-no2 inv-line.est-no ~
 inv-line.i-no inv-line.part-no inv-line.i-name inv-line.qty ~
 inv-line.part-dscr1 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.e-num ~
 inv-line.price inv-line.pr-uom inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost ~
 inv-line.sman[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] ~
-inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax 
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.taxGroup
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame inv-line
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame inv-line
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH inv-line SHARE-LOCK
@@ -116,7 +116,7 @@ inv-line.part-no inv-line.i-name inv-line.qty inv-line.part-dscr1 ~
 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.pr-uom ~
 inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] ~
 inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.s-pct[3] ~
-inv-line.comm-amt[3] inv-line.tax inv-line.e-num
+inv-line.comm-amt[3] inv-line.tax inv-line.e-num inv-line.taxGroup
 &Scoped-define ENABLED-TABLES inv-line
 &Scoped-define FIRST-ENABLED-TABLE inv-line
 &Scoped-Define ENABLED-OBJECTS RECT-39 RECT-40 btn_ok btn_done btn_cancel 
@@ -127,7 +127,7 @@ inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.e
 inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] ~
 inv-line.cost inv-line.cas-cnt inv-line.sman[2] inv-line.sname[2] ~
 inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
-inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price inv-line.taxGroup
 &Scoped-define DISPLAYED-TABLES inv-line
 &Scoped-define FIRST-DISPLAYED-TABLE inv-line
 &Scoped-Define DISPLAYED-OBJECTS lv-bolno fi_comm-lbl
@@ -309,7 +309,7 @@ DEFINE FRAME Dialog-Frame
      inv-line.comm-amt[3] AT ROW 10.76 COL 122 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     inv-line.tax AT ROW 11 COL 54
+     inv-line.tax AT ROW 10.52 COL 54
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY 1
@@ -317,6 +317,10 @@ DEFINE FRAME Dialog-Frame
           LABEL "Ext. Price"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+     inv-line.taxGroup AT ROW 11.48 COL 59 COLON-ALIGNED FORMAT "x(3)" 
+          LABEL "Tax Group"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1      
      btn_ok AT ROW 14.33 COL 27
      btn_done AT ROW 14.33 COL 63
      btn_cancel AT ROW 14.33 COL 100
@@ -413,6 +417,8 @@ ASSIGN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN inv-line.t-price IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN inv-line.taxGroup IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */    
 /* SETTINGS FOR TOGGLE-BOX inv-line.tax IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fi_comm-lbl IN FRAME F-Main
@@ -452,6 +458,10 @@ DO:
                            AND inv-head.r-no = inv-line.r-no NO-LOCK NO-ERROR.
                    
      case focus:name :
+          when "taxGroup" then do:
+              run windows/l-stax.w (g_company, focus:screen-value, output char-val).
+              if char-val <> "" then assign inv-line.taxGroup:screen-value = entry(1,char-val).
+          end.  
           when "est-no" then do:
                run windows/l-estcst.w (g_company,g_loc,inv-head.cust-no,0,focus:screen-value, output char-val).
                if char-val <> "" then do:
@@ -587,6 +597,9 @@ DO:
 
   RUN valid-s-man (0, OUTPUT lopError) NO-ERROR.
    IF lopError THEN RETURN NO-APPLY.
+   
+  RUN valid-tax-group(OUTPUT lopError) NO-ERROR.
+  IF lopError THEN RETURN NO-APPLY. 
 
   FIND CURRENT inv-line.
 
@@ -1154,6 +1167,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME inv-line.taxGroup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.taxGroup Dialog-Frame
+ON LEAVE OF inv-line.taxGroup IN FRAME Dialog-Frame /* Tax Group */
+DO:
+    DEFINE VARIABLE lopError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-tax-group(OUTPUT lopError) NO-ERROR.
+        IF lopError THEN RETURN NO-APPLY.
+  END.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1215,7 +1243,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE DO:
       ENABLE inv-line.po-no inv-line.disc inv-line.sman[1] inv-line.sman[2] inv-line.sman[3]
              inv-line.s-pct[1] inv-line.s-pct[2] inv-line.s-pct[3] inv-line.comm-amt[1] inv-line.comm-amt[2]
-             inv-line.comm-amt[3] inv-line.e-num.
+             inv-line.comm-amt[3] inv-line.e-num inv-line.taxGroup.
 
       IF inv-head.tax-gr NE "" THEN ENABLE inv-line.tax.
 
@@ -1287,6 +1315,7 @@ assign inv-line.r-no       = inv-head.r-no
        inv-line.i-no       = ""
        inv-line.cust-no    = inv-head.cust-no
        inv-line.ord-date   = inv-head.inv-date
+       inv-line.taxGroup   = inv-head.tax-gr
        .
 find first cust of inv-line no-lock.
 
@@ -1367,7 +1396,7 @@ PROCEDURE display-item :
           inv-line.inv-qty inv-line.e-num inv-line.price inv-line.pr-uom inv-line.sman[1] 
           inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt inv-line.sman[2] 
           inv-line.sname[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] 
-          inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl
+          inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl inv-line.taxGroup
           WITH FRAME Dialog-Frame.
 
      RUN new-s-man (1).
@@ -1432,14 +1461,14 @@ PROCEDURE enable_UI :
           inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt 
           inv-line.sman[2] inv-line.sname[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc 
           inv-line.sman[3] inv-line.sname[3] inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax 
-          inv-line.t-price 
+          inv-line.t-price inv-line.taxGroup
       WITH FRAME Dialog-Frame.
   ENABLE RECT-39 RECT-40 inv-line.ord-no inv-line.po-no inv-line.job-no 
          inv-line.job-no2 inv-line.est-no inv-line.i-no inv-line.part-no 
          inv-line.i-name inv-line.qty inv-line.part-dscr1 inv-line.ship-qty 
          inv-line.part-dscr2 inv-line.inv-qty inv-line.e-num inv-line.price inv-line.pr-uom 
          inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] 
-         inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] 
+         inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.taxGroup
          inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax btn_ok btn_done btn_cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -1806,6 +1835,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-group Dialog-Frame 
+PROCEDURE valid-tax-group :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF inv-line.taxGroup:SCREEN-VALUE NE "" AND
+       NOT CAN-FIND(FIRST stax
+                    WHERE stax.company   EQ cocode
+                      AND stax.tax-group EQ inv-line.taxGroup:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE TRIM(inv-line.taxGroup:LABEL) + " is invalid, try help..."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO inv-line.taxGroup.
+      oplReturnError = YES.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

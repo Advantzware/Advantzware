@@ -47,7 +47,7 @@ ASSIGN
                 "ColonialLot#,LoylangJIT,Carded,Carded2,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
-                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
+                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,Lovepac-CAN,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
 		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2,Henry" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
@@ -181,7 +181,7 @@ ASSIGN
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
  str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
- str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,StdStatement2,ARStmt3C,StmtPrint-Mex,SouleExcel"  /*stmtprin*/
+ str-init[89] = ",ASI,ASIXprnt,ASIXprnt-CAN,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,StdStatement2,ARStmt3C,StmtPrint-Mex,SouleExcel"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
@@ -202,7 +202,7 @@ ASSIGN
  str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
- str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
+ str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10,Xprint-CAN"  
  str-init[111] = ",Positive Pay,Positive Pay-knight,Positive Pay-Santander,StandardCSV"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 

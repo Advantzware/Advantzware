@@ -81,6 +81,7 @@ IF NOT THIS-PROCEDURE:PERSISTENT THEN
         INPUT iplUpdate,
         OUTPUT opcStatus,
         OUTPUT opcReason).
+DELETE PROCEDURE hdOrderProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

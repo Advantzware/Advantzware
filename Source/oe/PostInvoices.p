@@ -25,7 +25,7 @@ DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -945,7 +945,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             NEXT.
         END.
          
-        RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        RUN ClearTagsForGroup(bf-inv-head.rec_key, "Auto Approved").  /*Clear all hold tags - TagProcs.p*/
         
         RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lErrorOnInvoice, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
         IF lErrorOnInvoice THEN 
@@ -1358,6 +1358,7 @@ PROCEDURE pCreateARInvLine PRIVATE:
         bf-ar-invl.costStdManufacture = ipbf-inv-line.costStdManufacture
         bf-ar-invl.sf-sht             = ttInvoiceLineToPost.squareFeetPerEA
         bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
+        bf-ar-invl.taxGroup           = ipbf-inv-line.taxGroup
         .
 
     IF bf-ar-invl.ord-no EQ 0 THEN 
@@ -1425,7 +1426,8 @@ PROCEDURE pCreateARInvMisc PRIVATE:
         bf-ar-invl.spare-char-1   = ipbf-inv-misc.spare-char-1
         bf-ar-invl.posted         = YES
         bf-ar-invl.inv-date       = ipbf-inv-head.inv-date
-        bf-ar-invl.e-num          = ipbf-inv-misc.spare-int-4.
+        bf-ar-invl.e-num          = ipbf-inv-misc.spare-int-4
+        bf-ar-invl.taxGroup       = ipbf-inv-misc.spare-char-1.
 
     IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0.    
         
@@ -1530,6 +1532,25 @@ PROCEDURE pCreateGLTrans PRIVATE:
             .
         RELEASE bf-glhist.
     END.
+    
+END PROCEDURE.
+
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  create GL InvoiceLineTax
+     Notes:          
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.  
+    
+    RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
+    
+    RUN invoice_pCreateInvoiceLineTax IN hdInvoiceProcs (
+                                     INPUT ipcRecKey,
+                                     INPUT ipriInvoiceLine,                                      
+                                     INPUT TABLE ttTaxDetail 
+                                     ).
+    DELETE OBJECT hdInvoiceProcs.       
     
 END PROCEDURE.
 
@@ -2606,6 +2627,8 @@ PROCEDURE pPostInvoices PRIVATE:
             RUN pCreateARInvLIne(BUFFER bf-inv-head, BUFFER bf-inv-line, BUFFER ttInvoiceLineToPost, iXno, iLine, OUTPUT riArInvl).
             iLine = iLine + 1.
             
+            RUN pCreateInvoiceLineTax(bf-inv-line.rec_key, riArInvl).
+            
             DELETE bf-inv-line.
             DELETE ttInvoiceLineToPost.
             
@@ -2618,6 +2641,8 @@ PROCEDURE pPostInvoices PRIVATE:
          
             RUN pCreateARInvMisc(BUFFER bf-inv-head, BUFFER bf-inv-misc, BUFFER ttInvoiceMiscToPost, iXno, iLine, OUTPUT riArInvl).
             iLine = iLine + 1.
+            
+            RUN pCreateInvoiceLineTax(bf-inv-misc.rec_key, riArInvl).
             
             DELETE bf-inv-misc.
             DELETE ttInvoiceMiscToPost. 
@@ -3557,7 +3582,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
             INPUT "inv-head",
             INPUT ttInvoiceError.problemMessage,
             INPUT "",
-            INPUT ""
+            INPUT "Auto Approved"
             ). /*From TagProcs Super Proc*/
 
     END.
@@ -3578,11 +3603,12 @@ PROCEDURE pAddTagInfo PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-        RUN AddTagInfo (
+        RUN AddTagInfoForGroup (
             INPUT bf-inv-head.rec_key,
             INPUT "inv-head",
             INPUT ipcProblemMessage,
-            INPUT ""
+            INPUT "",
+            INPUT "Auto Approved"
             ). /*From TagProcs Super Proc*/ 
     END.
      
@@ -3601,7 +3627,7 @@ PROCEDURE pUnApprovedInvoice PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
     IF AVAIL bf-inv-head THEN 
     DO: 
-        RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        RUN ClearTagsForGroup(bf-inv-head.rec_key, "Auto Approved").  /*Clear all hold tags - TagProcs.p*/
         
         bf-inv-head.autoApproved = NO.          
     END.          

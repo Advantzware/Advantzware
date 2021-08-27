@@ -421,6 +421,14 @@ PROCEDURE ipCreateInvHead:
     IF AVAIL bf-cust AND bf-cust.inv-meth EQ ? THEN 
         inv-head.stat = "H". 
     
+    RUN AddTagInfoForGroup(
+                INPUT inv-head.rec_key,
+                INPUT "inv-head",
+                INPUT (IF AVAILABLE bf-shipto AND bf-shipto.tax-code NE "" THEN "ShipTo Tax Group  Customer:" + bf-cust.cust-no + " Shipto:" + bf-shipto.ship-id ELSE "Order Tax Group  Order:" + STRING(bf-oe-ord.ord-no)),
+                INPUT "",
+                INPUT "Tax Group"
+                ). /*From TagProcs Super Proc*/        
+    
     /*    FIND FIRST usergrps WHERE                                                                               */
     /*        usergrps.usergrps = "IN"                                                                            */
     /*        NO-LOCK NO-ERROR.                                                                                   */
@@ -474,6 +482,7 @@ PROCEDURE ipCreateInvLine:
     DEFINE INPUT  PARAMETER ipdRelPrice AS DECIMAL NO-UNDO.
     DEFINE INPUT  PARAMETER iprInvHeadRow AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTempInvLn AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxGroupHeader AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oprInvLinerow AS ROWID NO-UNDO.
 
     CREATE inv-line.
@@ -518,6 +527,7 @@ PROCEDURE ipCreateInvLine:
         inv-line.spare-char-3 = STRING(iprInvHeadRow)
         inv-line.spare-char-4 = v-term
         inv-line.spare-int-2  = ipiTempInvLn
+        inv-line.taxGroup     = ipcTaxGroupHeader
         .
     
     IF bf-oe-boll.zeroPrice EQ 1 THEN
@@ -539,6 +549,9 @@ PROCEDURE ipCreateInterCompanyBilling:
     FOR EACH tt-report WHERE tt-report.term-id EQ v-term,
 
         FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ tt-report.rec-id,
+        FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ oe-boll.company
+        AND oe-ord.ord-no  EQ oe-boll.ord-no,
         
         FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ oe-boll.b-no
         BREAK BY oe-boll.bol-no BY oe-boll.i-no BY oe-boll.ord-no:
@@ -558,12 +571,14 @@ PROCEDURE ipCreateInterCompanyBilling:
                                       INPUT cocode,
                                       INPUT oe-bolh.cust-no,
                                       INPUT oe-bolh.ship-id,
+                                      INPUT oe-ord.sold-id,
                                       OUTPUT lError,
                                       OUTPUT cMessage
                                       ).  
             
            RUN Invoice_CreateInterCompanyBilling IN hdInvoiceProcs( 
                                             INPUT ROWID(oe-bolh),
+                                            INPUT oe-ord.sold-id,
                                             OUTPUT lError,
                                             OUTPUT cMessage
                                             ).           
@@ -950,7 +965,7 @@ PROCEDURE ipPostSingleBOL:
         DO:
             /* If not avail oe-rel then error */
             RUN ipCreateInvLine (BUFFER oe-boll, BUFFER oe-ordl, inv-head.r-no,  oe-ord.est-type, oe-ord.ord-date, 
-                (IF AVAILABLE(oe-rel) THEN oe-rel.price ELSE 0), ROWID(inv-head), bf-ttPreInvLine.tempInvLn, OUTPUT rCreatedInvLine).
+                (IF AVAILABLE(oe-rel) THEN oe-rel.price ELSE 0), ROWID(inv-head), bf-ttPreInvLine.tempInvLn, inv-head.tax-gr , OUTPUT rCreatedInvLine).
             FIND FIRST inv-line EXCLUSIVE-LOCK WHERE ROWID(inv-line) EQ rCreatedInvLine NO-ERROR.
 
         END. /* Create inv-line */

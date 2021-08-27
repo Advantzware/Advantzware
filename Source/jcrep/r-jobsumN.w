@@ -750,8 +750,7 @@ DO:
 
   IF rd-dest EQ 3 THEN
   DO:
-    fi_file2:SCREEN-VALUE = "c:\tmp\r-jobsumN.csv".
-    ASSIGN fi_file2.
+    ASSIGN fi_file2 = SUBSTRING(fi_file2,1,INDEX(fi_file2,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file2,OUTPUT cFileName2) .
     fi_file2:SCREEN-VALUE =  cFileName2.
   END.  
@@ -764,8 +763,19 @@ DO:
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN MESSAGE "CSV file " + fi_file2:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
+       WHEN 3 THEN DO:
+           IF NOT tb_OpenCSV THEN DO:        
+                  MESSAGE "CSV file have been created." SKIP(1)
+                           "~"OK"~"Want to open CSV file?"
+                  VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                  TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                  IF lChoice THEN
+                  DO:
+                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+                  END.
+              END.
+           END. /* WHEN 3 THEN DO: */
        WHEN 5 THEN
        DO:
           DEFINE VARIABLE lv-tmp AS CHARACTER INIT "-0" NO-UNDO.
@@ -929,17 +939,7 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
-  IF rd-dest = 3 THEN
-        ASSIGN
-            fi_file2:SENSITIVE    = TRUE  
-            tb_OpenCSV:SENSITIVE = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file2:SENSITIVE    = FALSE  
-            tb_OpenCSV:CHECKED   = FALSE
-            tb_OpenCSV:SENSITIVE = FALSE
-            .
+  RUN pChangeDest .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1228,7 +1228,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
   RUN enable_UI.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
   {methods/nowait.i}
   {sys/inc/reportsConfigNK1.i "JR3" }
   ASSIGN
@@ -1245,7 +1244,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     cColumnInit = NO.
     APPLY "entry" TO begin_job-no.
   END.
-
+  RUN pChangeDest .
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1953,6 +1952,34 @@ PROCEDURE show-param :
   END.
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Parameters:  <none>
+ Notes:      
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+     IF rd-dest:SCREEN-VALUE EQ "3" THEN
+      ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "Yes"
+       fi_file2:SENSITIVE = YES
+       tb_OpenCSV:SENSITIVE = YES      
+      .
+     ELSE
+       ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "NO"
+       fi_file2:SENSITIVE = NO
+       tb_OpenCSV:SENSITIVE = NO      
+      .
+    ASSIGN fi_file2:SCREEN-VALUE = "c:\tmp\r-jobsumN.csv".   
+ END.
 
 END PROCEDURE.
 

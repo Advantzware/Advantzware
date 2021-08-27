@@ -78,6 +78,7 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE lAllowEdit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowEditPosted AS LOGICAL NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
     
 RUN methods/prgsecur.p
@@ -89,6 +90,16 @@ RUN methods/prgsecur.p
 	     OUTPUT lAllowEdit, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+         
+RUN methods/prgsecur.p
+	    (INPUT "EditPostedGLHistory.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowEditPosted, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */         
 
 
 &SCOPED-DEFINE SORTBY-ASC ASCENDING
@@ -550,35 +561,11 @@ DO:
    DO:
       RUN pUpdate.    
    END.
-   ELSE IF lAllowEdit AND year(tt-glinq.tr-date) GE period.yr  THEN
-   DO:
-       riRowid = tt-glinq.riRowid.
-       scInstance = SharedConfig:instance.
-       scInstance:SetValue("TransTrNumber",string(tt-glinq.tr-num)).
-       
-       RUN util/fixglhistory.w.
-       
-       scInstance = SharedConfig:instance.
-       scInstance:DeleteValue(INPUT "TransTrNumber").
-       
-       IF riRowid NE ? THEN
-       DO:    
-           RUN build-inquiry.
-           {&open-query-{&browse-name}} 
-           
-           FIND FIRST tt-glinq NO-LOCK
-             WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
-           reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .  
-           APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
-       END.
-       
-   END.
-   IF AVAIL tt-glinq AND tt-glinq.posted AND year(tt-glinq.tr-date) LT period.yr THEN
-   DO:   
-     MESSAGE "This entry is in a previous year and cannot be edited until the year is reopened."
-     VIEW-AS ALERT-BOX INFO .               
-   END.  
    
+   IF lAllowEditPosted AND tt-glinq.posted THEN
+   DO:   
+        RUN pUpdateEntry.         
+   END.     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1481,6 +1468,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME   
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateEntry B-table-Win 
+PROCEDURE pUpdateEntry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+   DEFINE VARIABLE riRowid AS ROWID NO-UNDO.
+
+   IF avail tt-glinq THEN
+   do:
+       riRowid = tt-glinq.riRowid.
+       scInstance = SharedConfig:instance.
+       scInstance:SetValue("TransTrNumber",string(tt-glinq.tr-num)).
+       
+       RUN util/fixglhistory.w.
+       
+       scInstance = SharedConfig:instance.
+       scInstance:DeleteValue(INPUT "TransTrNumber").
+       
+       IF riRowid NE ? THEN
+       DO:    
+           RUN build-inquiry.
+           {&open-query-{&browse-name}} 
+           
+           FIND FIRST tt-glinq NO-LOCK
+             WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
+           reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .  
+           APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+       END. 
+   END.
+   
+    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvoiceFlag B-table-Win 
 PROCEDURE pGetInvoiceFlag :
