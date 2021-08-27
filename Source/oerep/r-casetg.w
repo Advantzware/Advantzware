@@ -1083,7 +1083,7 @@ DO:
         ASSIGN
           fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
           begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,6)
-          begin_job:SCREEN-VALUE    = begin_ord-no:SCREEN-VALUE
+          begin_job:SCREEN-VALUE    = FILL(" ",6 - LENGTH(TRIM(begin_ord-no:SCREEN-VALUE))) + begin_ord-no:SCREEN-VALUE
           begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,22,2)
           begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
     END.
@@ -1102,6 +1102,7 @@ DO:
               
            END.
          ASSIGN
+          lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
           begin_job:SCREEN-VALUE    = lv-job-no
           begin_job2:SCREEN-VALUE   = lv-job-no2
           .    
