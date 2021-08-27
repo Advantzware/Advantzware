@@ -2301,7 +2301,7 @@ PROCEDURE local-update-record :
   IF lValidationError THEN RETURN.
 
   DO li = 1 TO 2:
-    RUN valid-uom.
+    RUN valid-uom (li).
     IF lValidationError THEN RETURN.
   END.
 
