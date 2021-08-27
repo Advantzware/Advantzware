@@ -77,7 +77,7 @@ gcompany = cocode.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Cancel BROWSE-1 
+&Scoped-Define ENABLED-OBJECTS Btn_Back Btn_OK Btn_Cancel BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS cEstNo cCustNo ship-to cCustPo 
 
 /* Custom List Definitions                                              */
@@ -99,7 +99,12 @@ DEFINE BUTTON Btn_Cancel
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-    LABEL "&Save" 
+    LABEL "&Next" 
+    SIZE 15 BY 1.29
+    BGCOLOR 8 .
+  
+DEFINE BUTTON Btn_Back AUTO-GO 
+    LABEL "&Back" 
     SIZE 15 BY 1.29
     BGCOLOR 8 .
 
@@ -129,12 +134,12 @@ DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U
 
 DEFINE RECTANGLE RECT-4
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 161 BY 18.33
+    SIZE 233 BY 22.33
     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-5
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 157.6 BY 15.57
+    SIZE 229.6 BY 17.57
     BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -164,7 +169,7 @@ DEFINE BROWSE BROWSE-1
     ENABLE tt-est-item.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155.4 BY 14.52
+    WITH NO-ASSIGN SEPARATORS SIZE 228.4 BY 16.52
          BGCOLOR 8 FONT 0.
 
 
@@ -175,8 +180,9 @@ DEFINE FRAME D-Dialog
     cCustNo AT ROW 2.24 COL 56.8 COLON-ALIGNED WIDGET-ID 176
     ship-to AT ROW 2.24 COL 92 COLON-ALIGNED WIDGET-ID 272
     cCustPo AT ROW 2.24 COL 132.2 COLON-ALIGNED WIDGET-ID 274
-    Btn_OK AT ROW 20.81 COL 132.2
-    Btn_Cancel AT ROW 20.81 COL 148.2
+    Btn_Back AT ROW 21.99 COL 12.2
+    Btn_OK AT ROW 21.99 COL 192.2
+    Btn_Cancel AT ROW 21.99 COL 208.2
     BROWSE-1 AT ROW 4.52 COL 5.6
     "Estimate Header" VIEW-AS TEXT
     SIZE 20 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
@@ -277,6 +283,20 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
     DO:            
         oplCancel = YES.           
         APPLY "END-ERROR":U TO SELF.      
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Back
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Back D-Dialog
+ON CHOOSE OF Btn_Back IN FRAME D-Dialog /* Back */
+    DO:
+       // RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo, OUTPUT lCancel) .
+        
+        APPLY "close" TO THIS-PROCEDURE.        
+         
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,7 +438,7 @@ PROCEDURE enable_UI :
     ------------------------------------------------------------------------------*/
     DISPLAY cEstNo cCustNo ship-to cCustPo 
         WITH FRAME D-Dialog.
-    ENABLE Btn_OK Btn_Cancel BROWSE-1 
+    ENABLE Btn_Back Btn_OK Btn_Cancel BROWSE-1 
         WITH FRAME D-Dialog.
     VIEW FRAME D-Dialog.
     {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

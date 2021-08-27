@@ -80,7 +80,7 @@ IF lRecFound THEN
 &Scoped-define INTERNAL-TABLES tt-order-type
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-order-type.ord-type tt-order-type.ord-source tt-order-type.type-desc tt-order-type.system-type tt-order-type.cColor tt-order-type.lActive 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-order-type.ord-type tt-order-type.type-desc  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-order-type WHERE tt-order-type.Company = cocode ~         ~{&SORTBY-PHRASE}
@@ -118,7 +118,7 @@ DEFINE BUTTON Btn_Cancel
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-    LABEL "&OK" 
+    LABEL "&Next" 
     SIZE 15 BY 1.29
     BGCOLOR 8 .
 
@@ -151,7 +151,7 @@ DEFINE VARIABLE lblLabel-2   AS CHARACTER FORMAT "X(25)":U
 
 DEFINE RECTANGLE RECT-4
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 159 BY 18.33
+    SIZE 179 BY 18.33
     BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -164,15 +164,11 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    tt-order-type.ord-type WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">9"
-    tt-order-type.ord-source LABEL-BGCOLOR 14 FORMAT "x(20)"
-    tt-order-type.type-desc  FORMAT "x(30)" WIDTH 35 LABEL-BGCOLOR 14
-    tt-order-type.system-type FORMAT "x(15)" WIDTH 22 LABEL-BGCOLOR 14
-    tt-order-type.cColor  FORMAT "x(15)" WIDTH 22 LABEL-BGCOLOR 14
-    tt-order-type.lActive  FORMAT "Yes/No" WIDTH 10 LABEL-BGCOLOR 14    
+    tt-order-type.ord-type WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">9"      
+    tt-order-type.type-desc  FORMAT "x(35)"  LABEL-BGCOLOR 14         
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155.4 BY 14.52
+    WITH NO-ASSIGN SEPARATORS SIZE 175.4 BY 14.52
          BGCOLOR 8 FONT 0.
 
 
@@ -183,8 +179,8 @@ DEFINE FRAME D-Dialog
     lblLabel AT ROW 2.57 COL 40.6 COLON-ALIGNED NO-LABELS WIDGET-ID 278
     cOrderSource AT ROW 2.57 COL 52 COLON-ALIGNED NO-LABELS WIDGET-ID 176
     cCustPo AT ROW 2.57 COL 100.6 COLON-ALIGNED WIDGET-ID 274         
-    Btn_OK AT ROW 2.48 COL 129
-    Btn_Cancel AT ROW 2.48 COL 145
+    Btn_OK AT ROW 2.48 COL 145
+    Btn_Cancel AT ROW 2.48 COL 161
     BROWSE-1 AT ROW 4.91 COL 3.8
     lblLabel-2 AT ROW 3.71 COL 54.6 COLON-ALIGNED NO-LABELS WIDGET-ID 280
     "Enter New Order" VIEW-AS TEXT
@@ -442,6 +438,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&frame-name}:  
         APPLY "value-changed" TO BROWSE {&browse-name}.
         DISABLE iOrderType. 
+        cCustPo:HIDDEN = YES.
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
@@ -619,6 +616,7 @@ PROCEDURE pCheckPoValidation :
     
     DO WITH FRAME {&FRAME-NAME}:
         lblLabel-2:SCREEN-VALUE = "".
+        cCustPo:HIDDEN = YES.
         IF tt-order-type.ord-source EQ "Estimate" THEN
         DO:
             FIND FIRST eb NO-LOCK
@@ -633,8 +631,18 @@ PROCEDURE pCheckPoValidation :
                     AND cust.po-mandatory 
                     NO-ERROR.
                 IF AVAILABLE cust THEN
-                    ASSIGN  lblLabel-2:SCREEN-VALUE = "PO is mandatory".
+                    ASSIGN cCustPo:HIDDEN = NO.
             END.
+        END.
+        ELSE IF tt-order-type.ord-source EQ "Customer" THEN
+        DO:
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ g_company
+                 AND cust.cust-no EQ cOrderSource:SCREEN-VALUE
+                 AND cust.po-mandatory 
+                 NO-ERROR.
+            IF AVAILABLE cust THEN
+              ASSIGN cCustPo:HIDDEN = NO.
         END.
     END.
 
@@ -714,7 +722,7 @@ PROCEDURE valid-po-no :
     
     DO WITH FRAME {&FRAME-NAME}:     
          
-        IF tt-order-type.ord-source EQ "Estimate" THEN
+        IF tt-order-type.ord-source EQ "Estimate" AND cOrderSource:SCREEN-VALUE NE "" THEN
         DO:
             FIND FIRST eb NO-LOCK
                 WHERE eb.company EQ g_company
@@ -727,10 +735,11 @@ PROCEDURE valid-po-no :
     
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ cocode
-            AND cust.cust-no EQ cCustomerNo 
+            AND cust.cust-no EQ cCustomerNo
+            AND cust.cust-no NE ""
             AND cust.po-mandatory
             NO-ERROR.
-        
+                    
         IF AVAILABLE cust AND TRIM(cCustPO:SCREEN-VALUE) EQ "" THEN 
         DO:
             MESSAGE "PO# is mandatory for Customer " + cust.cust-no
@@ -760,7 +769,7 @@ PROCEDURE valid-po-no :
             END.
             ELSE ll-valid-po-no = YES.
         END.          
-        
+    RELEASE cust.    
     END.
 
 END PROCEDURE.
