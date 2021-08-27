@@ -144,10 +144,10 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 68 BY 1
-     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
@@ -235,7 +235,9 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.box-3d-image IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
+   NO-DISPLAY NO-ENABLE EXP-FORMAT                                      */
+/* SETTINGS FOR FILL-IN box-design-hdr.box-image IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
