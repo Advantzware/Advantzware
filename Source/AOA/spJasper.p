@@ -1618,7 +1618,7 @@ PROCEDURE pJasperStarter :
                            + REPLACE(aoaTitle," ","_")
                            + "." + REPLACE(aoaTitle," ","") + " "
                            +  cJasperFile[1] + " "
-/*                           + (IF dynParamValue.onePer THEN "-P jsonData=~"" + cJasperFile[2] + "~" " ELSE "")*/
+                        // + (IF dynParamValue.onePer THEN "-P jsonData=~"" + cJasperFile[2] + "~" " ELSE "")
                            + "1>NUL 2>"
                            + cJasperFile[5]
                            .
@@ -2448,6 +2448,7 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRecipient  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cjrxml        AS CHARACTER NO-UNDO.
@@ -2516,6 +2517,7 @@ PROCEDURE spJasperQuery:
                     ipcTaskRecKey,
                     lProgressBar,
                     OUTPUT cJasperFile,
+                    OUTPUT opcRecipient,
                     OUTPUT lOKJasperJSON
                     ).
                 RUN pSubDataSetRecordsExist.

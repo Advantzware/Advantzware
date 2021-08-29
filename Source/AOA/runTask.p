@@ -4,6 +4,7 @@ DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
 
 DEFINE VARIABLE cAppSrv     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecipient  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSubject    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTaskFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dttDateTime AS DATETIME  NO-UNDO.
@@ -52,14 +53,16 @@ IF AVAILABLE dynParamValue THEN DO:
                     Task.user-id,
                     hAppSrvBin,
                     Task.rec_key,
-                    OUTPUT cJasperFile
+                    OUTPUT cJasperFile,
+                    OUTPUT cRecipient
                     ).
                 IF cJasperFile NE "" THEN
                 DO idx = 1 TO NUM-ENTRIES(cJasperFile):
                     RUN pCreateAuditHdr.
                     RUN spCreateAuditDtl (iAuditID, "programID", 0, ENTRY(idx,cJasperFile), Task.prgmName,  NO).
-                    IF Task.recipients NE "" THEN DO:
+                    IF Task.recipients NE "" OR cRecipient NE "" THEN DO:
                         IF AVAILABLE config THEN DO:
+                            cSubject = "".
                             IF config.taskName THEN
                             cSubject = cSubject + Task.taskName + " ".
                             IF config.taskType THEN
@@ -79,7 +82,7 @@ IF AVAILABLE dynParamValue THEN DO:
                                 taskEmail.body       = IF AVAILABLE emailConfig AND emailConfig.body NE "" THEN
                                                        emailConfig.body ELSE "AOA Task Result Attached"
                                 taskEmail.attachment = ENTRY(idx,cJasperFile)
-                                taskEmail.recipients = Task.recipients
+                                taskEmail.recipients = IF cRecipient NE "" THEN ENTRY(idx,cRecipient) ELSE Task.recipients
                                 taskEmail.mustExist  = YES
                                 taskEmail.rec_key    = Task.rec_key
                                 .

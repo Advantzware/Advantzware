@@ -7,12 +7,15 @@ DEFINE INPUT  PARAMETER ipcSubjectName AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTaskRecKey  AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplProgressBar AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcJasperFile  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcRecipient   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFullName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecipient    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
@@ -46,7 +49,8 @@ IF iNumResults GT 0 THEN DO:
     REPEAT:
         iRecordCount = iRecordCount + 1.
         IF dynParamValue.onePer OR iRecordCount EQ 1 THEN
-        RUN pTaskFile (iRecordCount).
+        RUN pTaskFile (iRecordCount, OUTPUT cJasperFile).
+        opcJasperFile = opcJasperFile + cJasperFile + ",".
         IF iplProgressBar THEN
         RUN spProgressBar (ipcSubjectName, iRecordCount, iNumResults).
         PUT STREAM sJasperJSON UNFORMATTED
@@ -96,6 +100,15 @@ IF iNumResults GT 0 THEN DO:
                 cFullName    = REPLACE(cFullName,"[","")
                 cFullName    = REPLACE(cFullName,"]","")
                 .
+            IF dynParamValue.onePer AND dynValueColumn.isFormField THEN DO:
+                RUN pFormEmail (
+                    dynParamValue.formType,
+                    dynValueColumn.colName,
+                    cBufferValue,
+                    OUTPUT cRecipient
+                    ).
+                opcRecipient = opcRecipient + cRecipient + ",".
+            END. /* if oneper and isformfield */
             IF dynParamValue.outputFormat EQ "HTML" THEN
             cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
             /* handle how jasper auto multiplies % formatted fields by 100 */
@@ -142,7 +155,6 @@ IF iNumResults GT 0 THEN DO:
         .
     RUN pSubDataSet ("Detail").
     RUN pSubDataSet ("Summary").
-/*    OUTPUT STREAM sJasperJSON CLOSE.*/
 END. /* inumresults gt 0 */
 ELSE DO:
     RUN pTaskFile (0).
@@ -160,11 +172,29 @@ PUT STREAM sJasperJSON UNFORMATTED
     "}" SKIP
     .
 OUTPUT STREAM sJasperJSON CLOSE.
-oplOK = TRUE.
+ASSIGN
+    opcJasperFile = TRIM(opcJasperFile,",")
+    opcRecipient  = TRIM(opcRecipient,",")
+    oplOK         = TRUE
+    .
 iphQuery:QUERY-CLOSE().
 DELETE PROCEDURE hDynCalcField.
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pFormEmail:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormType    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcColName     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBufferValue AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRecipient   AS CHARACTER NO-UNDO.
+    
+    opcRecipient = "ron.stark@advantzware.com".
+
+END PROCEDURE.
 
 PROCEDURE pSubDataSet:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
@@ -271,13 +301,14 @@ PROCEDURE pTaskFile:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiRecordID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiRecordID   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
 
     ASSIGN
         cJasonName    = REPLACE(ipcSubjectName," ","") + "." + ipcTaskRecKey
                       + IF NOT dynParamValue.onePer THEN ""
-                        ELSE IF ipiRecordID NE 0 THEN STRING(ipiRecordId)
-                        ELSE ""
+                   ELSE IF ipiRecordID NE 0 THEN STRING(ipiRecordId)
+                   ELSE ""
         opcJasperFile = "users\" + ipcUserID + "\"
                       + cJasonName
                       + ".json"
