@@ -96,7 +96,7 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -308,6 +308,14 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (          
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 50.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */ 
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apiinbound.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -322,6 +330,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_apiinbound. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_apiinbound ).
        RUN add-link IN adm-broker-hdl ( h_apiinbound , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_apiinbound , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiinbound ,

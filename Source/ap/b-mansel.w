@@ -166,7 +166,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-sel.inv-no COLUMN-LABEL "Invoice#" /*FORMAT "x(12)":U */
+      ap-sel.inv-no COLUMN-LABEL "Invoice#" FORMAT "x(20)":U 
       ap-sel.due-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
       ap-sel.inv-bal COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
       ap-sel.disc-amt COLUMN-LABEL "Discount" FORMAT "->>,>>9.99":U
@@ -276,7 +276,7 @@ ASSIGN
   AND ASI.ap-sel.bank-code = ASI.ap-chk.bank-code
   AND ASI.ap-sel.check-no = ASI.ap-chk.check-no"
      _FldNameList[1]   > ASI.ap-sel.inv-no
-"ap-sel.inv-no" "Invoice#" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ap-sel.inv-no" "Invoice#" "x(20)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ap-sel.due-date
 "ap-sel.due-date" "Due Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ap-sel.inv-bal
@@ -334,10 +334,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-  IF lAPInvoiceLength THEN
-        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
-    ELSE
-        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,11 +358,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
     &SCOPED-DEFINE exclude-row-display true
     {methods/template/brwRowDisplay.i} 
-    IF lAPInvoiceLength THEN
-        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
-    ELSE
-        ASSIGN ap-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(12)".
-
+    
 END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

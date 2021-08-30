@@ -195,6 +195,7 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
             
          END. 
          IF ttbl_pc-prdd.crew = 0  THEN
+             IF tb_ShowNoCrewIsEntered EQ NO THEN
              PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                  ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                  "charge code: " ttbl_pc-prdd.CODE SKIP.
@@ -204,10 +205,12 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
           FOR EACH machemp NO-LOCK WHERE machemp.table_rec_key = machtran.rec_key :
               ttbl_pc-prdd.crew = ttbl_pc-prdd.crew + 1.
           END.
-          IF ttbl_pc-prdd.crew = 0 THEN
+          IF ttbl_pc-prdd.crew = 0 THEN DO:
+             IF tb_ShowNoCrewIsEntered EQ NO THEN
              PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                  ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                  "charge code: " ttbl_pc-prdd.CODE SKIP.
+          END.
           ELSE DO:
             find job-code where job-code.code = ttbl_pc-prdd.CODE no-lock no-error.
             if available job-code AND job-code.cat = "MR" 
@@ -352,6 +355,7 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
             
          END.             
          IF ttbl_pc-prdd.crew = 0 THEN
+             IF tb_ShowNoCrewIsEntered EQ NO THEN
              PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                  ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                  "charge code: " ttbl_pc-prdd.CODE SKIP.
@@ -361,10 +365,12 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
           FOR EACH machemp NO-LOCK WHERE machemp.table_rec_key = machtran.rec_key :
               ttbl_pc-prdd.crew = ttbl_pc-prdd.crew + 1.
           END.
-          IF ttbl_pc-prdd.crew = 0 THEN
+          IF ttbl_pc-prdd.crew = 0 THEN DO:
+             IF tb_ShowNoCrewIsEntered EQ NO THEN
              PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                  ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                  "charge code: " ttbl_pc-prdd.CODE SKIP.
+          END.
           ELSE DO:
             find job-code where job-code.code = ttbl_pc-prdd.CODE no-lock no-error.
             if available job-code AND job-code.cat = "MR" 
@@ -507,6 +513,7 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
                
             END.             
             IF ttbl_pc-prdd.crew = 0 THEN
+                IF tb_ShowNoCrewIsEntered EQ NO THEN
                 PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                     ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                     "charge code: " ttbl_pc-prdd.CODE SKIP.
@@ -516,10 +523,12 @@ FOR EACH mach fields(m-code dept mr-rate run-rate) WHERE
              FOR EACH machemp NO-LOCK WHERE machemp.table_rec_key = machtran.rec_key :
                  ttbl_pc-prdd.crew = ttbl_pc-prdd.crew + 1.
              END.
-             IF ttbl_pc-prdd.crew = 0 THEN
+             IF ttbl_pc-prdd.crew = 0 THEN DO:
+                IF tb_ShowNoCrewIsEntered EQ NO THEN
                 PUT "No crew is entered for machine: " ttbl_pc-prdd.m-code " job#: " 
                     ttbl_pc-prdd.job-no "-" ttbl_pc-prdd.job-no2 
                     "charge code: " ttbl_pc-prdd.CODE SKIP.
+             END.
              ELSE DO:
                 find job-code where job-code.code = ttbl_pc-prdd.CODE no-lock no-error.
                 if available job-code AND job-code.cat = "MR" 

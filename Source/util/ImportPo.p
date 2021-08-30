@@ -107,13 +107,18 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cPoNoGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
-    
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .    
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
-    DEFINE BUFFER bf-po-ord FOR po-ord.
-    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE VARIABLE ghPOProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lPriceHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cPriceHoldMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCreateLine AS LOGICAL NO-UNDO.
     
+    DEFINE BUFFER bf-po-ord FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.       
     DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+    RUN po\POProcs.p PERSISTENT SET ghPOProcs.
     
      ASSIGN 
         cPoNoGroup = ""
@@ -158,13 +163,16 @@ PROCEDURE pProcessRecord PRIVATE:
                bf-po-ord.over-pct       = 10         
                bf-po-ord.due-date       = ipbf-ttImportPo.req-date 
                bf-po-ord.last-ship-date = bf-po-ord.due-date                 
-               bf-po-ord.user-id        = USERID(LDBNAME(1)) .  
+               bf-po-ord.user-id        = USERID(LDBNAME(1))
+               bf-po-ord.entered-date   = TODAY
+               bf-po-ord.entered-time   = TIME.  
                
                IF lAutoNumber AND cPoNoGroup NE "" THEN DO:
                  FIND CURRENT ipbf-ttImportPo EXCLUSIVE-LOCK.
                    ASSIGN 
                 ipbf-ttImportpo.PoNoGroup = cPoNoGroup
                 ipbf-ttImportpo.po-no = STRING(bf-po-ord.po-no)
+                ipbf-ttImportPo.printed = "No"
                 .
                FIND CURRENT ipbf-ttImportPo NO-LOCK.
         END.
@@ -270,10 +278,17 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-po-ordl.due-date  = bf-po-ord.due-date
             bf-po-ordl.over-pct  = bf-po-ord.over-pct
             bf-po-ordl.under-pct = bf-po-ord.under-pct
-            bf-po-ordl.vend-no   = bf-po-ord.vend-no.
+            bf-po-ordl.vend-no   = bf-po-ord.vend-no
+            bf-po-ordl.entered-date = TODAY
+            bf-po-ordl.entered-time = TIME
+            lCreateLine             = YES
+            .
 
-    END.       
-        
+    END.  
+    
+    IF NOT lCreateLine THEN
+    RUN po/poordlup.p (RECID(bf-po-ordl), -1, YES).  
+   
     RUN pAssignValueDate (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
     RUN pAssignValueC (ipbf-ttImportPo.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.job-no).                                 
     RUN pAssignValueC (ipbf-ttImportPo.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-no).                                          
@@ -335,14 +350,32 @@ PROCEDURE pProcessRecord PRIVATE:
           bf-po-ordl.dscr[1] =  itemfg.part-dscr1
           bf-po-ordl.dscr[2] =  itemfg.part-dscr2 .
     END.
+   
+   RUN PO_CalLineTotalCostAndConsQty IN ghPOProcs(ROWID(bf-po-ordl)).
+   bf-po-ordl.cons-cost = bf-po-ordl.t-cost / bf-po-ordl.cons-qty.
+   
+   RUN Vendor_CheckPriceHoldForPo (
+    ROWID(bf-po-ord),                                  
+    YES, /*Set po-ord hold fields*/
+    OUTPUT lPriceHold, 
+    OUTPUT cPriceHoldMessage
+    ).
+           
    IF bf-po-ordl.cost EQ 0 THEN
      RUN vend-cost(ROWID(bf-po-ord),ROWID(bf-po-ordl)). 
+        
    IF ipbf-ttImportPo.actnum EQ "" THEN
    RUN pGetActnum(ROWID(bf-po-ord),ROWID(bf-po-ordl),"FG",ipbf-ttImportPo.item-type). 
+   
+   RUN po/updordpo.p (BUFFER bf-po-ordl).
+   
+   RUN po/po-total.p (RECID(bf-po-ord)).
+   
+   RUN po/poordlup.p (RECID(bf-po-ordl), 1, YES).
 
    RELEASE bf-po-ord .
    RELEASE bf-po-ordl .                                                                                                                                   
-                                                                                                                               
+   DELETE OBJECT ghPOProcs.                                                                                                                            
 END PROCEDURE.                                                                                                                 
                                                                                                                                
 PROCEDURE pValidate PRIVATE:
@@ -554,6 +587,7 @@ PROCEDURE pValidate PRIVATE:
         END.      
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportPo.job-no EQ "0" THEN ipbf-ttImportPo.job-no = "".
 END PROCEDURE.
 
 

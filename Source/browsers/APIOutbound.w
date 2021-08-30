@@ -582,6 +582,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+   RUN pExportDumpFile.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -697,6 +712,80 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportDumpFile B-table-Win 
+PROCEDURE pExportDumpFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cAPIOutboundPath   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundContentPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundDetailPath  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIOutboundTriggerPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cApiClientXrefPath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cApiClientPath     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputPath   AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lCreated AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ cOutputPath   = ".\custfiles\api\backup".   
+   
+ RUN FileSys_CreateDirectory(INPUT cOutputPath,OUTPUT lCreated, OUTPUT cMessage ).
+ IF NOT lCreated THEN 
+ DO:       
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    RETURN.  
+ END.   
+     
+ ASSIGN
+    cAPIOutboundPath = cOutputPath + "\" + "APIOutbound.d"
+    cAPIOutboundContentPath = cOutputPath + "\" + "APIOutboundContent.d"
+    cAPIOutboundDetailPath = cOutputPath + "\" + "APIOutboundDetail.d"
+    cAPIOutboundTriggerPath = cOutputPath + "\" + "APIOutboundTrigger.d"
+    cApiClientXrefPath = cOutputPath + "\" + "apiClientXref.d"
+    cApiClientPath = cOutputPath + "\" + "apiClient.d".     
+   
+  OUTPUT to VALUE(cAPIOutboundPath) .
+  FOR EACH APIOutbound NO-LOCK:
+      EXPORT APIOutbound.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundContentPath) .
+  FOR EACH APIOutboundContent NO-LOCK:
+      EXPORT APIOutboundContent.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundDetailPath) .
+  FOR EACH APIOutboundDetail NO-LOCK:
+      EXPORT APIOutboundDetail.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cAPIOutboundTriggerPath) .
+  FOR EACH APIOutboundTrigger NO-LOCK:
+      EXPORT APIOutboundTrigger.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cApiClientXrefPath) .
+  FOR EACH ApiClientXref NO-LOCK:
+      EXPORT ApiClientXref.
+  END.
+  OUTPUT CLOSE.
+  OUTPUT to VALUE(cApiClientPath) .
+  FOR EACH ApiClient NO-LOCK:
+      EXPORT ApiClient.
+  END.
+  OUTPUT CLOSE.
+  
+  MESSAGE "Dump Outbound API Maintenance successfully." VIEW-AS ALERT-BOX INFORMATION.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
