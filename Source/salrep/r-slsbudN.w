@@ -3695,7 +3695,7 @@ PROCEDURE pChangeDest :
                 tb_OpenCSV:SENSITIVE    = NO      
                 .
         ASSIGN 
-            fi_file:SCREEN-VALUE = "c:\tmp\SalesVSBudget.xls".    
+            fi_file:SCREEN-VALUE = "c:\tmp\SalesVSBudget.csv".    
     END.
 
 END PROCEDURE.
