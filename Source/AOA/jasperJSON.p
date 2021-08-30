@@ -100,15 +100,16 @@ IF iNumResults GT 0 THEN DO:
                 cFullName    = REPLACE(cFullName,"[","")
                 cFullName    = REPLACE(cFullName,"]","")
                 .
-            IF dynParamValue.onePer AND dynValueColumn.isFormField THEN DO:
+            IF dynParamValue.formType NE "" AND
+               dynParamValue.onePer AND
+               dynValueColumn.isFormField THEN DO:
                 RUN pFormEmail (
                     dynParamValue.formType,
-                    dynValueColumn.colName,
                     cBufferValue,
                     OUTPUT cRecipient
                     ).
                 opcRecipient = opcRecipient + cRecipient + ",".
-            END. /* if oneper and isformfield */
+            END. /* if a form type subject */
             IF dynParamValue.outputFormat EQ "HTML" THEN
             cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
             /* handle how jasper auto multiplies % formatted fields by 100 */
@@ -188,10 +189,19 @@ PROCEDURE pFormEmail:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcFormType    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcColName     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBufferValue AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRecipient   AS CHARACTER NO-UNDO.
-    
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.    
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    CASE ipcFormType:
+        WHEN "Acknowledgement" THEN .
+        WHEN "BOL" THEN .
+        WHEN "Invoice" THEN .
+        WHEN "PO" THEN .
+        WHEN "Quote" THEN .
+    END CASE.
     opcRecipient = "ron.stark@advantzware.com".
 
 END PROCEDURE.
