@@ -440,7 +440,8 @@ CLASS system.Setting:
                     ttSetting.recordSource    = "SettingType"
                     .	            
 
-                BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
+                IF AVAILABLE bf-scope THEN
+                    BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
                     
     	        hdSettingTypeQuery:GET-NEXT ().
     	    END.
