@@ -30,6 +30,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {oe/ordholdstat.i} 
 {oe/oeValidateInc.i}
+{oe\ttInputOrd.i} 
 
 /* for oecomm.i */
 DEF NEW SHARED VAR v-upd-comm AS LOG INITIAL YES NO-UNDO.
@@ -2228,19 +2229,36 @@ PROCEDURE add-order :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iSourceID AS INTEGER NO-UNDO.
   DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cSourceValue AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cCustomerPo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lBack AS LOGICAL NO-UNDO.
   
   IF lNewOrderEntry THEN
   DO:
-   RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo, OUTPUT lCancel) .
+  
+   DO WHILE TRUE:
+       RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, OUTPUT lCancel) .
+
+       IF lCancel THEN LEAVE.
+      
+       IF cSourceType EQ "Estimate" THEN 
+       DO:
+            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, OUTPUT lBack, OUTPUT lCancel, OUTPUT TABLE ttEstItem ).
+            IF lCancel THEN LEAVE.
+            IF NOT lBack THEN LEAVE.
+       END.
+       ELSE LEAVE.            
+   END.
    
-   IF lCancel THEN RETURN NO-APPLY.     
-   
-   RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo).   
-   
+   IF lCancel THEN RETURN NO-APPLY.    
+             
+   IF cSourceType EQ "Estimate" THEN 
+   DO:   
+        RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack ).   
+   END.
   END. 
   ELSE  RUN dispatch ('add-record').  
 

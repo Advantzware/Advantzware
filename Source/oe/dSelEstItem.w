@@ -21,27 +21,22 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+ {oe\ttInputOrd.i} 
+ 
 /* Parameters Definitions ---                                           */
 
-
-DEFINE INPUT PARAMETER ipcSourceType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE FOR ttEstItem.
 
 /* Local Variable Definitions ---                                       */
-{methods/defines/hndldefs.i}
+{methods/defines/hndldefs.i}               
 
-{methods/defines/globdefs.i}
-
-{oe\ttInputOrd.i }
-           
-{sys/inc/var.i shared}
-{custom/gcompany.i}  
-
-gcompany = cocode.  
-
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+ 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -60,16 +55,16 @@ gcompany = cocode.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-est-item
+&Scoped-define INTERNAL-TABLES ttEstItem
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-est-item.IS-SELECTED tt-est-item.est-line tt-est-item.est-cust tt-est-item.est-item tt-est-item.est-part tt-est-item.est-desc tt-est-item.est-qty tt-est-item.est-qty-uom tt-est-item.est-price tt-est-item.est-pr-uom tt-est-item.est-po tt-est-item.est-total tt-est-item.est-quote tt-est-item.est-price-matrix   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-est-item.IS-SELECTED   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estLine ttEstItem.estCust ttEstItem.estItem ttEstItem.estPart ttEstItem.estDesc ttEstItem.estQty ttEstItem.estQtyUom ttEstItem.estPrice ttEstItem.estPrUom ttEstItem.estPo ttEstItem.estTotal ttEstItem.estQuote ttEstItem.estPriceMatrix   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-est-item WHERE tt-est-item.Company = cocode ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-est-item WHERE tt-est-item.Company = cocode ~         ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-est-item
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-est-item
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttEstItem
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttEstItem
 
 
 /* Definitions for DIALOG-BOX D-Dialog                                  */
@@ -145,28 +140,28 @@ DEFINE RECTANGLE RECT-5
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    tt-est-item SCROLLING.
+    ttEstItem SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    tt-est-item.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-est-item.est-line  WIDTH 10 FORMAT ">9"
-    tt-est-item.est-cust LABEL-BGCOLOR 14 FORMAT "x(8)"
-    tt-est-item.est-item FORMAT "x(15)" WIDTH 18 
-    tt-est-item.est-part FORMAT "x(15)" WIDTH 18 
-    tt-est-item.est-desc FORMAT "x(30)" WIDTH 32 
-    tt-est-item.est-qty FORMAT "->>,>>>,>>9" WIDTH 16 
-    tt-est-item.est-qty-uom  WIDTH 8 
-    tt-est-item.est-price FORMAT "->>,>>>,>>9.99" WIDTH 16 
-    tt-est-item.est-pr-uom WIDTH 8 
-    tt-est-item.est-po FORMAT "x(15)" WIDTH 18 
-    tt-est-item.est-total FORMAT "->>,>>>,>>>,>>9.99" WIDTH 21 
-    tt-est-item.est-quote WIDTH 22 FORMAT "->>>,>>>,>>9.99" 
-    tt-est-item.est-price-matrix WIDTH 8 FORMAT "Yes/No" 
-    ENABLE tt-est-item.IS-SELECTED
+    ttEstItem.isSelected COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
+    ttEstItem.estLine  WIDTH 10 FORMAT ">9"
+    ttEstItem.estCust LABEL-BGCOLOR 14 FORMAT "x(8)"
+    ttEstItem.estItem FORMAT "x(15)" WIDTH 18 
+    ttEstItem.estPart FORMAT "x(15)" WIDTH 18 
+    ttEstItem.estDesc FORMAT "x(30)" WIDTH 32 
+    ttEstItem.estQty FORMAT "->>,>>>,>>9" WIDTH 16 
+    ttEstItem.estQtyUom  WIDTH 8 
+    ttEstItem.estPrice FORMAT "->>,>>>,>>9.99" WIDTH 16 
+    ttEstItem.estPrUom WIDTH 8 
+    ttEstItem.estPo FORMAT "x(15)" WIDTH 18 
+    ttEstItem.estTotal FORMAT "->>,>>>,>>>,>>9.99" WIDTH 21 
+    ttEstItem.estQuote WIDTH 22 FORMAT "->>>,>>>,>>9.99" 
+    ttEstItem.estPriceMatrix WIDTH 8 FORMAT "Yes/No" 
+    ENABLE ttEstItem.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 228.4 BY 16.52
@@ -248,7 +243,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-est-item WHERE tt-est-item.Company = cocode ~
+OPEN QUERY {&SELF-NAME} FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -293,7 +288,8 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Back D-Dialog
 ON CHOOSE OF Btn_Back IN FRAME D-Dialog /* Back */
     DO:
-       // RUN oe/dSelOrdType.w(OUTPUT cSourceType,OUTPUT cSourceValue, OUTPUT cCustomerPo, OUTPUT lCancel) .
+        
+        oplBack = YES.
         
         APPLY "close" TO THIS-PROCEDURE.        
          
@@ -310,8 +306,8 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         iCount = 0.
-        FOR EACH tt-est-item NO-LOCK
-            WHERE tt-est-item.IS-SELECTED:
+        FOR EACH ttEstItem NO-LOCK
+            WHERE ttEstItem.isSelected:
             iCount = iCount + 1.
         END.
 
@@ -320,7 +316,7 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
             MESSAGE "Please select atleast one item..." VIEW-AS ALERT-BOX INFORMATION .             
             RETURN NO-APPLY.
         END.       
-        
+        oplBack = NO.
         APPLY "close" TO THIS-PROCEDURE.        
          
     END.
@@ -330,11 +326,11 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
 
 
 &Scoped-define BROWSE-NAME BROWSE-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-est-item.IS-SELECTED BROWSE-1 _BROWSE-COLUMN D-Dialog
-ON VALUE-CHANGED OF tt-est-item.IS-SELECTED IN BROWSE BROWSE-1 /* select */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttEstItem.isSelected BROWSE-1 _BROWSE-COLUMN D-Dialog
+ON VALUE-CHANGED OF ttEstItem.isSelected IN BROWSE BROWSE-1 /* select */
     DO:
         ASSIGN 
-            tt-est-item.IS-SELECTED = LOGICAL(tt-est-item.IS-SELECTED:SCREEN-VALUE IN BROWSE {&browse-name}).
+            ttEstItem.isSelected = LOGICAL(ttEstItem.isSelected:SCREEN-VALUE IN BROWSE {&browse-name}).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,12 +351,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
-        IF ipcSourceType EQ "Estimate" THEN 
-        DO:
-            RUN pBuildTable .              
-        END.    
-                
-    END.
+        RUN pBuildTable .              
+    END.                   
+   
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
    
@@ -457,39 +450,47 @@ PROCEDURE pBuildTable :
             ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iLine    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-ttEstItem FOR ttEstItem.
+    
     DO WITH FRAME {&FRAME-NAME}:
+    
+        FIND FIRST bf-ttEstItem NO-LOCK 
+             WHERE bf-ttEstItem.estNo EQ ipcSourceValue NO-ERROR .
+                      
         cEstNo:SCREEN-VALUE = ipcSourceValue .
         cCustPo:SCREEN-VALUE = ipcCustomerPo.        
       
+        IF AVAIL bf-ttEstItem THEN RETURN.
+      
         FIND FIRST est NO-LOCK
-            WHERE est.company EQ g_company
+            WHERE est.company EQ cCompany
             AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
             NO-ERROR.
      
         IF AVAILABLE est THEN
         DO:
-            EMPTY TEMP-TABLE tt-est-item .
+            EMPTY TEMP-TABLE ttEstItem .
             iLine = 0.   
             FOR EACH eb NO-LOCK
-                WHERE eb.company EQ cocode
+                WHERE eb.company EQ cCompany
                 AND eb.est-no EQ est.est-no:
                 iLine = iLine + 1.
               
                 cCustNo:SCREEN-VALUE = eb.cust-no.
                 ship-to:SCREEN-VALUE = eb.ship-id.
               
-                CREATE tt-est-item.
+                CREATE ttEstItem.
                 ASSIGN
-                    tt-est-item.company     = cocode
-                    tt-est-item.est-line    = iLine
-                    tt-est-item.est-cust    = eb.cust-no
-                    tt-est-item.est-item    = eb.stock-no
-                    tt-est-item.est-part    = eb.part-no
-                    tt-est-item.est-desc    = eb.part-dscr1
-                    tt-est-item.est-qty     = eb.eqty
-                    tt-est-item.est-qty-uom = "EA"
-                    tt-est-item.est-total   = 0  
-                    tt-est-item.est-rowid   = ROWID(eb) 
+                    ttEstItem.company     = cCompany
+                    ttEstItem.estLine    = iLine
+                    ttEstItem.estCust    = eb.cust-no
+                    ttEstItem.estItem    = eb.stock-no
+                    ttEstItem.estPart    = eb.part-no
+                    ttEstItem.estDesc    = eb.part-dscr1
+                    ttEstItem.estQty     = eb.eqty
+                    ttEstItem.estQtyUom = "EA"
+                    ttEstItem.estTotal   = 0  
+                    ttEstItem.estRowid   = ROWID(eb) 
                     .
                   
                 FIND FIRST itemfg NO-LOCK 
@@ -499,19 +500,19 @@ PROCEDURE pBuildTable :
      
                 IF AVAILABLE itemfg THEN 
                 DO:
-                    RUN Tax_GetTaxableAR  (cocode, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
+                    RUN Tax_GetTaxableAR  (cCompany, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
                
                     ASSIGN               
-                        tt-est-item.est-price-matrix = lTaxable
-                        tt-est-item.est-pr-uom       = itemfg.sell-uom
-                        tt-est-item.est-po           = ipcCustomerPo
-                        tt-est-item.est-price        = itemfg.sell-price 
+                        ttEstItem.estPriceMatrix = lTaxable
+                        ttEstItem.estPrUom       = itemfg.sell-uom
+                        ttEstItem.estPo           = ipcCustomerPo
+                        ttEstItem.estPrice        = itemfg.sell-price 
                         . 
                 END. 
              
-                IF tt-est-item.est-pr-uom EQ "EA" THEN
+                IF ttEstItem.estPrUom EQ "EA" THEN
                 DO:
-                    tt-est-item.est-total = tt-est-item.est-price * tt-est-item.est-qty . 
+                    ttEstItem.estTotal = ttEstItem.estPrice * ttEstItem.estQty . 
                 END.
                                   
               
@@ -540,8 +541,8 @@ PROCEDURE repo-query :
     CLOSE QUERY BROWSE-1.
     DO WITH FRAME {&FRAME-NAME}:
          
-        OPEN QUERY BROWSE-1 FOR EACH tt-est-item
-            NO-LOCK BY tt-est-item.est-line.              
+        OPEN QUERY BROWSE-1 FOR EACH ttEstItem
+            NO-LOCK BY ttEstItem.estLine.              
 
         REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.
     END.

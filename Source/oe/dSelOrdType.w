@@ -23,29 +23,21 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE OUTPUT PARAMETER opcSourceType AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcSourceValue AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcCustomerPo AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiSourceID AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcSourceType AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcSourceValue AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcCustomerPo AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-{methods/defines/hndldefs.i}
+{methods/defines/hndldefs.i}    
+ 
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
 
-{methods/defines/globdefs.i}
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
-DEFINE TEMP-TABLE tt-order-type 
-    FIELD company     AS CHARACTER
-    FIELD ord-type    AS INTEGER   LABEL "Order Type"
-    FIELD ord-source  AS CHARACTER LABEL "Order Source"
-    FIELD type-desc   AS CHARACTER LABEL "Type Description"
-    FIELD system-type AS CHARACTER LABEL "System Type"
-    FIELD cColor      AS CHARACTER LABEL "Color" 
-    FIELD lActive     AS LOGICAL   LABEL "Active".
-           
-{sys/inc/var.i shared}
-{custom/gcompany.i}  
-
-gcompany = cocode.  
+RUN spGetSessionParam ("Location", OUTPUT cLoc).
 
 DEFINE VARIABLE ll-valid-po-no AS LOG     NO-UNDO.
 DEFINE VARIABLE lOeprompt      AS LOGICAL NO-UNDO.
@@ -53,7 +45,7 @@ DEFINE VARIABLE cRtnChar       AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL NO-UNDO.
 
 
-RUN sys/ref/nk1look.p (INPUT cocode, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cCompany, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
@@ -77,16 +69,16 @@ IF lRecFound THEN
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES tt-order-type
+&Scoped-define INTERNAL-TABLES orderType
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-order-type.ord-type tt-order-type.type-desc  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.ord-type orderType.type-desc  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-order-type WHERE tt-order-type.Company = cocode ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-order-type WHERE tt-order-type.Company = cocode ~         ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-order-type
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-order-type
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 orderType
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 orderType
 
 
 /* Definitions for DIALOG-BOX D-Dialog                                  */
@@ -157,15 +149,15 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    tt-order-type SCROLLING.
+    orderType SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    tt-order-type.ord-type WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">9"      
-    tt-order-type.type-desc  FORMAT "x(35)"  LABEL-BGCOLOR 14         
+    orderType.orderTypeID WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">9"      
+    orderType.orderTypeDescription FORMAT "x(35)"  LABEL-BGCOLOR 14         
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 175.4 BY 14.52
@@ -240,7 +232,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-order-type WHERE tt-order-type.Company = cocode ~
+OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -260,12 +252,12 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-order-type WHERE tt-order-type.Company = coc
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Add Order */
-    DO:             
-        EMPTY TEMP-TABLE tt-order-type .
+    DO:          
         ASSIGN
-            opcSourceType  = ""
-            opcSourceValue = ""
-            opcCustomerPo  = ""
+            iopiSourceID    = 0
+            iopcSourceType  = ""
+            iopcSourceValue = ""
+            iopcCustomerPo  = ""
             oplCancel      = YES.
             
         APPLY "END-ERROR":U TO SELF.
@@ -290,11 +282,12 @@ ON VALUE-CHANGED OF BROWSE-1 IN FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
     DO:         
-        EMPTY TEMP-TABLE tt-order-type .
+        
         ASSIGN
-            opcSourceType  = ""
-            opcSourceValue = ""
-            opcCustomerPo  = ""
+            iopiSourceID    = 0
+            iopcSourceType  = ""
+            iopcSourceValue = ""
+            iopcCustomerPo  = ""
             oplCancel      = YES.
         APPLY "END-ERROR":U TO SELF.
        
@@ -315,12 +308,12 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
             ASSIGN {&displayed-objects}.
         END.
            
-        IF tt-order-type.ord-source EQ "Customer" THEN
+        IF orderType.orderTypeSource EQ "Customer" THEN
         DO:   
             RUN valid-cust-no(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY .
         END.
-        ELSE IF tt-order-type.ord-source EQ "Estimate" THEN
+        ELSE IF orderType.orderTypeSource EQ "Estimate" THEN
             DO:   
                 RUN valid-est-no(OUTPUT lError) NO-ERROR.
                 IF lError THEN RETURN NO-APPLY .
@@ -330,9 +323,10 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
         IF lError THEN RETURN NO-APPLY.        
         
         ASSIGN
-            opcSourceType  = tt-order-type.ord-source 
-            opcSourceValue = cOrderSource:SCREEN-VALUE  IN FRAME {&FRAME-NAME}
-            opcCustomerPo  = cCustPo:SCREEN-VALUE  IN FRAME {&FRAME-NAME}.
+            iopiSourceID    = orderType.orderTypeID 
+            iopcSourceType  = orderType.orderTypeSource
+            iopcSourceValue = cOrderSource:SCREEN-VALUE  IN FRAME {&FRAME-NAME}
+            iopcCustomerPo  = cCustPo:SCREEN-VALUE  IN FRAME {&FRAME-NAME}.
                 
         APPLY "close" TO THIS-PROCEDURE.
    
@@ -348,17 +342,17 @@ ON HELP OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
     DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-        IF tt-order-type.ord-source EQ "Customer" THEN
+        IF orderType.orderTypeSource EQ "Customer" THEN
         DO:          
-            RUN windows/l-custact.w (gcompany,"", OUTPUT char-val, OUTPUT look-recid).
+            RUN windows/l-custact.w (cCompany,"", OUTPUT char-val, OUTPUT look-recid).
             IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
                 ASSIGN
                     SELF:screen-value = ENTRY(1,char-val)                
                     .     
         END.
-        ELSE IF tt-order-type.ord-source EQ "Estimate" THEN
+        ELSE IF orderType.orderTypeSource EQ "Estimate" THEN
             DO:
-                RUN windows/l-est.w (g_company,g_loc,"", OUTPUT char-val).
+                RUN windows/l-est.w (cCompany,cLoc,"", OUTPUT char-val).
                 FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
                 IF AVAILABLE eb THEN 
                 DO:
@@ -379,7 +373,7 @@ ON LEAVE OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
-            RUN pCheckPoValidation NO-ERROR.            
+            RUN pCheckPo NO-ERROR.            
         END.
            
     END.
@@ -388,17 +382,6 @@ ON LEAVE OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cOrderSource D-Dialog
-ON VALUE-CHANGED OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
-    DO:     
-        IF SELF:SCREEN-VALUE NE "" THEN 
-        DO:
-                                              
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME cCustPo
@@ -408,8 +391,7 @@ ON LEAVE OF cCustPo IN FRAME D-Dialog /* Customer PO# */
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:          
-        //RUN valid-po-no(OUTPUT lError) NO-ERROR.
-        //IF lError THEN RETURN NO-APPLY.         
+                
         END.                                                                  
     END.
 
@@ -430,15 +412,14 @@ ON LEAVE OF cCustPo IN FRAME D-Dialog /* Customer PO# */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
-    RUN pBuildTempTable. 
-    
+          
     RUN enable_UI.
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         APPLY "value-changed" TO BROWSE {&browse-name}.
         DISABLE iOrderType. 
         cCustPo:HIDDEN = YES.
+        RUN pSetValue.
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
@@ -527,36 +508,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTempTable D-Dialog 
-PROCEDURE pBuildTempTable :
-    /*------------------------------------------------------------------------------
-              Purpose:     
-              Parameters:  <none>
-              Notes:       
-            ------------------------------------------------------------------------------*/
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    
-        FOR EACH orderType NO-LOCK
-            WHERE NOT orderType.inactive:
-          
-            CREATE tt-order-type.
-            ASSIGN
-                tt-order-type.company     = cocode
-                tt-order-type.ord-type    = orderType.orderTypeID
-                tt-order-type.ord-source  = orderType.orderTypeSource
-                tt-order-type.type-desc   = orderType.orderTypeDescription
-                tt-order-type.system-type = "Normal"
-                tt-order-type.cColor      = STRING(orderType.orderTypeColor)
-                tt-order-type.lActive     = YES.
-           
-        END.                       
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValueChange D-Dialog 
 PROCEDURE pValueChange :
@@ -568,10 +519,10 @@ PROCEDURE pValueChange :
    
     DO WITH FRAME {&FRAME-NAME}:
         lblLabel-2:SCREEN-VALUE = "". 
-        IF AVAILABLE tt-order-type THEN
+        IF AVAILABLE orderType THEN
             ASSIGN
-                iOrderType:SCREEN-VALUE = STRING(tt-order-type.ord-type)
-                lblLabel:SCREEN-VALUE   = tt-order-type.ord-source + ":".     
+                iOrderType:SCREEN-VALUE = STRING(orderType.orderTypeID)
+                lblLabel:SCREEN-VALUE   = orderType.orderTypeSource + ":".     
     END.
 
 END PROCEDURE.
@@ -594,8 +545,8 @@ PROCEDURE repo-query :
     CLOSE QUERY BROWSE-1.
     DO WITH FRAME {&FRAME-NAME}:
          
-        OPEN QUERY BROWSE-1 FOR EACH tt-order-type
-            NO-LOCK BY tt-order-type.ord-type.              
+        OPEN QUERY BROWSE-1 FOR EACH orderType
+            NO-LOCK BY orderType.orderTypeID.              
 
         REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.
     END.
@@ -606,8 +557,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPoValidation D-Dialog 
-PROCEDURE pCheckPoValidation :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPo D-Dialog 
+PROCEDURE pCheckPo :
     /*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
@@ -617,10 +568,10 @@ PROCEDURE pCheckPoValidation :
     DO WITH FRAME {&FRAME-NAME}:
         lblLabel-2:SCREEN-VALUE = "".
         cCustPo:HIDDEN = YES.
-        IF tt-order-type.ord-source EQ "Estimate" THEN
+        IF orderType.orderTypeSource EQ "Estimate" THEN
         DO:
             FIND FIRST eb NO-LOCK
-                WHERE eb.company EQ g_company
+                WHERE eb.company EQ cCompany
                 AND eb.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cOrderSource:SCREEN-VALUE))) + TRIM(cOrderSource:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE eb THEN
@@ -631,18 +582,24 @@ PROCEDURE pCheckPoValidation :
                     AND cust.po-mandatory 
                     NO-ERROR.
                 IF AVAILABLE cust THEN
+                do:
                     ASSIGN cCustPo:HIDDEN = NO.
+                    APPLY "entry" TO cCustPo .
+                END.    
             END.
         END.
-        ELSE IF tt-order-type.ord-source EQ "Customer" THEN
+        ELSE IF orderType.orderTypeSource EQ "Customer" THEN
         DO:
             FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ g_company
+                 WHERE cust.company EQ cCompany
                  AND cust.cust-no EQ cOrderSource:SCREEN-VALUE
                  AND cust.po-mandatory 
                  NO-ERROR.
             IF AVAILABLE cust THEN
+            DO:
               ASSIGN cCustPo:HIDDEN = NO.
+              APPLY "entry" TO cCustPo .
+            END.  
         END.
     END.
 
@@ -650,6 +607,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME  
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValue D-Dialog 
+PROCEDURE pSetValue :
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-orderType FOR orderType.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF iopiSourceID EQ 0 THEN RETURN.
+        
+        cCustPo:SCREEN-VALUE = iopcCustomerPo .
+        cOrderSource:SCREEN-VALUE = iopcSourceValue.
+        cCustPo:HIDDEN = IF iopcCustomerPo NE "" THEN NO ELSE YES.
+        
+        FIND FIRST bf-orderType NO-LOCK
+             WHERE bf-orderType.orderTypeID EQ iopiSourceID NO-ERROR.
+        IF AVAILABLE bf-orderType THEN
+        DO:
+           RUN repo-query(ROWID(bf-orderType)).
+           RUN pValueChange.
+        END.
+       
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no D-Dialog 
 PROCEDURE valid-cust-no :
@@ -661,7 +649,7 @@ PROCEDURE valid-cust-no :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT CAN-FIND(FIRST cust
-            WHERE cust.company  EQ gcompany
+            WHERE cust.company  EQ cCompany
             AND cust.cust-no   EQ cOrderSource:SCREEN-VALUE)  THEN 
         DO:
             MESSAGE "Invalid Customer, try help..." VIEW-AS ALERT-BOX ERROR.
@@ -688,7 +676,7 @@ PROCEDURE valid-est-no :
         IF cOrderSource:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST est NO-LOCK
-                WHERE est.company EQ g_company
+                WHERE est.company EQ cCompany
                 AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cOrderSource:SCREEN-VALUE))) + TRIM(cOrderSource:SCREEN-VALUE)
                 NO-ERROR.
             IF NOT AVAILABLE est THEN 
@@ -722,10 +710,10 @@ PROCEDURE valid-po-no :
     
     DO WITH FRAME {&FRAME-NAME}:     
          
-        IF tt-order-type.ord-source EQ "Estimate" AND cOrderSource:SCREEN-VALUE NE "" THEN
+        IF orderType.orderTypeSource EQ "Estimate" AND cOrderSource:SCREEN-VALUE NE "" THEN
         DO:
             FIND FIRST eb NO-LOCK
-                WHERE eb.company EQ g_company
+                WHERE eb.company EQ cCompany
                 AND eb.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cOrderSource:SCREEN-VALUE))) + TRIM(cOrderSource:SCREEN-VALUE)
                 NO-ERROR.
             IF AVAILABLE eb THEN
@@ -734,7 +722,7 @@ PROCEDURE valid-po-no :
         ELSE cCustomerNo = cOrderSource:SCREEN-VALUE.        
     
         FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ cocode
+            WHERE cust.company EQ cCompany
             AND cust.cust-no EQ cCustomerNo
             AND cust.cust-no NE ""
             AND cust.po-mandatory
@@ -750,7 +738,7 @@ PROCEDURE valid-po-no :
         
         IF NOT ll-valid-po-no AND lOeprompt AND cCustPO:SCREEN-VALUE NE "" THEN
             FIND FIRST b-oe-ordl
-                WHERE b-oe-ordl.company EQ cocode
+                WHERE b-oe-ordl.company EQ cCompany
                 AND b-oe-ordl.po-no   EQ cCustPO:SCREEN-VALUE
                 AND b-oe-ordl.cust-no EQ cOrderSource:SCREEN-VALUE            
                 NO-LOCK NO-ERROR.

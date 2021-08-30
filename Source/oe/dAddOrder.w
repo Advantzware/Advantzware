@@ -23,35 +23,21 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-
+{oe\ttInputOrd.i NEW}
 
 DEFINE INPUT PARAMETER ipcSourceType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER TABLE FOR ttEstItem.
+DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 
-{methods/defines/globdefs.i}
-DEFINE BUFFER b-prgrms FOR prgrms.
-DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE period_pos   AS INTEGER NO-UNDO.
-
-IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-    v-prgmname = USERID("NOSWEAT") + "..".
-ELSE
-    ASSIGN
-        period_pos = INDEX(PROGRAM-NAME(1),".")
-        v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
-        v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
-
-{oe\ttInputOrd.i NEW}
-{sys/inc/var.i shared}
-{custom/gcompany.i}  
-
-gcompany = cocode.  
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+RUN spGetSessionParam ("Location", OUTPUT cLoc).
 
 DEF VAR v-duelist AS cha INIT "AM,ASAP,BY,CPU,CR,HFR,HOLD,HOT,INK,MH,MUST,NB4,NCUST,NITEM,NCNI,OE,ON,PPR,RWRK,RUSH,TOOL,WO,$$$" NO-UNDO. /* Task 04081403 */
 DEF VAR ll-valid-po-no AS LOG NO-UNDO.
@@ -59,14 +45,12 @@ DEF VARIABLE lOeprompt AS LOGICAL NO-UNDO.
 DEFIN VARIABLE cRtnChar AS LOGICAL NO-UNDO.
 DEFIN VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-
-RUN sys/ref/nk1look.p (INPUT cocode, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cCompany, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lOeprompt = LOGICAL(cRtnChar) NO-ERROR.
     
-DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.    
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -93,8 +77,8 @@ DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputOrdLine.line ttInputOrdLine.cItemType ttInputOrdLine.est-no ttInputOrdLine.i-no ttInputOrdLine.part-no ttInputOrdLine.i-name ttInputOrdLine.qty ttInputOrdLine.cQtyUom ttInputOrdLine.price ttInputOrdLine.pr-uom ttInputOrdLine.po-no ttInputOrdLine.t-price ttInputOrdLine.tax ttInputOrdLine.e-num  ttInputOrdLine.lCreateRel ttInputOrdLine.lCreateJob ttInputOrdLine.lCreatePo
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cocode ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cocode ~         ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cCompany ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cCompany ~         ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 ttInputOrdLine
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttInputOrdLine
 
@@ -106,7 +90,7 @@ DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cCustNo sold-to Btn_OK Btn_Cancel BROWSE-1 ~
 btn-add btn-copy btn-update btn-delete cEstNo iQuoteNo overRun underRun ship-to ~
-cCustPo cDue dtDueDate btnCalendar-1
+cCustPo cDue dtDueDate btnCalendar-1 Btn_Back Btn_Advanced
 &Scoped-Define DISPLAYED-OBJECTS cCustNo sold-to cEstNo iQuoteNo overRun underRun ~
 ship-to cCustPo cDue dtDueDate 
 
@@ -153,6 +137,16 @@ DEFINE BUTTON Btn_OK AUTO-GO
      LABEL "&Save" 
      SIZE 15 BY 1.29
      BGCOLOR 8 .
+     
+DEFINE BUTTON Btn_Back AUTO-GO 
+    LABEL "&Back" 
+    SIZE 15 BY 1.00
+    BGCOLOR 8 . 
+        
+DEFINE BUTTON Btn_Advanced  
+    LABEL "&Advanced" 
+    SIZE 15 BY 1.00
+    BGCOLOR 8 .    
 
 DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
      LABEL "Customer ID#" 
@@ -220,7 +214,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 157.6 BY 17.14
+     SIZE 256.9 BY 17.14
      BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -233,26 +227,26 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      ttInputOrdLine.line LABEL "Lin" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">9"
+      ttInputOrdLine.line LABEL "Lin" WIDTH 5 LABEL-BGCOLOR 14 FORMAT ">9"
     ttInputOrdLine.cItemType LABEL "Item Type"  LABEL-BGCOLOR 14 FORMAT "x(10)"
-    ttInputOrdLine.est-no LABEL "Estimate" FORMAT "x(8)" WIDTH 15 LABEL-BGCOLOR 14
+    ttInputOrdLine.est-no LABEL "Estimate" FORMAT "x(8)" WIDTH 12 LABEL-BGCOLOR 14
     ttInputOrdLine.i-no LABEL "Item Id/Misc" FORMAT "x(15)" WIDTH 22 LABEL-BGCOLOR 14
     ttInputOrdLine.part-no LABEL "Customer Part" FORMAT "x(15)" WIDTH 22 LABEL-BGCOLOR 14
     ttInputOrdLine.i-name LABEL "Description" FORMAT "x(30)" WIDTH 30 LABEL-BGCOLOR 14
-    ttInputOrdLine.qty LABEL "Qty" WIDTH 15 LABEL-BGCOLOR 14
-    ttInputOrdLine.cQtyUom LABEL "Uom" WIDTH 7 LABEL-BGCOLOR 14
+    ttInputOrdLine.qty LABEL "Qty" FORMAT ">>>,>>>,>>9" WIDTH 14 LABEL-BGCOLOR 14
+    ttInputOrdLine.cQtyUom LABEL "Uom" WIDTH 6 LABEL-BGCOLOR 14
     ttInputOrdLine.price LABEL "Price" WIDTH 12 LABEL-BGCOLOR 14
-    ttInputOrdLine.pr-uom LABEL "Uom" FORMAT "x(3)" WIDTH 7 LABEL-BGCOLOR 14
+    ttInputOrdLine.pr-uom LABEL "Uom" FORMAT "x(3)" WIDTH 6 LABEL-BGCOLOR 14
     ttInputOrdLine.po-no LABEL "PO #" FORMAT "x(15)" WIDTH 18 LABEL-BGCOLOR 14
-    ttInputOrdLine.t-price LABEL "Total" WIDTH 22 FORMAT "->>>,>>>,>>9.99" LABEL-BGCOLOR 14
-    ttInputOrdLine.tax LABEL "Tax" WIDTH 8 FORMAT "Yes/No" LABEL-BGCOLOR 14
-    ttInputOrdLine.e-num LABEL "POLine" WIDTH 8 FORMAT ">9" LABEL-BGCOLOR 14
+    ttInputOrdLine.t-price LABEL "Total" FORMAT "->>>,>>>,>>9.99" LABEL-BGCOLOR 14
+    ttInputOrdLine.tax LABEL "Tax" WIDTH 6 FORMAT "Yes/No" LABEL-BGCOLOR 14
+    ttInputOrdLine.e-num LABEL "POLine" WIDTH 6 FORMAT ">9" LABEL-BGCOLOR 14
     ttInputOrdLine.lCreateRel LABEL "Create Release " WIDTH 14 FORMAT "Yes/No" LABEL-BGCOLOR 14
     ttInputOrdLine.lCreateJob LABEL "Create Job " WIDTH 12 FORMAT "Yes/No" LABEL-BGCOLOR 14
     ttInputOrdLine.lCreatePo LABEL "Create Po " WIDTH 12 FORMAT "Yes/No" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 155.4 BY 14.52
+    WITH NO-ASSIGN SEPARATORS SIZE 255.4 BY 14.52
          BGCOLOR 8 FONT 0.
 
 
@@ -270,14 +264,16 @@ DEFINE FRAME D-Dialog
      cDue AT ROW 3.33 COL 124 COLON-ALIGNED WIDGET-ID 276
      dtDueDate AT ROW 3.33 COL 132.2 COLON-ALIGNED NO-LABEL WIDGET-ID 278 
      btnCalendar-1 AT ROW 3.33 COL 146.6
+     Btn_Back AT ROW 4.36 COL 5.4
+     Btn_Advanced AT ROW 4.36 COL 140.4
      BROWSE-1 AT ROW 6.76 COL 5.6
      btn-add AT ROW 21.86 COL 5.4 WIDGET-ID 16
      btn-copy AT ROW 21.86 COL 21 WIDGET-ID 252
      btn-update AT ROW 21.86 COL 36.6 WIDGET-ID 256
      btn-delete AT ROW 21.86 COL 52.6 WIDGET-ID 254 
      
-     Btn_OK AT ROW 23.67 COL 127.8
-     Btn_Cancel AT ROW 23.67 COL 143.8
+     Btn_OK AT ROW 23.67 COL 227.8
+     Btn_Cancel AT ROW 23.67 COL 243.8
      "Order Header" VIEW-AS TEXT
           SIZE 17 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
      "Order Line" VIEW-AS TEXT
@@ -286,7 +282,7 @@ DEFINE FRAME D-Dialog
           SIZE 1 BY .71 AT ROW 3.33 COL 102  
      RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
      RECT-5 AT ROW 6.24 COL 4.4 WIDGET-ID 262
-     SPACE(3.99) SKIP(2.47)
+     SPACE(1.99) SKIP(2.47)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -340,7 +336,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cocode ~
+OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = cCompany ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -364,23 +360,11 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = c
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Set Estimate */
 DO:             
-        DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
-        /*IF ipType EQ "" THEN 
-        DO:
-            MESSAGE "Cancelling will not create the estimate and you will lose the data that you entered."
-                SKIP 
-                "Are you sure you want to continue?" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE lCheck .
-        END.
-        ELSE lCheck = TRUE.
-               
-        IF lCheck THEN 
-        DO: */  
-            EMPTY TEMP-TABLE ttInputOrdLine .
-           
+      EMPTY TEMP-TABLE ttInputOrdLine .
+      
+      oplBack = NO.
+      APPLY "END-ERROR":U TO SELF.
         
-            APPLY "END-ERROR":U TO SELF.
-        /*END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -394,29 +378,14 @@ DO:
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
         DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
         DEFINE BUFFER bff-ttInputOrdLine FOR ttInputOrdLine .
-        
-        RUN valid-cust-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY .
-
-        /*RUN valid-fgitem(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-
-        RUN valid-part-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-
-        RUN valid-procat(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY .   
-
-        RUN valid-ship-id(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY .*/ 
-    
+                           
         RUN oe/dAddEditOrdLine.w (?,ROWID(eb),"Add","",
             "",
             "",
             "",
             NO, OUTPUT lv-rowid) . 
         FIND FIRST bff-ttInputOrdLine NO-LOCK
-            WHERE bff-ttInputOrdLine.Company EQ cocode
+            WHERE bff-ttInputOrdLine.Company EQ cCompany
             AND ROWID(bff-ttInputOrdLine) EQ lv-rowid NO-ERROR .
         IF AVAILABLE bff-ttInputOrdLine THEN
             RUN repo-query (lv-rowid). 
@@ -504,21 +473,14 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
-        DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
-       /* IF ipType EQ "" THEN 
-        DO:
-            MESSAGE "Cancelling will not create the order and you will lose the data that you entered."
-                SKIP 
-                "Are you sure you want to continue?" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                UPDATE lCheck .
-        END.
-        ELSE  lCheck = TRUE.
-        IF lCheck THEN 
-        DO: */
-            EMPTY TEMP-TABLE ttInputOrdLine .
+      DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
+      
+      EMPTY TEMP-TABLE ttInputOrdLine .
+      
+      oplBack = NO.
            
-            APPLY "END-ERROR":U TO SELF.
-      /*  END.*/
+      APPLY "END-ERROR":U TO SELF.
+      
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -600,6 +562,34 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Back
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Back D-Dialog
+ON CHOOSE OF Btn_Back IN FRAME D-Dialog /* Back */
+    DO:
+        
+        oplBack = YES.
+        
+        //APPLY "close" TO THIS-PROCEDURE.        
+         
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Advanced
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Advanced D-Dialog
+ON CHOOSE OF Btn_Advanced IN FRAME D-Dialog /* Advanced */
+    DO:
+        
+               
+         
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cCustNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
 ON HELP OF cCustNo IN FRAME D-Dialog /* Customer ID# */
@@ -607,7 +597,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
-        RUN windows/l-custact.w (gcompany,"", OUTPUT char-val, OUTPUT look-recid).
+        RUN windows/l-custact.w (cCompany,"", OUTPUT char-val, OUTPUT look-recid).
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
                 SELF:screen-value      = ENTRY(1,char-val)                
@@ -632,23 +622,11 @@ DO:
         END.
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
-            FIND FIRST cust WHERE cust.company = cocode
-                AND cust.cust-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .             
-            
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
-ON VALUE-CHANGED OF cCustNo IN FRAME D-Dialog /* Customer ID# */
-DO:     
-        IF SELF:SCREEN-VALUE NE "" THEN 
-        DO:
+            FIND FIRST cust WHERE cust.company = cCompany
+                AND cust.cust-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR . 
+                
             FIND FIRST shipto NO-LOCK
-                WHERE shipto.company EQ cocode
+                WHERE shipto.company EQ cCompany
                 AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
                 AND shipto.ship-id EQ cCustNo:SCREEN-VALUE  NO-ERROR.
              
@@ -656,19 +634,20 @@ DO:
                 ASSIGN ship-to:SCREEN-VALUE   = shipto.ship-id .    
                 
             FIND FIRST soldto NO-LOCK
-                 WHERE soldto.company EQ cocode
+                 WHERE soldto.company EQ cCompany
                  AND soldto.cust-no EQ cCustNo:SCREEN-VALUE
                  AND soldto.sold-id BEGINS trim(cCustNo:SCREEN-VALUE)
                  USE-INDEX sold-id NO-ERROR.
                  
             IF AVAIL soldto THEN
                 ASSIGN              
-                   sold-to:SCREEN-VALUE      = soldto.sold-id  .                                  
+                   sold-to:SCREEN-VALUE      = soldto.sold-id  .
         END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME cCustPo
@@ -688,11 +667,7 @@ DO:
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
     IF LASTKEY NE -1 THEN 
     DO:
-        
-        RUN valid-po-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-   
-        
+               
     END.   
                                   
 END.
@@ -712,8 +687,7 @@ DO:
    
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
-                SELF:screen-value      = ENTRY(1,char-val)
-               // ship-name:screen-value = ENTRY(2,char-val)
+                SELF:screen-value      = ENTRY(1,char-val)               
                 .                                    
     END.
 
@@ -726,12 +700,7 @@ ON LEAVE OF cDue IN FRAME D-Dialog /* Due Date */
 DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
-        DO:
-            IF ship-to:SCREEN-VALUE NE "" THEN 
-            DO:
-                RUN valid-due-code(OUTPUT lError) NO-ERROR.
-                IF lError THEN RETURN NO-APPLY.
-            END.
+        DO:              
             
         END.                                
     END.
@@ -747,7 +716,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
-        RUN windows/l-est.w (g_company,g_loc,cEstNo:screen-value, OUTPUT char-val).
+        RUN windows/l-est.w (cCompany,cLoc,cEstNo:screen-value, OUTPUT char-val).
         
         IF char-val <> ""  THEN 
         DO:
@@ -756,11 +725,10 @@ DO:
             ASSIGN
                 SELF:screen-value      = eb.est-no
                 cCustNo:SCREEN-VALUE   = eb.cust-no.                
-                END.
+                RUN pGetQuote.
+           END.
         END.        
-        APPLY "value-changed" TO cCustNo IN FRAME {&FRAME-NAME}.
-        APPLY "value-changed" TO cEstNo IN FRAME {&FRAME-NAME}.
-       
+              
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -773,24 +741,12 @@ DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
    
         IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-est-no(OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY.
-            
-            APPLY "value-changed" TO cCustNo IN FRAME {&FRAME-NAME}.
+        DO:             
+           RUN pNewEstimate.
+           RUN pGetQuote.
         END. 
         
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cEstNo D-Dialog
-ON VALUE-CHANGED OF cEstNo IN FRAME D-Dialog /* Estimate # */
-DO:     
-    RUN pNewEstimate.        
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -800,16 +756,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQuoteNo D-Dialog
 ON HELP OF iQuoteNo IN FRAME D-Dialog /* Quote # */
 DO:
-       /* DEFINE VARIABLE char-val   AS cha   NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-   
-        RUN windows/l-shipto.w (gcompany,"",cCustNo:SCREEN-VALUE,"", OUTPUT char-val).
-   
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                SELF:screen-value      = ENTRY(1,char-val)
-                //ship-name:screen-value = ENTRY(2,char-val)
-                .  */                                  
+                                  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,11 +769,7 @@ DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
-            /*IF ship-to:SCREEN-VALUE NE "" THEN 
-            DO:
-                RUN valid-ship-id(OUTPUT lError) NO-ERROR.
-                IF lError THEN RETURN NO-APPLY.
-            END.  */            
+                      
         END.                                
     END.
 
@@ -841,7 +784,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
-        RUN windows/l-shipto.w (gcompany,"",cCustNo:SCREEN-VALUE,"", OUTPUT char-val).
+        RUN windows/l-shipto.w (cCompany,"",cCustNo:SCREEN-VALUE,"", OUTPUT char-val).
    
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
@@ -859,11 +802,7 @@ DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
-            IF ship-to:SCREEN-VALUE NE "" THEN 
-            DO:
-                RUN valid-ship-id(OUTPUT lError) NO-ERROR.
-                IF lError THEN RETURN NO-APPLY.
-            END.             
+                        
         END.                                
     END.
 
@@ -878,7 +817,7 @@ DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
-        RUN windows/l-soldto.w (g_company, cCustno:screen-value,sold-to:screen-value, OUTPUT char-val).
+        RUN windows/l-soldto.w (cCompany, cCustno:screen-value,sold-to:screen-value, OUTPUT char-val).
    
         IF char-val <> "" AND SELF:screen-value <> entry(2,char-val) THEN 
             ASSIGN
@@ -896,11 +835,7 @@ DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
-            IF ship-to:SCREEN-VALUE NE "" THEN 
-            DO:
-                RUN valid-sold-id(OUTPUT lError) NO-ERROR.
-                IF lError THEN RETURN NO-APPLY.
-            END.               
+                         
         END.                                
     END.
 
@@ -940,14 +875,6 @@ ON HELP OF dtDueDate IN FRAME D-Dialog /* Due Date */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
-    IF ipcSourceType EQ "Estimate" THEN 
-    DO:
-        RUN oe/dSelEstItem.w(INPUT ipcSourceType, INPUT ipcSourceValue, INPUT ipcCustomerPo, OUTPUT lCancel ).
-        IF lCancel THEN RETURN NO-APPLY.
-     END. 
-     
-     
     
     RUN enable_UI.
     {methods/nowait.i}  
@@ -1018,7 +945,7 @@ PROCEDURE create-ttfrmout :
     CREATE tt-eb-set .
     ASSIGN 
         tt-eb-set.est-type         = 6
-        tt-eb-set.Company          = cocode
+        tt-eb-set.Company          = cCompany
         tt-eb-set.loc              = locode
         tt-eb-set.form-no          = 0
         tt-eb-set.blank-no         = 0 
@@ -1127,7 +1054,7 @@ PROCEDURE create-ttfrmout :
         ELSE 
         DO:  
             FIND FIRST eb NO-LOCK 
-                WHERE eb.company EQ cocode
+                WHERE eb.company EQ cCompany
                 AND ROWID(eb) EQ ipriRowid NO-ERROR .    
             IF AVAILABLE eb  THEN 
             DO:
@@ -1204,7 +1131,7 @@ PROCEDURE enable_UI :
       WITH FRAME D-Dialog.
   ENABLE cCustNo sold-to Btn_OK Btn_Cancel BROWSE-1 btn-add btn-copy btn-update 
          btn-delete cEstNo iQuoteNo overRun underRun ship-to cCustPo cDue dtDueDate 
-         btnCalendar-1
+         btnCalendar-1 Btn_Back Btn_Advanced
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1228,7 +1155,7 @@ PROCEDURE pNewEstimate :
       cCustPo:SCREEN-VALUE = ipcCustomerPo.
       
       FIND FIRST est NO-LOCK
-          WHERE est.company EQ g_company
+          WHERE est.company EQ cCompany
             AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
           NO-ERROR.
       EMPTY TEMP-TABLE ttInputOrd . 
@@ -1239,12 +1166,12 @@ PROCEDURE pNewEstimate :
           iLine = 0.     
            
           FOR EACH eb NO-LOCK
-              WHERE eb.company EQ cocode
+              WHERE eb.company EQ cCompany
               AND eb.est-no EQ est.est-no,
-              FIRST tt-est-item WHERE tt-est-item.IS-SELECTED
-                    AND tt-est-item.est-rowid EQ ROWID(eb) NO-LOCK,
+              FIRST ttEstItem WHERE ttEstItem.isSelected
+                    AND ttEstItem.estRowid EQ ROWID(eb) NO-LOCK,
               FIRST cust NO-LOCK
-                {sys/ref/custW.i}
+                where (cust.company = cCompany)
               AND cust.cust-no EQ eb.cust-no
               USE-INDEX cust
               BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no:
@@ -1263,9 +1190,9 @@ PROCEDURE pNewEstimate :
               
               CREATE ttInputOrdLine.
               ASSIGN
-                  ttInputOrdLine.company = cocode
+                  ttInputOrdLine.company = cCompany
                   ttInputOrdLine.LINE = iLine
-                  ttInputOrdLine.cItemType = "Estimate"
+                  ttInputOrdLine.cItemType = "Order Line"
                   ttInputOrdLine.est-no = eb.est-no
                   ttInputOrdLine.i-no = eb.stock-no
                   ttInputOrdLine.part-no = eb.part-no 
@@ -1280,7 +1207,7 @@ PROCEDURE pNewEstimate :
                      NO-ERROR.
      
              IF AVAIL itemfg THEN DO:
-               RUN Tax_GetTaxableAR  (cocode, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
+               RUN Tax_GetTaxableAR  (cCompany, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
                
                ASSIGN
                ttInputOrdLine.i-name     =  itemfg.i-name
@@ -1346,7 +1273,7 @@ PROCEDURE pGetOverUnderPct :
    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:          
-    RUN oe/GetOverUnderPct.p(g_company,
+    RUN oe/GetOverUnderPct.p(cCompany,
                            cCustNo:SCREEN-VALUE ,
                            TRIM(ship-to:SCREEN-VALUE),
                            "", /* FG Item*/
@@ -1376,7 +1303,7 @@ PROCEDURE valid-cust-no :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT CAN-FIND(FIRST cust
-            WHERE cust.company  EQ gcompany
+            WHERE cust.company  EQ cCompany
             AND cust.cust-no   EQ cCustNo:SCREEN-VALUE)  THEN 
         DO:
             MESSAGE "Invalid Customer, try help..." VIEW-AS ALERT-BOX ERROR.
@@ -1391,26 +1318,21 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est-no D-Dialog 
-PROCEDURE valid-est-no :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetQuote D-Dialog 
+PROCEDURE pGetQuote :
 /*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+    
     DO WITH FRAME {&FRAME-NAME}:  
        IF cEstNo:SCREEN-VALUE NE "" THEN DO:
        FIND FIRST est NO-LOCK
-          WHERE est.company EQ g_company
+          WHERE est.company EQ cCompany
             AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
           NO-ERROR.
-      IF NOT AVAIL est THEN DO:
-        MESSAGE "Invalid Estimate#, try help..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO cEstNo.
-        oplOutError = YES.
-        RETURN.
-      END.
+      IF NOT AVAIL est THEN RETURN.
       
       FOR EACH quotehd
             WHERE quotehd.company EQ est.company
@@ -1423,9 +1345,7 @@ PROCEDURE valid-est-no :
              EACH quoteqty OF quoteitm NO-LOCK:
             iQuoteNo:SCREEN-VALUE = string(quotehd.q-no) . 
           LEAVE.
-        END.
-      
-      
+        END.      
      END. 
     END.
 
@@ -1447,7 +1367,7 @@ PROCEDURE valid-fgitem :
        /* IF fg-no:SCREEN-VALUE  NE "" AND NOT lCreateNewFG THEN 
         DO:
             FIND FIRST itemfg
-                WHERE itemfg.company  EQ gcompany
+                WHERE itemfg.company  EQ cCompany
                 AND itemfg.i-no    EQ fg-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
             IF NOT AVAILABLE itemfg  THEN 
             DO:
@@ -1553,7 +1473,7 @@ PROCEDURE valid-procat :
        /* fg-cat:SCREEN-VALUE  = CAPS(fg-cat:SCREEN-VALUE).
 
         IF NOT CAN-FIND(FIRST fgcat
-            WHERE fgcat.company EQ cocode
+            WHERE fgcat.company EQ cCompany
             AND fgcat.procat  EQ fg-cat:SCREEN-VALUE) THEN 
         DO:
             MESSAGE "Invalid FG Category, try help..." VIEW-AS ALERT-BOX ERROR.
@@ -1578,7 +1498,7 @@ PROCEDURE valid-ship-id :
 
     DO WITH FRAME {&FRAME-NAME}:
         IF ship-to:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST shipto
-            WHERE shipto.company EQ gcompany
+            WHERE shipto.company EQ cCompany
             AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
             AND shipto.ship-id EQ ship-to:SCREEN-VALUE)  THEN 
         DO:
@@ -1605,7 +1525,7 @@ PROCEDURE valid-sold-id :
 
     DO WITH FRAME {&FRAME-NAME}:
         IF sold-to:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST shipto
-            WHERE soldto.company EQ gcompany
+            WHERE soldto.company EQ cCompany
             AND soldto.cust-no EQ cCustNo:SCREEN-VALUE
             AND soldto.sold-id EQ sold-to:SCREEN-VALUE)  THEN 
         DO:
@@ -1632,7 +1552,7 @@ PROCEDURE valid-po-no :
     
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST cust NO-LOCK
-        WHERE cust.company EQ cocode
+        WHERE cust.company EQ cCompany
           AND cust.cust-no EQ cCustNo:SCREEN-VALUE
           AND cust.po-mandatory
         NO-ERROR.
@@ -1646,7 +1566,7 @@ PROCEDURE valid-po-no :
         
      IF NOT ll-valid-po-no AND lOeprompt AND cCustPO:SCREEN-VALUE NE "" THEN
     FIND FIRST b-oe-ordl
-        WHERE b-oe-ordl.company EQ cocode
+        WHERE b-oe-ordl.company EQ cCompany
           AND b-oe-ordl.po-no   EQ cCustPO:SCREEN-VALUE
           AND b-oe-ordl.cust-no EQ cCustNo:SCREEN-VALUE            
         NO-LOCK NO-ERROR.

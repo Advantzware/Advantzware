@@ -14,10 +14,10 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} SHARED TEMP-TABLE ttInputOrd like oe-ord
+DEFINE TEMP-TABLE ttInputOrd like oe-ord
     .
 
-DEFINE {1} SHARED TEMP-TABLE ttInputOrdLine like oe-ordl
+DEFINE TEMP-TABLE ttInputOrdLine like oe-ordl
          FIELD cItemType as CHARACTER LABEL "Item Type" 
          FIELD cQtyUom AS CHARACTER LABEL "UOM" 
          FIELD lCreateRel AS LOGICAL LABEL "Create Release"
@@ -25,23 +25,24 @@ DEFINE {1} SHARED TEMP-TABLE ttInputOrdLine like oe-ordl
          FIELD lCreatePo AS LOGICAL LABEL "Create Po"
     .
 
-DEFINE {1} SHARED TEMP-TABLE tt-est-item 
+DEFINE TEMP-TABLE ttEstItem 
            FIELD company AS CHARACTER
-           FIELD est-line AS INTEGER LABEL "Lin"
-           FIELD est-cust AS CHARACTER LABEL "Customer"
-           FIELD est-item AS CHARACTER LABEL "Item Id / Misc"
-           FIELD est-part AS CHARACTER LABEL "Customer Part"
-           FIELD est-desc AS CHARACTER LABEL "Description" 
-           FIELD est-qty AS INTEGER LABEL "Qty"
-           FIELD est-qty-uom AS CHARACTER LABEL "Uom"
-           FIELD est-price AS DECIMAL LABEL "Price"
-           FIELD est-pr-uom AS CHARACTER LABEL "Uom" 
-           FIELD est-po AS CHARACTER LABEL "Po"
-           FIELD est-total AS DECIMAL LABEL "Total"
-           FIELD est-quote AS INTEGER LABEL "Quote" 
-           FIELD est-price-matrix AS LOGICAL LABEL "Price Matrix"
-           FIELD est-rowid AS ROWID 
-           FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
+           FIELD estNo AS CHARACTER LABEL "Estimate"
+           FIELD estLine AS INTEGER LABEL "Lin"
+           FIELD estCust AS CHARACTER LABEL "Customer"
+           FIELD estItem AS CHARACTER LABEL "Item Id / Misc"
+           FIELD estPart AS CHARACTER LABEL "Customer Part"
+           FIELD estDesc AS CHARACTER LABEL "Description" 
+           FIELD estQty AS INTEGER LABEL "Qty"
+           FIELD estQtyUom AS CHARACTER LABEL "Uom"
+           FIELD estPrice AS DECIMAL LABEL "Price"
+           FIELD estPrUom AS CHARACTER LABEL "Uom" 
+           FIELD estPo AS CHARACTER LABEL "Po"
+           FIELD estTotal AS DECIMAL LABEL "Total"
+           FIELD estQuote AS INTEGER LABEL "Quote" 
+           FIELD estPriceMatrix AS LOGICAL LABEL "Price Matrix"
+           FIELD estRowid AS ROWID 
+           FIELD isSelected AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
 
 
 
