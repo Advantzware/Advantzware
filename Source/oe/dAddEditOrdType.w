@@ -15,18 +15,16 @@
 SESSION:DEBUG-ALERT = FALSE.
 
 /* PARAMs Definitions ---                                           */
-DEFINE INPUT PARAMETER iprwRowid  AS ROWID     NO-UNDO.
-DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.   /* add,update,view */ 
-DEFINE OUTPUT PARAMETER oprwRowid AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER iprwRowId AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.   /* add,update,view */ 
+DEFINE OUTPUT PARAMETER opiOrderTypeId AS INTEGER NO-UNDO.
+    
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS oe.orderType NO-UNDO.
 
-{custom/globdefs.i}
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
-{sys/inc/var.i new shared}
-
-
-ASSIGN 
-    cocode = g_company
-    locode = g_loc.
+scInstance = NEW oe.orderType().    
 
 DEFINE VARIABLE char-val        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-item-rowid   AS ROWID     NO-UNDO.
@@ -49,11 +47,10 @@ DEFINE VARIABLE v-count         AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel item-dscr RECT-21 ~
-RECT-38 type-source tb_create-job tb_create-po type-est tb_inactive ~
-type-color type-seq
-&Scoped-Define DISPLAYED-OBJECTS type-id item-dscr type-source ~
-tb_create-job type-color type-seq tb_create-po type-est tb_inactive 
+&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel tb_inactive ~
+item-dscr type-source type-color type-est type-seq RECT-21 RECT-38 
+&Scoped-Define DISPLAYED-OBJECTS type-id tb_inactive item-dscr type-source ~
+type-color type-est type-seq fiBGColor 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -68,119 +65,122 @@ tb_create-job type-color type-seq tb_create-po type-est tb_inactive
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bResetColor 
+     LABEL "(Reset)" 
+     SIZE 10 BY .71
+     FONT 0.
+
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
-
-DEFINE VARIABLE item-dscr   AS CHARACTER FORMAT "X(32)":U 
-    LABEL "Description" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE type-color  AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Color" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE type-est    AS CHARACTER FORMAT "X(1)":U 
-    LABEL "Estimate Type" 
-    VIEW-AS FILL-IN 
-    SIZE 21.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE type-id     AS INTEGER   FORMAT ">>>>>9":U INITIAL 0 
-    LABEL "Type Id" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE type-seq    AS INTEGER   FORMAT ">9":U INITIAL 0 
-    LABEL "Sequence" 
-    VIEW-AS FILL-IN
-    SIZE 16 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE VARIABLE type-source AS CHARACTER FORMAT "X(10)":U 
-    LABEL "Order Type Source" 
-    VIEW-AS COMBO-BOX INNER-LINES 9
-          LIST-ITEM-PAIRS "Customer","Customer",
+     LABEL "Order Type Source" 
+     VIEW-AS COMBO-BOX INNER-LINES 9
+     LIST-ITEM-PAIRS "Customer","Customer",
                      "Estimate","Estimate",
                      "Quote","Quote",
-                     "Import","Import",
-                     "Repeat","Repeat",
-                     "Transfer","Transfer",
+                     "File","File",
+                     "Order","Order",
                      "Web","Web",
-                     "Rework","Rework",
                      "Future","Future"
-          DROP-DOWN-LIST 
-    SIZE 21.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     DROP-DOWN-LIST
+     SIZE 21.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE fiBGColor AS CHARACTER FORMAT "X(256)":U INITIAL "Color" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 8.8 BY .95 NO-UNDO.
+
+DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(32)":U 
+     LABEL "Description" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE type-color AS CHARACTER FORMAT "x(11)":U INITIAL 0 
+     LABEL "Color" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE type-est AS CHARACTER FORMAT "X(1)":U 
+     LABEL "Estimate Type" 
+     VIEW-AS FILL-IN 
+     SIZE 21.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE type-id AS INTEGER FORMAT ">>>>>9":U INITIAL 0 
+     LABEL "Type Id" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE type-seq AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Sequence" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE RECTANGLE rBgColor
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 9 BY 1.91
+     BGCOLOR 21 FGCOLOR 21 .
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 124.8 BY 8.62
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 124.8 BY 8.62
+     BGCOLOR 15 .
 
-DEFINE VARIABLE tb_create-job AS LOGICAL INITIAL NO 
-    LABEL "Create Job" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 22 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_create-po  AS LOGICAL INITIAL NO 
-    LABEL "Create Purchase Order" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 34.8 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_inactive   AS LOGICAL INITIAL NO 
-    LABEL "Inactive" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 22 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    Btn_OK AT ROW 10.57 COL 108
-    Btn_Done AT ROW 10.86 COL 109
-    Btn_Cancel AT ROW 10.57 COL 117
-    type-id AT ROW 2 COL 18.6 COLON-ALIGNED WIDGET-ID 208
-    item-dscr AT ROW 3.24 COL 18.6 COLON-ALIGNED WIDGET-ID 210
-    type-source AT ROW 3.24 COL 93.2 COLON-ALIGNED WIDGET-ID 328
-    type-color AT ROW 4.57 COL 18.6 COLON-ALIGNED WIDGET-ID 330
-    type-est AT ROW 4.57 COL 93.2 COLON-ALIGNED WIDGET-ID 336
-    type-seq AT ROW 5.95 COL 18.6 COLON-ALIGNED WIDGET-ID 332     
-    tb_inactive AT ROW 7.67 COL 20.8 WIDGET-ID 338
-    tb_create-job AT ROW 7.67 COL 46.4 WIDGET-ID 260
-    tb_create-po AT ROW 7.67 COL 77.2 WIDGET-ID 334
-    "Order Type" VIEW-AS TEXT
-    SIZE 14 BY .71 AT ROW 1 COL 5 WIDGET-ID 206
-    RECT-21 AT ROW 10.33 COL 107
-    RECT-38 AT ROW 1.43 COL 1.2
-    SPACE(0.99) SKIP(2.99)
+     Btn_OK AT ROW 10.57 COL 108
+     Btn_Done AT ROW 10.86 COL 109
+     Btn_Cancel AT ROW 10.57 COL 117
+     type-id AT ROW 2 COL 18.6 COLON-ALIGNED WIDGET-ID 208
+     tb_inactive AT ROW 2 COL 47.8 WIDGET-ID 338
+     item-dscr AT ROW 3.24 COL 18.6 COLON-ALIGNED WIDGET-ID 210
+     type-source AT ROW 3.24 COL 93.2 COLON-ALIGNED WIDGET-ID 328
+     type-color AT ROW 4.67 COL 44.8 COLON-ALIGNED WIDGET-ID 330
+     type-est AT ROW 4.57 COL 93.2 COLON-ALIGNED WIDGET-ID 336
+     type-seq AT ROW 4.57 COL 18.6 COLON-ALIGNED WIDGET-ID 332
+     fiBGColor AT ROW 6.1 COL 14.2 COLON-ALIGNED NO-LABEL WIDGET-ID 344
+     bResetColor AT ROW 8.24 COL 28.2 WIDGET-ID 342
+     "Order Type" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 1 COL 5 WIDGET-ID 206
+     RECT-21 AT ROW 10.33 COL 107
+     RECT-38 AT ROW 1.43 COL 1.2
+     rBgColor AT ROW 7.24 COL 16.6 WIDGET-ID 340
+     SPACE(101.39) SKIP(3.89)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Add/Update Order Type".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Add/Update Order Type".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -209,22 +209,27 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+/* SETTINGS FOR BUTTON bResetColor IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiBGColor IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiBGColor:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* SETTINGS FOR RECTANGLE rBgColor IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       tb_inactive:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
 
 ASSIGN 
-    tb_create-job:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
-
-ASSIGN 
-    tb_create-po:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
-
-ASSIGN 
-    tb_inactive:PRIVATE-DATA IN FRAME Dialog-Frame = "parm".
-
+       type-color:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
 /* SETTINGS FOR FILL-IN type-id IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -247,7 +252,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Add/Update Order Type */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle  AS HANDLE NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID  NO-UNDO .
@@ -267,7 +272,7 @@ ON HELP OF FRAME Dialog-Frame /* Add/Update Order Type */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Add/Update Order Type */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -279,21 +284,40 @@ ON RETURN OF FRAME Dialog-Frame /* Add/Update Order Type */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Order Type */
-    DO:
-            
+DO:
+        DELETE OBJECT  scInstance.     
         IF AVAILABLE orderType THEN
-            oprwRowid = ROWID(orderType) .
+            opiOrderTypeId = orderType.orderTypeID .
 
-        /* IF lv-item-rowid NE ? THEN 
-         DO:
-             FIND FIRST orderType EXCLUSIVE-LOCK
-                 WHERE ROWID(orderType) EQ lv-item-rowid  NO-ERROR.
-             IF AVAILABLE orderType THEN DELETE orderType .
-             oprwRowid = ? .
-         END. */
-        APPLY 'GO':U TO FRAME {&FRAME-NAME}.
+        APPLY 'GO':U TO FRAME {&FRAME-NAME}.   
+    
+    END.
 
-    /*APPLY "END-ERROR":U TO SELF.*/
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bResetColor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bResetColor Dialog-Frame
+ON CHOOSE OF bResetColor IN FRAME Dialog-Frame /* (Reset) */
+DO:
+        DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+        DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+        DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+        DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
+        DEFINE VARIABLE lSave AS LOG NO-UNDO. 
+            
+        ix = COLOR-TABLE:NUM-ENTRIES.
+        COLOR-TABLE:NUM-ENTRIES = ix + 1.
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix,119).
+        COLOR-TABLE:SET-GREEN-VALUE(ix,150).
+        COLOR-TABLE:SET-BLUE-VALUE(ix,203).
+
+        ASSIGN 
+            rBgColor:FGCOLOR = ix
+            rBgColor:BGCOLOR = ix
+            type-color:SCREEN-VALUE = "".
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,19 +327,10 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Order Type */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
-        
-    
+DO:
         IF AVAILABLE orderType THEN
-            oprwRowid = ROWID(orderType) .
-
-        /*IF lv-item-rowid NE ? THEN 
-        DO:
-            FIND FIRST orderType EXCLUSIVE-LOCK
-                WHERE ROWID(orderType) EQ lv-item-rowid  NO-ERROR.
-            IF AVAILABLE orderType THEN DELETE orderType .
-            oprwRowid = ? .
-        END.  */
+            opiOrderTypeId = orderType.orderTypeID . 
+        
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -326,7 +341,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
         
   &IF DEFINED (adm-panel) NE 0 &THEN
         RUN dispatch IN THIS-PROCEDURE ('exit').
@@ -342,60 +357,48 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE VARIABLE ld              AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE lValidateResult AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
-        DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE dCostStorage    AS DECIMAL   NO-UNDO .
-        DEFINE VARIABLE dCostHandling   AS DECIMAL   NO-UNDO .
-        DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
-
-        DEFINE BUFFER bf-orderType FOR orderType.
-        
+        DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.         
+        DEFINE VARIABLE iOrderTypeId    AS INTEGER   NO-UNDO.        
         IF ipcType EQ "view" THEN 
         DO: 
             APPLY "go" TO FRAME {&FRAME-NAME}.
             RETURN.
-        END.
-        
-        /*RUN valid-part-no(OUTPUT lValidateResult) NO-ERROR.
-        IF lValidateResult THEN RETURN NO-APPLY.
-                
-         */        
+        END.              
        
         DO TRANSACTION:           
 
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&displayed-objects}.
             END.            
-        END.
-        
+        END.                  
+               
         IF ipcType EQ "Add" OR ipcType EQ "copy" THEN
         DO:
-            CREATE bf-orderType.
-            ASSIGN
-                bf-orderType.company = cocode
-                .
+            scInstance:Update(INPUT 0,
+                              INPUT item-dscr,
+                              INPUT type-source,                               
+                              INPUT type-seq,
+                              INPUT tb_inactive,                              
+                              INPUT type-est,
+                              OUTPUT iOrderTypeId).  
         END.
+        ELSE DO:  
+            scInstance:Update(INPUT OrderType.orderTypeID,
+                              INPUT item-dscr,
+                              INPUT type-source,                               
+                              INPUT type-seq,
+                              INPUT tb_inactive,                                
+                              INPUT type-est,
+                              OUTPUT iOrderTypeId). 
+        END.       
         
-        IF ipcType EQ "Update" THEN
-            FIND FIRST bf-orderType EXCLUSIVE-LOCK
-                WHERE ROWID(bf-orderType) EQ iprwRowid NO-ERROR .        
-           
-        ASSIGN
-            bf-orderType.orderTypeDescription = item-dscr
-            bf-orderType.orderTypeSource      = type-source             
-            bf-orderType.orderTypeColor       = type-color             
-            bf-orderType.numberSequence       = type-seq
-            bf-orderType.inactive             = tb_inactive
-            bf-orderType.createJob            = tb_create-job
-            bf-orderType.createPurchaseOrder  = tb_create-po            
-            bf-orderType.estimateType         = type-est                       
-            .             
-        oprwRowid = ROWID(bf-orderType).
-        FIND CURRENT bf-orderType NO-LOCK NO-ERROR. 
         
+        opiOrderTypeId = iOrderTypeId.
+                
         APPLY "go" TO FRAME {&FRAME-NAME}.
     
     END.
@@ -404,12 +407,41 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rBgColor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor Dialog-Frame
+ON MOUSE-SELECT-DBLCLICK OF rBgColor IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lSave AS LOG NO-UNDO.  
+   
+          
+    ix = COLOR-TABLE:NUM-ENTRIES.
+    COLOR-TABLE:NUM-ENTRIES = ix + 1.
+    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+     
+    SYSTEM-DIALOG COLOR ix UPDATE lSave. 
+                   
+    IF lSave THEN DO:
+        ASSIGN 
+            rBgColor:FGCOLOR = ix
+            rBgColor:BGCOLOR = ix
+            type-color:SCREEN-VALUE = STRING(COLOR-TABLE:get-red-value(ix)) + "," +
+                               STRING(COLOR-TABLE:get-green-value(ix)) + "," +
+                               STRING(COLOR-TABLE:get-blue-value(ix)).
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME type-color
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-color Dialog-Frame
 ON LEAVE OF type-color IN FRAME Dialog-Frame /* Color */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -424,7 +456,7 @@ ON LEAVE OF type-color IN FRAME Dialog-Frame /* Color */
 &Scoped-define SELF-NAME type-est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-est Dialog-Frame
 ON LEAVE OF type-est IN FRAME Dialog-Frame /* Estimate Type */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -440,7 +472,7 @@ ON LEAVE OF type-est IN FRAME Dialog-Frame /* Estimate Type */
 &Scoped-define SELF-NAME type-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-id Dialog-Frame
 ON LEAVE OF type-id IN FRAME Dialog-Frame /* Type Id */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -455,7 +487,7 @@ ON LEAVE OF type-id IN FRAME Dialog-Frame /* Type Id */
 &Scoped-define SELF-NAME type-seq
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-seq Dialog-Frame
 ON LEAVE OF type-seq IN FRAME Dialog-Frame /* Sequence */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -470,7 +502,7 @@ ON LEAVE OF type-seq IN FRAME Dialog-Frame /* Sequence */
 &Scoped-define SELF-NAME type-source
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-source Dialog-Frame
 ON VALUE-CHANGED OF type-source IN FRAME Dialog-Frame /* Order Type Source */
-    DO:          
+DO:          
         RUN pSetField.                
     END.
 
@@ -500,10 +532,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
     FIND FIRST orderType NO-LOCK
-        WHERE ROWID(orderType) EQ iprwRowid NO-ERROR .
+        WHERE rowid(orderType) EQ iprwRowId NO-ERROR .
     
-    IF ipcType EQ "copy" THEN lv-item-rowid = iprwRowid.     
-
     IF ipcType NE "view" THEN 
     DO: 
         
@@ -537,16 +567,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -554,41 +584,76 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                           Purpose:     
                           PARAMs:  <none>
                           Notes:       
          ------------------------------------------------------------------------------*/   
+    DEFINE VARIABLE red   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
+    DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
+
+    ix = COLOR-TABLE:NUM-ENTRIES.
+    COLOR-TABLE:NUM-ENTRIES = ix + 1.
+
+    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+    COLOR-TABLE:SET-RED-VALUE(ix, red).
+    COLOR-TABLE:SET-GREEN-VALUE(ix, green).
+    COLOR-TABLE:SET-BLUE-VALUE(ix, blue).
     
     FIND FIRST orderType NO-LOCK
-        WHERE ROWID(orderType) EQ iprwRowid NO-ERROR. 
+        WHERE rowid(orderType) EQ iprwRowId NO-ERROR. 
     IF AVAILABLE orderType THEN 
         ASSIGN
             type-id       = orderType.orderTypeID
             item-dscr     = orderType.orderTypeDescription
             type-source   = orderType.orderTypeSource
-            type-color    = orderType.orderTypeColor
+            type-color    = string(orderType.orderTypeColor)
             type-seq      = orderType.numberSequence
             type-est      = orderType.estimateType  
             tb_inactive   = orderType.inactive
-            tb_create-job = orderType.createJob 
-            tb_create-po  = orderType.createPurchaseOrder .    
+            .    
       
-    IF ipcType EQ "Copy" THEN
-        type-id = 0 .
+    IF ipcType EQ "Copy" OR ipcType EQ "Add" THEN
+       ASSIGN
+           type-id = 0
+           type-seq = 1
+           .
     
     DISPLAY   
-        type-id item-dscr type-source tb_create-job type-color type-seq 
-        tb_create-po type-est tb_inactive
+        type-id item-dscr type-source type-color type-seq 
+        type-est tb_inactive
         WITH FRAME Dialog-Frame.       
                                             
     IF ipcType NE "view" THEN 
     DO:
         ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
+        ASSIGN 
+            rBgColor:SENSITIVE IN FRAME {&frame-name} = TRUE
+            bResetColor:SENSITIVE IN FRAME {&frame-name} = TRUE.
     END.
 
+    type-color:HIDDEN IN FRAME {&frame-name} = TRUE.
     VIEW FRAME {&FRAME-NAME}. 
-    APPLY "entry" TO FRAME {&FRAME-NAME}.
+    
+    IF type-color NE "" THEN DO:
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,type-color))) NO-ERROR.
+        COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,type-color))) NO-ERROR.
+        COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,type-color))) NO-ERROR.
+    END.
+    ELSE DO:
+        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
+        COLOR-TABLE:SET-RED-VALUE(ix, 119).
+        COLOR-TABLE:SET-GREEN-VALUE(ix, 150).
+        COLOR-TABLE:SET-BLUE-VALUE(ix, 203).
+    END.
+    ASSIGN 
+        rBgColor:FGCOLOR = ix
+        rBgColor:BGCOLOR = ix.
+        
+    APPLY "entry" TO item-dscr IN FRAME {&FRAME-NAME}.
    
 
 END PROCEDURE.
@@ -596,6 +661,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY type-id tb_inactive item-dscr type-source type-color type-est type-seq 
+          fiBGColor 
+      WITH FRAME Dialog-Frame.
+  ENABLE Btn_OK Btn_Done Btn_Cancel tb_inactive item-dscr type-source 
+         type-color type-est type-seq RECT-21 RECT-38 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
+PROCEDURE local-exit :
+/*------------------------------------------------------------------------------
+                 Purpose:
+                 Notes:
+                ------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+    
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetField Dialog-Frame 
 PROCEDURE pSetField :
@@ -620,52 +730,5 @@ PROCEDURE pSetField :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
-PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY type-id item-dscr type-source tb_create-job type-color type-seq 
-        tb_create-po type-est tb_inactive 
-        WITH FRAME Dialog-Frame.
-    ENABLE Btn_OK Btn_Done Btn_Cancel item-dscr RECT-21 RECT-38 type-source 
-        tb_create-job tb_create-po type-est tb_inactive type-color type-seq
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
-PROCEDURE local-exit :
-    /*------------------------------------------------------------------------------
-                 Purpose:
-                 Notes:
-                ------------------------------------------------------------------------------*/
-
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-    
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
