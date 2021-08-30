@@ -1155,7 +1155,7 @@ DO:
                
                IF lChoice THEN
                DO:
-                  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                END.
            END.
        END. /* WHEN 3 THEN DO: */

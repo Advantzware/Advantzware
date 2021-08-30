@@ -611,7 +611,7 @@ DO:
                  
                   IF lChoice THEN
                   DO:
-                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
               END.
            END. /* WHEN 3 THEN DO: */
@@ -1844,7 +1844,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

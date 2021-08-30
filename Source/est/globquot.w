@@ -1187,7 +1187,7 @@ for each quotehd
 end.
 
 OUTPUT STREAM excel CLOSE.
-OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 
  message "Are you sure you want to commit these changes"
      view-as alert-box question button yes-no update v-process.

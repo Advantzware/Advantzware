@@ -772,7 +772,7 @@ DO:
                  
                   IF lChoice THEN
                   DO:
-                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+                     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
                   END.
               END.
            END. /* WHEN 3 THEN DO: */
@@ -1869,13 +1869,13 @@ DISPLAY "" WITH FRAME r-top.
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel2 CLOSE.
   IF tb_OpenCSV THEN
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
 END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   /*IF tb_OpenCSV THEN*/
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
