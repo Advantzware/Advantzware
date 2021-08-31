@@ -332,7 +332,7 @@ PROCEDURE pBuildLoadTagsFromRelease PRIVATE:
                                               ELSE
                                                   "Created"
                 bf-ttLoadTag.recordSource   = "RELEASE"
-                bf-ttLoadTag.exportFileType = "ReleaseTag"
+                bf-ttLoadTag.exportFileType = "loadtag"
                 bf-ttLoadTag.exportFile     = gcBOLLoadTagOutputPath + gcBOLLoadTagOutputFile
                 .
     
@@ -1599,7 +1599,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"'  ipbf-ttLoadTag.boxDep FORMAT ">>>9.99<<<" '",'
         '"'  ipbf-ttLoadTag.flute  '",'
         '"'  ipbf-ttLoadTag.test  '",'
-        '"'  ipbf-ttLoadTag.vendor  '",'
+        '"'  ipbf-ttLoadTag.vendorName  '",'
              ipbf-ttLoadTag.grossWeight  ","
              ipbf-ttLoadTag.tareWeight  ","
              ipbf-ttLoadTag.netWeight  ","
@@ -1964,7 +1964,7 @@ PROCEDURE pCreateTTLoadTagFromItem:
             bf-ttLoadTag.boxWid          = bf-itemfg.w-score[50]
             bf-ttLoadTag.boxDep          = bf-itemfg.d-score[50]
             bf-ttLoadTag.style           = bf-itemfg.style
-            bf-ttLoadTag.vendor          = bf-company.name
+            bf-ttLoadTag.vendorName      = bf-company.name
             bf-ttLoadTag.zoneID          = bf-itemfg.spare-char-4
             bf-ttLoadTag.sheetWeight     = bf-itemfg.weight-100 / 100
             bf-ttLoadTag.subUnitsPerUnit = bf-itemfg.case-pall
@@ -2208,7 +2208,7 @@ PROCEDURE pUpdateTTLoadTagEstimateDetails:
                AND bf-est.est-no  EQ ipcEstimateID
              NO-ERROR.
 
-        IF AVAILABLE bf-est THEN
+        IF AVAILABLE bf-est THEN DO:
             FIND FIRST bf-eb NO-LOCK
                  WHERE bf-eb.company   EQ bf-est.company
                    AND bf-eb.est-no    EQ bf-est.est-no
@@ -2216,13 +2216,14 @@ PROCEDURE pUpdateTTLoadTagEstimateDetails:
                    AND (bf-eb.blank-no EQ bf-ttLoadTag.blankNo OR bf-ttLoadTag.blankNo EQ 0)
                  NO-ERROR.
 
-/*              Need to configure if the estimate information is for a PO       */
-/*              FIND FIRST bf-eb NO-LOCK                                        */
-/*                   WHERE bf-eb.company  EQ bf-ttLoadTag.company               */
-/*                     AND bf-eb.est-no   EQ bf-ttLoadTag.estID                 */
-/*                     AND bf-eb.stock-no EQ bf-ttLoadTag.itemID                */
-/*                   NO-ERROR.                                                  */
-
+            IF bf-ttLoadTag.recordSource EQ "PO" THEN
+                FIND FIRST bf-eb NO-LOCK
+                     WHERE bf-eb.company  EQ bf-ttLoadTag.company
+                       AND bf-eb.est-no   EQ bf-ttLoadTag.estID
+                       AND bf-eb.stock-no EQ bf-ttLoadTag.itemID
+                     NO-ERROR.
+        END.
+        
         IF AVAILABLE bf-eb THEN
             ASSIGN
                 bf-ttLoadTag.flute      = bf-eb.flute
@@ -2470,6 +2471,38 @@ PROCEDURE BuildLoadTagsFromJob:
         ).
 END PROCEDURE.
 
+PROCEDURE BuildLoadTagsFromPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/  
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    RUN pBuildLoadTagsFromPO (
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,
+        INPUT  ipcQuantityUOM,
+        INPUT  ipiCopies,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+END PROCEDURE.
+
 PROCEDURE pBuildLoadTagsFromPO PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2480,7 +2513,8 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
     DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
@@ -2491,17 +2525,33 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
     DEFINE VARIABLE cNote              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSetsCreated       AS LOGICAL   NO-UNDO.
     
+    DEFINE BUFFER bf-po-ord    FOR po-ord.
     DEFINE BUFFER bf-po-ordl   FOR po-ordl.
     DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
     DEFINE BUFFER bf-notes     FOR notes.
+    DEFINE BUFFER bf-vend      FOR vend.
+    DEFINE BUFFER bf-itemfg    FOR itemfg.
     
     MAIN-BLOCK:
     DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:                
+        FIND FIRST bf-po-ord NO-LOCK
+             WHERE bf-po-ord.company EQ ipcCompany
+               AND bf-po-ord.po-no   EQ ipiPOID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-po-ord THEN DO:
+            ASSIGN
+                oplError = TRUE 
+                opcMessage = "Invalid PO # '" + STRING(ipiPOID) + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+                    
         FIND FIRST bf-po-ordl NO-LOCK
-             WHERE bf-po-ordl.company EQ ipcCompany
-               AND bf-po-ordl.po-no   EQ ipiPOID
-               AND bf-po-ordl.line    EQ ipiPOLine
+             WHERE bf-po-ordl.company   EQ ipcCompany
+               AND bf-po-ordl.po-no     EQ ipiPOID
+               AND bf-po-ordl.line      EQ ipiPOLine
+               AND bf-po-ordl.item-type EQ FALSE
              NO-ERROR.
         IF NOT AVAILABLE bf-po-ordl THEN DO:
             ASSIGN
@@ -2511,6 +2561,18 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
         END.
 
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ bf-po-ordl.company
+               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
+             NO-ERROR.
+        IF NOT AVAILABLE bf-itemfg THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid item # '" + bf-po-ordl.i-no + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
         RUN pCreateTTLoadTagFromItem (
             INPUT  bf-po-ordl.company,
             INPUT  bf-po-ordl.i-no,
@@ -2534,26 +2596,17 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
                    
         ASSIGN
             bf-ttLoadTag.poID           = bf-po-ordl.po-no
+            bf-ttLoadTag.poLine         = bf-po-ordl.line
             bf-ttLoadTag.orderID        = bf-po-ordl.ord-no
-/*            bf-ttLoadTag.jobID          = bf-po-ordl.job-no */
-/*            bf-ttLoadTag.jobID2         = bf-po-ordl.job-no2*/
             bf-ttLoadTag.itemID         = bf-po-ordl.i-no
             bf-ttLoadTag.overPct        = 0
-            bf-ttLoadTag.quantityTotal  = ipiQuantity
-            bf-ttLoadTag.ordQuantity    = ipiQuantity
+            bf-ttLoadTag.ordQuantity    = bf-po-ordl.ord-qty
             bf-ttLoadTag.dueDate        = bf-po-ordl.due-date
-/*            bf-ttLoadTag.estID          = bf-job.est-no      */
-/*            bf-ttLoadTag.formNo         = bf-job-hdr.frm     */
-/*            bf-ttLoadTag.blankNo        = bf-job-hdr.blank-no*/
-/*            bf-ttLoadTag.custPONo       = bf-job-hdr.po-no   */
             bf-ttLoadTag.netWeight      = bf-ttLoadTag.sheetWeight * bf-ttLoadTag.quantity
             bf-ttLoadTag.tareWeight     = 10
             bf-ttLoadTag.grossWeight    = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
             bf-ttLoadTag.uom            = "EA"
             bf-ttLoadTag.printCopies    = ipiCopies
-/*            bf-ttLoadTag.dueDateJob     = IF bf-job.due-date <> ? THEN STRING(bf-job.due-date, "99/99/9999") ELSE ""        */
-/*            bf-ttLoadTag.dueDateJobHdr  = IF bf-job-hdr.due-date <> ? THEN STRING(bf-job-hdr.due-date, "99/99/9999") ELSE ""*/
-/*            bf-ttLoadTag.jobQuantity    = bf-job-hdr.qty*/
             bf-ttLoadTag.ipReturn       = NO
             bf-ttLoadTag.tagStatus      = "Pending"
             bf-ttLoadTag.recordSource   = "PO"
@@ -2561,7 +2614,44 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
             bf-ttLoadTag.exportFileType = "loadtag"
             bf-ttLoadTag.exportFile     = gcLoadTagOutputPath + gcLoadTagOutputFile
             .
+
+        IF bf-po-ordl.pr-qty-uom NE "EA" THEN
+            RUN Conv_QuantityFromUOMToUOM (
+                INPUT  bf-po-ordl.company,
+                INPUT  bf-po-ordl.i-no,
+                INPUT  "FG",
+                INPUT  bf-ttLoadTag.ordQuantity,
+                INPUT  po-ordl.pr-qty-uom, 
+                INPUT  "EA",
+                INPUT  10 * itemfg.weight-100 / itemfg.t-sqft,
+                INPUT  bf-itemfg.t-len,
+                INPUT  bf-itemfg.t-wid,
+                INPUT  bf-itemfg.t-dep,
+                INPUT  0,
+                OUTPUT bf-ttLoadTag.ordQuantity,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+
+        bf-ttLoadTag.quantityTotal  = bf-ttLoadTag.ordQuantity.
         
+        FIND FIRST bf-vend NO-LOCK 
+             WHERE bf-vend.company EQ ipcCompany
+               AND bf-vend.vend-no EQ bf-po-ord.vend-no
+             NO-ERROR.
+        IF AVAILABLE bf-vend THEN
+            ASSIGN
+                bf-ttLoadTag.vendorID   = bf-vend.vend-no
+                bf-ttLoadTag.vendorName = bf-vend.name
+                .
+
+        RUN pUpdateTTLoadTagOrderDetails (
+            INPUT bf-po-ordl.company,
+            INPUT bf-po-ordl.ord-no,
+            INPUT bf-po-ordl.i-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+                    
         IF bf-po-ordl.ord-no NE 0 THEN DO:
             iCount = 9.
             FOR EACH bf-notes NO-LOCK
@@ -2603,15 +2693,16 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
         RUN pUpdateTTLoadTagShipToDetails (
             INPUT bf-po-ordl.company,
             INPUT bf-po-ordl.cust-no,
-            INPUT bf-po-ordl.cust-no,
+            INPUT bf-po-ord.ship-id,
             INPUT bf-ttLoadTag.recordID
             ).
  
-/*        RUN pUpdateTTLoadTagEstimateDetails (*/
-/*            INPUT bf-job.company,            */
-/*            INPUT bf-job.est-no,             */
-/*            INPUT bf-ttLoadTag.recordID      */
-/*            ).                               */
+        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE '' THEN
+            RUN pUpdateTTLoadTagEstimateDetails (
+                INPUT bf-itemfg.company,
+                INPUT bf-itemfg.est-no,
+                INPUT bf-ttLoadTag.recordID
+                ).
 
         RUN pUpdateTTLoadTagQuantites (
             INPUT ipiQuantity,
@@ -2619,7 +2710,7 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
             INPUT ipiSubUnitsPerUnit,
             INPUT bf-ttLoadTag.recordID
             ).
-                         
+                                     
         IF bf-ttLoadTag.partial EQ ? THEN 
             bf-ttLoadTag.partial = 0. 
         

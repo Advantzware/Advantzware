@@ -34,7 +34,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAutoScanNextTag AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTagTypeScan     AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -167,12 +170,22 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON LEAVE OF fiTag IN FRAME F-Main /* Tag */
 DO:
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
-        RETURN. 
-        
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN DO:
+        IF lAutoScanNextTag AND LASTKEY NE -1 THEN
+            RETURN NO-APPLY.
+        ELSE
+            RETURN. 
+    END.
+    
     RUN pScanTag (
         INPUT SELF:SCREEN-VALUE
-        ).
+        ) NO-ERROR.
+            
+    IF lAutoScanNextTag OR ERROR-STATUS:ERROR THEN DO:
+        SELF:SCREEN-VALUE = "".
+
+        RETURN NO-APPLY.   
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,6 +239,18 @@ PROCEDURE EmptyTag :
     
     fiTag:SCREEN-VALUE = "".
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAutoScanNextTag s-object 
+PROCEDURE EnableAutoScanNextTag :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lAutoScanNextTag = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,7 +334,7 @@ PROCEDURE pScanTag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lValidTag AS LOGICAL   NO-UNDO.
     
@@ -322,9 +347,23 @@ PROCEDURE pScanTag :
     IF NOT lValidTag THEN DO:
         MESSAGE "Invalid Tag '" + ipcTag + "'"
             VIEW-AS ALERT-BOX ERROR.
-        RETURN.    
+        
+        RETURN ERROR.    
     END.
-    
+            
+    IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ TRUE AND cTagTypeScan EQ "FG" THEN DO:
+        MESSAGE "Only finished good item tags are allowed" 
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN ERROR.
+    END.
+    ELSE IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ FALSE AND cTagTypeScan EQ "RM" THEN DO:
+        MESSAGE "Only raw material item tags are allowed" 
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN ERROR.
+    END.
+
     RUN new-state (
         INPUT "tag-valid"
         ).        
@@ -343,6 +382,22 @@ PROCEDURE ScanNextTag :
     END.
     
     APPLY "ENTRY" TO fiTag.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetTagType s-object 
+PROCEDURE SetTagType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTagType AS CHARACTER NO-UNDO.
+
+    IF ipcTagType EQ "FG" OR ipcTagType EQ "RM" OR ipcTagType EQ "" THEN
+        cTagTypeScan = ipcTagType.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

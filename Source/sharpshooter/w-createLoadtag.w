@@ -37,7 +37,13 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 {api/inbound/ttItem.i}
-
+DEFINE TEMP-TABLE ttPOLine NO-UNDO
+    LIKE po-ordl
+    FIELD   quantity            AS INTEGER     
+    FIELD   quantityInSubUnit   AS INTEGER
+    FIELD   subUnitsPerUnit     AS INTEGER
+    .
+    
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -80,7 +86,7 @@ oCustomer = NEW Inventory.Customer().
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btJob btPO btRelease btReturn btDelete ~
-btReprint btPrint btSplit RECT-1 RECT-34 rHighlight btBOL 
+btReprint btPrint btSplit btBOL RECT-1 RECT-34 rHighlight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -99,8 +105,10 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-loadtags-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-boltag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-poprint AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-releasetag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-reprint AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-return AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-splittag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
@@ -196,7 +204,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 2
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -209,10 +217,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Create LoadTag"
          HEIGHT             = 32.95
          WIDTH              = 208
-         MAX-HEIGHT         = 32.95
-         MAX-WIDTH          = 208
-         VIRTUAL-HEIGHT     = 32.95
-         VIRTUAL-WIDTH      = 208
+         MAX-HEIGHT         = 47.38
+         MAX-WIDTH          = 384
+         VIRTUAL-HEIGHT     = 47.38
+         VIRTUAL-WIDTH      = 384
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -470,28 +478,12 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
+             INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_fgfilter ).
-       RUN set-position IN h_fgfilter ( 6.91 , 5.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.76 , 85.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_jobfilter ).
-       RUN set-position IN h_jobfilter ( 2.95 , 5.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.52 , 76.40 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/userfields.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_userfields ).
-       RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
-       /* Size in UIB:  ( 9.19 , 68.00 ) */
+             OUTPUT h_qtyunits ).
+       RUN set-position IN h_qtyunits ( 10.95 , 5.00 ) NO-ERROR.
+       /* Size in UIB:  ( 9.29 , 131.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
@@ -502,32 +494,59 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.19 , 46.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
+             INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_qtyunits ).
-       RUN set-position IN h_qtyunits ( 10.95 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 9.29 , 131.40 ) */
+             OUTPUT h_jobfilter ).
+       RUN set-position IN h_jobfilter ( 2.95 , 5.20 ) NO-ERROR.
+       /* Size in UIB:  ( 3.52 , 76.40 ) */
 
-       /* Links to SmartObject h_fgfilter. */
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_fgfilter ).
+       RUN set-position IN h_fgfilter ( 6.91 , 5.20 ) NO-ERROR.
+       /* Size in UIB:  ( 3.76 , 85.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/userfields.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_userfields ).
+       RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
+       /* Size in UIB:  ( 9.19 , 68.00 ) */
+
+       /* Links to SmartObject h_printcopies. */
+       RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_fgfilter. */
+       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
+
        /* Links to SmartObject h_userfields. */
        RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_printcopies. */
-       RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
-
-       /* Links to SmartObject h_qtyunits. */
-       RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
-
     END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-poprint.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-poprint ).
+       RUN set-position IN h_f-poprint ( 3.14 , 20.40 ) NO-ERROR.
+       /* Size in UIB:  ( 19.52 , 151.60 ) */
+
+       /* Links to SmartFrame h_f-poprint. */
+       RUN add-link IN adm-broker-hdl ( h_f-poprint , 'PO':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-poprint , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-releasetag.w':U ,
@@ -542,6 +561,20 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_f-releasetag , 'State':U , THIS-PROCEDURE ).
 
     END. /* Page 3 */
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-return.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-return ).
+       RUN set-position IN h_f-return ( 3.14 , 56.00 ) NO-ERROR.
+       /* Size in UIB:  ( 7.05 , 83.80 ) */
+
+       /* Links to SmartFrame h_f-return. */
+       RUN add-link IN adm-broker-hdl ( h_f-return , 'RETURN':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-return , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 4 */
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-reprint.w':U ,
@@ -648,8 +681,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btJob btPO btRelease btReturn btDelete btReprint btPrint btSplit 
-         RECT-1 RECT-34 rHighlight btBOL 
+  ENABLE btJob btPO btRelease btReturn btDelete btReprint btPrint btSplit btBOL 
+         RECT-1 RECT-34 rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -829,6 +862,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPOTagPrint W-Win 
+PROCEDURE pPOTagPrint PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPOID              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLine            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantity          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM       AS CHARACTER NO-UNDO.
+    
+    {methods/run_link.i "PO-SOURCE" "GetPOLineTT" "(OUTPUT TABLE ttPOLine)"}
+    
+    FOR EACH ttPOLine:
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromPO" "(INPUT ttPOLine.company, INPUT ttPOLine.po-no, INPUT ttPOLine.line, INPUT ttPOLine.quantity, INPUT ttPOLine.quantityInSubUnit, INPUT ttPOLine.subUnitsPerUnit, INPUT ttPOLine.pr-qty-uom, INPUT 1)"}
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseTagPrint W-Win 
 PROCEDURE pReleaseTagPrint :
 /*------------------------------------------------------------------------------
@@ -875,6 +931,55 @@ PROCEDURE pReprintTag :
             .
 
         {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}         
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReturnTag W-Win 
+PROCEDURE pReturnTag :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dReturnQuantity  AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lError           AS LOG.
+    DEFINE VARIABLE cMessage         AS CHARACTER.
+    DEFINE VARIABLE cTag             AS CHARACTER.
+    
+    {methods/run_link.i "RETURN-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}   
+
+    IF VALID-OBJECT(oLoadTag) THEN 
+    DO:        
+        {methods/run_link.i "RETURN-SOURCE" "GetQuantity" "(OUTPUT dReturnQuantity)"}   
+    
+        ASSIGN
+            cCompany = oLoadtag:GetValue("Company")
+            cTag     = oLoadtag:GetValue("Tag")
+            .   
+
+        RUN inventory/inventoryprocs.p PERSISTENT SET hdInventoryProcs.
+    
+        RUN Inventory_CreateReturnFromTag IN hdInventoryProcs(
+            INPUT  cCompany,
+            INPUT  cTag,
+            INPUT  dReturnQuantity,
+            INPUT  TRUE,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+
+        DELETE PROCEDURE hdInventoryProcs.
+
+        IF lError THEN
+            MESSAGE cMessage
+                VIEW-AS ALERT-BOX ERROR.
+        ELSE
+            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
     END.
 END PROCEDURE.
 
@@ -1147,6 +1252,12 @@ PROCEDURE state-changed :
         END.
         WHEN "release-tag-print" THEN DO:
             RUN pReleaseTagPrint.
+        END.
+        WHEN "create-tag-po" THEN DO:
+            RUN pPOTagPrint.
+        END.
+        WHEN "return-tag" THEN DO:
+            RUN pReturnTag.
         END.
     END CASE.  
 END PROCEDURE.

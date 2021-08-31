@@ -10,7 +10,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/smartobj/f-reprint.w
+  File: sharpshooter/smartobj/f-return.w
 
   Description: from cntnrfrm.w - ADM SmartFrame Template
 
@@ -34,6 +34,8 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
 
 /* Parameters Definitions ---                                           */
 
@@ -57,8 +59,11 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 &Scoped-define ADM-CONTAINER FRAME
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
+
+/* Standard List Definitions                                            */
+&Scoped-Define DISPLAYED-OBJECTS fiQuantity 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -74,14 +79,27 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_tagfilter AS HANDLE NO-UNDO.
 
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON btReturn 
+     LABEL "Return" 
+     SIZE 21 BY 1.91.
+
+DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     LABEL "Quantiy" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1.38 NO-UNDO.
+
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiQuantity AT ROW 3.86 COL 28.2 COLON-ALIGNED WIDGET-ID 2
+     btReturn AT ROW 5.76 COL 32 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.6 BY 6.48
-         BGCOLOR 15  WIDGET-ID 100.
+         SIZE 83.8 BY 7.05
+         BGCOLOR 15 FONT 17 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -108,8 +126,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 6.48
-         WIDTH              = 81.6.
+         HEIGHT             = 7
+         WIDTH              = 83.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -131,7 +149,11 @@ END.
 /* SETTINGS FOR WINDOW F-Frame-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
+/* SETTINGS FOR BUTTON btReturn IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiQuantity IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -147,6 +169,32 @@ END.
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btReturn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReturn F-Frame-Win
+ON CHOOSE OF btReturn IN FRAME F-Main /* Return */
+DO:
+    RUN new-state("return-tag").  
+
+    ASSIGN
+        btReturn:SENSITIVE      = FALSE
+        fiQuantity:SCREEN-VALUE = "0"
+        fiQuantity:SENSITIVE    = FALSE
+        .
+        
+    {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+
+    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK F-Frame-Win 
 
@@ -185,7 +233,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 1.05 , 2.60 ) NO-ERROR.
+       RUN set-position IN h_tagfilter ( 1.05 , 1.60 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 79.00 ) */
 
        /* Links to SmartObject h_tagfilter. */
@@ -193,6 +241,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'TAG':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
+             fiQuantity:HANDLE IN FRAME F-Main , 'BEFORE':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -253,7 +303,24 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
+  DISPLAY fiQuantity 
+      WITH FRAME F-Main.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetQuantity F-Frame-Win 
+PROCEDURE GetQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL NO-UNDO.
+    
+    opdQuantity = DECIMAL(fiQuantity:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,33 +329,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag F-Frame-Win 
 PROCEDURE GetTag :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opoLoadtag AS Inventory.Loadtag NO-UNDO.
     
     {methods/run_link.i "TAG-SOURCE" "GetTag" "(OUTPUT opoLoadtag)"}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
-PROCEDURE local-enable :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-
-     /* Code placed here will execute AFTER standard behavior.    */
-    {methods/run_link.i "TAG-SOURCE" "EnableAutoScanNextTag"}
-
-    {methods/run_link.i "TAG-SOURCE" "SetTagType" "(INPUT 'FG')"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,13 +366,17 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     CASE p-state:
         WHEN "tag-valid" THEN DO:
-            RUN new-state ("create-tag-reprint").    
-
-            {methods/run_link.i "TAG-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}
-        END.
+            ASSIGN
+                btReturn:SENSITIVE   = TRUE
+                fiQuantity:SENSITIVE = TRUE
+                .
+        END.        
     END CASE.
 END PROCEDURE.
 
