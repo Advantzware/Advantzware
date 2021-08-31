@@ -2081,6 +2081,8 @@ PROCEDURE local-cancel-record:
     ELSE RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
     ASSIGN 
+        adm-brs-in-update = FALSE 
+        adm-new-record = FALSE 
         v-new-mode = FALSE.
 END PROCEDURE.
 	
@@ -2106,21 +2108,26 @@ PROCEDURE local-create-record :
 /*  FIND LAST rm-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.                                  */
 /*  IF AVAIL rm-rcpth AND rm-rcpth.r-no GT li-nxt-r-no THEN li-nxt-r-no = rm-rcpth.r-no. */
 /*                                                                                       */
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
+
   RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT li-nxt-r-no) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
        VIEW-AS ALERT-BOX INFO BUTTONS OK.
   
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
-   v-new-mode    = YES
-   rm-rctd.company   = cocode
-   rm-rctd.r-no      = li-nxt-r-no
-   rm-rctd.rita-code = "R".
-  
+       v-new-mode    = YES
+       rm-rctd.company   = cocode
+       rm-rctd.r-no      = li-nxt-r-no
+       rm-rctd.rita-code = "R"
+       rm-rctd.s-num     = 0
+       rm-rctd.rct-date  = TODAY
+       rm-rctd.user-id  = USERID("asi")
+       rm-rctd.upd-date = TODAY
+       rm-rctd.upd-time = TIME.  
+ 
   IF adm-adding-record THEN DO:
     ASSIGN
      rm-rctd.s-num = 0
