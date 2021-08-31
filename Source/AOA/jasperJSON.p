@@ -18,6 +18,7 @@ DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecipient    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hMailProcs    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumResults   AS INTEGER   NO-UNDO.
@@ -29,6 +30,7 @@ DEFINE STREAM sJasperJSON.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
+RUN system/MailProcs.p PERSISTENT SET hMailProcs.
 
 FIND FIRST dynParamValue NO-LOCK
      WHERE ROWID(dynParamValue) EQ iprRowID
@@ -180,6 +182,7 @@ ASSIGN
     .
 iphQuery:QUERY-CLOSE().
 DELETE PROCEDURE hDynCalcField.
+DELETE PROCEDURE hMailProcs.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -192,17 +195,59 @@ PROCEDURE pFormEmail:
     DEFINE INPUT  PARAMETER ipcBufferValue AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRecipient   AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ipcCode  AS CHARACTER NO-UNDO.
 
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     CASE ipcFormType:
-        WHEN "Acknowledgement" THEN .
-        WHEN "BOL" THEN .
-        WHEN "Invoice" THEN .
-        WHEN "PO" THEN .
-        WHEN "Quote" THEN .
+        WHEN "Customer" THEN
+        RUN pCustomer IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            ipcCode,
+            OUTPUT opcRecipient
+            ).
+        WHEN "Loc" THEN   
+        RUN pLoc IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            OUTPUT opcRecipient
+            ).
+        WHEN "SalesRep" THEN
+        RUN pSalesRep IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            ipcCode,
+            OUTPUT opcRecipient
+            ).
+        WHEN "ShipTo" THEN
+        RUN pShipTo IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            ipcCode,
+            OUTPUT opcRecipient
+            ).
+        WHEN "SoldTo" THEN  
+        RUN pSoldTo IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            ipcCode,
+            OUTPUT opcRecipient
+            ).
+        WHEN "Vendor" THEN
+        RUN pVendor IN hMailProcs (
+            ipcFormType,
+            cCompany,
+            ipcBufferValue,
+            ipcCode,
+            OUTPUT opcRecipient
+            ).
     END CASE.
-    opcRecipient = "ron.stark@advantzware.com".
 
 END PROCEDURE.
 

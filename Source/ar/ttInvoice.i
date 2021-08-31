@@ -68,6 +68,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD invoiceType                 AS CHARACTER LABEL "Invoice Type"
     FIELD fob                         AS CHARACTER LABEL "FOB"
     FIELD carrier                     AS CHARACTER LABEL "Carrier"
+    FIELD custIDShiptoID              AS CHARACTER LABEL "CustID ShipToID"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   LABEL "Invoice ID"
