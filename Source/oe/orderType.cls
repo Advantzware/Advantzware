@@ -81,6 +81,7 @@ CLASS oe.orderType:
         ipiNumberSequence       AS INTEGER, 
         iplInactive             AS LOGICAL,         
         ipcEstimateType         AS CHARACTER,
+		ipiorderTypeColor       AS INTEGER,
 		OUTPUT opiOrderTypeID AS INTEGER
         ):
                         
@@ -103,6 +104,7 @@ CLASS oe.orderType:
             bf-orderType.numberSequence       = ipiNumberSequence
             bf-orderType.inactive             = iplInactive                       
             bf-orderType.estimateType         = ipcEstimateType
+			bf-orderType.orderTypeColor         = ipiorderTypeColor
             . 			
 		
         opiOrderTypeID = bf-orderType.orderTypeID.

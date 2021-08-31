@@ -111,7 +111,7 @@ DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(32)":U
      SIZE 42 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE type-color AS CHARACTER FORMAT "x(11)":U INITIAL 0 
+DEFINE VARIABLE type-color AS INTEGER FORMAT ">9":U INITIAL 0 
      LABEL "Color" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -301,23 +301,11 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bResetColor Dialog-Frame
 ON CHOOSE OF bResetColor IN FRAME Dialog-Frame /* (Reset) */
 DO:
-        DEFINE VARIABLE red   AS INTEGER NO-UNDO.
-        DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
-        DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
-        DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
-        DEFINE VARIABLE lSave AS LOG NO-UNDO. 
-            
-        ix = COLOR-TABLE:NUM-ENTRIES.
-        COLOR-TABLE:NUM-ENTRIES = ix + 1.
-        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-        COLOR-TABLE:SET-RED-VALUE(ix,119).
-        COLOR-TABLE:SET-GREEN-VALUE(ix,150).
-        COLOR-TABLE:SET-BLUE-VALUE(ix,203).
-
+       
         ASSIGN 
-            rBgColor:FGCOLOR = ix
-            rBgColor:BGCOLOR = ix
-            type-color:SCREEN-VALUE = "".
+            rBgColor:FGCOLOR = ?
+            rBgColor:BGCOLOR = ?
+            type-color:SCREEN-VALUE = ?.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,6 +372,7 @@ DO:
                               INPUT type-seq,
                               INPUT tb_inactive,                              
                               INPUT type-est,
+                              INPUT type-color,
                               OUTPUT iOrderTypeId).  
         END.
         ELSE DO:  
@@ -393,6 +382,7 @@ DO:
                               INPUT type-seq,
                               INPUT tb_inactive,                                
                               INPUT type-est,
+                              INPUT type-color,
                               OUTPUT iOrderTypeId). 
         END.       
         
@@ -415,23 +405,16 @@ DO:
     DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
     DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
     DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lSave AS LOG NO-UNDO.  
+    DEFINE VARIABLE lSave AS LOG NO-UNDO. 
+    DEFINE VARIABLE iReturnValue AS INTEGER NO-UNDO.
    
-          
-    ix = COLOR-TABLE:NUM-ENTRIES.
-    COLOR-TABLE:NUM-ENTRIES = ix + 1.
-    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-     
-    SYSTEM-DIALOG COLOR ix UPDATE lSave. 
-                   
-    IF lSave THEN DO:
+    RUN windows/lColor.w( INPUT integer(type-color:SCREEN-VALUE), OUTPUT iReturnValue).      
+    
         ASSIGN 
-            rBgColor:FGCOLOR = ix
-            rBgColor:BGCOLOR = ix
-            type-color:SCREEN-VALUE = STRING(COLOR-TABLE:get-red-value(ix)) + "," +
-                               STRING(COLOR-TABLE:get-green-value(ix)) + "," +
-                               STRING(COLOR-TABLE:get-blue-value(ix)).
-    END.
+            rBgColor:FGCOLOR = iReturnValue
+            rBgColor:BGCOLOR = iReturnValue
+            type-color:SCREEN-VALUE = STRING(iReturnValue).
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,19 +572,7 @@ PROCEDURE display-item :
                           PARAMs:  <none>
                           Notes:       
          ------------------------------------------------------------------------------*/   
-    DEFINE VARIABLE red   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
-    DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
-    DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
-
-    ix = COLOR-TABLE:NUM-ENTRIES.
-    COLOR-TABLE:NUM-ENTRIES = ix + 1.
-
-    COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-    COLOR-TABLE:SET-RED-VALUE(ix, red).
-    COLOR-TABLE:SET-GREEN-VALUE(ix, green).
-    COLOR-TABLE:SET-BLUE-VALUE(ix, blue).
-    
+        
     FIND FIRST orderType NO-LOCK
         WHERE rowid(orderType) EQ iprwRowId NO-ERROR. 
     IF AVAILABLE orderType THEN 
@@ -609,7 +580,7 @@ PROCEDURE display-item :
             type-id       = orderType.orderTypeID
             item-dscr     = orderType.orderTypeDescription
             type-source   = orderType.orderTypeSource
-            type-color    = string(orderType.orderTypeColor)
+            type-color    = orderType.orderTypeColor
             type-seq      = orderType.numberSequence
             type-est      = orderType.estimateType  
             tb_inactive   = orderType.inactive
@@ -635,23 +606,11 @@ PROCEDURE display-item :
     END.
 
     type-color:HIDDEN IN FRAME {&frame-name} = TRUE.
-    VIEW FRAME {&FRAME-NAME}. 
+    VIEW FRAME {&FRAME-NAME}.       
     
-    IF type-color NE "" THEN DO:
-        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-        COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,type-color))) NO-ERROR.
-        COLOR-TABLE:SET-GREEN-VALUE(ix, INTEGER(ENTRY(2,type-color))) NO-ERROR.
-        COLOR-TABLE:SET-BLUE-VALUE(ix, INTEGER(ENTRY(3,type-color))) NO-ERROR.
-    END.
-    ELSE DO:
-        COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
-        COLOR-TABLE:SET-RED-VALUE(ix, 119).
-        COLOR-TABLE:SET-GREEN-VALUE(ix, 150).
-        COLOR-TABLE:SET-BLUE-VALUE(ix, 203).
-    END.
     ASSIGN 
-        rBgColor:FGCOLOR = ix
-        rBgColor:BGCOLOR = ix.
+        rBgColor:FGCOLOR = type-color
+        rBgColor:BGCOLOR = type-color.
         
     APPLY "entry" TO item-dscr IN FRAME {&FRAME-NAME}.
    

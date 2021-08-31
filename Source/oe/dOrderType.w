@@ -53,16 +53,16 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttOrderType
+&Scoped-define INTERNAL-TABLES orderType
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttOrderType.orderTypeID ttOrderType.orderTypeDescription ttOrderType.orderTypeSource ttOrderType.orderTypeColor ttOrderType.inactive ttOrderType.numberSequence 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttOrderType
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttOrderType
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 orderType
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 orderType
 
 
 /* Definitions for DIALOG-BOX D-Dialog                                  */
@@ -117,19 +117,19 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    ttOrderType SCROLLING.
+    orderType SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    ttOrderType.orderTypeID COLUMN-LABEL "Type" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
-    ttOrderType.orderTypeDescription COLUMN-LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
-    ttOrderType.orderTypeSource COLUMN-LABEL "Source" FORMAT "x(10)" LABEL-BGCOLOR 14
-    ttOrderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>9"  LABEL-BGCOLOR 14
-    ttOrderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
-    ttOrderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
+    orderType.orderTypeID COLUMN-LABEL "Type" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
+    orderType.orderTypeDescription COLUMN-LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
+    orderType.orderTypeSource COLUMN-LABEL "Source" FORMAT "x(10)" LABEL-BGCOLOR 14
+    orderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>"  LABEL-BGCOLOR 14
+    orderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
+    orderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
           
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -206,7 +206,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~
+OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -268,7 +268,7 @@ ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
         DEFINE VARIABLE iOrderTypeID AS INTEGER   NO-UNDO.
         DEFINE BUFFER bff-orderType FOR orderType.         
     
-        IF AVAILABLE ttOrderType THEN
+        IF AVAILABLE orderType THEN
         DO: 
             RUN oe/dAddEditOrdType.w (?,"Copy", OUTPUT iOrderTypeID) . 
             
@@ -292,9 +292,9 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
     DO:
         DEFINE VARIABLE hftp     AS HANDLE NO-UNDO.
         DEFINE VARIABLE lv-rowid AS ROWID  NO-UNDO.
-        IF AVAILABLE ttOrderType THEN 
+        IF AVAILABLE orderType THEN 
         DO:
-            IF ttOrderType.orderTypeID GE 1 AND ttOrderType.orderTypeID LE 10  THEN
+            IF orderType.orderTypeID GE 1 AND orderType.orderTypeID LE 10  THEN
             DO:
                 MESSAGE "Order Type not allowed to delete " 
                     VIEW-AS ALERT-BOX INFORMATION.
@@ -306,13 +306,12 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
                 BUTTON YES-NO UPDATE ll-ans AS LOG.
             IF NOT ll-ans THEN RETURN NO-APPLY.  
             
-            FIND CURRENT ttOrderType EXCLUSIVE-LOCK NO-ERROR.
+            FIND CURRENT orderType NO-LOCK NO-ERROR.
             scOrderType = NEW oe.orderType().
             
-            scOrderType:Delete(INPUT  ttOrderType.orderTypeID). 
-            DELETE OBJECT scOrderType.
+            scOrderType:Delete(INPUT  orderType.orderTypeID). 
+            DELETE OBJECT scOrderType.              
             
-            DELETE ttOrderType .
             RUN repo-query (lv-rowid).
         
         END.                                             
@@ -328,11 +327,11 @@ ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update  */
     DO:
         DEFINE VARIABLE iOrderTypeID AS INTEGER NO-UNDO. 
         DEFINE VARIABLE rwRowid  AS ROWID NO-UNDO. 
-        IF AVAILABLE ttOrderType THEN 
+        IF AVAILABLE orderType THEN 
         DO:              
-            RUN oe/dAddEditOrdType.w (ttOrderType.rwRowID,"Update",OUTPUT iOrderTypeID) . 
+            RUN oe/dAddEditOrdType.w (rowid(orderType),"Update",OUTPUT iOrderTypeID) . 
                   
-            RUN repo-query (ttOrderType.rwRowID).
+            RUN repo-query (rowid(orderType)).
            
         END. 
 
@@ -349,12 +348,12 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog
     DO:
        DEFINE VARIABLE iOrderTypeID AS INTEGER NO-UNDO.
         DEFINE VARIABLE rwRowid  AS ROWID NO-UNDO. 
-        IF AVAILABLE ttOrderType THEN 
+        IF AVAILABLE orderType THEN 
         DO:
            
-            RUN oe/dAddEditOrdType.w (ttOrderType.rwRowID,"Update",OUTPUT iOrderTypeID) . 
+            RUN oe/dAddEditOrdType.w (rowid(orderType),"Update",OUTPUT iOrderTypeID) . 
    
-            RUN repo-query (ttOrderType.rwRowID).
+            RUN repo-query (rowid(orderType)).
         END.  
  
     END.
@@ -371,6 +370,16 @@ ON START-SEARCH OF BROWSE-1 IN FRAME D-Dialog
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME D-Dialog
+DO: 
+   
+  RUN set-bgcolor.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -383,9 +392,7 @@ ON START-SEARCH OF BROWSE-1 IN FRAME D-Dialog
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    {custom/yellowColumns.i}
-    
-    RUN pBuildTempTable.
+    {custom/yellowColumns.i}                                  
     
     RUN enable_UI.
     {methods/nowait.i}     
@@ -486,9 +493,7 @@ PROCEDURE repo-query :
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
     
-    DO WITH FRAME {&FRAME-NAME}:
-    
-         RUN pBuildTempTable.
+    DO WITH FRAME {&FRAME-NAME}:         
         
         {&open-query-{&browse-name}}
         
@@ -500,21 +505,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTempTable D-Dialog 
-PROCEDURE pBuildTempTable :
-    /*------------------------------------------------------------------------------
-              Purpose:     
-              Parameters:  <none>
-              Notes:       
-            ------------------------------------------------------------------------------*/     
-    scOrderType = NEW oe.orderType().
-    
-    scOrderType:pGetAll(OUTPUT TABLE ttOrderType).    
-    DELETE OBJECT  scOrderType.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-bgcolor D-Dialog 
+PROCEDURE set-bgcolor :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+IF AVAIL orderType THEN DO:
+    ASSIGN 
+        orderType.orderTypeColor:BGCOLOR IN BROWSE {&BROWSE-NAME}      = orderType.orderTypeColor
+        orderType.orderTypeColor:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ""
+              .         
+ END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 

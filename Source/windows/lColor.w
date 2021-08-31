@@ -1,0 +1,878 @@
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-RESUME
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
+/*------------------------------------------------------------------------
+
+  File: 
+
+  Description: 
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Author: 
+
+  Created: 
+------------------------------------------------------------------------*/
+/*          This .W file was created with the Progress UIB.             */
+/*----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+/* Parameters Definitions ---                                           */
+
+/* Local Variable Definitions ---                                       */
+&IF DEFINED(UIB_is_Running) NE 0 &THEN  
+DEFINE VARIABLE ipiColor AS INTEGER NO-UNDO.
+DEFINE VARIABLE opiColor AS INTEGER NO-UNDO. 
+&else   
+DEFINE INPUT PARAMETER ipiColor AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiColor AS INTEGER NO-UNDO. 
+&endif
+
+DEFINE VARIABLE iColorCode AS INTEGER NO-UNDO.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
+
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define FRAME-NAME Dialog-Frame
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS RECT-38 rBgColor-1 rBgColor-2 rBgColor-3 rBgColor-4 rBgColor-5 RECT-41 RECT-42 RECT-43 RECT-44 RECT-45  ~
+rBgColor-6 rBgColor-7 rBgColor-8 rBgColor-9 rBgColor-10 ~
+rBgColor-11 rBgColor-12 rBgColor-13 rBgColor-14 rBgColor-15 ~
+RECT-46 RECT-47 RECT-48 RECT-49 RECT-50 RECT-51 RECT-52 RECT-53 RECT-54 RECT-55 bt-ok bt-cancel 
+
+&SCOPED-DEFINE list-rect RECT-41 RECT-42  RECT-43 RECT-44 RECT-45
+/* Custom List Definitions                                              */
+/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+/* ***********************  Control Definitions  ********************** */
+
+/* Define a dialog box                                                  */
+
+/* Definitions of the field level widgets                               */
+DEFINE BUTTON bt-cancel  
+    LABEL "&Cancel" 
+    SIZE 11 BY 1.14.
+
+DEFINE BUTTON bt-ok 
+    LABEL "&OK" 
+    SIZE 10 BY 1.14.
+
+DEFINE RECTANGLE rBgColor-1
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-2
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-3
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-4
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-5
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .  
+     
+DEFINE RECTANGLE rBgColor-6
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-7
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-8
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-9
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-10
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-11
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-12
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-13
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-14
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+     
+DEFINE RECTANGLE rBgColor-15
+    EDGE-PIXELS 2 GRAPHIC-EDGE    
+    SIZE 8 BY 1.8
+    BGCOLOR 21 FGCOLOR 21 .
+
+DEFINE RECTANGLE RECT-38
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+    SIZE 159 BY 7.86
+    BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-41
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-42
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-43
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-44
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-45
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-46
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-47
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-48
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-49
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-50
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-51
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-52
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-53
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+     
+DEFINE RECTANGLE RECT-54
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-55
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+    SIZE 9 BY 1.98
+    BGCOLOR 15 .     
+     
+/* ************************  Frame Definitions  *********************** */
+
+DEFINE FRAME Dialog-Frame          
+    bt-ok AT ROW 9.52 COL 131.4
+    bt-cancel AT ROW 9.52 COL 144.4
+     
+    "1" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 14.8 WIDGET-ID 370
+    "2" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 24.4 WIDGET-ID 372
+    "3" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 34.4 WIDGET-ID 374
+    "4" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 44.2 WIDGET-ID 376
+    "5" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 54 WIDGET-ID 378
+    "6" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 63.6 WIDGET-ID 380
+    "7" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 74.8 WIDGET-ID 382
+    "8" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 85.6 WIDGET-ID 384
+    "9" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 95 WIDGET-ID 386
+    "10" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 103.4 WIDGET-ID 388
+    "11" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 113.4 WIDGET-ID 390 
+    "12" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 123.8 WIDGET-ID 392     
+    "Color:" VIEW-AS TEXT
+    SIZE 18 BY .62 AT ROW 2.43 COL 11
+    "13" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 132.9 WIDGET-ID 394      
+    "14" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 143.2 WIDGET-ID 396     
+    "15" VIEW-AS TEXT
+    SIZE 3.4 BY 1.05 AT ROW 5.91 COL 154.2 WIDGET-ID 398
+     
+    RECT-38 AT ROW 1.24 COL 2 WIDGET-ID 400
+    rBgColor-1 AT ROW 3.95 COL 11.2 WIDGET-ID 340
+    rBgColor-2 AT ROW 3.95 COL 21.2 
+    rBgColor-3 AT ROW 3.95 COL 31.2 
+    rBgColor-4 AT ROW 3.95 COL 41.2 
+    rBgColor-5 AT ROW 3.95 COL 51.2 
+    rBgColor-6 AT ROW 3.95 COL 61.2 
+    rBgColor-7 AT ROW 3.95 COL 71.2 
+    rBgColor-8 AT ROW 3.95 COL 81.2 
+    rBgColor-9 AT ROW 3.95 COL 91.2 
+    rBgColor-10 AT ROW 3.95 COL 101.2
+    rBgColor-11 AT ROW 3.95 COL 111.2 
+    rBgColor-12 AT ROW 3.95 COL 121.2 
+    rBgColor-13 AT ROW 3.95 COL 131.2 
+    rBgColor-14 AT ROW 3.95 COL 141.2 
+    rBgColor-15 AT ROW 3.95 COL 151.2
+    RECT-41 AT ROW 3.81 COL 10.6 WIDGET-ID 430
+    RECT-42 AT ROW 3.81 COL 20.6 
+    RECT-43 AT ROW 3.81 COL 30.6 
+    RECT-44 AT ROW 3.81 COL 40.6 
+    RECT-45 AT ROW 3.81 COL 50.6 
+    RECT-46 AT ROW 3.81 COL 60.6 
+    RECT-47 AT ROW 3.81 COL 70.6 
+    RECT-48 AT ROW 3.81 COL 80.6 
+    RECT-49 AT ROW 3.81 COL 90.6 
+    RECT-50 AT ROW 3.81 COL 100.6
+    RECT-51 AT ROW 3.81 COL 110.6 
+    RECT-52 AT ROW 3.81 COL 120.6 
+    RECT-53 AT ROW 3.81 COL 130.6 
+    RECT-54 AT ROW 3.81 COL 140.6 
+    RECT-55 AT ROW 3.81 COL 150.6
+    SPACE(1.99) SKIP(2.64)
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+    TITLE "Color Selection".
+
+
+/* *********************** Procedure Settings ************************ */
+
+&ANALYZE-SUSPEND _PROCEDURE-SETTINGS
+/* Settings for THIS-PROCEDURE
+   Type: DIALOG-BOX
+   Allow: Basic,Browse,DB-Fields,Query
+   Other Settings: COMPILE
+ */
+&ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+
+&ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+   FRAME-NAME                                                           */
+ASSIGN 
+    FRAME Dialog-Frame:SCROLLABLE = FALSE
+    FRAME Dialog-Frame:HIDDEN     = TRUE.
+
+/* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+ 
+
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Color Selection */
+    DO:
+  
+        APPLY "END-ERROR":U TO SELF.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bt-ok
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
+ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
+    DO:
+        opiColor = iColorCode.
+              
+        APPLY "window-close" TO FRAME {&frame-name}. 
+      
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&Scoped-define SELF-NAME bt-cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-cancel Dialog-Frame
+ON CHOOSE OF bt-cancel IN FRAME Dialog-Frame /* Cancel */
+    DO:
+        opiColor = ipiColor
+            .
+        APPLY "window-close" TO FRAME {&frame-name}. 
+      
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rBgColor-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-1 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-1 IN FRAME Dialog-Frame
+    DO:    
+        iColorCode = 1.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-2 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-2 IN FRAME Dialog-Frame
+    DO:    
+        iColorCode = 2.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-3 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-3 IN FRAME Dialog-Frame
+    DO:     
+        iColorCode = 3.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-4 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-4 IN FRAME Dialog-Frame
+    DO:     
+        iColorCode = 4.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-5 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-5 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 5.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-6 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-6 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 6.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-7 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-7 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 7.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-8 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-8 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 8.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-9 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-9 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 9.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-10 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-10 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 10.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-11
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-11 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-11 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 11.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-12
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-12 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-12 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 12.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-13
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-13 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-13 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 13.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-14
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-14 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-14 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 14.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rBgColor-15
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rBgColor-15 Dialog-Frame
+ON MOUSE-SELECT-CLICK OF rBgColor-15 IN FRAME Dialog-Frame
+    DO:       
+        iColorCode = 15.
+        RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+        RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = NO.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
+
+
+/* ***************************  Main Block  *************************** */
+
+/* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
+    THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+
+/* Now enable the interface and wait for the exit condition.            */
+/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
+MAIN-BLOCK:
+DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:  
+
+  
+    RUN enable_UI.
+  
+    rBgColor-1:BGCOLOR IN FRAME {&FRAME-NAME}  = 1.
+    rBgColor-2:BGCOLOR IN FRAME {&FRAME-NAME}  = 2.
+    rBgColor-3:BGCOLOR IN FRAME {&FRAME-NAME}  = 3.
+    rBgColor-4:BGCOLOR IN FRAME {&FRAME-NAME}  = 4.
+    rBgColor-5:BGCOLOR IN FRAME {&FRAME-NAME}  = 5.
+    rBgColor-6:BGCOLOR IN FRAME {&FRAME-NAME}  = 6.
+    rBgColor-7:BGCOLOR IN FRAME {&FRAME-NAME}  = 7.
+    rBgColor-8:BGCOLOR IN FRAME {&FRAME-NAME}  = 8.
+    rBgColor-9:BGCOLOR IN FRAME {&FRAME-NAME}  = 9.
+    rBgColor-10:BGCOLOR IN FRAME {&FRAME-NAME}  = 10.
+    rBgColor-11:BGCOLOR IN FRAME {&FRAME-NAME}  = 11.
+    rBgColor-12:BGCOLOR IN FRAME {&FRAME-NAME}  = 12.
+    rBgColor-13:BGCOLOR IN FRAME {&FRAME-NAME}  = 13.
+    rBgColor-14:BGCOLOR IN FRAME {&FRAME-NAME}  = 14.
+    rBgColor-15:BGCOLOR IN FRAME {&FRAME-NAME}  = 15. 
+  
+    rBgColor-1:FGCOLOR IN FRAME {&FRAME-NAME}  = 1.
+    rBgColor-2:FGCOLOR IN FRAME {&FRAME-NAME}  = 2.
+    rBgColor-3:FGCOLOR IN FRAME {&FRAME-NAME}  = 3.
+    rBgColor-4:FGCOLOR IN FRAME {&FRAME-NAME}  = 4.
+    rBgColor-5:FGCOLOR IN FRAME {&FRAME-NAME}  = 5.
+    rBgColor-6:FGCOLOR IN FRAME {&FRAME-NAME}  = 6.
+    rBgColor-7:FGCOLOR IN FRAME {&FRAME-NAME}  = 7.
+    rBgColor-8:FGCOLOR IN FRAME {&FRAME-NAME}  = 8.
+    rBgColor-9:FGCOLOR IN FRAME {&FRAME-NAME}  = 9.
+    rBgColor-10:FGCOLOR IN FRAME {&FRAME-NAME}  = 10.
+    rBgColor-11:FGCOLOR IN FRAME {&FRAME-NAME}  = 11.
+    rBgColor-12:FGCOLOR IN FRAME {&FRAME-NAME}  = 12.
+    rBgColor-13:FGCOLOR IN FRAME {&FRAME-NAME}  = 13.
+    rBgColor-14:FGCOLOR IN FRAME {&FRAME-NAME}  = 14.
+    rBgColor-15:FGCOLOR IN FRAME {&FRAME-NAME}  = 15. 
+  
+    RECT-41:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-42:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-43:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-44:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-45:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-46:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-47:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-48:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-49:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-50:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-51:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-52:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-53:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-54:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+    RECT-55:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+  
+    WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+END.
+RUN disable_UI.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME Dialog-Frame.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    ENABLE RECT-38 rBgColor-1 rBgColor-2 rBgColor-3 rBgColor-4 rBgColor-5 RECT-41 RECT-42 RECT-43 RECT-44 RECT-45  
+        rBgColor-6 rBgColor-7 rBgColor-8 rBgColor-9 rBgColor-10 
+        rBgColor-11 rBgColor-12 rBgColor-13 rBgColor-14 rBgColor-15 bt-ok 
+        bt-cancel RECT-46 RECT-47 RECT-48 RECT-49 RECT-50 RECT-51 RECT-52 RECT-53 RECT-54 RECT-55  
+        WITH FRAME Dialog-Frame.
+    VIEW FRAME Dialog-Frame.
+    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

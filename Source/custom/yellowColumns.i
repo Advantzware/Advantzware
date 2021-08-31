@@ -419,8 +419,6 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Color' THEN STRING(orderType.orderTypeColor,'999') ELSE ~
   IF sortColumn EQ 'Inactive' THEN STRING(orderType.inactive) ELSE ~
   IF sortColumn EQ 'Sequence' THEN STRING(orderType.numberSequence,'999') ELSE ~
-  IF sortColumn EQ 'Create Job' THEN STRING(orderType.createJob) ELSE ~
-  IF sortColumn EQ 'Create Purchase Order' THEN STRING(orderType.createPurchaseOrder) ELSE ~
   IF sortColumn EQ 'Estimate Type' THEN orderType.estimateType ELSE ~
   string(orderType.orderTypeID,'999999') ~{&SORTED}
 
