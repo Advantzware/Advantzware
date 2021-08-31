@@ -697,6 +697,33 @@ ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Invoice Date */
 
 &Scoped-define SELF-NAME begin_ship-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship-to C-Win
+ON HELP OF begin_ship-to IN FRAME FRAME-A /* Beginning Ship-to# */
+DO:
+DEFINE VARIABLE cFieldsValue       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFoundValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE recFoundRecID      AS RECID NO-UNDO.
+
+   RUN system/openLookup.p (
+             INPUT  cocode,
+             INPUT  "", /* Lookup ID */
+             INPUT  122,  /* Subject ID */
+             INPUT  "", /* User ID */
+             INPUT  0,  /* Param Value ID */
+             OUTPUT cFieldsValue,
+             OUTPUT cFoundValue,
+             OUTPUT recFoundRecID
+             ).
+
+    IF cFoundValue NE "" THEN DO:
+                 begin_ship-to:SCREEN-VALUE = cFoundValue.
+    END.
+END.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_ship-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship-to C-Win
 ON LEAVE OF begin_ship-to IN FRAME FRAME-A /* Beginning Ship-to# */
     DO:
         ASSIGN {&self-name}.
@@ -949,6 +976,33 @@ ON LEAVE OF end_inv-date IN FRAME FRAME-A /* Ending Invoice Date */
         ASSIGN {&self-name}.
     END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_ship-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship-to C-Win
+ON HELP OF end_ship-to IN FRAME FRAME-A /* Beginning Ship-to# */
+DO:
+DEFINE VARIABLE cFieldsValue       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFoundValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE recFoundRecID      AS RECID NO-UNDO.
+
+   RUN system/openLookup.p (
+             INPUT  cocode,
+             INPUT  "", /* Lookup ID */
+             INPUT  122,  /* Subject ID */
+             INPUT  "", /* User ID */
+             INPUT  0,  /* Param Value ID */
+             OUTPUT cFieldsValue,
+             OUTPUT cFoundValue,
+             OUTPUT recFoundRecID
+             ).
+
+    IF cFoundValue NE "" THEN DO:
+                 end_ship-to:SCREEN-VALUE = cFoundValue.
+    END.
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
