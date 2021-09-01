@@ -123,7 +123,7 @@ DEFINE TEMP-TABLE ttImportEstimate
 
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -133,6 +133,8 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is 
 /* **********************  Internal Procedures  *********************** */
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 PROCEDURE pAddBoxDesign:
     /*------------------------------------------------------------------------------
@@ -144,6 +146,11 @@ PROCEDURE pAddBoxDesign:
 
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildBoxDesignForEstimate IN hdFormulaProcs (
+        INPUT ROWID(ipbf-eb)
+        ).
     
     /* Builds the Box design */
     RUN est/BuildBoxDesign.p ("B", ROWID(ipbf-eb)). 
@@ -1048,6 +1055,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RELEASE est-qty.
     RELEASE ef.
     RELEASE eb.
+    
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
     
 END PROCEDURE.
 

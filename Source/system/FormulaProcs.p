@@ -231,6 +231,66 @@ PROCEDURE Formula_GetFormulaFromttPanel:
         .        
 END PROCEDURE.
 
+PROCEDURE Formula_ReBuildBoxDesignForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb  FOR eb.
+        
+    EMPTY TEMP-TABLE ttPanel.
+    
+    RUN pBuildPanelDetailsForEstimate (
+        INPUT  ipriEb,
+        INPUT  TRUE,  /* Re-build */
+        INPUT  TRUE,  /* Save */
+        INPUT  "L,W", /* Panel Types to build */
+        OUTPUT TABLE ttPanel
+        ).
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE ROWID(bf-eb) = ipriEb NO-ERROR.
+        
+    IF AVAILABLE bf-eb THEN
+    DO:     
+        IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                                    AND ttPanel.dPanelSize NE 0) THEN 
+        DO iExt = 1 TO EXTENT(bf-eb.k-len-array2): 
+            
+            FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                                 AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+            IF AVAILABLE ttPanel THEN
+                ASSIGN
+                    bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
+                    bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
+                    .
+             
+        END.  
+        
+        IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                                    AND ttPanel.dPanelSize NE 0) THEN 
+        DO iExt = 1 TO EXTENT(bf-eb.k-wid-array2): 
+            
+            FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                                 AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+            IF AVAILABLE ttPanel THEN
+                ASSIGN
+                    bf-eb.k-wid-array2[iExt]    = ttPanel.dPanelSize
+                    bf-eb.k-wid-scr-type2[iExt] = ttPanel.cScoreType
+                    .
+             
+        END.  
+         
+    END. // IF AVAILABLE bf-eb THEN
+
+END PROCEDURE.
+
 PROCEDURE GetSizeFactor:
 /*------------------------------------------------------------------------------
  Purpose: Fetch the decimal factor from NK1 CECSCRN
