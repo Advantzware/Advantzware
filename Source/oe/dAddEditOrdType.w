@@ -31,6 +31,15 @@ DEFINE VARIABLE lv-item-rowid   AS ROWID     NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL   NO-UNDO. 
 DEFINE VARIABLE v-count         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE cNewOrderEntry  AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cCompany, "NewOrderEntry", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cNewOrderEntry = cRtnChar NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,7 +59,7 @@ DEFINE VARIABLE v-count         AS INTEGER   NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel tb_inactive ~
 item-dscr type-source type-color type-est type-seq RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-OBJECTS type-id tb_inactive item-dscr type-source ~
-type-color type-est type-seq fiBGColor 
+type-color type-est type-seq fiBGColor fiFileLoc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -96,14 +105,19 @@ DEFINE VARIABLE type-source AS CHARACTER FORMAT "X(10)":U
                      "File","File",
                      "Order","Order",
                      "Web","Web",
-                     "Future","Future"
+                     "Future Use","Future Use"
      DROP-DOWN-LIST
      SIZE 21.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fiBGColor AS CHARACTER FORMAT "X(256)":U INITIAL "Color" 
      VIEW-AS FILL-IN NATIVE 
-     SIZE 8.8 BY .95 NO-UNDO.
+     SIZE 8.8 BY .95 NO-UNDO.       
+
+DEFINE VARIABLE fiFileLoc AS CHARACTER FORMAT "X(256)":U INITIAL "" 
+     LABEL "File Path"
+     VIEW-AS FILL-IN  
+     SIZE 60.8 BY .95 NO-UNDO.
 
 DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(32)":U 
      LABEL "Description" 
@@ -119,7 +133,12 @@ DEFINE VARIABLE type-color AS INTEGER FORMAT ">9":U INITIAL 0
 
 DEFINE VARIABLE type-est AS CHARACTER FORMAT "X(1)":U 
      LABEL "Estimate Type" 
-     VIEW-AS FILL-IN 
+     VIEW-AS COMBO-BOX INNER-LINES 4
+     LIST-ITEM-PAIRS "All","",
+                     "Single","1",
+                     "Set","2",
+                     "Tandem","3"                     
+     DROP-DOWN-LIST 
      SIZE 21.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
@@ -176,7 +195,8 @@ DEFINE FRAME Dialog-Frame
      RECT-21 AT ROW 10.33 COL 107
      RECT-38 AT ROW 1.43 COL 1.2
      rBgColor AT ROW 7.24 COL 16.6 WIDGET-ID 340
-     SPACE(101.39) SKIP(3.89)
+     fiFileLoc AT ROW 9.0 COL 45.6 
+     SPACE(10.39) SKIP(1.89)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -216,8 +236,15 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiBGColor IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+   
 ASSIGN 
        fiBGColor:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+       
+/* SETTINGS FOR FILL-IN fiFileLoc IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */ 
+   
+ASSIGN 
+       fiFileLoc:READ-ONLY IN FRAME Dialog-Frame        = TRUE.   
 
 /* SETTINGS FOR RECTANGLE rBgColor IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -586,11 +613,17 @@ PROCEDURE display-item :
             tb_inactive   = orderType.inactive
             .    
       
-    IF ipcType EQ "Copy" OR ipcType EQ "Add" THEN
+    IF ipcType EQ "Copy" OR ipcType EQ "Add" THEN 
+    DO:
        ASSIGN
-           type-id = 0
-           type-seq = 1
+           type-id = CURRENT-VALUE(orderTypeID_seq) + 1
+           type-seq = 1           
+           rBgColor:FGCOLOR IN FRAME {&frame-name} = ?
+           rBgColor:BGCOLOR IN FRAME {&frame-name} = ?
+           type-color:SCREEN-VALUE IN FRAME {&frame-name} = ?
+           type-color = ?.
            .
+    END.
     
     DISPLAY   
         type-id item-dscr type-source type-color type-seq 
@@ -606,6 +639,7 @@ PROCEDURE display-item :
     END.
 
     type-color:HIDDEN IN FRAME {&frame-name} = TRUE.
+    type-seq:SENSITIVE IN FRAME {&frame-name} = FALSE.
     VIEW FRAME {&FRAME-NAME}.       
     
     ASSIGN 
@@ -632,7 +666,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY type-id tb_inactive item-dscr type-source type-color type-est type-seq 
-          fiBGColor 
+          fiBGColor fiFileLoc
       WITH FRAME Dialog-Frame.
   ENABLE Btn_OK Btn_Done Btn_Cancel tb_inactive item-dscr type-source 
          type-color type-est type-seq RECT-21 RECT-38 
@@ -677,14 +711,25 @@ PROCEDURE pSetField :
     IF type-source:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Estimate" THEN 
     DO:
         type-est:HIDDEN IN FRAME {&FRAME-NAME} = NO.
+        fiFileLoc:HIDDEN IN FRAME {&FRAME-NAME} = YES.
     END.
-    ELSE  
+    ELSE IF type-source:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "File" THEN
+    DO:
+       fiFileLoc:HIDDEN IN FRAME {&FRAME-NAME} = NO.
+       fiFileLoc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cNewOrderEntry.
+    END.
+    ELSE 
+    DO:    
      type-est:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+     fiFileLoc:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+    END. 
      
      IF INTEGER(type-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}) GE 1 AND INTEGER(type-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}) LE 9 THEN
      DO:
         DISABLE item-dscr type-source  WITH FRAME Dialog-Frame .            
      END.
+     
+     
   
 END PROCEDURE.
 

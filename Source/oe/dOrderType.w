@@ -56,7 +56,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 &Scoped-define INTERNAL-TABLES orderType
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence orderType.estimateType
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
@@ -70,7 +70,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-add btn-copy btn-update btn-delete ~
+&Scoped-Define ENABLED-OBJECTS btn-add btn-update btn-delete ~
 BROWSE-1 
 
 &Scoped-Define DISPLAYED-OBJECTS fi_sortby
@@ -90,10 +90,6 @@ BROWSE-1
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-add 
     LABEL "Add " 
-    SIZE 15 BY 1.14.
-
-DEFINE BUTTON btn-copy 
-    LABEL "Copy " 
     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-delete 
@@ -130,6 +126,13 @@ DEFINE BROWSE BROWSE-1
     orderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>"  LABEL-BGCOLOR 14
     orderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
     orderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
+    orderType.estimateType COLUMN-LABEL "Estimate Type" FORMAT "x(10)" LABEL-BGCOLOR 14
+    VIEW-AS COMBO-BOX INNER-LINES 4 
+        LIST-ITEM-PAIRS "All","",
+                        "Single","1",
+                        "Set","2",
+                        "Tandem","3"  
+        DROP-DOWN-LIST
           
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -141,9 +144,8 @@ DEFINE BROWSE BROWSE-1
 
 DEFINE FRAME D-Dialog
     btn-add AT ROW 17.29 COL 4.8 WIDGET-ID 16
-    btn-copy AT ROW 17.29 COL 20.4 WIDGET-ID 252
-    btn-update AT ROW 17.29 COL 36 WIDGET-ID 256
-    btn-delete AT ROW 17.29 COL 52 WIDGET-ID 254
+    btn-update AT ROW 17.29 COL 20.4 WIDGET-ID 252
+    btn-delete AT ROW 17.29 COL 36 WIDGET-ID 256      
     BROWSE-1 AT ROW 2.19 COL 5
     "Order Type" VIEW-AS TEXT
     SIZE 16 BY .71 AT ROW 1.29 COL 6.8 WIDGET-ID 264
@@ -255,31 +257,6 @@ ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add  */
         IF AVAILABLE bff-orderType THEN
             RUN repo-query (ROWID(bff-orderType)). 
 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy D-Dialog
-ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
-    DO:
-        DEFINE VARIABLE iOrderTypeID AS INTEGER   NO-UNDO.
-        DEFINE BUFFER bff-orderType FOR orderType.         
-    
-        IF AVAILABLE orderType THEN
-        DO: 
-            RUN oe/dAddEditOrdType.w (?,"Copy", OUTPUT iOrderTypeID) . 
-            
-            FIND FIRST bff-orderType NO-LOCK
-                WHERE bff-orderType.Company EQ cCompany
-                AND bff-orderType.orderTypeID EQ iOrderTypeID NO-ERROR .
-        
-            IF AVAILABLE bff-orderType THEN
-                RUN repo-query (ROWID(bff-orderType)).             
-        END.      
-  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,7 +452,7 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    ENABLE btn-add btn-copy btn-update btn-delete BROWSE-1 
+    ENABLE btn-add btn-update btn-delete BROWSE-1 
         WITH FRAME D-Dialog.
     VIEW FRAME D-Dialog.
     {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
