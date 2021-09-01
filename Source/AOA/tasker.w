@@ -200,7 +200,7 @@ DEFINE BROWSE EmailBrowse
       taskEmail.recipients FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 43 BY 14.29
          TITLE "Pending Emails".
 
 DEFINE BROWSE TaskBrowse
@@ -231,7 +231,7 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      btnClearIsRunning AT ROW 1 COL 98 HELP
           "Click to Clear Is Running" WIDGET-ID 8
-     EmailBrowse AT ROW 1 COL 121 WIDGET-ID 300
+     EmailBrowse AT ROW 1 COL 118 WIDGET-ID 300
      btnClearPendingEmails AT ROW 1 COL 153 HELP
           "Click to Clear Pending Emails" WIDGET-ID 10
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
@@ -346,7 +346,7 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.subjectID
      _FldNameList[9]   = ASI.Task.taskID
      _FldNameList[10]   = ASI.Task.user-id
