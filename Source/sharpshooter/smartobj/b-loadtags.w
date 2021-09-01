@@ -165,14 +165,14 @@ DEFINE BROWSE br_table
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
       ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 15
-      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
+      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 6
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
       ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
-      ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
+      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
+      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
+      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
+      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
@@ -180,7 +180,7 @@ DEFINE BROWSE br_table
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
       ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.quantityTotal FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
+      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty"
       ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
       ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
@@ -446,6 +446,121 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromPO B-table-Win
+PROCEDURE BuildLoadTagsFromPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.      
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN BuildLoadTagsFromPO IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,        
+        INPUT  ipcQuantityUOM,
+        INPUT  ipiCopies,
+        OUTPUT lError,
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+        
+    IF lError THEN
+        MESSAGE cMessage
+        VIEW-AS ALERT-BOX ERROR.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromRelease B-table-Win
+PROCEDURE BuildLoadTagsFromRelease:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies    AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttLoadTag.
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromRelease IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromTag B-table-Win
+PROCEDURE BuildLoadTagsFromTag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    RUN BuildLoadTagsFromTag IN hdLoadTagProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcTag,
+        INPUT  ipiCopies,
+        INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+        ).    
+    
+    RUN dispatch (
+        INPUT "open-query"
+        ).
+    
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win 
 PROCEDURE CreateLoadTagFromTT :
@@ -796,6 +911,10 @@ PROCEDURE pInit PRIVATE :
             END CASE.
         END.
     END.
+
+    BROWSE {&BROWSE-NAME}:ROW-HEIGHT-CHARS = 1.
+    BROWSE {&BROWSE-NAME}:FONT = 17.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -28,7 +28,10 @@ DEFINE VARIABLE gcBOLLoadTagOutputPath                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCreateTagsForEmptyBOLLineTags        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateTagForPartial                  AS LOGICAL   NO-UNDO.
 
-{oerep/ttLoadTag.i SHARED}
+/*DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.*/
+/*oSetting = NEW system.Setting().                   */
+
+{oerep/ttLoadTag.i}
 {api/ttAPIOutboundEvent.i}
 {fg/fullset.i NEW}
 {oerep/r-loadtg.i }
@@ -67,10 +70,10 @@ RUN pUpdateConfig.
 
 /* ************************  Function Prototypes ********************** */
 FUNCTION fGetNextTTLoadTagRecordID RETURNS INTEGER PRIVATE
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 FUNCTION fReplaceQuotes RETURNS CHARACTER PRIVATE
-	( INPUT ipcField AS CHARACTER ) FORWARD.
+    ( INPUT ipcField AS CHARACTER ) FORWARD.
 
 PROCEDURE BuildLoadTagsFromBOL:
 /*------------------------------------------------------------------------------
@@ -88,6 +91,30 @@ PROCEDURE BuildLoadTagsFromBOL:
     RUN pBuildLoadTagsFromBOL (
         INPUT  ipcCompany,
         INPUT  ipiBOLID,
+        INPUT  ipiCopies,
+        OUTPUT lError,
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).    
+
+END PROCEDURE.
+
+PROCEDURE BuildLoadTagsFromRelease:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies    AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+   
+    RUN pBuildLoadTagsFromRelease (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
         INPUT  ipiCopies,
         OUTPUT lError,
         OUTPUT cMessage,
@@ -173,7 +200,7 @@ PROCEDURE pCreateLoadTagFromTT:
                 OUTPUT ttLoadTag.errorMessage
                 ).
         END.
-        
+       
         IF iplPrint THEN
             RUN pPrintTTLoadtags (
                 INPUT ipcCompany,
@@ -184,6 +211,228 @@ PROCEDURE pCreateLoadTagFromTT:
         IF iplEmptyTTLoadtag THEN 
             EMPTY TEMP-TABLE ttLoadTag.
     END.
+END PROCEDURE.
+
+PROCEDURE pBuildLoadTagsFromRelease PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    DEFINE VARIABLE iTTLoadTagRecordID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSetsCreated       AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-job       FOR job.
+    DEFINE BUFFER bf-job-hdr   FOR job-hdr.
+    DEFINE BUFFER bf-oe-relh   FOR oe-relh.
+    DEFINE BUFFER bf-oe-rell   FOR oe-rell.
+    DEFINE BUFFER bf-oe-ord    FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl   FOR oe-ordl.
+    DEFINE BUFFER bf-shipto    FOR shipto.
+    DEFINE BUFFER bf-fg-bin    FOR fg-bin.   
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadtag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+                         
+        FIND FIRST bf-oe-relh NO-LOCK
+             WHERE bf-oe-relh.company  EQ ipcCompany
+               AND bf-oe-relh.release# EQ ipiReleaseID
+             NO-ERROR.             
+        
+        IF NOT AVAILABLE bf-oe-relh THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid Release # '" + STRING(ipiReleaseID) + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        FOR EACH bf-oe-rell NO-LOCK
+            WHERE bf-oe-rell.company EQ bf-oe-relh.company
+              AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no:
+            FIND FIRST bf-oe-ord NO-LOCK
+                 WHERE bf-oe-ord.company EQ bf-oe-rell.company
+                   AND bf-oe-ord.ord-no  EQ bf-oe-rell.ord-no
+                 NO-ERROR.
+            IF AVAILABLE bf-oe-ord THEN
+                FIND FIRST bf-oe-ordl NO-LOCK
+                     WHERE bf-oe-ordl.company EQ bf-oe-ord.company
+                       AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+                       AND bf-oe-ordl.i-no    EQ bf-oe-rell.i-no
+                     NO-ERROR.
+            
+            IF NOT AVAILABLE bf-oe-ordl THEN
+                NEXT.
+            
+            IF CAN-FIND (FIRST oe-ordl
+                         WHERE oe-ordl.company        EQ bf-oe-ordl.company
+                           AND oe-ordl.ord-no         EQ bf-oe-ordl.ord-no
+                           AND oe-ordl.is-a-component EQ YES
+                           AND oe-ordl.set-hdr-line   EQ bf-oe-ordl.line) THEN
+                NEXT.
+                    
+            RUN pCreateTTLoadTagFromItem (
+                INPUT  bf-oe-rell.company,
+                INPUT  bf-oe-rell.i-no,
+                OUTPUT iTTLoadTagRecordID,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK. 
+
+            FIND FIRST bf-ttLoadTag
+                 WHERE bf-ttLoadTag.recordID EQ iTTLoadTagRecordID
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-ttLoadTag THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Error while populating loadtag record'"
+                    .            
+                NEXT.
+            END.
+
+            RUN pUpdateTTLoadTagCustDetails (
+                INPUT  bf-oe-rell.company,
+                INPUT  bf-oe-rell.i-no,
+                INPUT  bf-oe-ord.cust-no,
+                INPUT  bf-ttLoadTag.recordID,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+  
+            ASSIGN
+                bf-ttLoadTag.orderID        = bf-oe-rell.ord-no
+                bf-ttLoadTag.relID          = bf-oe-rell.rel-no
+                bf-ttLoadTag.jobID          = bf-oe-rell.job-no
+                bf-ttLoadTag.jobID2         = bf-oe-rell.job-no2
+                bf-ttLoadTag.itemID         = bf-oe-rell.i-no
+                bf-ttLoadTag.tag            = bf-oe-rell.tag
+                bf-ttLoadTag.overPct        = 0
+                bf-ttLoadTag.quantityTotal  = bf-oe-rell.qty
+                bf-ttLoadTag.estID          = bf-oe-ordl.est-no
+                bf-ttLoadTag.formNo         = bf-oe-ordl.form-no
+                bf-ttLoadTag.tareWeight     = 10
+                bf-ttLoadTag.uom            = "EA"
+                bf-ttLoadTag.printCopies    = ipiCopies
+                bf-ttLoadTag.ipReturn       = NO
+                bf-ttLoadTag.isSelected     = TRUE
+                bf-ttLoadTag.tagStatus      = IF TRIM(bf-ttLoadTag.tag) EQ "" THEN 
+                                                  "Pending"
+                                              ELSE
+                                                  "Created"
+                bf-ttLoadTag.recordSource   = "RELEASE"
+                bf-ttLoadTag.exportFileType = "loadtag"
+                bf-ttLoadTag.exportFile     = gcBOLLoadTagOutputPath + gcBOLLoadTagOutputFile
+                .
+    
+            RUN pUpdateTTLoadTagOrderDetails (
+                INPUT bf-oe-rell.company,
+                INPUT bf-oe-rell.ord-no,
+                INPUT bf-oe-rell.i-no,
+                INPUT bf-ttLoadTag.recordID
+                ).
+            
+            bf-ttLoadTag.lotID = bf-ttLoadTag.rellotID.            
+            
+            FIND FIRST bf-job-hdr NO-LOCK
+                 WHERE bf-job-hdr.company = bf-oe-ordl.company 
+                   AND bf-job-hdr.ord-no  = bf-oe-ordl.ord-no  
+                   AND bf-job-hdr.i-no    = bf-oe-ordl.i-no
+                 NO-ERROR.
+            IF AVAILABLE bf-job-hdr THEN
+                FIND FIRST bf-job NO-LOCK 
+                     WHERE bf-job.company = bf-job-hdr.company
+                       AND bf-job.job     = bf-job-hdr.job
+                       AND bf-job.job-no  = bf-job-hdr.job-no
+                       AND bf-job.job-no2 = bf-job-hdr.job-no2
+                      NO-ERROR.
+            
+            IF AVAILABLE bf-job-hdr THEN
+                ASSIGN
+                    bf-ttLoadTag.jobQuantity   = bf-job-hdr.qty      
+                    bf-ttLoadTag.dueDateJobHdr = IF bf-job-hdr.due-date NE ? THEN 
+                                                     STRING(bf-job-hdr.due-date, "99/99/9999") 
+                                                 ELSE
+                                                     "".
+            IF AVAILABLE bf-job THEN DO:
+                bf-ttLoadTag.dueDateJob = IF bf-job.due-date NE ? THEN 
+                                              STRING(bf-job.due-date, "99/99/9999") 
+                                          ELSE 
+                                              "".
+    
+                RUN pUpdateTTLoadTagEstimateDetails (
+                    INPUT bf-job.company,
+                    INPUT bf-job.est-no,
+                    INPUT bf-ttLoadTag.recordID
+                    ).
+            END.
+            
+            FIND FIRST bf-fg-bin NO-LOCK 
+                 WHERE bf-fg-bin.company EQ bf-oe-rell.company
+                   AND bf-fg-bin.job-no  EQ bf-oe-rell.job-no
+                   AND bf-fg-bin.job-no2 EQ bf-oe-rell.job-no2
+                   AND bf-fg-bin.i-no    EQ bf-oe-rell.i-no
+                   AND bf-fg-bin.loc     EQ bf-oe-rell.loc
+                   AND bf-fg-bin.loc-bin EQ bf-oe-rell.loc-bin
+                   AND bf-fg-bin.tag     EQ bf-oe-rell.tag
+                 NO-ERROR.
+            IF AVAILABLE bf-fg-bin THEN 
+                bf-ttLoadTag.subUnitsPerUnit = bf-fg-bin.cases-unit.
+            ELSE
+                bf-ttLoadTag.subUnitsPerUnit = bf-oe-ordl.cases-unit.
+
+            ASSIGN
+                bf-ttLoadTag.quantityInSubUnit  = bf-oe-rell.qty-case
+/*                bf-ttLoadTag.quantityOfSubUnits = bf-oe-rell.cases*/
+/*                bf-ttLoadTag.partial            = bf-oe-rell.partial*/
+/*                bf-ttLoadTag.quantityInUnit     = bf-ttLoadTag.quantityInSubUnit * bf-ttLoadTag.subUnitsPerUnit*/
+/*                bf-ttLoadTag.quantityOfUnits    = bf-oe-rell.tot-pallets*/
+/*                bf-ttLoadTag.partial            = bf-oe-rell.partial*/
+                bf-ttLoadTag.ordQuantity        = bf-oe-ordl.qty
+/*                bf-ttLoadTag.totalTags          = bf-oe-rell.tot-pallets*/
+                bf-ttLoadTag.netWeight          = bf-ttLoadTag.sheetWeight * bf-ttLoadTag.quantity
+                bf-ttLoadTag.grossWeight        = bf-ttLoadTag.sheetWeight * bf-ttLoadTag.quantity
+                .
+            
+            RUN pUpdateTTLoadTagQuantites (
+                INPUT bf-ttLoadTag.quantityTotal,
+                INPUT bf-ttLoadTag.quantityInSubUnit,
+                INPUT bf-ttLoadTag.subUnitsPerUnit,
+                INPUT bf-ttLoadTag.recordID
+                ).
+                            
+            RUN pGetExportTemplateFile(
+                INPUT  bf-ttLoadTag.company,
+                INPUT  "ReleaseTagFile",
+                INPUT  bf-ttLoadTag.itemID,
+                INPUT  bf-ttLoadTag.custID,
+                INPUT  bf-ttLoadTag.shipID,
+                OUTPUT bf-ttLoadTag.exportTemplateFile,
+                OUTPUT bf-ttLoadTag.exportTemplate
+                ).
+
+            IF glCreateComponenetTagsForSetHeaderItem THEN DO:
+                RUN pCreateSetComponentsForTTLoadTagItem (
+                    INPUT  bf-ttLoadTag.recordID,
+                    OUTPUT lSetsCreated
+                    ).
+        
+                IF lSetsCreated THEN
+                    DELETE bf-ttLoadTag.
+            END.            
+        END.
+    END. 
 END PROCEDURE.
 
 PROCEDURE pBuildLoadTagsFromBOL PRIVATE:
@@ -691,7 +940,7 @@ PROCEDURE pCreateLoadTag:
             ipbf-ttLoadTag.tagStatus    = "Created"
             .
 
-        IF ipbf-ttLoadTag.recordSource EQ "BOL" THEN
+        IF ipbf-ttLoadTag.recordSource EQ "BOL" OR ipbf-ttLoadTag.recordSource EQ "RELEASE" THEN
             RETURN.
 
         IF glCreateFGReceipts AND glCheckClosedStatus THEN DO:
@@ -1350,7 +1599,7 @@ PROCEDURE pPrintLoadTag PRIVATE:
         '"'  ipbf-ttLoadTag.boxDep FORMAT ">>>9.99<<<" '",'
         '"'  ipbf-ttLoadTag.flute  '",'
         '"'  ipbf-ttLoadTag.test  '",'
-        '"'  ipbf-ttLoadTag.vendor  '",'
+        '"'  ipbf-ttLoadTag.vendorName  '",'
              ipbf-ttLoadTag.grossWeight  ","
              ipbf-ttLoadTag.tareWeight  ","
              ipbf-ttLoadTag.netWeight  ","
@@ -1715,7 +1964,7 @@ PROCEDURE pCreateTTLoadTagFromItem:
             bf-ttLoadTag.boxWid          = bf-itemfg.w-score[50]
             bf-ttLoadTag.boxDep          = bf-itemfg.d-score[50]
             bf-ttLoadTag.style           = bf-itemfg.style
-            bf-ttLoadTag.vendor          = bf-company.name
+            bf-ttLoadTag.vendorName      = bf-company.name
             bf-ttLoadTag.zoneID          = bf-itemfg.spare-char-4
             bf-ttLoadTag.sheetWeight     = bf-itemfg.weight-100 / 100
             bf-ttLoadTag.subUnitsPerUnit = bf-itemfg.case-pall
@@ -1814,8 +2063,69 @@ PROCEDURE pUpdateConfig PRIVATE:
             gcBOLLoadTagOutputFile                 = STRING(oSSLoadTagConfig:GetAttributeValue("BOLLoadTagOutputFilePath", "File"))
             gcBOLLoadTagOutputPath                 = STRING(oSSLoadTagConfig:GetAttributeValue("BOLLoadTagOutputFilePath", "Path"))
             NO-ERROR.
+
+/*    IF VALID-OBJECT(oSetting) THEN                                                                                      */
+/*        ASSIGN                                                                                                          */
+/*            glUpdateLoadTagSSCC                    = LOGICAL(oSetting:GetByName("UpdateLoadTagSSCC"))                   */
+/*            glUpdateLocBinFromItemFG               = LOGICAL(oSetting:GetByName("UpdateLocBinFromItemFG"))              */
+/*            glUpdateLocBinFromFGBin                = LOGICAL(oSetting:GetByName("UpdateLocBinFromFGBin"))               */
+/*            glCreateFGReceipts                     = LOGICAL(oSetting:GetByName("CreateFGReceipts"))                    */
+/*            glCheckClosedStatus                    = LOGICAL(oSetting:GetByName("CheckClosedStatus"))                   */
+/*            glUpdateSetWithMaxQuantity             = LOGICAL(oSetting:GetByName("UpdateSetWithMaxQuantity"))            */
+/*            glCreateRFIDTag                        = LOGICAL(oSetting:GetByName("CreateRFIDTag"))                       */
+/*            glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSetting:GetByName("CreateComponenetTagsForSetHeaderItem"))*/
+/*            glAutoPrint                            = LOGICAL(oSetting:GetByName("AutoPrint"))                           */
+/*            glCreateTagsForEmptyBOLLineTags        = LOGICAL(oSetting:GetByName("CreateTagsForEmptyBOLLineTags"))       */
+/*            glCreateTagForPartial                  = LOGICAL(oSetting:GetByName("CreateTagForPartial"))                 */
+/*            giFGSetRec                             = INTEGER(oSetting:GetByName("FGSetRec"))                            */
+/*            gcLoadTag                              = STRING(oSetting:GetByName("LoadTag"))                              */
+/*            gcLoadTagOutputFile                    = STRING(oSetting:GetByName("LoadTagOutputFile"))                    */
+/*            gcLoadTagOutputPath                    = STRING(oSetting:GetByName("LoadTagOutputFilePath"))                */
+/*            gcBOLLoadTagOutputFile                 = STRING(oSetting:GetByName("BOLLoadTagOutputFile"))                 */
+/*            gcBOLLoadTagOutputPath                 = STRING(oSetting:GetByName("BOLLoadTagOutputFilePath"))             */
+/*            NO-ERROR.                                                                                                   */
+
 END PROCEDURE.
 
+PROCEDURE pUpdateTTLoadTagFGBinDetails PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTTLoadTagRecordID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin    FOR fg-bin.
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ ipiTTLoadTagRecordID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttLoadTag THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+
+        FIND FIRST bf-fg-bin NO-LOCK
+             WHERE bf-fg-bin.company EQ ipcCompany
+               AND bf-fg-bin.i-no    EQ ipcItemID
+               AND bf-fg-bin.tag     EQ ipcTag
+             NO-ERROR.
+        IF NOT AVAILABLE bf-fg-bin THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        
+        ASSIGN
+            bf-ttLoadTag.quantityInSubUnit = bf-fg-bin.case-count
+            bf-ttLoadTag.subUnitsPerUnit   = bf-fg-bin.cases-unit
+            bf-ttLoadTag.quantity          = bf-fg-bin.qty
+            bf-ttLoadTag.warehouseID       = bf-fg-bin.loc
+            bf-ttLoadTag.locationID        = bf-fg-bin.loc-bin
+            .
+    END.
+END PROCEDURE.
 
 PROCEDURE pUpdateTTLoadTagLoadtagDetails PRIVATE:
 /*------------------------------------------------------------------------------
@@ -1898,7 +2208,7 @@ PROCEDURE pUpdateTTLoadTagEstimateDetails:
                AND bf-est.est-no  EQ ipcEstimateID
              NO-ERROR.
 
-        IF AVAILABLE bf-est THEN
+        IF AVAILABLE bf-est THEN DO:
             FIND FIRST bf-eb NO-LOCK
                  WHERE bf-eb.company   EQ bf-est.company
                    AND bf-eb.est-no    EQ bf-est.est-no
@@ -1906,13 +2216,14 @@ PROCEDURE pUpdateTTLoadTagEstimateDetails:
                    AND (bf-eb.blank-no EQ bf-ttLoadTag.blankNo OR bf-ttLoadTag.blankNo EQ 0)
                  NO-ERROR.
 
-/*              Need to configure if the estimate information is for a PO       */
-/*              FIND FIRST bf-eb NO-LOCK                                        */
-/*                   WHERE bf-eb.company  EQ bf-ttLoadTag.company               */
-/*                     AND bf-eb.est-no   EQ bf-ttLoadTag.estID                 */
-/*                     AND bf-eb.stock-no EQ bf-ttLoadTag.itemID                */
-/*                   NO-ERROR.                                                  */
-
+            IF bf-ttLoadTag.recordSource EQ "PO" THEN
+                FIND FIRST bf-eb NO-LOCK
+                     WHERE bf-eb.company  EQ bf-ttLoadTag.company
+                       AND bf-eb.est-no   EQ bf-ttLoadTag.estID
+                       AND bf-eb.stock-no EQ bf-ttLoadTag.itemID
+                     NO-ERROR.
+        END.
+        
         IF AVAILABLE bf-eb THEN
             ASSIGN
                 bf-ttLoadTag.flute      = bf-eb.flute
@@ -2160,6 +2471,271 @@ PROCEDURE BuildLoadTagsFromJob:
         ).
 END PROCEDURE.
 
+PROCEDURE BuildLoadTagsFromPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/  
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    RUN pBuildLoadTagsFromPO (
+        INPUT  ipcCompany,
+        INPUT  ipiPOID,
+        INPUT  ipiPOLine,
+        INPUT  ipiQuantity,
+        INPUT  ipiQuantityInSubUnit,
+        INPUT  ipiSubUnitsPerUnit,
+        INPUT  ipcQuantityUOM,
+        INPUT  ipiCopies,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+END PROCEDURE.
+
+PROCEDURE pBuildLoadTagsFromPO PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOLine            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    DEFINE VARIABLE iTTLoadTagRecordID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cNote              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSetsCreated       AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ord    FOR po-ord.
+    DEFINE BUFFER bf-po-ordl   FOR po-ordl.
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
+    DEFINE BUFFER bf-notes     FOR notes.
+    DEFINE BUFFER bf-vend      FOR vend.
+    DEFINE BUFFER bf-itemfg    FOR itemfg.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:                
+        FIND FIRST bf-po-ord NO-LOCK
+             WHERE bf-po-ord.company EQ ipcCompany
+               AND bf-po-ord.po-no   EQ ipiPOID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-po-ord THEN DO:
+            ASSIGN
+                oplError = TRUE 
+                opcMessage = "Invalid PO # '" + STRING(ipiPOID) + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+                    
+        FIND FIRST bf-po-ordl NO-LOCK
+             WHERE bf-po-ordl.company   EQ ipcCompany
+               AND bf-po-ordl.po-no     EQ ipiPOID
+               AND bf-po-ordl.line      EQ ipiPOLine
+               AND bf-po-ordl.item-type EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-po-ordl THEN DO:
+            ASSIGN
+                oplError = TRUE 
+                opcMessage = "Invalid PO #/PO Line# '" + STRING(ipiPOID) + "/" + STRING(ipiPOLine) + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ bf-po-ordl.company
+               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
+             NO-ERROR.
+        IF NOT AVAILABLE bf-itemfg THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid item # '" + bf-po-ordl.i-no + "'"
+                .
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+        
+        RUN pCreateTTLoadTagFromItem (
+            INPUT  bf-po-ordl.company,
+            INPUT  bf-po-ordl.i-no,
+            OUTPUT iTTLoadTagRecordID,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+        IF oplError THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+            
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ iTTLoadTagRecordID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttLoadTag THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Error while populating loadtag record'"
+                .            
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+                   
+        ASSIGN
+            bf-ttLoadTag.poID           = bf-po-ordl.po-no
+            bf-ttLoadTag.poLine         = bf-po-ordl.line
+            bf-ttLoadTag.orderID        = bf-po-ordl.ord-no
+            bf-ttLoadTag.itemID         = bf-po-ordl.i-no
+            bf-ttLoadTag.overPct        = 0
+            bf-ttLoadTag.ordQuantity    = bf-po-ordl.ord-qty
+            bf-ttLoadTag.dueDate        = bf-po-ordl.due-date
+            bf-ttLoadTag.netWeight      = bf-ttLoadTag.sheetWeight * bf-ttLoadTag.quantity
+            bf-ttLoadTag.tareWeight     = 10
+            bf-ttLoadTag.grossWeight    = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
+            bf-ttLoadTag.uom            = "EA"
+            bf-ttLoadTag.printCopies    = ipiCopies
+            bf-ttLoadTag.ipReturn       = NO
+            bf-ttLoadTag.tagStatus      = "Pending"
+            bf-ttLoadTag.recordSource   = "PO"
+            bf-ttLoadTag.isSelected     = TRUE
+            bf-ttLoadTag.exportFileType = "loadtag"
+            bf-ttLoadTag.exportFile     = gcLoadTagOutputPath + gcLoadTagOutputFile
+            .
+
+        IF bf-po-ordl.pr-qty-uom NE "EA" THEN
+            RUN Conv_QuantityFromUOMToUOM (
+                INPUT  bf-po-ordl.company,
+                INPUT  bf-po-ordl.i-no,
+                INPUT  "FG",
+                INPUT  bf-ttLoadTag.ordQuantity,
+                INPUT  po-ordl.pr-qty-uom, 
+                INPUT  "EA",
+                INPUT  10 * itemfg.weight-100 / itemfg.t-sqft,
+                INPUT  bf-itemfg.t-len,
+                INPUT  bf-itemfg.t-wid,
+                INPUT  bf-itemfg.t-dep,
+                INPUT  0,
+                OUTPUT bf-ttLoadTag.ordQuantity,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+
+        bf-ttLoadTag.quantityTotal  = bf-ttLoadTag.ordQuantity.
+        
+        FIND FIRST bf-vend NO-LOCK 
+             WHERE bf-vend.company EQ ipcCompany
+               AND bf-vend.vend-no EQ bf-po-ord.vend-no
+             NO-ERROR.
+        IF AVAILABLE bf-vend THEN
+            ASSIGN
+                bf-ttLoadTag.vendorID   = bf-vend.vend-no
+                bf-ttLoadTag.vendorName = bf-vend.name
+                .
+
+        RUN pUpdateTTLoadTagOrderDetails (
+            INPUT bf-po-ordl.company,
+            INPUT bf-po-ordl.ord-no,
+            INPUT bf-po-ordl.i-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+                    
+        IF bf-po-ordl.ord-no NE 0 THEN DO:
+            iCount = 9.
+            FOR EACH bf-notes NO-LOCK
+                WHERE bf-notes.rec_key EQ bf-po-ordl.rec_key:
+                ASSIGN
+                    cNote = TRIM(REPLACE(bf-notes.note_text, CHR(10) + CHR(13), " "))
+                    cNote = TRIM(REPLACE(cNote, CHR(13), " "))
+                    cNote = TRIM(REPLACE(cNote, CHR(10), " "))
+                    cNote = REPLACE(cNote, '"', "''")
+                    .
+                    
+                ASSIGN
+                    bf-ttLoadTag.deptNote[iCount] = cNote
+                    iCount                        = iCount + 1
+                    .
+            END.
+        END.
+        
+        RUN pUpdateTTLoadTagOrderDetails (
+            INPUT bf-po-ordl.company,
+            INPUT bf-po-ordl.ord-no,
+            INPUT bf-po-ordl.i-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+            
+        bf-ttLoadTag.lotID = bf-ttLoadTag.rellotID.
+
+        RUN pUpdateTTLoadTagCustDetails (
+            INPUT  bf-po-ordl.company,
+            INPUT  bf-po-ordl.i-no,
+            INPUT  bf-po-ordl.cust-no,
+            INPUT  bf-ttLoadTag.recordID,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+        IF oplError THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+
+        RUN pUpdateTTLoadTagShipToDetails (
+            INPUT bf-po-ordl.company,
+            INPUT bf-po-ordl.cust-no,
+            INPUT bf-po-ord.ship-id,
+            INPUT bf-ttLoadTag.recordID
+            ).
+ 
+        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE '' THEN
+            RUN pUpdateTTLoadTagEstimateDetails (
+                INPUT bf-itemfg.company,
+                INPUT bf-itemfg.est-no,
+                INPUT bf-ttLoadTag.recordID
+                ).
+
+        RUN pUpdateTTLoadTagQuantites (
+            INPUT ipiQuantity,
+            INPUT ipiQuantityInSubUnit,
+            INPUT ipiSubUnitsPerUnit,
+            INPUT bf-ttLoadTag.recordID
+            ).
+                                     
+        IF bf-ttLoadTag.partial EQ ? THEN 
+            bf-ttLoadTag.partial = 0. 
+        
+        RUN pGetExportTemplateFile(
+            INPUT  bf-ttLoadTag.company,
+            INPUT  "BARDIR",
+            INPUT  bf-ttLoadTag.itemID,
+            INPUT  bf-ttLoadTag.custID,
+            INPUT  bf-ttLoadTag.shipID,
+            OUTPUT bf-ttLoadTag.exportTemplateFile,
+            OUTPUT bf-ttLoadTag.exportTemplate
+            ).
+        
+        IF glCreateComponenetTagsForSetHeaderItem THEN DO:
+            RUN pCreateSetComponentsForTTLoadTagItem (
+                INPUT  bf-ttLoadTag.recordID,
+                OUTPUT lSetsCreated
+                ).
+    
+            IF lSetsCreated THEN
+                DELETE bf-ttLoadTag.
+        END.
+    END.    
+END PROCEDURE.
+    
 PROCEDURE pBuildLoadTagsFromJob PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2254,25 +2830,7 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
                 .            
             UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
         END.
-        
-        RUN pUpdateTTLoadTagCustDetails (
-            INPUT  bf-job-hdr.company,
-            INPUT  bf-job-hdr.i-no,
-            INPUT  bf-job-hdr.cust-no,
-            INPUT  bf-ttLoadTag.recordID,
-            OUTPUT oplError,
-            OUTPUT opcMessage
-            ).
-        IF oplError THEN
-            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
-
-        RUN pUpdateTTLoadTagShipToDetails (
-            INPUT bf-job-hdr.company,
-            INPUT bf-job-hdr.cust-no,
-            INPUT bf-job-hdr.cust-no,
-            INPUT bf-ttLoadTag.recordID
-            ).
-            
+                   
         ASSIGN
             bf-ttLoadTag.orderID        = bf-job-hdr.ord-no
             bf-ttLoadTag.jobID          = bf-job-hdr.job-no
@@ -2331,6 +2889,24 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
             
         bf-ttLoadTag.lotID = bf-ttLoadTag.rellotID.
 
+        RUN pUpdateTTLoadTagCustDetails (
+            INPUT  bf-job-hdr.company,
+            INPUT  bf-job-hdr.i-no,
+            INPUT  bf-job-hdr.cust-no,
+            INPUT  bf-ttLoadTag.recordID,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+        IF oplError THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+
+        RUN pUpdateTTLoadTagShipToDetails (
+            INPUT bf-job-hdr.company,
+            INPUT bf-job-hdr.cust-no,
+            INPUT bf-job-hdr.cust-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+ 
         RUN pUpdateTTLoadTagEstimateDetails (
             INPUT bf-job.company,
             INPUT bf-job.est-no,
@@ -2397,6 +2973,293 @@ PROCEDURE pBuildLoadTagsFromJob PRIVATE:
     END. 
 END PROCEDURE.
 
+PROCEDURE BuildLoadTagsFromTag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    RUN pBuildLoadTagsFromTag (
+        INPUT  ipcCompany,
+        INPUT  ipcTag,
+        INPUT  ipiCopies,
+        OUTPUT lError,
+        OUTPUT cMessage,
+        INPUT-OUTPUT TABLE ttLoadTag
+        ).
+END PROCEDURE.
+
+PROCEDURE pBuildLoadTagsFromTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiCopies  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttLoadTag.
+    
+    DEFINE VARIABLE iTTLoadTagRecordID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadtag.
+    DEFINE BUFFER bf-loadtag   FOR loadtag.
+        
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        
+        FIND FIRST bf-loadtag NO-LOCK 
+             WHERE bf-loadtag.company   EQ ipcCompany  
+               AND bf-loadtag.item-type EQ FALSE
+               AND bf-loadtag.tag-no    EQ ipcTag
+             NO-ERROR.
+        IF NOT AVAILABLE bf-loadtag THEN
+            FIND FIRST bf-loadtag NO-LOCK 
+                 WHERE bf-loadtag.company      EQ ipcCompany  
+                   AND bf-loadtag.item-type    EQ FALSE
+                   AND bf-loadtag.misc-char[1] EQ ipcTag
+                 NO-ERROR.
+        IF NOT AVAILABLE bf-loadtag THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+
+        RUN pCreateTTLoadTagFromItem (
+            INPUT  bf-loadtag.company,
+            INPUT  bf-loadtag.i-no,
+            OUTPUT iTTLoadTagRecordID,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+        IF oplError THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+            
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ iTTLoadTagRecordID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttLoadTag THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Error while populating loadtag record'"
+                .            
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        END.
+
+        IF bf-loadtag.po-no NE 0 THEN
+            RUN pUpdateTTLoadTagPOLineDetails (
+                INPUT bf-loadtag.company,
+                INPUT bf-loadtag.po-no,
+                INPUT bf-loadtag.i-no,
+                INPUT bf-ttLoadTag.recordID
+                ).
+        
+        IF bf-loadtag.job-no NE "" THEN
+            RUN pUpdateTTLoadTagJobDetails (
+                INPUT bf-loadtag.company,
+                INPUT bf-loadtag.job-no,
+                INPUT bf-loadtag.job-no2,
+                INPUT bf-loadtag.i-no,
+                INPUT bf-ttLoadTag.recordID
+                ).
+
+        RUN pUpdateTTLoadTagOrderDetails (
+            INPUT bf-loadtag.company,
+            INPUT bf-loadtag.ord-no,
+            INPUT bf-loadtag.i-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+
+        RUN pUpdateTTLoadTagCustDetails (
+            INPUT  bf-ttLoadTag.company,
+            INPUT  bf-ttLoadTag.itemID,
+            INPUT  bf-ttLoadTag.custID,
+            INPUT  bf-ttLoadTag.recordID,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+
+        RUN pUpdateTTLoadTagShipToDetails (
+            INPUT bf-ttLoadTag.company,
+            INPUT bf-ttLoadTag.custID,
+            INPUT bf-ttLoadTag.custID,
+            INPUT bf-ttLoadTag.recordID
+            ).
+
+        RUN pUpdateTTLoadTagLoadtagDetails (
+            INPUT bf-loadtag.company,
+            INPUT bf-loadtag.tag-no,
+            INPUT bf-loadtag.item-type,
+            INPUT bf-ttLoadTag.recordID
+            ).
+
+        RUN pUpdateTTLoadTagFGBinDetails (
+            INPUT bf-loadtag.company,
+            INPUT bf-loadtag.i-no,
+            INPUT bf-loadtag.tag-no,
+            INPUT bf-ttLoadTag.recordID
+            ).
+        
+        ASSIGN
+            bf-ttLoadTag.ordQuantity       = bf-loadtag.qty
+            bf-ttLoadTag.netWeight         = bf-ttLoadTag.sheetWeight * bf-ttLoadTag.quantity
+            bf-ttLoadTag.tareWeight        = 10
+            bf-ttLoadTag.grossWeight       = bf-ttLoadTag.netWeight + bf-ttLoadTag.tareWeight
+            bf-ttLoadTag.uom               = "EA"
+            bf-ttLoadTag.printCopies       = ipiCopies
+            bf-ttLoadTag.tagStatus         = "Created"
+            bf-ttLoadTag.recordSource      = "LOADTAG"
+            bf-ttLoadTag.isSelected        = TRUE
+            bf-ttLoadTag.exportFileType    = "loadtag"
+            bf-ttLoadTag.exportFile        = gcLoadTagOutputPath + gcLoadTagOutputFile
+            .
+            
+        bf-ttLoadTag.lotID = bf-ttLoadTag.rellotID.
+
+        RUN pUpdateTTLoadTagEstimateDetails (
+            INPUT bf-ttLoadTag.company,
+            INPUT bf-ttLoadTag.estID,
+            INPUT bf-ttLoadTag.recordID
+            ).
+
+        RUN pUpdateTTLoadTagQuantites (
+            INPUT bf-ttLoadTag.quantityTotal,
+            INPUT bf-ttLoadTag.quantityInSubUnit,
+            INPUT bf-ttLoadTag.subUnitsPerUnit,
+            INPUT bf-ttLoadTag.recordID
+            ).
+        
+        IF bf-ttLoadTag.partial EQ ? THEN 
+            bf-ttLoadTag.partial = 0. 
+        
+        RUN pGetExportTemplateFile(
+            INPUT  bf-ttLoadTag.company,
+            INPUT  "BARDIR",
+            INPUT  bf-ttLoadTag.itemID,
+            INPUT  bf-ttLoadTag.custID,
+            INPUT  bf-ttLoadTag.shipID,
+            OUTPUT bf-ttLoadTag.exportTemplateFile,
+            OUTPUT bf-ttLoadTag.exportTemplate
+            ).
+    END. 
+END PROCEDURE.
+
+PROCEDURE pUpdateTTLoadTagPOLineDetails:
+/*------------------------------------------------------------------------------
+  Purpose:
+  Parameters:  <none>
+  Notes:    
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID              AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTTLoadTagRecordID AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-po-ord    FOR po-ord.
+    DEFINE BUFFER bf-po-ordl   FOR po-ordl.
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ ipiTTLoadTagRecordID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttLoadTag THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        
+        FIND FIRST bf-po-ord NO-LOCK
+             WHERE bf-po-ord.company EQ ipcCompany
+               AND bf-po-ord.po-no   EQ ipiPOID 
+               NO-ERROR.
+        IF AVAILABLE bf-po-ord THEN
+            FIND FIRST bf-po-ordl NO-LOCK 
+                 WHERE bf-po-ordl.company EQ bf-po-ord.company
+                   AND bf-po-ordl.po-no   EQ bf-po-ord.po-no
+                   AND bf-po-ordl.i-no    EQ ipcItemID
+                 USE-INDEX po-no NO-ERROR.
+        IF AVAILABLE bf-po-ordl THEN DO:
+            ASSIGN
+                bf-ttLoadTag.dueDate  = bf-po-ord.due-date
+                bf-ttLoadTag.custID   = bf-po-ordl.cust-no
+                bf-ttLoadTag.poID     = bf-po-ord.po-no
+                .
+        END.
+    END.    
+END PROCEDURE.
+
+PROCEDURE pUpdateTTLoadTagJobDetails PRIVATE:
+/*------------------------------------------------------------------------------
+  Purpose:
+  Parameters:  <none>
+  Notes:    
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobID2            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTTLoadTagRecordID AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-job       FOR job.
+    DEFINE BUFFER bf-job-hdr   FOR job-hdr.
+    DEFINE BUFFER bf-ttLoadTag FOR ttLoadTag.
+    
+    MAIN-BLOCK:
+    DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FIND FIRST bf-ttLoadTag
+             WHERE bf-ttLoadTag.recordID EQ ipiTTLoadTagRecordID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttLoadTag THEN
+            UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+        
+        FIND FIRST bf-job NO-LOCK 
+             WHERE bf-job.company = ipcCompany
+               AND bf-job.job-no  = ipcJobID
+               AND bf-job.job-no2 = ipiJobID2  
+             NO-ERROR.
+        IF AVAILABLE bf-job THEN
+            FIND FIRST bf-job-hdr NO-LOCK
+                 WHERE bf-job-hdr.company EQ bf-job.company
+                   AND bf-job-hdr.job     EQ bf-job.job
+                   AND bf-job-hdr.job-no  EQ bf-job.job-no
+                   AND bf-job-hdr.job-no2 EQ bf-job.job-no2
+                   AND bf-job-hdr.i-no    EQ ipcItemID
+                 NO-ERROR.
+        IF NOT AVAILABLE bf-job-hdr THEN
+            FIND FIRST bf-job-hdr NO-LOCK
+                 WHERE bf-job-hdr.company EQ bf-job.company
+                   AND bf-job-hdr.job     EQ bf-job.job
+                   AND bf-job-hdr.job-no  EQ bf-job.job-no
+                   AND bf-job-hdr.job-no2 EQ bf-job.job-no2
+                 NO-ERROR.
+        IF AVAILABLE bf-job-hdr THEN DO:
+            ASSIGN
+                bf-ttLoadTag.jobID          = bf-job-hdr.job-no
+                bf-ttLoadTag.jobID2         = bf-job-hdr.job-no2
+                bf-ttLoadTag.orderID        = bf-job-hdr.ord-no
+                bf-ttLoadTag.itemID         = bf-job-hdr.i-no
+                bf-ttLoadTag.dueDate        = bf-job.start-date
+                bf-ttLoadTag.custID         = bf-job-hdr.cust-no
+                bf-ttLoadTag.estID          = bf-job.est-no
+                bf-ttLoadTag.formNo         = bf-job-hdr.frm
+                bf-ttLoadTag.blankNo        = bf-job-hdr.blank-no
+                bf-ttLoadTag.custPONo       = bf-job-hdr.po-no
+                bf-ttLoadTag.dueDateJob     = IF bf-job.due-date <> ? THEN STRING(bf-job.due-date, "99/99/9999") ELSE ""
+                bf-ttLoadTag.dueDateJobHdr  = IF bf-job-hdr.due-date <> ? THEN STRING(bf-job-hdr.due-date, "99/99/9999") ELSE ""
+                bf-ttLoadTag.jobQuantity    = bf-job-hdr.qty
+                .
+        END.
+    END.
+    
+END PROCEDURE.    
+    
 PROCEDURE pUpdateTTLoadTagOrderDetails:
 /*------------------------------------------------------------------------------
   Purpose:
@@ -2443,6 +3306,7 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
              NO-ERROR.
         IF AVAILABLE bf-oe-ord THEN
             ASSIGN
+                bf-ttLoadTag.custID       = bf-oe-ord.cust-no
                 bf-ttLoadTag.soldID       = bf-oe-ord.sold-id
                 bf-ttLoadTag.soldName     = bf-oe-ord.sold-name
                 bf-ttLoadTag.soldAddress1 = bf-oe-ord.sold-add[1]
@@ -2584,6 +3448,24 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
                 INPUT ipiTTLoadTagRecordID
                 ).
     END.
+END PROCEDURE.
+
+
+PROCEDURE UpdateSettings:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*    DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.*/
+/*                                                                */
+/*    IF VALID-OBJECT(ipoSetting) THEN DO:                        */
+/*        IF VALID-OBJECT(oSetting) THEN                          */
+/*            DELETE OBJECT oSetting.                             */
+/*                                                                */
+/*        oSetting = ipoSetting.                                  */
+/*    END.                                                        */
+    
+    RUN pUpdateConfig.
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
