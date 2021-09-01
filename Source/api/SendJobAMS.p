@@ -1302,7 +1302,7 @@ PROCEDURE pCreateParts PRIVATE:
                 cItem     = eb.stock-no
                 cForm     = TRIM(STRING(eb.form-no,">>9"))
                 cBlank    = TRIM(STRING(eb.blank-no,">9"))
-                cQuantity = STRING(job-hdr.qty * eb.quantityperSet)
+                cQuantity = STRING(job-hdr.qty * (IF eb.quantityperSet EQ 0 THEN 1 ELSE eb.quantityperSet))
                 cNumberOn = STRING(eb.num-up)
                 .
             
