@@ -246,9 +246,13 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttPOLine.
 &Scoped-define SELF-NAME BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 F-Frame-Win
 ON VALUE-CHANGED OF BROWSE-2 IN FRAME F-Main
-DO:  
+DO: 
+    btUpdate:SENSITIVE = FALSE.
+    
     IF AVAILABLE ttPOLine THEN DO:
         {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT ttPOLine.quantity, INPUT ttPOLine.quantityInSubUnit, INPUT ttPOLine.subUnitsPerUnit, INPUT 0)"}
+        
+        btUpdate:SENSITIVE = TRUE.
     END.
     ELSE
         {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT 0, INPUT 0, INPUT 0, INPUT 0)"}
@@ -270,6 +274,10 @@ DO:
     {&OPEN-QUERY-{&BROWSE-NAME}}
     
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+    
+    APPLY "ENTRY" TO fiPOLine.
+    
+    fiPOLine:SET-SELECTION(1, -1).
 END.
 
 /* _UIB-CODE-BLOCK-END */

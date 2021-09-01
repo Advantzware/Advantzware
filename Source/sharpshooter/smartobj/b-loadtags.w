@@ -165,7 +165,7 @@ DEFINE BROWSE br_table
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
       ttLoadTag.jobID COLUMN-LABEL "  Job#" WIDTH 15
-      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
+      ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 6
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
       ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
@@ -911,6 +911,10 @@ PROCEDURE pInit PRIVATE :
             END CASE.
         END.
     END.
+
+    BROWSE {&BROWSE-NAME}:ROW-HEIGHT-CHARS = 1.
+    BROWSE {&BROWSE-NAME}:FONT = 17.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
