@@ -379,7 +379,7 @@ PROCEDURE runProcess :
         OUTPUT STREAM excel CLOSE.
 
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
     END.                    
     
     MESSAGE "Are you sure you want to update the amount due on the invoices shown?" 

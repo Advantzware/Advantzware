@@ -2648,9 +2648,8 @@ PROCEDURE run-report :
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
-
     SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

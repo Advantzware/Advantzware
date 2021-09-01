@@ -1714,7 +1714,7 @@ FOR each fg-bin where fg-bin.company = itemfg.company and
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    OS-COMMAND NO-WAIT 1VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
