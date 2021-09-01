@@ -48,7 +48,7 @@ format header
        "BOL DATE"                       at 53
        oe-bolh.bol-date                 at 63
        "BOL#"                           at 1
-       oe-bolh.bol-no                   format "999999"
+       oe-bolh.bol-no                   format "9999999"
        "TRAILER #"                      at 35
        oe-bolh.trailer
        v-frt-pay-dscr

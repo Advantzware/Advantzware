@@ -90,7 +90,7 @@
 
     if last-of(oe-bolh.bol-no) then do while true:
       if length(trim(v-bol-list) +
-		trim(string(oe-bolh.bol-no,">>>>>>")) + ",") gt 75 or
+		trim(string(oe-bolh.bol-no,">>>>>>>")) + ",") gt 75 or
 	 v-last                                                    then do:
 
 	if substr(v-bol-list,length(trim(v-bol-list)),1) eq "," then
@@ -111,7 +111,7 @@
       end.
 
       v-bol-list =
-	      trim(v-bol-list) + trim(string(oe-bolh.bol-no,">>>>>>")) + ",".
+	      trim(v-bol-list) + trim(string(oe-bolh.bol-no,">>>>>>>")) + ",".
 
       if last(oe-bolh.bol-no) then v-last = yes.
 
