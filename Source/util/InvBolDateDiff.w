@@ -809,7 +809,7 @@ FOR EACH ar-invl NO-LOCK
 
     RUN pExportTempTable(TEMP-TABLE ttINvoices:HANDLE, fi_file) .
 
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

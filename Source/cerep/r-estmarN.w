@@ -1652,7 +1652,7 @@ SESSION:SET-WAIT-STATE ("").
     IF rd-dest = 3  THEN 
     DO:
         IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END. 
 
 

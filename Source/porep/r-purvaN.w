@@ -2567,7 +2567,7 @@ PROCEDURE run-report :
 
     /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
     IF rd-dest = 3 AND tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 
 END PROCEDURE.
 
