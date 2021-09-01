@@ -1540,7 +1540,7 @@ PROCEDURE pGetPanelValues :
         IF hdWidget:NAME = "fiPanel-" + STRING(ipiPanelNumber) THEN
             opdPanelSize = DECIMAL(hdWidget:SCREEN-VALUE).
         ELSE IF hdWidget:NAME = "cbType-" + STRING(ipiPanelNumber) THEN
-            opcType = hdWidget:SCREEN-VALUE.        
+            opcType = IF hdWidget:SCREEN-VALUE EQ ? THEN "" ELSE hdWidget:SCREEN-VALUE.
         ELSE IF hdWidget:NAME = "fiFormula-" + STRING(ipiPanelNumber) THEN
             opcFormula = hdWidget:SCREEN-VALUE.
         ELSE IF hdWidget:NAME = "fiScoreAllowance-" + STRING(ipiPanelNumber) THEN
@@ -1943,13 +1943,16 @@ PROCEDURE pUpdateComboBoxes :
     
     /* Make sure to add a space instead of empty value to the list-items of combo-boxes. 
        As combo-boxes once set to a non-empty value will not set back to a empty value */
-    cScoreType = ", ," + TRIM(cScoreType,",").
-            
+    IF cScoreType NE "" THEN
+        cScoreType = ", ," + TRIM(cScoreType,",").
+    ELSE
+        cScoreType = ",".
+        
     hdWidget = FRAME DIALOG-FRAME:FIRST-CHILD:FIRST-CHILD.
     
     DO WHILE VALID-HANDLE(hdWidget):
         IF hdWidget:NAME BEGINS "cbType-" THEN
-            hdWidget:LIST-ITEM-PAIRS = cScoreType.
+            hdWidget:LIST-ITEM-PAIRS = cScoreType NO-ERROR.
 
         hdWidget = hdWidget:NEXT-SIBLING.
     END.
