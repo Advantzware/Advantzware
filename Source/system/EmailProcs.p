@@ -149,7 +149,6 @@ PROCEDURE pCustomerExt:
 END PROCEDURE.
 
 PROCEDURE pLoc:
-    DEFINE INPUT  PARAMETER ipcType      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcIdxKey    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRecipient AS CHARACTER NO-UNDO.
@@ -219,7 +218,7 @@ PROCEDURE pSoldTo:
     FIND FIRST soldto NO-LOCK
         WHERE soldto.company EQ ipcCompany
           AND soldto.cust-no EQ ENTRY(1,ipcIdxKey,"|")
-          AND soldto.sold-id EQ (ENTRY(2,ipcIdxKey,"|"))
+          AND soldto.sold-id EQ ENTRY(2,ipcIdxKey,"|")
         NO-ERROR.
     IF AVAILABLE soldto THEN DO:
         RUN pBuildToList (
@@ -246,7 +245,7 @@ PROCEDURE pSoldTo:
             FIND FIRST shipto NO-LOCK
                 WHERE shipto.company EQ ipcCompany
                   AND shipto.cust-no EQ ENTRY(1,ipcIdxKey,"|")
-                  AND shipto.ship-id EQ (ENTRY(3,ipcIdxKey,"|"))
+                  AND shipto.ship-id EQ ENTRY(3,ipcIdxKey,"|")
                 NO-ERROR.         
             IF AVAILABLE shipto THEN DO:
                 cRecipient = "".  

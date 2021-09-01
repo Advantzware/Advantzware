@@ -210,7 +210,6 @@ PROCEDURE pFormEmail:
             ).
         WHEN "Loc" THEN   
         RUN pLoc IN hMailProcs (
-            ipcFormType,
             cCompany,
             ipcBufferValue,
             OUTPUT opcRecipient

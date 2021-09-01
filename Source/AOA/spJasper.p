@@ -2265,7 +2265,7 @@ PROCEDURE pLocalCSV:
     OUTPUT STREAM sLocalCSV CLOSE.
     DELETE PROCEDURE hDynCalcField.
     DELETE PROCEDURE hOutputProcs.  
-    OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
+    OS-COMMAND NO-WAIT VALUE("~"" + cExcelFile + "~"").
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

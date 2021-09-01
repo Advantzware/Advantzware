@@ -47,7 +47,6 @@ IF ipType BEGINS "CUSTOMER" THEN
 ELSE
 IF ipType BEGINS "LOC" THEN   
     RUN pLoc IN hMailProcs (
-        ipType,
         g_company,
         ipIdxKey,
         OUTPUT ls-to-list

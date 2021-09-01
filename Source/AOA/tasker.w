@@ -100,7 +100,7 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.taskID Task.prgmName Task.user-id Task.runSync 
+Task.subjectID Task.taskID Task.user-id Task.runSync 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -136,18 +136,12 @@ EmailBrowse btnClearPendingEmails AuditBrowse
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTaskLog C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTaskLog C-Win 
 FUNCTION fTaskLog RETURNS CHARACTER
   (ipiAuditID AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -219,8 +213,8 @@ DEFINE BROWSE TaskBrowse
       Task.lastDate FORMAT "99/99/9999":U
       Task.cLastTime FORMAT "99:99":U
       Task.isRunning FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      Task.subjectID FORMAT ">,>>>,>>9":U
       Task.taskID FORMAT "->,>>>,>>9":U
-      Task.prgmName FORMAT "x(10)":U
       Task.user-id FORMAT "x(10)":U
       Task.runSync FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
@@ -345,16 +339,16 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[8]   = ASI.Task.taskID
-     _FldNameList[9]   = ASI.Task.prgmName
+"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[8]   = ASI.Task.subjectID
+     _FldNameList[9]   = ASI.Task.taskID
      _FldNameList[10]   = ASI.Task.user-id
      _FldNameList[11]   = ASI.Task.runSync
      _Query            is OPENED
@@ -692,7 +686,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
 PROCEDURE pSaveSettings :
 /*------------------------------------------------------------------------------
@@ -810,7 +803,7 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTaskLog C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTaskLog C-Win 
 FUNCTION fTaskLog RETURNS CHARACTER
   (ipiAuditID AS INTEGER) :
 /*------------------------------------------------------------------------------
@@ -829,6 +822,7 @@ FUNCTION fTaskLog RETURNS CHARACTER
     RETURN cAuditLog.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
