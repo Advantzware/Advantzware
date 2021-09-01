@@ -48,7 +48,7 @@ format header
        skip(4)
        "CARRIER" at 4 oe-bolh.carrier
        "DUE ON" at 55 oe-bolh.bol-date at 63 skip
-       "BOL#" at 4 oe-bolh.bol-no format "999999"
+       "BOL#" at 4 oe-bolh.bol-no format "9999999"
        "TRAILER #" at 35 oe-bolh.trailer v-frt-pay-dscr
        "PAGE" at 63 page-number - v-last-page to 69 format "99"
        "OF" at 71 v-page-tot to 75 format "99" skip
