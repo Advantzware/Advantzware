@@ -27,7 +27,6 @@ DEFINE VARIABLE list-name    AS CHARACTER no-undo.
 DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-comp-curr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cAPSecure    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPSecure    AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER bf-chk FOR ap-chk.
@@ -132,6 +131,8 @@ END.
 DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER        NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -152,6 +153,16 @@ DEF TEMP-TABLE tt-ap-tax  NO-UNDO
                           FIELD amt LIKE ap-invl.amt
                           FIELD curr-amt LIKE ap-invl.amt
                           INDEX row-id row-id.
+                          
+RUN methods/prgsecur.p
+	    (INPUT "APSecure",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAPSecure, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */                          
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -527,6 +538,12 @@ DO:
 
   run check-date.
   if v-invalid then return no-apply. 
+  
+  RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply. 
+  
+  RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply.
 
   IF lv-fgpost-dir THEN DO:
   RUN check-inv-date(begin_date:SCREEN-VALUE).
@@ -827,16 +844,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
-    {custom/usrprint.i}
-    RUN sys/ref/nk1look.p (
-        g_company,"APSecure","L",NO,NO,"","",
-        OUTPUT cAPSecure,OUTPUT lAPSecure
-        ).
-    lAPSecure = cAPSecure EQ "YES".
-    IF lAPSecure THEN
+    {custom/usrprint.i} 
+       
+    IF NOT lAPSecure THEN
     ASSIGN
         begin_user:SCREEN-VALUE = USERID("ASI")
-        end_user:SCREEN-VALUE   = USERID("ASI")
+        end_user:SCREEN-VALUE   = USERID("ASI")    
         begin_user:SENSITIVE    = NO
         end_user:SENSITIVE      = NO
         .
@@ -942,7 +955,13 @@ PROCEDURE check-inv-date :
          IF lv-msg NE "" THEN DO:
             IF NOT ll-secure THEN do:  
                RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-               IF NOT ll-secure THEN v-invalid-inv = YES .
+               IF NOT ll-secure THEN
+               DO: 
+                 v-invalid-inv = YES .
+                 MESSAGE "Your system setting for GLPost requires a valid password to post invoices into any period other " 
+                         "than the current period in G/L.  Re-enter the posting date or the proper password."
+                         VIEW-AS ALERT-BOX INFO.
+               END.  
             END.
          END.
 
@@ -950,6 +969,40 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckInvDatePeriod C-Win 
+PROCEDURE pCheckInvDatePeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  DEFINE INPUT PARAMETER ip-date AS CHAR.    
+  DEFINE BUFFER bf-period FOR period. 
+  
+  ASSIGN 
+      v-invalid-inv = NO 
+      .                 
+      FIND FIRST bf-period                   
+         WHERE bf-period.company EQ cocode
+         AND bf-period.pst     LE date(ip-date)
+         AND bf-period.pend    GE date(ip-date)
+          AND bf-period.pnum   EQ MONTH(DATE(tran-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
+       NO-LOCK NO-ERROR.
+             
+       IF NOT AVAIL bf-period THEN
+       DO:
+           v-invalid-inv = YES .
+           MESSAGE "Invoice date must be in posted date period." VIEW-AS ALERT-BOX ERROR.
+           RETURN.
+       END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME       
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clear-ap C-Win 
 PROCEDURE clear-ap :
@@ -1955,7 +2008,7 @@ PROCEDURE valid-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
-
+  DEFINE BUFFER bf-period FOR period.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-warned THEN DO:
@@ -1980,6 +2033,16 @@ PROCEDURE valid-date :
           APPLY "entry" TO tran-date.
           RETURN ERROR.
         END.
+        
+        FIND FIRST bf-period NO-LOCK
+          WHERE bf-period.company EQ cocode
+            AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
+            AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
+          NO-ERROR.
+        IF AVAIL bf-period THEN
+        ASSIGN
+            begin_date:SCREEN-VALUE = STRING(bf-period.pst)
+            end_date:SCREEN-VALUE = STRING(bf-period.pend).
 
         LEAVE.
       END.
