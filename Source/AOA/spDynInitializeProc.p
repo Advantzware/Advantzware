@@ -109,6 +109,18 @@ PROCEDURE dynInitMaxSessionPerUser:
     RETURN sfGetUserControlFieldValue ("MaxSessionPerUser").
 END PROCEDURE.
 
+PROCEDURE dynInitNK1AutoPDC:
+    DEFINE VARIABLE cAutoPDC AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoPDC AS LOGICAL   NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
+    RUN sys/ref/nk1look.p (
+        cSessionValue,"AutoPDC","C",NO,NO,"","",
+        OUTPUT cAutoPDC, OUTPUT lAutoPDC
+        ).
+    RETURN cAutoPDC.
+END PROCEDURE.
+
 PROCEDURE dynInitNO:
     RETURN "NO".
 END PROCEDURE.

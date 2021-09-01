@@ -3964,7 +3964,7 @@ PROCEDURE pExport :
     MESSAGE 
         "Export File: ~"NK1Data.csv~" Complete."
     VIEW-AS ALERT-BOX.
-    OS-COMMAND NO-WAIT START excel.exe NK1Data.csv.
+    OS-COMMAND NO-WAIT NK1Data.csv.
 
 END PROCEDURE.
 

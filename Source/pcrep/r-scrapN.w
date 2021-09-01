@@ -1737,7 +1737,7 @@ display "" with frame r-top.
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.
 
   SESSION:SET-WAIT-STATE("").

@@ -1397,6 +1397,24 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Estimate #' THEN STRING(itemfg.est-no) ELSE ~
      itemfg.est-no ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'setting' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Name' THEN string(setting.settingName) ELSE ~
+  IF sortColumn EQ 'Description' THEN string(setting.description)  ELSE ~
+  IF sortColumn EQ 'Value' THEN string(setting.settingValue) ELSE ~
+  IF sortColumn EQ 'Inactive' THEN STRING(setting.inactive) ELSE ~
+  IF sortColumn EQ 'User' THEN STRING(setting.settingUser) ELSE ~
+     setting.settingName ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'settingType' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Name' THEN string(settingType.settingName) ELSE ~
+  IF sortColumn EQ 'Description' THEN string(settingType.description)  ELSE ~
+  IF sortColumn EQ 'Data Type' THEN string(settingType.dataType) ELSE ~
+  IF sortColumn EQ 'Valid Value' THEN STRING(settingType.validValues) ELSE ~
+  IF sortColumn EQ 'Default Value' THEN STRING(settingType.defaultValue) ELSE ~
+     settingType.settingName ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'd-po-inq#' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'PO#' THEN string(po-ordl.po-no,"999999999") ELSE ~

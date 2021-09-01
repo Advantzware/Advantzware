@@ -50,17 +50,14 @@ do transaction:
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE sys-ctrl.log-fld.
   end.
-  ll-use-defaults = sys-ctrl.log-fld.
-
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
+  ll-use-defaults = sys-ctrl.log-fld.  
+  
   {sys/inc/cerun.i C}
   assign
    do-speed  = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc
-   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE (recalc-mr.val[1] EQ 1)
-   v-do-all-forms-ink = recalc-mr.val[2] EQ 1
-   v-board-cost-from-blank = recalc-mr.val[3] EQ 1
+   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc-mr
+   v-do-all-forms-ink = xest.allFormsInk
+   v-board-cost-from-blank = xest.calcBoardCostFromBlank
    vmclean   = sys-ctrl.char-fld ne ""
    vsuthrlnd = lookup(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") ne 0
    v-module = module.
@@ -253,21 +250,19 @@ DO TRANSACTION:
     {est/op-lock.i xest}
 
   FIND est WHERE RECID(est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
-    FIND CURRENT op-lock.
-
+  
+  FIND CURRENT op-lock.
 
   ASSIGN
    est.recalc       = do-speed
-   recalc-mr.val[1] = INT(do-mr)
-   recalc-mr.val[2] = INT(v-do-all-forms-ink)
-   recalc-mr.val[3] = INT(v-board-cost-from-blank)
+   est.recalc-mr    = do-mr
+   est.allFormsInk = v-do-all-forms-ink
+   est.calcBoardCostFromBlank = v-board-cost-from-blank
    est.override     = do-gsa
    op-lock.val[1]   = INT(est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
+   op-lock.val[2]   = IF est.recalc-mr THEN 1 ELSE 0.
   FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
-  FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
+  FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.  
   FIND CURRENT op-lock NO-LOCK.  
 END.
 

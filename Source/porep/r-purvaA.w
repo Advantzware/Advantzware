@@ -599,7 +599,7 @@ DO:
   run run-report. 
   STATUS DEFAULT "Processing Complete".
   IF tb_excel AND tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 
   case rd-dest:
        when 1 then run output-to-printer.

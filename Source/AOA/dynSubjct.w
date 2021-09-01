@@ -263,19 +263,19 @@ dynSubject.recordLimit dynSubject.udfGroup
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnLookup btnCreateDefaults btnDesign ~
-btnResults btnSetInitialize btnUndo subjectTab paramSetsTab tableTab ~
-whereTab columnsTab btnOuterJoin subjectSearch subjectMatches tableSearch ~
-tableMatches tableList btnOF tableListOf btnSubjectParamSet btnWhere ~
-btnToday btnTime btnNow btnDateTime btnMatches subjectBrowse tableBrowse ~
+&Scoped-Define ENABLED-OBJECTS btnSetInitialize btnLookup btnCreateDefaults ~
+btnDesign btnResults btnUndo subjectTab paramSetsTab tableTab whereTab ~
+columnsTab btnOuterJoin btnSubjectParamSet subjectSearch subjectMatches ~
+tableSearch tableMatches tableList btnOF tableListOf btnWhere btnToday ~
+btnTime btnNow btnDateTime btnMatches subjectBrowse tableBrowse ~
 subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT ~
-fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
-btnViewSubject paramSetBrowse fieldBrowse btnPlus btnMinus ~
-subjectParamSetBrowse btnCalcField btnMultiply btnDivide btnYes btnNo ~
-btnErrorCheck btnDate cUseIndex findType btnDec subjectTableBrowse btnInt ~
-columnSearch columnMatches btnStr subjectColumnBrowse btnMoveUp btnSubstr ~
-cParameter btnOpen btnSave btnClose cConstant btnSyntax btnPeriod btnDouble ~
-btnAddSelections btnComma btnSingle btnGroupCalc btnAddUseIndex queryStr ~
+btnViewSubject fieldSearch fieldMatches paramSetSearch paramSetMatches ~
+btnLE btnGE btnCalcField paramSetBrowse fieldBrowse btnPlus btnMinus ~
+subjectParamSetBrowse btnMultiply btnErrorCheck btnDivide btnYes btnNo ~
+btnDate cUseIndex findType btnDec subjectTableBrowse btnInt columnSearch ~
+btnMoveUp columnMatches btnStr subjectColumnBrowse btnSubstr btnSave ~
+cParameter btnOpen btnClose btnSyntax cConstant btnPeriod btnAddSelections ~
+btnDouble btnComma btnSingle btnGroupCalc btnAddUseIndex queryStr ~
 btnRemoveUseIndex btnAddParameter btnRemoveSelection btnMoveDown ~
 btnAddConstant btnRemove cParameterLabel cConstantLabel 
 &Scoped-Define DISPLAYED-OBJECTS subjectSearch subjectMatches tableSearch ~
@@ -287,21 +287,20 @@ cParameterLabel cConstantLabel queryText
 
 /* Custom List Definitions                                              */
 /* allSection,tableSection,whereSection,parameterSection,columnsSection,subjectSection */
-&Scoped-define allSection RECT-TABLE RECT-FIELD RECT-QUERYTABLE ~
-RECT-QUERYSTR btnSetInitialize btnUndo RECT-COLUMN RECT-PARAM btnOuterJoin ~
-tableSearch tableMatches tableList btnOF tableListOf btnSubjectParamSet ~
+&Scoped-define allSection btnSetInitialize RECT-TABLE RECT-FIELD ~
+RECT-QUERYTABLE RECT-QUERYSTR RECT-COLUMN btnUndo RECT-PARAM btnOuterJoin ~
+btnSubjectParamSet tableSearch tableMatches tableList btnOF tableListOf ~
 btnWhere btnToday btnTime btnNow btnDateTime btnMatches tableBrowse ~
 subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT ~
-fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE ~
-btnViewSubject paramSetBrowse fieldBrowse btnPlus btnMinus ~
-subjectParamSetBrowse btnCalcField btnMultiply btnDivide btnYes btnNo ~
-btnDate cUseIndex findType btnDec subjectTableBrowse btnInt columnSearch ~
-columnMatches btnStr subjectColumnBrowse btnMoveUp btnSubstr cParameter ~
-btnOpen btnSave btnClose cConstant btnSyntax btnPeriod btnDouble ~
-btnAddSelections btnComma btnSingle btnGroupCalc btnAddUseIndex queryStr ~
-btnRemoveUseIndex btnAddParameter btnRemoveSelection btnMoveDown ~
-btnAddConstant btnRemove cUseIndexLabel cParameterLabel cConstantLabel ~
-queryText 
+btnViewSubject fieldSearch fieldMatches paramSetSearch paramSetMatches ~
+btnLE btnGE btnCalcField paramSetBrowse fieldBrowse btnPlus btnMinus ~
+subjectParamSetBrowse btnMultiply btnDivide btnYes btnNo btnDate cUseIndex ~
+findType btnDec subjectTableBrowse btnInt columnSearch btnMoveUp ~
+columnMatches btnStr subjectColumnBrowse btnSubstr btnSave cParameter ~
+btnOpen btnClose btnSyntax cConstant btnPeriod btnAddSelections btnDouble ~
+btnComma btnSingle btnGroupCalc btnAddUseIndex queryStr btnRemoveUseIndex ~
+btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnRemove ~
+cUseIndexLabel cParameterLabel cConstantLabel queryText 
 &Scoped-define tableSection RECT-TABLE RECT-QUERYTABLE RECT-QUERYSTR ~
 tableSearch tableMatches tableBrowse cUseIndex findType subjectTableBrowse ~
 btnMoveUp btnSyntax btnAddSelections btnAddUseIndex queryStr ~
@@ -311,9 +310,9 @@ queryText
 btnOuterJoin tableList btnOF tableListOf btnWhere btnToday btnTime btnNow ~
 btnDateTime btnMatches subjectWhereBrowse btnBegins btnAND btnOR btnEQ ~
 btnNE btnLT btnGT fieldSearch fieldMatches paramSetMatches btnLE btnGE ~
-fieldBrowse btnPlus btnMinus btnCalcField btnMultiply btnDivide btnYes ~
-btnNo btnDate btnDec btnInt btnStr btnMoveUp btnSubstr cParameter btnOpen ~
-btnClose cConstant btnSyntax btnPeriod btnDouble btnAddSelections btnComma ~
+btnCalcField fieldBrowse btnPlus btnMinus btnMultiply btnDivide btnYes ~
+btnNo btnDate btnDec btnInt btnMoveUp btnStr btnSubstr cParameter btnOpen ~
+btnClose btnSyntax cConstant btnPeriod btnAddSelections btnDouble btnComma ~
 btnSingle queryStr btnAddParameter btnRemoveSelection btnMoveDown ~
 btnAddConstant btnRemove cParameterLabel cConstantLabel queryText 
 &Scoped-define parameterSection btnSetInitialize RECT-PARAM ~
@@ -321,8 +320,8 @@ btnSubjectParamSet paramSetSearch paramSetMatches paramSetBrowse ~
 subjectParamSetBrowse btnMoveUp btnAddSelections btnRemoveSelection ~
 btnMoveDown btnRemove 
 &Scoped-define columnsSection RECT-FIELD RECT-COLUMN RECT-PARAM fieldSearch ~
-fieldMatches paramSetMatches fieldBrowse btnCalcField columnSearch ~
-columnMatches subjectColumnBrowse btnMoveUp btnAddSelections btnGroupCalc ~
+fieldMatches paramSetMatches btnCalcField fieldBrowse columnSearch ~
+btnMoveUp columnMatches subjectColumnBrowse btnAddSelections btnGroupCalc ~
 btnRemoveSelection btnMoveDown btnRemove 
 &Scoped-define subjectSection btnCreateDefaults btnDesign btnResults ~
 subjectSearch subjectMatches btnViewSubject 
@@ -1200,10 +1199,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Query Design" WIDGET-ID 292
      btnResults AT ROW 1 COL 80 HELP
           "Run Subject" WIDGET-ID 250
-     btnSetInitialize AT ROW 1 COL 120 WIDGET-ID 296
      btnUndo AT ROW 1 COL 145 HELP
           "Undo Changes" WIDGET-ID 282
      btnOuterJoin AT ROW 2.91 COL 186 WIDGET-ID 274
+     btnSubjectParamSet AT ROW 1 COL 112 HELP
+          "Subject Parameter Set Builder" WIDGET-ID 286
      subjectSearch AT ROW 3.86 COL 3 NO-LABEL WIDGET-ID 16
      subjectMatches AT ROW 3.86 COL 26 HELP
           "Select for Matches Search" WIDGET-ID 38
@@ -1215,8 +1215,6 @@ DEFINE FRAME DEFAULT-FRAME
      btnOF AT ROW 4.1 COL 111 WIDGET-ID 104
      tableListOf AT ROW 4.1 COL 114 COLON-ALIGNED HELP
           "Select Table" NO-LABEL WIDGET-ID 106
-     btnSubjectParamSet AT ROW 1 COL 112 HELP
-          "Subject Parameter Set Builder" WIDGET-ID 286
      btnWhere AT ROW 4.1 COL 139 WIDGET-ID 100
      btnToday AT ROW 4.1 COL 149 WIDGET-ID 190
      btnTime AT ROW 4.1 COL 159 WIDGET-ID 192
@@ -1231,10 +1229,10 @@ DEFINE FRAME DEFAULT-FRAME
      btnOR AT ROW 6.48 COL 195 WIDGET-ID 82
      btnEQ AT ROW 7.67 COL 190 WIDGET-ID 68
      btnNE AT ROW 7.67 COL 195 WIDGET-ID 70
-     btnSubjectParamSet AT ROW 1 COL 112 HELP
-          "Subject Parameter Set Builder" WIDGET-ID 286
      btnLT AT ROW 8.86 COL 190 WIDGET-ID 72
      btnGT AT ROW 8.86 COL 195 WIDGET-ID 74
+     btnViewSubject AT ROW 1 COL 96 HELP
+          "Access View Subject" WIDGET-ID 288
      fieldSearch AT ROW 9.81 COL 39 COLON-ALIGNED HELP
           "Enter Field Search" NO-LABEL WIDGET-ID 50
      fieldMatches AT ROW 9.81 COL 64 HELP
@@ -1245,20 +1243,18 @@ DEFINE FRAME DEFAULT-FRAME
           "Select for Table Search Matches" WIDGET-ID 256
      btnLE AT ROW 10.05 COL 190 WIDGET-ID 76
      btnGE AT ROW 10.05 COL 195 WIDGET-ID 78
-     btnViewSubject AT ROW 1 COL 96 HELP
-          "Access View Subject" WIDGET-ID 288
+     btnCalcField AT ROW 18.38 COL 77 HELP
+          "Calculated Field" WIDGET-ID 280
      paramSetBrowse AT ROW 11 COL 2 WIDGET-ID 1000
      fieldBrowse AT ROW 11 COL 40 WIDGET-ID 700
      btnPlus AT ROW 11.24 COL 190 WIDGET-ID 158
      btnMinus AT ROW 11.24 COL 195 WIDGET-ID 156
      subjectParamSetBrowse AT ROW 12.43 COL 82 WIDGET-ID 1100
-     btnCalcField AT ROW 18.38 COL 77 HELP
-          "Calculated Field" WIDGET-ID 280
      btnMultiply AT ROW 12.43 COL 190 WIDGET-ID 160
+     btnErrorCheck AT ROW 3.86 COL 77 WIDGET-ID 294
      btnDivide AT ROW 12.43 COL 195 WIDGET-ID 154
      btnYes AT ROW 13.62 COL 190 WIDGET-ID 172
      btnNo AT ROW 13.62 COL 195 WIDGET-ID 174
-     btnErrorCheck AT ROW 3.86 COL 77 WIDGET-ID 294
      btnDate AT ROW 14.81 COL 190 WIDGET-ID 166
      cUseIndex AT ROW 15.52 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 262
      findType AT ROW 15.52 COL 50 NO-LABEL WIDGET-ID 26
@@ -1275,33 +1271,29 @@ DEFINE FRAME DEFAULT-FRAME
      btnInt AT ROW 17.19 COL 190 WIDGET-ID 162
      columnSearch AT ROW 17.43 COL 2 HELP
           "Enter Column Search" NO-LABEL WIDGET-ID 112
+     btnMoveUp AT ROW 9.81 COL 77 HELP
+          "Move Up" WIDGET-ID 64
      columnMatches AT ROW 17.43 COL 67 HELP
           "Select for Column Search Matches" WIDGET-ID 110
-     btnErrorCheck AT ROW 3.86 COL 77 WIDGET-ID 294
      btnStr AT ROW 18.38 COL 190 WIDGET-ID 168
      subjectColumnBrowse AT ROW 18.62 COL 1 WIDGET-ID 900
-     btnMoveUp AT ROW 9.81 COL 77 HELP
-          "Move Up" WIDGET-ID 64
      btnSubstr AT ROW 19.57 COL 190 WIDGET-ID 170
-     btnMoveUp AT ROW 9.81 COL 77 HELP
-          "Move Up" WIDGET-ID 64
+     btnSave AT ROW 1 COL 137 HELP
+          "Update/Save" WIDGET-ID 248
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
      btnOpen AT ROW 20.76 COL 190 WIDGET-ID 94
-     btnSave AT ROW 1 COL 137 HELP
-          "Update/Save" WIDGET-ID 248
      btnClose AT ROW 20.76 COL 195 WIDGET-ID 96
-     cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
+     cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      btnPeriod AT ROW 21.95 COL 190 WIDGET-ID 236
-     btnDouble AT ROW 21.95 COL 192.4 WIDGET-ID 240
      btnAddSelections AT ROW 7.91 COL 77 HELP
           "Add Selections" WIDGET-ID 200
+     btnDouble AT ROW 21.95 COL 192.4 WIDGET-ID 240
      btnComma AT ROW 21.95 COL 195 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 197.4 WIDGET-ID 244
      btnGroupCalc AT ROW 16.48 COL 77 HELP
           "Group Calculations" WIDGET-ID 272
-     btnSingle AT ROW 21.95 COL 197.4 WIDGET-ID 244
      btnAddUseIndex AT ROW 15.52 COL 38 WIDGET-ID 268
      queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
      btnRemoveUseIndex AT ROW 15.52 COL 43 WIDGET-ID 270
@@ -1348,6 +1340,75 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 200 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 23.14
+         SIZE 200 BY 6.43
+         FGCOLOR 1  WIDGET-ID 1300.
+
+DEFINE FRAME paramFrame
+     btnCloseParam AT ROW 1 COL 156 HELP
+          "Close" WIDGET-ID 252
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 23.14
+         SIZE 200 BY 6.43
+         FGCOLOR 1  WIDGET-ID 1300.
+
+DEFINE FRAME outputFrame
+     btnPageFormat AT ROW 1.48 COL 182 HELP
+          "Page Format" WIDGET-ID 652
+     btnPrint AT ROW 1.48 COL 174 HELP
+          "Printer" WIDGET-ID 644
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svRunSync AT ROW 1.48 COL 95 HELP
+          "Toggle to Run Synchronous" WIDGET-ID 654
+     svAutoClose AT ROW 2.43 COL 95 HELP
+          "Toggle to Auto Close" WIDGET-ID 658
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 85 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 104 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 136 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 156 WIDGET-ID 12
+     btnView AT ROW 1.48 COL 190 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     svShowParameters AT ROW 4.1 COL 183 WIDGET-ID 16
+     btnCSV AT ROW 1.48 COL 134 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnLocalCSV AT ROW 1.48 COL 126 HELP
+          "Local Excel CSV" WIDGET-ID 656
+     btnRunResults AT ROW 1.48 COL 118 HELP
+          "Results Grid" WIDGET-ID 254
+     btnAddEmail AT ROW 1.95 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnDOCX AT ROW 1.48 COL 150 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnHTML AT ROW 1.48 COL 166 HELP
+          "HTML" WIDGET-ID 144
+     btnPDF AT ROW 1.48 COL 158 HELP
+          "PDF" WIDGET-ID 146
+     btnXLS AT ROW 1.48 COL 142 HELP
+          "Excel XLS" WIDGET-ID 150
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
+     RECT-PANEL-2 AT ROW 1.24 COL 117 WIDGET-ID 256
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 199 BY 5.24
+         BGCOLOR 22 FGCOLOR 1 
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
 
 DEFINE FRAME viewFrame
      btnPageFormat-2 AT ROW 14.62 COL 67 HELP
@@ -1426,7 +1487,6 @@ DEFINE FRAME viewFrame
           SIZE 11 BY 1
      dynSubject.custListID AT ROW 9.57 COL 73 COLON-ALIGNED WIDGET-ID 666
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "XXX" 
           DROP-DOWN-LIST
           SIZE 13 BY 1
      dynSubject.runSync AT ROW 10.76 COL 18 WIDGET-ID 656
@@ -1436,6 +1496,11 @@ DEFINE FRAME viewFrame
      dynSubject.saveLastRun AT ROW 10.76 COL 46 WIDGET-ID 670
           VIEW-AS TOGGLE-BOX
           SIZE 36 BY 1
+     dynSubject.lastRunDateTime AT ROW 11.95 COL 16 COLON-ALIGNED WIDGET-ID 164
+          LABEL "Last Run"
+          VIEW-AS FILL-IN 
+          SIZE 34.2 BY 1
+          BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 113 ROW 12.67
@@ -1444,11 +1509,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     dynSubject.lastRunDateTime AT ROW 11.95 COL 16 COLON-ALIGNED WIDGET-ID 164
-          LABEL "Last Run"
-          VIEW-AS FILL-IN 
-          SIZE 34.2 BY 1
-          BGCOLOR 15 
      dynSubject.recordLimit AT ROW 11.95 COL 70 COLON-ALIGNED WIDGET-ID 162
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -1482,120 +1542,6 @@ DEFINE FRAME viewFrame
          SIZE 88 BY 16.91
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
-
-DEFINE FRAME paramFrame
-     btnCloseParam AT ROW 1 COL 156 HELP
-          "Close" WIDGET-ID 252
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 23.14
-         SIZE 200 BY 6.43
-         FGCOLOR 1  WIDGET-ID 1300.
-
-DEFINE FRAME outputFrame
-     btnPageFormat AT ROW 1.48 COL 182 HELP
-          "Page Format" WIDGET-ID 652
-     btnPrint AT ROW 1.48 COL 174 HELP
-          "Printer" WIDGET-ID 644
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svRunSync AT ROW 1.48 COL 95 HELP
-          "Toggle to Run Synchronous" WIDGET-ID 654
-     svAutoClose AT ROW 2.43 COL 95 HELP
-          "Toggle to Auto Close" WIDGET-ID 658
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
-     svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 85 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 104 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 136 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 156 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 183 WIDGET-ID 16
-     btnView AT ROW 1.48 COL 190 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     btnCSV AT ROW 1.48 COL 134 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnLocalCSV AT ROW 1.48 COL 126 HELP
-          "Local Excel CSV" WIDGET-ID 656
-     btnRunResults AT ROW 1.48 COL 118 HELP
-          "Results Grid" WIDGET-ID 254
-     btnAddEmail AT ROW 1.95 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
-     btnDOCX AT ROW 1.48 COL 150 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.48 COL 166 HELP
-          "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1.48 COL 158 HELP
-          "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 142 HELP
-          "Excel XLS" WIDGET-ID 150
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
-     RECT-PANEL-2 AT ROW 1.24 COL 117 WIDGET-ID 256
-     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 199 BY 5.24
-         BGCOLOR 22 FGCOLOR 1 
-         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
-
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 23.14
-         SIZE 200 BY 6.43
-         FGCOLOR 1  WIDGET-ID 1300.
-
-DEFINE FRAME outputFrame
-     btnPageFormat AT ROW 1.48 COL 182 HELP
-          "Page Format" WIDGET-ID 652
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     btnPrint AT ROW 1.48 COL 174 HELP
-          "Printer" WIDGET-ID 644
-     svRunSync AT ROW 1.48 COL 95 HELP
-          "Toggle to Run Synchronous" WIDGET-ID 654
-     svAutoClose AT ROW 2.43 COL 95 HELP
-          "Toggle to Auto Close" WIDGET-ID 658
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
-     svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 85 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 104 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 136 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 156 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 183 WIDGET-ID 16
-     btnView AT ROW 1.48 COL 190 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     btnCSV AT ROW 1.48 COL 134 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnLocalCSV AT ROW 1.48 COL 126 HELP
-          "Local Excel CSV" WIDGET-ID 656
-     btnRunResults AT ROW 1.48 COL 118 HELP
-          "Results Grid" WIDGET-ID 254
-     btnAddEmail AT ROW 1.95 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
-     btnDOCX AT ROW 1.48 COL 150 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.48 COL 166 HELP
-          "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1.48 COL 158 HELP
-          "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 142 HELP
-          "Excel XLS" WIDGET-ID 150
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
-     RECT-PANEL-2 AT ROW 1.24 COL 117 WIDGET-ID 256
-     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 199 BY 5.24
-         BGCOLOR 22 FGCOLOR 1 
-         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1658,7 +1604,7 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 /* BROWSE-TAB subjectBrowse btnMatches DEFAULT-FRAME */
 /* BROWSE-TAB tableBrowse subjectBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectWhereBrowse tableBrowse DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnViewSubject DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse btnCalcField DEFAULT-FRAME */
 /* BROWSE-TAB fieldBrowse paramSetBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectParamSetBrowse btnMinus DEFAULT-FRAME */
 /* BROWSE-TAB subjectTableBrowse btnDec DEFAULT-FRAME */
@@ -3990,19 +3936,19 @@ PROCEDURE enable_UI :
           whereSectionLabel columnsSectionLabel cUseIndexLabel cParameterLabel 
           cConstantLabel queryText 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnLookup btnCreateDefaults btnDesign btnResults btnSetInitialize 
+  ENABLE btnSetInitialize btnLookup btnCreateDefaults btnDesign btnResults 
          btnUndo subjectTab paramSetsTab tableTab whereTab columnsTab 
-         btnOuterJoin subjectSearch subjectMatches tableSearch tableMatches 
-         tableList btnOF tableListOf btnSubjectParamSet btnWhere btnToday 
+         btnOuterJoin btnSubjectParamSet subjectSearch subjectMatches 
+         tableSearch tableMatches tableList btnOF tableListOf btnWhere btnToday 
          btnTime btnNow btnDateTime btnMatches subjectBrowse tableBrowse 
          subjectWhereBrowse btnBegins btnAND btnOR btnEQ btnNE btnLT btnGT 
-         fieldSearch fieldMatches paramSetSearch paramSetMatches btnLE btnGE 
-         btnViewSubject paramSetBrowse fieldBrowse btnPlus btnMinus 
-         subjectParamSetBrowse btnCalcField btnMultiply btnDivide btnYes btnNo 
-         btnErrorCheck btnDate cUseIndex findType btnDec subjectTableBrowse 
-         btnInt columnSearch columnMatches btnStr subjectColumnBrowse btnMoveUp 
-         btnSubstr cParameter btnOpen btnSave btnClose cConstant btnSyntax 
-         btnPeriod btnDouble btnAddSelections btnComma btnSingle btnGroupCalc 
+         btnViewSubject fieldSearch fieldMatches paramSetSearch paramSetMatches 
+         btnLE btnGE btnCalcField paramSetBrowse fieldBrowse btnPlus btnMinus 
+         subjectParamSetBrowse btnMultiply btnErrorCheck btnDivide btnYes btnNo 
+         btnDate cUseIndex findType btnDec subjectTableBrowse btnInt 
+         columnSearch btnMoveUp columnMatches btnStr subjectColumnBrowse 
+         btnSubstr btnSave cParameter btnOpen btnClose btnSyntax cConstant 
+         btnPeriod btnAddSelections btnDouble btnComma btnSingle btnGroupCalc 
          btnAddUseIndex queryStr btnRemoveUseIndex btnAddParameter 
          btnRemoveSelection btnMoveDown btnAddConstant btnRemove 
          cParameterLabel cConstantLabel 
@@ -4014,14 +3960,11 @@ PROCEDURE enable_UI :
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnPageFormat btnPrint svRecipients svRunSync svAutoClose svShowAll 
          svShowReportHeader svShowReportFooter svShowPageHeader 
-         svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
-         btnView btnCSV btnLocalCSV btnRunResults btnAddEmail btnDOCX btnHTML 
-         btnPDF btnXLS 
+         svShowPageFooter svShowGroupHeader svShowGroupFooter btnView 
+         svShowParameters btnCSV btnLocalCSV btnRunResults btnAddEmail btnDOCX 
+         btnHTML btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
-  ENABLE btnCloseResults btnSaveResults 
-      WITH FRAME resultsFrame IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
   IF AVAILABLE dynSubject THEN 
     DISPLAY dynSubject.isActive dynSubject.isLookup dynSubject.securityLevel 
           dynSubject.subjectTitle dynSubject.subjectType dynSubject.user-id 
@@ -4038,6 +3981,9 @@ PROCEDURE enable_UI :
   ENABLE btnCloseParam 
       WITH FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
+  ENABLE btnCloseResults btnSaveResults 
+      WITH FRAME resultsFrame IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -5075,6 +5021,8 @@ PROCEDURE pGetBusinessLogicTable :
             ttTable.businessLogic = YES
             .
         RUN pDeleteProcedure IN hBusinessLogic.
+        RUN pDeleteSessionParam ("Detail").
+        RUN pDeleteSessionParam ("Summary").
     END. /* if search */
     ELSE DO:
         MESSAGE
@@ -6305,3 +6253,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

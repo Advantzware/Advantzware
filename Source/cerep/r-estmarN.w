@@ -23,8 +23,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -34,26 +34,27 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getcmpny.i}
 {custom/getloc.i}
 
-{sys/inc/var.i new shared}
+{sys/inc/VAR.i NEW SHARED}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
-DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
-DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-fax-file    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL   NO-UNDO.
 
-DEF STREAM st-excel.
+DEFINE STREAM st-excel.
 
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR cTextListToSelect AS cha NO-UNDO.
-DEF VAR cFieldListToSelect AS cha NO-UNDO.
-DEF VAR cFieldLength AS cha NO-UNDO.
-DEF VAR cFieldType AS cha NO-UNDO.
-DEF VAR iColumnLength AS INT NO-UNDO.
-DEF BUFFER b-itemfg FOR itemfg .
-DEF VAR cTextListToDefault AS cha NO-UNDO.
-DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE ldummy             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTextListToSelect  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+
+DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#Up,# of Col,Carton Qty," +
                         "FOB Cst/M,FOB T-Cst,15%,20%,25%,30%,35%,40%,45%," +
@@ -77,8 +78,8 @@ ASSIGN cTextListToDefault  = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
-&Scoped-define DB-AWARE no
+&Scoped-define PROCEDURE-TYPE WINDOW
+&Scoped-define DB-AWARE NO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
@@ -87,10 +88,10 @@ ASSIGN cTextListToDefault  = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_est end_est begin_date end_date begin_date-2 ~
 end_date-2 sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-rd-dest td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+rd-dest td-show-parm fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
-sl_avail sl_selected rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+sl_avail sl_selected rd-dest td-show-parm fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -242,22 +243,17 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
      LABEL "Auto Close" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL NO 
      LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -300,12 +296,11 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 14.86 COL 32.4 COLON-ALIGNED
      lines-per-page AT ROW 14.86 COL 48.4 COLON-ALIGNED
      lv-font-name AT ROW 15.33 COL 26.4 COLON-ALIGNED NO-LABEL
-     tb_excel AT ROW 15.52 COL 71 RIGHT-ALIGNED
      rd-dest AT ROW 15.86 COL 7.2 NO-LABEL
      td-show-parm AT ROW 16.86 COL 41.2
      fi_file AT ROW 17.62 COL 28.4 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_runExcel AT ROW 17.62 COL 90.4 RIGHT-ALIGNED
+     tb_OpenCSV AT ROW 17.62 COL 90.4 RIGHT-ALIGNED
      tbAutoClose AT ROW 19.67 COL 30.4 WIDGET-ID 16
      btn-ok AT ROW 20.52 COL 29.8
      btn-cancel AT ROW 20.52 COL 51.2
@@ -350,15 +345,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = 15
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -450,21 +445,15 @@ ASSIGN
 ASSIGN 
        lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
-ASSIGN 
-       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
-       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -505,7 +494,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -516,7 +505,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Add Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +516,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date-2 C-Win
 ON LEAVE OF begin_date-2 IN FRAME FRAME-A /* Beginning Mod Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -539,11 +528,11 @@ END.
 ON HELP OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
 DO:
      DEF VAR char-val AS cha NO-UNDO.
-     DEF var lv-eb-tmpid as recid no-undo.
+     DEF VAR lv-eb-tmpid AS RECID NO-UNDO.
 
-     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+     RUN windows/l-est.w (g_company,g_loc,FOCUS:SCREEN-VALUE, OUTPUT char-val).
 
-     if char-val <> "" then do:                 
+     IF char-val <> "" THEN DO:                 
          FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
@@ -559,7 +548,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est C-Win
 ON LEAVE OF begin_est IN FRAME FRAME-A /* Beginning Estimate# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,7 +559,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
 ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -581,7 +570,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,12 +585,11 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
  IF rd-dest = 3 THEN
-  do:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-estmar.csv".
-    assign fi_file.
+  DO:
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
+  END.
   RUN GetSelectionList.
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
@@ -609,16 +597,26 @@ DO:
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
-                   //RUN output-to-file.
+       WHEN 3 THEN DO:
+           IF NOT tb_OpenCSV THEN DO:        
+                  MESSAGE "CSV file have been created." SKIP(1)
+                           "~"OK"~"Want to open CSV file?"
+                  VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                  TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                  IF lChoice THEN
+                  DO:
+                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                  END.
+              END.
+           END. /* WHEN 4 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
-           {custom/asifax.i &type=" "
+           {custom/asifax.i &TYPE=" "
                             &begin_cust="begin_cust-no"
                             &end_cust="begin_cust-no" 
-                            &fax-subject=c-win:title
-                            &fax-body=c-win:title
+                            &fax-subject=c-win:TITLE
+                            &fax-body=c-win:TITLE
                             &fax-file=list-name }
        END. 
        WHEN 5 THEN DO:
@@ -626,16 +624,16 @@ DO:
               {custom/asimail.i &TYPE=" "
                              &begin_cust="begin_cust-no"
                              &end_cust="begin_cust-no"
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
+                             &mail-subject=c-win:TITLE
+                             &mail-body=c-win:TITLE
                              &mail-file=list-name }
            END.
            ELSE DO:
                {custom/asimailr.i &TYPE=" "
                                   &begin_cust="begin_cust-no"
                                   &end_cust="begin_cust-no"
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
+                                  &mail-subject=c-win:TITLE
+                                  &mail-body=c-win:TITLE
                                   &mail-file=list-name }
 
            END.
@@ -664,7 +662,7 @@ DO:
       (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR sl_selected:NUM-ITEMS = 0) THEN
     /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
         cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
+                        ENTRY(i,cTextListToSelect) + "," + ENTRY(i,cFieldListToSelect) + ",".
   END.
   cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
@@ -733,7 +731,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,7 +742,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Add Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -755,7 +753,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date-2 C-Win
 ON LEAVE OF end_date-2 IN FRAME FRAME-A /* Ending Mod Date */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -767,11 +765,11 @@ END.
 ON HELP OF end_est IN FRAME FRAME-A /* Ending Estimate# */
 DO:
      DEF VAR char-val AS cha NO-UNDO.
-     DEF var lv-eb-tmpid as recid no-undo.
+     DEF VAR lv-eb-tmpid AS RECID NO-UNDO.
 
-     run windows/l-est.w (g_company,g_loc,focus:screen-value, output char-val).
+     RUN windows/l-est.w (g_company,g_loc,FOCUS:SCREEN-VALUE, OUTPUT char-val).
 
-     if char-val <> "" then do:                 
+     IF char-val <> "" THEN DO:                 
          FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
             IF AVAIL eb THEN ASSIGN FOCUS:SCREEN-VALUE = eb.est-no
                                            lv-eb-tmpid = RECID(eb)    
@@ -787,7 +785,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est C-Win
 ON LEAVE OF end_est IN FRAME FRAME-A /* Ending Estimate# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,7 +796,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -809,19 +807,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON HELP OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-   def var ls-filename as cha no-undo.
-   def var ll-ok as log no-undo.
+   DEF VAR ls-filename AS cha NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
 
-   system-dialog get-file ls-filename 
-                 title "Select File to Save "
-                 filters "Excel Files    (*.csv)" "*.csv",
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
                          "All Files    (*.*) " "*.*"
-                 initial-dir "c:\tmp"
+                 INITIAL-DIR "c:\tmp"
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
 
-    IF ll-ok THEN self:screen-value = ls-filename.
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -843,7 +841,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -901,18 +899,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
-    IF rd-dest = 3 THEN
-        ASSIGN
-            fi_file:sensitive     = TRUE  
-            tb_runExcel:sensitive = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:sensitive     = FALSE  
-            tb_runExcel:checked   = FALSE
-            tb_runExcel:sensitive = FALSE
-            .
+  ASSIGN {&self-name}.
+  RUN pChangeDest.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -924,7 +912,7 @@ END.
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
 
-   IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
+   IF (NOT CAN-DO(sl_selected:LIST-ITEMS,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
                ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
@@ -941,7 +929,7 @@ DO:
          sl_selected:NUM-ITEMS = 0) THEN
     /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
         cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
+                        ENTRY(i,cTextListToSelect) + "," + ENTRY(i,cFieldListToSelect) + ",".
     MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
         sl_selected:NUM-ITEMS
         SKIP cSelectedList
@@ -964,7 +952,7 @@ ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
    DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
     IF {&SELF-NAME}:IS-SELECTED(i) THEN DO:
-       ASSIGN ldummy = sl_Avail:add-last({&SELF-NAME}:SCREEN-VALUE)
+       ASSIGN ldummy = sl_Avail:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
               ldummy = /*{&SELF-NAME}:DELETE(i)*/
                        {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               .
@@ -982,11 +970,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -997,7 +985,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1036,29 +1024,28 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN DisplaySelectionList.
-    btn-ok:load-image("Graphics/32x32/Ok.png").
-    btn-cancel:load-image("Graphics/32x32/cancel.png").
-    Btn_Def:load-image("Graphics/32x32/default.png").
-    Btn_Add:load-image("Graphics/32x32/additem.png").
-    Btn_Remove:load-image("Graphics/32x32/remove.png").
-    btn_Up:load-image("Graphics/32x32/moveup.png").
-    btn_down:load-image("Graphics/32x32/movedown.png").
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    Btn_Def:LOAD-IMAGE("Graphics/32x32/default.png").
+    Btn_Add:LOAD-IMAGE("Graphics/32x32/additem.png").
+    Btn_Remove:LOAD-IMAGE("Graphics/32x32/remove.png").
+    btn_Up:LOAD-IMAGE("Graphics/32x32/moveup.png").
+    btn_down:LOAD-IMAGE("Graphics/32x32/movedown.png").
   RUN enable_UI.
-  ASSIGN rd-dest.
-  APPLY 'VALUE-CHANGED' TO rd-dest.
+  
   {methods/nowait.i}
   {sys/inc/reportsConfigNK1.i "ER10" }
-  assign
-    td-show-parm:sensitive = lShowParameters
-    td-show-parm:hidden = not lShowParameters
-    td-show-parm:visible = lShowParameters
+  ASSIGN
+    td-show-parm:SENSITIVE = lShowParameters
+    td-show-parm:HIDDEN = NOT lShowParameters
+    td-show-parm:VISIBLE = lShowParameters
     .
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
       RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust-no.
   END.
-
+  RUN pChangeDest.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1213,12 +1200,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
           begin_date end_date begin_date-2 end_date-2 sl_avail sl_selected 
-          rd-dest td-show-parm fi_file tb_runExcel tbAutoClose 
+          rd-dest td-show-parm fi_file tb_OpenCSV tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_est end_est begin_date end_date begin_date-2 end_date-2 sl_avail 
          Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest 
-         td-show-parm fi_file tb_runExcel tbAutoClose btn-ok btn-cancel 
+         td-show-parm fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1246,9 +1233,9 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
            ttRptSelected.DisplayOrder = i
-           ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
+           ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
 
@@ -1266,20 +1253,20 @@ PROCEDURE Move-Field :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER move AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER MOVE AS CHARACTER NO-UNDO.
 
   DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME}
       WITH FRAME {&FRAME-NAME}:
     IF sl_selected:IS-SELECTED(i) THEN
     DO:
-      IF move = "Down" AND i NE sl_selected:NUM-ITEMS THEN
+      IF MOVE = "Down" AND i NE sl_selected:NUM-ITEMS THEN
       ASSIGN
         ldummy = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i + 2)
         ldummy = sl_selected:DELETE(i)
         sl_selected:SCREEN-VALUE = sl_selected:ENTRY(i + 1)
         .
       ELSE
-      IF move = "Up" AND i NE 1 THEN
+      IF MOVE = "Up" AND i NE 1 THEN
       ASSIGN
         ldummy = sl_selected:INSERT(sl_selected:SCREEN-VALUE,i - 1)
         ldummy = sl_selected:DELETE(i + 1)
@@ -1340,10 +1327,10 @@ PROCEDURE output-to-printer :
 
   /* Use Progress Print. Always use Font#9 in Registry (set above) */
      RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
+                            INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT RESULT).
                           /* font #*/ /* use-dialog(1) and landscape(2) */
                           */
- RUN custom/prntproc.p (list-name,int(lv-font-no),lv-ornt).
+ RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1356,7 +1343,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1370,8 +1357,8 @@ DEF VAR fest LIKE est.est-no NO-UNDO.
 DEF VAR test LIKE fest       NO-UNDO.
 
 DEF VAR li AS INT NO-UNDO.
-DEF VAR lv-box-size LIKE quoteitm.size NO-UNDO.
-DEF VAR lv-die-size LIKE quoteitm.size NO-UNDO.
+DEF VAR lv-box-size LIKE quoteitm.SIZE NO-UNDO.
+DEF VAR lv-die-size LIKE quoteitm.SIZE NO-UNDO.
 DEF VAR lv-format AS CHAR NO-UNDO.
 DEF VAR li-colors AS INT NO-UNDO.
 DEF VAR li-qty LIKE probe.est-qty NO-UNDO.
@@ -1395,7 +1382,7 @@ DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 //DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-{sys/form/r-top5DL3.f} 
+{sys/FORM/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
@@ -1437,7 +1424,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/outprint.i  VALUE(lines-per-page)}
 
-IF rd-dest = 3  THEN do:
+IF rd-dest = 3  THEN DO:
   OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
    /*   ",,,,Carton,Die,,,Carton,,,,,,FOB Variable Profit Margins,,,,,," +
@@ -1533,7 +1520,7 @@ FOR EACH est
       FIND FIRST probeit NO-LOCK
           WHERE probeit.company EQ probe.company
             AND probeit.est-no  EQ probe.est-no
-            AND probeit.line    EQ probe.line
+            AND probeit.LINE    EQ probe.LINE
             AND probeit.part-no EQ eb.part-no
           NO-ERROR.
 
@@ -1564,10 +1551,10 @@ FOR EACH est
                    cExcelVarValue = "".
 
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+               cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "est"              THEN cVarValue = string(TRIM(eb.est-no) ,"x(8)") .
-                         WHEN "i-desc"      THEN cVarValue = string(eb.part-dscr1).
+                         WHEN "est"              THEN cVarValue = STRING(TRIM(eb.est-no) ,"x(8)") .
+                         WHEN "i-desc"      THEN cVarValue = STRING(eb.part-dscr1).
                          WHEN "bd"              THEN cVarValue = STRING(ef.board).
                          WHEN "cal"               THEN cVarValue = STRING(ef.cal,"9.99999") .
                          WHEN "cart-sz"         THEN cVarValue = STRING(lv-box-size) .
@@ -1591,8 +1578,8 @@ FOR EACH est
 
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               FILL(" ",INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1664,12 +1651,12 @@ SESSION:SET-WAIT-STATE ("").
 
     IF rd-dest = 3  THEN 
     DO:
-        IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+        IF tb_OpenCSV THEN
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END. 
 
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1681,67 +1668,92 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       ENTRY(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 TRIM(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Parameters:  <none>
+ Notes:      
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+     IF rd-dest:SCREEN-VALUE EQ "3" THEN
+      ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "Yes"
+       fi_file:SENSITIVE = YES
+       tb_OpenCSV:SENSITIVE = YES      
+      .
+     ELSE
+       ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "NO"
+       fi_file:SENSITIVE = NO
+       tb_OpenCSV:SENSITIVE = NO      
+      .
+    ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-estmar.csv".    
+ END.
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
@@ -1753,7 +1765,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
-  RETURN string(hipField:BUFFER-VALUE).
+  RETURN STRING(hipField:BUFFER-VALUE).
 
 END FUNCTION.
 

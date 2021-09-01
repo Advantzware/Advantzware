@@ -14,6 +14,7 @@ USING System.*.
 USING System.Text.*.
 USING System.Net.*.
 USING System.Net.Http.*.
+USING System.Text.RegularExpressions.Regex FROM ASSEMBLY.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
@@ -177,6 +178,8 @@ CLASS API.APIHandler:
 	METHOD PRIVATE LONGCHAR pPost( ipcURL AS CHARACTER, iplcRequestData AS LONGCHAR ):
         DEFINE VARIABLE oContent         AS HttpContent          NO-UNDO.
         
+        DEFINE VARIABLE oBytes  AS "System.Byte[]":U NO-UNDO.
+        
 		DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.	
 		
 		oClient:BaseAddress = NEW System.Uri(ipcURL).
@@ -195,9 +198,15 @@ CLASS API.APIHandler:
         
         FIX-CODEPAGE(lcResponseData) = 'utf-8'.
         
-        IF VALID-OBJECT(ResponseMessage) THEN
-            lcResponseData = ResponseMessage:Content:ReadAsStringAsync():RESULT.
-        		
+        IF VALID-OBJECT(ResponseMessage) THEN DO:
+            /* Looks like ReadAsStringAsync returns data in UTF-8 encoded format and replaces right/left double quotations with normal double quotation.
+               As these are not escaped by server, JSON parsing throws an error. Reading as byte array and later converting to ISO8859-1 fixed the issue */
+            /* The current encoding for INPUT/OUTPUT files is ISO8859-1 and hence we didn't have this error when API is called through cURL */
+            oBytes = ResponseMessage:Content:ReadAsByteArrayAsync():RESULT.
+
+            lcResponseData = Encoding:GetEncoding("ISO8859-1"):GetString(oBytes).
+        END.
+        
 		RETURN lcResponseData.
 	END METHOD.
 

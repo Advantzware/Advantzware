@@ -106,7 +106,7 @@ FOR EACH tt-report NO-LOCK,
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -149,7 +149,7 @@ FOR EACH tt-report NO-LOCK,
         
           v-frst = NO.
 
-     /* IF tb_excel THEN  
+     /* IF rd-dest EQ 3 THEN  
             PUT STREAM excel UNFORMATTED
                '"' itemfg.cust-no '",' 
                '"' v-po-no '",'
@@ -210,7 +210,7 @@ FOR EACH tt-report NO-LOCK,
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -291,7 +291,7 @@ FOR EACH tt-report NO-LOCK,
             END.
           
             PUT UNFORMATTED "          Customer Total" SUBSTRING(cDisplay,25,300) SKIP(1).
-            /*IF tb_excel THEN DO:
+            /*IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.*/

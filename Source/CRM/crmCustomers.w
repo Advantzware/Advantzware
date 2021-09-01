@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+USING Progress.Json.ObjectModel.*.
 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
@@ -388,14 +389,45 @@ PROCEDURE pGetCRM :
     DEFINE VARIABLE iRows   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
 
+    DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "ZohoClientID", 
+        INPUT "C", 
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "", 
+        INPUT "",
+        OUTPUT cClientID, 
+        OUTPUT lFound
+        ).
+            
     DO WITH FRAME {&FRAME-NAME}:
-        svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
         EMPTY TEMP-TABLE ttCRMCustomers.
-        RUN pZohoCRM (ipcCompany, OUTPUT iRows).
-        IF RETURN-VALUE NE "" THEN DO:
-            MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
-            RETURN RETURN-VALUE.
+        
+        SESSION:SET-WAIT-STATE("GENERAL").
+        IF cClientID EQ "API" THEN DO:
+            svStatus:SCREEN-VALUE = "Fetching customers from Hubspot. Please wait...".
+            RUN pHubspotCRM (ipcCompany, OUTPUT iRows, OUTPUT lError, OUTPUT cMessage).
+            IF lError THEN
+                MESSAGE cMessage
+                VIEW-AS ALERT-BOX ERROR.
         END.
+        ELSE DO:
+            svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
+            RUN pZohoCRM (ipcCompany, OUTPUT iRows).
+            IF RETURN-VALUE NE "" THEN DO:
+                MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
+                RETURN RETURN-VALUE.
+            END.
+        END.
+        
+        SESSION:SET-WAIT-STATE("").
+        
         IF iRows GT 30 THEN iRows = 30.
         IF iRows GT 5 THEN DO:
             ASSIGN
