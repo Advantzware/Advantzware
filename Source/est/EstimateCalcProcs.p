@@ -5259,7 +5259,7 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
                 AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
                 
            IF AVAILABLE bf-est-op THEN     
-                iOut = IF bf-est-op.n-out GT 0 THEN bf-est-op.n-out ELSE 1.
+                iOut = bf-est-op.n-out.
            
         END.
     END.

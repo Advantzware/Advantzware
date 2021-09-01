@@ -83,13 +83,14 @@ FOR EACH ttInputEst NO-LOCK:
         eb.test            = ttInputEst.cTest
         eb.cad-no          = ttInputEst.cCadID
         eb.spc-no          = ttInputEst.cProject
-        ef.cost-msh        = ttInputEst.dMSF
+        ef.cost-msh        = ttInputEst.dMSF   
         ef.fr-msh          = ttInputEst.dForceFrt
         ef.fr-uom          = ttInputEst.cForceFrtUom
         ef.adder[7]        = ttInputEst.cAddersDscr1
         ef.adder[8]        = ttInputEst.cAddersDscr2
         ef.adder[9]        = ttInputEst.cAddersDscr3
-        
+        eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
+        eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0
         .
 
      IF AVAIL est-qty THEN do:

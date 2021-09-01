@@ -278,7 +278,7 @@ DEFINE VAR same-shipto AS CHAR NO-UNDO.
          same-shipto = oe-bolh.ship-id .
 
       IF same-cust = oe-bolh.cust-no AND same-shipto = oe-bolh.ship-id  THEN DO:
-         op-char-val = op-char-val + string(oe-bolh.bol-no,">>>>>9") .
+         op-char-val = op-char-val + string(oe-bolh.bol-no,">>>>>>9") .
          IF counter NE BROWSE BROWSE-1:NUM-SELECTED-ROWS THEN 
             ASSIGN op-char-val = op-char-val + "," .
             op-rec-id = recid(oe-bolh).  
@@ -322,7 +322,7 @@ DO:
          same-shipto = oe-bolh.ship-id .
 
       IF same-cust = oe-bolh.cust-no AND same-shipto = oe-bolh.ship-id  THEN DO:
-         op-char-val = op-char-val + string(oe-bolh.bol-no,">>>>>9") .
+         op-char-val = op-char-val + string(oe-bolh.bol-no,">>>>>>9") .
          IF counter NE BROWSE BROWSE-1:NUM-SELECTED-ROWS THEN 
             ASSIGN op-char-val = op-char-val + "," .
             op-rec-id = recid(oe-bolh).  

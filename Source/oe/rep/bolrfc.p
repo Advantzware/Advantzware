@@ -54,7 +54,7 @@ format header
        v-ship-zip
        skip(2)
        "DUE ON" at 55 oe-bolh.bol-date at 63 skip
-       "BOL#" oe-bolh.bol-no format "999999"
+       "BOL#" oe-bolh.bol-no format "9999999"
        "TRAILER #" at 35 oe-bolh.trailer v-frt-pay-dscr
        "PAGE " + TRIM(STRING(PAGE-NUMBER - v-last-page,">>>>>")) +
            " OF " + TRIM(STRING(v-page-tot,">>>>>")) AT 63 FORMAT "x(19)"

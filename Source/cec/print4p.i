@@ -78,14 +78,11 @@
     end.
     ll-use-defaults = sys-ctrl.log-fld.
 
-    {est/recalc-mr.i xest}
-    FIND CURRENT recalc-mr NO-LOCK.
-
     {sys/inc/cerun.i C}
     ASSIGN
      do-speed  = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc
-     do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE (recalc-mr.val[1] EQ 1)
-     v-board-cost-from-blank = recalc-mr.val[3] EQ 1
+     do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc-mr
+     v-board-cost-from-blank = xest.calcBoardCostFromBlank
      vmclean   = sys-ctrl.char-fld NE ""
      vsuthrlnd = lookup(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") ne 0.
 
@@ -272,17 +269,16 @@
     FIND xef WHERE RECID(xef) EQ lv-ef-recid .
     FIND xef WHERE RECID(xef) EQ lv-ef-recid NO-LOCK.
     FIND est WHERE RECID(est) EQ RECID(xest).
-    FIND CURRENT recalc-mr.
+    
     ASSIGN
      est.recalc       = do-speed
-     recalc-mr.val[1] = INT(do-mr)
-     recalc-mr.val[3] = INT(v-board-cost-from-blank)
+     est.recalc-mr    = do-mr
+     est.calcBoardCostFromBlank = v-board-cost-from-blank
      est.override     = do-gsa
      op-lock.val[1]   = INT(est.recalc)
-     op-lock.val[2]   = recalc-mr.val[1].
+     op-lock.val[2]   = IF est.recalc-mr THEN 1 ELSE 0.
     FIND est WHERE RECID(est) EQ RECID(xest) NO-LOCK.
-    FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.
-    FIND CURRENT recalc-mr NO-LOCK.
+    FIND xest WHERE RECID(xest) EQ RECID(est) NO-LOCK.    
     FIND CURRENT op-lock NO-LOCK.  
      
   END.

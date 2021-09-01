@@ -197,9 +197,9 @@ do:     /* production mode */
 		 v-ship-zip
 		 skip(1)
 		 "ORDER#" v-ord-no skip
-		 "BOL#" oe-bolh.bol-no format "999999"
-		 "TO SHIP VIA" at 13 v-carrier format "x(30)"
-		 "DUE ON" at 55 oe-bolh.bol-date at 63 skip
+		 "BOL#" oe-bolh.bol-no format "9999999"
+		 "TO SHIP VIA" at 14 v-carrier format "x(30)"
+		 "DUE ON" at 56 oe-bolh.bol-date at 64 skip
 		 "CUSTOMER PO#" at 1 oe-ord.po-no at 13
 		 "TRAILER #" at 35 oe-bolh.trailer v-frt-pay-dscr
 		 "PAGE" at 63 page-number - v-last-page to 69 format "99"

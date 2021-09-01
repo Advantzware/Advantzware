@@ -1429,15 +1429,15 @@ DO:
         
         dTotPTD = dTotPTD + ttTrialBalance.amountPTD.
         dTotYTD = dTotYTD + ttTrialBalance.amountYTD.
-        ASSIGN
-        dOpenBalance    =  ttTrialBalance.amountYTDOpen
+        ASSIGN          
         dDebitActivity  =  0
         dCreditActivity =  0
         dEndingBalance  =  ttTrialBalance.amountYTDOpen .
        
         IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
-        
+            RUN GL_GetAccountOpenBal(ROWID(account), period.pst , OUTPUT dOpenBalance).
+            dEndingBalance  =  dOpenBalance. 
             FOR EACH glhist NO-LOCK 
                WHERE glhist.company EQ account.company
                AND glhist.actnum  EQ account.actnum
@@ -1447,7 +1447,7 @@ DO:
                 IF glhist.tr-amt GT 0 THEN
                 dDebitActivity = dDebitActivity + glhist.tr-amt.
                 ELSE dCreditActivity = dCreditActivity + glhist.tr-amt.
-                dEndingBalance = dEndingBalance + glhist.tr-amt.
+                dEndingBalance = dEndingBalance + glhist.tr-amt.                 
             END.    
            
            IF tb_fill-field AND tb_Period-Detail THEN
@@ -1616,7 +1616,7 @@ DO:
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
  END.
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").
@@ -1678,6 +1678,7 @@ DEFINE VARIABLE str-tit5        AS CHARACTER FORMAT "x(240)" NO-UNDO.
 DEFINE VARIABLE str-line        AS CHARACTER FORMAT "x(240)" NO-UNDO.
 DEFINE VARIABLE dTotalDebitAmt  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalCreditAmt AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dOpenBalance    AS DECIMAL format "->>>>,>>>,>>9.99" NO-UNDO.
        
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1795,10 +1796,13 @@ DO:
         
         IF NOT suppress-zero OR ttTrialBalance.amountYTD NE 0 OR ttTrialBalance.amountPTD NE 0 THEN
         DO:
-           dTotalYtdAmount = dTotalYtdAmount + ttTrialBalance.amountYTDOpen .
-           dYtdAmount = ttTrialBalance.amountYTDOpen.
-           dTotalOpenBalance = dTotalOpenBalance + ttTrialBalance.amountYTDOpen.
+           dTotalYtdAmount = dTotalYtdAmount + ttTrialBalance.amountYTDOpen .           
            lRecordExist = NO.
+           
+           RUN GL_GetAccountOpenBal(ROWID(account), period.pst , OUTPUT dOpenBalance).
+           IF dOpenBalance EQ ? THEN dOpenBalance = 0.
+           dYtdAmount = dOpenBalance. 
+           dTotalOpenBalance = dTotalOpenBalance + dOpenBalance.
            FOR EACH glhist NO-LOCK 
                WHERE glhist.company EQ account.company
                AND glhist.actnum  EQ account.actnum
@@ -1816,8 +1820,9 @@ DO:
              dTotalCreditAmt = dTotalCreditAmt + glhist.tr-amt .
             
             dPeriodTotal = dPeriodTotal + glhist.tr-amt. 
-            dYtdAmount = dYtdAmount + glhist.tr-amt.
-            dTotalYtdAmount = dTotalYtdAmount + glhist.tr-amt.
+            dYtdAmount = dYtdAmount +  glhist.tr-amt.
+            IF glhist.tr-amt NE ? THEN
+            dTotalOpenBalance = dTotalOpenBalance + glhist.tr-amt.
             lRecordExist = YES.
             
             PUT 
@@ -1839,7 +1844,7 @@ DO:
                 EXPORT STREAM excel DELIMITER ","
                     account.actnum
                     account.dscr
-                    ttTrialBalance.amountYTDOpen    
+                    dOpenBalance    
                     glhist.tr-date
                     glhist.jrnl
                     glhist.tr-dscr
@@ -1858,7 +1863,7 @@ DO:
            DO:
                  PUT SKIP str-line FORMAT "x(240)" SKIP.
                  PUT  "                              Account Total:" FORMAT "x(45)" SPACE(2)
-                 ttTrialBalance.amountYTDOpen  FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                 dOpenBalance  FORMAT "->>>,>>>,>>9.99" SPACE(1)
                  SPACE(11) 
                  space(9) 
                  SPACE(31) 
@@ -1875,7 +1880,7 @@ DO:
                  EXPORT STREAM excel DELIMITER ","
                     "Account Total"
                     ""
-                    ttTrialBalance.amountYTDOpen
+                    dOpenBalance
                     ""
                     ""
                     ""
@@ -1894,7 +1899,7 @@ DO:
                 
                 PUT SKIP
                 account.actnum + "  " + account.dscr FORMAT "x(45)" SPACE(2)
-                ttTrialBalance.amountYTDOpen FORMAT "->>>,>>>,>>9.99" SPACE(1)
+                dOpenBalance FORMAT "->>>,>>>,>>9.99" SPACE(1)
                 "" FORMAT "x(152)" 
                 dYtdAmount FORMAT "->,>>>,>>>,>>9.99" SKIP .
                 PUT str-line FORMAT "x(240)" SKIP.
@@ -1908,7 +1913,7 @@ DO:
                 EXPORT STREAM excel DELIMITER ","
                     account.actnum
                     account.dscr
-                    ttTrialBalance.amountYTDOpen
+                    dOpenBalance
                     ""
                     ""
                     ""
@@ -1925,7 +1930,7 @@ DO:
                 EXPORT STREAM excel DELIMITER ","
                     "Account Total"
                     ""
-                    ttTrialBalance.amountYTDOpen
+                    dOpenBalance
                     ""
                     ""
                     ""
@@ -1986,7 +1991,7 @@ DO:
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
  END.
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE("").

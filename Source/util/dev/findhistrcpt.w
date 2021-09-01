@@ -272,7 +272,7 @@ DO:
 
       OUTPUT STREAM excel CLOSE.
   
-  /*    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).*/
+  /*    OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).*/
 
       SESSION:SET-WAIT-STATE ("").
 

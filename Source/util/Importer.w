@@ -673,7 +673,7 @@ PROCEDURE pExportTemplate :
     IF cFile NE "" THEN 
     DO:
         fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFile.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFile)).
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cFile)).
     END.
 END PROCEDURE.
 

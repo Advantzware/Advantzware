@@ -56,7 +56,7 @@ format header
        "BOL DATE"                       at 59
        oe-bolh.bol-date                                                 skip
        "BOL#"
-       oe-bolh.bol-no                           format "999999"
+       oe-bolh.bol-no                           format "9999999"
        "CARRIER"                        at 35    
        carrier.dscr                             format "x(15)"
        v-frt-pay-dscr                   at 59

@@ -1370,7 +1370,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

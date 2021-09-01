@@ -765,7 +765,9 @@ END PROCEDURE.
 PROCEDURE JobParser:
     /*------------------------------------------------------------------------------
      Purpose: Parses the job given in XXXXX-99.99.99 format 
-     Notes:
+     Notes:   If any of the three elements (jobno2, formno, blankno) are present, and are 
+              NOT an integer,  the parser fail reporting an error.
+              Is completely uncaring as to the length of the job-no field.
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJobno        AS CHARACTER NO-UNDO.    
@@ -775,80 +777,45 @@ PROCEDURE JobParser:
     DEFINE OUTPUT PARAMETER oplIsParsed     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE iValid AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumElements AS INT NO-UNDO.
+    DEFINE VARIABLE cInputTest AS CHAR NO-UNDO.
+    DEFINE VARIABLE iIntTest AS INT NO-UNDO.
+    
+    ASSIGN 
+        cInputTest = REPLACE(ipcJobNo,"-",".")
+        iNumElements = NUM-ENTRIES(cInputTest,".")
+        opcJobno = ENTRY(1,cInputTest,".")
+        opcJobNo2 = IF iNumElements GT 1 THEN ENTRY(2,cInputTest,".") ELSE ""
+        opcFormNo = IF iNumElements GT 2 THEN ENTRY(3,cInputTest,".") ELSE ""
+        opcBlankNo = IF iNumElements GT 3 THEN ENTRY(4,cInputTest,".") ELSE "".
         
-    IF INDEX(ipcJobno,"-") NE 0 THEN DO:        
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                      INTEGER(ENTRY(1,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
-                      INTEGER(ENTRY(2,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                 
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Jobno2 value".
-            RETURN.
-        END.
-        
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                      INTEGER(ENTRY(2,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
-                      INTEGER(ENTRY(3,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                  
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Formno value".
-            RETURN.
-        END.
-
-        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                      INTEGER(ENTRY(3,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
-                      INTEGER(ENTRY(4,ipcJobno,"-"))
-                  ELSE 
-                      0) NO-ERROR.
-                  
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = "Invalid Blankno value".
-            RETURN.
-        END.
-
-        ASSIGN
-            opcJobNo   = ENTRY(1,ipcJobno,"-")        
-            opcJobNo2  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                             ENTRY(1,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
-                             ENTRY(2,ipcJobno,"-")
-                         ELSE
-                             ""
-            opcFormno  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                             ENTRY(2,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
-                             ENTRY(3,ipcJobno,"-")
-                         ELSE
-                             ""
-            opcBlankno = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
-                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                             ENTRY(3,ENTRY(2,ipcJobno,"-"),".")
-                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
-                             ENTRY(4,ipcJobno,"-")
-                         ELSE
-                             ""
-            NO-ERROR.
-            
-        IF ERROR-STATUS:ERROR THEN DO:
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1).
-            RETURN.
-        END.            
-        
-        oplIsParsed = TRUE.
+    /* Is job-no2 an integer? */
+    ASSIGN 
+        iIntTest = IF opcJobNo2 NE "" THEN INTEGER(opcJobNo2) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Job-no2 value".
+        RETURN.
     END.
+    /* Is form-no an integer? */
+    ASSIGN 
+        iIntTest = IF opcFormNo NE "" THEN INTEGER(opcFormNo) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Form No value".
+        RETURN.
+    END.
+    /* Is blank-no an integer? */
+    ASSIGN 
+        iIntTest = IF opcBlankNo NE "" THEN INTEGER(opcBlankNo) ELSE 0 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Blank No value".
+        RETURN.
+    END.
+            
+    ASSIGN 
+        oplIsParsed = TRUE.
 
 END PROCEDURE.
 

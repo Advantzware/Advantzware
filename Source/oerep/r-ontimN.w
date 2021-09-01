@@ -65,10 +65,10 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
-DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+DEFINE BUFFER b-itemfg FOR itemfg .
 
 
 ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL Date,On-Time," +
@@ -101,11 +101,11 @@ ASSIGN cTextListToDefault  = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,B
 &Scoped-Define ENABLED-OBJECTS rsCompareDate begin_cust end_cust begin_i-no ~
 end_i-no begin_ord-date end_ord-date begin_bol-date end_bol-date sl_avail ~
 Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm ~
-tb_runExcel fi_file btn-ok btn-cancel tb_cust-list btnCustList tbAutoClose ~
+tb_OpenCSV fi_file btn-ok btn-cancel tb_cust-list btnCustList tbAutoClose ~
 RECT-7 RECT-8 
 &Scoped-Define DISPLAYED-OBJECTS rsCompareDate begin_cust end_cust ~
 begin_i-no end_i-no begin_ord-date end_ord-date begin_bol-date end_bol-date ~
-sl_avail sl_selected rd-dest td-show-parm tb_runExcel fi_file tb_cust-list ~
+sl_avail sl_selected rd-dest td-show-parm tb_OpenCSV fi_file tb_cust-list ~
 tbAutoClose 
 
 /* Custom List Definitions                                              */
@@ -212,7 +212,7 @@ DEFINE VARIABLE end_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-ontime.csv" 
      LABEL "Name" 
-     VIEW-AS FILL-IN 
+     VIEW-AS FILL-IN NATIVE
      SIZE 43 BY 1.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
@@ -278,13 +278,7 @@ DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 30.8 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .95
-     BGCOLOR 3  NO-UNDO.
-
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
      LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 15.4 BY .81
@@ -332,8 +326,7 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 17.48 COL 33 COLON-ALIGNED
      lv-font-name AT ROW 17 COL 27 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 18.86 COL 37.6
-     tb_excel AT ROW 17.24 COL 68 RIGHT-ALIGNED
-     tb_runExcel AT ROW 19.86 COL 87 RIGHT-ALIGNED
+     tb_OpenCSV AT ROW 19.86 COL 87 RIGHT-ALIGNED
      fi_file AT ROW 19.76 COL 26.8 COLON-ALIGNED HELP
           "Enter File Name"
      btn-ok AT ROW 22.76 COL 27.6
@@ -480,17 +473,11 @@ ASSIGN
        tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
-ASSIGN 
-       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
-       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -593,13 +580,12 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  IF rd-dest = 3 THEN
-  do:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-booko#.csv".
-    assign fi_file.
+  IF rd-dest EQ 3 THEN
+  DO:
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
+  END.
 SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -618,9 +604,19 @@ SESSION:SET-WAIT-STATE("general").
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
-                   //RUN output-to-file.
+       WHEN 3 THEN DO:
+           IF NOT tb_OpenCSV THEN DO:        
+               MESSAGE  "CSV file have been created." SKIP(1)
+               "~"OK~" to open CSV file?"
+               VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+               TITLE "" UPDATE lChoice AS LOGICAL.
+               
+               IF lChoice THEN
+               DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
+               END.
+           END.
+       END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
@@ -649,7 +645,6 @@ SESSION:SET-WAIT-STATE("general").
 
            END.
        END. 
-       WHEN 6  THEN RUN output-to-port.
   END CASE. 
     IF tbAutoClose:CHECKED THEN 
      APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -869,6 +864,7 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
+  RUN pChangeDest.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -950,12 +946,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME tb_excel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
-ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 DO:
-  ASSIGN {&self-name}.
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1023,13 +1018,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_Up:load-image("Graphics/32x32/moveup.png").
     btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
-{sys/inc/reportsConfigNK1.i "OR14" }
-assign
-td-show-parm:sensitive = lShowParameters
-td-show-parm:hidden = not lShowParameters
-td-show-parm:visible = lShowParameters
-.
   {methods/nowait.i}
+  {sys/inc/reportsConfigNK1.i "OR14" }
+  ASSIGN
+  td-show-parm:SENSITIVE = lShowParameters
+  td-show-parm:HIDDEN = NOT lShowParameters
+  td-show-parm:VISIBLE = lShowParameters
+  .
+  
   RUN sys/inc/CustListForm.p ( "OR14",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
@@ -1040,6 +1036,8 @@ td-show-parm:visible = lShowParameters
     APPLY "entry" TO begin_cust.
   END.
 
+  RUN pChangeDest.
+  
   RUN sys/ref/CustList.p (INPUT cocode,
                           INPUT 'OR14',
                           INPUT NO,
@@ -1284,11 +1282,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rsCompareDate begin_cust end_cust begin_i-no end_i-no begin_ord-date 
           end_ord-date begin_bol-date end_bol-date sl_avail sl_selected rd-dest 
-          td-show-parm tb_runExcel fi_file tb_cust-list tbAutoClose 
+          td-show-parm tb_OpenCSV fi_file tb_cust-list tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE rsCompareDate begin_cust end_cust begin_i-no end_i-no begin_ord-date 
          end_ord-date begin_bol-date end_bol-date sl_avail Btn_Def sl_selected 
-         Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm tb_runExcel 
+         Btn_Add Btn_Remove btn_Up btn_down rd-dest td-show-parm tb_OpenCSV 
          fi_file btn-ok btn-cancel tb_cust-list btnCustList tbAutoClose RECT-7 
          RECT-8 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -1554,7 +1552,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
-IF rd-dest = 3 THEN DO:
+IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1705,7 +1703,7 @@ SESSION:SET-WAIT-STATE ("general").
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
-            IF rd-dest = 3 THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -1854,10 +1852,10 @@ SESSION:SET-WAIT-STATE ("general").
       END.
     END. /* each oe-ord */
 
-IF rd-dest = 3 THEN DO:
+IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+  IF tb_OpenCSV THEN
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1958,6 +1956,34 @@ PROCEDURE show-param :
   END.
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      IF rd-dest:SCREEN-VALUE EQ "3" THEN
+       ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "Yes"
+        fi_file:SENSITIVE = YES
+        tb_OpenCSV:SENSITIVE = YES       
+       .
+      ELSE 
+        ASSIGN
+        tb_OpenCSV:SCREEN-VALUE = "NO"
+        fi_file:SENSITIVE = NO
+        tb_OpenCSV:SENSITIVE = NO       
+       .
+      ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-booko#.csv".
+  END.
 
 END PROCEDURE.
 

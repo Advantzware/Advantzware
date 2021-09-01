@@ -575,7 +575,7 @@
     END.
     PUT UNFORMATTED cDisplay SKIP.
     
-     IF tb_excel THEN DO:
+     IF rd-dest EQ 3 THEN DO:
          PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
      END.
@@ -660,7 +660,7 @@
     END.
     PUT UNFORMATTED cDisplay SKIP.
     
-     IF tb_excel THEN DO:
+     IF rd-dest EQ 3 THEN DO:
          PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
      END.
@@ -748,7 +748,7 @@
     END.
     PUT UNFORMATTED cDisplay SKIP.
     
-     IF tb_excel THEN DO:
+     IF rd-dest EQ 3 THEN DO:
          PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
      END.*/
@@ -831,7 +831,7 @@
     END.
     PUT UNFORMATTED  "        ITEM TOTALS" substring(cDisplay,20,520) SKIP.
     
-     IF tb_excel THEN DO:
+     IF rd-dest EQ 3 THEN DO:
          PUT STREAM excel UNFORMATTED  
               "ITEM TOTALS " + substring(cExcelDisplay,3,300) SKIP.
      END.
@@ -933,7 +933,7 @@
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
     END.
     
-     IF tb_excel THEN DO:
+     IF rd-dest EQ 3 THEN DO:
          if v-sort-by-cust eq "Cu" then
          PUT STREAM excel UNFORMATTED  
                "CUST TOTALS " + substring(cExcelDisplay,3,520) SKIP.

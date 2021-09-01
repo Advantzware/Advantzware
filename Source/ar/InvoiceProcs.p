@@ -45,11 +45,13 @@ PROCEDURE invoice_CreateInterCompanyBilling:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSoldID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
     RUN pCreateInterCompanyBilling(
                   INPUT ipriOeBolh,
+                  INPUT ipcSoldID,
                   OUTPUT oplError,
                   OUTPUT opcMessage
                   ).
@@ -746,6 +748,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSoldID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
@@ -771,6 +774,9 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
     DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipto       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iInterCompanyBilling AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.     
+    DEFINE VARIABLE lSoldUsed AS LOGICAL NO-UNDO.
     
     FIND FIRST oe-bolh NO-LOCK 
         WHERE ROWID(oe-bolh) EQ ipriOeBolh NO-ERROR.
@@ -783,7 +789,16 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
         OUTPUT iInterCompanyBilling
         ). 
         
-    cCustomer = IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no .   
+    IF iInterCompanyBilling EQ 1 THEN
+    DO:
+        lSoldUsed = NO.
+        cChar =  substring(oe-bolh.ship-id,1,1).
+        iAsc = ASC(cChar).
+        IF iAsc GE 65 AND iAsc LE 122 THEN
+        lSoldUsed = YES.         
+    END.    
+        
+    cCustomer = IF iInterCompanyBilling EQ 1 AND lSoldUsed THEN ipcSoldID ELSE IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no .   
     cShipto   = oe-bolh.ship-id .    
      
     FIND FIRST bf-period NO-LOCK 
@@ -821,7 +836,7 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
             bf-ar-inv.zip            = bf-cust.zip
             bf-ar-inv.city           = bf-cust.city
             bf-ar-inv.bill-to        = bf-inv-head.bill-to
-            bf-ar-inv.sold-id        = cShipto
+            bf-ar-inv.sold-id        = ipcSoldID
             bf-ar-inv.sold-name      = bf-inv-head.sold-name
             bf-ar-inv.sold-addr[1]   = bf-inv-head.sold-addr[1]
             bf-ar-inv.sold-addr[2]   = bf-inv-head.sold-addr[2]

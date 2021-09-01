@@ -268,7 +268,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = string(oe-bolh.bol-no,">>>>>9") + "," +
+   op-char-val = string(oe-bolh.bol-no,">>>>>>9") + "," +
                  oe-bolh.cust-no + "," + oe-bolh.ship-id 
                  .
    op-rec-id = recid(oe-bolh).                 
