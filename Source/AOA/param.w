@@ -101,13 +101,13 @@ btnSelection-List btnToggle-Box
 &Scoped-define List-2 btnCombo-Box btnEditor btnFill-In btnRadio-Set ~
 btnSelection-List btnToggle-Box 
 &Scoped-define displayFields dynParam.paramID dynParam.paramName ~
-dynParam.paramLabel dynParam.paramType dynParam.action ~
+dynParam.paramLabel dynParam.action dynParam.paramType ~
 dynParam.actionParamName dynParam.dataType dynParam.paramFormat ~
 dynParam.viewAs dynParam.innerLines dynParam.paramWidth ~
 dynParam.paramHeight dynParam.initialValue dynParam.initialItems ~
 dynParam.initializeProc dynParam.validateProc dynParam.descriptionProc 
 &Scoped-define enabledFields dynParam.paramName dynParam.paramLabel ~
-dynParam.paramType dynParam.action dynParam.actionParamName ~
+dynParam.action dynParam.paramType dynParam.actionParamName ~
 dynParam.dataType dynParam.paramFormat dynParam.viewAs dynParam.innerLines ~
 dynParam.paramWidth dynParam.paramHeight dynParam.initialValue ~
 dynParam.initialItems dynParam.initializeProc dynParam.validateProc ~
@@ -192,12 +192,12 @@ DEFINE FRAME F-Main
 DEFINE FRAME viewFrame
      btnCombo-Box AT ROW 22.19 COL 26 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
+     btnEditor AT ROW 22.19 COL 33 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     btnEditor AT ROW 22.19 COL 33 HELP
-          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170 FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
@@ -206,15 +206,15 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           BGCOLOR 15 
+     dynParam.action AT ROW 4.81 COL 45 NO-LABEL WIDGET-ID 186
+          VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS","SORT" 
+          SIZE 27 BY 11.43
      dynParam.paramType AT ROW 5.76 COL 20 COLON-ALIGNED WIDGET-ID 180
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "System","User" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.action AT ROW 5.76 COL 45 NO-LABEL WIDGET-ID 186
-          VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS" 
-          SIZE 27 BY 10.48
      dynParam.actionParamName AT ROW 6.95 COL 20 COLON-ALIGNED WIDGET-ID 302
           LABEL "Action Param Name"
           VIEW-AS FILL-IN 
@@ -287,7 +287,7 @@ DEFINE FRAME viewFrame
      btnToggle-Box AT ROW 22.19 COL 61 HELP
           "Create New TOGGLE-BOX" WIDGET-ID 200
      "Action:" VIEW-AS TEXT
-          SIZE 7 BY .81 AT ROW 4.81 COL 45 WIDGET-ID 188
+          SIZE 7 BY .81 AT ROW 4.81 COL 37 WIDGET-ID 188
      RECT-9 AT ROW 21.95 COL 25 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1171,8 +1171,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object
-PROCEDURE pTableHandle:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTableHandle s-object 
+PROCEDURE pTableHandle :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1182,7 +1182,7 @@ PROCEDURE pTableHandle:
     ophTable = BUFFER dynParam:HANDLE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

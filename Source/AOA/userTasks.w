@@ -1367,6 +1367,7 @@ PROCEDURE pResultsJasper :
     DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRecipient  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hJasper     AS HANDLE    NO-UNDO.
     
@@ -1377,6 +1378,7 @@ PROCEDURE pResultsJasper :
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     RUN AOA/spJasper.p PERSISTENT SET hJasper.
+    SESSION:ADD-SUPER-PROCEDURE (hJasper).
     RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
     RUN pGetDynParamValue (
         ttDynParamValue.subjectID,
@@ -1391,7 +1393,8 @@ PROCEDURE pResultsJasper :
         ipcUserID,
         hAppSrvBin,
         ipcTaskRecKey,
-        OUTPUT cJasperFile
+        OUTPUT cJasperFile,
+        OUTPUT cRecipient
         ).
     DELETE PROCEDURE hJasper.
     DELETE PROCEDURE hAppSrvBin.

@@ -376,6 +376,7 @@ PROCEDURE pTaskEmails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAttachment AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEmailBody  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorText  AS CHARACTER NO-UNDO.
@@ -443,22 +444,24 @@ PROCEDURE pTaskEmails :
                            + CHR(10) + CHR(10)
                            + "The dAOA Report "
                            + bTaskEmail.attachment
-                           + " failed to run because of the following error:"
-                           + CHR(10) + CHR(10)
+                           + " failed to run because of the following attached error(s)."
                            .
-                INPUT FROM VALUE(SEARCH(cErrorFile)) NO-ECHO.
-                REPEAT:
-                    IMPORT UNFORMATTED cErrorText.
-                    cEmailBody = CHR(10) + cEmailBody + cErrorText.
-                END. /* repeat */
-                INPUT CLOSE.
+/*                INPUT FROM VALUE(SEARCH(cErrorFile)) NO-ECHO.      */
+/*                REPEAT:                                            */
+/*                    IMPORT UNFORMATTED cErrorText.                 */
+/*                    cEmailBody = CHR(10) + cEmailBody + cErrorText.*/
+/*                END. /* repeat */                                  */
+/*                INPUT CLOSE.                                       */
+                cAttachment = REPLACE(SEARCH(cErrorFile),".err",".txt").
+                OS-RENAME VALUE(SEARCH(cErrorFile)) VALUE(cAttachment).
                 RUN VALUE(cRunProgram) (
                     bTaskEmail.subject,
                     cEmailBody,
-                    "",
+                    cAttachment,
                     bTaskEmail.recipients,
                     bTaskEmail.rec_key
                     ).                
+                OS-DELETE VALUE(cAttachment).
             END. /* error else */
             OS-DELETE VALUE(SEARCH(cErrorFile)).
             DELETE bTaskEmail.

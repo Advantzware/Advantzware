@@ -292,6 +292,7 @@ PROCEDURE pResultsJasper :
     DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRecipient  AS CHARACTER NO-UNDO.
     
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     
@@ -302,7 +303,8 @@ PROCEDURE pResultsJasper :
         ipcUserID,
         hAppSrvBin,
         ipcTaskRecKey,
-        OUTPUT cJasperFile
+        OUTPUT cJasperFile,
+        OUTPUT cRecipient
         ).
     
     RUN LockWindowUpdate (0,OUTPUT i).
