@@ -1151,9 +1151,10 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
         EMPTY TEMP-TABLE ttPanel.
 
         FIND FIRST bf-style NO-LOCK
-             WHERE bf-style.company EQ bf-eb.company
-               AND bf-style.style   EQ bf-eb.style
-               AND bf-style.type    EQ "B"
+             WHERE bf-style.company  EQ bf-eb.company
+               AND bf-style.style    EQ bf-eb.style
+               AND bf-style.type     EQ "B"
+               AND bf-style.industry EQ "2"
              NO-ERROR.
         IF AVAILABLE bf-style THEN        
             RUN pBuildPanelDetailsForEstimate (
