@@ -554,9 +554,7 @@ PROCEDURE pUpdateOrderType :
                                   INPUT-OUTPUT iTypeColor,
                                   OUTPUT lUpdate) .  
         IF lUpdate then
-        DO:
-            CREATE bf-ttOrderType.
-            
+        DO:                         
             scOrderType:Update(INPUT 0,
                               INPUT cItemDscr,
                               INPUT cTypeSource,                               
@@ -564,8 +562,9 @@ PROCEDURE pUpdateOrderType :
                               INPUT lInactive,                              
                               INPUT cTypeEst,
                               INPUT iTypeColor,
-                              OUTPUT iOrderTypeId).              
-            
+                              OUTPUT iOrderTypeId). 
+                              
+            CREATE bf-ttOrderType.
             ASSIGN 
                 bf-ttOrderType.OrderTypeId          = iOrderTypeId
                 bf-ttOrderType.company              = cCompany
