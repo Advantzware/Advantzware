@@ -917,9 +917,9 @@ ASSIGN
           "<P8>"  SKIP.
       
       FOR EACH w-m BY w-m.dseq:
-       RUN pConvertToHours(INPUT string(w-m.s-hr,"999.99"), OUTPUT cStdHours).
-       RUN pConvertToHours(INPUT string(w-m.r-hr,"999.99"), OUTPUT cRunHours).
-       RUN pConvertToHMin(INPUT string(w-m.r-hr,"999.99"), OUTPUT iRunHours, OUTPUT dMinute ).
+       RUN pConvertToHours(INPUT string(w-m.s-hr,"99999.99"), OUTPUT cStdHours).
+       RUN pConvertToHours(INPUT string(w-m.r-hr,"99999.99"), OUTPUT cRunHours).
+       RUN pConvertToHMin(INPUT string(w-m.r-hr,"99999.99"), OUTPUT iRunHours, OUTPUT dMinute ).
         ASSIGN
            i = i + 1
            v-letter = substr("UTE",i,1)
