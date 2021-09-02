@@ -76,6 +76,7 @@ DEFINE TEMP-TABLE temp-po-rec NO-UNDO
     FIELD descr      AS CHARACTER FORMAT "X(15)"
     FIELD prod-cat   AS CHARACTER
     FIELD qty-to-inv AS DECIMAL   FORMAT "->>,>>>,>>9.9"
+    FIELD qty-uom    AS CHARACTER
     FIELD whse       AS CHARACTER
     FIELD cost-each  AS DECIMAL   FORMAT ">>>,>>9.99<<<<"
     FIELD amt-to-inv AS DECIMAL   FORMAT "->>,>>>,>>9.99"
@@ -1808,6 +1809,7 @@ PROCEDURE run-report :
                         temp-po-rec.descr      = po-ordl.i-name  
                         temp-po-rec.prod-cat   = v-procat
                         temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
+                        temp-po-rec.qty-uom    = po-ordl.pr-uom
                         temp-po-rec.whse       = po-ord.loc
                         temp-po-rec.cost-each  = v-cost
                         temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
@@ -2237,6 +2239,7 @@ PROCEDURE run-report-2 :
                         temp-po-rec.descr      = po-ordl.i-name  
                         temp-po-rec.prod-cat   = v-procat
                         temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
+                        temp-po-rec.qty-uom    = po-ordl.pr-uom
                         temp-po-rec.whse       = po-ord.loc
                         temp-po-rec.cost-each  = v-cost
                         temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
@@ -2288,6 +2291,7 @@ PROCEDURE run-report-2 :
                             temp-po-rec.descr      = po-ordl.i-name  
                             temp-po-rec.prod-cat   = v-procat
                             temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+                            temp-po-rec.qty-uom    = po-ordl.pr-uom
                             temp-po-rec.whse       = po-ord.loc
                             temp-po-rec.cost-each  = tt-neg-po-line.amt / tt-neg-po-line.qty
                             temp-po-rec.amt-to-inv = tt-neg-po-line.amt.
@@ -2343,6 +2347,7 @@ PROCEDURE run-report-2 :
                     temp-po-rec.descr      = po-ordl.i-name  
                     temp-po-rec.prod-cat   = v-procat
                     temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+                    temp-po-rec.qty-uom    = po-ordl.pr-uom
                     temp-po-rec.whse       = po-ord.loc
                     temp-po-rec.cost-each  = tt-neg-po-line.amt / tt-neg-po-line.qty
                     temp-po-rec.amt-to-inv = tt-neg-po-line.amt.
@@ -2398,6 +2403,7 @@ DO:
         temp-po-rec.descr      = po-ordl.i-name  
         temp-po-rec.prod-cat   = v-procat
         temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+        temp-po-rec.qty-uom    = po-ordl.pr-uom
         temp-po-rec.whse       = po-ord.loc
         temp-po-rec.cost-each  = tt-neg-po-line.amt / tt-neg-po-line.qty
         temp-po-rec.amt-to-inv = tt-neg-po-line.amt.
@@ -2425,7 +2431,7 @@ FOR EACH temp-po-rec:
              ttReceipt.poLine       = temp-po-rec.po-line
              ttReceipt.itemID       = temp-po-rec.item-no
              ttReceipt.itemName     = IF temp-po-rec.descr EQ "" THEN temp-po-rec.item-no ELSE temp-po-rec.descr
-             ttReceipt.quantityUOM  = ""
+             ttReceipt.quantityUOM  = temp-po-rec.qty-uom
              .
     END.
     
