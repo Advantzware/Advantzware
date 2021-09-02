@@ -60,9 +60,7 @@ CLASS oe.orderType:
 		    WHERE bf-OrderType.company EQ cCompany:
 		    
 		    CREATE ttOrderType.
-		    BUFFER-COPY bf-OrderType TO ttOrderType.
-            ASSIGN
-			ttOrderType.rwRowID = ROWID(bf-OrderType).
+		    BUFFER-COPY bf-OrderType TO ttOrderType.            
   			
 		END.
         

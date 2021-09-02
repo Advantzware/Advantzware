@@ -53,16 +53,16 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES orderType
+&Scoped-define INTERNAL-TABLES ttOrderType
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.orderTypeID orderType.orderTypeDescription orderType.orderTypeSource orderType.orderTypeColor orderType.inactive orderType.numberSequence orderType.estimateType
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttOrderType.orderTypeID ttOrderType.orderTypeDescription ttOrderType.orderTypeSource ttOrderType.orderTypeColor ttOrderType.inactive ttOrderType.numberSequence ttOrderType.estimateType
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 orderType
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 orderType
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttOrderType
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttOrderType
 
 
 /* Definitions for DIALOG-BOX D-Dialog                                  */
@@ -113,20 +113,20 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    orderType SCROLLING.
+    ttOrderType SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    orderType.orderTypeID COLUMN-LABEL "Type" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
-    orderType.orderTypeDescription COLUMN-LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
-    orderType.orderTypeSource COLUMN-LABEL "Source" FORMAT "x(10)" LABEL-BGCOLOR 14
-    orderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>"  LABEL-BGCOLOR 14
-    orderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
-    orderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
-    orderType.estimateType COLUMN-LABEL "Estimate Type" FORMAT "x(10)" LABEL-BGCOLOR 14
+    ttOrderType.orderTypeID COLUMN-LABEL "Type" WIDTH 10 LABEL-BGCOLOR 14 FORMAT ">>9"
+    ttOrderType.orderTypeDescription COLUMN-LABEL "Description"  LABEL-BGCOLOR 14 FORMAT "x(32)"
+    ttOrderType.orderTypeSource COLUMN-LABEL "Source" FORMAT "x(10)" LABEL-BGCOLOR 14
+    ttOrderType.orderTypeColor COLUMN-LABEL "Color" FORMAT ">>"  LABEL-BGCOLOR 14
+    ttOrderType.inactive COLUMN-LABEL "Inactive" FORMAT "Yes/No"  LABEL-BGCOLOR 14
+    ttOrderType.numberSequence COLUMN-LABEL "Sequence" FORMAT ">9" LABEL-BGCOLOR 14
+    ttOrderType.estimateType COLUMN-LABEL "Estimate Type" FORMAT "x(10)" LABEL-BGCOLOR 14
     VIEW-AS COMBO-BOX INNER-LINES 4 
         LIST-ITEM-PAIRS "All","",
                         "Single","1",
@@ -208,7 +208,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~
+OPEN QUERY {&SELF-NAME} FOR EACH ttOrderType WHERE ttOrderType.Company = cCompany ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -232,7 +232,8 @@ OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Order Type */
     DO:             
-                
+        DELETE OBJECT scOrderType.
+        
         APPLY "END-ERROR":U TO SELF.       
     END.
 
@@ -244,19 +245,7 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Order Type */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add D-Dialog
 ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add  */
     DO:
-        DEFINE VARIABLE iOrderTypeID AS INTEGER   NO-UNDO.
-        DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
-        DEFINE BUFFER bff-orderType FOR orderType .         
-            
-        RUN oe/dAddEditOrdType.w (?,"Add",OUTPUT iOrderTypeID) . 
-        
-        FIND FIRST bff-orderType NO-LOCK
-            WHERE bff-orderType.Company EQ cCompany
-            AND bff-orderType.orderTypeID EQ iOrderTypeID NO-ERROR .
-        
-        IF AVAILABLE bff-orderType THEN
-            RUN repo-query (ROWID(bff-orderType)). 
-
+        RUN pUpdateOrderType("Add") .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,9 +258,9 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
     DO:
         DEFINE VARIABLE hftp     AS HANDLE NO-UNDO.
         DEFINE VARIABLE lv-rowid AS ROWID  NO-UNDO.
-        IF AVAILABLE orderType THEN 
+        IF AVAILABLE ttOrderType THEN 
         DO:
-            IF orderType.orderTypeID GE 1 AND orderType.orderTypeID LE 10  THEN
+            IF ttOrderType.orderTypeID GE 1 AND ttOrderType.orderTypeID LE 10  THEN
             DO:
                 MESSAGE "Order Type not allowed to delete " 
                     VIEW-AS ALERT-BOX INFORMATION.
@@ -282,12 +271,11 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
                 VIEW-AS ALERT-BOX QUESTION
                 BUTTON YES-NO UPDATE ll-ans AS LOG.
             IF NOT ll-ans THEN RETURN NO-APPLY.  
-            
-            FIND CURRENT orderType NO-LOCK NO-ERROR.
-            scOrderType = NEW oe.orderType().
-            
-            scOrderType:Delete(INPUT  orderType.orderTypeID). 
-            DELETE OBJECT scOrderType.              
+                                 
+            scOrderType:Delete(INPUT  ttOrderType.orderTypeID). 
+                        
+            IF AVAILABLE ttOrderType THEN 
+            DELETE ttOrderType.
             
             RUN repo-query (lv-rowid).
         
@@ -302,16 +290,8 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update D-Dialog
 ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update  */
     DO:
-        DEFINE VARIABLE iOrderTypeID AS INTEGER NO-UNDO. 
-        DEFINE VARIABLE rwRowid  AS ROWID NO-UNDO. 
-        IF AVAILABLE orderType THEN 
-        DO:              
-            RUN oe/dAddEditOrdType.w (rowid(orderType),"Update",OUTPUT iOrderTypeID) . 
-                  
-            RUN repo-query (rowid(orderType)).
-           
-        END. 
-
+    
+        RUN pUpdateOrderType("Update") .        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,16 +303,7 @@ ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update  */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME D-Dialog
     DO:
-       DEFINE VARIABLE iOrderTypeID AS INTEGER NO-UNDO.
-        DEFINE VARIABLE rwRowid  AS ROWID NO-UNDO. 
-        IF AVAILABLE orderType THEN 
-        DO:
-           
-            RUN oe/dAddEditOrdType.w (rowid(orderType),"Update",OUTPUT iOrderTypeID) . 
-   
-            RUN repo-query (rowid(orderType)).
-        END.  
- 
+        RUN pUpdateOrderType("Update") .    
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,7 +326,7 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME 
 
 
 &UNDEFINE SELF-NAME
@@ -369,7 +340,9 @@ END.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    {custom/yellowColumns.i}                                  
+    {custom/yellowColumns.i} 
+    
+    RUN pInit.
     
     RUN enable_UI.
     {methods/nowait.i}     
@@ -468,12 +441,12 @@ PROCEDURE repo-query :
               Parameters:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.        
     
-    DO WITH FRAME {&FRAME-NAME}:         
-        
-        {&open-query-{&browse-name}}
-        
+    DO WITH FRAME {&FRAME-NAME}: 
+         
+        {&open-query-{&browse-name}}          
+         
         REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.        
     END.
     
@@ -481,6 +454,139 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit D-Dialog 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCategoryTagsList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeList        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iBrowseColumn     AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.        
+    
+        scOrderType = NEW oe.orderType().
+         
+        IF VALID-OBJECT(scOrderType) THEN
+            scOrderType:pGetAll(OUTPUT TABLE ttOrderType).            
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateOrderType D-Dialog 
+PROCEDURE pUpdateOrderType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE iOrderTypeID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cItemDscr    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTypeSource  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTypeSeq     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lInactive    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cTypeEst     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTypeColor   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lUpdate      AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE rwRowid      AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-ttOrderType FOR ttOrderType.
+            
+    IF AVAILABLE ttOrderType AND ipcType EQ "Update" THEN 
+    DO:              
+        ASSIGN
+        iOrderTypeID = ttOrderType.orderTypeID
+        cItemDscr    = ttOrderType.orderTypeDescription
+        cTypeSource  = ttOrderType.orderTypeSource
+        iTypeSeq     = ttOrderType.numberSequence
+        lInactive    = ttOrderType.inactive
+        cTypeEst     = ttOrderType.estimateType
+        iTypeColor   = ttOrderType.orderTypeColor
+        .
+        
+        RUN oe/dAddEditOrdType.w ("Update",
+                                  INPUT-OUTPUT iOrderTypeID,
+                                  INPUT-OUTPUT cItemDscr,
+                                  INPUT-OUTPUT cTypeSource,
+                                  INPUT-OUTPUT iTypeSeq,
+                                  INPUT-OUTPUT lInactive,
+                                  INPUT-OUTPUT cTypeEst,
+                                  INPUT-OUTPUT iTypeColor,
+                                  OUTPUT lUpdate) .  
+        IF lUpdate then
+        DO:
+            scOrderType:Update(INPUT iOrderTypeID,
+                              INPUT cItemDscr,
+                              INPUT cTypeSource,                               
+                              INPUT iTypeSeq,
+                              INPUT lInactive,                              
+                              INPUT cTypeEst,
+                              INPUT iTypeColor,
+                              OUTPUT iOrderTypeId).  
+            ASSIGN                 
+                ttOrderType.orderTypeDescription = cItemDscr     
+                ttOrderType.orderTypeSource      = cTypeSource   
+                ttOrderType.numberSequence       = iTypeSeq      
+                ttOrderType.inactive             = lInactive     
+                ttOrderType.estimateType         = cTypeEst      
+                ttOrderType.orderTypeColor       = iTypeColor    
+                .                  
+                  
+            RUN repo-query (rowid(ttOrderType)).            
+        END.
+    END.             
+    ELSE IF ipcType EQ "Add" THEN
+    DO:
+         RUN oe/dAddEditOrdType.w ("Add",
+                                  INPUT-OUTPUT iOrderTypeID,
+                                  INPUT-OUTPUT cItemDscr,
+                                  INPUT-OUTPUT cTypeSource,
+                                  INPUT-OUTPUT iTypeSeq,
+                                  INPUT-OUTPUT lInactive,
+                                  INPUT-OUTPUT cTypeEst,
+                                  INPUT-OUTPUT iTypeColor,
+                                  OUTPUT lUpdate) .  
+        IF lUpdate then
+        DO:
+            CREATE bf-ttOrderType.
+            
+            scOrderType:Update(INPUT 0,
+                              INPUT cItemDscr,
+                              INPUT cTypeSource,                               
+                              INPUT iTypeSeq,
+                              INPUT lInactive,                              
+                              INPUT cTypeEst,
+                              INPUT iTypeColor,
+                              OUTPUT iOrderTypeId).              
+            
+            ASSIGN 
+                bf-ttOrderType.OrderTypeId          = iOrderTypeId
+                bf-ttOrderType.company              = cCompany
+                bf-ttOrderType.orderTypeDescription = cItemDscr     
+                bf-ttOrderType.orderTypeSource      = cTypeSource   
+                bf-ttOrderType.numberSequence       = iTypeSeq      
+                bf-ttOrderType.inactive             = lInactive     
+                bf-ttOrderType.estimateType         = cTypeEst      
+                bf-ttOrderType.orderTypeColor       = iTypeColor    
+                .  
+            rwRowid =  rowid(bf-ttOrderType).                  
+            RUN repo-query (rwRowid).            
+        END.
+        
+    END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-bgcolor D-Dialog 
 PROCEDURE set-bgcolor :
@@ -490,10 +596,10 @@ PROCEDURE set-bgcolor :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-IF AVAIL orderType THEN DO:
+IF AVAIL ttOrderType THEN DO:
     ASSIGN 
-        orderType.orderTypeColor:BGCOLOR IN BROWSE {&BROWSE-NAME}      = orderType.orderTypeColor
-        orderType.orderTypeColor:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ""
+        ttOrderType.orderTypeColor:BGCOLOR IN BROWSE {&BROWSE-NAME}      = ttOrderType.orderTypeColor
+        ttOrderType.orderTypeColor:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = ""
               .         
  END.
 

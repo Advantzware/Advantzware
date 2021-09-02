@@ -15,22 +15,21 @@
 SESSION:DEBUG-ALERT = FALSE.
 
 /* PARAMs Definitions ---                                           */
-DEFINE INPUT PARAMETER iprwRowId AS ROWID     NO-UNDO.
-DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.   /* add,update,view */ 
-DEFINE OUTPUT PARAMETER opiOrderTypeId AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.   /* add,update,view */ 
+DEFINE INPUT-OUTPUT PARAMETER opiOrderTypeID AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER opcItemDscr AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER opcTypeSource AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER opiTypeSeq AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER oplInactive AS LOGICAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER opcTypeEst AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER opiTypeColor AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplUpdate AS LOGICAL NO-UNDO.
     
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE scInstance AS CLASS oe.orderType NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
-scInstance = NEW oe.orderType().    
-
-DEFINE VARIABLE char-val        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-item-rowid   AS ROWID     NO-UNDO.
-DEFINE VARIABLE ll-order-warned AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE ll-new-record   AS LOGICAL   NO-UNDO. 
-DEFINE VARIABLE v-count         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE char-val        AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE cNewOrderEntry  AS CHARACTER NO-UNDO.
@@ -133,11 +132,12 @@ DEFINE VARIABLE type-color AS INTEGER FORMAT ">9":U INITIAL 0
 
 DEFINE VARIABLE type-est AS CHARACTER FORMAT "X(1)":U 
      LABEL "Estimate Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 4
+     VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "All","",
                      "Single","1",
                      "Set","2",
-                     "Tandem","3"                     
+                     "Tandem","3",
+                     "Distribution","4"
      DROP-DOWN-LIST 
      SIZE 21.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -312,10 +312,7 @@ ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Order Type */
 DO:
-        DELETE OBJECT  scInstance.     
-        IF AVAILABLE orderType THEN
-            opiOrderTypeId = orderType.orderTypeID .
-
+        
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.   
     
     END.
@@ -342,10 +339,7 @@ DO:
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-DO:
-        IF AVAILABLE orderType THEN
-            opiOrderTypeId = orderType.orderTypeID . 
-        
+DO:              
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -389,32 +383,18 @@ DO:
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&displayed-objects}.
             END.            
-        END.                  
-               
-        IF ipcType EQ "Add" OR ipcType EQ "copy" THEN
-        DO:
-            scInstance:Update(INPUT 0,
-                              INPUT item-dscr,
-                              INPUT type-source,                               
-                              INPUT type-seq,
-                              INPUT tb_inactive,                              
-                              INPUT type-est,
-                              INPUT type-color,
-                              OUTPUT iOrderTypeId).  
-        END.
-        ELSE DO:  
-            scInstance:Update(INPUT OrderType.orderTypeID,
-                              INPUT item-dscr,
-                              INPUT type-source,                               
-                              INPUT type-seq,
-                              INPUT tb_inactive,                                
-                              INPUT type-est,
-                              INPUT type-color,
-                              OUTPUT iOrderTypeId). 
-        END.       
+        END.  
         
-        
-        opiOrderTypeId = iOrderTypeId.
+        ASSIGN
+            opiOrderTypeID  = type-id        
+            opcItemDscr     = item-dscr      
+            opcTypeSource   = type-source   
+            opiTypeColor    = type-color     
+            opiTypeSeq      = type-seq       
+            opcTypeEst      = type-est         
+            oplInactive     = tb_inactive    
+            oplUpdate       = YES 
+            .   
                 
         APPLY "go" TO FRAME {&FRAME-NAME}.
     
@@ -539,19 +519,14 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
-    FIND FIRST orderType NO-LOCK
-        WHERE rowid(orderType) EQ iprwRowId NO-ERROR .
-    
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK: 
+        
     IF ipcType NE "view" THEN 
     DO: 
         
         RUN enable_UI.
-        RUN display-item.
-
-        ASSIGN 
-            ll-order-warned = NO.
+        RUN display-item. 
+        
         btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.
     END.
     ELSE 
@@ -598,20 +573,17 @@ PROCEDURE display-item :
                           Purpose:     
                           PARAMs:  <none>
                           Notes:       
-         ------------------------------------------------------------------------------*/   
+         ------------------------------------------------------------------------------*/              
         
-    FIND FIRST orderType NO-LOCK
-        WHERE rowid(orderType) EQ iprwRowId NO-ERROR. 
-    IF AVAILABLE orderType THEN 
-        ASSIGN
-            type-id       = orderType.orderTypeID
-            item-dscr     = orderType.orderTypeDescription
-            type-source   = orderType.orderTypeSource
-            type-color    = orderType.orderTypeColor
-            type-seq      = orderType.numberSequence
-            type-est      = orderType.estimateType  
-            tb_inactive   = orderType.inactive
-            .    
+    ASSIGN
+        type-id       = opiOrderTypeID
+        item-dscr     = opcItemDscr
+        type-source   = opcTypeSource
+        type-color    = opiTypeColor
+        type-seq      = opiTypeSeq
+        type-est      = opcTypeEst  
+        tb_inactive   = oplInactive
+        .    
       
     IF ipcType EQ "Copy" OR ipcType EQ "Add" THEN 
     DO:
@@ -621,6 +593,7 @@ PROCEDURE display-item :
            rBgColor:FGCOLOR IN FRAME {&frame-name} = ?
            rBgColor:BGCOLOR IN FRAME {&frame-name} = ?
            type-color:SCREEN-VALUE IN FRAME {&frame-name} = ?
+           type-source = "Customer"
            type-color = ?.
            .
     END.
@@ -715,6 +688,7 @@ PROCEDURE pSetField :
     END.
     ELSE IF type-source:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "File" THEN
     DO:
+       type-est:HIDDEN IN FRAME {&FRAME-NAME} = YES.
        fiFileLoc:HIDDEN IN FRAME {&FRAME-NAME} = NO.
        fiFileLoc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cNewOrderEntry.
     END.
