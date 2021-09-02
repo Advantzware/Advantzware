@@ -411,6 +411,17 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Last Updated by' THEN fg-rctd.updated-by ELSE ~
   STRING(fg-rctd.r-no,'99999999') ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'dOrderType' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Type Id' THEN string(ttOrderType.orderTypeID,'999999') ELSE ~
+  IF sortColumn EQ 'Description' THEN ttOrderType.orderTypeDescription ELSE ~
+  IF sortColumn EQ 'Type Source' THEN ttOrderType.orderTypeSource ELSE ~
+  IF sortColumn EQ 'Color' THEN STRING(ttOrderType.orderTypeColor,'999') ELSE ~
+  IF sortColumn EQ 'Inactive' THEN STRING(ttOrderType.inactive) ELSE ~
+  IF sortColumn EQ 'Sequence' THEN STRING(ttOrderType.numberSequence,'999') ELSE ~
+  IF sortColumn EQ 'Estimate Type' THEN ttOrderType.estimateType ELSE ~
+  string(ttOrderType.orderTypeID,'999999') ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'cust' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Name' THEN cust.name ELSE ~
