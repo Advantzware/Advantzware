@@ -858,6 +858,8 @@ PROCEDURE pCreateLoadTag:
             bf-loadtag.item-type    = NO /*FGitem*/
             bf-loadtag.job-no       = ipbf-ttLoadTag.jobID
             bf-loadtag.job-no2      = ipbf-ttLoadTag.jobID2
+            bf-loadtag.po-no        = ipbf-ttLoadTag.poID
+            bf-loadtag.line         = ipbf-ttLoadTag.poLineID
             bf-loadtag.ord-no       = IF CAN-FIND(FIRST cust 
                                                   WHERE cust.company EQ bf-itemfg.company
                                                     AND cust.cust-no EQ bf-itemfg.cust-no
@@ -2621,9 +2623,9 @@ PROCEDURE pBuildLoadTagsFromPO PRIVATE:
                 INPUT  bf-po-ordl.i-no,
                 INPUT  "FG",
                 INPUT  bf-ttLoadTag.ordQuantity,
-                INPUT  po-ordl.pr-qty-uom, 
+                INPUT  bf-po-ordl.pr-qty-uom, 
                 INPUT  "EA",
-                INPUT  10 * itemfg.weight-100 / itemfg.t-sqft,
+                INPUT  10 * bf-itemfg.weight-100 / bf-itemfg.t-sqft,
                 INPUT  bf-itemfg.t-len,
                 INPUT  bf-itemfg.t-wid,
                 INPUT  bf-itemfg.t-dep,
