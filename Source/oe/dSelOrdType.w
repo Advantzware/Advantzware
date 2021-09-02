@@ -41,15 +41,21 @@ RUN spGetSessionParam ("Location", OUTPUT cLoc).
 
 DEFINE VARIABLE ll-valid-po-no AS LOG     NO-UNDO.
 DEFINE VARIABLE lOeprompt      AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cRtnChar       AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE cNewOrderEntry AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cCompany, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lOeprompt = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cCompany, "NewOrderEntry", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cNewOrderEntry = cRtnChar .    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -342,6 +348,12 @@ ON HELP OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
     DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
+        DEFINE VARIABLE chFile AS CHARACTER FORMAT "X(100)" NO-UNDO.
+        DEFINE VARIABLE lOkflg AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+        
         IF orderType.orderTypeSource EQ "Customer" THEN
         DO:          
             RUN windows/l-custact.w (cCompany,"", OUTPUT char-val, OUTPUT look-recid).
@@ -351,16 +363,46 @@ ON HELP OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
                     .     
         END.
         ELSE IF orderType.orderTypeSource EQ "Estimate" THEN
+        DO:
+            RUN windows/l-est.w (cCompany,cLoc,"", OUTPUT char-val).
+            FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
+            IF AVAILABLE eb THEN 
             DO:
-                RUN windows/l-est.w (cCompany,cLoc,"", OUTPUT char-val).
-                FIND FIRST eb NO-LOCK WHERE RECID(eb) = INT(char-val) NO-ERROR.
-                IF AVAILABLE eb THEN 
-                DO:
-                    ASSIGN
-                        cOrderSource:screen-value = eb.est-no  .
-                                
-                END.
+                ASSIGN
+                    cOrderSource:screen-value = eb.est-no  .
+                            
             END.
+        END.
+        ELSE IF orderType.orderTypeSource EQ "File" THEN
+        DO:             
+            SYSTEM-DIALOG GET-FILE chFile 
+              TITLE "Select Label Matrix Label File"
+              FILTERS "Excel File (*.xls) " "*.xls",
+                      "Excel File (*.csv) " "*.csv",
+                      "All Files (*.*)" "*.*"
+              INITIAL-DIR cNewOrderEntry
+              MUST-EXIST
+              USE-FILENAME
+              UPDATE lOkflg.                     
+              
+            ASSIGN
+              cOrderSource:screen-value = chFile  .                    
+        END. 
+        ELSE IF orderType.orderTypeSource EQ "Order" THEN
+        DO:
+           RUN system/openlookup.p (
+                                   cCompany, 
+                                   "", /* lookup field */
+                                   27,   /* Subject ID */
+                                   "",  /* User ID */
+                                   0,   /* Param value ID */
+                                   OUTPUT returnFields, 
+                                   OUTPUT lookupField, 
+                                   OUTPUT recVal
+                                   ). 
+           ASSIGN
+              cOrderSource:screen-value = chFile  .                         
+        END.
         APPLY "entry" TO cOrderSource IN FRAME {&FRAME-NAME}.
     END.
 

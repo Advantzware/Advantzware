@@ -35,6 +35,7 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttEstItem.
 {methods/defines/hndldefs.i}               
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSelectTrigger AS LOGICAL NO-UNDO.
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
  
 /* _UIB-CODE-BLOCK-END */
@@ -59,7 +60,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estLine ttEstItem.estCust ttEstItem.estItem ttEstItem.estPart ttEstItem.estDesc ttEstItem.estQty ttEstItem.estQtyUom ttEstItem.estPrice ttEstItem.estPrUom ttEstItem.estPo ttEstItem.estTotal ttEstItem.estQuote ttEstItem.estPriceMatrix   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estQty   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}.
@@ -147,7 +148,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
-    ttEstItem.isSelected COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
+    ttEstItem.isSelected COLUMN-LABEL '[]'  VIEW-AS TOGGLE-BOX 
     ttEstItem.estLine  WIDTH 10 FORMAT ">9"
     ttEstItem.estCust LABEL-BGCOLOR 14 FORMAT "x(8)"
     ttEstItem.estItem FORMAT "x(15)" WIDTH 18 
@@ -162,6 +163,7 @@ DEFINE BROWSE BROWSE-1
     ttEstItem.estQuote WIDTH 22 FORMAT "->>>,>>>,>>9.99" 
     ttEstItem.estPriceMatrix WIDTH 8 FORMAT "Yes/No" 
     ENABLE ttEstItem.isSelected
+           ttEstItem.estQty
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 228.4 BY 16.52
@@ -221,6 +223,9 @@ DEFINE FRAME D-Dialog
 ASSIGN 
     FRAME D-Dialog:SCROLLABLE = FALSE
     FRAME D-Dialog:HIDDEN     = TRUE.
+    
+    ASSIGN 
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME D-Dialog = TRUE.
 
 /* SETTINGS FOR FILL-IN cCustNo IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -335,6 +340,57 @@ ON VALUE-CHANGED OF ttEstItem.isSelected IN BROWSE BROWSE-1 /* select */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttEstItem.estQty BROWSE-1 _BROWSE-COLUMN D-Dialog
+ON VALUE-CHANGED OF ttEstItem.estQty IN BROWSE BROWSE-1 /* qty */
+    DO:
+        ASSIGN 
+            ttEstItem.estQty = INTEGER(ttEstItem.estQty:SCREEN-VALUE IN BROWSE {&browse-name}).
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define BROWSE-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttEstItem.estQty BROWSE-1 _BROWSE-COLUMN D-Dialog
+ON HELP OF ttEstItem.estQty IN BROWSE BROWSE-1 /* qty */
+    DO:
+        DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+        RUN windows/l-ordqty.w (cCompany, ttEstItem.estNo, "", OUTPUT cReturnValue).
+                
+        ttEstItem.estQty:SCREEN-VALUE IN BROWSE {&browse-name} =   ENTRY(1,cReturnValue).       
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
+ON START-SEARCH OF BROWSE-1 IN FRAME D-Dialog
+DO:  
+    IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
+        lSelectTrigger = NOT lSelectTrigger.
+                     
+        FOR EACH ttEstItem:
+            ttEstItem.isSelected = lSelectTrigger.  
+        END.
+
+        SELF:CURRENT-COLUMN:LABEL = IF lSelectTrigger THEN
+                                        "[*] "
+                                    ELSE
+                                        "[ ] ".
+
+        DO WITH FRAME {&FRAME-NAME}:
+         
+         {&open-query-{&browse-name}}
+        END. 
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
