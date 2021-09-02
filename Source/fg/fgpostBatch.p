@@ -52,16 +52,7 @@ DEFINE BUFFER b-prgrms FOR prgrms.
 
 {sys/inc/var.i new shared}
 
-DEFINE TEMP-TABLE ttReceipt NO-UNDO
-    FIELD company      AS CHARACTER
-    FIELD location     AS CHARACTER
-    FIELD receiptRowID AS ROWID
-    FIELD poID         AS INTEGER
-    FIELD poLine       AS INTEGER
-    FIELD itemID       AS CHARACTER
-    FIELD quantity     AS DECIMAL
-    FIELD quantityUOM  AS CHARACTER    
-    .
+{api/ttReceipt.i}
 
 ASSIGN
     cocode = gcompany
@@ -566,7 +557,8 @@ PROCEDURE fg-post:
     DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFGSetAdjust   AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    
     SESSION:SET-WAIT-STATE ("general").
 
     FIND FIRST period NO-LOCK
@@ -709,13 +701,15 @@ PROCEDURE fg-post:
                             IF NOT AVAILABLE ttReceipt THEN DO:
                                     CREATE ttReceipt.
                                     ASSIGN
+                                        iCount                 = iCount + 1
+                                        ttReceipt.lineID       = iCount                                    
                                         ttReceipt.company      = bf-po-ordl.company
                                         ttReceipt.location     = fg-rcpth.loc
-                                        ttReceipt.receiptRowID = ROWID(fg-rcpth)
                                         ttReceipt.poID         = bf-po-ordl.po-no
                                         ttReceipt.poLine       = bf-po-ordl.line
                                         ttReceipt.itemID       = fg-rcpth.i-no
-                                        ttReceipt.quantityUOM  = "Ea"
+                                        ttReceipt.itemName     = IF fg-rcpth.i-name EQ "" THEN fg-rcpth.i-no ELSE fg-rcpth.i-name
+                                        ttReceipt.quantityUOM  = "EA"
                                         .
                             END.
 
@@ -1537,36 +1531,29 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cDataList       AS CHARACTER NO-UNDO.
-    
-    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
-    
-    FOR EACH ttReceipt:
-        cDataList = STRING(ttReceipt.receiptRowID) + ","
-                  + STRING(ttReceipt.quantity, ">>>>>>>>9.99<<<<") + ","
-                  + ttReceipt.quantityUOM.
-        
-        System.SharedConfig:Instance:SetValue("APIOutboundEvent_UserField1", STRING(ttReceipt.poID)).
-        System.SharedConfig:Instance:SetValue("APIOutboundEvent_UserField2", STRING(ttReceipt.poLine)).
-                          
-        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
-            INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
-            INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
-            INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
-            INPUT  "",                                                 /* Scope ID */
-            INPUT  "",                                                 /* Scoped Type */
-            INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
-            INPUT  "fg-rcpth,Quantity,QuantityUOM",                    /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  cDataList,                                          /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-            INPUT  ttReceipt.itemID,                                   /* Primary ID for which API is called for (Mandatory) */   
-            INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
-            OUTPUT lSuccess,                                           /* Success/Failure flag */
-            OUTPUT cMessage                                            /* Status message */
-            ) NO-ERROR.
+
+    IF NOT TEMP-TABLE ttReceipt:HAS-RECORDS THEN
+        RETURN.
             
-        DELETE ttReceipt.
-    END.    
-    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+                             
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+        INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "",                                                 /* Scope ID */
+        INPUT  "",                                                 /* Scoped Type */
+        INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "FGPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+        OUTPUT lSuccess,                                           /* Success/Failure flag */
+        OUTPUT cMessage                                            /* Status message */
+        ) NO-ERROR.
+            
+    EMPTY TEMP-TABLE ttReceipt.
+        
     DELETE PROCEDURE hdOutboundProcs. 
 
 END PROCEDURE.
