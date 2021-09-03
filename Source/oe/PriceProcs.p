@@ -218,7 +218,8 @@ PROCEDURE pCheckDuplicateQuoteEntry PRIVATE:
           IF FIRST-OF(bf-oe-prmtx.procat) THEN
            iQuoteNo = bf-oe-prmtx.quoteID.
            
-          IF NOT FIRST-OF(bf-oe-prmtx.procat) AND iQuoteNo NE bf-oe-prmtx.quoteID THEN
+/*          IF NOT FIRST-OF(bf-oe-prmtx.procat) AND iQuoteNo NE bf-oe-prmtx.quoteID THEN*/
+          IF NOT FIRST-OF(bf-oe-prmtx.procat) AND iQuoteNo EQ bf-oe-prmtx.quoteID THEN
           bf-oe-prmtx.quoteID = 0.
     END.          
     RELEASE bf-oe-prmtx.      
