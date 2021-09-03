@@ -1215,7 +1215,7 @@ PROCEDURE run-report :
 
 def var v-cust   like cust.cust-no.
 def var v-ship   like shipto.ship-id.
-def var v-s-bol  as   int format ">>>>>>" init 0 extent 24 no-undo.
+def var v-s-bol  as   int format ">>>>>>>" init 0 extent 24 no-undo.
 def var v-bol    like oe-bolh.bol-no no-undo.
 
 def var v-carrier       like carrier.dscr no-undo.

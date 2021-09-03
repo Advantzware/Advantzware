@@ -404,6 +404,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svRecipients
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svRecipients s-object
+ON LEAVE OF svRecipients IN FRAME outputFrame
+DO:
+    ASSIGN
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,";",",")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE," ","")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,CHR(10),"")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME svShowAll
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowAll s-object
 ON VALUE-CHANGED OF svShowAll IN FRAME outputFrame /* Show ALL */
