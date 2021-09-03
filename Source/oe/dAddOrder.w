@@ -23,13 +23,14 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-{oe\ttInputOrd.i NEW}
+{oe\ttInputOrd.i}
 
 DEFINE INPUT PARAMETER ipcSourceType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER TABLE FOR ttEstItem.
 DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -51,7 +52,8 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lOeprompt = LOGICAL(cRtnChar) NO-ERROR.
     
-
+DEFINE VARIABLE hOrderEntryProcs AS HANDLE NO-UNDO. 
+RUN oe/OrderEntryProcs.p PERSISTENT SET hOrderEntryProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,12 +132,12 @@ DEFINE BUTTON btn-update
 
 DEFINE BUTTON Btn_Cancel 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.29
+     SIZE 18 BY 1.29
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-     LABEL "&Save" 
-     SIZE 15 BY 1.29
+     LABEL "&Create Order" 
+     SIZE 18 BY 1.29
      BGCOLOR 8 .
      
 DEFINE BUTTON Btn_Back AUTO-GO 
@@ -272,7 +274,7 @@ DEFINE FRAME D-Dialog
      btn-update AT ROW 21.86 COL 36.6 WIDGET-ID 256
      btn-delete AT ROW 21.86 COL 52.6 WIDGET-ID 254 
      
-     Btn_OK AT ROW 23.67 COL 227.8
+     Btn_OK AT ROW 23.67 COL 224.8
      Btn_Cancel AT ROW 23.67 COL 243.8
      "Order Header" VIEW-AS TEXT
           SIZE 17 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
@@ -361,8 +363,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = c
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Set Estimate */
 DO:             
       EMPTY TEMP-TABLE ttInputOrdLine .
-      
+      DELETE OBJECT hOrderEntryProcs.
       oplBack = NO.
+      oplCancel = YES.
       APPLY "END-ERROR":U TO SELF.
         
     END.
@@ -478,7 +481,7 @@ DO:
       EMPTY TEMP-TABLE ttInputOrdLine .
       
       oplBack = NO.
-           
+      oplCancel = YES.     
       APPLY "END-ERROR":U TO SELF.
       
     END.
@@ -569,7 +572,7 @@ ON CHOOSE OF Btn_Back IN FRAME D-Dialog /* Back */
         
         oplBack = YES.
         
-        //APPLY "close" TO THIS-PROCEDURE.        
+        APPLY "close" TO THIS-PROCEDURE.        
          
     END.
 
@@ -1154,78 +1157,19 @@ PROCEDURE pNewEstimate :
       cEstNo:SCREEN-VALUE = ipcSourceValue.
       cCustPo:SCREEN-VALUE = ipcCustomerPo.
       
-      FIND FIRST est NO-LOCK
-          WHERE est.company EQ cCompany
-            AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
-          NO-ERROR.
-      EMPTY TEMP-TABLE ttInputOrd . 
-                   
-      IF AVAIL est THEN
-      DO:            
-          EMPTY TEMP-TABLE ttInputOrdLine .
-          iLine = 0.     
-           
-          FOR EACH eb NO-LOCK
-              WHERE eb.company EQ cCompany
-              AND eb.est-no EQ est.est-no,
-              FIRST ttEstItem WHERE ttEstItem.isSelected
-                    AND ttEstItem.estRowid EQ ROWID(eb) NO-LOCK,
-              FIRST cust NO-LOCK
-                where (cust.company = cCompany)
-              AND cust.cust-no EQ eb.cust-no
-              USE-INDEX cust
-              BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no:
-                    
-                    
-              iLine = iLine + 1.
-              
-              ASSIGN
-                  cCustNo:SCREEN-VALUE = eb.cust-no                   
-                  ship-to:SCREEN-VALUE = eb.ship-id
-                  sold-to:SCREEN-VALUE = eb.cust-no                  
-                  cDue:SCREEN-VALUE =  "On"
-                  dtDueDate:SCREEN-VALUE = string(TODAY + cust.ship-days ).
-                  
-               RUN pGetOverUnderPct.   
-              
-              CREATE ttInputOrdLine.
-              ASSIGN
-                  ttInputOrdLine.company = cCompany
-                  ttInputOrdLine.LINE = iLine
-                  ttInputOrdLine.cItemType = "Order Line"
-                  ttInputOrdLine.est-no = eb.est-no
-                  ttInputOrdLine.i-no = eb.stock-no
-                  ttInputOrdLine.part-no = eb.part-no 
-                  ttInputOrdLine.po-no = cCustPo:SCREEN-VALUE
-                  ttInputOrdLine.qty = eb.eqty
-                  ttInputOrdLine.cQtyUom = "EA"                  
-                       .
-                  
-                FIND FIRST itemfg NO-LOCK 
-                     WHERE itemfg.company EQ eb.company
-                     AND itemfg.i-no    EQ eb.stock-no
-                     NO-ERROR.
-     
-             IF AVAIL itemfg THEN DO:
-               RUN Tax_GetTaxableAR  (cCompany, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
-               
-               ASSIGN
-               ttInputOrdLine.i-name     =  itemfg.i-name
-               ttInputOrdLine.part-dscr2 = itemfg.part-dscr2
-               ttInputOrdLine.part-dscr3 = itemfg.part-dscr3
-               ttInputOrdLine.tax = lTaxable
-               ttInputOrdLine.price      = itemfg.sell-price
-               ttInputOrdLine.pr-uom     = itemfg.sell-uom
-                    . 
-             END. 
-             ASSIGN
-             ttInputOrdLine.i-name     = eb.part-dscr1 
-             ttInputOrdLine.part-dscr1 = eb.part-dscr2  .                       
-              
-          END.
-          
-      END.
-      {&open-query-{&browse-name}}     
+      RUN OrderEntry_GetEstDetail IN hOrderEntryProcs(INPUT TABLE ttEstItem, INPUT cCompany, INPUT ipcSourceValue, OUTPUT TABLE ttInputOrdLine, OUTPUT TABLE ttInputOrd ).
+            
+      {&open-query-{&browse-name}}  
+      
+      FIND FIRST ttInputOrd NO-LOCK NO-ERROR.
+      IF AVAIL ttInputOrd THEN 
+      ASSIGN
+          cCustNo:SCREEN-VALUE = ttInputOrd.cust-no                   
+          ship-to:SCREEN-VALUE = ttInputOrd.ship-id
+          sold-to:SCREEN-VALUE = ttInputOrd.cust-no                  
+          cDue:SCREEN-VALUE =  "On"
+          dtDueDate:SCREEN-VALUE = string(ttInputOrd.due-date).
+      
     END.
 
 END PROCEDURE.

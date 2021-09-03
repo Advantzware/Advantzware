@@ -2238,27 +2238,29 @@ PROCEDURE add-order :
   
   IF lNewOrderEntry THEN
   DO:
-  
+   EMPTY TEMP-TABLE ttEstItem.
    DO WHILE TRUE:
        RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, OUTPUT lCancel) .
 
        IF lCancel THEN LEAVE.
       
        IF cSourceType EQ "Estimate" THEN 
-       DO:
-            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, OUTPUT lBack, OUTPUT lCancel, OUTPUT TABLE ttEstItem ).
+       DO: 
+           DO WHILE TRUE:
+            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, OUTPUT lBack, OUTPUT lCancel, INPUT-OUTPUT TABLE ttEstItem ).
             IF lCancel THEN LEAVE.
+            IF lBack THEN LEAVE.
+            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel ).  
             IF NOT lBack THEN LEAVE.
+            IF lCancel THEN LEAVE.
+           END. 
+           IF NOT lBack THEN LEAVE.
+           IF lCancel THEN LEAVE.
        END.
        ELSE LEAVE.            
-   END.
-   
-   IF lCancel THEN RETURN NO-APPLY.    
-             
-   IF cSourceType EQ "Estimate" THEN 
-   DO:   
-        RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack ).   
-   END.
+   END.     
+   IF lCancel THEN RETURN NO-APPLY.               
+  
   END. 
   ELSE  RUN dispatch ('add-record').  
 

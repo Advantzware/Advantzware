@@ -29,7 +29,7 @@ DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER TABLE FOR ttEstItem.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstItem.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}               
@@ -60,7 +60,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estLine ttEstItem.estCust ttEstItem.estItem ttEstItem.estPart ttEstItem.estDesc ttEstItem.estQty ttEstItem.estQtyUom ttEstItem.estPrice ttEstItem.estPrUom ttEstItem.estPo ttEstItem.estTotal ttEstItem.estQuote ttEstItem.estPriceMatrix   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estQty   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 ttEstItem.isSelected ttEstItem.estQty ttEstItem.estQtyUom  
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttEstItem WHERE ttEstItem.Company = cCompany ~         ~{&SORTBY-PHRASE}.
@@ -164,6 +164,7 @@ DEFINE BROWSE BROWSE-1
     ttEstItem.estPriceMatrix WIDTH 8 FORMAT "Yes/No" 
     ENABLE ttEstItem.isSelected
            ttEstItem.estQty
+           ttEstItem.estQtyUom
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 228.4 BY 16.52
@@ -348,6 +349,27 @@ ON VALUE-CHANGED OF ttEstItem.estQty IN BROWSE BROWSE-1 /* qty */
     DO:
         ASSIGN 
             ttEstItem.estQty = INTEGER(ttEstItem.estQty:SCREEN-VALUE IN BROWSE {&browse-name}).
+            
+         RUN Conv_CalcTotalPrice(cCompany,            
+                        ttEstItem.estItem,
+                        DECIMAL(ttEstItem.estQty),
+                        DECIMAL(ttEstItem.estPrice),
+                        ttEstItem.estPrUom,
+                        0,
+                        0,    
+                        OUTPUT ttEstItem.estTotal).  
+         ttEstItem.estTotal:SCREEN-VALUE IN BROWSE {&browse-name} =  string(ttEstItem.estTotal).               
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define BROWSE-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttEstItem.estQtyUom BROWSE-1 _BROWSE-COLUMN D-Dialog
+ON VALUE-CHANGED OF ttEstItem.estQtyUom IN BROWSE BROWSE-1 /* qty-uom */
+    DO:
+        ASSIGN 
+            ttEstItem.estQtyUom = ttEstItem.estQtyUom:SCREEN-VALUE IN BROWSE {&browse-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,18 +528,24 @@ PROCEDURE pBuildTable :
             ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iLine    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iLevel   AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttEstItem FOR ttEstItem.
     
     DO WITH FRAME {&FRAME-NAME}:
     
         FIND FIRST bf-ttEstItem NO-LOCK 
-             WHERE bf-ttEstItem.estNo EQ ipcSourceValue NO-ERROR .
+             WHERE trim(bf-ttEstItem.estNo) EQ trim(ipcSourceValue) NO-ERROR .
                       
         cEstNo:SCREEN-VALUE = ipcSourceValue .
-        cCustPo:SCREEN-VALUE = ipcCustomerPo.        
+        cCustPo:SCREEN-VALUE = ipcCustomerPo. 
+        IF AVAIL bf-ttEstItem THEN
+        ASSIGN
+            cCustNo:SCREEN-VALUE = bf-ttEstItem.estCust
+            ship-to:SCREEN-VALUE = bf-ttEstItem.estShipId.
+        
       
         IF AVAIL bf-ttEstItem THEN RETURN.
-      
+        
         FIND FIRST est NO-LOCK
             WHERE est.company EQ cCompany
             AND est.est-no  EQ FILL(" ",8 - LENGTH(TRIM(cEstNo:SCREEN-VALUE))) + TRIM(cEstNo:SCREEN-VALUE)
@@ -540,6 +568,7 @@ PROCEDURE pBuildTable :
                     ttEstItem.company     = cCompany
                     ttEstItem.estLine    = iLine
                     ttEstItem.estCust    = eb.cust-no
+                    ttEstItem.estShipId  = eb.ship-id
                     ttEstItem.estItem    = eb.stock-no
                     ttEstItem.estPart    = eb.part-no
                     ttEstItem.estDesc    = eb.part-dscr1
@@ -547,6 +576,7 @@ PROCEDURE pBuildTable :
                     ttEstItem.estQtyUom = "EA"
                     ttEstItem.estTotal   = 0  
                     ttEstItem.estRowid   = ROWID(eb) 
+                    ttEstItem.estNo      = eb.est-no
                     .
                   
                 FIND FIRST itemfg NO-LOCK 
@@ -556,22 +586,25 @@ PROCEDURE pBuildTable :
      
                 IF AVAILABLE itemfg THEN 
                 DO:
-                    RUN Tax_GetTaxableAR  (cCompany, cCustNo:SCREEN-VALUE, ship-to:SCREEN-VALUE, itemfg.i-no, OUTPUT lTaxable).
-               
+                    //RUN Price_GetPriceMatrix (cCompany, eb.stock-no, eb.cust-no, eb.ship-id, itemfg.i-no, OUTPUT lTaxable).
+                    RUN Price_GetPriceMatrixLevel(cCompany, eb.stock-no, eb.cust-no, eb.ship-id, eb.eqty, OUTPUT iLevel).
                     ASSIGN               
-                        ttEstItem.estPriceMatrix = lTaxable
+                        ttEstItem.estPriceMatrix = IF iLevel NE 0 THEN YES ELSE NO
                         ttEstItem.estPrUom       = itemfg.sell-uom
                         ttEstItem.estPo           = ipcCustomerPo
                         ttEstItem.estPrice        = itemfg.sell-price 
                         . 
                 END. 
              
-                IF ttEstItem.estPrUom EQ "EA" THEN
-                DO:
-                    ttEstItem.estTotal = ttEstItem.estPrice * ttEstItem.estQty . 
-                END.
-                                  
-              
+                
+                RUN Conv_CalcTotalPrice(eb.company,            
+                        ttEstItem.estItem,
+                        DECIMAL(ttEstItem.estQty),
+                        DECIMAL(ttEstItem.estPrice),
+                        ttEstItem.estPrUom,
+                        0,
+                        0,    
+                        OUTPUT ttEstItem.estTotal).               
             END.
           
         END.

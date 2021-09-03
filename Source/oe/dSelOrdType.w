@@ -376,10 +376,8 @@ ON HELP OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
         ELSE IF orderType.orderTypeSource EQ "File" THEN
         DO:             
             SYSTEM-DIALOG GET-FILE chFile 
-              TITLE "Select Label Matrix Label File"
-              FILTERS "Excel File (*.xls) " "*.xls",
-                      "Excel File (*.csv) " "*.csv",
-                      "All Files (*.*)" "*.*"
+              TITLE "Select File"
+              FILTERS "All Files (*.*)" "*.*" 
               INITIAL-DIR cNewOrderEntry
               MUST-EXIST
               USE-FILENAME

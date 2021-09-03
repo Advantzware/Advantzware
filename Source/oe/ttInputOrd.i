@@ -23,6 +23,7 @@ DEFINE TEMP-TABLE ttInputOrdLine like oe-ordl
          FIELD lCreateRel AS LOGICAL LABEL "Create Release"
          FIELD lCreateJob AS LOGICAL LABEL "Create Job"
          FIELD lCreatePo AS LOGICAL LABEL "Create Po"
+         FIELD cOverUnderTagDesc AS CHARACTER 
     .
 
 DEFINE TEMP-TABLE ttEstItem 
@@ -41,6 +42,7 @@ DEFINE TEMP-TABLE ttEstItem
            FIELD estTotal AS DECIMAL LABEL "Total"
            FIELD estQuote AS INTEGER LABEL "Quote" 
            FIELD estPriceMatrix AS LOGICAL LABEL "Price Matrix"
+           FIELD estShipId AS CHARACTER   
            FIELD estRowid AS ROWID 
            FIELD isSelected AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
 
