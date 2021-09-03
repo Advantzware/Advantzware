@@ -135,7 +135,6 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
                                                 ipbf-ttInv.shiptoPostalCode
                                                 )
             ipbf-ttInv.siteID             = bf-shipto.siteId
-            ipbf-ttInv.custIDShiptoID     = ipbf-ttInv.customerID + "|" + ipbf-ttInv.shiptoID
             .
 
     RUN Credit_GetTerms (
@@ -343,7 +342,6 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.customerPONo         = ipbf-ar-inv.po-no
             ttInv.fob                  = IF ipbf-ar-inv.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
             ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
-            ttInv.custIDShiptoID       = ttInv.customerID + "|" + ttInv.shiptoID
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -580,7 +578,6 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ttInv.invoiceDueDate       = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms)
             ttInv.fob                  = IF ipbf-inv-head.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
             ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
-            ttInv.custIDShiptoID       = ttInv.customerID + "|" + ttInv.shiptoID
             . 
 
         RUN Tax_CalculateForInvHeadWithDetail(

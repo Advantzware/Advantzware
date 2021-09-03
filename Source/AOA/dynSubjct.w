@@ -1462,7 +1462,7 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynSubject.formType AT ROW 13.14 COL 63 COLON-ALIGNED WIDGET-ID 680
           VIEW-AS COMBO-BOX INNER-LINES 10
-          LIST-ITEMS "","Cutomer","Loc","SalesRep","ShipTo","SoldTo","Vendor" 
+          LIST-ITEMS "","Customer","Loc","SalesRep","ShipTo","SoldTo","Vendor" 
           DROP-DOWN-LIST
           SIZE 23 BY 1
      dynSubject.onePer AT ROW 14.33 COL 69 WIDGET-ID 678

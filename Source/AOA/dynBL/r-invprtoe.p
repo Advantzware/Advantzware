@@ -60,8 +60,11 @@ PROCEDURE pBusinessLogic:
             CREATE ttFormHeader.
             BUFFER-COPY ttInv TO ttFormHeader.
             ASSIGN
-                iRecordID             = iRecordID + 1
-                ttFormHeader.recordID = iRecordID
+                iRecordID                   = iRecordID + 1
+                ttFormHeader.recordID       = iRecordID
+                ttFormHeader.emailKeyValues = "r-invprt.|"
+                                            + ttFormHeader.customerID + "|"
+                                            + ttFormHeader.shiptoID
                 .
             FOR EACH ttInvLine:
                 CREATE ttFormDetail.

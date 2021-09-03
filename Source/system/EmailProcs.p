@@ -30,8 +30,9 @@ PROCEDURE pBuildToList:
                          .
         END.        
     END. /* each phone */
+    
     IF opcRecipient EQ "" OR opcRecipient EQ ? THEN DO:
-        IF ipcType BEGINS "CUSTOMER" THEN DO:
+        IF ipcType BEGINS "Customer" THEN DO:
             FIND FIRST bCust NO-LOCK 
                 WHERE bCust.rec_key EQ ipcRecKey
                   AND bCust.active  EQ "X" 
@@ -93,7 +94,7 @@ PROCEDURE pCustomer:
             ).
     END.
     IF cRecipient NE "" THEN
-    opcRecipient = cRecipient + "," + opcRecipient. 
+    opcRecipient = cRecipient + "," + opcRecipient.
 END PROCEDURE.
 
 PROCEDURE pCustomerExt:
@@ -126,7 +127,7 @@ PROCEDURE pCustomerExt:
             iCount      = 0
             .  
         CASE ipc2ndGroup:
-            WHEN "SHIPTO" THEN
+            WHEN "Shipto" THEN
             DO WHILE iCount LE NUM-ENTRIES(ipc2ndKey):
                 iCount = iCount + 1.
                 FIND FIRST shipto NO-LOCK
@@ -263,7 +264,7 @@ PROCEDURE pSoldTo:
     END.
     ELSE opcRecipient = "".
     IF opcRecipient EQ "" THEN DO:
-        ipcType = "CUSTOMER".
+        ipcType = "Customer".
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ ipcCompany
               AND cust.cust-no EQ ENTRY(1,ipcIdxKey,"|")
