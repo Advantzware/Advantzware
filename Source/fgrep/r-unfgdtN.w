@@ -617,22 +617,6 @@ ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* Beginning Order# */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_ship
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship C-Win
-ON HELP OF begin_ship IN FRAME FRAME-A /* Beginning Ship-To# */
-    DO:
-        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-
-        RUN WINDOWS/l-shipt4.w (cocode,"","",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                .
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ship C-Win
 ON LEAVE OF begin_ship IN FRAME FRAME-A /* Beginning Ship-To# */
     DO:
@@ -890,22 +874,6 @@ ON LEAVE OF end_ord-no IN FRAME FRAME-A /* Ending Order# */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_ship
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship C-Win
-ON HELP OF end_ship IN FRAME FRAME-A /* Ending Ship-To# */
-    DO:
-        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-
-        RUN WINDOWS/l-shipt4.w (cocode,"","",FOCUS:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                .
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ship C-Win
 ON LEAVE OF end_ship IN FRAME FRAME-A /* Ending Ship-To# */
     DO:
@@ -922,6 +890,29 @@ ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Warehouse */
     DO:
         ASSIGN {&self-name}.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

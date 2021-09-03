@@ -450,7 +450,7 @@ DEFINE VARIABLE end_whse       AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-ageinv.csv" 
+DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\AgedInventory.csv" 
     LABEL "Name" 
     VIEW-AS FILL-IN NATIVE 
     SIZE 49 BY 1.
@@ -1262,6 +1262,29 @@ ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Warehouse */
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
     DO:
         ASSIGN {&self-name}.
@@ -1276,6 +1299,21 @@ ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
     DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME list_class
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL list_class C-Win
+ON HELP OF list_class IN FRAME FRAME-A /* Inventory Class(es) */
+    DO:
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+    
+        RUN windows/lUserGroupMulti.w (INPUT "FG CLASS", OUTPUT char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN list_class:SCREEN-VALUE = char-val.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4076,7 +4114,7 @@ PROCEDURE pChangeDest :
                 tb_excel                = NO
                 .
         ASSIGN 
-            fi_file:SCREEN-VALUE = "c:\tmp\FGInventoryStatus.csv".   
+            fi_file:SCREEN-VALUE = "c:\tmp\AgedInventory.csv".   
     END.
 
 END PROCEDURE.

@@ -552,72 +552,7 @@ ON WINDOW-CLOSE OF C-Win /* Shipment By Customer Part Number */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME FRAME-A
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A C-Win
-ON HELP OF FRAME FRAME-A
-    DO:
-        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
-        DEFINE BUFFER b-itemfg FOR itemfg.
-
-        CASE FOCUS:NAME:
-            WHEN "begin_part" THEN 
-                DO:
-                    RUN windows/l-itemfg.w (cocode,"","",OUTPUT char-val) NO-ERROR.
-                    IF char-val <> "" THEN 
-                    DO:
-                        FIND FIRST b-itemfg WHERE b-itemfg.company = g_company  
-                            AND b-itemfg.i-no = ENTRY(1,char-val) NO-LOCK NO-ERROR.
-                        IF AVAILABLE(b-itemfg) THEN
-                            ASSIGN begin_part:SCREEN-VALUE = b-itemfg.part-no.
-                        APPLY "entry" TO begin_part.
-                    END.                           
-                END.  
-            WHEN "end_part" THEN 
-                DO:
-                    RUN windows/l-itemfg.w (cocode,"","",OUTPUT char-val) NO-ERROR.
-                    IF char-val <> "" THEN 
-                    DO:
-                        FIND FIRST b-itemfg WHERE b-itemfg.company = g_company  
-                            AND b-itemfg.i-no = ENTRY(1,char-val) NO-LOCK NO-ERROR.
-                        IF AVAILABLE(b-itemfg) THEN
-                            ASSIGN end_part:SCREEN-VALUE = b-itemfg.part-no.
-                        APPLY "entry" TO end_part.
-                    END.                           
-                END. 
-            WHEN "begin_i-no" THEN 
-                DO:
-                    RUN windows/l-itemfg.w (cocode,"","",OUTPUT char-val) NO-ERROR.
-                    IF char-val <> "" THEN 
-                    DO:
-                        FIND FIRST b-itemfg WHERE b-itemfg.company = g_company  
-                            AND b-itemfg.i-no = ENTRY(1,char-val) NO-LOCK NO-ERROR.
-                        IF AVAILABLE(b-itemfg) THEN
-                            ASSIGN begin_i-no:SCREEN-VALUE = b-itemfg.i-no.
-                        APPLY "entry" TO begin_i-no.
-                    END.                           
-                END.  
-            WHEN "end_i-no" THEN 
-                DO:
-                    RUN windows/l-itemfg.w (cocode,"","",OUTPUT char-val) NO-ERROR.
-                    IF char-val <> "" THEN 
-                    DO:
-                        FIND FIRST b-itemfg WHERE b-itemfg.company = g_company  
-                            AND b-itemfg.i-no = ENTRY(1,char-val) NO-LOCK NO-ERROR.
-                        IF AVAILABLE(b-itemfg) THEN
-                            ASSIGN end_i-no:SCREEN-VALUE = b-itemfg.i-no.
-                        APPLY "entry" TO end_i-no.
-                    END.                           
-                END.
-
-        END CASE.
-        RETURN NO-APPLY.   
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+                  
 
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
@@ -797,19 +732,6 @@ ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
         DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         APPLY "DEFAULT-ACTION" TO sl_avail.
-
-    /*
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-      IF sl_avail:IS-SELECTED(i) AND
-        (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR sl_selected:NUM-ITEMS = 0) THEN
-      /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-          cSelectedList = cSelectedList +
-                          entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    END.
-    cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-    sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-    sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-    */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -846,11 +768,6 @@ ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
     DO:
-        /* DO i = sl_selected:NUM-ITEMS TO 1 BY -1 WITH FRAME {&FRAME-NAME}:
-           IF sl_selected:IS-SELECTED(i) THEN
-           ldummy = sl_selected:DELETE(i).
-         END
-         */
         APPLY "DEFAULT-ACTION" TO sl_selected  .
     END.
 
@@ -919,6 +836,29 @@ ON LEAVE OF end_slm IN FRAME FRAME-A /* Ending Sales Rep# */
     DO:
         ASSIGN {&self-name}.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

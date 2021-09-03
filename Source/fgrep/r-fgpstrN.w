@@ -184,7 +184,7 @@ DEFINE VARIABLE begin_cust     AS CHARACTER FORMAT "X(8)"
 DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U 
     LABEL "Beginning Item#" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+    SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_user     AS CHARACTER FORMAT "x(8)" 
     LABEL "Beginning Order User ID" 
@@ -355,9 +355,9 @@ DEFINE FRAME FRAME-A
     "Enter Beginning Customer Number" WIDGET-ID 2
     end_cust AT ROW 4 COL 72 COLON-ALIGNED HELP
     "Enter Ending Customer Number" WIDGET-ID 4
-    begin_i-no AT ROW 5 COL 29 COLON-ALIGNED HELP
+    begin_i-no AT ROW 5.05 COL 29 COLON-ALIGNED HELP
     "Enter Beginning Order Number" WIDGET-ID 6
-    end_i-no AT ROW 5 COL 72 COLON-ALIGNED HELP
+    end_i-no AT ROW 5.05 COL 72 COLON-ALIGNED HELP
     "Enter Ending Item Number" WIDGET-ID 8
     begin_user AT ROW 6.1 COL 29 COLON-ALIGNED HELP
     "Enter Beginning User ID" WIDGET-ID 46
@@ -889,6 +889,29 @@ ON LEAVE OF end_user IN FRAME FRAME-A /* Ending Order User ID */
     DO:
         ASSIGN {&self-name}.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
