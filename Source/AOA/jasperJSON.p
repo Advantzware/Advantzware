@@ -104,8 +104,6 @@ IF iNumResults GT 0 THEN DO:
                 cFullName    = REPLACE(cFullName,"[","")
                 cFullName    = REPLACE(cFullName,"]","")
                 .
-            IF ENTRY(2,dynValueColumn.colName,".") EQ "company" THEN
-            RUN spSetSessionParam ("Company", cBufferValue).
             IF dynParamValue.formType NE "" AND
                dynParamValue.onePer AND
                dynValueColumn.isFormField THEN DO:
@@ -114,10 +112,7 @@ IF iNumResults GT 0 THEN DO:
                     cBufferValue,
                     OUTPUT cRecipient
                     ).
-                opcRecipient = opcRecipient + cRecipient + ",".
-/*                MESSAGE                     */
-/*                "opcRecipient:" opcRecipient*/
-/*                VIEW-AS ALERT-BOX.          */
+                opcRecipient = opcRecipient + cRecipient + "|".
             END. /* if a form type subject */
             IF dynParamValue.outputFormat EQ "HTML" THEN
             cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
@@ -184,7 +179,7 @@ PUT STREAM sJasperJSON UNFORMATTED
 OUTPUT STREAM sJasperJSON CLOSE.
 ASSIGN
     opcJasperFile = TRIM(opcJasperFile,",")
-    opcRecipient  = TRIM(opcRecipient,",")
+    opcRecipient  = TRIM(opcRecipient,"|")
     oplOK         = TRUE
     .
 iphQuery:QUERY-CLOSE().
@@ -207,15 +202,15 @@ PROCEDURE pFormEmail:
     DEFINE VARIABLE cFormType AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIdxKey   AS CHARACTER NO-UNDO.
 
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     CASE ipcFormType:
         WHEN "Customer" THEN DO:
             ASSIGN
                 cFormType = ENTRY(1,ipcFormType,"|")
-                          + IF ENTRY(3,ipcBufferValue,"|") EQ "" THEN ""
-                            ELSE "|" + ENTRY(3,ipcBufferValue,"|")
+                          + IF ENTRY(4,ipcBufferValue,"|") EQ "" THEN ""
+                            ELSE "|" + ENTRY(4,ipcBufferValue,"|")
                 cCode     = ENTRY(1,ipcBufferValue,"|")
-                cIdxKey   = ENTRY(2,ipcBufferValue,"|")
+                cCompany  = ENTRY(2,ipcBufferValue,"|")
+                cIdxKey   = ENTRY(3,ipcBufferValue,"|")
                 .
             RUN pCustomer IN hEmailProcs (
                 cFormType,

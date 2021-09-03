@@ -63,6 +63,7 @@ PROCEDURE pBusinessLogic:
                 iRecordID                   = iRecordID + 1
                 ttFormHeader.recordID       = iRecordID
                 ttFormHeader.emailKeyValues = "r-invprt.|"
+                                            + ttFormHeader.company + "|"
                                             + ttFormHeader.customerID + "|"
                                             + ttFormHeader.shiptoID
                 .
