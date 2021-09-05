@@ -77,6 +77,7 @@ DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cUnitization AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE exclude-brwCustom
 
@@ -104,7 +105,7 @@ DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table sequenceID orderID tag itemID itemName trailerID jobID jobID2 location bin customerID quantityOfSubUnits quantityInSubUnit quantityOfSubUnitsInUnit quantityPartial quantity quantityTotal lineID custPoNo   
+&Scoped-define FIELDS-IN-QUERY-br_table sequenceID tag quantity fGetUnitization() @ cUnitization trailerID itemID itemName orderID lineID jobID jobID2 location bin customerID custPoNo   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseTag BY ttReleaseTag.sequenceID DESC
@@ -167,6 +168,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetUnitization B-table-Win 
+FUNCTION fGetUnitization RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -182,29 +192,25 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      sequenceID               COLUMN-LABEL "Seq"            WIDTH 5  
-    orderID                  COLUMN-LABEL "Order #"         
+      sequenceID               COLUMN-LABEL "#"            WIDTH 5  
     tag                      COLUMN-LABEL "Tag #"           
+    quantity                 COLUMN-LABEL "Quantity"
+    fGetUnitization() @ cUnitization COLUMN-LABEL "Unitization" WIDTH 35 FORMAT "X(40)"       
+    trailerID                COLUMN-LABEL "Trailer #"       
     itemID                   COLUMN-LABEL "Item #"          
     itemName                 COLUMN-LABEL "Item Name"       
-    trailerID                COLUMN-LABEL "Trailer #"       
+    orderID                  COLUMN-LABEL "Order #"         
+    lineID                   COLUMN-LABEL "Order!Line #"          
     jobID                    COLUMN-LABEL "Job #"           
     jobID2                   COLUMN-LABEL "Run"             
     location                 COLUMN-LABEL "Location"       
-    bin                      COLUMN-LABEL "Bin"        
-    customerID               COLUMN-LABEL "Customer #"      
-    quantityOfSubUnits       COLUMN-LABEL "Cases"           
-    quantityInSubUnit        COLUMN-LABEL "Case!Quantity"   
-    quantityOfSubUnitsInUnit COLUMN-LABEL "Cases Per!Pallet"
-    quantityPartial          COLUMN-LABEL "Partial"         
-    quantity                 COLUMN-LABEL "Quantity"        
-    quantityTotal            COLUMN-LABEL "Total!Quantity"  
-    lineID                   COLUMN-LABEL "Line #"          
+    bin                      COLUMN-LABEL "Bin" WIDTH 15       
+    customerID               COLUMN-LABEL "Customer #" WIDTH 20    
     custPoNo                 COLUMN-LABEL "Customer!PO #"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71
-         FONT 36 ROW-HEIGHT-CHARS .95.
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -677,6 +683,30 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetUnitization B-table-Win 
+FUNCTION fGetUnitization RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    IF AVAILABLE ttReleaseTag THEN
+        RETURN TRIM(STRING(ttReleaseTag.quantityOfSubUnits, "->>>>>>>>9")) + " @ "
+             + TRIM(STRING(ttReleaseTag.quantityInSubUnit, "->>>>>>>>9"))
+             + IF ttReleaseTag.quantityPartial EQ 0 THEN 
+                   "" 
+               ELSE 
+                   (" + " + TRIM(STRING(ttReleaseTag.quantityPartial, "->>>>>>>>9"))).
+    ELSE    
+        RETURN "".
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

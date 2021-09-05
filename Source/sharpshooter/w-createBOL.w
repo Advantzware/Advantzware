@@ -73,7 +73,7 @@ DEFINE VARIABLE glScanTrailer AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete fiTag btPrintBOL btReset 
+&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer 
 
 /* Custom List Definitions                                              */
@@ -122,7 +122,7 @@ DEFINE BUTTON btPrintBOL
 
 DEFINE BUTTON btReset 
      IMAGE-UP FILE "Graphics/32x32/back_white.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
@@ -142,12 +142,12 @@ DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btDelete AT ROW 23.14 COL 195 WIDGET-ID 16 NO-TAB-STOP 
+     btReset AT ROW 2.91 COL 87 WIDGET-ID 18
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
      fiTrailer AT ROW 3.14 COL 118 COLON-ALIGNED WIDGET-ID 10
+     btDelete AT ROW 23.14 COL 195 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
-     btReset AT ROW 2.91 COL 87 WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -177,6 +177,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 202
          VIRTUAL-HEIGHT     = 32.81
          VIRTUAL-WIDTH      = 202
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -186,6 +188,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("Graphics/asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -258,6 +266,8 @@ END.
 ON CHOOSE OF btChange IN FRAME F-Main /* Change */
 DO:
     RUN pInvalidRelease.   
+
+    {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"}    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,6 +319,8 @@ END.
 ON ENTRY OF fiTag IN FRAME F-Main /* Tag # */
 DO:
     SELF:SET-SELECTION ( 1, -1).  
+    
+    SELF:BGCOLOR = 30.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,14 +332,37 @@ ON LEAVE OF fiTag IN FRAME F-Main /* Tag # */
 DO:
     IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
-
-    IF glScanTrailer THEN
-        RETURN.        
-
-    RUN state-changed (
+    
+    IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
+        RUN state-changed (
             INPUT THIS-PROCEDURE,
-            INPUT "scan-tag"
-            ).  
+            INPUT "tag-exit"
+            ).        
+    
+        RETURN.
+    END.
+    
+    IF SELF:SCREEN-VALUE EQ "PRINT" THEN DO:
+        RUN state-changed (
+            INPUT THIS-PROCEDURE,
+            INPUT "print-bol"
+            ). 
+        
+        SELF:SCREEN-VALUE = "".
+        
+        RETURN.
+    END.
+    
+    IF glScanTrailer THEN DO:
+        RETURN.        
+        
+        SELF:BGCOLOR = 15.
+    END.
+    
+    RUN state-changed (
+        INPUT THIS-PROCEDURE,
+        INPUT "scan-tag"
+        ).  
     
     RETURN NO-APPLY.  
 END.
@@ -352,6 +387,8 @@ END.
 ON ENTRY OF fiTrailer IN FRAME F-Main /* Trailer # */
 DO:
     SELF:SET-SELECTION ( 1, -1).  
+    
+    SELF:BGCOLOR = 30.     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,6 +402,8 @@ DO:
         INPUT THIS-PROCEDURE,
         INPUT "scan-tag"
         ).   
+    
+    SELF:BGCOLOR = 15.      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -518,10 +557,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'REL-TAGS':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
+             btReset:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_releasefilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
-             h_exit , 'AFTER':U ).
+             btReset:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
              fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
@@ -605,7 +646,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiTag fiTrailer 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btDelete fiTag btPrintBOL btReset 
+  ENABLE btReset fiTag btDelete btPrintBOL 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -723,10 +764,11 @@ PROCEDURE pInValidRelease PRIVATE :
         btChange:HIDDEN     = TRUE
         btChange:SENSITIVE  = FALSE
         btReset:SENSITIVE   = FALSE
+        fiTag:BGCOLOR       = 15
+        fiTrailer:BGCOLOR   = 15
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "EnableRelease"}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -779,6 +821,8 @@ PROCEDURE pPrintBOL PRIVATE :
     
     IF lSSBOLPrint NE ? THEN DO:
         IF lSSBOLPrint EQ YES THEN DO:
+            SESSION:SET-WAIT-STATE ("GENERAL").
+
             ASSIGN
                 cBOLPrintFieldList = 'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert,begin_date,end_date'
                 cBOLPrintValueList = oBOLHeader:GetValue("CustomerID") + ',' + oBOLHeader:GetValue("CustomerID") + ',' 
@@ -798,6 +842,8 @@ PROCEDURE pPrintBOL PRIVATE :
                 ).
       
             RUN listobjs/oe-boll_.w.
+
+            SESSION:SET-WAIT-STATE ("").
         END.
         ELSE DO:
             SESSION:SET-WAIT-STATE ("GENERAL").
@@ -1019,6 +1065,9 @@ PROCEDURE state-changed :
         END.
         WHEN "print-bol" THEN DO:
             RUN pPrintBOL.
+        END.
+        WHEN "release-exit" OR WHEN "tag-exit" THEN DO:
+            RUN Select_Exit.
         END.
     END CASE.
 END PROCEDURE.

@@ -10,7 +10,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: sharpshooter/smartobj/releaseFilter.w
 
   Description: from SMART.W - Template for basic SmartObject
 
@@ -74,7 +74,7 @@ DEFINE BUTTON btFind
      LABEL "Find" 
      SIZE 8 BY 1.91.
 
-DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+DEFINE VARIABLE fiRelease AS CHARACTER FORMAT "X(7)":U 
      LABEL "Release #" 
      VIEW-AS FILL-IN 
      SIZE 28 BY 1.38 TOOLTIP "Enter release #"
@@ -195,6 +195,8 @@ END.
 ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
 DO:
     SELF:SET-SELECTION ( 1, -1).
+    
+    SELF:BGCOLOR = 30.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +239,7 @@ END.
 ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
 DO:
     IF LASTKEY NE -1 OR SELF:SCREEN-VALUE NE "" THEN
-        RUN pReleaseScan.
+        RUN pReleaseScan.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,6 +292,19 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyRelease s-object 
+PROCEDURE EmptyRelease :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    fiRelease:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -373,6 +388,23 @@ PROCEDURE pReleaseScan :
         INPUT "release-invalid"
         ).
     
+    IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
+        RUN new-state (
+            INPUT "release-exit"
+            ).
+        
+        RETURN.        
+    END.
+    
+    INTEGER(fiRelease:SCREEN-VALUE) NO-ERROR.
+
+    IF ERROR-STATUS:ERROR THEN DO:
+        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    
+    END.
+            
     oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
     
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
@@ -384,6 +416,9 @@ PROCEDURE pReleaseScan :
     RUN new-state (
         INPUT "release-valid"
         ).
+    
+            
+    SELF:BGCOLOR = 15.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

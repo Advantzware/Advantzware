@@ -56,7 +56,8 @@ PROCEDURE pBuildReleaseItems PRIVATE:
     DEFINE BUFFER bf-oe-relh  FOR oe-relh.
     DEFINE BUFFER bf-oe-rell  FOR oe-rell.
     DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
-
+    DEFINE BUFFER bf-po-ordl  FOR po-ordl.
+    
     MAIN-BLOCK:
     DO ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
@@ -70,7 +71,8 @@ PROCEDURE pBuildReleaseItems PRIVATE:
             
         FOR EACH bf-oe-rell NO-LOCK
             WHERE bf-oe-rell.company EQ bf-oe-relh.company
-              AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no:
+              AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no
+            BREAK BY bf-oe-rell.i-no:
             FIND FIRST ttReleaseItem
                  WHERE ttReleaseItem.company   EQ bf-oe-rell.company
                    AND ttReleaseItem.releaseID EQ bf-oe-relh.release#
@@ -79,10 +81,14 @@ PROCEDURE pBuildReleaseItems PRIVATE:
             IF NOT AVAILABLE ttReleaseItem THEN DO:
                 CREATE ttReleaseItem.
                 ASSIGN
-                    ttReleaseItem.company   = bf-oe-relh.company
-                    ttReleaseItem.releaseID = bf-oe-relh.release#
-                    ttReleaseItem.orderID   = bf-oe-rell.ord-no
-                    ttReleaseItem.itemID    = bf-oe-rell.i-no
+                    ttReleaseItem.company    = bf-oe-relh.company
+                    ttReleaseItem.releaseID  = bf-oe-relh.release#
+                    ttReleaseItem.orderID    = bf-oe-rell.ord-no
+                    ttReleaseItem.itemID     = bf-oe-rell.i-no
+                    ttReleaseItem.jobID      = bf-oe-rell.job-no
+                    ttReleaseItem.jobID2     = bf-oe-rell.job-no2
+                    ttReleaseItem.customerPO = bf-oe-rell.po-no
+                    ttReleaseItem.orderID    = bf-oe-rell.ord-no
                     .
 
                 FIND FIRST bf-itemfg NO-LOCK
@@ -104,19 +110,46 @@ PROCEDURE pBuildReleaseItems PRIVATE:
             IF AVAILABLE bf-oe-ordl THEN DO:
                 dRoundup = bf-oe-rell.qty / (bf-oe-ordl.cas-cnt * bf-oe-ordl.cases-unit).
                 { sys/inc/roundup.i dRoundup}
-                ttReleaseItem.quantityOfUnitsRelease = ttReleaseItem.quantityOfUnitsRelease + dRoundup .
+                ASSIGN
+                    ttReleaseItem.quantityOfUnitsRelease = ttReleaseItem.quantityOfUnitsRelease + dRoundup
+                    ttReleaseItem.underRunPercent        = bf-oe-ordl.under-pct 
+                    ttReleaseItem.overRunPercent         = bf-oe-ordl.over-pct
+                    .
             END.
 
             ttReleaseItem.quantityRelease = ttReleaseItem.quantityRelease + bf-oe-rell.qty.      
-
-            FOR EACH bf-ssrelbol NO-LOCK
-                WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
-                  AND bf-ssrelbol.release# EQ bf-oe-relh.release#
-                  AND bf-ssrelbol.i-no     EQ bf-oe-rell.i-no:
-                ASSIGN
-                    ttReleaseItem.quantityOfUnitsScanned = ttReleaseItem.quantityOfUnitsScanned + 1
-                    ttReleaseItem.quantityScanned        = ttReleaseItem.quantityScanned + bf-ssrelbol.qty
-                    .
+            
+            IF ttReleaseItem.jobID NE "" THEN
+                RUN fg/GetProductionQty.p (
+                    INPUT  ttReleaseItem.company,
+                    INPUT  ttReleaseItem.jobID,
+                    INPUT  ttReleaseItem.jobID2,
+                    INPUT  ttReleaseItem.itemID,
+                    INPUT  NO, /* User fg-act */
+                    OUTPUT ttReleaseItem.quantityReceivedJob
+                    ).
+            
+            IF ttReleaseItem.customerPO NE "" THEN DO:
+                FIND FIRST bf-po-ordl NO-LOCK
+                     WHERE bf-po-ordl.company EQ bf-oe-rell.company
+                       AND bf-po-ordl.po-no   EQ INTEGER(ttReleaseItem.customerPO)
+                       AND bf-po-ordl.i-no    EQ bf-oe-rell.i-no
+                     NO-ERROR.
+                IF AVAILABLE bf-po-ordl THEN
+                    ttReleaseItem.quantityReceivedPO = bf-po-ordl.t-rec-qty.
+            END.
+                                                    
+            /* If multiple lines exist with same item, then we don't want to calculate the scanned quantity again */
+            IF FIRST-OF(bf-oe-rell.i-no) THEN DO:
+                FOR EACH bf-ssrelbol NO-LOCK
+                    WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
+                      AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                      AND bf-ssrelbol.i-no     EQ bf-oe-rell.i-no:
+                    ASSIGN
+                        ttReleaseItem.quantityOfUnitsScanned = ttReleaseItem.quantityOfUnitsScanned + 1
+                        ttReleaseItem.quantityScanned        = ttReleaseItem.quantityScanned + bf-ssrelbol.qty
+                        .
+                END.
             END.
         END.                        
     END.
@@ -578,6 +611,36 @@ PROCEDURE pDeleteReleaseTag PRIVATE:
         IF AVAILABLE bf-ssrelbol THEN
             DELETE bf-ssrelbol.
     END.
+END PROCEDURE.
+
+PROCEDURE Release_HasBOLScanned:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID     AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplHasBOLScanned AS LOGICAL   NO-UNDO.
+    
+    RUN pHasBOLScanned (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        OUTPUT oplHasBOLScanned
+        ).
+END PROCEDURE.
+
+PROCEDURE pHasBOLScanned PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID     AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplHasBOLScanned AS LOGICAL   NO-UNDO.
+
+    oplHasBOLScanned = CAN-FIND(FIRST ssrelbol NO-LOCK
+                                WHERE ssrelbol.company  EQ ipcCompany
+                                  AND ssrelbol.release# EQ ipiReleaseID).
 END PROCEDURE.
 
 PROCEDURE Release_GetScannedQuantity:

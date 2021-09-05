@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE iJobPOQuantityReceived AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE hdReleaseProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
@@ -70,7 +71,7 @@ DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table itemID quantityOnHand quantityRelease quantityScanned quantityOfUnitsRelease quantityOfUnitsScanned   
+&Scoped-define FIELDS-IN-QUERY-br_table itemID orderID customerPO quantityOnHand quantityRelease quantityScanned fGetJobPOQuantityReceived() @ iJobPOQuantityReceived quantityOfUnitsRelease quantityOfUnitsScanned   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseItem
@@ -133,6 +134,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetJobPOQuantityReceived B-table-Win 
+FUNCTION fGetJobPOQuantityReceived RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -149,11 +159,14 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       itemID WIDTH 40
-quantityOnHand COLUMN-LABEL "On Hand!Quantity" WIDTH 32
-quantityRelease COLUMN-LABEL "Release!Quantity" WIDTH 32
-quantityScanned COLUMN-LABEL "Scanned!Quantity" WIDTH 32
-quantityOfUnitsRelease COLUMN-LABEL "Released!Units" WIDTH 32
-quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units"
+      orderID WIDTH 15
+      customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
+      quantityOnHand COLUMN-LABEL "On Hand!Quantity" FORMAT "->>>>>>>9" WIDTH 19
+      quantityRelease COLUMN-LABEL "Release!Quantity" FORMAT "->>>>>>>9" WIDTH 19
+      quantityScanned COLUMN-LABEL "Scanned!Quantity" FORMAT "->>>>>>>9" WIDTH 19
+      fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO!Quantity" FORMAT "->>>>>>>9" WIDTH 19
+      quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
+      quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71
@@ -262,16 +275,32 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttReleaseItem.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
-    IF ttReleaseItem.quantityScanned GT ttReleaseItem.quantityRelease THEN
+    DEFINE VARIABLE iOverRunQuantity  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iUnderRunQuantity AS INTEGER NO-UNDO.
+    
+    ASSIGN
+        iOverRunQuantity  = ttReleaseItem.quantityRelease + ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100)
+        iUnderRunQuantity = ttReleaseItem.quantityRelease + ttReleaseItem.quantityRelease * (ttReleaseItem.underRunPercent / 100)
+        .
+    
+    /* Scanned Quantity greater than release quantity + over run percent */
+    IF ttReleaseItem.quantityScanned GT iOverRunQuantity THEN
         ASSIGN
             hdScannedQtyCol:BGCOLOR = 12
             hdScannedQtyCol:FGCOLOR = 15
             .
-    ELSE IF ttReleaseItem.quantityScanned EQ ttReleaseItem.quantityRelease THEN
+    /* Scanned Quantity equals release quantity or between over run and under run quantity */        
+    ELSE IF (ttReleaseItem.quantityScanned EQ ttReleaseItem.quantityRelease) OR
+            ((ttReleaseItem.quantityScanned GE iUnderRunQuantity) AND (ttReleaseItem.quantityScanned LE iOverRunQuantity)) THEN
         ASSIGN
             hdScannedQtyCol:BGCOLOR = 10
             hdScannedQtyCol:FGCOLOR = ?
             .
+    ELSE
+        ASSIGN
+            hdScannedQtyCol:BGCOLOR = 26
+            hdScannedQtyCol:FGCOLOR = ?
+            .        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -538,6 +567,29 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetJobPOQuantityReceived B-table-Win 
+FUNCTION fGetJobPOQuantityReceived RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+    IF AVAILABLE ttReleaseItem THEN
+        RETURN IF ttReleaseItem.quantityReceivedJob GT 0 THEN
+                   ttReleaseItem.quantityReceivedJob
+               ELSE
+                   ttReleaseItem.quantityReceivedPO.
+    ELSE
+        RETURN 0.00.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
