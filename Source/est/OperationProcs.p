@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est\ttOperationAttribute.i}
+{est\ttMachineRoutings.i}
 {est\OperationProcsTT.i}
 {system/ttTag.i &Table-Name=ttOpsTag}
 
@@ -99,6 +100,9 @@ FUNCTION fIsAssemblyFeed RETURNS LOGICAL PRIVATE
 FUNCTION fIsAssemblyPartFeed RETURNS LOGICAL PRIVATE
     (ipcFeedType AS CHARACTER) FORWARD.
 
+FUNCTION fIsCRDeptNeeded RETURNS LOGICAL PRIVATE
+	(BUFFER ipbf-ef FOR ef) FORWARD.
+
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER,
     ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
@@ -106,6 +110,9 @@ FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
 FUNCTION fIsInk RETURNS INTEGER PRIVATE
     (ipcCompany AS CHARACTER,
     ipcItemID AS CHARACTER) FORWARD.
+
+FUNCTION fIsItemPurchasedFG RETURNS LOGICAL PRIVATE
+	(BUFFER ipbf-eb FOR eb) FORWARD.
 
 FUNCTION fIsOperationFound RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
@@ -188,6 +195,9 @@ FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
 FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
     (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
 
+FUNCTION fValidMachineLimits RETURNS LOGICAL PRIVATE
+	(BUFFER ipbf-ef FOR ef, BUFFER ipbf-eb FOR eb,BUFFER ipbf-style for style, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL) FORWARD.
+
 /* ***************************  Main Block  *************************** */
 
 
@@ -196,12 +206,176 @@ FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
 
 PROCEDURE BuildRouting:
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    Purpose:  Given an Estimate No and Form No, calculate the routings
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo          AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iMaxColor AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ef for ef.
+    DEFINE BUFFER bf-eb for eb.
+
+    FOR EACH bf-ef NO-LOCK
+        WHERE bf-ef.company  EQ ipcCompany
+        AND bf-ef.est-no   EQ ipcEstimateNo
+        AND (bf-ef.form-no EQ ipiFormNo OR ipiFormNo EQ 0):
+        
+        FOR FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company EQ bf-ef.company
+            AND bf-eb.est-no  EQ bf-ef.est-no
+            AND bf-eb.form-no EQ bf-ef.form-no:
+                    
+            IF fIsItemPurchasedFG(BUFFER bf-eb) THEN
+            DO:
+                /* Check and Add Farm Out Machines or Purchased FG */
+                RUN pCheckAndAddMachine (BUFFER bf-ef, BUFFER bf-eb, "FO",NO, ipdEstQty).
+                
+            END.
+            
+            /* Other Manufactured FG */
+            ELSE
+            DO:
+                /* Check if corrugator machine required */
+                IF fIsCRDeptNeeded(BUFFER bf-ef) THEN
+                    RUN pCheckAndAddMachine (BUFFER bf-ef, BUFFER bf-eb, "CR", YES, ipdEstQty).
+                
+            END.
+           
+        END.
+        
+    END. /* FOR EACH bf-ef NO-LOCK */
+
 
 
 END PROCEDURE.
+
+
+PROCEDURE pAddMachine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Adds the machine in routing of the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb      FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-mach    FOR mach.
+    DEFINE INPUT  PARAMETER ipcDept      AS CHARACTER NO-UNDO.
+    
+    FIND FIRST ttRouting
+        WHERE ttRouting.Company      = ipbf-eb.company
+          AND ttRouting.EstimateNo   = ipbf-eb.est-no 
+          AND ttRouting.FormId      = ipbf-eb.form-no
+          AND ttRouting.BlankId     = ipbf-eb.blank-no
+          AND ttRouting.OperationId = ipbf-mach.m-code NO-ERROR.
+          
+    IF NOT AVAILABLE ttRouting THEN 
+    DO:
+        CREATE ttRouting.
+        ASSIGN
+            ttRouting.Company      = ipbf-eb.company
+            ttRouting.EstimateNo   = ipbf-eb.est-no
+            ttRouting.FormId       = ipbf-eb.form-no
+            ttRouting.BlankID      = ipbf-eb.blank-no
+            ttRouting.DeptSeq      = 10 * ipbf-mach.d-seq
+            ttRouting.DepartmentId = ipcDept
+            ttRouting.OperationId  = ipbf-mach.m-code.
+           
+    END.
+
+END PROCEDURE.
+
+
+PROCEDURE pCheckAndAddMachine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Check if respective deptt Machine and add routing if valid machine 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef             FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb             FOR eb.
+    DEFINE INPUT  PARAMETER ipcDeptToAdd        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplRunValidation    AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdEstQty           AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lValidMach AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-style FOR style.
+    DEFINE BUFFER bf-mach  FOR mach.
+
+
+    FIND FIRST bf-style NO-LOCK 
+        WHERE bf-style.company EQ ipbf-eb.company
+          AND bf-style.style EQ ipbf-eb.style NO-ERROR.
+          
+    IF AVAILABLE bf-style THEN
+    DO:
+        RUN pCheckMachine(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipcDeptToAdd, ipdEstQty, iplRunValidation, OUTPUT lValidMach).
+        
+        IF lValidMach AND AVAILABLE bf-mach THEN
+            RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, ipcDeptToAdd).
+            
+    END. /* IF AVAILABLE bf-style THEN */
+           
+END PROCEDURE.
+
+
+PROCEDURE pCheckMachine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Adds the machine in routing of the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef             FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb             FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-Style          FOR style.
+    DEFINE PARAMETER BUFFER opbf-mach           FOR mach.
+    DEFINE INPUT  PARAMETER ipcDeptToChk        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdAppliedQty       AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplApplyValidation  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidMachine     AS LOGICAL NO-UNDO.
+    
+    
+    DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+    
+    Style-blk:
+    DO iCnt = 1 TO 7:
+        IF ipbf-style.m-code[iCnt] EQ "" THEN 
+            NEXT.
+                
+        FIND FIRST opbf-mach NO-LOCK
+            WHERE opbf-mach.company  EQ ipbf-ef.company
+              AND opbf-mach.obsolete EQ NO  
+              AND opbf-mach.m-code   EQ ipbf-style.m-code[iCnt] NO-ERROR.
+            
+        IF AVAILABLE opbf-mach 
+            AND (opbf-mach.dept[1] EQ ipcDeptToChk
+             OR  opbf-mach.dept[2] EQ ipcDeptToChk
+             OR  opbf-mach.dept[3] EQ ipcDeptToChk
+             OR  opbf-mach.dept[4] EQ ipcDeptToChk) THEN
+        DO:
+            oplValidMachine = YES.
+            LEAVE Style-blk.
+        END.
+    END.
+    
+    IF oplValidMachine = NO THEN
+    DO:
+        FIND FIRST opbf-mach NO-LOCK
+            WHERE opbf-mach.company  EQ ipbf-ef.company
+              AND opbf-mach.obsolete EQ NO
+              AND opbf-mach.dept[1]  EQ ipcDeptToChk NO-ERROR.
+       IF AVAILABLE opbf-mach THEN
+          oplValidMachine = YES.
+    END.
+    
+    IF iplApplyValidation AND oplValidMachine = YES AND AVAILABLE opbf-mach THEN
+    DO:
+        IF fValidMachineLimits(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER ipbf-style, BUFFER opbf-mach, ipdAppliedQty) EQ NO THEN
+            oplValidMachine = NO.
+    END.
+    
+END PROCEDURE.
+
 
 PROCEDURE pResetObjects:
 /*------------------------------------------------------------------------------
@@ -2324,6 +2498,27 @@ FUNCTION fIsAssemblyPartFeed RETURNS LOGICAL PRIVATE
 		
 END FUNCTION.
 
+FUNCTION fIsCRDeptNeeded RETURNS LOGICAL 
+    (BUFFER ipbf-ef FOR ef):
+    /*------------------------------------------------------------------------------
+     Purpose: Check if any corrugator machine is needed
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-item-bom for item-bom.
+    
+    IF CAN-FIND(FIRST bf-item-bom
+                WHERE bf-item-bom.company  EQ ipbf-ef.company
+                AND bf-item-bom.parent-i EQ ipbf-ef.board) THEN 
+        lResult = YES.
+
+    RETURN lResult.
+        
+END FUNCTION.
+
+
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
     /*------------------------------------------------------------------------------
@@ -2354,6 +2549,23 @@ FUNCTION fIsInk RETURNS INTEGER PRIVATE
     RETURN iIsInk.
         		
 END FUNCTION.
+
+FUNCTION fIsItemPurchasedFG RETURNS LOGICAL 
+    (BUFFER ipbf-eb FOR eb):
+    /*------------------------------------------------------------------------------
+     Purpose: Check if Estimate Item is Purchased Finished Good
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    
+    IF ipbf-eb.pur-man THEN
+        lResult = YES.
+
+    RETURN lResult.
+        
+END FUNCTION.
+
 
 FUNCTION fIsOperationFound RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
@@ -2964,4 +3176,35 @@ FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
     RETURN DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstType, ipcEstimateTypeID).
     
 END FUNCTION.
+
+FUNCTION fValidMachineLimits RETURNS LOGICAL 
+    (BUFFER ipbf-ef FOR ef, BUFFER ipbf-eb FOR eb,BUFFER ipbf-style for style, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE dShtLength  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dShtWidth   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCaliper    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dChkQty     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cReturnErr  AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        dShtLength = IF ipbf-ef.roll THEN ipbf-ef.gsh-wid ELSE ipbf-ef.nsh-wid
+        dShtWidth  = IF ipbf-ef.roll THEN ipbf-ef.gsh-len ELSE ipbf-ef.nsh-len
+        dChkQty    = ipdQty
+        dCaliper   = ipbf-ef.cal.
+    
+    RUN est/MachLimitsDims.p (ROWID(ipbf-style), ROWID(ipbf-mach), ROWID(ipbf-eb), dShtLength, dShtWidth, dCaliper, dChkQty, OUTPUT cReturnErr).
+    
+    IF cReturnErr EQ "" THEN
+        lResult = YES.
+
+    RETURN lResult.
+        
+END FUNCTION.
+
 
