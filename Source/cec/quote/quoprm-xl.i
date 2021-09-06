@@ -60,7 +60,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         NO-LOCK NO-ERROR.
      IF AVAIL bf-eb THEN lv-two-box = NO.
   END. /* eND OF IF est.est-type = 6 */
-  IF numfit LT 5 THEN numfit = 5 + /*INT(ll-prt-dscr2).*/ 4 . 
+  IF numfit LT 5 THEN numfit = 5 + /*INT(ll-prt-dscr2).*/ 5 . 
   
   DO i = 1 TO numfit /*WITH FRAME item-10p */ :
     
@@ -315,6 +315,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
          chExcelApplication:Goto(v-cell) NO-ERROR.
          ASSIGN chExcelApplication:ActiveCell:Value = "WEIGHT/M: " + STRING(dWeight) .
 
+    END.
+    ELSE
+    IF i EQ 10 THEN DO:      
+        ASSIGN LvLineCnt = LvLineCnt + 1 
+        v-cell = "R" + string(LvLineCnt) + "C2".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = "Color: " + STRING(eb.i-col + eb.i-coat) .
     END.
     
     IF AVAIL xqqty THEN DO:

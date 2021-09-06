@@ -1906,7 +1906,7 @@ IF CAN-FIND(FIRST xprobe
      quoteqty.lab-cost   = w-probeit.lab-cost
      quoteqty.vo-cost    = w-probeit.vo-cost
      quoteqty.fo-cost    = w-probeit.fo-cost
-     quoteqty.tot-lbs    = w-probeit.tot-lbs
+     quoteqty.tot-lbs    = if est.estimateTypeID EQ "Misc" THEN 0 ELSE w-probeit.tot-lbs
      quoteqty.profit     = IF w-probeit.prof-on EQ "Net" THEN w-probeit.net-profit
                                                          ELSE w-probeit.gross-profit.
 
