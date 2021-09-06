@@ -31,6 +31,7 @@ DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER TABLE FOR ttEstItem.
 DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -494,71 +495,45 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
 DO:
-        /*DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+        DEFINE VARIABLE cMassage AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
         iCount = 0.
         FOR EACH ttInputOrdLine NO-LOCK :
             iCount = iCount + 1.
         END.
+        
+        IF iCount EQ 0 THEN 
+        DO:
+            MESSAGE "Please add atleast one order line" VIEW-AS ALERT-BOX INFO.
+            RETURN.
+        END.
 
-        DO WITH FRAME {&FRAME-NAME}:
+        /*DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
         
-        RUN valid-due-code(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
+        FIND FIRST ttInputOrdLine NO-LOCK NO-ERROR.
+        IF AVAIL ttInputOrdLine THEN
+        ASSIGN
+            ttInputOrd.over-pct = DECIMAL(overRun:SCREEN-VALUE)  
+            ttInputOrd.Under-pct = DECIMAL(underRun:SCREEN-VALUE).
         
-        RUN valid-est-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-        
-        RUN valid-sold-id(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-        
-        RUN valid-po-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-
-        IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
+        FOR EACH ttInputOrdLine NO-LOCK :
+          ttInputOrdLine.over-pct = DECIMAL(overRun:SCREEN-VALUE)  .
+          ttInputOrdLine.Under-pct = DECIMAL(underRun:SCREEN-VALUE).
+        END. */
+                      
+        RUN OrderEntry_SaveData IN hOrderEntryProcs(INPUT TABLE ttInputOrd, INPUT TABLE ttInputOrdLine, OUTPUT lError, OUTPUT cMassage, OUTPUT rwRowid).
+                
+        IF NOT lError THEN
         DO:
-            MESSAGE "Quantity must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
-            APPLY "entry" TO quantity .
-            RETURN NO-APPLY.
-        END.         
-
-        RUN valid-cust-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY .
-
-        RUN valid-fgitem(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-
-        RUN valid-part-no(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-
-        RUN valid-procat(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY .   
-
-        RUN valid-ship-id(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY . 
+            oprwRowid = rwRowid.
+        END.                            
         
-        IF iCount LE 0 THEN
-        DO:
-            MESSAGE "Please add atleast one component..." VIEW-AS ALERT-BOX INFORMATION .
-            APPLY "entry" TO quantity .
-            RETURN NO-APPLY.
-        END.
-                         
-        SESSION:SET-WAIT-STATE("general").
-  
-        RUN create-ttfrmout.
+        APPLY "close" TO THIS-PROCEDURE.         
          
-        IF ipType EQ "Edit" THEN 
-        DO:
-            RUN est/UpdSetEst.p(INPUT  ipriRowid ) .
-        END.
-                 
-        SESSION:SET-WAIT-STATE("").
-  
-        APPLY "close" TO THIS-PROCEDURE.*/
-   
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1156,7 +1131,7 @@ PROCEDURE pNewEstimate :
     DO WITH FRAME {&FRAME-NAME}:  
       cEstNo:SCREEN-VALUE = ipcSourceValue.
       cCustPo:SCREEN-VALUE = ipcCustomerPo.
-      
+                             
       RUN OrderEntry_GetEstDetail IN hOrderEntryProcs(INPUT TABLE ttEstItem, INPUT cCompany, INPUT ipcSourceValue, OUTPUT TABLE ttInputOrdLine, OUTPUT TABLE ttInputOrd ).
             
       {&open-query-{&browse-name}}  
@@ -1167,9 +1142,12 @@ PROCEDURE pNewEstimate :
           cCustNo:SCREEN-VALUE = ttInputOrd.cust-no                   
           ship-to:SCREEN-VALUE = ttInputOrd.ship-id
           sold-to:SCREEN-VALUE = ttInputOrd.cust-no                  
-          cDue:SCREEN-VALUE =  "On"
-          dtDueDate:SCREEN-VALUE = string(ttInputOrd.due-date).
-      
+          cDue:SCREEN-VALUE    =  "On"
+          dtDueDate:SCREEN-VALUE = string(ttInputOrd.due-date)
+          overRun:SCREEN-VALUE   = string(ttInputOrd.over-pct)
+          underRun:SCREEN-VALUE  = string(ttInputOrd.Under-pct)          
+          ttInputOrd.loc         = cLoc          
+          .            
     END.
 
 END PROCEDURE.
@@ -1227,9 +1205,7 @@ PROCEDURE pGetOverUnderPct :
       underRun:SCREEN-VALUE = STRING(dUnderPer). 
       //RUN pAddTag ("Over Percentage",cTagDesc ).
       //RUN pAddTag ("Under Percentage",cTagDesc ).
-  END.
-  //  deAutoOverRun = dOverPer.
-   // deAutoUnderRun = dUnderPer.
+  END.      
   
 END PROCEDURE.
 

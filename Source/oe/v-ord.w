@@ -2235,6 +2235,7 @@ PROCEDURE add-order :
   DEFINE VARIABLE cCustomerPo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lBack AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
   
   IF lNewOrderEntry THEN
   DO:
@@ -2250,7 +2251,7 @@ PROCEDURE add-order :
             RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, OUTPUT lBack, OUTPUT lCancel, INPUT-OUTPUT TABLE ttEstItem ).
             IF lCancel THEN LEAVE.
             IF lBack THEN LEAVE.
-            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel ).  
+            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel, OUTPUT rwRowid  ).  
             IF NOT lBack THEN LEAVE.
             IF lCancel THEN LEAVE.
            END. 
@@ -2259,7 +2260,11 @@ PROCEDURE add-order :
        END.
        ELSE LEAVE.            
    END.     
-   IF lCancel THEN RETURN NO-APPLY.               
+   IF lCancel THEN RETURN NO-APPLY.  
+   
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+   RUN repo-query1 IN WIDGET-HANDLE(char-hdl) (rwRowid). 
+  
   
   END. 
   ELSE  RUN dispatch ('add-record').  

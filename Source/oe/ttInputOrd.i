@@ -15,6 +15,9 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE TEMP-TABLE ttInputOrd like oe-ord
+	 FIELD lCreateRel AS LOGICAL LABEL "Create Release"
+         FIELD lCreateJob AS LOGICAL LABEL "Create Job"
+         FIELD lCreatePo AS LOGICAL LABEL "Create Po"  
     .
 
 DEFINE TEMP-TABLE ttInputOrdLine like oe-ordl
