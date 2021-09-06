@@ -54,7 +54,8 @@ DEFINE VARIABLE iSSBOLPrint  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE glScanTrailer AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glScanTrailer            AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -320,7 +321,10 @@ ON ENTRY OF fiTag IN FRAME F-Main /* Tag # */
 DO:
     SELF:SET-SELECTION ( 1, -1).  
     
-    SELF:BGCOLOR = 30.
+    ASSIGN
+        fiTrailer:BGCOLOR = 15
+        SELF:BGCOLOR      = 30
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,9 +358,9 @@ DO:
     END.
     
     IF glScanTrailer THEN DO:
-        RETURN.        
-        
         SELF:BGCOLOR = 15.
+
+        RETURN.        
     END.
     
     RUN state-changed (
@@ -373,22 +377,14 @@ END.
 
 &Scoped-define SELF-NAME fiTrailer
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
-ON ANY-KEY OF fiTrailer IN FRAME F-Main /* Trailer # */
-DO:
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" AND SELF:SCREEN-VALUE NE "" THEN
-        APPLY "LEAVE" TO SELF.   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
 ON ENTRY OF fiTrailer IN FRAME F-Main /* Trailer # */
 DO:
     SELF:SET-SELECTION ( 1, -1).  
     
-    SELF:BGCOLOR = 30.     
+    ASSIGN
+        fiTag:BGCOLOR = 15
+        SELF:BGCOLOR  = 30
+        .     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,6 +740,10 @@ PROCEDURE pInit :
     iSSBOLPrint = INTEGER(cResult).
         
     RUN pInvalidRelease.
+    
+    /* If scan trailer is enabled */
+    IF glScanTrailer THEN
+        btReset:TAB-STOP = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -924,7 +924,10 @@ PROCEDURE pScanRelease :
 
     {methods/run_link.i "REL-TAGS-SOURCE" "BuildReleaseTags" "(INPUT cCompany, INPUT iReleaseID)"}
     
-    fiTag:SCREEN-VALUE = "".
+    ASSIGN
+        fiTag:SCREEN-VALUE     = ""
+        fiTrailer:SCREEN-VALUE = ""
+        .
     
     APPLY "ENTRY" TO fiTag.
 END PROCEDURE.
@@ -957,8 +960,11 @@ PROCEDURE pScanTag PRIVATE :
         MESSAGE cMessage
         VIEW-AS ALERT-BOX ERROR.
         
-        fiTag:SCREEN-VALUE = "".
-                
+        ASSIGN
+            fiTag:SCREEN-VALUE     = ""
+            fiTrailer:SCREEN-VALUE = ""
+            .
+
         APPLY "ENTRY" TO fiTag.
 
         RETURN.

@@ -32,4 +32,5 @@ DEFINE TEMP-TABLE ttReleaseItem NO-UNDO
     FIELD overRunPercent            AS DECIMAL     LABEL "Over Run %"                 FORMAT ">>9.99"
     INDEX idxRelease company releaseID 
     INDEX idxItem company releaseID itemID
+    INDEX idxOrderPO company releaseID itemID orderID customerPO
     .

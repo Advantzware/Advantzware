@@ -71,7 +71,7 @@ DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table itemID orderID customerPO quantityOnHand quantityRelease quantityScanned fGetJobPOQuantityReceived() @ iJobPOQuantityReceived quantityOfUnitsRelease quantityOfUnitsScanned   
+&Scoped-define FIELDS-IN-QUERY-br_table itemID orderID customerPO fGetJobPOQuantityReceived() @ iJobPOQuantityReceived quantityOnHand quantityRelease quantityScanned quantityOfUnitsRelease quantityOfUnitsScanned   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseItem
@@ -161,10 +161,10 @@ DEFINE BROWSE br_table
       itemID WIDTH 40
       orderID WIDTH 15
       customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
-      quantityOnHand COLUMN-LABEL "On Hand!Quantity" FORMAT "->>>>>>>9" WIDTH 19
-      quantityRelease COLUMN-LABEL "Release!Quantity" FORMAT "->>>>>>>9" WIDTH 19
-      quantityScanned COLUMN-LABEL "Scanned!Quantity" FORMAT "->>>>>>>9" WIDTH 19
-      fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO!Quantity" FORMAT "->>>>>>>9" WIDTH 19
+      fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO" FORMAT "->>>>>>>9" WIDTH 19
+      quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>>>>>>9" WIDTH 19
+      quantityRelease COLUMN-LABEL "Released" FORMAT "->>>>>>>9" WIDTH 19
+      quantityScanned COLUMN-LABEL "Scanned" FORMAT "->>>>>>>9" WIDTH 19
       quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
       quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
 /* _UIB-CODE-BLOCK-END */

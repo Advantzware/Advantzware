@@ -51,6 +51,9 @@ PROCEDURE pBuildReleaseItems PRIVATE:
 
     DEFINE VARIABLE dRoundUp AS DECIMAL NO-UNDO.
     
+    DEFINE VARIABLE iQuantityScanned AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iUnitsScanned    AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-oe-relh  FOR oe-relh.
@@ -71,12 +74,13 @@ PROCEDURE pBuildReleaseItems PRIVATE:
             
         FOR EACH bf-oe-rell NO-LOCK
             WHERE bf-oe-rell.company EQ bf-oe-relh.company
-              AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no
-            BREAK BY bf-oe-rell.i-no:
+              AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no:
             FIND FIRST ttReleaseItem
-                 WHERE ttReleaseItem.company   EQ bf-oe-rell.company
-                   AND ttReleaseItem.releaseID EQ bf-oe-relh.release#
-                   AND ttReleaseItem.itemID    EQ bf-oe-rell.i-no
+                 WHERE ttReleaseItem.company    EQ bf-oe-rell.company
+                   AND ttReleaseItem.releaseID  EQ bf-oe-relh.release#
+                   AND ttReleaseItem.itemID     EQ bf-oe-rell.i-no
+                   AND ttReleaseItem.orderID    EQ bf-oe-rell.ord-no
+                   AND ttReleaseItem.customerPO EQ bf-oe-rell.po-no
                  NO-ERROR.
             IF NOT AVAILABLE ttReleaseItem THEN DO:
                 CREATE ttReleaseItem.
@@ -138,19 +142,28 @@ PROCEDURE pBuildReleaseItems PRIVATE:
                 IF AVAILABLE bf-po-ordl THEN
                     ttReleaseItem.quantityReceivedPO = bf-po-ordl.t-rec-qty.
             END.
-                                                    
-            /* If multiple lines exist with same item, then we don't want to calculate the scanned quantity again */
-            IF FIRST-OF(bf-oe-rell.i-no) THEN DO:
-                FOR EACH bf-ssrelbol NO-LOCK
-                    WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
-                      AND bf-ssrelbol.release# EQ bf-oe-relh.release#
-                      AND bf-ssrelbol.i-no     EQ bf-oe-rell.i-no:
-                    ASSIGN
-                        ttReleaseItem.quantityOfUnitsScanned = ttReleaseItem.quantityOfUnitsScanned + 1
-                        ttReleaseItem.quantityScanned        = ttReleaseItem.quantityScanned + bf-ssrelbol.qty
-                        .
-                END.
+            
+            ASSIGN
+                iQuantityScanned = 0
+                iUnitsScanned    = 0
+                .
+                                                                    
+            FOR EACH bf-ssrelbol NO-LOCK
+                WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
+                  AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+                  AND bf-ssrelbol.i-no     EQ bf-oe-rell.i-no
+                  AND bf-ssrelbol.ord-no   EQ bf-oe-rell.ord-no
+                  AND bf-ssrelbol.po-no    EQ bf-oe-rell.po-no:
+                ASSIGN
+                    iQuantityScanned = iQuantityScanned + bf-ssrelbol.qty
+                    iUnitsScanned    = iUnitsScanned + 1
+                    .
             END.
+
+            ASSIGN
+                ttReleaseItem.quantityOfUnitsScanned = iUnitsScanned
+                ttReleaseItem.quantityScanned        = iQuantityScanned
+                .
         END.                        
     END.
 END PROCEDURE.
@@ -319,6 +332,8 @@ PROCEDURE pCreateReleaseTag PRIVATE:
     DEFINE VARIABLE dTotalScannedQuantity AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalReleaseQuantity AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityToScan       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dScannedQuantityCheck AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dReleaseQuantityCheck AS DECIMAL NO-UNDO.
     
     DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
@@ -392,29 +407,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                     
             RETURN.        
         END.    
-        
-        IF bf-oe-rell.ord-no NE 0 THEN DO:
-            FIND FIRST bf-oe-ord NO-LOCK
-                 WHERE bf-oe-ord.company EQ bf-oe-rell.company
-                   AND bf-oe-ord.ord-no  EQ bf-oe-rell.ord-no
-                   AND bf-oe-ord.opened  EQ TRUE
-                 NO-ERROR.
-            IF NOT AVAILABLE bf-oe-ord THEN DO:
-    /*            ASSIGN                                                                             */
-    /*                oplError   = TRUE                                                              */
-    /*                opcMessage = "Order # '" + STRING(bf-oe-rell.ord-no) + "' is invalid or closed"*/
-    /*                .                                                                              */
-    /*                                                                                               */
-    /*            RETURN.                                                                            */
-            END.  
-            
-            FIND FIRST bf-oe-ordl NO-LOCK
-                 WHERE bf-oe-ordl.company EQ bf-oe-rell.company
-                   AND bf-oe-ordl.ord-no  EQ bf-oe-rell.ord-no
-                   AND bf-oe-ordl.i-no    EQ bf-oe-rell.i-no
-                 NO-ERROR.          
-        END.
-        
+
         FIND FIRST bf-ssrelbol NO-LOCK
              WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
                AND bf-ssrelbol.release# EQ bf-oe-relh.release#
@@ -428,7 +421,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                      
             RETURN.        
         END.
-    
+
         FIND FIRST bf-fg-bin NO-LOCK
              WHERE bf-fg-bin.company EQ bf-oe-relh.company
                AND bf-fg-bin.tag     EQ bf-loadtag.tag-no
@@ -446,20 +439,60 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                    
         FIND FIRST cust NO-LOCK
              WHERE cust.company EQ bf-oe-relh.company
-               AND cust.cust-no EQ bf-oe-relh.cust-no NO-ERROR. 
-        IF AVAIL cust AND AVAIL bf-fg-bin THEN
-        DO:
-            IF ((cust.tagStatus EQ "" AND bf-fg-bin.onHold) OR (cust.tagStatus EQ "H" AND NOT bf-fg-bin.onHold)) THEN
-            DO:
-              ASSIGN
-                oplError   = TRUE
-                opcMessage = "Bin Tag status did not match with Customer Tag status.".
+               AND cust.cust-no EQ bf-oe-relh.cust-no
+             NO-ERROR. 
+        IF AVAIL cust AND AVAIL bf-fg-bin THEN DO:
+            IF ((cust.tagStatus EQ "" AND bf-fg-bin.onHold) OR (cust.tagStatus EQ "H" AND NOT bf-fg-bin.onHold)) THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Bin Tag status did not match with Customer Tag status."
+                    .
        
-              RETURN .
+                RETURN.
             END.              
         END.
         /* Perform fg-bin on hold validation. Currently zMessage 53 is used to control the popup */
-        
+
+        IF ipcTrailerID NE "" THEN DO:
+            IF NOT CAN-FIND(FIRST truck 
+                            WHERE truck.company    EQ bf-oe-relh.company 
+                              AND truck.truck-code EQ ipcTrailerID) THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Invalid Trailer#. '" + ipcTrailerID + "'"
+                    .
+   
+                RETURN.            
+            END.
+            
+            IF bf-oe-relh.trailer NE "" AND bf-oe-relh.trailer NE ipcTrailerID THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Trailer # '" + ipcTrailerID + "' does not match Release Trailer# '" + bf-oe-relh.trailer + "'" 
+                    .
+   
+                RETURN.            
+            END.
+        END.
+        ELSE
+            ipcTrailerID = bf-oe-relh.trailer.
+
+        IF bf-oe-rell.ord-no NE 0 THEN DO:
+            FIND FIRST bf-oe-ord NO-LOCK
+                 WHERE bf-oe-ord.company EQ bf-oe-rell.company
+                   AND bf-oe-ord.ord-no  EQ bf-oe-rell.ord-no
+                   AND bf-oe-ord.opened  EQ TRUE
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-oe-ord THEN DO:
+    /*            ASSIGN                                                                             */
+    /*                oplError   = TRUE                                                              */
+    /*                opcMessage = "Order # '" + STRING(bf-oe-rell.ord-no) + "' is invalid or closed"*/
+    /*                .                                                                              */
+    /*                                                                                               */
+    /*            RETURN.                                                                            */
+            END.  
+        END. 
+                    
         FOR EACH bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company  EQ bf-oe-relh.company
               AND bf-fg-bin.tag      EQ bf-loadtag.tag-no
@@ -477,11 +510,34 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                 LEAVE.
         END.         
 
+        IF AVAILABLE bf-fg-bin THEN
+            dScannedQuantity = bf-fg-bin.qty.       
+        ELSE
+            dScannedQuantity = bf-loadtag.pallet-count.
+
+        /* Code to find the release line that, tag quantity needs to be applied to */
+        RUN pGetReleaseLineForTag (
+            INPUT  bf-oe-relh.company,
+            INPUT  bf-oe-relh.release#,
+            INPUT  bf-oe-relh.r-no,
+            INPUT  dScannedQuantity,
+            BUFFER bf-oe-rell
+            ).
+        
+        IF NOT AVAILABLE bf-oe-rell THEN
+            FIND FIRST bf-oe-rell NO-LOCK
+                 WHERE bf-oe-rell.company EQ bf-oe-relh.company
+                   AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no
+                   AND bf-oe-rell.i-no    EQ bf-loadtag.i-no
+                 NO-ERROR.
+        
         /* Fetch quantity scanned so far */
         RUN pGetScannedQuantity (
             INPUT  bf-oe-relh.company,
             INPUT  bf-oe-relh.release#,
             INPUT  bf-loadtag.i-no,
+            INPUT  bf-oe-rell.ord-no,
+            INPUT  bf-oe-rell.po-no,
             OUTPUT dTotalScannedQuantity
             ).        
         
@@ -490,13 +546,10 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             INPUT  bf-oe-relh.company,
             INPUT  bf-oe-relh.release#,
             INPUT  bf-loadtag.i-no,
+            INPUT  bf-oe-rell.ord-no,
+            INPUT  bf-oe-rell.po-no,
             OUTPUT dTotalReleaseQuantity
-            ).        
-
-        IF AVAILABLE bf-fg-bin THEN
-            dScannedQuantity = bf-fg-bin.qty.       
-        ELSE
-            dScannedQuantity = bf-loadtag.pallet-count.
+            ).
                 
         IF iplValidateQtyExceed AND (dTotalScannedQuantity + dScannedQuantity) GT dTotalReleaseQuantity THEN DO:
             ASSIGN
@@ -537,6 +590,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             bf-ssrelbol.company    = bf-oe-relh.company
             bf-ssrelbol.release#   = bf-oe-relh.release#
             bf-ssrelbol.tag#       = bf-loadtag.tag-no
+            bf-ssrelbol.trailer#   = ipcTrailerID
             bf-ssrelbol.i-no       = bf-loadtag.i-no
             bf-ssrelbol.i-name     = bf-loadtag.i-name          
             bf-ssrelbol.ord-no     = bf-oe-rell.ord-no 
@@ -576,8 +630,19 @@ PROCEDURE pCreateReleaseTag PRIVATE:
                 .
         END.
                                     
+        FIND FIRST bf-oe-ordl NO-LOCK
+             WHERE bf-oe-ordl.company EQ bf-oe-rell.company
+               AND bf-oe-ordl.ord-no  EQ bf-oe-rell.ord-no
+               AND bf-oe-ordl.i-no    EQ bf-oe-rell.i-no
+             NO-ERROR.          
         IF AVAILABLE bf-oe-ordl THEN            
             bf-ssrelbol.line = bf-oe-ordl.line.
+        
+        IF ipcTrailerID NE "" AND bf-oe-relh.trailer EQ "" THEN DO:
+            FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE bf-oe-relh THEN
+                bf-oe-relh.trailer = ipcTrailerID.
+        END.
     END.        
 END PROCEDURE.
 
@@ -611,6 +676,52 @@ PROCEDURE pDeleteReleaseTag PRIVATE:
         IF AVAILABLE bf-ssrelbol THEN
             DELETE bf-ssrelbol.
     END.
+END PROCEDURE.
+
+PROCEDURE pGetReleaseLineForTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiRNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-oe-rell FOR oe-rell.
+        
+    RUN pBuildReleaseItems (
+        INPUT  ipcCompany,
+        INPUT  ipiReleaseID,
+        INPUT-OUTPUT TABLE ttReleaseItem
+        ).
+
+    FIND FIRST ttReleaseItem
+         WHERE ttReleaseItem.quantityScanned + ipdQuantity EQ ttReleaseItem.quantityRelease
+         NO-ERROR.
+
+    IF NOT AVAILABLE ttReleaseItem THEN         
+        FIND FIRST ttReleaseItem
+             WHERE ttReleaseItem.quantityScanned EQ 0
+             NO-ERROR.
+
+    IF NOT AVAILABLE ttReleaseItem THEN         
+        FIND FIRST ttReleaseItem
+             WHERE ttReleaseItem.quantityScanned + ipdQuantity LE ttReleaseItem.quantityRelease + (ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100))
+             NO-ERROR.
+
+    IF NOT AVAILABLE ttReleaseItem THEN         
+        FIND FIRST ttReleaseItem NO-ERROR.
+
+    IF AVAILABLE ttReleaseItem THEN
+        FIND FIRST opbf-oe-rell NO-LOCK
+             WHERE opbf-oe-rell.company  EQ ttReleaseItem.company
+               AND opbf-oe-rell.r-no     EQ ipiRNo
+               AND opbf-oe-rell.i-no     EQ ttReleaseItem.itemID
+               AND opbf-oe-rell.ord-no   EQ ttReleaseItem.orderID
+               AND opbf-oe-rell.po-no    EQ ttReleaseItem.customerPO
+             NO-ERROR.
+    
+    EMPTY TEMP-TABLE ttReleaseItem.
 END PROCEDURE.
 
 PROCEDURE Release_HasBOLScanned:
@@ -651,12 +762,16 @@ PROCEDURE Release_GetScannedQuantity:
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerPO      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdScannedQuantity AS DECIMAL   NO-UNDO.
     
     RUN pGetScannedQuantity (
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcItemID,
+        INPUT  ipiOrderID,
+        INPUT  ipcCustomerPO,
         OUTPUT opdScannedQuantity
         ).
 END PROCEDURE.
@@ -669,6 +784,8 @@ PROCEDURE pGetScannedQuantity PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerPO      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdScannedQuantity AS DECIMAL   NO-UNDO.
     
     DEFINE BUFFER bf-ssrelbol FOR ssrelbol.
@@ -676,7 +793,9 @@ PROCEDURE pGetScannedQuantity PRIVATE:
     FOR EACH bf-ssrelbol NO-LOCK
         WHERE bf-ssrelbol.company  EQ ipcCompany
           AND bf-ssrelbol.release# EQ ipiReleaseID
-          AND bf-ssrelbol.i-no     EQ ipcItemID :
+          AND bf-ssrelbol.i-no     EQ ipcItemID
+          AND (bf-ssrelbol.ord-no  EQ ipiOrderID OR ipiOrderID EQ 0)
+          AND (bf-ssrelbol.po-no   EQ ipcCustomerPO OR ipcCustomerPO EQ ""):
         opdScannedQuantity = opdScannedQuantity + bf-ssrelbol.qty.
     END.    
 END PROCEDURE.
@@ -689,12 +808,16 @@ PROCEDURE Release_GetReleaseQuantity:
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerPO      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdReleaseQuantity AS DECIMAL   NO-UNDO.
     
     RUN pGetReleaseQuantity (
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcItemID,
+        INPUT  ipiOrderID,
+        INPUT  ipcCustomerPO,        
         OUTPUT opdReleaseQuantity
         ).
 END PROCEDURE.
@@ -707,6 +830,8 @@ PROCEDURE pGetReleaseQuantity PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcItemID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerPO      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdReleaseQuantity AS DECIMAL   NO-UNDO.
     
     DEFINE BUFFER bf-oe-relh FOR oe-relh.
@@ -722,7 +847,9 @@ PROCEDURE pGetReleaseQuantity PRIVATE:
     FOR EACH bf-oe-rell NO-LOCK
         WHERE bf-oe-rell.company EQ bf-oe-relh.company
           AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no
-          AND bf-oe-rell.i-no    EQ ipcItemID:
+          AND bf-oe-rell.i-no    EQ ipcItemID
+          AND (bf-oe-rell.ord-no EQ ipiOrderID OR ipiOrderID EQ 0)
+          AND (bf-oe-rell.po-no  EQ ipcCustomerPO OR ipcCustomerPO EQ ""):
         opdReleaseQuantity = opdReleaseQuantity + bf-oe-rell.qty.
     END.
 END PROCEDURE.
