@@ -77,6 +77,7 @@ DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lTagWarning AS LOGICAL NO-UNDO.
 
 RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
@@ -764,6 +765,7 @@ END.
 ON VALUE-CHANGED OF oe-boll.tag IN BROWSE Browser-Table /* Tag */
 DO:
      lCheckTagHoldMessage = NO .
+     lTagWarning = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1819,28 +1821,34 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
                             AND oe-ordl.i-no = oe-boll.i-no NO-LOCK NO-ERROR.
       IF AVAIL oe-ordl THEN oe-boll.LINE = oe-ordl.LINE.
     END.
-    
-    IF cFreightCalculationValue NE "ALL" THEN
-    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
-    
+        
     /* Task 04171407, only recalc freight if quantity is changed, */
     /* if weight or freight changed, just add up and display in header */ 
     IF (v-qty NE oe-boll.qty
       OR v-qty-case NE oe-boll.qty-case
       OR v-partial  NE oe-boll.partial
-      OR v-pallets  NE oe-boll.tot-pallets 
-      OR adm-new-record)
-      AND (v-freight EQ oe-boll.freight)
-      AND cFreightCalculationValue EQ "ALL" THEN DO:
-    
-      RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+      OR v-pallets  NE oe-boll.tot-pallets
+      OR v-weight   NE oe-boll.weight
+      OR adm-new-record) THEN do:
       
-      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:       
-          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).
+        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+        
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN DO:         
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), YES, OUTPUT dFreight).
+          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+          RUN calc-freight-header IN WIDGET-HANDLE(char-hdl) (INPUT dFreight).          
+        END.
+        ELSE DO:
+          RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), NO, OUTPUT dFreight).
+        END.
+      
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:            
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('display-fields').
       END.
     END.            
+    
+    IF cFreightCalculationValue NE "ALL" THEN
+    RUN ProrateFreightAcrossBOLLines IN hFreightProcs(INPUT ROWID(oe-bolh), INPUT oe-bolh.freight, OUTPUT lError, OUTPUT cMessage).
   END. /* if freight modified or new record */
     
   oe-bolh.tot-pallets = oe-boll.tot-pallets.
@@ -1940,6 +1948,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
 
   Browser-Table:REFRESH() IN FRAME {&FRAME-NAME}.
   lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1996,6 +2005,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */   
   lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2047,7 +2057,8 @@ PROCEDURE local-create-record :
   IF AVAIL b-oe-boll THEN oe-boll.s-code = b-oe-boll.s-code.
   IF oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name} GT "" THEN
       oe-boll.po-no = oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name}.
-  lCheckTagHoldMessage = NO.    
+  lCheckTagHoldMessage = NO.
+  lTagWarning = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3450,11 +3461,12 @@ PROCEDURE valid-tag :
   DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cTagStatus       AS CHARACTER NO-UNDO.
   
+  DEF BUFFER bf-oe-boll FOR oe-boll.
   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-local-vars.
-
+    
     IF lv-tag NE ""                                 AND
        ((CAN-FIND(FIRST fg-bin
                   WHERE fg-bin.company EQ cocode
@@ -3475,6 +3487,22 @@ PROCEDURE valid-tag :
       MESSAGE "Tag exists for another item..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
       RETURN ERROR.
+    END.
+    
+    IF lv-tag NE "" AND NOT lTagWarning THEN 
+    DO:
+          FIND FIRST bf-oe-boll NO-LOCK
+               WHERE bf-oe-boll.company EQ cocode
+               AND bf-oe-boll.bol-no EQ oe-bolh.bol-no
+               AND bf-oe-boll.tag EQ lv-tag
+               AND ROWID(bf-oe-boll)  NE ROWID(oe-boll)
+               NO-ERROR.
+          IF avail bf-oe-boll THEN
+          DO:
+             MESSAGE "This tag is already on this BOL and should not be added a second time"
+             VIEW-AS ALERT-BOX WARNING.
+             lTagWarning = YES.
+          END.           
     END.
   
     IF lv-tag NE "" AND fgrecpt-int = 1 and

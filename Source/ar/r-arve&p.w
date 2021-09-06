@@ -89,6 +89,7 @@ DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 find first sys-ctrl
@@ -1211,6 +1212,8 @@ do transaction on error undo with width 255:
          ELSE /*EA*/
             ar-invl.t-cost = ar-invl.cost * ar-invl.inv-qty.
       END.
+      
+      RUN pCreateInvoiceLineTax(BUFFER ar-invl).
   
     end. /* for each ar-invl */
 
@@ -1245,7 +1248,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateInvoiceLineTax C-Win
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ar-invl   FOR ar-invl.
+    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
+    
+    RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
+    
+    RUN invoice_pCreateInvoiceLineTax IN hdInvoiceProcs (
+                                     INPUT ipbf-ar-invl.rec_key,
+                                     INPUT ROWID(ipbf-ar-invl),                                      
+                                     INPUT TABLE ttTaxDetail BY-REFERENCE  
+                                     ).
+    DELETE OBJECT hdInvoiceProcs.
+                                   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win
 PROCEDURE pPostSalesTax PRIVATE:

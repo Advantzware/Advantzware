@@ -476,22 +476,21 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             RETURN.             
         END.
 
-        /* If release quantity greater than scanned quantity and if release quantity cannot be exceeded  */
-        IF iplSelectReleaseQty AND dTotalScannedQuantity GE dTotalReleaseQuantity THEN DO:
-            ASSIGN
-                 oplError   = TRUE
-                 opcMessage = "Cannot scan more than Scheduled Release quantity '" + STRING(dTotalReleaseQuantity) + "'"
-                 .
-                     
-            RETURN.             
-        END.
-
         IF iplSelectReleaseQty THEN
             dQuantityToScan = dTotalReleaseQuantity - dTotalScannedQuantity.
         ELSE
             dQuantityToScan = dScannedQuantity.
         
         dQuantityToScan = MINIMUM (dQuantityToScan, dScannedQuantity).
+
+        IF iplSelectReleaseQty AND dQuantityToScan LE 0 THEN DO:
+            ASSIGN
+                 oplError   = TRUE
+                 opcMessage = "Scanned quantity exceeded the scheduled release quantity '" + STRING(dTotalReleaseQuantity) + "'. Please scan again choose YES to import pallet quantity."
+                 .
+
+            RETURN.
+        END.
         
         FOR EACH bf-ssrelbol NO-LOCK
             WHERE bf-ssrelbol.company  EQ bf-oe-relh.company

@@ -8,6 +8,7 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
 DEF BUFFER b-job FOR job.
+DEFINE BUFFER bf-item FOR ITEM.
 
 DEF NEW SHARED VAR cocode AS CHAR NO-UNDO.
 DEF VAR lv-format-f AS CHAR NO-UNDO.
@@ -17,6 +18,7 @@ DEF VAR v-comm AS DEC NO-UNDO.
 DEF VAR v-bwt AS DEC NO-UNDO.
 DEF VAR v-len AS DEC NO-UNDO.
 DEF VAR v-wid AS DEC NO-UNDO.
+DEFINE VARIABLE dQtyAllocChange AS DECIMAL NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF job-mch.
 
@@ -33,54 +35,58 @@ AND NOT {&TABLENAME}.all-flg  THEN
 
 IF {&TABLENAME}.qty-all LT 0 THEN {&TABLENAME}.qty-all = 0.
 
-IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all THEN DO:
-    FIND FIRST item EXCLUSIVE-LOCK WHERE 
-        item.company EQ {&TABLENAME}.company AND 
-        item.i-no    EQ {&TABLENAME}.rm-i-no AND 
-        item.i-code  EQ "R"
+IF {&TABLENAME}.all-flg NE old-{&TABLENAME}.all-flg THEN 
+    dQtyAllocChange = {&TABLENAME}.qty-all * (IF {&TABLENAME}.all-flg THEN 1 ELSE -1).
+ELSE IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all AND {&TABLENAME}.all-flg THEN 
+    dQtyAllocChange = {&TABLENAME}.qty-all - old-{&TABLENAME}.qty-all.
+    
+IF dQtyAllocChange NE 0 THEN DO:
+    FIND FIRST bf-item EXCLUSIVE-LOCK WHERE 
+        bf-item.company EQ {&TABLENAME}.company AND 
+        bf-item.i-no    EQ {&TABLENAME}.rm-i-no AND 
+        bf-item.i-code  EQ "R"
         NO-ERROR NO-WAIT.
     /*  5/5/20 - MYT - Ticket 64405
-        The purpose here is to update the item.q-comm value with the change in job-mat.qty-all for THIS change.
-        The current use of rm/calcqcom.p recalculates the total item.q-comm value starting from zero, using
+        The purpose here is to update the bf-item.q-comm value with the change in job-mat.qty-all for THIS change.
+        The current use of rm/calcqcom.p recalculates the total bf-item.q-comm value starting from zero, using
         ALL job-mat and mat-act records.  Obviously, this is inefficient, as the total rebuild is performed
         on every transaction that writes to the job-mat file.  In a typical session of receiving job tags, for
         example, there are over 600,000 reads of the job-mat and mat-act tables.  Since every read passes data
         over the network, the traffic and the workstation RAM are overwhelmed.  The symptom here is that running
         SS receipts on the server can have acceptable performance, but running the same process on a workstation
         will take more time, up to a factor of several HUNDRED times.  To resolve this, let's just use the 
-        delta of old versus new qty-all for THIS job-mat, and apply the resulting delta qty to the item. 
+        delta of old versus new qty-all for THIS job-mat, and apply the resulting delta qty to the bf-item. 
     */  
-    /*  IF AVAIL item THEN RUN rm/calcqcom.p (ROWID(item), OUTPUT item.q-comm). */
+    /*  IF AVAIL bf-item THEN RUN rm/calcqcom.p (ROWID(bf-item), OUTPUT bf-item.q-comm). */
 
-    IF AVAIL ITEM AND {&TABLENAME}.all-flg THEN DO:
-        ASSIGN 
-            v-comm = {&TABLENAME}.qty-all - old-{&TABLENAME}.qty-all.
+    IF AVAIL bf-item THEN DO:
 
-        IF job-mat.qty-uom NE item.cons-uom THEN DO:
+        IF job-mat.qty-uom NE bf-item.cons-uom THEN DO:
             ASSIGN 
                 v-bwt = job-mat.basis-w
                 v-len = job-mat.len
                 v-wid = job-mat.wid
-                v-len = IF v-len EQ 0 THEN ITEM.s-len ELSE v-len
-                v-wid = IF v-wid EQ 0 THEN (IF ITEM.r-wid NE 0 THEN ITEM.r-wid ELSE ITEM.s-wid) ELSE v-wid
-                v-bwt = IF v-bwt EQ 0 THEN ITEM.basis-w ELSE v-bwt.
+                v-len = IF v-len EQ 0 THEN bf-item.s-len ELSE v-len
+                v-wid = IF v-wid EQ 0 THEN (IF bf-item.r-wid NE 0 THEN bf-item.r-wid ELSE bf-item.s-wid) ELSE v-wid
+                v-bwt = IF v-bwt EQ 0 THEN bf-item.basis-w ELSE v-bwt.
 
             RUN sys/ref/convquom.p (job-mat.qty-uom, 
-                                    item.cons-uom,
+                                    bf-item.cons-uom,
                                     v-bwt, 
                                     v-len, 
                                     v-wid, 
-                                    item.s-dep,
-                                    v-comm, 
-                                    OUTPUT v-comm).
+                                    bf-item.s-dep,
+                                    dQtyAllocChange, 
+                                    OUTPUT dQtyAllocChange).
         END.
         
         ASSIGN 
-            ITEM.q-comm = ITEM.q-comm + v-comm
-            ITEM.q-comm = MAX(0, item.q-comm)
+            bf-item.q-comm = bf-item.q-comm + dQtyAllocChange
+            bf-item.q-comm = MAX(0, bf-item.q-comm)
             .
         
     END.
+    RELEASE bf-item.
 END.
 
 IF old-{&TABLENAME}.company NE ""

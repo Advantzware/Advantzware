@@ -682,7 +682,12 @@ v-printline = 0.
         END.
         ELSE
            PUT SKIP.
-
+           
+        IF AVAIL po-ordl THEN DO:
+               PUT "Date Required: " AT 25 po-ordl.due-date FORMAT "99/99/9999" SKIP.
+               RUN pPageBreak(1,0).
+        END.
+        
         IF lPrintMsf  THEN do:
             PUT  "MSF: " AT 30 trim(string(v-tot-sqft,">>>>>9.99<<")) SKIP .
             lPrintMsf = FALSE.            
@@ -693,7 +698,7 @@ v-printline = 0.
                len-score = "".
         RUN pPageBreak(1,0).       
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         

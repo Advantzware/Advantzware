@@ -55,6 +55,7 @@ def new shared var cocode as cha no-undo.
 def new shared var locode as cha no-undo.
 
 {custom/globdefs.i}
+{system\FormulaProcs.i}
 
 assign cocode = g_company
        locode = g_loc.
@@ -90,6 +91,8 @@ DEF VAR cadFile AS CHARACTER NO-UNDO.
 DEF VAR lv-master-est-no LIKE eb.master-est-no NO-UNDO.
 DEF BUFFER b-style FOR style.
 DEF VAR v-count AS INT NO-UNDO.
+
+DEFINE VARIABLE cWidgethandles AS CHARACTER NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -193,7 +196,7 @@ eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout
 &Scoped-define SECOND-DISPLAYED-TABLE eb
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
-&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_per-set fi_from-est-no ~
+&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_lf-blank fi_tot-lf-blank fi_per-set fi_from-est-no ~
 fi_blank-qty sman_sname procat_desc style_dscr tab-inout 
 
 /* Custom List Definitions                                              */
@@ -277,7 +280,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_qty-msf 
      LABEL "" 
-     SIZE 74 BY 1.
+     SIZE 79.3 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -298,9 +301,19 @@ DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0
      SIZE 15.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_per-set AS DECIMAL FORMAT "->>>9.9<<<":U INITIAL 0 
-     LABEL "Qty/Set" 
+     LABEL "PerSet" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_lf-blank AS DECIMAL FORMAT "->,>>>,>>9.9":U INITIAL 0 
+     LABEL "Linear Feet" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_tot-lf-blank AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+     LABEL "TLF" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.     
 
 DEFINE VARIABLE procat_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -344,11 +357,13 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Corr
-     tb-set AT ROW 16 COL 90 WIDGET-ID 12
+     tb-set AT ROW 11.71 COL 132 WIDGET-ID 12
      bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
-     btn_qty-msf AT ROW 2.67 COL 78
+     btn_qty-msf AT ROW 2.67 COL 73.2
      fi_msf AT ROW 2.67 COL 134.6 COLON-ALIGNED
      fi_per-set AT ROW 2.67 COL 114 COLON-ALIGNED
+     fi_lf-blank AT ROW 16 COL 91 COLON-ALIGNED
+     fi_tot-lf-blank AT ROW 2.67 COL 114 COLON-ALIGNED
      est.est-no AT ROW 1.24 COL 9.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -421,7 +436,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      est-qty.eqty AT ROW 2.67 COL 90 COLON-ALIGNED
-          LABEL "Quantity" FORMAT ">>>>>>>"
+          LABEL "Qty" FORMAT ">>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.part-no AT ROW 3.86 COL 90 COLON-ALIGNED
@@ -515,9 +530,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
-     eb.lockLayout AT ROW 11.71 COL 115 COLON-ALIGNED 
+     eb.lockLayout AT ROW 11.71 COL 108 COLON-ALIGNED 
           VIEW-AS TOGGLE-BOX 
-          SIZE 30 BY 1     
+          SIZE 20 BY 1     
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -582,7 +597,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" FORMAT ">>>9.999<<"
+          LABEL "Square Ft" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
@@ -710,6 +725,12 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fi_per-set:HIDDEN IN FRAME Corr           = TRUE.
+       
+       
+/* SETTINGS FOR FILL-IN fi_tot-lf-blank IN FRAME Corr
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_tot-lf-blank:HIDDEN IN FRAME Corr           = TRUE.       
 
 /* SETTINGS FOR FILL-IN eb.form-no IN FRAME Corr
    NO-ENABLE EXP-LABEL                                                  */
@@ -2482,6 +2503,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
 PROCEDURE pCheckAutoLock :
 /*------------------------------------------------------------------------------
@@ -3232,6 +3274,9 @@ PROCEDURE local-assign-record :
 
   {cec/slotheit.i}  
   {cec/slotwidth.i}
+  
+  DEFINE BUFFER bf-style FOR style.
+  
   ASSIGN
    eb.sty-lock = NOT ll-auto-calc-selected
    eb.tab-in   = IF tab-inout EQ "In"  THEN YES ELSE
@@ -3265,6 +3310,42 @@ PROCEDURE local-assign-record :
          ll-blank-size-changed = YES
          eb.k-len-array2[li]   = ld-k-len-array[li].
     END.
+    
+    FIND FIRST bf-style
+         WHERE bf-style.company EQ eb.company
+           AND bf-style.style   EQ eb.style
+         NO-ERROR.
+    IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+        EMPTY TEMP-TABLE ttPanel.
+        
+        DO li = 1 TO EXTENT(eb.k-wid-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "W"
+                ttPanel.cScoreType = eb.k-wid-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-wid-array2[li]
+                .
+        END.
+
+        DO li = 1 TO EXTENT(eb.k-len-array2):
+            CREATE ttPanel.
+            ASSIGN
+                ttPanel.iPanelNum  = li
+                ttPanel.cPanelType = "L"
+                ttPanel.cScoreType = eb.k-len-scr-type2[li]
+                ttPanel.dPanelSize = eb.k-len-array2[li]
+                .
+        END.
+                
+        RUN UpdatePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT eb.company,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT TABLE ttPanel
+            ).    
+    END.     
   END.
 
   IF lv-foam THEN
@@ -3657,15 +3738,37 @@ PROCEDURE local-display-fields :
   DEF VAR lv-eqty AS CHAR NO-UNDO.
   DEF VAR lv-image AS CHAR NO-UNDO.
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
 
+  DEFINE BUFFER bf-style FOR style.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   {cec/msfcalc.i}
 
 
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
+  FIND FIRST bf-style NO-LOCK
+       WHERE bf-style.company EQ eb.company
+         AND bf-style.style   EQ eb.style
+       NO-ERROR.
+  IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN DisablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  ELSE DO:
+      DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
+          phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
+          IF VALID-HANDLE(phandle) AND LOOKUP("EnablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+              RUN EnablePOScores IN pHandle NO-ERROR.
+      END.
+  END.
+  
 DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
@@ -3780,8 +3883,9 @@ END.
        fi_msf     = (IF eb.est-type GE 7 THEN eb.bl-qty
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
-                               ELSE (eb.t-sqin / 144)) / 1000.
-
+                               ELSE (eb.t-sqin / 144)) / 1000
+      fi_lf-blank = eb.t-len / 12
+      fi_tot-lf-blank = fi_lf-blank * est-qty.eqty .
 
   fi_from-est-no = IF eb.master-est-no NE "" AND
                       eb.est-type EQ 8       THEN eb.master-est-no
@@ -3850,12 +3954,15 @@ END.
 
     btn_qty-msf:LABEL = TRIM(est-qty.eqty:LABEL) + ": " +
                         TRIM(lv-eqty) +
-                        FILL(" ",10) +
+                        FILL(" ",8) +
                         TRIM(fi_per-set:LABEL) + ": " +
                         TRIM(STRING(fi_per-set,fi_per-set:FORMAT)) +
-                        FILL(" ",10) +
+                        FILL(" ",8) +
                         TRIM(fi_msf:LABEL) + ": " +
-                        TRIM(STRING(fi_msf,fi_msf:FORMAT)).
+                        TRIM(STRING(fi_msf,fi_msf:FORMAT)) +
+                        FILL(" ",8) +
+                        TRIM(fi_tot-lf-blank:LABEL) + ": " +
+                        TRIM(STRING(fi_tot-lf-blank,fi_tot-lf-blank:FORMAT)).
 
     btn_fgitem:LABEL = " " + TRIM(eb.stock:LABEL) + ": " /*+ TRIM(eb.stock) */.
     IF eb.stock = "" THEN
@@ -4013,6 +4120,7 @@ PROCEDURE local-update-record :
            decimal(hd2:screen-value) - trunc(decimal(hd2:screen-value),0) >= v-16-or-32 
            AND hd2:name NE "t-sqin" AND hd2:NAME NE "comm"
            AND hd2:NAME NE "fi_msf" AND hd2:NAME NE "fi_per-set"
+           AND hd2:NAME NE "fi_lf-blank"
         then do:
              message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
                      view-as alert-box error.

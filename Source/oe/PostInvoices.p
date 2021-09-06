@@ -25,7 +25,7 @@ DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -199,6 +199,8 @@ PROCEDURE pAddFGItemToUpdate PRIVATE:
         ttFGItemToUpdate.quantityShippedTotal     = ttFGItemToUpdate.quantityShippedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityAllocatedTotal   = ttFGItemToUpdate.quantityAllocatedTotal + ipbf-ttInvoiceLineToPost.quantityShipped
         ttFGItemToUpdate.quantityInvoicedMSFTotal = ttFGItemToUpdate.quantityInvoicedMSFTotal + ipbf-ttInvoiceLineToPost.quantityInvoicedMSF
+        ttFGItemToUpdate.invOrder                 = ipbf-ttInvoiceLineToPost.orderID
+        ttFGItemToUpdate.bNo                      = ipbf-ttInvoiceLineToPost.bNo
         .
         
 END PROCEDURE.
@@ -432,7 +434,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.isFreightBillable = ipbf-ttInvoiceToPost.isFreightBillable
         ttInvoiceLineToPost.orderLine         = ipbf-inv-line.line
         ttInvoiceLineToPost.iEnum             = ipbf-inv-line.e-num
-         
+        ttInvoiceLineToPost.bNo               = ipbf-inv-line.b-no
          
         .
     FIND FIRST bf-sman NO-LOCK 
@@ -943,7 +945,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             NEXT.
         END.
          
-        RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        RUN ClearTagsForGroup(bf-inv-head.rec_key, "Auto Approved").  /*Clear all hold tags - TagProcs.p*/
         
         RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lErrorOnInvoice, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
         IF lErrorOnInvoice THEN 
@@ -954,7 +956,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 oplError   = NO
                 opcMessage = ""
                 .
-            IF lError THEN NEXT.
+            IF lErrorOnInvoice THEN NEXT.
                 
             FOR EACH bf-inv-line NO-LOCK
                 WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
@@ -1090,6 +1092,50 @@ PROCEDURE pCheckAccount PRIVATE:
                     opcMessage = ipcAccountSource + " has an inactive " + ipcAccountDesc + " of " + ipcAccount
                     .
     END. /*account not-blank*/  
+
+END PROCEDURE.
+
+PROCEDURE pCloseOrders PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Will process orders to update outside of Posting transaction
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFullyClosed AS LOGICAL   NO-UNDO.
+       
+    /*REFACTOR - This could be major source of slowness*/
+    FOR EACH ttOrderToUpdate,
+        FIRST bf-oe-ord NO-LOCK
+        WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
+        lFullyClosed = YES.
+        FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
+            WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
+            AND bf-oe-ordl.stat    NE "C":
+            /* No UI */
+            RUN oe/CloseOrder.p(INPUT ROWID(bf-oe-ordl),
+                INPUT NO,
+                OUTPUT cStatus,
+                OUTPUT cReason).
+            /* No UI */
+            IF cStatus EQ 'C' THEN
+                RUN oe/closelin.p (INPUT ROWID(bf-oe-ordl),YES).
+            ELSE 
+                lFullyClosed = NO.
+        END.
+        IF lFullyClosed THEN 
+        DO:
+            RUN oe\close.p(RECID(bf-oe-ord), YES).
+            ASSIGN
+                ttOrderToUpdate.isClosed = YES
+                ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
+        END.
+    END. /* Each w-ord */            
+    
 
 END PROCEDURE.
 
@@ -1312,6 +1358,7 @@ PROCEDURE pCreateARInvLine PRIVATE:
         bf-ar-invl.costStdManufacture = ipbf-inv-line.costStdManufacture
         bf-ar-invl.sf-sht             = ttInvoiceLineToPost.squareFeetPerEA
         bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
+        bf-ar-invl.taxGroup           = ipbf-inv-line.taxGroup
         .
 
     IF bf-ar-invl.ord-no EQ 0 THEN 
@@ -1379,7 +1426,8 @@ PROCEDURE pCreateARInvMisc PRIVATE:
         bf-ar-invl.spare-char-1   = ipbf-inv-misc.spare-char-1
         bf-ar-invl.posted         = YES
         bf-ar-invl.inv-date       = ipbf-inv-head.inv-date
-        bf-ar-invl.e-num          = ipbf-inv-misc.spare-int-4.
+        bf-ar-invl.e-num          = ipbf-inv-misc.spare-int-4
+        bf-ar-invl.taxGroup       = ipbf-inv-misc.spare-char-1.
 
     IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0.    
         
@@ -1484,6 +1532,25 @@ PROCEDURE pCreateGLTrans PRIVATE:
             .
         RELEASE bf-glhist.
     END.
+    
+END PROCEDURE.
+
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  create GL InvoiceLineTax
+     Notes:          
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.  
+    
+    RUN ar/InvoiceProcs.p PERSISTENT SET hdInvoiceProcs.
+    
+    RUN invoice_pCreateInvoiceLineTax IN hdInvoiceProcs (
+                                     INPUT ipcRecKey,
+                                     INPUT ipriInvoiceLine,                                      
+                                     INPUT TABLE ttTaxDetail 
+                                     ).
+    DELETE OBJECT hdInvoiceProcs.       
     
 END PROCEDURE.
 
@@ -2488,6 +2555,7 @@ PROCEDURE pPostAll PRIVATE:
         RUN pUpdateCustomers.
         RUN pUpdateEstPreps.
         RUN pUpdateFGItems.
+        RUN pCloseOrders.
     END.
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
@@ -2559,6 +2627,8 @@ PROCEDURE pPostInvoices PRIVATE:
             RUN pCreateARInvLIne(BUFFER bf-inv-head, BUFFER bf-inv-line, BUFFER ttInvoiceLineToPost, iXno, iLine, OUTPUT riArInvl).
             iLine = iLine + 1.
             
+            RUN pCreateInvoiceLineTax(bf-inv-line.rec_key, riArInvl).
+            
             DELETE bf-inv-line.
             DELETE ttInvoiceLineToPost.
             
@@ -2571,6 +2641,8 @@ PROCEDURE pPostInvoices PRIVATE:
          
             RUN pCreateARInvMisc(BUFFER bf-inv-head, BUFFER bf-inv-misc, BUFFER ttInvoiceMiscToPost, iXno, iLine, OUTPUT riArInvl).
             iLine = iLine + 1.
+            
+            RUN pCreateInvoiceLineTax(bf-inv-misc.rec_key, riArInvl).
             
             DELETE bf-inv-misc.
             DELETE ttInvoiceMiscToPost. 
@@ -3072,6 +3144,11 @@ PROCEDURE pUpdateFGItems PRIVATE:
                 bf-itemfg.q-inv            = bf-itemfg.q-inv + ttFGItemToUpdate.quantityInvoicedTotal
                 bf-itemfg.q-ship           = bf-itemfg.q-ship + ttFGItemToUpdate.quantityShippedTotal
                 .
+            IF ttFGItemToUpdate.invOrder EQ 0 THEN 
+            DO:   
+               FIND CURRENT bf-itemfg NO-LOCK NO-ERROR.
+               RUN pUpdateWarehouseQty(rowid(bf-itemfg), INPUT ttFGItemToUpdate.quantityShippedTotal, INPUT ttFGItemToUpdate.bNo).                
+            END.
             
             DELETE ttFGItemToUpdate.
             
@@ -3089,11 +3166,6 @@ PROCEDURE pUpdateOrders PRIVATE:
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
-    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
-    
-    DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFullyClosed AS LOGICAL   NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
     DISABLE TRIGGERS FOR LOAD OF oe-ordm.
@@ -3131,34 +3203,6 @@ PROCEDURE pUpdateOrders PRIVATE:
         
     END. /*each ttOrderMiscToUpdate*/
     
-    /*REFACTOR - This could be major source of slowness*/
-    FOR EACH ttOrderToUpdate,
-        FIRST bf-oe-ord NO-LOCK
-        WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
-        lFullyClosed = YES.
-        FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
-            WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
-            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
-            AND bf-oe-ordl.stat    NE "C":
-            /* No UI */
-            RUN oe/CloseOrder.p(INPUT ROWID(bf-oe-ordl),
-                INPUT NO,
-                OUTPUT cStatus,
-                OUTPUT cReason).
-            /* No UI */
-            IF cStatus EQ 'C' THEN
-                RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
-            ELSE 
-                lFullyClosed = NO.
-        END.
-        IF lFullyClosed THEN DO:
-            RUN oe\close.p(RECID(bf-oe-ord), YES).
-            ASSIGN
-                ttOrderToUpdate.isClosed = YES
-                ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
-        END.
-    END. /* Each w-ord */            
-    
     
 END PROCEDURE.
 
@@ -3183,6 +3227,86 @@ PROCEDURE pUpdateTax PRIVATE:
             .
          
 
+END PROCEDURE.
+
+PROCEDURE pUpdateWarehouseQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:   
+     tax.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwFGRowid  AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdShipQty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBNo  AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cCalcLoc AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER b-itemfg    FOR itemfg.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    
+    FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+        WHERE ROWID(bf-itemfg) EQ iprwFGRowid 
+        NO-ERROR.         
+        
+    bf-itemfg.q-alloc = bf-itemfg.q-alloc - ipdShipQty.
+    IF bf-itemfg.q-alloc LT 0 THEN bf-itemfg.q-alloc = 0.
+    
+    ASSIGN
+        bf-itemfg.q-onh   = bf-itemfg.q-onh - ipdShipQty
+        bf-itemfg.q-avail = bf-itemfg.q-onh + bf-itemfg.q-ono - bf-itemfg.q-alloc.
+     
+    FIND FIRST oe-boll NO-LOCK
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no      EQ ipiBNo          
+        AND oe-boll.i-no      EQ bf-itemfg.i-no        
+        NO-ERROR.
+    IF AVAILABLE oe-boll THEN
+        cCalcLoc = oe-boll.loc.
+    ELSE
+        cCalcLoc = bf-itemfg.loc. 
+        
+    RUN fg/chkfgloc.p (INPUT bf-itemfg.i-no, INPUT cCalcLoc).
+    FIND FIRST itemfg-loc EXCLUSIVE-LOCK
+        WHERE itemfg-loc.company EQ bf-itemfg.company
+        AND itemfg-loc.i-no    EQ bf-itemfg.i-no
+        AND itemfg-loc.loc     EQ cCalcLoc
+        NO-ERROR.
+               
+    IF AVAILABLE itemfg-loc THEN
+        ASSIGN itemfg-loc.q-onh   = itemfg-loc.q-onh - ipdShipQty
+            itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
+    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.        
+        
+    FOR EACH oe-boll
+        WHERE oe-boll.company EQ bf-itemfg.company
+        AND oe-boll.b-no    EQ ipiBNo      
+        AND oe-boll.i-no    EQ bf-itemfg.i-no
+        ,      
+        FIRST oe-bolh
+        WHERE oe-bolh.company  EQ oe-boll.company
+        AND oe-bolh.b-no     EQ oe-boll.b-no
+        BREAK BY oe-boll.i-no :         
+       
+            FIND FIRST fg-bin  EXCLUSIVE-LOCK
+                WHERE fg-bin.company  EQ oe-boll.company
+                AND fg-bin.job-no   EQ oe-boll.job-no
+                AND fg-bin.job-no2  EQ oe-boll.job-no2
+                AND fg-bin.i-no     EQ oe-boll.i-no
+                AND fg-bin.loc      EQ oe-boll.loc
+                AND fg-bin.loc-bin  EQ oe-boll.loc-bin
+                AND fg-bin.tag      EQ oe-boll.tag
+                AND (fg-bin.cust-no EQ "" OR oe-boll.s-code NE "I")
+                USE-INDEX i-no NO-ERROR.
+        
+            IF AVAILABLE fg-bin THEN
+            DO:
+                fg-bin.qty  = fg-bin.qty - oe-boll.qty.
+                fg-bin.partial-count = fg-bin.partial-count - oe-boll.partial.
+                RUN fg/cre-pchr.p (ROWID(fg-bin), "S", oe-boll.qty, oe-boll.partial,"").
+            END.         
+    END. 
+    RELEASE fg-bin.
+    RELEASE bf-itemfg.
 END PROCEDURE.
 
 PROCEDURE ValidateInvoices:
@@ -3458,7 +3582,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
             INPUT "inv-head",
             INPUT ttInvoiceError.problemMessage,
             INPUT "",
-            INPUT ""
+            INPUT "Auto Approved"
             ). /*From TagProcs Super Proc*/
 
     END.
@@ -3479,11 +3603,12 @@ PROCEDURE pAddTagInfo PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-        RUN AddTagInfo (
+        RUN AddTagInfoForGroup (
             INPUT bf-inv-head.rec_key,
             INPUT "inv-head",
             INPUT ipcProblemMessage,
-            INPUT ""
+            INPUT "",
+            INPUT "Auto Approved"
             ). /*From TagProcs Super Proc*/ 
     END.
      
@@ -3502,7 +3627,7 @@ PROCEDURE pUnApprovedInvoice PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
     IF AVAIL bf-inv-head THEN 
     DO: 
-        RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        RUN ClearTagsForGroup(bf-inv-head.rec_key, "Auto Approved").  /*Clear all hold tags - TagProcs.p*/
         
         bf-inv-head.autoApproved = NO.          
     END.          

@@ -427,11 +427,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 20 BY 1
           BGCOLOR 15 FONT 1
      tt-report.flute AT ROW 2.86 COL 83.0 COLON-ALIGNED
-          LABEL "FOB" FORMAT "x(1)"
+          LABEL "FOB" FORMAT "x(4)"
           VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS "","", 
-                     "D-Destination","D",
-                     "O-Origin","O"
+                     "D-Destination","DEST",
+                     "O-Origin","ORIG"
           DROP-DOWN-LIST 
           SIZE 17.5 BY 1
           BGCOLOR 15 FONT 1
@@ -895,10 +895,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-freight-pay NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-fob NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   
+                   
         RUN valid-ship-from NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1119,20 +1116,6 @@ ON ENTRY OF tt-report.flute IN FRAME Dialog-Frame /* FOB */
             APPLY "tab" TO {&self-name} IN FRAME {&FRAME-NAME}.
             RETURN NO-APPLY.
         END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.flute Dialog-Frame
-ON LEAVE OF tt-report.flute IN FRAME Dialog-Frame /* FOB */
-    DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-fob NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        END. 
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2276,6 +2259,8 @@ PROCEDURE pCreateNewRel :
         oe-rel.rel-date = oe-ord.last-date.
     ELSE IF oereleas-cha EQ "Due Date" THEN
             oe-rel.rel-date = oe-ordl.req-date.
+    ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
+        oe-rel.rel-date = oe-ordl.req-date - (IF AVAIL shipto THEN shipto.del-time ELSE 0).        
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
                 oe-ord.company,
@@ -3470,31 +3455,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fob Dialog-Frame 
-PROCEDURE valid-fob :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-  
-    DO WITH FRAME {&FRAME-NAME}:
-      
-        IF NOT CAN-DO("O,D,",tt-report.flute:SCREEN-VALUE) THEN 
-        DO:
-            MESSAGE "Invalid FOB, please enter (D)est or (O)rig." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO tt-report.flute IN FRAME {&FRAME-NAME}.
-            RETURN ERROR.
-        END.
-        ASSIGN 
-            tt-report.flute:SCREEN-VALUE = CAPS(tt-report.flute:SCREEN-VALUE).
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight-pay Dialog-Frame 
 PROCEDURE valid-freight-pay :
     /*------------------------------------------------------------------------------
@@ -3745,7 +3705,7 @@ PROCEDURE pCheckFobFrt :
     DO WITH FRAME {&FRAME-NAME}:
         IF tt-report.frt-pay:SCREEN-VALUE NE "" OR tt-report.flute:SCREEN-VALUE NE "" THEN DO:
             IF (tt-report.frt-pay:SCREEN-VALUE NE oe-ord.frt-pay AND tt-report.frt-pay:SCREEN-VALUE NE "") OR
-                (tt-report.flute:SCREEN-VALUE NE SUBSTRING(oe-ord.fob-code,1,1) AND tt-report.flute:SCREEN-VALUE NE "")  THEN
+                (tt-report.flute:SCREEN-VALUE NE oe-ord.fob-code AND tt-report.flute:SCREEN-VALUE NE "")  THEN
                 DO:
                 MESSAGE "If you change the FOB and/or Frt Pay values for this release it can only be merged with other releases with the same values." +
                     "If you leave these values blank then the FOB and Frt Pay values from the Order will be used to merge releases." +

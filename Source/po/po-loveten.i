@@ -489,7 +489,7 @@ end.
      "Vérifié Per _________________________________"       at 2.
 
    PUT {1}
-     "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .
+     "<B>Payable en/in $ " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .
   
   v-signature = IF v-sig-image <> "" THEN
                    "<C16><#2><R-4.5><C+40><Image#2=" + v-sig-image        

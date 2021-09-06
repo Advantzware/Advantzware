@@ -85,14 +85,14 @@ IF lRecFound THEN
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_date ~
 end_date begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no ~
-end_rm-no td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man ~
-rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo fi_file ~
-btn-process btn-cancel 
+end_rm-no td_only-fgitem td_include-exp percent_chg td_imported rd_i-code ~
+rd_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx ~
+tb_undo fi_file btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_date end_date ~
 begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no ~
-td_only-fgitem percent_chg td_imported rd_i-code lbl_i-code rd_pur-man ~
-lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx ~
-tb_undo fi_file 
+td_only-fgitem td_include-exp percent_chg td_imported rd_i-code lbl_i-code ~
+rd_pur-man lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown ~
+tb_prmtx tb_undo fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -122,7 +122,7 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U
      SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+     LABEL "Beginning Quote Date" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
@@ -147,7 +147,7 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Date" 
+     LABEL "Ending Quote Date" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
@@ -248,6 +248,11 @@ DEFINE VARIABLE td_imported AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 40.8 BY .81 NO-UNDO.
 
+DEFINE VARIABLE td_include-exp AS LOGICAL INITIAL no 
+     LABEL "Include Expired Quotes" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.4 BY .81 NO-UNDO.
+
 DEFINE VARIABLE td_only-fgitem AS LOGICAL INITIAL no 
      LABEL "Only Quotes with FG Item?" 
      VIEW-AS TOGGLE-BOX
@@ -276,7 +281,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Board Code" WIDGET-ID 16
      end_rm-no AT ROW 6.24 COL 73 COLON-ALIGNED HELP
           "Enter Ending Board Code" WIDGET-ID 18
-     td_only-fgitem AT ROW 7.9 COL 10 WIDGET-ID 20
+     td_only-fgitem AT ROW 7.91 COL 10 WIDGET-ID 20
+     td_include-exp AT ROW 7.91 COL 55.6 WIDGET-ID 30
      percent_chg AT ROW 9 COL 70 COLON-ALIGNED HELP
           "Enter a Negative or Positive Percentage"
      td_imported AT ROW 9.05 COL 10
@@ -297,14 +303,14 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "For UOM=EA, round  to:" VIEW-AS TEXT
-          SIZE 23.6 BY .71 AT ROW 12.67 COL 4.2 WIDGET-ID 14
-     "Round Down" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 13.91 COL 79 WIDGET-ID 28
-     "Round Down" VIEW-AS TEXT
-          SIZE 12.8 BY .95 AT ROW 12.71 COL 79.2 WIDGET-ID 26
      "For all other UOM, round to:" VIEW-AS TEXT
           SIZE 28 BY .71 AT ROW 13.86 COL 1.4 WIDGET-ID 12
+     "Round Down" VIEW-AS TEXT
+          SIZE 12.8 BY .95 AT ROW 12.71 COL 79.2 WIDGET-ID 26
+     "Round Down" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 13.91 COL 79 WIDGET-ID 28
+     "For UOM=EA, round  to:" VIEW-AS TEXT
+          SIZE 23.6 BY .71 AT ROW 12.67 COL 4.2 WIDGET-ID 14
      RECT-17 AT ROW 1.29 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -465,6 +471,10 @@ ASSIGN
 
 ASSIGN 
        td_imported:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       td_include-exp:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -740,11 +750,12 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-  
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME td_only-fgitem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td_only-fgitem C-Win
-ON VALUE-CHANGED OF td_only-fgitem IN FRAME FRAME-A /* Update Only quote with FG Item? */
+ON VALUE-CHANGED OF td_only-fgitem IN FRAME FRAME-A /* Only Quotes with FG Item? */
 DO:
   assign {&self-name}.
   IF td_only-fgitem:SCREEN-VALUE EQ "NO" THEN
@@ -856,15 +867,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
           begin_fg-cat end_fg-cat begin_rm-no end_rm-no td_only-fgitem 
-          percent_chg td_imported rd_i-code lbl_i-code rd_pur-man lbl_pur-man 
-          rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo 
-          fi_file 
+          td_include-exp percent_chg td_imported rd_i-code lbl_i-code rd_pur-man 
+          lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
+          tb_undo fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
          end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no 
-         td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man 
-         rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx tb_undo 
-         fi_file btn-process btn-cancel 
+         td_only-fgitem td_include-exp percent_chg td_imported rd_i-code 
+         rd_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
+         tb_undo fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1028,6 +1039,7 @@ for each quotehd
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
       AND quotehd.approved EQ FALSE
+      AND ((quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) OR td_include-exp EQ YES)
     use-index cust2,
 
     each quoteitm
@@ -1175,7 +1187,7 @@ for each quotehd
 end.
 
 OUTPUT STREAM excel CLOSE.
-OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 
  message "Are you sure you want to commit these changes"
      view-as alert-box question button yes-no update v-process.
@@ -1191,6 +1203,7 @@ for each quotehd
       and quotehd.quo-date ge fdate
       and quotehd.quo-date le tdate
       AND quotehd.approved EQ FALSE
+      AND ((quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?) OR td_include-exp EQ YES)
     use-index cust2,
 
     each quoteitm

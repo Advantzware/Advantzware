@@ -51,11 +51,11 @@ format header
        "OUR ORDER#"
        v-ord-no                                                       skip
        "BOL#"
-       oe-bolh.bol-no                   format "999999"
-       "TO SHIP VIA"                    at 13
+       oe-bolh.bol-no                   format "9999999"
+       "TO SHIP VIA"                    at 14
        carrier.dscr when avail carrier  format "x(30)"
-       "DUE ON"                         at 55
-       oe-bolh.bol-date                 at 63
+       "DUE ON"                         at 56
+       oe-bolh.bol-date                 at 64
        "CUSTOMER PO#"                   at 1
        oe-ord.po-no when avail oe-ord   at 13
        "TRAILER #"                      at 35

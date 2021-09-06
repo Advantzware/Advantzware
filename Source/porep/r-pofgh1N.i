@@ -2,7 +2,7 @@ EMPTY TEMP-TABLE tt-report.
 DEF VAR v-i-name AS CHAR NO-UNDO.
 DEF VAR v-vend-name AS CHAR NO-UNDO.
 DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
-   if tb_excel then
+   if rd-dest = 3 then
    do:
       output stream s-temp TO VALUE(cFileName).
     /*  str_buffa = "".
@@ -407,7 +407,7 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
            END.
         
            PUT UNFORMATTED cDisplay SKIP.
-           IF tb_excel THEN DO:
+           IF rd-dest = 3 THEN DO:
                 PUT STREAM s-temp UNFORMATTED  
                       cExcelDisplay SKIP.
            END.
@@ -470,7 +470,7 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
         END.
@@ -510,7 +510,7 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
         END.  

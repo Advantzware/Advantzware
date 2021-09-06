@@ -50,8 +50,8 @@ DEF VAR i AS INT NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-30 sl_avail sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down Btn_OK Btn_Cancel Btn_Def
+&Scoped-Define ENABLED-OBJECTS RECT-30 sl_avail sl_selected Btn_Def Btn_Add ~
+Btn_Remove btn_Up btn_down Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS sl_avail sl_selected 
 
 /* Custom List Definitions                                              */
@@ -69,37 +69,37 @@ Btn_Remove btn_Up btn_down Btn_OK Btn_Cancel Btn_Def
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
-     SIZE 16 BY 1.
-
-DEFINE BUTTON Btn_Def 
-     LABEL "&Default" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.05.
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 16 BY 1.29
      BGCOLOR 8 .
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
+     SIZE 16 BY 1.05.
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.05.
 
 DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 16 BY 1.29
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Remove 
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.05.
 
 DEFINE BUTTON btn_Up 
      LABEL "Move Up" 
-     SIZE 16 BY 1.
+     SIZE 16 BY 1.05.
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 90.2 BY 6.91.
+     SIZE 89 BY 7.14.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -113,26 +113,27 @@ DEFINE VARIABLE sl_selected AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     sl_avail AT ROW 1.95 COL 3 NO-LABEL WIDGET-ID 58
-     sl_selected AT ROW 1.95 COL 57 NO-LABEL WIDGET-ID 60
-     Btn_Def AT ROW 2.1 COL 37 HELP
+     sl_avail AT ROW 2.62 COL 4.6 NO-LABEL WIDGET-ID 58
+     sl_selected AT ROW 2.62 COL 58.6 NO-LABEL WIDGET-ID 60
+     Btn_Def AT ROW 2.76 COL 38.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 3.19 COL 37 HELP
+     Btn_Add AT ROW 3.86 COL 38.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 48
-     Btn_Remove AT ROW 4.29 COL 37 HELP
+     Btn_Remove AT ROW 4.95 COL 38.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 52
-     btn_Up AT ROW 5.38 COL 37 WIDGET-ID 54
-     btn_down AT ROW 6.48 COL 37 WIDGET-ID 50
-     Btn_OK AT ROW 8.29 COL 18.60
-     Btn_Cancel AT ROW 8.29 COL 57.40
+     btn_Up AT ROW 6.05 COL 38.6 WIDGET-ID 54
+     btn_down AT ROW 7.14 COL 38.6 WIDGET-ID 50
+     Btn_OK AT ROW 9.19 COL 28.6
+     Btn_Cancel AT ROW 9.19 COL 50
      "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 1.14 COL 56.4 WIDGET-ID 62
+          SIZE 34 BY .7 AT ROW 1.91 COL 56.8 WIDGET-ID 62
      "Available Columns" VIEW-AS TEXT
-          SIZE 20 BY .95 AT ROW 1 COL 4 WIDGET-ID 64
-     RECT-30 AT ROW 1 COL 1 WIDGET-ID 56
-     SPACE(2.39) SKIP(2.37)
+          SIZE 20 BY .7 AT ROW 1.91 COL 8.6 WIDGET-ID 64
+     RECT-30 AT ROW 1.76 COL 2.8 WIDGET-ID 56
+     SPACE(1.79) SKIP(1.90)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
          TITLE "Report Columns Selection"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
@@ -203,8 +204,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME Btn_Def
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def Dialog-Frame
 ON CHOOSE OF Btn_Def IN FRAME Dialog-Frame /* Default */
 DO:
   DEF VAR cSelectedList AS cha NO-UNDO.
@@ -350,7 +352,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = ipTextListToSelect.
   sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = iopListSelected.
-
+  btn_ok:load-image("Graphics/32x32/Ok.png").
+  btn_cancel:load-image("Graphics/32x32/cancel.png").
+  Btn_Def:load-image("Graphics/32x32/default.png").
+  Btn_Add:load-image("Graphics/32x32/additem.png").
+  Btn_Remove:load-image("Graphics/32x32/remove.png").
+  btn_Up:load-image("Graphics/32x32/moveup.png").
+  btn_down:load-image("Graphics/32x32/movedown.png").
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -379,7 +387,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault Dialog-Frame 
 PROCEDURE DisplaySelectionDefault :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -402,7 +410,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 Dialog-Frame 
 PROCEDURE DisplaySelectionList2 :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -450,8 +458,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY sl_avail sl_selected 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-30 sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down Btn_OK 
-         Btn_Cancel Btn_Def
+  ENABLE RECT-30 sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up 
+         btn_down Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

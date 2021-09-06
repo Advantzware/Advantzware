@@ -1,0 +1,1 @@
+'Name.: ' + setting.settingName

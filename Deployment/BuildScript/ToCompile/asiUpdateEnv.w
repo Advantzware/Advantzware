@@ -77,6 +77,10 @@ DEF STREAM s1.
 DEF STREAM s2.
 DEF STREAM apiFiles.
 DEF STREAM sOutput.
+DEF STREAM sOutbound1.
+DEF STREAM sOutbound2.
+DEF STREAM sOutbound3.
+DEF STREAM sOutbound4.
 
 DEF SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
@@ -174,13 +178,13 @@ DEF TEMP-TABLE ttResTemplateFiles
     FIELD daModDate AS DATE.    
 
 DEF TEMP-TABLE ttledger 
-    FIELD cType as CHAR 
-    FIELD rRowid as ROWID.
+    FIELD cType AS CHAR 
+    FIELD rRowid AS ROWID.
 
 DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
-        
+
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -391,72 +395,72 @@ DEFINE RECTANGLE rStatusBar
      SIZE 10 BY 1.43
      BGCOLOR 3 FGCOLOR 3 .
 
-DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL NO 
      LABEL "Backup Databases" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbBackupFiles AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbBackupFiles AS LOGICAL INITIAL NO 
      LABEL "Backup System Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbDelBadData AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbDelBadData AS LOGICAL INITIAL NO 
      LABEL "Remove deprecated records" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbInstallFiles AS LOGICAL INITIAL NO 
      LABEL "Install new System Files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbLoadMenus AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbLoadMenus AS LOGICAL INITIAL NO 
      LABEL "Load new Menu files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbReftableConv AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbReftableConv AS LOGICAL INITIAL NO 
      LABEL "Convert Reftable elements" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbRelNotes AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbRelNotes AS LOGICAL INITIAL NO 
      LABEL "Copy Release Notes" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbRunDataFix AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbRunDataFix AS LOGICAL INITIAL NO 
      LABEL "Run Data Fix programs" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateFileLocs AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateFileLocs AS LOGICAL INITIAL NO 
      LABEL "Update hardcoded file locations" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateIni AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateIni AS LOGICAL INITIAL NO 
      LABEL "Update advantzware.ini file" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateMaster AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateMaster AS LOGICAL INITIAL NO 
      LABEL "Update Master records" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUpdateNK1s AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUpdateNK1s AS LOGICAL INITIAL NO 
      LABEL "Update NK1 records" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUserCleanup AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUserCleanup AS LOGICAL INITIAL NO 
      LABEL "Cleanup user files" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tbUserControl AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbUserControl AS LOGICAL INITIAL NO 
      LABEL "Create/Update User Control" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY .81 NO-UNDO.
@@ -527,15 +531,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 166.2
          VIRTUAL-HEIGHT     = 34.29
          VIRTUAL-WIDTH      = 166.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -576,7 +580,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR TOGGLE-BOX tbUpdateFileLocs IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -724,7 +728,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
             bProcess:LABEL = "No User Action Required"
             lAutorun = TRUE.
         DISABLE ALL EXCEPT bProcess eStatus WITH FRAME {&FRAME-NAME}.
-        APPLY 'choose' to bProcess.
+        APPLY 'choose' TO bProcess.
     END.
 
     RETURN.
@@ -873,7 +877,7 @@ PROCEDURE ipAddDbmsFonts :
                 ttDbms.cLine BEGINS "NORMAL=" OR 
                 ttDbms.cLine BEGINS "INPUT=" OR 
                 ttDbms.cLine BEGINS "MESSAGES=" OR 
-                ttDbms.cline BEGINS "[fonts]" or
+                ttDbms.cline BEGINS "[fonts]" OR
                 ttDbms.cline BEGINS "[colors]":
                 DELETE ttDbms.
             END.
@@ -1121,7 +1125,7 @@ PROCEDURE ipAddSuppUserRecords :
         ASSIGN
             usr.uid = ipcUserID
             usr.usr-lang = "English"
-            usr.last-chg = today.
+            usr.last-chg = TODAY.
     END.
     ELSE DO:
         IF usr.usr-lang = "EN" THEN ASSIGN
@@ -1913,19 +1917,19 @@ PROCEDURE ipConfirmAdminUser :
         users.user_id = "admin"
         NO-ERROR.
     ASSIGN
-        users.developer = false
-        users.isActive = true
-        users.isLocked = false
+        users.developer = FALSE
+        users.isActive = TRUE
+        users.isLocked = FALSE
         users.securityLevel = IF users.securityLevel LT 900 THEN 900 ELSE users.securityLevel
-        users.updateDate = today
-        users.updateTime = time
+        users.updateDate = TODAY
+        users.updateTime = TIME
         users.updateUser = USERID(LDBNAME(1))
         users.userType = "Administrator"
         users.user_language = IF users.user_language = "" THEN "English" ELSE users.user_language
         users.user_name = IF users.user_name = "" THEN "Local System Admin" ELSE users.user_name
-        users.use_colors = false
-        users.use_ctrl_keys = false
-        users.use_fonts = false
+        users.use_colors = FALSE
+        users.use_ctrl_keys = FALSE
+        users.use_fonts = FALSE
         users.widget_bgc = 0
         users.widget_fgc = 0
         users.widget_font = 0
@@ -1955,23 +1959,23 @@ PROCEDURE ipConfirmASIUser :
         users.user_id = "asi"
         NO-ERROR.
     ASSIGN
-        users.developer = false
+        users.developer = FALSE
         users.fax = ""
         users.fax-cnty = ""
         users.image_filename = "asiHelp@advantzware.com"
-        users.isActive = true
-        users.isLocked = false
+        users.isActive = TRUE
+        users.isLocked = FALSE
         users.phone = "2153697800"
         users.phone-cnty = "1"
         users.securityLevel = 1000
-        users.showOnAck = false
-        users.showOnBol = false
-        users.showOnInv = false
-        users.showOnPO = false
-        users.showOnQuote = false
-        users.track_usage = true
-        users.updateDate = today
-        users.updateTime = time
+        users.showOnAck = FALSE
+        users.showOnBol = FALSE
+        users.showOnInv = FALSE
+        users.showOnPO = FALSE
+        users.showOnQuote = FALSE
+        users.track_usage = TRUE
+        users.updateDate = TODAY
+        users.updateTime = TIME
         users.updateUser = "asi"
         users.userType = "Administrator"
         users.user_language = "English"
@@ -1979,9 +1983,9 @@ PROCEDURE ipConfirmASIUser :
         users.user_program[1] = ""
         users.user_program[2] = ""
         users.user_program[3] = ""
-        users.use_colors = false
-        users.use_ctrl_keys = false
-        users.use_fonts = false
+        users.use_colors = FALSE
+        users.use_ctrl_keys = FALSE
+        users.use_fonts = FALSE
         users.widget_bgc = 0
         users.widget_fgc = 0
         users.widget_font = 0
@@ -2010,23 +2014,23 @@ PROCEDURE ipConfirmMonitorUser :
         users.user_id = "monitor"
         NO-ERROR.
     ASSIGN
-        users.developer = false
+        users.developer = FALSE
         users.fax = ""
         users.fax-cnty = ""
         users.image_filename = "asiHelp@advantzware.com"
-        users.isActive = true
-        users.isLocked = false
+        users.isActive = TRUE
+        users.isLocked = FALSE
         users.phone = "2153697800"
         users.phone-cnty = "1"
         users.securityLevel = 100
-        users.showOnAck = false
-        users.showOnBol = false
-        users.showOnInv = false
-        users.showOnPO = false
-        users.showOnQuote = false
-        users.track_usage = true
-        users.updateDate = today
-        users.updateTime = time
+        users.showOnAck = FALSE
+        users.showOnBol = FALSE
+        users.showOnInv = FALSE
+        users.showOnPO = FALSE
+        users.showOnQuote = FALSE
+        users.track_usage = TRUE
+        users.updateDate = TODAY
+        users.updateTime = TIME
         users.updateUser = "monitor"
         users.userType = "Administrator"
         users.user_language = "English"
@@ -2034,9 +2038,9 @@ PROCEDURE ipConfirmMonitorUser :
         users.user_program[1] = ""
         users.user_program[2] = ""
         users.user_program[3] = ""
-        users.use_colors = false
-        users.use_ctrl_keys = false
-        users.use_fonts = false
+        users.use_colors = FALSE
+        users.use_ctrl_keys = FALSE
+        users.use_fonts = FALSE
         users.widget_bgc = 0
         users.widget_fgc = 0
         users.widget_font = 0
@@ -2254,19 +2258,17 @@ PROCEDURE ipConvertPolScore PRIVATE:
     
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
-    FOR EACH bf-company NO-LOCK 
-        WHERE bf-company.company = "001":
-        RUN sys/ref/nk1look.p (
-            INPUT bf-company.company,     /* Company Code */ 
-            INPUT "CECSCRN",      /* sys-ctrl name */
-            INPUT "C",            /* Output return value */
-            INPUT NO,             /* Use ship-to */
-            INPUT NO,             /* ship-to vendor */
-            INPUT "",             /* ship-to vendor value */
-            INPUT "",             /* shi-id value */
-            OUTPUT cSizeFormat, 
-            OUTPUT lRecFound
-            ).
+    FOR EACH bf-company NO-LOCK: 
+
+        FIND FIRST sys-ctrl NO-LOCK WHERE 
+            sys-ctrl.company EQ bf-company.company AND
+            sys-ctrl.name EQ "CECSCRN"
+            NO-ERROR.
+        IF NOT AVAIL sys-ctrl THEN FIND FIRST sys-ctrl NO-LOCK WHERE 
+            sys-ctrl.name EQ "CECSCRN"
+            NO-ERROR.
+        ASSIGN
+            cSizeFormat = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "16th's".
         
         FOR EACH bf-po-ordl NO-LOCK 
             WHERE bf-po-ordl.company = bf-company.company:
@@ -2535,7 +2537,7 @@ DO j = 1 TO NUM-ENTRIES(cdblist):
                        "" + "|" +
                        "" + "|" +
                        cmode.
-        PUT unformatted coutline + CHR(10).
+        PUT UNFORMATTED coutline + CHR(10).
     END.
 END.
 OUTPUT CLOSE.  
@@ -2805,8 +2807,8 @@ PROCEDURE ipCreateAdminUser :
     CREATE users.
     ASSIGN
         users.user_id = "ADMIN"
-        users.createDate = today
-        users.createTime = time
+        users.createDate = TODAY
+        users.createTime = TIME
         users.createUser = USERID(LDBNAME(1)).
         
     RUN ipConfirmAdminUser IN THIS-PROCEDURE.
@@ -2831,8 +2833,8 @@ PROCEDURE ipCreateASIUser :
     CREATE users.
     ASSIGN
         users.user_id = "asi"
-        users.createDate = today
-        users.createTime = time
+        users.createDate = TODAY
+        users.createTime = TIME
         users.createUser = USERID(LDBNAME(1)).
         
     RUN ipConfirmAsiUser IN THIS-PROCEDURE.
@@ -2879,8 +2881,8 @@ PROCEDURE ipCreateMonitorUser :
     CREATE users.
     ASSIGN
         users.user_id = "monitor"
-        users.createDate = today
-        users.createTime = time
+        users.createDate = TODAY
+        users.createTime = TIME
         users.createUser = USERID(LDBNAME(1)).
         
     RUN ipConfirmMonitorUser IN THIS-PROCEDURE.
@@ -2970,6 +2972,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210100.
 	IF iCurrentVersion LT 21020000 THEN
 		RUN ipDataFix210200.
+    IF iCurrentVersion LT 21030000 THEN 
+        RUN ipDataFix210300.
+    IF iCurrentVersion LT 21040000 THEN 
+        RUN ipDataFix210400.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3751,12 +3757,53 @@ PROCEDURE ipDataFix210200:
     RUN ipStatus ("  Data Fix 210200...").
 
     RUN ipAssignARInvXNoSeq.
-    RUN ipConvertPolScore.
-    RUN ipJobMchSequenceFix.
     RUN ipConvertCustomerX.
     
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210300 C-Win
+PROCEDURE ipDataFix210300:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210300...").
+
+    RUN ipRemoveBadApiOutboundRecs.
+    RUN ipConvertPolScore.
+    RUN ipJobMchSequenceFix.
+    RUN ipFixEstimateScores.
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210400 C-Win
+PROCEDURE ipDataFix210400:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210400...").
+
+    RUN ipSetOT1Permissions.
+    RUN ipFixFoldingEstimateScores.
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4011,7 +4058,7 @@ PROCEDURE ipDeleteAudit :
         lAuditLicensed = FALSE.
         
     ASSIGN
-        iElapsed = etime(TRUE).
+        iElapsed = ETIME(TRUE).
         
     IF NOT lAuditLicensed THEN DO:
         RUN ipStatus ("    Deleting audit records (unlicensed)...").
@@ -4026,7 +4073,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 1800000 THEN 
+            IF ETIME GT 1800000 THEN 
                 LEAVE.
         END.
         RUN ipStatus ("      Deleting audit stack...").
@@ -4034,7 +4081,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditStack.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 1800000 THEN 
+            IF ETIME GT 1800000 THEN 
                 LEAVE.
         END.
         FOR EACH AuditTbl:
@@ -4068,11 +4115,11 @@ PROCEDURE ipDeleteAudit :
                 ASSIGN
                     iDelCount = iDelCount + 1.
             END.
-            IF etime GT 1800000 THEN 
+            IF ETIME GT 1800000 THEN 
                 LEAVE.
         END.
     END.
-    RUN ipStatus ("      Deleted " + STRING(iDelCount,">,>>>,>>>,>>9") + " audit records in " + STRING(INTEGER(eTime / 1000)) + " seconds.").
+    RUN ipStatus ("      Deleted " + STRING(iDelCount,">,>>>,>>>,>>9") + " audit records in " + STRING(INTEGER(ETIME / 1000)) + " seconds.").
 
 END PROCEDURE.
 
@@ -4302,6 +4349,59 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFoldingEstimateScores C-Win
+PROCEDURE ipFixFoldingEstimateScores PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+
+    RUN ipStatus ("    Fix Estimate scores").
+
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bf-company     FOR company.
+    DEFINE BUFFER bf-style       FOR style.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+        
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
+    FOR EACH bf-company NO-LOCK:        
+        FOR EACH bf-panelheader NO-LOCK 
+            WHERE bf-panelHeader.company  EQ bf-company.company 
+              AND bf-panelHeader.linktype EQ "P",                      /* PO only */
+            FIRST bf-style NO-LOCK 
+            WHERE bf-style.company  EQ bf-panelHeader.company 
+              AND bf-style.style    EQ bf-panelHeader.styleID 
+              AND bf-style.industry EQ "1":                            /* Folding estimates */
+            RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+                INPUT bf-panelHeader.company,
+                INPUT bf-panelHeader.poID,
+                INPUT bf-panelHeader.poLine
+                ).            
+        END.   
+    END.
+    
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    DELETE PROCEDURE hdFormulaProcs.
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixForeignAccount C-Win
 PROCEDURE ipFixForeignAccount:
 /*------------------------------------------------------------------------------
@@ -4367,13 +4467,13 @@ PROCEDURE ipFixFrtPay:
     DISABLE TRIGGERS FOR LOAD OF oe-rell.
     RUN ipStatus("   Fix release frt pay unknowns").
     FOR EACH oe-rel EXCLUSIVE-LOCK
-        WHERE oe-rel.frt-pay eq ? OR oe-rel.fob-code EQ ?
+        WHERE oe-rel.frt-pay EQ ? OR oe-rel.fob-code EQ ?
         :
         IF oe-rel.frt-pay EQ ? THEN oe-rel.frt-pay = "".
         IF oe-rel.fob-code EQ ? THEN oe-rel.fob-code = "".
     END.
     FOR EACH oe-rell EXCLUSIVE-LOCK 
-        WHERE oe-rell.frt-pay EQ ? OR oe-rell.fob-code eq ?
+        WHERE oe-rell.frt-pay EQ ? OR oe-rell.fob-code EQ ?
         :
         IF oe-rell.frt-pay EQ ? THEN oe-rell.frt-pay = "".
         IF oe-rell.fob-code EQ ? THEN oe-rell.fob-code = "".
@@ -4546,7 +4646,7 @@ PROCEDURE ipInvRnoSeq :
             
             /* If the record is in ambiguous state or otherwise returns 0, keep trying */
             IF iLastDataValue EQ 0 THEN DO WHILE iLastDataValue EQ 0:
-                PAUSE 1 before-hide.
+                PAUSE 1 BEFORE-HIDE.
                 FIND LAST inv-head NO-LOCK
                   USE-INDEX r-no 
                   NO-ERROR.
@@ -5259,7 +5359,7 @@ PROCEDURE ipLoadDAOAData :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
+        IF ERROR-STATUS:ERROR THEN
             DELETE {&tablename}.
     END.
     INPUT CLOSE.
@@ -5769,7 +5869,7 @@ PROCEDURE ipLoadPrograms :
         END.
         DELETE ttPrgrms.
     END.
-
+    
     DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
         employee.employeeImage[1] = "Graphics\32x32\user.png".
@@ -5783,9 +5883,9 @@ PROCEDURE ipLoadPrograms :
     DISABLE TRIGGERS FOR LOAD OF users.
     FOR EACH users EXCLUSIVE-LOCK:
         ASSIGN
-            users.userImage[1] = if users.userImage[1] = "" then "Graphics\32x32\user.png" else users.userImage[1]
-            users.showMnemonic = IF users.showMnemonic = "" then "All" else users.showMnemonic
-            users.positionMnemonic = if users.positionMnemonic = "" then "Begin" else users.positionMnemonic.
+            users.userImage[1] = IF users.userImage[1] = "" THEN "Graphics\32x32\user.png" ELSE users.userImage[1]
+            users.showMnemonic = IF users.showMnemonic = "" THEN "All" ELSE users.showMnemonic
+            users.positionMnemonic = IF users.positionMnemonic = "" THEN "Begin" ELSE users.positionMnemonic.
     END. /* each users */ 
 
 END PROCEDURE.
@@ -6528,6 +6628,72 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveBadApiOutboundRecs C-Win
+PROCEDURE ipRemoveBadApiOutboundRecs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cBadRecordList AS CHAR NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    
+    RUN ipStatus ("    Removing bad apiOutbound records").
+    
+    DISABLE TRIGGERS FOR LOAD OF apiOutbound.
+    DISABLE TRIGGERS FOR LOAD OF apiOutboundContent.
+    DISABLE TRIGGERS FOR LOAD OF apiOutboundDetail.
+    DISABLE TRIGGERS FOR LOAD OF apiOutboundTrigger.
+    
+    ASSIGN 
+        cBadRecordList = "5007,5008,5010,5013,5014,5015,5017,5025,5037,5039,5040,5041,5066,5068".
+        
+    OS-CREATE-DIR VALUE("c:\tmp\BadApiOutboundRecs").
+    OUTPUT STREAM sOutbound1 TO "c:\tmp\BadApiOutboundRecs\apiOutbound.d".
+    OUTPUT STREAM sOutbound2 TO "c:\tmp\BadApiOutboundRecs\apiOutboundContent.d".
+    OUTPUT STREAM sOutbound3 TO "c:\tmp\BadApiOutboundRecs\apiOutboundDetail.d".
+    OUTPUT STREAM sOutbound4 TO "c:\tmp\BadApiOutboundRecs\apiOutboundTrigger.d".
+    
+    DO iCtr = 1 TO NUM-ENTRIES(cBadRecordList):
+        FOR EACH apiOutbound WHERE 
+            apiOutbound.company EQ "001" AND 
+            apiOutbound.apiOutboundID EQ INTEGER(ENTRY(iCtr,cBadRecordList)) AND 
+            apiOutbound.createBy NE "aferrer" AND 
+            apiOutbound.createBy NE "aadams" AND
+            DATE(apiOutbound.createTime) LE 01/28/2021:
+                
+            FOR EACH apiOutboundContent WHERE 
+                apiOutboundContent.apiOutboundID EQ apiOutbound.apiOutboundID:
+                EXPORT STREAM sOutbound2 apiOutboundContent.
+                DELETE apiOutboundContent.
+            END.
+
+            FOR EACH apiOutboundDetail WHERE 
+                apiOutboundDetail.apiOutboundID EQ apiOutbound.apiOutboundID:
+                EXPORT STREAM sOutbound3 apiOutboundDetail.
+                DELETE apiOutboundDetail.
+            END.
+
+            FOR EACH apiOutboundTrigger WHERE 
+                apiOutboundTrigger.apiOutboundID EQ apiOutbound.apiOutboundID:
+                EXPORT STREAM sOutbound4 apiOutboundTrigger.
+                DELETE apiOutboundTrigger.
+            END.
+            
+            EXPORT STREAM sOutbound1 apiOutbound.
+            DELETE apiOutbound.
+
+        END.
+    END. 
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRemoveUserAddon C-Win 
 PROCEDURE ipRemoveUserAddon :
 /*------------------------------------------------------------------------------
@@ -6993,6 +7159,51 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetOT1Permissions C-Win
+PROCEDURE ipSetOT1Permissions:
+/*------------------------------------------------------------------------------
+ Purpose:   102427 Permissions to select bins/tags in O-T-1
+ Notes:     set the security on vp-oerell. to inherit permissions from p-ordhd
+------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("  Set OT1 Permissions").
+
+    DEFINE BUFFER bPrgrms FOR prgrms.
+    
+    FIND FIRST bPrgrms NO-LOCK
+         WHERE bPrgrms.prgmName EQ "p-updhd."
+         NO-ERROR.
+    IF AVAILABLE bPrgrms THEN DO:
+        FIND FIRST prgrms EXCLUSIVE-LOCK
+             WHERE prgrms.prgmName EQ "vp-oerell."
+             NO-ERROR.
+        IF NOT AVAILABLE prgrms THEN DO:
+            CREATE prgrms.
+            ASSIGN
+                prgrms.prgmName  = "vp-oerell."
+                prgrms.prgTitle  = "Access to Release Line Item Buttons"
+                prgrms.dir_group = "oe"
+                prgrms.module    = "OE"
+                prgrms.mfgroup   = "w-oerell."
+                .
+        END.
+        ASSIGN
+            prgrms.can_create = bPrgrms.can_create
+            prgrms.can_delete = bPrgrms.can_delete
+            prgrms.can_run    = bPrgrms.can_run
+            prgrms.can_update = bPrgrms.can_update
+            .
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
@@ -7016,7 +7227,7 @@ PROCEDURE ipStatus :
         IF AVAIL ttUpdateHist THEN ASSIGN 
                 ttUpdateHist.updLog = ttUpdateHist.updLog + STRING(TODAY,"99/99/99") + "  " + STRING(TIME,"HH:MM:SS") + "  " + cMsgStr[iMsgCtr] + CHR(10)
                 ttUpdateHist.endTimeInt = INT(TIME)
-                ttUpdateHist.endTime = STRING(time,"HH:MM:SS AM")        
+                ttUpdateHist.endTime = STRING(TIME,"HH:MM:SS AM")        
                 ttUpdateHist.success = lSuccess.        
         OUTPUT STREAM logStream TO VALUE(ipcLogFile) APPEND.
         PUT STREAM logStream
@@ -7115,7 +7326,7 @@ PROCEDURE ipUpdateAdvantzwarePf :
         IF ttPfFile.ttfParm NE "" THEN PUT 
             ttPfFile.ttfParm + " " + ttPfFile.ttfValue AT 1
             "# " + ttPfFile.ttfDesc AT 21 SKIP.
-        ELSE put
+        ELSE PUT
             ttPfFile.ttfRawLine AT 1 SKIP.
     END.         
     OUTPUT CLOSE.
@@ -7124,6 +7335,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixEstimateScores C-Win
+PROCEDURE ipFixEstimateScores:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    RUN ipStatus ("    Fix Estimate scores").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    RUN util/dev/EstimateScoresFix.p
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
@@ -7495,16 +7735,16 @@ PROCEDURE ipUpdateUserControl :
     OR usercontrol.numLicensedUsers = ? 
     OR usercontrol.rec_key = ? THEN DO:
         ASSIGN
-            timeString = STRING(time,"HH:MM:SS")
+            timeString = STRING(TIME,"HH:MM:SS")
             timeString = REPLACE(timeString,":","") + "00"
             iExtra = MAXIMUM(1,INTEGER(iUserCount / 10))
             usercontrol.numLicensedUsers = iUserCount
             usercontrol.maxAllowedUsers = iUserCount + iExtra
             usercontrol.maxSessionsPerUser = 2
             usercontrol.numUsersOverLimit = iExtra
-            usercontrol.rec_key = STRING(year(today),"9999") +
-                                 STRING(month(today),"99") +
-                                 STRING(day(today),"99") +
+            usercontrol.rec_key = STRING(YEAR(TODAY),"9999") +
+                                 STRING(MONTH(TODAY),"99") +
+                                 STRING(DAY(TODAY),"99") +
                                  timeString.
     END.
     ELSE DO:
@@ -7653,9 +7893,18 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-job-mch FOR job-mch.
     
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+
     DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
     
-    FOR EACH job NO-LOCK WHERE job.company = "001":
+    FOR EACH job NO-LOCK:
         lResequence = FALSE.
         FOR EACH job-mch NO-LOCK WHERE job-mch.company = job.company
             AND job-mch.job = job.job BY job-mchid:
@@ -7676,6 +7925,10 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
         IF lResequence THEN
             RUN ipUpdateJobMchLines(BUFFER job).
     END.
+
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

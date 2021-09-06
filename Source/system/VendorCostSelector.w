@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+//{methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
@@ -81,11 +81,11 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -96,9 +96,9 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancel ~
-fiItem fiHotKey fiTitle fiProgramName 
-&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiHotKey fiTitle lItem ~
-lSize lAddress fiProgramName lQuantity lShow 
+fiItem fiTitle fiLen fiWid fiDep fiQuantity fiUOM 
+&Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiLen fiWid fiDep lItem ~
+lSize x x-2 fiQuantity fiUOM lQuantity lShow 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,9 +122,9 @@ DEFINE BUTTON bOk
      LABEL "Ok" 
      SIZE 15 BY 1.29.
 
-DEFINE VARIABLE fiHotKey AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiDep AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 23.6 BY 1.1
+     SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
@@ -132,14 +132,29 @@ DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U
      SIZE 31.4 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
-DEFINE VARIABLE fiProgramName AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiLen AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 86.8 BY 1.1
+     SIZE 5.6 BY .71
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiQuantity AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 17.8 BY 1.1
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE fiTitle AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 58.6 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiUOM AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 17.8 BY 1.1
+     BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
+
+DEFINE VARIABLE fiWid AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 5.6 BY .71
      BGCOLOR 23 FGCOLOR 0 FONT 22 NO-UNDO.
 
 DEFINE VARIABLE lAddress AS CHARACTER FORMAT "X(256)":U INITIAL "Address:" 
@@ -159,7 +174,7 @@ DEFINE VARIABLE lQuantity AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity Requi
 
 DEFINE VARIABLE lShow AS CHARACTER FORMAT "X(256)":U INITIAL "Show All" 
       VIEW-AS TEXT 
-     SIZE 27.4 BY .62
+     SIZE 11.2 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE lSize AS CHARACTER FORMAT "X(256)":U INITIAL "Size:" 
@@ -167,9 +182,19 @@ DEFINE VARIABLE lSize AS CHARACTER FORMAT "X(256)":U INITIAL "Size:"
      SIZE 6 BY .62
      BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE x AS CHARACTER FORMAT "X(256)":U INITIAL "X" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE x-2 AS CHARACTER FORMAT "X(256)":U INITIAL "X" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 147 BY 3.81
+     SIZE 157 BY 3.81
      BGCOLOR 23 FGCOLOR 24 .
 
 DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL NO 
@@ -188,53 +213,65 @@ DEFINE QUERY brVendItemCost FOR
 DEFINE BROWSE brVendItemCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brVendItemCost C-Win _FREEFORM
   QUERY brVendItemCost NO-LOCK DISPLAY
-      ttVendItemCost.vendorID       COLUMN-LABEL "Vendor ID"       
-            LABEL-BGCOLOR 14
-      ttVendItemCost.costPerVendorUOM    COLUMN-LABEL "Cost"    
-             LABEL-BGCOLOR 14  
+      ttVendItemCost.vendorID           COLUMN-LABEL "Vendor ID"       
+            LABEL-BGCOLOR 14    FORMAT "x(10)"
+      ttvendItemCost.estimateNo +  
+        (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
+        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) ))   COLUMN-LABEL "Estimate" 
+      ttVendItemCost.costPerVendorUOM   COLUMN-LABEL "Cost"    
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
-             LABEL-BGCOLOR 14   
+             LABEL-BGCOLOR 14   FORMAT "x(5)"    
       ttVendItemCost.costSetup    COLUMN-LABEL "Setup" 
-             LABEL-BGCOLOR 14
-      ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
-             LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99" 
+     /* ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
+             LABEL-BGCOLOR 14*/
       ttVendItemCost.costTotal      COLUMN-LABEL "Total Cost"        
-             LABEL-BGCOLOR 14
-      ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   FORMAT "x(32)":U
-             LABEL-BGCOLOR 14 
+             LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99" 
+      ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   
+             LABEL-BGCOLOR 14   FORMAT "x(15)"  
+      ttVendItemCost.effectiveDate      COLUMN-LABEL "Effective"        
+             LABEL-BGCOLOR 14   FORMAT "99/99/9999" 
+      ttVendItemCost.expirationDate COLUMN-LABEL "Expiration"   
+             LABEL-BGCOLOR 14   FORMAT "99/99/9999"  
       ttVendItemCost.isValid      COLUMN-LABEL "Valid"        
-             LABEL-BGCOLOR 14
-      ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"   FORMAT "x(32)":U
-             LABEL-BGCOLOR 14 
+             LABEL-BGCOLOR 14   FORMAT "Yes/No" 
+      ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"  
+             LABEL-BGCOLOR 14   FORMAT "x(100)"  
           //  ttVendItemCost.note COLUMN-LABEL "Note"   FORMAT "x(32)":U
            // WIDTH 24 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 147.4 BY 15.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 15.19
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     tbShowAll AT ROW 3.62 COL 116.2 WIDGET-ID 336
-     brVendItemCost AT ROW 5.29 COL 148 RIGHT-ALIGNED WIDGET-ID 200
-     bOk AT ROW 21.05 COL 51.2 WIDGET-ID 342
-     bCancel AT ROW 21.05 COL 75.2 WIDGET-ID 344
+     tbShowAll AT ROW 3.62 COL 141 WIDGET-ID 336
+     brVendItemCost AT ROW 5.29 COL 159 RIGHT-ALIGNED WIDGET-ID 200
+     bOk AT ROW 21.05 COL 61.6 WIDGET-ID 342
+     bCancel AT ROW 21.05 COL 85.6 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
-     fiHotKey AT ROW 1.86 COL 48.4 COLON-ALIGNED NO-LABEL WIDGET-ID 330
      fiTitle AT ROW 1.86 COL 84.2 COLON-ALIGNED NO-LABEL WIDGET-ID 332
+     fiLen AT ROW 2.05 COL 47.6 COLON-ALIGNED NO-LABEL WIDGET-ID 348
+     fiWid AT ROW 2.05 COL 56.8 COLON-ALIGNED NO-LABEL WIDGET-ID 346
+     fiDep AT ROW 2.05 COL 65.6 COLON-ALIGNED NO-LABEL WIDGET-ID 350
      lItem AT ROW 2.1 COL 4.4 NO-LABEL WIDGET-ID 64
      lSize AT ROW 2.1 COL 41.6 COLON-ALIGNED NO-LABEL WIDGET-ID 326
+     x AT ROW 2.1 COL 53.8 COLON-ALIGNED NO-LABEL WIDGET-ID 354
+     x-2 AT ROW 2.1 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 356
      lAddress AT ROW 2.1 COL 74.8 NO-LABEL WIDGET-ID 328
-     fiProgramName AT ROW 3.43 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiQuantity AT ROW 3.38 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiUOM AT ROW 3.38 COL 46.8 COLON-ALIGNED NO-LABEL WIDGET-ID 358
      lQuantity AT ROW 3.67 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-     lShow AT ROW 3.71 COL 119.8 NO-LABEL WIDGET-ID 338
+     lShow AT ROW 3.71 COL 144.6 NO-LABEL WIDGET-ID 338
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 149.8 BY 21.81
+         SIZE 161.2 BY 21.81
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -256,7 +293,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Vendor Selector"
          HEIGHT             = 21.81
-         WIDTH              = 149.8
+         WIDTH              = 161.2
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
@@ -291,7 +328,7 @@ ASSIGN
        brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
-       fiHotKey:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiDep:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiItem IN FRAME DEFAULT-FRAME
    ALIGN-L                                                              */
@@ -299,13 +336,28 @@ ASSIGN
        fiItem:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
-       fiProgramName:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiLen:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
+       fiQuantity:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiTitle IN FRAME DEFAULT-FRAME
+   NO-DISPLAY                                                           */
+ASSIGN 
+       fiTitle:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
        fiTitle:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
+ASSIGN 
+       fiUOM:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+ASSIGN 
+       fiWid:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 /* SETTINGS FOR FILL-IN lAddress IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L                                                    */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       lAddress:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 /* SETTINGS FOR FILL-IN lItem IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lQuantity IN FRAME DEFAULT-FRAME
@@ -313,6 +365,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lShow IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN lSize IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN x IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN x-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
@@ -420,10 +476,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbShowAll C-Win
 ON VALUE-CHANGED OF tbShowAll IN FRAME DEFAULT-FRAME
 DO:
-    IF tbShowAll:CHECKED THEN 
     {&OPEN-QUERY-brVendItemCost}
-    ELSE 
-    OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,11 +534,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
      
     RUN enable_UI.
-    fiItem:screen-value IN FRAME {&frame-name} = ipcItemID.
-    IF tbShowAll:CHECKED THEN 
-        {&OPEN-QUERY-brVendItemCost}
-    ELSE 
-        OPEN QUERY brVendItemCost FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = TRUE.
+
+    ASSIGN
+        fiItem:screen-value     = ipcItemID
+        fiLen:SCREEN-VALUE      = STRING(ipdDimLength)
+        fiWid:SCREEN-VALUE      = STRING(ipdDimWidth)
+        fiDep:SCREEN-VALUE      = STRING(ipdDimDepth)
+        fiQuantity:SCREEN-VALUE = STRING(ipdQuantity)
+        fiUOM:SCREEN-VALUE      = ipcQuantityUOM
+        .
+ 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -492,9 +551,13 @@ END.
 &Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
+{methods/sortByProc.i "pByVendorUOM" "ttVendItemCost.vendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
 {methods/sortByProc.i "pBycostTotal" "ttVendItemCost.costTotal"}
 {methods/sortByProc.i "pByVendorItem" "ttVendItemCost.vendorItem"}
+{methods/sortByProc.i "pByEffectiveDate" "ttVendItemCost.effectiveDate"}
+{methods/sortByProc.i "pByExpirationDate" "ttVendItemCost.expirationDate"}
+{methods/sortByProc.i "pByIsValid" "ttVendItemCost.isValid"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -532,11 +595,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbShowAll fiItem fiHotKey fiTitle lItem lSize lAddress fiProgramName 
+  DISPLAY tbShowAll fiItem fiLen fiWid fiDep lItem lSize x x-2 fiQuantity fiUOM 
           lQuantity lShow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiHotKey fiTitle 
-         fiProgramName 
+  ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiTitle fiLen 
+         fiWid fiDep fiQuantity fiUOM 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -557,12 +620,20 @@ PROCEDURE pReOpenBrowse :
             RUN pByVendorID.
         WHEN "costPerVendorUOM" THEN
             RUN pByCostPerVendorUOM.
+        WHEN "vendorUOM" THEN
+            RUN pByVendorUOM.
         WHEN "costSetup" THEN
             RUN pByCostSetup.
         WHEN "costTotal" THEN
             RUN pBycostTotal.
         WHEN "vendorItem" THEN
-            RUN pByVendorItem.       
+            RUN pByVendorItem.
+        WHEN "effectiveDate" THEN
+            RUN pByEffectiveDate.
+        WHEN "expirationDate" THEN
+            RUN pByExpirationDate.
+        WHEN "isValid" THEN
+            RUN pByIsValid.       
         OTHERWISE
             {&OPEN-QUERY-{&BROWSE-NAME}}
     END CASE.

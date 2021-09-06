@@ -803,20 +803,28 @@ DEF VAR lv-last-date AS DATE NO-UNDO.
      where fg-rctd.company   eq cocode
        and fg-rctd.rita-code ne "P"
        and fg-rctd.rita-code ne ""
+       AND fg-rctd.rct-date  LT DATE(tran-date)
      no-lock no-error.
  if avail fg-rctd then do:
-      MESSAGE  "  NOT ALL TRANSACTIONS HAVE BEEN POSTED.  "
-               "  PERIOD END PROCESSING CANNOT CONTINUE.  " skip(1)
-               "  Would you like to post these transactions? "
+      MESSAGE  "There are unposted transactions that will affect the values being set.   " 
+               "Do you want to continue?" 
                VIEW-AS ALERT-BOX WARNING BUTTON YES-NO
                UPDATE v-post AS LOG .
+      IF NOT v-post THEN RETURN.
+               
+/*    MESSAGE  "  NOT ALL TRANSACTIONS HAVE BEEN POSTED.  "                 */
+/*             "  PERIOD END PROCESSING CANNOT CONTINUE.  " skip(1)         */
+/*             "  Would you like to post these transactions? "              */
+/*             VIEW-AS ALERT-BOX WARNING BUTTON YES-NO                      */
+/*             UPDATE v-post AS LOG .                                       */
 
-      if v-post then do:
-        RUN fg/fgpstall.w PERSISTENT (tran-date,"").
-        if not choice then return.
-      end.
+/*     if v-post then do:                                                   */
+/*       RUN fg/fgpstall.w PERSISTENT (tran-date,"").                       */
+/*       if not choice then return.                                         */
+/*    end.                                                                  */
 
-      else RETURN.
+/*      else RETURN.                                                        */
+
  end.
 
  release period.

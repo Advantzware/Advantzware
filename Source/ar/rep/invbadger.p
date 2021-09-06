@@ -509,12 +509,15 @@ ELSE lv-comp-color = "BLACK".
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
 
-    PUT "<FArial><R56><C1><P12><B> Remit to: " v-comp-add1 SKIP
-         "<c9>" v-comp-add2 SKIP
-         "<c9>" v-comp-add3 SKIP  
-         "<c9>" v-comp-add4 SKIP  
-         "<c9>" v-comp-add5 "</B> <P9>" 
-         .
+    IF ltb_print-message THEN
+    DO:
+        PUT "<FArial><R56><C1><P12><B> Remit to: " v-comp-add1 SKIP
+             "<c9>" v-comp-add2 SKIP
+             "<c9>" v-comp-add3 SKIP  
+             "<c9>" v-comp-add4 SKIP  
+             "<c9>" v-comp-add5 "</B> <P9>" 
+             .
+    END.
 
     PUT "<FArial><R61><C1><P12><B> Notes </B> <P9> " SKIP
         "<c7>" ar-inv.bill-i[1] SKIP

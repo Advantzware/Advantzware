@@ -15,6 +15,11 @@
 /* ***************************  Definitions  ************************** */
 {ar/ttInvoice.i}
 
+/* ************************  Function Prototypes ********************** */
+    
+FUNCTION fGetNewInvoice RETURNS INTEGER 
+    (ipcCompany AS CHARACTER) FORWARD. 
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* **********************  Internal Procedures  *********************** */
@@ -33,6 +38,41 @@ PROCEDURE BuildData:
         INPUT ipriInvoice
         ).
 END PROCEDURE.
+
+PROCEDURE invoice_CreateInterCompanyBilling:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSoldID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    RUN pCreateInterCompanyBilling(
+                  INPUT ipriOeBolh,
+                  INPUT ipcSoldID,
+                  OUTPUT oplError,
+                  OUTPUT opcMessage
+                  ).
+END PROCEDURE.
+
+PROCEDURE invoice_pCreateInvoiceLineTax:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE FOR ttTaxDetail.
+        
+    RUN pCreateInvoiceLineTax(
+                  INPUT ipcRecKey,
+                  INPUT ipriInvoiceLine /*,
+                  INPUT TABLE ttTaxDetail*/ 
+                  ).
+END PROCEDURE.
+
 
 PROCEDURE pAssignCommonHeaderData PRIVATE:
     /*------------------------------------------------------------------------------
@@ -700,3 +740,411 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     END.
     
 END PROCEDURE.
+
+
+PROCEDURE pCreateInterCompanyBilling PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSoldID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    DEFINE BUFFER bf-ar-inv   FOR ar-inv.
+    DEFINE BUFFER bf-ar-invl  FOR ar-invl.
+    DEFINE BUFFER bf-period   FOR period.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-shipto   FOR shipto.
+    
+    DEFINE VARIABLE iLine         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTransCompany AS CHARACTER INIT "002" NO-UNDO.
+    /*used for Terms procedures*/
+    DEFINE VARIABLE iDueOnMonth   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDueOnDay     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNetDays      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCustExist    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCustomer     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipto       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iInterCompanyBilling AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.     
+    DEFINE VARIABLE lSoldUsed AS LOGICAL NO-UNDO.
+    
+    FIND FIRST oe-bolh NO-LOCK 
+        WHERE ROWID(oe-bolh) EQ ipriOeBolh NO-ERROR.
+    IF NOT AVAILABLE oe-bolh THEN RETURN.
+     
+    RUN pGetNk1TransCompany(
+        INPUT oe-bolh.company,
+        INPUT oe-bolh.cust-no,
+        INPUT-OUTPUT cTransCompany,
+        OUTPUT iInterCompanyBilling
+        ). 
+        
+    IF iInterCompanyBilling EQ 1 THEN
+    DO:
+        lSoldUsed = NO.
+        cChar =  substring(oe-bolh.ship-id,1,1).
+        iAsc = ASC(cChar).
+        IF iAsc GE 65 AND iAsc LE 122 THEN
+        lSoldUsed = YES.         
+    END.    
+        
+    cCustomer = IF iInterCompanyBilling EQ 1 AND lSoldUsed THEN ipcSoldID ELSE IF iInterCompanyBilling EQ 1 THEN oe-bolh.ship-id ELSE oe-bolh.cust-no .   
+    cShipto   = oe-bolh.ship-id .    
+     
+    FIND FIRST bf-period NO-LOCK 
+        WHERE bf-period.company EQ oe-bolh.company
+        AND bf-period.pst LE TODAY
+        AND bf-period.pend GE TODAY
+        NO-ERROR.
+                
+    FIND FIRST bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cTransCompany 
+        AND bf-cust.cust-no EQ cCustomer NO-ERROR.
+                
+    FOR EACH bf-inv-head NO-LOCK
+        WHERE bf-inv-head.company EQ oe-bolh.company
+        AND bf-inv-head.cust-no EQ oe-bolh.cust-no
+        AND bf-inv-head.bol-no EQ oe-bolh.bol-no 
+        : 
+        CREATE bf-ar-inv.
+        ASSIGN
+            bf-ar-inv.company        = cTransCompany
+            bf-ar-inv.inv-date       = TODAY
+            bf-ar-inv.inv-no         = fGetNewInvoice(cTransCompany)                     
+            bf-ar-inv.ord-no         = oe-bolh.ord-no                                       
+            bf-ar-inv.inv-date       = bf-inv-head.inv-date
+            bf-ar-inv.prod-date      = TODAY
+            bf-ar-inv.period         = bf-period.pnum       
+            bf-ar-inv.posted         = NO 
+            bf-ar-inv.printed        = NO        
+            bf-ar-inv.cust-no        = bf-cust.cust-no 
+            bf-ar-inv.cust-name      = bf-cust.NAME 
+            bf-ar-inv.ship-id        = cShipto
+            bf-ar-inv.addr[1]        = bf-cust.addr[1]
+            bf-ar-inv.addr[2]        = bf-cust.addr[2]
+            bf-ar-inv.state          = bf-cust.state
+            bf-ar-inv.zip            = bf-cust.zip
+            bf-ar-inv.city           = bf-cust.city
+            bf-ar-inv.bill-to        = bf-inv-head.bill-to
+            bf-ar-inv.sold-id        = ipcSoldID
+            bf-ar-inv.sold-name      = bf-inv-head.sold-name
+            bf-ar-inv.sold-addr[1]   = bf-inv-head.sold-addr[1]
+            bf-ar-inv.sold-addr[2]   = bf-inv-head.sold-addr[2]
+            bf-ar-inv.sold-city      = bf-inv-head.sold-city
+            bf-ar-inv.sold-state     = bf-inv-head.sold-state
+            bf-ar-inv.sold-zip       = bf-inv-head.sold-zip
+            bf-ar-inv.contact        = bf-cust.contact
+            bf-ar-inv.terms          = bf-cust.terms
+            bf-ar-inv.frt-pay        = bf-cust.frt-pay
+            bf-ar-inv.fob-code       = bf-cust.fob-code
+            bf-ar-inv.carrier        = bf-cust.carrier                      
+            bf-ar-inv.bill-i[1]      = bf-inv-head.bill-i[1]
+            bf-ar-inv.bill-i[2]      = bf-inv-head.bill-i[2]
+            bf-ar-inv.bill-i[3]      = bf-inv-head.bill-i[3]
+            bf-ar-inv.bill-i[4]      = bf-inv-head.bill-i[4]
+            bf-ar-inv.ship-i[1]      = bf-inv-head.ship-i[1]
+            bf-ar-inv.ship-i[2]      = bf-inv-head.ship-i[2]
+            bf-ar-inv.ship-i[3]      = bf-inv-head.ship-i[3]
+            bf-ar-inv.ship-i[4]      = bf-inv-head.ship-i[4]
+            bf-ar-inv.f-bill         = bf-inv-head.f-bill
+            bf-ar-inv.STAT           = bf-inv-head.STAT
+            bf-ar-inv.TAX-code       = bf-cust.TAX-GR
+            bf-ar-inv.t-comm         = bf-inv-head.t-comm
+            bf-ar-inv.t-weight       = bf-inv-head.t-inv-weight   /* total weight shipped */
+            bf-ar-inv.freight        = bf-inv-head.t-inv-freight  /* total freight Invoiced */
+            bf-ar-inv.tax-amt        = bf-inv-head.t-inv-tax      /* total tax Invoiced */
+            bf-ar-inv.t-cost         = bf-inv-head.t-inv-cost     /* total cost invoiced */
+            bf-ar-inv.due            = IF bf-inv-head.terms EQ "CASH" THEN 0 ELSE bf-inv-head.t-inv-rev        
+            /* total invoiced amount */
+            bf-ar-inv.gross          = bf-inv-head.t-inv-rev /*+ v-inv-disc   total invoiced + disc */ 
+            bf-ar-inv.disc-taken     = 0
+            bf-ar-inv.paid           = 0        
+            /* total invoiced - freight - misc - tax */
+            bf-ar-inv.t-sales        = bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax
+            bf-ar-inv.net            = bf-ar-inv.t-sales
+            bf-ar-inv.curr-code[1]   = bf-inv-head.curr-code[1]
+                    
+            bf-ar-inv.postedDate     = TODAY                           
+            bf-ar-inv.invoiceComment = bf-inv-head.spare-char-1
+            bf-ar-inv.glYear         = YEAR(TODAY)
+            . 
+        FIND FIRST currency NO-LOCK 
+            WHERE currency.company EQ cTransCompany
+            AND currency.c-code EQ bf-inv-head.curr-code[1]
+            AND currency.ex-rate GT 0 
+            NO-ERROR.   
+        IF AVAILABLE currency THEN
+            ASSIGN                     
+                bf-ar-inv.ex-rate = currency.ex-rate .
+                 
+        IF bf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
+            ASSIGN 
+                bf-ar-inv.t-sales = bf-ar-inv.t-sales - bf-inv-head.t-inv-freight.  
+        FIND FIRST terms WHERE terms.t-code = bf-ar-inv.terms NO-LOCK NO-ERROR.
+        IF AVAILABLE terms THEN
+            ASSIGN  
+                bf-ar-inv.terms-d   = terms.dscr
+                bf-ar-inv.disc-%    = terms.disc-rate
+                bf-ar-inv.disc-days = terms.disc-days.
+                         
+        bf-ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", DATE(bf-ar-inv.inv-date), cTransCompany, bf-inv-head.terms).  /*From CreditProcs*/
+                 
+        iLine = 1.
+        FIND FIRST ar-ctrl NO-LOCK  
+            WHERE ar-ctrl.company EQ cTransCompany
+            NO-ERROR.
+        FOR EACH bf-inv-line OF bf-inv-head NO-LOCK:
+            CREATE bf-ar-invl.
+            ASSIGN 
+                bf-ar-invl.x-no               = bf-ar-inv.x-no
+                bf-ar-invl.line               = iLine
+                bf-ar-invl.company            = cTransCompany
+                bf-ar-invl.b-no               = bf-inv-line.b-no                        
+                bf-ar-invl.actnum             = IF AVAILABLE ar-ctrl THEN ar-ctrl.sales ELSE ""
+                bf-ar-invl.inv-no             = bf-ar-inv.inv-no
+                bf-ar-invl.bol-no             = oe-bolh.bol-no                         
+                bf-ar-invl.ord-no             = bf-inv-line.ord-no
+                bf-ar-invl.cust-no            = bf-cust.cust-no
+                bf-ar-invl.est-no             = bf-inv-line.est-no
+                bf-ar-invl.est-type           = bf-inv-line.est-type
+                bf-ar-invl.form-no            = bf-inv-line.form-no
+                bf-ar-invl.blank-no           = bf-inv-line.blank-no
+                bf-ar-invl.job-no             = bf-inv-line.job-no
+                bf-ar-invl.job-no2            = bf-inv-line.job-no2
+                bf-ar-invl.part-no            = bf-inv-line.part-no
+                bf-ar-invl.i-no               = bf-inv-line.i-no
+                bf-ar-invl.i-name             = bf-inv-line.i-name
+                bf-ar-invl.i-dscr             = bf-inv-line.i-dscr
+                bf-ar-invl.po-no              = bf-inv-line.po-no
+                bf-ar-invl.req-code           = bf-inv-line.req-code
+                bf-ar-invl.req-date           = bf-inv-line.req-date
+                bf-ar-invl.prom-code          = bf-inv-line.prom-code
+                bf-ar-invl.prom-date          = bf-inv-line.prom-date
+                bf-ar-invl.part-dscr1         = bf-inv-line.part-dscr1
+                bf-ar-invl.part-dscr2         = bf-inv-line.part-dscr2
+                bf-ar-invl.po-no-po           = bf-inv-line.po-no-po
+                bf-ar-invl.cas-cnt            = bf-inv-line.cas-cnt
+                bf-ar-invl.pr-uom             = bf-inv-line.pr-uom
+                bf-ar-invl.unit-pr            = bf-inv-line.price
+                bf-ar-invl.tax                = bf-inv-line.tax
+                bf-ar-invl.disc               = bf-inv-line.disc
+                bf-ar-invl.amt                = bf-inv-line.t-price   /* total price of invoiced item */
+                bf-ar-invl.t-weight           = bf-inv-line.t-weight  /* total weight of invoiced item */
+                bf-ar-invl.t-freight          = bf-inv-line.t-freight /* total freight of invoiced item */
+                bf-ar-invl.ship-qty           = bf-inv-line.ship-qty
+                bf-ar-invl.inv-qty            = bf-inv-line.inv-qty
+                bf-ar-invl.qty                = bf-inv-line.qty                         
+                bf-ar-invl.sman[1]            = bf-cust.sman                 
+                bf-ar-invl.s-pct[1]           = bf-inv-line.s-pct[1]
+                bf-ar-invl.s-pct[2]           = bf-inv-line.s-pct[2]
+                bf-ar-invl.s-pct[3]           = bf-inv-line.s-pct[3]
+                bf-ar-invl.s-comm[1]          = bf-inv-line.s-comm[1]
+                bf-ar-invl.s-comm[2]          = bf-inv-line.s-comm[2]
+                bf-ar-invl.s-comm[3]          = bf-inv-line.s-comm[3]                                  
+                bf-ar-invl.s-commbasis[1]     = bf-inv-line.s-commbasis[1]
+                bf-ar-invl.s-commbasis[2]     = bf-inv-line.s-commbasis[2]
+                bf-ar-invl.s-commbasis[3]     = bf-inv-line.s-commbasis[3]
+                bf-ar-invl.misc               = NO 
+                bf-ar-invl.posted             = NO 
+                bf-ar-invl.pr-qty-uom         = bf-inv-line.pr-uom
+                bf-ar-invl.cost               = bf-inv-line.cost
+                bf-ar-invl.t-cost             = bf-ar-invl.cost * (bf-ar-invl.inv-qty / 1000)
+                bf-ar-invl.dscr[1]            = "M"
+                bf-ar-invl.std-tot-cost       = bf-inv-line.cost                  
+                bf-ar-invl.lot-no             = bf-inv-line.lot-no
+                bf-ar-invl.e-num              = bf-inv-line.e-num
+                bf-ar-invl.inv-date           = bf-inv-head.inv-date
+                bf-ar-invl.costStdFreight     = bf-inv-line.costStdFreight
+                bf-ar-invl.costStdWarehouse   = bf-inv-line.costStdWarehouse
+                bf-ar-invl.costStdDeviation   = bf-inv-line.costStdDeviation
+                bf-ar-invl.costStdManufacture = bf-inv-line.costStdManufacture                        
+                bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
+                bf-ar-invl.taxGroup           = bf-inv-line.taxGroup
+                .    
+            
+            FIND FIRST bf-itemfg NO-LOCK
+                WHERE bf-itemfg.company EQ bf-inv-line.company
+                AND bf-itemfg.i-no EQ bf-inv-line.i-no
+                NO-ERROR.
+            IF AVAILABLE bf-itemfg THEN 
+            DO:     
+                RUN fg\GetFGArea.p (ROWID(bf-itemfg), "SF", OUTPUT bf-ar-invl.sf-sht).
+                bf-ar-invl.spare-dec-1        = bf-itemfg.spare-dec-1.
+            END.    
+            iLine = iLine + 1.
+                 
+        END.
+        FOR EACH bf-inv-misc WHERE bf-inv-misc.r-no EQ bf-inv-head.r-no:
+            CREATE bf-ar-invl.
+            ASSIGN
+                bf-ar-invl.x-no           = bf-ar-inv.x-no
+                bf-ar-invl.line           = iLine
+                bf-ar-invl.company        = cTransCompany
+                bf-ar-invl.INV-NO         = bf-ar-inv.inv-no
+                bf-ar-invl.ord-no         = bf-inv-misc.ord-no
+                bf-ar-invl.bol-no         = oe-bolh.bol-no
+                bf-ar-invl.cust-no        = bf-cust.cust-no
+                bf-ar-invl.est-no         = bf-inv-misc.est-no
+                bf-ar-invl.tax            = bf-inv-misc.tax
+                bf-ar-invl.actnum         = bf-inv-misc.actnum
+                bf-ar-invl.prep-amt       = bf-inv-misc.amt
+                bf-ar-invl.qty            = 1
+                bf-ar-invl.unit-pr        = bf-inv-misc.amt
+                bf-ar-invl.amt            = bf-inv-misc.amt
+                bf-ar-invl.t-cost         = bf-inv-misc.cost
+                bf-ar-invl.cost           = bf-ar-invl.t-cost / 1000
+                bf-ar-invl.dscr[1]        = "M"
+                bf-ar-invl.prep-charge    = bf-inv-misc.charge
+                bf-ar-invl.prep-cost      = bf-inv-misc.cost
+                bf-ar-invl.prep-dscr      = bf-inv-misc.dscr
+                bf-ar-invl.i-name         = bf-inv-misc.charge
+                bf-ar-invl.i-dscr         = bf-inv-misc.dscr
+                bf-ar-invl.po-no          = bf-inv-misc.po-no
+                bf-ar-invl.po-no-po       = bf-inv-misc.po-no-po
+                bf-ar-invl.sman[1]        = bf-cust.sman                
+                bf-ar-invl.s-pct[1]       = bf-inv-misc.s-pct[1]
+                bf-ar-invl.s-pct[2]       = bf-inv-misc.s-pct[2]
+                bf-ar-invl.s-pct[3]       = bf-inv-misc.s-pct[3]
+                bf-ar-invl.s-comm[1]      = bf-inv-misc.s-comm[1]
+                bf-ar-invl.s-comm[2]      = bf-inv-misc.s-comm[2]
+                bf-ar-invl.s-comm[3]      = bf-inv-misc.s-comm[3]
+                bf-ar-invl.s-commbasis[1] = bf-inv-misc.s-commbasis[1]
+                bf-ar-invl.s-commbasis[2] = bf-inv-misc.s-commbasis[2]
+                bf-ar-invl.s-commbasis[3] = bf-inv-misc.s-commbasis[3]
+                bf-ar-invl.inv-i-no       = bf-inv-misc.inv-i-no
+                bf-ar-invl.inv-line       = bf-inv-misc.inv-line
+                bf-ar-invl.misc           = YES
+                bf-ar-invl.billable       = bf-inv-misc.bill EQ "Y"
+                bf-ar-invl.spare-char-1   = bf-inv-misc.spare-char-1
+                bf-ar-invl.posted         = NO
+                bf-ar-invl.inv-date       = bf-inv-head.inv-date
+                bf-ar-invl.e-num          = bf-inv-misc.spare-int-4
+                bf-ar-invl.taxGroup       = bf-inv-misc.spare-char-1.
+
+            IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0. 
+            iLine = iLine + 1.
+        END.
+    END.
+       
+    
+END PROCEDURE. 
+
+PROCEDURE pCreateInvoiceLineTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  create GL InvoiceLineTax
+     Notes:          
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriInvoiceLine AS ROWID NO-UNDO. 
+       
+    DEFINE BUFFER bf-InvoiceLineTax FOR InvoiceLineTax.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-invl NO-LOCK
+         WHERE ROWID(bf-ar-invl) EQ ipriInvoiceLine NO-ERROR.    
+               
+    FOR EACH ttTaxDetail NO-LOCK
+        WHERE ttTaxDetail.invoiceLineRecKey EQ ipcRecKey:         
+                     
+        CREATE bf-InvoiceLineTax.
+        ASSIGN            
+            bf-InvoiceLineTax.invoiceLineRecKey  = bf-ar-invl.rec_key             
+            bf-InvoiceLineTax.isFreight          = ttTaxDetail.isFreight
+            bf-InvoiceLineTax.isTaxOnFreight     = ttTaxDetail.isTaxOnFreight
+            bf-InvoiceLineTax.isTaxOnTax         = ttTaxDetail.isTaxOnTax
+            bf-InvoiceLineTax.taxCode            = ttTaxDetail.taxCode
+            bf-InvoiceLineTax.taxCodeAccount     = ttTaxDetail.taxCodeAccount
+            bf-InvoiceLineTax.taxCodeDescription = ttTaxDetail.taxCodeDescription
+            bf-InvoiceLineTax.taxCodeRate        = ttTaxDetail.taxCodeRate 
+            bf-InvoiceLineTax.taxableAmount      = ttTaxDetail.taxCodeTaxableAmount 
+            bf-InvoiceLineTax.taxAmount          = ttTaxDetail.taxCodeTaxAmount 
+            bf-InvoiceLineTax.taxGroup           = ttTaxDetail.taxGroup
+            bf-InvoiceLineTax.taxGroupLine       = ttTaxDetail.taxGroupLine 
+            bf-InvoiceLineTax.company            = bf-ar-invl.company
+            bf-InvoiceLineTax.invoiceNo          = bf-ar-invl.inv-no
+            bf-InvoiceLineTax.invoiceLineID      = bf-ar-invl.LINE
+            bf-InvoiceLineTax.taxGroupTaxAmountLimit = ttTaxDetail.taxGroupTaxAmountLimit
+            .
+        RELEASE bf-InvoiceLineTax.
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pGetNk1TransCompany:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcReturnValue AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInterCompanyBilling AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.    
+    
+    RUN sys/ref/nk1look.p (
+                    INPUT ipcCompany,
+                    INPUT "InterCompanyBilling",
+                    INPUT "C" /* Logical */,
+                    INPUT YES /* check by cust */,
+                    INPUT YES /* use cust not vendor */, 
+                    INPUT ipcCustomer /* cust */,
+                    INPUT "" /* ship-to*/,
+                    OUTPUT cReturnValue,
+                    OUTPUT lRecFound).    
+    iopcReturnValue = IF cReturnValue NE "" THEN cReturnValue ELSE iopcReturnValue.
+    
+    RUN sys/ref/nk1look.p (
+                    INPUT ipcCompany,
+                    INPUT "InterCompanyBilling",
+                    INPUT "I" /* Logical */,
+                    INPUT YES /* check by cust */,
+                    INPUT YES /* use cust not vendor */, 
+                    INPUT ipcCustomer /* cust */,
+                    INPUT "" /* ship-to*/,
+                    OUTPUT cReturnValue,
+                    OUTPUT lRecFound).    
+    opiInterCompanyBilling = INTEGER(cReturnValue) NO-ERROR.     
+    
+END PROCEDURE.
+
+
+FUNCTION fGetNewInvoice RETURNS INTEGER 
+     (ipcCompany AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE iReturnValue AS INTEGER NO-UNDO.
+    DEFINE BUFFER b-ar-inv FOR ar-inv.
+    iReturnValue = 0.
+
+    FIND FIRST ar-ctrl WHERE ar-ctrl.company = ipcCompany NO-LOCK NO-ERROR.
+    iReturnValue = IF AVAIL ar-ctrl THEN ar-ctrl.last-inv + 1 ELSE 1.
+
+    DO WHILE TRUE:
+        FIND FIRST b-ar-inv
+            WHERE b-ar-inv.company EQ ipcCompany
+              AND b-ar-inv.inv-no  EQ iReturnValue
+            NO-LOCK NO-ERROR.
+        FIND FIRST inv-head
+            WHERE inv-head.company EQ ipcCompany
+              AND inv-head.inv-no  EQ iReturnValue
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL b-ar-inv AND NOT AVAIL inv-head THEN LEAVE.
+
+        iReturnValue = iReturnValue + 1.
+    END.
+    RETURN iReturnValue.
+END FUNCTION.

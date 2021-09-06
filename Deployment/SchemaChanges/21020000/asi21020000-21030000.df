@@ -1,0 +1,584 @@
+ADD TABLE "InvoiceLineTax"
+  AREA "Data"
+  LABEL "Invoice Line Tax Detail"
+  DUMP-NAME "invoicelinetax"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/InvoiceLineTax.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/InvoiceLineTax.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/InvoiceLineTax.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "InvoiceLineTax" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 3
+  MAX-WIDTH 42
+  ORDER 20
+
+ADD FIELD "invoiceLineTaxID" OF "InvoiceLineTax" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Invoice Line Tax ID"
+  POSITION 5
+  MAX-WIDTH 8
+  ORDER 40
+
+ADD FIELD "invoiceLineRecKey" OF "InvoiceLineTax" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Invoice Line Record Key"
+  POSITION 7
+  MAX-WIDTH 42
+  ORDER 60
+
+ADD FIELD "isFreight" OF "InvoiceLineTax" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Freight?"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "isTaxOnFreight" OF "InvoiceLineTax" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Tax On Freight"
+  POSITION 9
+  MAX-WIDTH 1
+  ORDER 80
+
+ADD FIELD "isTaxOnTax" OF "InvoiceLineTax" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Tax on Tax?"
+  POSITION 10
+  MAX-WIDTH 1
+  ORDER 90
+
+ADD FIELD "taxCode" OF "InvoiceLineTax" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Tax Code"
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "taxCodeAccount" OF "InvoiceLineTax" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Tax Code Account"
+  POSITION 12
+  MAX-WIDTH 42
+  ORDER 110
+
+ADD FIELD "taxCodeDescription" OF "InvoiceLineTax" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Tax Code Description"
+  POSITION 13
+  MAX-WIDTH 60
+  ORDER 120
+
+ADD FIELD "taxCodeRate" OF "InvoiceLineTax" AS decimal 
+  FORMAT ">>>9.99<<<"
+  INITIAL "0"
+  LABEL "Tax Rate"
+  POSITION 14
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 130
+
+ADD FIELD "taxableAmount" OF "InvoiceLineTax" AS decimal 
+  FORMAT "->>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Taxable Amount"
+  POSITION 15
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 140
+
+ADD FIELD "taxAmount" OF "InvoiceLineTax" AS decimal 
+  FORMAT "->>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Tax Amount"
+  POSITION 16
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 150
+
+ADD FIELD "taxGroup" OF "InvoiceLineTax" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Tax Group"
+  POSITION 17
+  MAX-WIDTH 6
+  ORDER 160
+
+ADD FIELD "taxGroupLine" OF "InvoiceLineTax" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Tax Group Line"
+  POSITION 18
+  MAX-WIDTH 4
+  ORDER 170
+
+ADD FIELD "taxGroupTaxAmountLimit" OF "InvoiceLineTax" AS decimal 
+  FORMAT ">>>,>>9.99"
+  INITIAL "0"
+  LABEL "Tax Amount Limit"
+  POSITION 19
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 180
+
+ADD FIELD "company" OF "InvoiceLineTax" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 20
+  MAX-WIDTH 6
+  ORDER 190
+
+ADD FIELD "invoiceNo" OF "InvoiceLineTax" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  LABEL "Invoice #"
+  POSITION 21
+  MAX-WIDTH 4
+  ORDER 200
+
+ADD FIELD "invoiceLineID" OF "InvoiceLineTax" AS int64 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Invoice Line ID"
+  POSITION 22
+  MAX-WIDTH 8
+  ORDER 210
+
+ADD INDEX "invoiceLineTaxID" ON "InvoiceLineTax" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "invoiceLineTaxID" ASCENDING 
+
+ADD INDEX "invoiceLineID" ON "InvoiceLineTax" 
+  AREA "Index"
+  INDEX-FIELD "invoiceLineID" DESCENDING 
+
+ADD INDEX "invoiceLineRecKey" ON "InvoiceLineTax" 
+  AREA "Index"
+  INDEX-FIELD "invoiceLineRecKey" DESCENDING 
+
+ADD INDEX "invoiceNo" ON "InvoiceLineTax" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "invoiceNo" DESCENDING 
+
+ADD INDEX "rec_key" ON "InvoiceLineTax" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "scope"
+  AREA "Data"
+  LABEL "Scope"
+  DESCRIPTION "Scope Master"
+  DUMP-NAME "scope"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\scope.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\scope.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\scope.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "scope" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "scopeID" OF "scope" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Scope ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "scopeTable" OF "scope" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Scope Table"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "scopeField1" OF "scope" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Scope Field 1"
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 40
+
+ADD FIELD "scopeField2" OF "scope" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Scope Field 2"
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "scopeField3" OF "scope" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Scope Field 3"
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD INDEX "scopeID" ON "scope" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "scopeID" DESCENDING 
+
+ADD INDEX "rec_key" ON "scope" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "scopeTable" ON "scope" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "scopeTable" ASCENDING 
+  INDEX-FIELD "scopeField1" ASCENDING 
+  INDEX-FIELD "scopeField2" ASCENDING 
+  INDEX-FIELD "scopeField3" ASCENDING 
+
+ADD TABLE "setting"
+  AREA "Data"
+  LABEL "Setting"
+  DESCRIPTION "Setting Master"
+  DUMP-NAME "setting"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\setting.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\setting.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\setting.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "setting" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "settingTypeID" OF "setting" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Setting Type ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "settingID" OF "setting" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Setting ID"
+  POSITION 4
+  MAX-WIDTH 8
+  ORDER 30
+
+ADD FIELD "settingName" OF "setting" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 5
+  MAX-WIDTH 100
+  ORDER 40
+
+ADD FIELD "description" OF "setting" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 6
+  MAX-WIDTH 200
+  ORDER 50
+
+ADD FIELD "settingValue" OF "setting" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Value"
+  POSITION 7
+  MAX-WIDTH 200
+  ORDER 60
+
+ADD FIELD "programID" OF "setting" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  LABEL "Program"
+  POSITION 8
+  MAX-WIDTH 100
+  ORDER 70
+
+ADD FIELD "scopeID" OF "setting" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Scope ID"
+  POSITION 10
+  MAX-WIDTH 8
+  ORDER 90
+
+ADD FIELD "inactive" OF "setting" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive"
+  POSITION 11
+  MAX-WIDTH 1
+  ORDER 100
+
+ADD FIELD "settingUser" OF "setting" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "User"
+  POSITION 12
+  MAX-WIDTH 30
+  ORDER 110
+
+ADD INDEX "settingID" ON "setting" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "settingID" DESCENDING 
+
+ADD INDEX "rec_key" ON "setting" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "rec_key" DESCENDING 
+
+ADD INDEX "settingName" ON "setting" 
+  AREA "Index"
+  INDEX-FIELD "settingName" ASCENDING 
+
+ADD INDEX "settingScope" ON "setting" 
+  AREA "Index"
+  INDEX-FIELD "settingName" ASCENDING 
+  INDEX-FIELD "scopeID" ASCENDING 
+
+ADD INDEX "settingType" ON "setting" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "settingTypeID" ASCENDING 
+  INDEX-FIELD "scopeID" ASCENDING 
+  INDEX-FIELD "settingUser" ASCENDING 
+  INDEX-FIELD "programID" ASCENDING 
+  INDEX-FIELD "inactive" ASCENDING 
+
+ADD INDEX "settingTypeID" ON "setting" 
+  AREA "Index"
+  INDEX-FIELD "settingTypeID" DESCENDING 
+
+ADD TABLE "settingType"
+  AREA "Data"
+  DUMP-NAME "settingtype"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\settingType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\settingType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\settingType.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "settingType" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "settingTypeID" OF "settingType" AS int64 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Setting Type ID"
+  POSITION 3
+  MAX-WIDTH 8
+  ORDER 20
+
+ADD FIELD "description" OF "settingType" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD FIELD "dataType" OF "settingType" AS character 
+  FORMAT "x(15)"
+  INITIAL ""
+  LABEL "Data Type"
+  POSITION 5
+  MAX-WIDTH 30
+  ORDER 40
+
+ADD FIELD "validValues" OF "settingType" AS character 
+  FORMAT "x(1000)"
+  INITIAL ""
+  LABEL "Valid Values"
+  POSITION 6
+  MAX-WIDTH 2000
+  ORDER 50
+
+ADD FIELD "defaultValue" OF "settingType" AS character 
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Default Value"
+  POSITION 7
+  MAX-WIDTH 200
+  ORDER 60
+
+ADD FIELD "validValueMin" OF "settingType" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Minimum Valid Value"
+  POSITION 8
+  MAX-WIDTH 60
+  ORDER 70
+
+ADD FIELD "validValueMax" OF "settingType" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Maximum Valid Value"
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "isPassword" OF "settingType" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Is Password?"
+  POSITION 10
+  MAX-WIDTH 1
+  ORDER 90
+
+ADD FIELD "categoryTags" OF "settingType" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  LABEL "Category Tags"
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "settingName" OF "settingType" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 12
+  MAX-WIDTH 60
+  ORDER 110
+
+ADD FIELD "securityLevel" OF "settingType" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Security Level"
+  POSITION 13
+  MAX-WIDTH 4
+  ORDER 120
+
+ADD FIELD "hasContext" OF "settingType" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Has Context?"
+  POSITION 14
+  MAX-WIDTH 1
+  ORDER 130
+
+ADD INDEX "settingtypeID" ON "settingType" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "settingTypeID" DESCENDING 
+
+ADD INDEX "categoryTags" ON "settingType" 
+  AREA "Index"
+  WORD
+  INDEX-FIELD "categoryTags" ASCENDING 
+
+ADD INDEX "rec_key" ON "settingType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "settingName" ON "settingType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "settingName" ASCENDING 
+
+ADD FIELD "taxGroup" OF "ar-invl" AS character
+  FORMAT "x(3)"
+  POSITION 111
+  INITIAL ""
+  LABEL "Tax Group"
+  ORDER 1070
+  MAX-WIDTH 6
+
+ADD INDEX "onHold" ON "fg-bin"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "onHold" ASCENDING
+
+ADD INDEX "statusID" ON "fg-bin"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "statusID" ASCENDING
+
+ADD INDEX "jobTransDate" ON "fg-rcpth"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "i-no" ASCENDING
+  INDEX-FIELD "job-no" ASCENDING
+  INDEX-FIELD "job-no2" ASCENDING
+  INDEX-FIELD "rita-code" ASCENDING
+  INDEX-FIELD "trans-date" DESCENDING
+  INDEX-FIELD "r-no" DESCENDING
+
+ADD INDEX "r-no" ON "fg-rdtlh"
+  AREA "Index"
+  INDEX-FIELD "r-no" ASCENDING
+  INDEX-FIELD "rita-code" ASCENDING
+
+ADD FIELD "taxGroup" OF "inv-line" AS character
+  FORMAT "x(3)"
+  POSITION 92
+  INITIAL ""
+  LABEL "Tax Group"
+  ORDER 870
+  MAX-WIDTH 6
+
+ADD SEQUENCE "invoiceLineTaxID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "scopeID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "settingID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "settingTypeID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000012458

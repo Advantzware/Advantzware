@@ -89,6 +89,7 @@
     DEFINE VARIABLE cFreightTerms        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightFOB          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBuyer               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBuyerEmailID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesHRMS         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesAlliance     AS CHARACTER NO-UNDO.
@@ -199,7 +200,7 @@
     DEFINE VARIABLE cVendItemNoAdders          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendItemNoBoardAndAdders  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalLineCost             AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cGLAccountNumber           AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -287,6 +288,7 @@
     DEFINE BUFFER bf-hrms-reftable      FOR reftable.
     DEFINE BUFFER bf-job-mat            FOR job-mat.
     DEFINE BUFFER bf-item               FOR item.
+    DEFINE BUFFER bf-users              FOR users.
     
     DEFINE TEMP-TABLE ttVendItemNumberAdders
         FIELD sequence       AS INTEGER 
@@ -519,6 +521,14 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             cMinUnderPct       = STRING(100 - po-ord.under-pct)
             .
         
+        IF cBuyer NE "" THEN DO:
+            FIND FIRST bf-users NO-LOCK
+                 WHERE bf-users.user_id EQ cBuyer
+                 NO-ERROR.
+            IF AVAILABLE bf-users THEN
+                cBuyerEmailID = bf-users.image_filename.    
+        END.
+        
         ASSIGN
             cClientID        = APIOutbound.clientID
             cRequestDataType = APIOutbound.requestDataType 
@@ -710,7 +720,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
                                               + "-" + STRING(po-ordl.s-num,"99")
-                                                
+                cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
@@ -1108,6 +1118,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "buyer", cBuyer).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerEmailID", cBuyerEmailID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "fobCode", cFOBCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAreaCode", cCustXAreaCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXPhone", cCustXPhone).
@@ -1159,6 +1170,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "MinUnderPct",cMinUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalLineCost", cTotalLineCost).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "GLAccountNumber", cGLAccountNumber).
             
             cItemWithAdders = cItemID.
             
@@ -1585,6 +1597,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightTerms", cFreightTerms).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightFOB", cFreightFOB).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "buyer", cBuyer).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BuyerEmailID", cBuyerEmailID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNotes", cPoNotes).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "fobCode", cFOBCode).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custAreaCode", cCustAreaCode).

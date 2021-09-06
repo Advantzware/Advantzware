@@ -104,7 +104,7 @@ FUNCTION fSetShowAll RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddEmail 
-     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
@@ -396,6 +396,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svRecipients
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svRecipients s-object
+ON LEAVE OF svRecipients IN FRAME outputFrame
+DO:
+    ASSIGN
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,";",",")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE," ","")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,CHR(10),"")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME svShowAll
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svShowAll s-object
 ON VALUE-CHANGED OF svShowAll IN FRAME outputFrame /* Show ALL */
@@ -589,6 +605,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIfModified s-object 
+PROCEDURE pCheckIfModified :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
+
+    IF lModified THEN DO:
+        RUN pSave (OUTPUT oplRunTask).
+        IF oplRunTask AND lModified EQ NO THEN
+        MESSAGE 
+            "Auto Saved Parameter Value Changes"
+        VIEW-AS ALERT-BOX WARNING.
+    END. /* if lmodified */
+    ELSE
+    oplRunTask = YES.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue s-object 
 PROCEDURE pGetDynParamValue :
 /*------------------------------------------------------------------------------
@@ -625,29 +664,6 @@ PROCEDURE pGetSettings :
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pModified s-object
-PROCEDURE pCheckIfModified:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
-
-    IF lModified THEN DO:
-        RUN pSave (OUTPUT oplRunTask).
-        IF oplRunTask AND lModified EQ NO THEN
-        MESSAGE 
-            "Auto Saved Parameter Value Changes"
-        VIEW-AS ALERT-BOX WARNING.
-    END. /* if lmodified */
-    ELSE
-    oplRunTask = YES.
-
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

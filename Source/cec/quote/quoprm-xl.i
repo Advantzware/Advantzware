@@ -46,6 +46,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
 
   FIND FIRST xqqty OF xqitm NO-LOCK NO-ERROR.
+  
   lv-two-box = NO.
   IF AVAIL est AND est.est-type = 6 THEN DO:  /* two piece box */
      FIND FIRST bf-eb WHERE bf-eb.company EQ est.company
@@ -59,7 +60,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                         NO-LOCK NO-ERROR.
      IF AVAIL bf-eb THEN lv-two-box = NO.
   END. /* eND OF IF est.est-type = 6 */
-  IF numfit LT 5 THEN numfit = 5 + /*INT(ll-prt-dscr2).*/ 1 . 
+  IF numfit LT 5 THEN numfit = 5 + /*INT(ll-prt-dscr2).*/ 4 . 
   
   DO i = 1 TO numfit /*WITH FRAME item-10p */ :
     
@@ -165,9 +166,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
              v-cell = "R" + string(LvLineCnt) + "C2".
 
       chExcelApplication:Goto(v-cell) NO-ERROR.
-      ASSIGN chExcelApplication:ActiveCell:Value = lv-i-coldscr
+      ASSIGN chExcelApplication:ActiveCell:Value = "JOINT: " + IF AVAIL eb THEN eb.adhesive ELSE ""
              v-cell = "R" + string(LvLineCnt) + "C3".
-
+            
       chExcelApplication:Goto(v-cell) NO-ERROR.
       ASSIGN chExcelApplication:ActiveCell:Value = "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" .
 
@@ -218,16 +219,40 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     ELSE
     IF i EQ 5 /* AND numfit GE 5 */ THEN DO:
        v-board = "".
-       /* task 12121311  */
-       /*IF s-print-2nd-dscr THEN
-         IF v-boardDescription EQ 'Est' THEN
-           v-board = IF AVAIL ef THEN ef.brd-dscr ELSE "".
-         ELSE*/
-           v-board = xqitm.i-dscr. /* task 12121311  */
-      /* ELSE*/
-       /*IF AVAIL ef THEN
+       v-board = xqitm.i-dscr. /* task 12121311  */
+
+      ASSIGN
+         LvLineCnt = LvLineCnt + 1 
+         v-cell = "R" + string(LvLineCnt) + "C3".
+      
+      chExcelApplication:Goto(v-cell) NO-ERROR.
+      ASSIGN chExcelApplication:ActiveCell:Value = "PRJ#: " + (IF AVAIL eb THEN eb.spc-no ELSE "") .
+             v-cell = "R" + string(LvLineCnt) + "C2".
+      
+      chExcelApplication:Goto(v-cell) NO-ERROR.
+      ASSIGN chExcelApplication:ActiveCell:Value = v-board.
+    END.
+    ELSE
+    IF i EQ 6 THEN DO:
+       v-board = "".
+       
+       IF AVAIL ef THEN
          v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].*/ /* task 12121311  */
+                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+         ASSIGN LvLineCnt = LvLineCnt + 1 .
+         IF v-board NE "" THEN 
+         DO :
+             ASSIGN v-cell = "R" + string(LvLineCnt) + "C2".
+             chExcelApplication:Goto(v-cell) NO-ERROR.
+             ASSIGN chExcelApplication:ActiveCell:Value = v-board.
+         END.
+         ASSIGN
+         v-cell = "R" + string(LvLineCnt) + "C3".
+         chExcelApplication:Goto(v-cell) NO-ERROR.
+         ASSIGN chExcelApplication:ActiveCell:Value = "ART#: " + (IF AVAIL ef THEN ef.cad-image ELSE "") .
+    END.
+    ELSE
+    IF i EQ 7 /* AND numfit GE 5 */ THEN DO:
        
        RELEASE bf-eb.
        IF AVAILABLE(est) AND est.est-type = 6 THEN
@@ -259,37 +284,46 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                  v-cell = "R" + string(LvLineCnt) + "C2".
           
           chExcelApplication:Goto(v-cell) NO-ERROR.
-         /* ASSIGN
-            chExcelApplication:ActiveCell:Value = xqitm.part-dscr2
-            LvLineCnt = LvLineCnt + 1
-            v-cell = "R" + string(LvLineCnt) + "C2".*/  /* task 12121311  */
-          
-          chExcelApplication:Goto(v-cell) NO-ERROR.
-          
-          chExcelApplication:ActiveCell:Value = v-board.
+          chExcelApplication:ActiveCell:Value = "Qty PER PALLET: " + (IF AVAIL eb THEN STRING(eb.tr-cnt) ELSE "") .
        END.
     END.
-
     ELSE
-    IF numfit EQ 6 THEN DO:
-       v-board = "".
+    IF i EQ 8 THEN DO:
        
-       IF AVAIL ef THEN
-         v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
-       
-         IF v-board NE "" THEN 
-         DO :
-           ASSIGN LvLineCnt = LvLineCnt + 1
-                  v-cell = "R" + string(LvLineCnt) + "C2".
-           chExcelApplication:Goto(v-cell) NO-ERROR.
-           ASSIGN chExcelApplication:ActiveCell:Value = v-board.
-         END.
-         ELSE numfit = 5.
-       IF v-board = "" THEN numfit = 5.
+         ASSIGN LvLineCnt = LvLineCnt + 1 
+         v-cell = "R" + string(LvLineCnt) + "C2".
+         chExcelApplication:Goto(v-cell) NO-ERROR.
+         ASSIGN chExcelApplication:ActiveCell:Value = "BUNDLE QTY: " + (IF AVAIL eb THEN STRING(eb.cas-no) ELSE "") .
+
+    END.
+    ELSE
+    IF i EQ 9 THEN DO:
+          IF AVAILABLE(est) AND est.est-type GT 4 THEN
+             v-corr = YES.
+             
+          dWeight = eb.t-sqin - eb.t-win.
+          FIND FIRST ITEM {sys/look/itemW.i} AND
+                     ITEM.i-no = ef.board NO-LOCK NO-ERROR.
+
+          IF v-corr THEN dWeight = dWeight * .007.
+          ELSE dWeight = dWeight / 144.
+
+          ASSIGN dWeight = dWeight * IF AVAIL ITEM THEN ITEM.basis-w ELSE 1 .
+    
+         ASSIGN LvLineCnt = LvLineCnt + 1 
+         v-cell = "R" + string(LvLineCnt) + "C2".
+         chExcelApplication:Goto(v-cell) NO-ERROR.
+         ASSIGN chExcelApplication:ActiveCell:Value = "WEIGHT/M: " + STRING(dWeight) .
+
     END.
     
     IF AVAIL xqqty THEN DO:
+       FIND FIRST probe WHERE probe.company EQ eb.company 
+         AND probe.est-no EQ eb.est-no
+         AND probe.probe-date NE ?
+         AND probe.est-qty EQ INT(xqqty.qty)
+         NO-LOCK NO-ERROR.
+       
        ASSIGN
           xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
                    IF xqqty.uom EQ "C" THEN
@@ -315,6 +349,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        ASSIGN chExcelApplication:ActiveCell:Value = lv-uom . 
 
       v-line-total = v-line-total + xqqty.price.
+      
+      
+      ASSIGN v-cell = "R" + string(inrowcount) + "C7".
+
+       chExcelApplication:Goto(v-cell) NO-ERROR.
+       ASSIGN chExcelApplication:ActiveCell:Value = (IF AVAIL probe THEN STRING(ROUND( probe.sell-price / probe.bsf,2)) ELSE ""). 
+           
     END.
 
     ASSIGN inrowcount = inrowcount + 1 . 
@@ -556,7 +597,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
              ASSIGN inrowcount = inrowcount + 1.
       END. /* if idx */  
   
-  IF LINE-COUNTER > PAGE-SIZE - 10 THEN DO:
+  IF LINE-COUNTER > PAGE-SIZE - 13 THEN DO:
      page.
      
   END.

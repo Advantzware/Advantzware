@@ -2231,6 +2231,22 @@ FOR EACH ttCustList
            "<=1><R+20><C1>Date        <C9>Code      <C16>Ref#     <C25>Description   <C57>Amount       <C71>Balance" SKIP(1)
            "<=1><R+21><FROM><C+80><LINE>"
            . 
+       ELSE IF v-stmt-char = "ASIXprnt-CAN" THEN
+           PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
+           "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
+           "<=1><R+9>Attn:" cust.contact "<C53>Statement Date  Account #" SKIP
+           "<=1><R+10><C+52><FROM><C+13><LINE>" SKIP
+           "<=1><R+10><C+68><FROM><C+10><LINE>" 
+           "<=1><R+10><C+52>" v-stmt-date
+           "<=1><R+10><C+68>" cust.cust-no SKIP
+           "<=1><R+11><C1>" ws_addr[1] skip
+           "<=1><R+12><C1>" ws_addr[2] v-remitto[1] skip 
+           "<=1><R+13><C1>" ws_addr[3] v-remitto[2] skip
+           "<=1><R+14><C1>" ws_addr[4] v-remitto[3] skip
+           "<=1><R+15><C1>" ws_addr[5] v-remitto[4] skip
+           "<=1><R+17>Date     Code  Ref#  Description   <C49.5>Montant/Amount       Balance" SKIP
+           "<=1><R+18><FROM><C+80><LINE>"
+           . 
        ELSE
            PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
@@ -4232,7 +4248,7 @@ PROCEDURE run-report :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,StmtPrint-Mex,ASIExcel,SouleExcel,Loylang,Printers,Badger") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,ASIXprnt-CAN,stmtprint 1,stmtprint 2,RFC,Premier,StmtPrint-Mex,ASIExcel,SouleExcel,Loylang,Printers,Badger") > 0 THEN DO:
    RUN run-asistmt(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
    RETURN.
 END.

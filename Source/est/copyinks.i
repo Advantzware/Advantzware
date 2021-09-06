@@ -77,9 +77,12 @@
        b-eb.i-dscr2[li] = eb.i-dscr2[li]
        b-eb.i-%2[li]    = eb.i-%2[li].
        IF li LE 20 THEN
-       ASSIGN
-       b-eb.unitNo[li]  = eb.unitNo[li]
-       b-eb.side[li]    = eb.side[li].
+       DO:
+           ASSIGN        
+           b-eb.side[li]    = eb.side[li].
+           IF lUpdUnit THEN
+           b-eb.unitNo[li]  = eb.unitNo[li].    
+       END.    
     END.        
 
     ASSIGN

@@ -255,7 +255,7 @@ PROCEDURE pCreateQuoteFromProbe PRIVATE:
             END.
 
             ASSIGN
-                quotehd.sman     = eb.sman  /* bf-eb.sman */
+                quotehd.sman     = cust.sman  /* bf-eb.sman */
                 quotehd.carrier  = eb.carrier  /*bf-eb.carrier */
                 quotehd.del-zone = eb.dest-code  /* bf-eb.dest-code */
                 quotehd.terms    = cust.terms
@@ -730,6 +730,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
         AND bf-quotehd.cust-no EQ quotehd.cust-no
         AND bf-quotehd.ship-id EQ quotehd.ship-id
         AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
+        AND bf-quotehd.effectiveDate LE TODAY
         AND rowid(bf-quotehd) NE iprwRowid ,
         EACH quoteitm NO-LOCK
              WHERE quoteitm.company EQ bf-quotehd.company

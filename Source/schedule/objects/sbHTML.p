@@ -2,11 +2,12 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiVersion     AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER iplLaunch      AS LOGICAL   NO-UNDO.
-DEFINE INPUT PARAMETER iplProgressBar AS LOGICAL   NO-UNDO.
-DEFINE INPUT PARAMETER ipcProgressBar AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiVersion        AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER iplUseDueDateOnly AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER iplLaunch         AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER iplProgressBar    AS LOGICAL   NO-UNDO.
+DEFINE INPUT PARAMETER ipcProgressBar    AS CHARACTER NO-UNDO.
 
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
@@ -36,6 +37,8 @@ DEFINE STREAM sHTML.
 SESSION:SET-WAIT-STATE("General").
 RUN pGetResources.
 RUN pLoadDowntime.
+IF iplUseDueDateOnly THEN
+RUN pMoveJobsToPending.
 RUN pFromPendingByDueDate.
 RUN pHTMLPageVertical.
 SESSION:SET-WAIT-STATE("").
@@ -92,7 +95,7 @@ PROCEDURE pFromPendingByDueDate:
         IMPORT STREAM sHTML bPendingJob.
         iCount = iCount + 1.
         IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
+        RUN spProgressBar (ipcProgressBar + " (Input Pending Jobs)", iCount, ?).
         CREATE pendingJob.
         BUFFER-COPY bPendingJob TO pendingJob.
         IF pendingJob.rowIDs EQ '' THEN
@@ -105,13 +108,18 @@ PROCEDURE pFromPendingByDueDate:
         pendingLastDay = 365
         .
     FOR EACH bPendingJob
+        WHERE bPendingJob.dueDate LT TODAY
+        :
+        bPendingJob.dueDate = TODAY.
+    END. /* each bpendingjob */
+    FOR EACH bPendingJob
         BREAK BY bPendingJob.dueDate
               BY bPendingJob.job
               BY bPendingJob.resourceSeq
         :
         iCount = iCount + 1.
         IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
+        RUN spProgressBar (ipcProgressBar + " (Set Pending Dates)", iCount, ?).
         IF LAST-OF(bPendingJob.job) THEN DO:
             ASSIGN
                 bPendingJob.startDate = bPendingJob.dueDate - pendingDays
@@ -167,7 +175,7 @@ PROCEDURE pGetResources:
         IMPORT STREAM sHTML resourceName.
         iCount = iCount + 1.
         IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
+        RUN spProgressBar (ipcProgressBar + " (Input Resources)", iCount, ?).
         FIND FIRST mach NO-LOCK
              WHERE mach.company EQ ipcCompany
                AND mach.m-code  EQ resourceName
@@ -234,7 +242,7 @@ PROCEDURE pHTMLPageVertical:
                 :
                 iCount = iCount + 1.
                 IF iplProgressBar THEN
-                RUN spProgressBar (ipcProgressBar, iCount, ?).
+                RUN spProgressBar (ipcProgressBar + " (Downtime Time Slices)", iCount, ?).
                 fTimeSlice (resourceList.resource,dtDate,ttblDowntime.startTime,"DT","Start",NO,"").
                 fTimeSlice (resourceList.resource,dtDate,ttblDowntime.endTime,  "DT","End",  NO,"").
             END. /* each ttbldowntime */
@@ -255,7 +263,7 @@ PROCEDURE pHTMLPageVertical:
                     :
                     iCount = iCount + 1.
                     IF iplProgressBar THEN
-                    RUN spProgressBar (ipcProgressBar, iCount, ?).
+                    RUN spProgressBar (ipcProgressBar + " (Job Time Slices)", iCount, ?).
                     ASSIGN
                         iStartTime = IF bTtblJob.startDate EQ dtDate THEN bTtblJob.startTime ELSE 0
                         iEndTime   = IF bTtblJob.endDate   EQ dtDate THEN bTtblJob.endTime   ELSE 86400
@@ -472,7 +480,7 @@ PROCEDURE pLoadDowntime:
         IMPORT STREAM sHTML tempDowntime.
         iCount = iCount + 1.
         IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
+        RUN spProgressBar (ipcProgressBar + " (Input Downtime)", iCount, ?).
         tempDowntime.dayID = tempDowntime.dayID MODULO 7.
         IF tempDowntime.dayID EQ 0 THEN
         tempDowntime.dayID = 7.
@@ -489,6 +497,24 @@ PROCEDURE pLoadDowntime:
         RUN pCreateTtblDowntime.
     END. /* repeat */
     INPUT STREAM sHTML CLOSE.
+
+END PROCEDURE.
+
+PROCEDURE pMoveJobsToPending:
+    FOR EACH ttblJob
+        WHERE ttblJob.dueDate LT TODAY
+        :
+        ttblJob.dueDate = TODAY.
+    END. /* each ttbljob */
+
+    FOR EACH ttblJob:
+        iCount = iCount + 1.
+        IF iplProgressBar THEN
+        RUN spProgressBar (ipcProgressBar + " (Move Jobs to Pending)", iCount, ?).
+        CREATE pendingJob.
+        BUFFER-COPY ttblJob TO pendingJob.
+        DELETE ttblJob.
+    END. /* each ttbljob */
 
 END PROCEDURE.
 
@@ -545,7 +571,7 @@ PROCEDURE pSetDueDateJob :
         :
         iCount = iCount + 1.
         IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
+        RUN spProgressBar (ipcProgressBar + " (Move Pending to Job)", iCount, ?).
         ASSIGN
           bufPendingJob.endDate = priorStartDate
           bufPendingJob.endTime = priorStartTime
@@ -591,9 +617,6 @@ PROCEDURE pSetResourceSequence :
            BY buffJob.startDate
            BY buffJob.startTime
         :
-        iCount = iCount + 1.
-        IF iplProgressBar THEN
-        RUN spProgressBar (ipcProgressBar, iCount, ?).
         ASSIGN
             idx                 = idx + 1
             buffJob.jobSequence = idx
@@ -627,7 +650,7 @@ PROCEDURE pSummarizeTimeSlices:
             :
             iCount = iCount + 1.
             IF iplProgressBar THEN
-            RUN spProgressBar (ipcProgressBar, iCount, ?).
+            RUN spProgressBar (ipcProgressBar + " (Process Time Slices)", iCount, ?).
             IF ttTime.timeType2 EQ "End" THEN
             iTimeSlice = ttTime.timeSlice.
             ELSE

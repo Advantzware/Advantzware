@@ -1103,7 +1103,8 @@ FOR EACH gl-rpt
    r-top2  = ""
    r-top3  = ""
    r-top4  = ""
-   v-hdr   = "".
+   v-hdr   = ""
+   v-per = FALSE.
 
   fil_id = recid(gl-rpt).
   run gl/gl-rptg.p (input fil_id, input no).
@@ -1127,7 +1128,10 @@ FOR EACH gl-rpt
   if consolidate and index(company-list,",") gt 0 then
     v-hdr[5] = v-hdr[5] + (if v-hdr[5] eq "" then "" else " - ") +
                "Companies: " + trim(company-list).
-
+  
+  IF v-hdr[2] EQ "" THEN
+  ASSIGN  v-hdr[2] = "Printed: " + STRING(TODAY,"99/99/9999") + " @ " + STRING(TIME,"HH:MM").
+    
   /* form headers */
   do i = 1 to 5:
     assign tot2[i] = length(v-hdr[i])
@@ -1173,7 +1177,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

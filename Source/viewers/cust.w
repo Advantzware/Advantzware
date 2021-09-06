@@ -58,6 +58,8 @@ DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lInterCompanyBilling     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -122,7 +124,9 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR. 
+    
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2537,10 +2541,12 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE cOld-fob    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cOld-freight AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lError         AS LOGICAL NO-UNDO.
 
   def buffer bf-cust for cust.
-  /*def buffer bf-shipto for shipto.
-  def buffer bf-soldto for soldto.*/
+  DEFINE BUFFER bf-shipto for shipto.
+  /*def buffer bf-soldto for soldto.*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
@@ -2731,6 +2737,25 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   RUN disable-fields.
+  RUN pGetInterCompanyBilling(INPUT cocode, INPUT cust.cust-no, OUTPUT lInterCompanyBilling).
+  
+  IF lInterCompanyBilling THEN
+  DO:
+      FOR EACH bf-shipto NO-LOCK
+          WHERE bf-shipto.company EQ cust.company
+          AND bf-shipto.cust-no EQ cust.cust-no:
+      
+        RUN Customer_InterCompanyTrans IN hdCustomerProcs(
+                                           INPUT cocode,
+                                           INPUT cust.cust-no,
+                                           INPUT bf-shipto.ship-id,
+                                           INPUT "",
+                                           OUTPUT lError,
+                                           OUTPUT cMessage
+                                           ).
+      END.                                  
+  END.
+  
   IF cust.cr-hold NE ll-prev-cr-hold THEN DO:
       RUN ClearTagsHold (cust.rec_key).
       CASE cust.cr-hold:
@@ -2842,6 +2867,30 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInterCompanyBilling V-table-Win 
+PROCEDURE pGetInterCompanyBilling :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnValue AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.      
+      
+  RUN sys/ref/nk1look.p (INPUT ipcCompany, "InterCompanyBilling", "L" /* Logical */, YES /* check by cust */, 
+      INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
+      OUTPUT cReturn, OUTPUT lRecFound).
+  oplReturnValue = LOGICAL(cReturn) NO-ERROR.       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -29,6 +29,7 @@ DEFINE VARIABLE cShipId AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEffectiveDate AS DATE NO-UNDO.
 DEFINE VARIABLE cCustType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustCompareValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -50,7 +51,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuoteExpireDuplicates", "L" /* Logical */,
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lQuoteExpireDuplicates = logical(cRtnChar) NO-ERROR.   
+    lQuoteExpireDuplicates = logical(cRtnChar) NO-ERROR.  
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "PriceMatrixPricingMethod", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cPriceMatrixPricingMethod = cRtnChar NO-ERROR.    
 
 IF PROGRAM-NAME(2) MATCHES "*vp-prmtx.*" OR PROGRAM-NAME(2) MATCHES "*ImportQuote.*" THEN
 DO:
@@ -263,7 +270,10 @@ PROCEDURE update-matrix.
   FOR EACH w-matrix WHERE w-matrix.qty LE 0:
     DELETE w-matrix.
   END.
-
+  
+  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  oe-prmtx.qty = 0.
+  ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
     IF LAST(w-matrix.qty) THEN DO:
       CREATE b-matrix.
@@ -386,6 +396,9 @@ PROCEDURE update-matrix-minus.
     DELETE w-matrix.
   END.
 
+  IF cPriceMatrixPricingMethod EQ "From" AND lQuotePriceMatrix THEN
+  oe-prmtx.qty = 0.
+  ELSE
   FOR EACH w-matrix BREAK BY w-matrix.qty:
     IF LAST(w-matrix.qty) THEN DO:
       CREATE b-matrix.

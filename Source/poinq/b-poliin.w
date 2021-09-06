@@ -42,7 +42,8 @@ CREATE WIDGET-POOL.
 DEF VAR cf-acct-dscr LIKE account.dscr NO-UNDO.
 
 /* gdm - 01310801 */
-DEF VAR v-paidflg AS LOG NO-UNDO.
+DEFINE VARIABLE v-paidflg           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE iLineNo             AS INTEGER          NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
@@ -87,7 +88,7 @@ DEFINE QUERY external_tables FOR po-ordl.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table ap-inv.inv-no ap-inv.inv-date ~
 get-acct-dscr() @ cf-acct-dscr ap-invl.qty ap-invl.cons-uom ap-invl.amt ~
-is-it-paid() @ v-paidflg 
+is-it-paid() @ v-paidflg fPoLine() @ iLineNo
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH reftable WHERE TRUE /* Join to po-ordl incomplete */ ~
       AND reftable.reftable eq "AP-INVL" and ~
@@ -191,6 +192,13 @@ FUNCTION is-it-paid RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPoLine B-table-Win 
+FUNCTION fPoLine RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -216,6 +224,7 @@ DEFINE BROWSE br_table
       ap-invl.cons-uom COLUMN-LABEL "UOM" FORMAT "x(4)":U
       ap-invl.amt FORMAT "->>>>,>>9.99":U
       is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
+      fPoLine() @ iLineNo    COLUMN-LABEL "Line No" FORMAT ">>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 12.62
@@ -319,6 +328,8 @@ ap-invl.po-no = po-ordl.po-no and
      _FldNameList[6]   = ASI.ap-invl.amt
      _FldNameList[7]   > "_<CALC>"
 "is-it-paid() @ v-paidflg" "Paid" "YES / NO" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > "_<CALC>"
+"fPoLine() @ iLineNo" "Line No" ">>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -585,6 +596,23 @@ FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
     /* Function return value. */
     THEN RETURN TRUE.
     ELSE RETURN FALSE.        
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPoLine B-table-Win 
+FUNCTION fPoLine RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF AVAIL po-ordl 
+    THEN RETURN po-ordl.LINE.
+    ELSE RETURN 0.        
 
 END FUNCTION.
 

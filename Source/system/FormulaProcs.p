@@ -1016,6 +1016,7 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     DEFINE BUFFER bf-job-mat FOR job-mat.
     DEFINE BUFFER bf-item    FOR item.
     DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-style   FOR style.
     
     FIND FIRST bf-po-ordl NO-LOCK
          WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
@@ -1148,17 +1149,24 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     
     IF AVAILABLE bf-eb THEN DO:
         EMPTY TEMP-TABLE ttPanel.
-        
-        RUN pBuildPanelDetailsForEstimate (
-            INPUT  ROWID(bf-eb),
-            INPUT  FALSE,  /* Re-build */
-            INPUT  FALSE,  /* Save */
-            INPUT  ipcPanelTypes,   /* Panel Types to build */
-            OUTPUT TABLE ttPanel
-            ).       
+
+        FIND FIRST bf-style NO-LOCK
+             WHERE bf-style.company  EQ bf-eb.company
+               AND bf-style.style    EQ bf-eb.style
+               AND bf-style.type     EQ "B"
+               AND bf-style.industry EQ "2"
+             NO-ERROR.
+        IF AVAILABLE bf-style THEN        
+            RUN pBuildPanelDetailsForEstimate (
+                INPUT  ROWID(bf-eb),
+                INPUT  FALSE,  /* Re-build */
+                INPUT  FALSE,  /* Save */
+                INPUT  ipcPanelTypes,   /* Panel Types to build */
+                OUTPUT TABLE ttPanel
+                ).       
     END.
     
-    IF iplSave AND AVAILABLE bf-eb THEN
+    IF iplSave AND AVAILABLE bf-eb AND AVAILABLE bf-style THEN
         RUN pUpdatePanelDetails (
             INPUT  gcPanelLinkTypePO,
             INPUT  bf-eb.company,
@@ -1400,7 +1408,7 @@ PROCEDURE pUpdatePanelDetail PRIVATE:
         ASSIGN
             bf-panelDetail.panelFormula         = ipcPanelFormula
             bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-            bf-panelDetail.scoreType            = ipcScoreType
+            bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType 
             bf-panelDetail.panelSize            = ipdPanelSize
             bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
             .        
@@ -1687,7 +1695,7 @@ PROCEDURE pCreatePanelDetail PRIVATE:
         bf-panelDetail.panelNo              = ipiPanelNo
         bf-panelDetail.panelFormula         = ipcPanelFormula
         bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-        bf-panelDetail.scoreType            = ipcScoreType
+        bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType
         bf-panelDetail.panelSize            = ipdPanelSize
         bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
         .
@@ -1738,6 +1746,99 @@ PROCEDURE Convert32ndsToDecimal:
         INPUT  iopdSize,
         OUTPUT iopdSize
         ).    
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Updates the legacy reftable based on Panel Details
+     Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+     callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND FIRST bf-po-ordl NO-LOCK 
+        WHERE bf-po-ordl.company EQ ipcCompany
+        AND bf-po-ordl.po-no EQ ipiPoID
+        AND bf-po-ordl.line EQ ipiPoLine 
+        NO-ERROR.
+    IF AVAILABLE bf-po-ordl AND bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "L", TABLE ttPanel BY-REFERENCE). 
+    ELSE 
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "W", TABLE ttPanel BY-REFERENCE).
+        
+END PROCEDURE.
+
+PROCEDURE pUpdatePanelDetailsPOLegacyDetail PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Purpose:  Updates the legacy reftable based on Panel Details
+         Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
+         callers should be removed
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
+    
+    DEFINE BUFFER bf-scoreReftable1 FOR reftable.
+    DEFINE BUFFER bf-scoreReftable2 FOR reftable.
+    
+    DEFINE VARIABLE dScore AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-scoreReftable1 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable1.reftable EQ "POLSCORE"
+          AND bf-scoreReftable1.company  EQ ipcCompany
+          AND bf-scoreReftable1.loc      EQ "1"
+          AND bf-scoreReftable1.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable1.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+
+    FIND FIRST bf-scoreReftable2 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable2.reftable EQ "POLSCORE"
+          AND bf-scoreReftable2.company  EQ ipcCompany
+          AND bf-scoreReftable2.loc      EQ "2"
+          AND bf-scoreReftable2.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable2.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+
+    IF AVAILABLE bf-scoreReftable1 THEN
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable1.val  = 0
+            bf-scoreReftable1.dscr = ""
+            . 
+
+    IF AVAILABLE bf-scoreReftable2 THEN
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable2.val  = 0
+            bf-scoreReftable2.dscr = ""
+            . 
+
+    FOR EACH ttPanel
+        WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
+        BY ttPanel.iPanelNum:
+        dScore = ttPanel.dPanelSize.
+
+        RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
+
+        IF AVAILABLE bf-scoreReftable1 AND ttPanel.iPanelNum LE 12 THEN                                
+            ASSIGN 
+                bf-scoreReftable1.val[ttPanel.iPanelNum] = dScore
+                bf-scoreReftable1.dscr                   = bf-scoreReftable1.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
+                .                                    
+        ELSE IF AVAILABLE bf-scoreReftable2 AND ttPanel.iPanelNum LE 20  THEN                                
+            ASSIGN 
+                bf-scoreReftable2.val[ttPanel.iPanelNum - 12] = dScore
+                bf-scoreReftable2.dscr                        = bf-scoreReftable2.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
+                .                                            
+    END.
+
+    RELEASE bf-scoreReftable1.
+    RELEASE bf-scoreReftable2.
+
 END PROCEDURE.
 
 PROCEDURE SwitchPanelSizeFormat:
@@ -1863,6 +1964,14 @@ PROCEDURE UpdatePanelDetailsForPO:
         INPUT  "",                   /* Score set Type */
         INPUT  TABLE ttPanel
         ). 
+    
+    //Deprecate when POLSCORE Reftable is removed
+    RUN pUpdatePanelDetailsPOLegacy(
+        INPUT ipcCompany,
+        INPUT ipiPOID,
+        INPUT ipiPOLine,
+        INPUT TABLE ttPanel BY-REFERENCE).
+        
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForStyle:
@@ -1976,7 +2085,7 @@ PROCEDURE pUpdatePanelDetails PRIVATE:
             ).        
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
+            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND (ttPanel.cScoreType EQ "" OR ttPanel.cScoreType EQ ?) AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
                 NEXT.
                 
             RUN pUpdatePanelDetail (

@@ -111,7 +111,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddEmail 
-     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Email" 
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
@@ -229,12 +229,12 @@ DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes
      SIZE 18 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnCloseResults 
-     IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Close Results" 
      SIZE 4.4 BY 1 TOOLTIP "Close Results".
 
 DEFINE BUTTON btnSaveResults 
-     IMAGE-UP FILE "AOA/images/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/navigate_check.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Save Results" 
      SIZE 4.4 BY 1 TOOLTIP "Save Results".
 
@@ -248,13 +248,16 @@ DEFINE FRAME paramFrame
          SIZE 200 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME blankFrame
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 12 ROW 6.48
-         SIZE 19 BY 2.38
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE "Building Grid ..." WIDGET-ID 1400.
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 DEFINE FRAME outputFrame
      btnCSV AT ROW 1.48 COL 135 HELP
@@ -303,16 +306,13 @@ DEFINE FRAME outputFrame
          BGCOLOR 22 FGCOLOR 1 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
+DEFINE FRAME blankFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+         AT COL 12 ROW 6.48
+         SIZE 19 BY 2.38
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Building Grid ..." WIDGET-ID 1400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -639,6 +639,22 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svRecipients
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svRecipients C-Win
+ON LEAVE OF svRecipients IN FRAME outputFrame
+DO:
+    ASSIGN
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,";",",")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE," ","")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,CHR(10),"")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME svShowAll

@@ -15,38 +15,39 @@ def var v-wid       like item.s-wid                                     no-undo.
 for each job-mat
     where rowid(job-mat)  eq ip-rowid
       and job-mat.qty-all gt 0
-      and job-mat.all-flg,
+      and job-mat.all-flg
+/*      ,                                  */
+/*    first item                           */
+/*    where item.company eq job-mat.company*/
+/*      and item.i-no    eq job-mat.rm-i-no*/
+/*      and item.i-code  eq "R"            */
+          :
 
-    first item
-    where item.company eq job-mat.company
-      and item.i-no    eq job-mat.rm-i-no
-      and item.i-code  eq "R":
-
-  if job-mat.qty-uom eq item.cons-uom then
-    v-comm = job-mat.qty-all.
-
-  else do:
-    assign
-     v-bwt = job-mat.basis-w
-     v-len = job-mat.len
-     v-wid = job-mat.wid.
-
-    if v-len eq 0 then v-len = item.s-len.
-
-    if v-wid eq 0 then
-      v-wid = if item.r-wid ne 0 then item.r-wid else item.s-wid.
-
-    if v-bwt eq 0 then v-bwt = item.basis-w.
-
-    run sys/ref/convquom.p(job-mat.qty-uom, item.cons-uom,
-                           v-bwt, v-len, v-wid, item.s-dep,
-                           job-mat.qty-all, output v-comm).
-  end.
-    
-  assign
-   item.q-comm     = item.q-comm + (v-comm * ip-factor)
-   item.q-comm     = if item.q-comm lt 0 then 0 else item.q-comm
-   item.q-avail    = item.q-onh + item.q-ono - item.q-comm.
+/*  if job-mat.qty-uom eq item.cons-uom then                       */
+/*    v-comm = job-mat.qty-all.                                    */
+/*                                                                 */
+/*  else do:                                                       */
+/*    assign                                                       */
+/*     v-bwt = job-mat.basis-w                                     */
+/*     v-len = job-mat.len                                         */
+/*     v-wid = job-mat.wid.                                        */
+/*                                                                 */
+/*    if v-len eq 0 then v-len = item.s-len.                       */
+/*                                                                 */
+/*    if v-wid eq 0 then                                           */
+/*      v-wid = if item.r-wid ne 0 then item.r-wid else item.s-wid.*/
+/*                                                                 */
+/*    if v-bwt eq 0 then v-bwt = item.basis-w.                     */
+/*                                                                 */
+/*    run sys/ref/convquom.p(job-mat.qty-uom, item.cons-uom,       */
+/*                           v-bwt, v-len, v-wid, item.s-dep,      */
+/*                           job-mat.qty-all, output v-comm).      */
+/*  end.                                                           */
+/*                                                                 */
+/*  assign                                                         */
+/*   item.q-comm     = item.q-comm + (v-comm * ip-factor)          */
+/*   item.q-comm     = if item.q-comm lt 0 then 0 else item.q-comm */
+/*   item.q-avail    = item.q-onh + item.q-ono - item.q-comm.      */
 
   if ip-factor eq 1 and io-stat eq "W" then io-stat = "A".
 

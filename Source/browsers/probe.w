@@ -1546,6 +1546,7 @@ PROCEDURE create-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER lReturnError AS LOGICAL NO-UNDO.
 DEFINE BUFFER xprobe FOR probe.
 DEFINE BUFFER bf-qhd FOR quotehd.
 DEFINE BUFFER bf-notes FOR notes.
@@ -1576,6 +1577,7 @@ DEFINE VARIABLE lv-cust LIKE eb.cust-no NO-UNDO.
 DEFINE VARIABLE cNotes LIKE quotehd.comment NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSmanFromCustomer AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-cust FOR cust.
 {est/checkuse.i}
 
@@ -1596,9 +1598,14 @@ IF CAN-FIND(FIRST xprobe
             OUTPUT cMessage
             ).
         IF NOT lSuccess THEN DO:                                         
-            MESSAGE cMessage + " on customer"
-            VIEW-AS ALERT-BOX ERROR.
-            RETURN.
+            MESSAGE  "Salesperson " + eb.sman +  " on the estimate is inactive.  Updating to salesperson from customer. "            
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS OK-CANCEL UPDATE lcheckflg as logical .            
+            IF not lcheckflg THEN do:
+             lReturnError = YES.
+             RETURN.
+            END.
+            ELSE lSmanFromCustomer = YES.            
         END.      
   END.
     /*
@@ -1740,7 +1747,7 @@ IF CAN-FIND(FIRST xprobe
       END.
 
       ASSIGN
-       quotehd.sman      = eb.sman  /* bf-eb.sman */
+       quotehd.sman      =  IF lSmanFromCustomer THEN cust.sman ELSE eb.sman  /* bf-eb.sman */
        quotehd.carrier   = eb.carrier  /*bf-eb.carrier */
        quotehd.del-zone  = eb.dest-code  /* bf-eb.dest-code */
        quotehd.terms     = cust.terms
@@ -2914,7 +2921,7 @@ PROCEDURE pCalculateEstimate PRIVATE:
     
     IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
         RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
-    RUN CalculateEstimate IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
+    RUN CalculateEstimateWithPrompts IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
     
 
 END PROCEDURE.
@@ -4173,11 +4180,12 @@ PROCEDURE update-quote :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   {est/checkuse.i}
 
-  RUN create-quote.
+  RUN create-quote( OUTPUT lReturnError).
+  IF lReturnError THEN RETURN NO-APPLY.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN select-page IN WIDGET-HANDLE(char-hdl) (10).

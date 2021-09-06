@@ -14,6 +14,7 @@ DEF VAR lv-part-dscr2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-i-coldscr AS cha NO-UNDO.
 DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 def shared buffer xquo for quotehd.
+def var dWeight as int no-undo.
 def buffer xqitm for quoteitm.
 def buffer xqqty for quoteqty.
 def buffer xqchg for quotechg.
@@ -80,6 +81,7 @@ DEFINE VARIABLE chFile AS CHAR NO-UNDO.
 DEFINE VARIABLE LvLineCnt AS INT NO-UNDO.
 DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
 DEFINE VARIABLE LvCtr as int no-undo.
+DEFINE VARIABLE v-corr    AS LOGICAL                      NO-UNDO.
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE SHARED TEMP-TABLE tt-filelist

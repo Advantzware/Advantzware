@@ -1,5 +1,7 @@
 /* scenario.i - used in value-changed trigger for scenario in board.w */
 
+  DEFINE VARIABLE initialDir AS CHARACTER NO-UNDO.
+
   IF schdChanged THEN
   DO:
     MESSAGE 'Scenario "' + scenario + '" has been Changed.' SKIP
@@ -12,13 +14,33 @@
   ASSIGN {&SELF-NAME}
     schdChanged = NO.
   
-  IF {&SELF-NAME} EQ '<New>' THEN
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE /*btnRemove*/ btnReset.
-    RETURN NO-APPLY.
+    CASE {&SELF-NAME}:
+      WHEN '<New>' THEN DO:
+        DISABLE btnRemove btnReset.
+        RETURN NO-APPLY.
+      END. /* new  */
+      WHEN '<Open>' THEN DO:
+        initialDir = REPLACE('{&scenarios}/' + ID,"/","~\").
+        SYSTEM-DIALOG GET-FILE scenario
+          TITLE 'Choose Scenario File'
+          INITIAL-DIR initialDir
+          DEFAULT-EXTENSION '.dat'
+          RETURN-TO-START-DIR
+          FILTERS 'Scenario Files (*.dat)' '*.dat'
+          UPDATE ldummy.
+        IF scenario EQ ? OR scenario EQ "<Open>" THEN
+        scenario = "Actual".
+        ASSIGN
+          scenario = SUBSTRING(scenario,R-INDEX(scenario,'\') + 1)
+          scenario = REPLACE(scenario,'.dat','')
+          scenario:SCREEN-VALUE = scenario.
+          .
+      END. /* open */
+      OTHERWISE
+      ENABLE btnRemove btnReset.
+    END.
   END.
-  ELSE
-  ENABLE /*btnRemove*/ btnReset WITH FRAME {&FRAME-NAME}.
   
   IF showStatus OR openBoard THEN
   VIEW FRAME msgFrame.

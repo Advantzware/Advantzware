@@ -149,7 +149,6 @@ CLASS API.APIHandler:
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
         
         oClient:BaseAddress = NEW System.Uri(ipcURL).
-        oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
 
         ResponseMessage = oClient:GetAsync(ipcURL):RESULT NO-ERROR.          
         

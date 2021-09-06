@@ -15,6 +15,8 @@ DEF VAR v-set-rcv-qty AS INT NO-UNDO.
 DEF VAR v-set-item    LIKE itemfg.i-no NO-UNDO.
 DEF VAR v-part-qty-dec AS DEC NO-UNDO.
 DEF VAR v-part-qty AS INT NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 {fg/fullset.i NEW}
 
@@ -375,7 +377,17 @@ IF AVAIL itemfg THEN DO:
        IF AVAIL b-po-ordl THEN DO TRANSACTION:
          IF b-po-ordl.cons-uom EQ b-po-ordl.pr-qty-uom THEN
            b-po-ordl.cons-qty = b-po-ordl.ord-qty.
-         ELSE
+       ELSE IF AVAIL itemfg THEN
+       DO:    
+          RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                itemfg.i-no, "FG", 
+                b-po-ordl.ord-qty, IF b-po-ordl.pr-qty-uom EQ "" THEN b-po-ordl.pr-qty-uom{2} ELSE b-po-ordl.pr-qty-uom,
+                IF b-po-ordl.cons-uom EQ "" THEN b-po-ordl.cons-uom{2} ELSE b-po-ordl.cons-uom, 
+                0, b-po-ordl.s-len, b-po-ordl.s-wid, 0, 0, 
+                OUTPUT  b-po-ordl.cons-qty, OUTPUT lError, OUTPUT cMessage).
+             
+       END.  
+       ELSE
            RUN sys/ref/convquom.p(b-po-ordl.pr-qty-uom, b-po-ordl.cons-uom,
                                   0, b-po-ordl.s-len, b-po-ordl.s-wid, 0,
                                   b-po-ordl.ord-qty, OUTPUT b-po-ordl.cons-qty).

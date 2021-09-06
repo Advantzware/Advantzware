@@ -1003,7 +1003,7 @@ DO:
             gv-job-no2 = v-job-no-2.
 
    IF adm-new-record AND rm-rctd.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
-      rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lParse THEN
+      rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND cFormNo EQ "" THEN
        RUN set-s-b-proc.
 
    IF LASTKEY NE -1 AND v-single-job THEN
@@ -2825,11 +2825,16 @@ PROCEDURE set-s-b-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
    DEF BUFFER b-item FOR ITEM.
-
+   
+   ASSIGN
+       cJobNo = rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+       cJobNo = FILL(" ",6 - LENGTH(TRIM(cJobNo))) + TRIM(cJobNo).           
+           
    FOR EACH job
        WHERE job.company EQ cocode
-         AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+         AND job.job-no  EQ cJobNo
          AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
        NO-LOCK,
        EACH job-mat

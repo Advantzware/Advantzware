@@ -35,6 +35,12 @@ DEFINE TEMP-TABLE ttCustAging NO-UNDO
 
 /* Local Variable Definitions ---                                       */
 
+/*DEFINE VARIABLE lOrderBalance     AS LOGICAL NO-UNDO.*/
+/*DEFINE VARIABLE lARBalance        AS LOGICAL NO-UNDO.*/
+/*DEFINE VARIABLE lPastGraceBalance AS LOGICAL NO-UNDO.*/
+/*DEFINE VARIABLE lCreditHold       AS LOGICAL NO-UNDO.*/
+/*DEFINE VARIABLE lCustomerNotAged  AS LOGICAL NO-UNDO.*/
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
@@ -174,12 +180,12 @@ PROCEDURE pBusinessLogic:
         ELSE lbalUpdated = YES.
         
         IF cust.cust-no GE cStartCustNo AND
-           cust.cust-no LE cEndCustNo   AND
+           cust.cust-no LE cEndCustNo /*AND
            ((dbalanceDue GT 0 AND lOrderBalance) OR
             (dbalanceDue GT 0 AND lARBalance) OR
             (dBalanceWithinGrace GT 0 AND lPastGraceBalance) OR
             (cust.cr-hold EQ YES AND lCreditHold) OR
-            (lbalUpdated EQ NO AND lCustomerNotAged) ) THEN DO:
+            (lbalUpdated EQ NO AND lCustomerNotAged))*/ THEN DO:
         CREATE ttCustAging.
         ASSIGN
             ttCustAging.custNo             = cust.cust-no
@@ -200,7 +206,7 @@ PROCEDURE pBusinessLogic:
             iCount = iCount + 1
                 .
             IF lProgressBar THEN
-                RUN spProgressBar (cProgressBar, iCount, ?).     
+            RUN spProgressBar (cProgressBar, iCount, ?).     
         END.       
     END. /* each cust */     
 

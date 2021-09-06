@@ -38,6 +38,7 @@ DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNK1Value         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
 def shared buffer xest for est.
@@ -360,6 +361,15 @@ DO:
     IF SELF:LABEL = "&Update" THEN DO:
        RUN check-use NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN.
+       
+       RUN valid-inches(INPUT eb.len:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
+    
+       RUN valid-inches(INPUT eb.wid:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
+    
+       RUN valid-inches(INPUT eb.dep:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
 
        SELF:LABEL = "&Save".
        btn_cancel:LABEL = "&Cancel".
@@ -563,6 +573,47 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME eb.len
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.len d-updset
+ON LEAVE OF eb.len IN FRAME d-updset /* F.G. Length */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    RUN valid-inches(INPUT eb.len:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME eb.wid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.wid d-updset
+ON LEAVE OF eb.wid IN FRAME d-updset /* F.G. width */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    RUN valid-inches(INPUT eb.wid:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.dep
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep d-updset
+ON LEAVE OF eb.dep IN FRAME d-updset /* F.G. Depth */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    RUN valid-inches(INPUT eb.dep:SCREEN-VALUE, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -1191,3 +1242,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inches d-updset 
+PROCEDURE valid-inches :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdInput AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE v-dec AS DECIMAL DECIMALS 6 NO-UNDO.
+  DEFINE VARIABLE op-error AS LOGICAL NO-UNDO.
+  DO WITH FRAME {&frame-name}:     
+
+   v-dec = decimal(ipdInput) - trunc(decimal(ipdInput),0).
+   IF v-dec >= v-16-or-32 AND eb.est-type GE 5 THEN
+   do:
+      message "Cannot have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
+         view-as alert-box error.
+      oplReturnError = YES.       
+   END.
+    
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+

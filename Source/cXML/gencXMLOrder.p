@@ -846,6 +846,14 @@ PROCEDURE GetItemAndPart:
            AND bf-customerPart.shipToID     EQ ipcShipTo
            AND bf-customerPart.customerPart EQ ipcSupplierPartID
          NO-ERROR.
+    IF NOT AVAILABLE bf-customerPart THEN
+        FIND FIRST bf-customerPart NO-LOCK
+             WHERE bf-customerPart.company      EQ ipcCompany
+               AND bf-customerPart.customerID   EQ ipcCustNo
+               AND bf-customerPart.shipToID     EQ ""
+               AND bf-customerPart.customerPart EQ ipcSupplierPartID
+             NO-ERROR.
+
     IF NOT AVAILABLE bf-customerPart THEN DO:
         oplSuccess = FALSE.
         

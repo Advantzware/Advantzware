@@ -185,7 +185,7 @@ for each report   where report.term-id eq v-term-id no-lock,
     assign
      v-fob      = ""
      v-ord-bol  = trim(string(oe-bolh.ord-no,">>>>>9")) + " / " +
-                  trim(string(oe-bolh.bol-no,">>>>>9"))
+                  trim(string(oe-bolh.bol-no,">>>>>>9"))
      v-ord-date = oe-bolh.bol-date.
 
     find first oe-ord
