@@ -214,7 +214,8 @@ PROCEDURE BuildRouting:
     DEFINE INPUT PARAMETER ipiFormNo          AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE iMaxColor AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMaxColor     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lValidFarmOut AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ef for ef.
     DEFINE BUFFER bf-eb for eb.
@@ -229,19 +230,20 @@ PROCEDURE BuildRouting:
             AND bf-eb.est-no  EQ bf-ef.est-no
             AND bf-eb.form-no EQ bf-ef.form-no:
                     
-            IF fIsItemPurchasedFG(BUFFER bf-eb) THEN
-            DO:
-                /* Check and Add Farm Out Machines or Purchased FG */
-                RUN pCheckAndAddMachine (BUFFER bf-ef, BUFFER bf-eb, "FO",NO, ipdEstQty).
-                
-            END.
             
+            /* Check and Add Farm Out Machines for Purchased FG */
+            RUN pProcessFODept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty, OUTPUT lValidFarmOut).
+            
+            /* If Purchased good and Valid Farm out machines added then skip further deptt */
+            IF lValidFarmOut THEN
+                NEXT.
+                
             /* Other Manufactured FG */
             ELSE
             DO:
-                /* Check if corrugator machine required */
-                IF fIsCRDeptNeeded(BUFFER bf-ef) THEN
-                    RUN pCheckAndAddMachine (BUFFER bf-ef, BUFFER bf-eb, "CR", YES, ipdEstQty).
+                RUN pProcessCRDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                
+                
                 
             END.
            
@@ -297,6 +299,7 @@ PROCEDURE pCheckAndAddMachine PRIVATE:
     DEFINE INPUT  PARAMETER ipcDeptToAdd        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplRunValidation    AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipdEstQty           AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE lValidMach AS LOGICAL NO-UNDO.
 
@@ -313,7 +316,11 @@ PROCEDURE pCheckAndAddMachine PRIVATE:
         RUN pCheckMachine(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipcDeptToAdd, ipdEstQty, iplRunValidation, OUTPUT lValidMach).
         
         IF lValidMach AND AVAILABLE bf-mach THEN
+        DO:
             RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, ipcDeptToAdd).
+            
+            oplSuccess = YES.
+        END.
             
     END. /* IF AVAILABLE bf-style THEN */
            
@@ -376,6 +383,42 @@ PROCEDURE pCheckMachine PRIVATE:
     
 END PROCEDURE.
 
+
+PROCEDURE pProcessCRDept PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Check if corrugator needed
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef     FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb     FOR eb.
+    DEFINE INPUT  PARAMETER ipdEstQty   AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lMachineAdded AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-item-bom FOR item-bom.
+    
+    /* Check if corrugator machine required */
+    IF CAN-FIND(FIRST bf-item-bom
+                WHERE bf-item-bom.company  EQ ipbf-ef.company
+                  AND bf-item-bom.parent-i EQ ipbf-ef.board) THEN
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "CR", YES, ipdEstQty, OUTPUT lMachineAdded).
+        
+END PROCEDURE.
+
+PROCEDURE pProcessFODept:
+    /*------------------------------------------------------------------------------
+     Purpose: Process and import Farm Out machine
+     Notes: Check if Estimate Item is Purchased Finished Good
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef         FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb         FOR eb.
+    DEFINE INPUT  PARAMETER ipdEstQty       AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplMachineAdded AS LOGICAL NO-UNDO.
+    
+    IF ipbf-eb.pur-man THEN
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "FO",NO, ipdEstQty, OUTPUT oplMachineAdded).
+    
+END PROCEDURE.
 
 PROCEDURE pResetObjects:
 /*------------------------------------------------------------------------------
@@ -2498,27 +2541,6 @@ FUNCTION fIsAssemblyPartFeed RETURNS LOGICAL PRIVATE
 		
 END FUNCTION.
 
-FUNCTION fIsCRDeptNeeded RETURNS LOGICAL 
-    (BUFFER ipbf-ef FOR ef):
-    /*------------------------------------------------------------------------------
-     Purpose: Check if any corrugator machine is needed
-     Notes:
-    ------------------------------------------------------------------------------*/    
-
-    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
-    
-    DEFINE BUFFER bf-item-bom for item-bom.
-    
-    IF CAN-FIND(FIRST bf-item-bom
-                WHERE bf-item-bom.company  EQ ipbf-ef.company
-                AND bf-item-bom.parent-i EQ ipbf-ef.board) THEN 
-        lResult = YES.
-
-    RETURN lResult.
-        
-END FUNCTION.
-
-
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
     /*------------------------------------------------------------------------------
@@ -2548,22 +2570,6 @@ FUNCTION fIsInk RETURNS INTEGER PRIVATE
      
     RETURN iIsInk.
         		
-END FUNCTION.
-
-FUNCTION fIsItemPurchasedFG RETURNS LOGICAL 
-    (BUFFER ipbf-eb FOR eb):
-    /*------------------------------------------------------------------------------
-     Purpose: Check if Estimate Item is Purchased Finished Good
-     Notes:
-    ------------------------------------------------------------------------------*/    
-
-    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
-    
-    IF ipbf-eb.pur-man THEN
-        lResult = YES.
-
-    RETURN lResult.
-        
 END FUNCTION.
 
 
