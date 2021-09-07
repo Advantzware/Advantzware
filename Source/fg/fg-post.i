@@ -310,7 +310,7 @@
                     RUN jc/jc-autop.p (ROWID(job-mat), 0, v-dec).
                   END.
                   ELSE DO:
-                      FIND FIRST materialType 
+                      FIND FIRST materialType NO-LOCK
                            WHERE materialType.company      EQ item.company
                              AND materialType.materialType EQ item.mat-type
                            NO-ERROR.

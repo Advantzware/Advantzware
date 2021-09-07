@@ -157,7 +157,7 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 77 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(135)"
@@ -184,12 +184,12 @@ DEFINE FRAME F-Main
           FONT 2
      "W Score" VIEW-AS TEXT
           SIZE 11 BY .86 AT ROW 4.1 COL 134
-     "W Totals" VIEW-AS TEXT
-          SIZE 11 BY .86 AT ROW 4.1 COL 121
-     "Score:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 2.43 COL 120
      "Total" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.38 COL 120
+     "Score:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 2.43 COL 120
+     "W Totals" VIEW-AS TEXT
+          SIZE 11 BY .86 AT ROW 4.1 COL 121
      box-image-2 AT ROW 4.57 COL 3
      RECT-29 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -253,6 +253,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN box-design-hdr.box-image IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 

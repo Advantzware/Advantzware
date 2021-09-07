@@ -1408,7 +1408,7 @@ PROCEDURE export-xl :
     END.
 
    OUTPUT STREAM excel CLOSE.
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+   OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
    
     
     SESSION:SET-WAIT-STATE ("").

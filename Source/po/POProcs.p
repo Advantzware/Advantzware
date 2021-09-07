@@ -45,6 +45,145 @@ PROCEDURE CheckPOLineStatus:
 
 
 END PROCEDURE.
+    
+PROCEDURE pCalLineTotalCostAndConsQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  calculate po-ordl.t-cost po-ordl.cons-qty field 
+        Note - 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriPOOrdl AS ROWID NO-UNDO.
+       
+    DEFINE VARIABLE ld-qty   LIKE po-ordl.ord-qty NO-UNDO.
+    DEFINE VARIABLE dBasis-w AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLen     LIKE po-ordl.s-len NO-UNDO.
+    DEFINE VARIABLE dWid     LIKE po-ordl.s-wid NO-UNDO.
+    DEFINE VARIABLE dDep     LIKE po-ordl.s-len NO-UNDO.    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE dOrdQty  LIKE po-ordl.ord-qty NO-UNDO.
+    DEFINE VARIABLE dConsQty LIKE po-ordl.ord-qty NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.    
+    
+    FIND bf-po-ordl EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl NO-ERROR.
+        
+    IF bf-po-ordl.item-type THEN 
+    DO:  
+        FIND FIRST item NO-LOCK
+            WHERE item.company EQ bf-po-ordl.company
+            AND item.i-no    EQ bf-po-ordl.i-no
+            NO-ERROR.            
+    END.
+    
+    IF NOT AVAILABLE item THEN
+        FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ bf-po-ordl.company
+            AND itemfg.i-no    EQ bf-po-ordl.i-no
+            NO-ERROR.
+         
+    ASSIGN
+        dBasis-w = IF AVAILABLE item THEN item.basis-w ELSE 0
+        dDep     = IF AVAILABLE ITEM THEN item.s-dep ELSE 0
+        dLen     = bf-po-ordl.s-len
+        dWid     = bf-po-ordl.s-wid
+        ld-qty   = bf-po-ordl.ord-qty
+        dOrdQty  = bf-po-ordl.ord-qty
+        .    
+    IF dLen EQ 0 AND AVAILABLE ITEM AND
+        ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN
+    DO:
+        dLen = 12.
+
+        IF bf-po-ordl.pr-qty-uom EQ "ROLL" THEN
+        DO:
+            FIND FIRST uom NO-LOCK
+                WHERE uom.uom EQ "ROLL" NO-ERROR.
+    
+            IF AVAILABLE uom THEN
+                ASSIGN
+                    bf-po-ordl.pr-qty-uom = "LF".
+            dOrdQty = dOrdQty * uom.mult.
+        END.
+    END.     
+    IF AVAILABLE bf-po-ordl THEN
+    DO:
+        dConsQty = dOrdQty.
+  
+        IF bf-po-ordl.cons-uom NE bf-po-ordl.pr-qty-uom AND
+            (bf-po-ordl.item-type                           OR
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.cons-uom) OR
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom)) THEN 
+        DO:
+            
+            IF (bf-po-ordl.pr-qty-uom EQ "CS") AND AVAIL(itemfg) THEN 
+            DO:  
+                /* for CS, convert to EA first */      
+                dConsQty = dConsQty * itemfg.case-count.
+
+                RUN sys/ref/convquom.p (INPUT "EA", 
+                    INPUT (bf-po-ordl.cons-uom),
+                    dBasis-w, dLen, dWid, dDep,
+                    dConsQty,
+                    OUTPUT dConsQty).    
+                
+            END.
+            ELSE 
+            DO:
+                IF AVAILABLE itemfg THEN 
+                    RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                        itemfg.i-no, "FG", 
+                        dConsQty, bf-po-ordl.pr-qty-uom,
+                        bf-po-ordl.cons-uom, 
+                        dBasis-w, dLen, dWid, dDep, 0, 
+                        OUTPUT  dConsQty, OUTPUT lError, OUTPUT cMessage).
+                ELSE 
+                
+                    RUN sys/ref/convquom.p(INPUT (bf-po-ordl.pr-qty-uom),
+                        INPUT (bf-po-ordl.cons-uom),
+                        dBasis-w, dLen, dWid, dDep,
+                        dConsQty,
+                        OUTPUT dConsQty).
+            END.
+
+        END.
+        bf-po-ordl.cons-qty = dConsQty.                
+    
+        IF LOOKUP(bf-po-ordl.pr-uom,"L,LOT") GT 0 THEN
+            bf-po-ordl.t-cost = bf-po-ordl.cost.
+        ELSE 
+        DO:               
+            IF bf-po-ordl.pr-qty-uom NE bf-po-ordl.pr-uom       AND
+                (bf-po-ordl.item-type                           OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.pr-qty-uom) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",bf-po-ordl.company, bf-po-ordl.i-no, bf-po-ordl.pr-uom))   THEN
+            DO:   
+                FIND FIRST itemfg
+                    WHERE itemfg.company EQ bf-po-ordl.company
+                    AND itemfg.i-no    EQ bf-po-ordl.i-no
+                    NO-LOCK NO-ERROR.
+                IF AVAILABLE itemfg THEN               
+                    RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                        itemfg.i-no, "FG", 
+                        ld-qty,  bf-po-ordl.pr-qty-uom ,
+                        bf-po-ordl.pr-uom, 
+                        dBasis-w, dLen, dWid, dDep, 0, 
+                        OUTPUT  ld-qty, OUTPUT lError, OUTPUT cMessage).                   
+                ELSE
+                    RUN sys/ref/convquom.p(bf-po-ordl.pr-qty-uom, bf-po-ordl.pr-uom,
+                        dBasis-w, dLen, dWid, dDep,
+                        ld-qty, OUTPUT ld-qty).  
+            END.                     
+            bf-po-ordl.t-cost = (ld-qty * bf-po-ordl.cost) + bf-po-ordl.setup.
+        
+        END.
+    
+        bf-po-ordl.t-cost = ROUND(bf-po-ordl.t-cost * ((100 - bf-po-ordl.disc) / 100),2).
+    END.
+    RELEASE bf-po-ordl.     
+    
+END PROCEDURE.    
 
 PROCEDURE pGetPOLineAdderData PRIVATE:
     /*------------------------------------------------------------------------------
@@ -264,6 +403,17 @@ PROCEDURE PO_RecalculateCostsPO:
     
     RUN pRecalculateCostsPO(ipriPOOrd).
     
+
+END PROCEDURE.
+
+PROCEDURE PO_CalLineTotalCostAndConsQty:
+/*------------------------------------------------------------------------------
+ Purpose: Public wrapper for pCalLineTotalCostAndConsQty
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriPOOrdl AS ROWID NO-UNDO.
+        
+    RUN pCalLineTotalCostAndConsQty(ipriPOOrdl).    
 
 END PROCEDURE.
 

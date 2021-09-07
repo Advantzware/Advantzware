@@ -444,7 +444,7 @@ for each itemfg
 
            IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
           
-           IF tb_excel THEN 
+           IF rd-dest EQ 3 THEN 
              PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
        END.
@@ -555,7 +555,7 @@ for each itemfg
             END.          
             PUT UNFORMATTED     cDisplay SKIP.
            
-                     IF tb_excel THEN 
+                     IF rd-dest EQ 3 THEN 
                          PUT STREAM excel UNFORMATTED
                          cExcelDisplay SKIP.
 

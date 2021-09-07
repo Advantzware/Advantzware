@@ -2699,36 +2699,38 @@ PROCEDURE run-report :
             FORMAT "->>,>>>,>>9.99" TO 130
             SKIP(2).
     END.
-
-    ASSIGN 
-        cAPIID       = "SendBankCheck"
-        cTriggerID   = "PrintCheck"
-        cPrimaryID   = "Check " 
-        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
-        cDataList    = STRING(post-manual) + ","
-               + STRING(cocode)
-        .
-           
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
-        INPUT  cocode,                     /* Company Code (Mandatory) */
-        INPUT  locode,                     /* Location Code (Mandatory) */
-        INPUT  cAPIID,                     /* API ID (Mandatory) */
-        INPUT  cBankCode,                  /* Client ID (Optional) - Pass empty in case to make request for all clients */
-        INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
-        INPUT  "PostManual,Company",       /* Comma separated list of table names for which data being sent (Mandatory) */
-        INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-        INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
-        INPUT  cDescription,               /* Event's description (Optional) */
-        OUTPUT lSuccess,                   /* Success/Failure flag */
-        OUTPUT cMessage                    /* Status message */
-        ) NO-ERROR.     
-
+    
+    IF tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} THEN
+    DO:   
+        ASSIGN 
+            cAPIID       = "SendBankCheck"
+            cTriggerID   = "PrintCheck"
+            cPrimaryID   = "Check " 
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-chkreg for checks " //+ cPrimaryID
+            cDataList    = STRING(post-manual) + ","
+                   + STRING(cocode)
+            .
+               
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  cocode,                     /* Company Code (Mandatory) */
+            INPUT  locode,                     /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  cBankCode,                  /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "PostManual,Company",       /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cDataList ,                 /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ) NO-ERROR.               
+    END.
 
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
