@@ -154,7 +154,7 @@ PROCEDURE pValidate PRIVATE:
         IF length(ipbf-ttImportCust.CustNo) GT 8 THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Maximun Customer character Length is 8".
+                opcNote  = "Maximum Customer character Length is 8".
     END.
     IF oplValid THEN 
     DO:
