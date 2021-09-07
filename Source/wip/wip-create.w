@@ -45,13 +45,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcJobno    AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcMachine  AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiJobno2   AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER ipiFormno   AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER ipiBlankno  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdInventoryProcs  AS HANDLE    NO-UNDO.
@@ -79,6 +74,9 @@ DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFilterBy         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
+
+RUN spGetSessionParam("Company", OUTPUT cCompany).
+RUN spGetSessionParam("Location", OUTPUT cLocation).
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
@@ -663,7 +661,7 @@ DO:
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
             IF lContinue THEN
                 RUN pAdjustQuantity (
-                    ipcCompany,
+                    cCompany,
                     ttBrowseInventory.inventoryStockID,
                     dTotalQuantity - ttBrowseInventory.quantityOriginal,
                     ttBrowseInventory.quantityUOM
@@ -696,7 +694,7 @@ DO:
     END.
     
     RUN CreateTransactionInitializedFromJob IN hdInventoryProcs (
-        ipcCompany,
+        cCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -716,7 +714,7 @@ DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
                        
     RUN rebuildTempTable(
-        ipcCompany,
+        cCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -780,7 +778,7 @@ DO:
         FOR EACH ttBrowseInventory:
             IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
                 RUN PostReceivedInventory IN hdInventoryProcs (
-                    INPUT ipcCompany,
+                    INPUT cCompany,
                     INPUT ttBrowseInventory.inventoryStockID
                     ).
     
@@ -797,7 +795,7 @@ DO:
         IF AVAILABLE ttBrowseInventory THEN DO:
             IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
                 RUN PostReceivedInventory IN hdInventoryProcs (
-                    INPUT ipcCompany,
+                    INPUT cCompany,
                     INPUT ttBrowseInventory.inventoryStockID
                     ).
         
@@ -863,8 +861,8 @@ DO:
     IF VALID-HANDLE(hdJobDetails) AND
         VALID-HANDLE(hdJobDetailsWin) THEN DO:        
         RUN pInit IN hdJobDetails (
-            INPUT ipcCompany,
-            INPUT ipcLocation,
+            INPUT cCompany,
+            INPUT cLocation,
             INPUT cFormattedJobno,
             INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
             INPUT INTEGER(cb-formno:SCREEN-VALUE),
@@ -1083,7 +1081,7 @@ DO:
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
     RUN system/openlookup.p (
-        INPUT  ipcCompany, 
+        INPUT  cCompany, 
         INPUT  "job-no",        /* Lookup ID */
         INPUT  0,               /* Subject ID */
         INPUT  "",              /* User ID */
@@ -1244,7 +1242,7 @@ DO:
     APPLY "VALUE-CHANGED" to cb-jobno2. 
           
     RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE,
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
@@ -1260,7 +1258,7 @@ DO:
        In this case machine code is passed empty to check if job is valid*/
     IF NOT lValidJob THEN
         RUN ValidateJob IN hdJobProcs (
-            INPUT ipcCompany,
+            INPUT cCompany,
             INPUT cFormattedJobno,
             INPUT "", /* Blank Machine code */
             INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
@@ -1287,7 +1285,7 @@ DO:
     cValidateJobno = ls-jobno:SCREEN-VALUE.    
                            
     RUN rebuildTempTable (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -1385,7 +1383,7 @@ DO:
     RUN tagScan(SELF:SCREEN-VALUE).  
         
     RUN rebuildTempTable(
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -1608,34 +1606,24 @@ PROCEDURE init :
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
-    
+   
     FIND FIRST company NO-LOCK 
-         WHERE company.company EQ ipcCompany
+         WHERE company.company EQ cCompany
          NO-ERROR .
     IF AVAILABLE company THEN
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
-                         + STRING(company.name) + " - " + ipcLocation.
+                         + STRING(company.name) + " - " + cLocation.
 
     ASSIGN 
         hdBrowseQuery  = {&BROWSE-NAME}:QUERY IN FRAME {&FRAME-NAME}
         hdBrowseBuffer = hdBrowseQuery:GET-BUFFER-HANDLE(1)
         .
-    RUN pGetSettings(ipcCompany, OUTPUT cOutputFileName, OUTPUT cPathTemplate, OUTPUT iCopies).
+    RUN pGetSettings(cCompany, OUTPUT cOutputFileName, OUTPUT cPathTemplate, OUTPUT iCopies).
     
     APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.
 
     RUN disableCreate.
-
-    IF ipcJobNo NE "" THEN 
-        RUN jobScan (
-            INPUT ipcCompany,
-            INPUT ipcJobno,
-            INPUT ipcMachine,
-            INPUT ipiJobno2,
-            INPUT ipiFormno,
-            INPUT ipiBlankno
-            ).
 
 END PROCEDURE.
 
@@ -1763,7 +1751,7 @@ PROCEDURE onValueChangedOfJobDetails :
     RUN disableCreate.
     
     RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
@@ -1776,7 +1764,7 @@ PROCEDURE onValueChangedOfJobDetails :
         RUN enableCreate.
 
     RUN rebuildTempTable(
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                        
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -1853,7 +1841,7 @@ PROCEDURE pDelete :
     END. /* if avail */
 
     RUN rebuildTempTable(
-        ipcCompany,
+        cCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -1936,7 +1924,7 @@ PROCEDURE pPrintLabels PRIVATE :
     
     IF SEARCH(cPathTemplate) NE ? THEN 
     DO:
-        RUN PrintLabelMatrixFile IN hdOutputProcs(ipcCompany, cPathTemplate, "WIPTAG").
+        RUN PrintLabelMatrixFile IN hdOutputProcs(cCompany, cPathTemplate, "WIPTAG").
         MESSAGE "Label Matrix print process has been started." SKIP
             "This process will generate printed labels for your selected WIP Tags" SKIP(2)
             "     Data file: " cOutputFileName SKIP 
@@ -1959,7 +1947,7 @@ PROCEDURE pPrintLabels PRIVATE :
         ).
         
     RUN rebuildTempTable(
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-jobno2:SCREEN-VALUE  IN FRAME {&FRAME-NAME},
@@ -2017,7 +2005,7 @@ PROCEDURE pUpdateMachineList :
     DEFINE OUTPUT PARAMETER opcMachineListItems AS CHARACTER NO-UNDO.
     
     RUN GetOperationsForJob IN hdJobProcs (
-        ipcCompany,
+        cCompany,
         ipcJobNo,
         INT(ipcJobNo2),
         ?,
@@ -2059,7 +2047,7 @@ PROCEDURE pUpdateRMDetails :
     END.
     
     RUN GetRMLoadTagDetails IN hdInventoryProcs (
-        INPUT  ipcCompany,
+        INPUT  cCompany,
         INPUT  ls-tag:SCREEN-VALUE,        
         OUTPUT cJobNo,   
         OUTPUT iJobNo2,  
@@ -2197,6 +2185,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -2243,7 +2248,7 @@ PROCEDURE tagScan :
     RUN disableCreate.
     
     RUN pGetInventoryStockJobDetails IN hdInventoryProcs (
-        ipcCompany,
+        cCompany,
         ipcTag,
         OUTPUT cJobNo,
         OUTPUT iJobNo2,
@@ -2285,7 +2290,7 @@ PROCEDURE tagScan :
         
         IF lValidInv THEN DO:
             RUN ValidateJob IN hdJobProcs (
-                INPUT ipcCompany,
+                INPUT cCompany,
                 INPUT cFormattedJobno,
                 INPUT cb-machine:SCREEN-VALUE,
                 INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
@@ -2336,21 +2341,21 @@ PROCEDURE updateComboBoxes :
         cMachineListItems = "".
         
     RUN GetSecondaryJobForJob IN hdJobProcs (
-        ipcCompany,
+        cCompany,
         cFormattedJobno,
         INPUT-OUTPUT cJobno2ListItems
         ).
     
     DO iCount = 1 TO NUM-ENTRIES(cJobno2ListItems):
         RUN GetFormnoForJob IN hdJobProcs (
-            ipcCompany,
+            cCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cFormnoListItems
             ).
     
         RUN GetBlanknoForJob IN hdJobProcs (
-            ipcCompany,
+            cCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cBlanknoListItems
