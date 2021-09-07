@@ -1352,7 +1352,7 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Lock",cLock).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
             
             CREATE ttPart.
@@ -1419,8 +1419,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Lock",cLock).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                         
         CREATE ttPart.
@@ -1485,8 +1485,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Lock",cLock).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                 
             CREATE ttPart.
@@ -1568,8 +1568,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Lock",cLock).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                     
         CREATE ttPart.
