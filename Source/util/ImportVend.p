@@ -81,7 +81,7 @@ PROCEDURE pValidate PRIVATE:
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
-                    MESSAGE "VendNo " ipbf-ttImportVend.VendNo VIEW-AS ALERT-BOX ERROR.
+                    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportVend.Company EQ '' THEN 
