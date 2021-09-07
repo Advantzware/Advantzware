@@ -196,7 +196,7 @@ FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
     (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
 
 FUNCTION fValidMachineLimits RETURNS LOGICAL PRIVATE
-	(BUFFER ipbf-ef FOR ef, BUFFER ipbf-eb FOR eb,BUFFER ipbf-style for style, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL) FORWARD.
+	(BUFFER ipbf-ef FOR ef, BUFFER ipbf-eb FOR eb,BUFFER ipbf-style for style, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL, INPUT ipcDept AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -217,8 +217,18 @@ PROCEDURE BuildRouting:
     DEFINE VARIABLE iMaxColor     AS INTEGER NO-UNDO.
     DEFINE VARIABLE lValidFarmOut AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER bf-ef for ef.
-    DEFINE BUFFER bf-eb for eb.
+    DEFINE BUFFER bf-est    for est.
+    DEFINE BUFFER bf-ef     for ef.
+    DEFINE BUFFER bf-eb     for eb.
+    
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = ipcCompany
+          AND bf-est.est-no = ipcEstimateNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-est THEN
+        RETURN.
+        
+    RUN pGetInkTT (ipcCompany, ipcEstimateNo, bf-est.est-type).
 
     FOR EACH bf-ef NO-LOCK
         WHERE bf-ef.company  EQ ipcCompany
@@ -229,8 +239,7 @@ PROCEDURE BuildRouting:
             WHERE bf-eb.company EQ bf-ef.company
             AND bf-eb.est-no  EQ bf-ef.est-no
             AND bf-eb.form-no EQ bf-ef.form-no:
-                    
-            
+                 
             /* Check and Add Farm Out Machines for Purchased FG */
             RUN pProcessFODept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty, OUTPUT lValidFarmOut).
             
@@ -243,6 +252,9 @@ PROCEDURE BuildRouting:
             DO:
                 RUN pProcessCRDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
                 
+                RUN pProcessRCDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                
+                RUN pProcessInk (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
                 
                 
             END.
@@ -264,12 +276,14 @@ PROCEDURE pAddMachine PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-eb      FOR eb.
     DEFINE PARAMETER BUFFER ipbf-mach    FOR mach.
     DEFINE INPUT  PARAMETER ipcDept      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass      AS INTEGER NO-UNDO.
     
     FIND FIRST ttRouting
-        WHERE ttRouting.Company      = ipbf-eb.company
-          AND ttRouting.EstimateNo   = ipbf-eb.est-no 
+        WHERE ttRouting.Company     = ipbf-eb.company
+          AND ttRouting.EstimateNo  = ipbf-eb.est-no 
           AND ttRouting.FormId      = ipbf-eb.form-no
           AND ttRouting.BlankId     = ipbf-eb.blank-no
+          AND ttRouting.Pass        = ipiPass
           AND ttRouting.OperationId = ipbf-mach.m-code NO-ERROR.
           
     IF NOT AVAILABLE ttRouting THEN 
@@ -280,6 +294,7 @@ PROCEDURE pAddMachine PRIVATE:
             ttRouting.EstimateNo   = ipbf-eb.est-no
             ttRouting.FormId       = ipbf-eb.form-no
             ttRouting.BlankID      = ipbf-eb.blank-no
+            ttRouting.Pass         = ipiPass
             ttRouting.DeptSeq      = 10 * ipbf-mach.d-seq
             ttRouting.DepartmentId = ipcDept
             ttRouting.OperationId  = ipbf-mach.m-code.
@@ -299,6 +314,7 @@ PROCEDURE pCheckAndAddMachine PRIVATE:
     DEFINE INPUT  PARAMETER ipcDeptToAdd        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplRunValidation    AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipdEstQty           AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass             AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE lValidMach AS LOGICAL NO-UNDO.
@@ -307,22 +323,15 @@ PROCEDURE pCheckAndAddMachine PRIVATE:
     DEFINE BUFFER bf-mach  FOR mach.
 
 
-    FIND FIRST bf-style NO-LOCK 
-        WHERE bf-style.company EQ ipbf-eb.company
-          AND bf-style.style EQ ipbf-eb.style NO-ERROR.
-          
-    IF AVAILABLE bf-style THEN
-    DO:
-        RUN pCheckMachine(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipcDeptToAdd, ipdEstQty, iplRunValidation, OUTPUT lValidMach).
+    RUN pCheckMachine(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipcDeptToAdd, ipdEstQty, iplRunValidation, OUTPUT lValidMach).
         
-        IF lValidMach AND AVAILABLE bf-mach THEN
-        DO:
-            RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, ipcDeptToAdd).
+    IF lValidMach AND AVAILABLE bf-mach THEN
+    DO:
+        RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, ipcDeptToAdd, ipiPass).
             
-            oplSuccess = YES.
-        END.
+        oplSuccess = YES.
+    END.
             
-    END. /* IF AVAILABLE bf-style THEN */
            
 END PROCEDURE.
 
@@ -334,7 +343,6 @@ PROCEDURE pCheckMachine PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef             FOR ef.
     DEFINE PARAMETER BUFFER ipbf-eb             FOR eb.
-    DEFINE PARAMETER BUFFER ipbf-Style          FOR style.
     DEFINE PARAMETER BUFFER opbf-mach           FOR mach.
     DEFINE INPUT  PARAMETER ipcDeptToChk        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdAppliedQty       AS DECIMAL NO-UNDO.
@@ -342,47 +350,166 @@ PROCEDURE pCheckMachine PRIVATE:
     DEFINE OUTPUT PARAMETER oplValidMachine     AS LOGICAL NO-UNDO.
     
     
-    DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCnt       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE rMachRowId AS ROWID   NO-UNDO.
     
-    Style-blk:
-    DO iCnt = 1 TO 7:
-        IF ipbf-style.m-code[iCnt] EQ "" THEN 
-            NEXT.
+    DEFINE BUFFER bf-style FOR style.
+    DEFINE BUFFER bf-mach  FOR mach.
+    
+    
+    FIND FIRST bf-style NO-LOCK 
+        WHERE bf-style.company EQ ipbf-eb.company
+          AND bf-style.style EQ ipbf-eb.style NO-ERROR.
+          
+    IF AVAILABLE bf-style THEN
+    DO:
+        Style-blk:
+        DO iCnt = 1 TO 7:
+            IF bf-style.m-code[iCnt] EQ "" THEN 
+                NEXT.
+                    
+            FIND FIRST bf-mach NO-LOCK
+                WHERE bf-mach.company  EQ ipbf-ef.company
+                  AND bf-mach.obsolete EQ NO  
+                  AND bf-mach.m-code   EQ bf-style.m-code[iCnt] NO-ERROR.
                 
-        FIND FIRST opbf-mach NO-LOCK
-            WHERE opbf-mach.company  EQ ipbf-ef.company
-              AND opbf-mach.obsolete EQ NO  
-              AND opbf-mach.m-code   EQ ipbf-style.m-code[iCnt] NO-ERROR.
+            IF AVAILABLE bf-mach 
+                AND (bf-mach.dept[1] EQ ipcDeptToChk
+                 OR  bf-mach.dept[2] EQ ipcDeptToChk
+                 OR  bf-mach.dept[3] EQ ipcDeptToChk
+                 OR  bf-mach.dept[4] EQ ipcDeptToChk) THEN
+            DO:
+                IF iplApplyValidation THEN
+                DO:
+                    IF fValidMachineLimits(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipdAppliedQty, ipcDeptToChk) EQ YES THEN
+                        oplValidMachine = YES.
+                END.
+                ELSE
+                    oplValidMachine = YES.
+                
+                rMachRowId = ROWID(bf-mach).
+                
+                IF oplValidMachine = YES THEN
+                    LEAVE Style-blk.
+                    
+            END. /* IF AVAILABLE bf-mach */
             
-        IF AVAILABLE opbf-mach 
-            AND (opbf-mach.dept[1] EQ ipcDeptToChk
-             OR  opbf-mach.dept[2] EQ ipcDeptToChk
-             OR  opbf-mach.dept[3] EQ ipcDeptToChk
-             OR  opbf-mach.dept[4] EQ ipcDeptToChk) THEN
-        DO:
-            oplValidMachine = YES.
-            LEAVE Style-blk.
-        END.
+        END. /* Style-blk */
     END.
     
     IF oplValidMachine = NO THEN
     DO:
-        FIND FIRST opbf-mach NO-LOCK
-            WHERE opbf-mach.company  EQ ipbf-ef.company
-              AND opbf-mach.obsolete EQ NO
-              AND opbf-mach.dept[1]  EQ ipcDeptToChk NO-ERROR.
-       IF AVAILABLE opbf-mach THEN
-          oplValidMachine = YES.
-    END.
+        FOR EACH bf-mach NO-LOCK
+            WHERE bf-mach.company  EQ ipbf-ef.company
+            AND bf-mach.obsolete EQ NO
+            AND bf-mach.dept[1]  EQ ipcDeptToChk:
+            
+            IF iplApplyValidation THEN
+            DO:
+                IF fValidMachineLimits(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-style, BUFFER bf-mach, ipdAppliedQty, ipcDeptToChk) EQ YES THEN
+                    oplValidMachine = YES.
+            END.
+            ELSE
+                oplValidMachine = YES.
+            
+            rMachRowId = ROWID(bf-mach).
+            
+            IF oplValidMachine = YES THEN    
+                LEAVE.
+                  
+        END. /* FOR EACH bf-mach NO-LOCK */
+        
+    END. /* IF oplValidMachine = NO THEN */
     
-    IF iplApplyValidation AND oplValidMachine = YES AND AVAILABLE opbf-mach THEN
+    IF oplValidMachine = YES AND rMachRowId NE ? THEN
+        FIND FIRST opbf-mach NO-LOCK
+            WHERE ROWID(opbf-mach) = rMachRowId NO-ERROR.
+    
+END PROCEDURE.
+
+
+PROCEDURE pCheckAndAddMachineForPrinting PRIVATE:
+           
+END PROCEDURE.
+
+
+PROCEDURE pCreateInkRec PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Process the Ink setup on Estimate and creates Ink TT
+     Notes: It works for Corrugated Industry and refers respective fields
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT  PARAMETER ipiPass     AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemCode AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-item FOR Item.
+    
+    
+    FIND FIRST bf-Item NO-LOCK
+        WHERE bf-Item.company EQ ipbf-eb.company
+          AND bf-Item.i-no    EQ ipcItemCode
+          AND INDEX("IV",bf-Item.mat-type) GT 0 NO-ERROR.  
+
+    IF AVAIL bf-Item THEN 
     DO:
-        IF fValidMachineLimits(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER ipbf-style, BUFFER opbf-mach, ipdAppliedQty) EQ NO THEN
-            oplValidMachine = NO.
+        FIND FIRST ttInk
+            WHERE ttInk.FormId   EQ ipbf-eb.form-no
+              AND ttInk.BlankID  EQ ipbf-eb.blank-no
+              AND ttInk.Pass     EQ ipiPass
+              AND ttInk.InkCode  EQ ipcItemCode NO-ERROR.
+              
+        IF NOT AVAILABLE ttInk THEN
+        DO:
+            CREATE ttInk.
+            ASSIGN 
+                ttInk.FormId    = ipbf-eb.form-no
+                ttInk.BlankID   = ipbf-eb.blank-no
+                ttInk.Pass      = ipiPass
+                ttInk.InkCode   = bf-Item.i-no
+                ttInk.PressType = bf-Item.press-type.
+             
+        END.
+        
+        IF bf-Item.mat-type EQ "I" THEN
+            ttInk.InkCount = ttInk.InkCount + 1.
+            
+        ELSE IF bf-Item.ink-type EQ "A" THEN
+            ttInk.IsCoating = YES.
+        ELSE
+            ttInk.VarnishCount = ttInk.VarnishCount + 1.
+        
     END.
     
 END PROCEDURE.
 
+PROCEDURE pGetInkTT PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEstimateType    AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no  EQ ipcEstimateNo: 
+            
+        IF ipiEstimateType LE 4 THEN
+        DO iExt = 1 TO EXTENT(bf-eb.i-code2):
+            RUN pCreateInkRec (bf-eb.i-ps2[iExt], bf-eb.i-code2[iExt]).
+        END.
+        ELSE
+        DO iExt = 1 TO EXTENT(bf-eb.i-code):
+            RUN pCreateInkRec (bf-eb.i-ps[iExt], bf-eb.i-code[iExt]).
+        END.
+    END.
+                
+END PROCEDURE.
 
 PROCEDURE pProcessCRDept PRIVATE:
     /*------------------------------------------------------------------------------
@@ -401,9 +528,28 @@ PROCEDURE pProcessCRDept PRIVATE:
     IF CAN-FIND(FIRST bf-item-bom
                 WHERE bf-item-bom.company  EQ ipbf-ef.company
                   AND bf-item-bom.parent-i EQ ipbf-ef.board) THEN
-        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "CR", YES, ipdEstQty, OUTPUT lMachineAdded).
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "CR", YES, ipdEstQty, 1, OUTPUT lMachineAdded).
         
 END PROCEDURE.
+
+PROCEDURE pProcessCTDept PRIVATE:
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Check if Coating machine needed
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef     FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb     FOR eb.
+    DEFINE INPUT  PARAMETER ipdEstQty   AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCoating  AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass     AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE lMachineAdded AS LOGICAL NO-UNDO.
+    
+    IF iplCoating THEN
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "CT", YES, ipdEstQty, ipiPass, OUTPUT lMachineAdded).
+
+END PROCEDURE.
+
 
 PROCEDURE pProcessFODept:
     /*------------------------------------------------------------------------------
@@ -416,9 +562,50 @@ PROCEDURE pProcessFODept:
     DEFINE OUTPUT PARAMETER oplMachineAdded AS LOGICAL NO-UNDO.
     
     IF ipbf-eb.pur-man THEN
-        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "FO",NO, ipdEstQty, OUTPUT oplMachineAdded).
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "FO",NO, ipdEstQty, 1, OUTPUT oplMachineAdded).
     
 END PROCEDURE.
+
+
+PROCEDURE pProcessRCDept PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Check if Ream cutter/Sliter/Saw needed
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef     FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb     FOR eb.
+    DEFINE INPUT  PARAMETER ipdEstQty   AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lMachineAdded AS LOGICAL NO-UNDO.
+    
+    /* Check if corrugator machine required */
+    IF ipbf-ef.n-cuts GT 0 OR ipbf-ef.roll THEN
+        RUN pCheckAndAddMachine (BUFFER ipbf-ef, BUFFER ipbf-eb, "RC", YES, ipdEstQty, 1, OUTPUT lMachineAdded).
+
+END PROCEDURE.
+
+
+PROCEDURE pProcessInk PRIVATE:
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes: Check if INK is defined and printing is needed
+        ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT  PARAMETER ipdEstQty   AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-Item for item.
+    
+    FOR EACH ttInk
+        WHERE ttInk.FormId  = ipbf-eb.form-no
+        AND ttInk.BlankID = ipbf-eb.blank-no:
+            
+        RUN pProcessCTDept (BUFFER ipbf-ef, BUFFER ipbf-eb, ipdEstQty, ttInk.IsCoating, ttInk.Pass).
+              
+    END.
+    
+END PROCEDURE.
+
 
 PROCEDURE pResetObjects:
 /*------------------------------------------------------------------------------
@@ -3184,7 +3371,12 @@ FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
 FUNCTION fValidMachineLimits RETURNS LOGICAL 
-    (BUFFER ipbf-ef FOR ef, BUFFER ipbf-eb FOR eb,BUFFER ipbf-style for style, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL):
+    (BUFFER ipbf-ef FOR ef, 
+    BUFFER ipbf-eb FOR eb,
+    BUFFER ipbf-style for style, 
+    BUFFER ipbf-mach for mach, 
+    INPUT ipdQty AS DECIMAL,
+    INPUT ipcDept AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:

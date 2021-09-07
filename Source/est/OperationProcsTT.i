@@ -47,3 +47,14 @@ DEFINE TEMP-TABLE ttEstOp NO-UNDO {&REFONLY}
     FIELD machSeq AS INTEGER
     .    
     
+DEFINE TEMP-TABLE ttInk NO-UNDO {&REFONLY}
+    FIELD FormId       AS INTEGER
+    FIELD BlankId      AS INTEGER
+    FIELD Pass         AS INTEGER
+    FIELD InkCode      AS CHARACTER
+    FIELD InkCount     AS INTEGER
+    FIELD VarnishCount AS INTEGER
+    FIELD IsCoating    AS LOGICAL
+    FIELD PressType    AS CHARACTER 
+    . 
+ 

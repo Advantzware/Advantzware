@@ -24,6 +24,7 @@ DEFINE TEMP-TABLE ttRouting NO-UNDO
     FIELD EstimateNo   AS CHARACTER
     FIELD FormId       AS INTEGER
     FIELD BlankId      AS INTEGER
+    FIELD Pass         AS INTEGER
     FIELD departmentID AS CHARACTER
     FIELD DeptSeq      AS INTEGER
     FIELD OperationId  AS CHARACTER.
