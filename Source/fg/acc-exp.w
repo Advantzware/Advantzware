@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Y
                         "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc,inactive"  .
 {sys/inc/ttRptSel.i}
     ASSIGN 
-    cTextListToDefault = "Account No,Acc Description,Type,Inactive"  .
+    cTextListToDefault = "Account No,Acc Description,Type,Inactive,Curr Year Open Bal,Last Year Open"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
