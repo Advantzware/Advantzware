@@ -1459,7 +1459,7 @@ DO TRANSACTION:
                             gl-jrn.period,
                             "A",
                             gl-jrn.tr-date,
-                            "",
+                            gl-jrnl.dscr,
                             "BR").    
 
         end.
@@ -1474,7 +1474,7 @@ DO TRANSACTION:
                             gl-jrn.period,
                             "A",
                             gl-jrn.tr-date,
-                            "",
+                            gl-jrnl.dscr,
                             "BR").    
 
          assign bank.bal = bank.bal + gl-jrnl.tr-amt.

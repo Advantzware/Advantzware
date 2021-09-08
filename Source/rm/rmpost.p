@@ -466,6 +466,8 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             work-gl.actnum = costtype.inv-asset.
           END.
           work-gl.debits = work-gl.debits + v-ext-cost.
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
 
           /* Credit RM AP Accrued */
           FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
@@ -474,6 +476,8 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             work-gl.actnum = costtype.ap-accrued.
           END.
           work-gl.credits = work-gl.credits + v-ext-cost.
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
         END.
 
         ELSE
@@ -539,6 +543,8 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
                work-gl.actnum  = prod.wip-mat.
             END.
             work-gl.debits = work-gl.debits + ld.
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+                            tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
 
             /* Credit RM Asset */
             FIND FIRST work-gl
@@ -556,6 +562,8 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
                work-gl.actnum  = costtype.inv-asset.
             END.
             work-gl.credits = work-gl.credits + ld.
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+                            tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
           END.
         END.
       END.
@@ -1167,7 +1175,7 @@ PROCEDURE gl-from-work :
                          period.pnum,
                          "A",
                          v-post-date,
-                         "",
+                         work-gl.cDesc,
                          "RM"). 
       ASSIGN 
        debits  = 0

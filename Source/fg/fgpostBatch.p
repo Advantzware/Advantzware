@@ -35,6 +35,7 @@ DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE cDescription    AS CHARACTER NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
@@ -1011,7 +1012,7 @@ PROCEDURE fg-post:
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-job.cDesc,
                              "FG").
         END. /* each work-job */
     END.
@@ -1186,7 +1187,7 @@ PROCEDURE gl-from-work:
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-gl.cDesc,
                              "FG").
           ASSIGN
              debits          = 0

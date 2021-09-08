@@ -151,6 +151,7 @@ DEF TEMP-TABLE tt-ap-tax  NO-UNDO
                           FIELD actnum LIKE account.actnum
                           FIELD amt LIKE ap-invl.amt
                           FIELD curr-amt LIKE ap-invl.amt
+                          FIELD cDescription AS CHARACTER
                           INDEX row-id row-id.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1335,7 +1336,7 @@ DEF VAR ll-rcpth AS LOG.
                          tran-period,
                          "A",
                          tran-date,
-                         "",
+                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-invl.inv-no) ,
                          "AP").                    
 
       find first po-ordl
@@ -1679,7 +1680,7 @@ DEF VAR ll-rcpth AS LOG.
                          tran-period,
                          "A",
                          tran-date,
-                         STRING(ap-inv.inv-no),
+                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-inv.inv-no),
                          "AP").    
     END.
   end. /* for each ap-inv */
@@ -1699,7 +1700,7 @@ DEF VAR ll-rcpth AS LOG.
                                tran-period,
                                "A",
                                tran-date,
-                               STRING(ap-inv.inv-no),
+                               (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-inv.inv-no),
                                "AP").
         END.
 
@@ -1720,7 +1721,7 @@ DEF VAR ll-rcpth AS LOG.
                                    tran-period,
                                    "A",
                                    tran-date,
-                                   "",
+                                   tt-ap-tax.cDescription,
                                    "AP").                
             END.
         END. 

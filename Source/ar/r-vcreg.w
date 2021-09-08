@@ -843,7 +843,7 @@ PROCEDURE post-gl :
                              tran-period,
                              "A",
                              tran-date,
-                             "",
+                             "Invoice:" + STRING(ar-cashl.inv-no),
                              "AR").
 
            ASSIGN
@@ -862,7 +862,7 @@ PROCEDURE post-gl :
                                   tran-period,
                                   "A",
                                   tran-date,
-                                  "",
+                                  "Invoice:" + STRING(ar-cashl.inv-no),
                                   "AR").
              
 

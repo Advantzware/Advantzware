@@ -151,7 +151,8 @@
               create work-gl.
               work-gl.actnum = prod.fg-mat.
             end.
-            work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.             
+            work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2) ELSE IF w-fg-rctd.po-no NE "" THEN "Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line) ELSE "").
             /* Credit WIP Material */
             find first work-gl where work-gl.actnum eq prod.wip-mat no-lock no-error.      
             if not avail work-gl then do:
@@ -159,6 +160,7 @@
               work-gl.actnum = prod.wip-mat.
             end.
             work-gl.credits = work-gl.credits + w-fg-rctd.ext-cost.
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2) ELSE IF w-fg-rctd.po-no NE "" THEN "Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line) ELSE "").
           end.  /* if w-fg-rctd.ext-cost */
         end.  
       end.
@@ -220,11 +222,12 @@
             and fg-bin.loc-bin eq w-fg-rctd.loc-bin
             and fg-bin.tag     eq w-fg-rctd.tag
           no-lock no-error.
-        
+      cDescription = IF w-fg-rctd.job-no NE "" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2) 
+                     ELSE IF w-fg-rctd.po-no NE "" THEN "PO: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line) ELSE "".
       if avail fg-bin then
         run oe/invposty.p (0, fg-bin.i-no, w-fg-rctd.t-qty * -1, fg-bin.pur-uom,
                            fg-bin.std-lab-cost, fg-bin.std-fix-cost,
-                           fg-bin.std-var-cost, fg-bin.std-mat-cost).
+                           fg-bin.std-var-cost, fg-bin.std-mat-cost, cDescription).
     end.
 
     /*procedure code was originally here*/

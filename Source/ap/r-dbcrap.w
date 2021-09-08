@@ -884,7 +884,7 @@ PROCEDURE post-gl :
                              tran-period,
                              "A",
                              tran-date,
-                             string(ap-inv.inv-no),
+                             "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no),
                              "AP").
         
          assign
@@ -931,7 +931,7 @@ PROCEDURE post-gl :
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no),
                         "AP").
 
       /* Recalc Rm Bins whose cost has been changed by APCRMEMO sys-ctrl param */

@@ -2780,7 +2780,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
                                            "A",
                                            ipdtPostingDate,
-                                           "",
+                                           (IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "Job:" + ttRawMaterialsGLTransToPost.jobNo ELSE ""),
                                            "RM").   
                        ASSIGN 
                         dDebitsTotal = 0

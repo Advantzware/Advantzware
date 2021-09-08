@@ -765,7 +765,7 @@ postit:
                              uperiod,
                              "A",
                              udate,
-                             "",
+                             work-job.cDesc,
                              "FG").
       end. /* each work-job */
     end.
@@ -899,6 +899,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report PRIVATE :
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 assign
  str-tit  = coname + " - " + loname
  str-tit2 = "FINISHED GOODS PHYSICAL COUNT - POSTING REPORT"
@@ -1071,10 +1072,11 @@ time_stamp = string(time,"hh:mmam").
        v-uom     = itemfg.prod-uom.
 
     v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
-
+    cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2) 
+                   ELSE IF fg-rctd.po-no NE "" THEN "PO: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line) ELSE "".
     /*Invoicing  - Post Invoicing Transactions - Job Costing*/
     run oe/invposty.p (0, itemfg.i-no, v-adj-qty, v-uom,
-                       v-cost[1], v-cost[2], v-cost[3], v-cost[4]).
+                       v-cost[1], v-cost[2], v-cost[3], v-cost[4], cDescription).
 
     v-item-tot = v-item-tot + v-tot-value.
 
@@ -1130,7 +1132,7 @@ PROCEDURE run-report-inv :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR v-seq-no AS INT INIT 1 NO-UNDO.
-
+  DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 assign
  str-tit  = coname + " - " + loname
  str-tit2 = "FINISHED GOODS PHYSICAL COUNT - POSTING REPORT"
@@ -1373,10 +1375,12 @@ time_stamp = string(time,"hh:mmam").
        ASSIGN
           v-cum-qty = v-cum-qty + tt-fg-bin.counted-qty
           v-item-tot = v-item-tot + tt-fg-bin.tot-value.
+          cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2) 
+                         ELSE IF fg-rctd.po-no NE "" THEN "PO: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line) ELSE "".
 
        /*Invoicing  - Post Invoicing Transactions - Job Costing*/
        run oe/invposty.p (0, tt-fg-bin.i-no, tt-fg-bin.v-adj-qty, tt-fg-bin.v-uom,
-                          tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4]).
+                          tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4],cDescription).
     END.
 
     if last-of(tt-fg-bin.i-no) then do:

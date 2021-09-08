@@ -1766,6 +1766,9 @@ PROCEDURE create-rec-from-vend-tag :
                  work-gl.actnum = costtype.inv-asset.
                END.
                work-gl.debits = work-gl.debits + v-ext-cost.
+               
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2) 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line) ELSE "").
 
                /* Credit RM AP Accrued */
                FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
@@ -1774,6 +1777,8 @@ PROCEDURE create-rec-from-vend-tag :
                   work-gl.actnum = costtype.ap-accrued.
                END.
                work-gl.credits = work-gl.credits + v-ext-cost.
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2) 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line) ELSE "").
            END.
          END.
 
@@ -2650,7 +2655,7 @@ PROCEDURE gl-from-work :
                           period.pnum,
                           "A",
                           v-post-date,
-                          string(IF AVAIL rm-rctd THEN rm-rctd.i-no ELSE ""),
+                          work-gl.cDesc,
                           "RM").
         ASSIGN
            debits  = 0

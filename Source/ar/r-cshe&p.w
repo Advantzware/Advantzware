@@ -75,7 +75,8 @@ DEFINE TEMP-TABLE ttGLTrans NO-UNDO
     FIELD tr-date AS DATE 
     FIELD period  AS INTEGER 
     FIELD tr-num   AS INTEGER
-    FIELD tr-amt  AS DECIMAL.  
+    FIELD tr-amt  AS DECIMAL
+    FIELD tr-desc AS CHARACTER.  
     
 DEFINE TEMP-TABLE ttARLedger NO-UNDO
     FIELD company  AS CHARACTER 
@@ -1068,7 +1069,7 @@ PROCEDURE pCreateGLTrans PRIVATE :
                    ttGLTrans.period,
                    "A",
                    ttGLTrans.tr-date,
-                   "",
+                   ttGLTrans.tr-desc,
                    "AR").
         
         DELETE ttGLTrans.        
@@ -1199,6 +1200,7 @@ PROCEDURE post-gl :
                          ttGLTrans.period    = tran-period
                          ttGLTrans.tr-num     = xtrnum
                          ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc
+                         ttGLTrans.tr-desc = "Invoice:" + STRING(ar-cashl.inv-no) 
                          .
     
                     IF ar-cashl.amt-disc NE 0 THEN DO:
@@ -1213,7 +1215,8 @@ PROCEDURE post-gl :
                             ttGLTrans.tr-date = tran-date
                             ttGLTrans.tr-amt  = ar-cashl.amt-disc
                             ttGLTrans.period  = tran-period
-                            ttGLTrans.tr-num   = xtrnum.
+                            ttGLTrans.tr-num   = xtrnum
+                            ttGLTrans.tr-desc = "Invoice:" + STRING(ar-cashl.inv-no) .
                     
                         CREATE ttArLedger.
                         ASSIGN
@@ -1262,6 +1265,7 @@ PROCEDURE post-gl :
                         ttGlTrans.period  = tran-period
                         ttGlTrans.tr-num  = xtrnum
                         lv-rowid          = ROWID(ttGLTrans)
+                        ttGlTrans.tr-desc = "Customer:" + cust.cust-no
                         .
                 END.
                 ttGLTrans.tr-amt = ttGLTrans.tr-amt - t1.
@@ -1294,6 +1298,7 @@ PROCEDURE post-gl :
                      ttGLTrans.period  = tran-period
                      ttGLTrans.tr-num  = xtrnum
                      ttGLTrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
+                     ttGlTrans.tr-desc = "Customer:" + ar-cash.cust-no
                      .
         
                 CREATE ttGLTrans.
@@ -1305,7 +1310,8 @@ PROCEDURE post-gl :
                     ttGLTrans.tr-date = tran-date
                     ttGLTrans.period  = tran-period
                     ttGLTrans.tr-num  = xtrnum
-                    ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
+                    ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
+                    ttGlTrans.tr-desc = "Customer:" + ar-cash.cust-no.
             END.
 
             RUN pCreateARLedger.

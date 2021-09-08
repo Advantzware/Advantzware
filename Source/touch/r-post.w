@@ -1500,7 +1500,7 @@ PROCEDURE gl-from-work :
                          period.pnum,
                          "A",
                          TODAY,
-                         "",
+                         work-gl.cDesc,
                          "FG"). 
       assign
        debits  = 0

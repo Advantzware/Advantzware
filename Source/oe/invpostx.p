@@ -12,7 +12,7 @@ def input parameter v-fg as log.
 def input parameter v-i-no as char.
 def input parameter v-inv-no as int.
 def input parameter v-uom like itemfg.prod-uom.
-
+DEFINE INPUT PARAMETER ipDesc AS CHARACTER NO-UNDO.
 def var v-cost-ea as dec.
 
 {oe/invwork.i}
@@ -53,7 +53,8 @@ if v-actnum gt "" and v-cost ne ? then do:
 
   assign
    work-job.amt     = work-job.amt + tmp-work-job.amt
-   work-job.weight  = work-job.weight + tmp-work-job.weight.
+   work-job.weight  = work-job.weight + tmp-work-job.weight
+   work-job.cDesc    = work-job.cDesc + ipDesc.
 
   if not v-fg then v-cgs-test = v-cgs-test + tmp-work-job.amt.
 end.

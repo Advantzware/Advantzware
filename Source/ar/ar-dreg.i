@@ -72,7 +72,7 @@
                              tran-period,
                              "A",
                              tran-date,
-                             "",
+                             "Invoice:" + string(ar-cashl.inv-no),
                              "AR").
         
 

@@ -1068,35 +1068,35 @@ FOR EACH oe-reth
 
         RUN oe/invpostx.p(INPUT prod.cgs-dl,  fg-bin.std-lab-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no) ).
 
         RUN oe/invpostx.p(INPUT prod.fg-lab,  fg-bin.std-lab-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.cgs-fo,  fg-bin.std-fix-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.fg-fo ,  fg-bin.std-fix-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.cgs-vo,  fg-bin.std-var-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.fg-vo ,  fg-bin.std-var-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.cgs-mat, fg-bin.std-mat-cost,
         oe-retl.qty-return-inv, NO,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         RUN oe/invpostx.p(INPUT prod.fg-mat,  fg-bin.std-mat-cost,
         oe-retl.qty-return-inv, YES,itemfg.i-no,
-        oe-reth.inv-no, itemfg.prod-uom).
+        oe-reth.inv-no, itemfg.prod-uom, "Inv: " + STRING(oe-reth.inv-no)).
 
         LEAVE.
       END.
@@ -1187,7 +1187,7 @@ FOR EACH work-job BREAK BY work-job.actnum:
                      tran-period,
                      "A",
                      tran-date,
-                     "",
+                     work-job.cDesc,
                      "AR"). 
   
 END. /* each work-job */

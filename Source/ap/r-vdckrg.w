@@ -55,7 +55,8 @@ def TEMP-TABLE xpayl NO-UNDO field recnum as recid.
 
 def TEMP-TABLE w-disb NO-UNDO field w-actnum   like ap-payl.actnum
                     field w-amt-paid like ap-payl.amt-paid
-                    field w-amt-disc like ap-payl.amt-disc.
+                    field w-amt-disc like ap-payl.amt-disc
+                    FIELD cDesc AS CHARACTER.
 
 {sys/form/r-top3w.f}
 
@@ -844,9 +845,7 @@ do transaction on error undo, leave:
                  vend.acc-bal = vend.acc-bal + ap-payl.amt-paid +
                                        ap-payl.amt-disc.
            end. /* if avail ap-inv .. */
-           RELEASE ap-inv.
-           RELEASE vend.
-
+              
            v-tot-amt-disc = v-tot-amt-disc + ap-payl.amt-disc.
 
            if ap-payl.d-no ne 0 then do:
@@ -854,8 +853,12 @@ do transaction on error undo, leave:
              assign
               w-actnum   = ap-payl.actnum
               w-amt-paid = ap-payl.amt-paid
-              w-amt-disc = ap-payl.amt-disc.
+              w-amt-disc = ap-payl.amt-disc
+              w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no).
            end.
+           
+           RELEASE ap-inv.
+           RELEASE vend.
        end. /* for each ap-payl record */
 
        for each xpayl,
@@ -896,7 +899,7 @@ do transaction on error undo, leave:
                              tran-period,
                              "A",
                              udate,
-                             string(ap-pay.vend-no),
+                             "Vendor:" + string(ap-pay.vend-no),
                              "AP").
           
           ASSIGN 
@@ -920,7 +923,7 @@ do transaction on error undo, leave:
                         tran-period,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        "Vendor" + string(ap-pay.vend-no),
                         "AP").
    end.
 
@@ -944,7 +947,7 @@ do transaction on error undo, leave:
                         tran-period,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        w-disb.cDesc,
                         "AP").
      end.
    end.
@@ -958,7 +961,7 @@ do transaction on error undo, leave:
                         tran-period,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + string(ap-pay.vend-no) ELSE ""),
                         "AP").
 
 end. /* postit */

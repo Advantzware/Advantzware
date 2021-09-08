@@ -15,7 +15,8 @@ def {1} shared TEMP-TABLE work-job NO-UNDO
   field actnum   like account.actnum
   field amt      like inv-line.t-price
   field weight   as dec
-  field fg       as log.
+  field fg       as logical
+  field cDesc    as CHARACTER .
 
 def {1} shared TEMP-TABLE tmp-work-job NO-UNDO
   field actnum   like account.actnum

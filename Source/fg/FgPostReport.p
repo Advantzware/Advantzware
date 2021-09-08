@@ -141,6 +141,7 @@ DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription     AS CHARACTER NO-UNDO.
 
 {fg/fgPostProc.i}
 {sys/form/r-top.i}
@@ -587,7 +588,7 @@ DO:
     PAGE STREAM after.
 
     FOR EACH work-gl BREAK BY work-gl.actnum:
-
+                 
         FIND FIRST account
             WHERE account.company EQ cocode
             AND account.actnum  EQ work-gl.actnum
@@ -611,7 +612,7 @@ DO:
     END. /* each work-job */
 
     FOR EACH work-job BREAK BY work-job.actnum:
-
+                    
         FIND FIRST account
             WHERE account.company EQ cocode
             AND account.actnum  EQ work-job.actnum
