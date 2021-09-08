@@ -27,4 +27,5 @@ DEFINE TEMP-TABLE ttRouting NO-UNDO
     FIELD Pass         AS INTEGER
     FIELD departmentID AS CHARACTER
     FIELD DeptSeq      AS INTEGER
-    FIELD OperationId  AS CHARACTER.
+    FIELD OperationId  AS CHARACTER
+    INDEX idx-sort FormId BlankId Pass.

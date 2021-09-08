@@ -56,5 +56,20 @@ DEFINE TEMP-TABLE ttInk NO-UNDO {&REFONLY}
     FIELD VarnishCount AS INTEGER
     FIELD IsCoating    AS LOGICAL
     FIELD PressType    AS CHARACTER 
-    . 
- 
+    .
+
+DEFINE TEMP-TABLE ttMachineList NO-UNDO {&REFONLY}
+    FIELD Company       AS CHARACTER
+    FIELD OperationId   AS CHARACTER
+    .
+        
+DEFINE TEMP-TABLE ttDeptLimit NO-UNDO {&REFONLY}
+    FIELD DeptCode       AS CHARACTER
+    FIELD ShtLength      AS DECIMAL 
+    FIELD ShtWidth       AS DECIMAL 
+    FIELD Caliper        AS DECIMAL
+    FIELD NumColors      AS INTEGER
+    FIELD PressType      AS CHARACTER
+    .  
+    
+    
