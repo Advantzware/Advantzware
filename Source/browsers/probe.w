@@ -2049,7 +2049,9 @@ IF CAN-FIND(FIRST xprobe
             quotechg.amt = v-tot-mat + v-tot-lab.
             
             IF quotechg.prep-qty NE 0 THEN
-               quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
+               ASSIGN 
+                quotechg.spare-dec-1 = quotechg.amt / quotechg.prep-qty
+                quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
                              + (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000)))) / quotechg.prep-qty.
             
 
