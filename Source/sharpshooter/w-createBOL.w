@@ -75,7 +75,7 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL 
-&Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer 
+&Scoped-Define DISPLAYED-OBJECTS fiTrailer fiTag 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,12 +143,12 @@ DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiTrailer AT ROW 1.24 COL 118 COLON-ALIGNED WIDGET-ID 10
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
-     fiTrailer AT ROW 3.14 COL 118 COLON-ALIGNED WIDGET-ID 10
-     btDelete AT ROW 23.14 COL 195 WIDGET-ID 16 NO-TAB-STOP 
+     btDelete AT ROW 31.71 COL 178 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
-     btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
+     btPrintBOL AT ROW 31.71 COL 187 WIDGET-ID 12 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -174,10 +174,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Create BOL"
          HEIGHT             = 32.81
          WIDTH              = 202
-         MAX-HEIGHT         = 32.81
-         MAX-WIDTH          = 202
-         VIRTUAL-HEIGHT     = 32.81
-         VIRTUAL-WIDTH      = 202
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
          MIN-BUTTON         = no
          MAX-BUTTON         = no
          RESIZE             = no
@@ -256,6 +259,16 @@ DO:
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-RESIZED OF W-Win /* Create BOL */
+DO:
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -446,19 +459,19 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 56.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 195.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_viewfginquiry ).
-       RUN set-position IN h_viewfginquiry ( 2.91 , 148.00 ) NO-ERROR.
+       RUN set-position IN h_viewfginquiry ( 1.00 , 148.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.48 , 192.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -507,7 +520,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
        RUN set-position IN h_b-releasetags ( 14.57 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 19.05 , 193.00 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 16.43 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -530,7 +543,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 25.29 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 23.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -538,7 +551,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 27.19 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 25.05 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
@@ -554,13 +567,13 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             btReset:HANDLE IN FRAME F-Main , 'BEFORE':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_releasefilter , 'AFTER':U ).
+             fiTrailer:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
-             btReset:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
+             h_releasefilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
+             fiTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
              h_b-releaseitems , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
@@ -640,7 +653,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiTrailer 
+  DISPLAY fiTrailer fiTag 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btReset fiTag btDelete btPrintBOL 
       WITH FRAME F-Main IN WINDOW W-Win.
@@ -659,12 +672,14 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pWinReSize.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -697,53 +712,53 @@ PROCEDURE pInit :
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
+        RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
+        RUN spGetSessionParam (INPUT "CompanyName", OUTPUT cCompanyName).
+        RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
+    
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
+                             + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
+                             + cCompanyName + " - " + cLocation.
+                             
+        fiTrailer:HIDDEN = NOT glScanTrailer.
+    
+        RUN sys/ref/nk1look.p (
+            INPUT  cCompany,
+            INPUT  "SSBOLPRINT",
+            INPUT  "L",
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  "",
+            INPUT  "",
+            OUTPUT cResult,
+            OUTPUT lFound
+            ).
+        IF NOT lFound THEN
+            lSSBOLPrint = ?.
+        ELSE
+            lSSBOLPrint = LOGICAL(cResult).
+            
+        RUN sys/ref/nk1look.p (
+            INPUT  cCompany,
+            INPUT  "SSBOLPRINT",
+            INPUT  "I",
+            INPUT  NO,
+            INPUT  NO,
+            INPUT  "",
+            INPUT  "",
+            OUTPUT cResult,
+            OUTPUT lFound
+            ).
+        
+        iSSBOLPrint = INTEGER(cResult).
+            
+        RUN pInvalidRelease.
+        
+        /* If scan trailer is enabled */
+        IF glScanTrailer THEN
+            btReset:TAB-STOP = FALSE.
     END.
-    
-    RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
-    RUN spGetSessionParam (INPUT "CompanyName", OUTPUT cCompanyName).
-    RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
 
-    {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                         + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
-                         + cCompanyName + " - " + cLocation.
-                         
-    fiTrailer:HIDDEN = NOT glScanTrailer.
-
-    RUN sys/ref/nk1look.p (
-        INPUT  cCompany,
-        INPUT  "SSBOLPRINT",
-        INPUT  "L",
-        INPUT  NO,
-        INPUT  NO,
-        INPUT  "",
-        INPUT  "",
-        OUTPUT cResult,
-        OUTPUT lFound
-        ).
-    IF NOT lFound THEN
-        lSSBOLPrint = ?.
-    ELSE
-        lSSBOLPrint = LOGICAL(cResult).
-        
-    RUN sys/ref/nk1look.p (
-        INPUT  cCompany,
-        INPUT  "SSBOLPRINT",
-        INPUT  "I",
-        INPUT  NO,
-        INPUT  NO,
-        INPUT  "",
-        INPUT  "",
-        OUTPUT cResult,
-        OUTPUT lFound
-        ).
-    
-    iSSBOLPrint = INTEGER(cResult).
-        
-    RUN pInvalidRelease.
-    
-    /* If scan trailer is enabled */
-    IF glScanTrailer THEN
-        btReset:TAB-STOP = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -995,6 +1010,74 @@ PROCEDURE pValidRelease PRIVATE :
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "DisableRelease"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&WINDOW-NAME}:ROW                 = 1
+            {&WINDOW-NAME}:COL                 = 1
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            btPrintBOL:ROW                     = {&WINDOW-NAME}:HEIGHT - 1.1
+            btPrintBOL:COL                     = {&WINDOW-NAME}:WIDTH  - btPrintBOL:WIDTH - 1
+            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
+            btDelete:COL                       = btPrintBOL:COL - btDelete:WIDTH - 1
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            .
+        RUN set-position IN h_exit ( 1.48 , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatefirst-2 ( 6.95 , dCol ) NO-ERROR.
+        RUN set-position IN h_navigateprev-2 ( 8.86 , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatenext-2 ( 10.76 , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatelast-2 ( 12.67 , dCol ) NO-ERROR.
+        RUN get-size IN h_b-releaseitems ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
+        ASSIGN
+            dHeight = ({&WINDOW-NAME}:HEIGHT - dHeight) * .65
+            dWidth  = dCol - 2
+            .
+        RUN set-size IN h_b-releaseitems ( dHeight , dWidth ) NO-ERROR.
+
+        RUN get-position IN h_b-releasetags ( OUTPUT dRow , OUTPUT dCol ) NO-ERROR.
+        ASSIGN
+            dRow    = dHeight + 5.25
+            dHeight = dHeight - 10
+            .
+        RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
+        RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
+        ASSIGN
+            dCol = {&WINDOW-NAME}:WIDTH - 8
+            dRow = dRow + 1.9
+            .
+        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 

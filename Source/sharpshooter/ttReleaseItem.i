@@ -30,6 +30,7 @@ DEFINE TEMP-TABLE ttReleaseItem NO-UNDO
     FIELD quantityReceivedPO        AS DECIMAL     LABEL "PO Quantity Received"       FORMAT "->>>>>>>>9.99<<<<"
     FIELD underRunPercent           AS DECIMAL     LABEL "Under Run %"                FORMAT ">>9.99"
     FIELD overRunPercent            AS DECIMAL     LABEL "Over Run %"                 FORMAT ">>9.99"
+    FIELD emptyColumn               AS CHARACTER   LABEL ""
     INDEX idxRelease company releaseID 
     INDEX idxItem company releaseID itemID
     INDEX idxOrderPO company releaseID itemID orderID customerPO

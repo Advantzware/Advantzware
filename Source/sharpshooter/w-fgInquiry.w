@@ -351,6 +351,9 @@ DO:
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
     
+    IF VALID-HANDLE(hKeyboard) THEN
+        DELETE OBJECT hKeyboard.
+
     IF VALID-HANDLE(hdFGProcs) THEN
         DELETE PROCEDURE hdFGProcs.
         
@@ -1139,6 +1142,9 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hKeyboard) THEN
+        DELETE OBJECT hKeyboard.
+
     IF VALID-HANDLE(hdFGProcs) THEN
         DELETE PROCEDURE hdFGProcs.
         

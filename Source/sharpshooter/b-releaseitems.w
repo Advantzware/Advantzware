@@ -158,18 +158,19 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      itemID WIDTH 40
-      orderID WIDTH 15
-      customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
+      ttReleaseItem.itemID WIDTH 40
+      ttReleaseItem.orderID WIDTH 15
+      ttReleaseItem.customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
       fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO" FORMAT "->>>>>>>9" WIDTH 19
-      quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>>>>>>9" WIDTH 19
-      quantityRelease COLUMN-LABEL "Released" FORMAT "->>>>>>>9" WIDTH 19
-      quantityScanned COLUMN-LABEL "Scanned" FORMAT "->>>>>>>9" WIDTH 19
-      quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
-      quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
+      ttReleaseItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityRelease COLUMN-LABEL "Released" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityScanned COLUMN-LABEL "Scanned" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
+      ttReleaseItem.quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
+      ttReleaseItem.emptyColumn
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
