@@ -786,7 +786,7 @@ DEF INPUT PARAM ip-run AS INT NO-UNDO.
                          period.pnum,
                          "A",
                          TODAY,
-                         "",
+                         (IF work-gl.job-no NE "" THEN "Job:" + work-gl.job-no + "-" + STRING(work-gl.job-no2) ELSE ""),
                          "FG"). 
       assign
        debits  = 0
