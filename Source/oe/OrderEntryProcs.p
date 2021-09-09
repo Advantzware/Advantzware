@@ -21,6 +21,7 @@ DEFINE VARIABLE giFoamDate  AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcLastShip  AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE gdLastShip  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE giLastShip  AS INTEGER NO-UNDO.
+DEFINE VARIABLE gcCePrepPrice AS CHARACTER NO-UNDO.
 DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -276,6 +277,44 @@ PROCEDURE pGetEstDetail PRIVATE:
                         DECIMAL(ttInputOrdLine.cas-cnt),    
                         OUTPUT ttInputOrdLine.t-price).                
         END.
+        FOR EACH est-prep WHERE est-prep.company EQ ipcCompany
+                      AND est-prep.est-no EQ est.est-no
+                      AND est-prep.simon EQ "S" 
+                      AND est-prep.orderID EQ ""  NO-LOCK :
+                      
+                      FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
+                      FIND FIRST prep NO-LOCK
+                           WHERE prep.company EQ ipcCompany 
+                           AND prep.code = est-prep.CODE NO-ERROR.
+                           
+                      iLine = iLine + 1.    
+                      CREATE ttInputOrdLine.
+                      ASSIGN
+                      ttInputOrdLine.cItemType = "Misc"
+                      ttInputOrdLine.company = ipcCompany                           
+                      ttInputOrdLine.line = iLine
+                      ttInputOrdLine.i-no = est-prep.code
+                      ttInputOrdLine.i-name = IF est-prep.dscr <> "" THEN est-prep.dscr ELSE prep.dscr
+                      ttInputOrdLine.cAccount = IF AVAIL prep AND prep.actnum <> "" THEN prep.actnum ELSE ar-ctrl.sales
+                      ttInputOrdLine.dAmount = IF gcCePrepPrice EQ "Profit" THEN
+                                               (est-prep.cost * est-prep.qty) / (1 - (est-prep.mkup / 100)) * 
+                                               (est-prep.amtz / 100)
+                                               ELSE
+                                               (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
+                                               (est-prep.amtz / 100)
+                      ttInputOrdLine.qty    = est-prep.qty                         
+                      ttInputOrdLine.est-no = est-prep.est-no  
+                      ttInputOrdLine.price  = est-prep.cost
+                      ttInputOrdLine.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
+                      ttInputOrdLine.cBill  = "Y"
+                      ttInputOrdLine.form-no = est-prep.s-num 
+                      ttInputOrdLine.blank-no = est-prep.b-num 
+                      ttInputOrdLine.cQtyUom  = "EA"
+                      ttInputOrdLine.pr-uom  = "EA".
+                      RUN Tax_GetTaxableAR  (ipcCompany, ttInputOrd.cust-no, ttInputOrd.ship-id, "", OUTPUT lTaxable).
+                      ttInputOrdLine.tax = lTaxable.
+                
+        END.       
           
     END.
     
@@ -287,50 +326,53 @@ PROCEDURE pCreateJob PRIVATE:
      Purpose: Returns the order evaluation parameters
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ttInputOrd FOR ttInputOrd.
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
     
     //DEFINE OUTPUT PARAMETER op-recid AS RECID NO-UNDO.
 
     DEFINE BUFFER v-ord-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
 
     DEFINE VARIABLE v-job-job LIKE job.job NO-UNDO.
     DEFINE VARIABLE v-job-no  LIKE job.job-no NO-UNDO.
     DEFINE VARIABLE v-job-no2 LIKE job.job-no2 NO-UNDO.
     DEFINE VARIABLE li-j-no   AS INTEGER NO-UNDO.  
-              MESSAGE "ipbf-ttInputOrd.company " STRING(ipbf-ttInputOrd.company) VIEW-AS ALERT-BOX ERROR .
-    FIND LAST job WHERE job.company EQ ipbf-ttInputOrd.company NO-LOCK NO-ERROR.
+    
+    FIND FIRST bf-oe-ord WHERE ROWID(bf-oe-ord) EQ iprwRowid NO-LOCK NO-ERROR.
+              
+    FIND LAST job WHERE job.company EQ bf-oe-ord.company NO-LOCK NO-ERROR.
     v-job-job = IF AVAILABLE job THEN job.job + 1 ELSE 1.
     ASSIGN
-        v-job-no  = ipbf-ttInputOrd.job-no
-        v-job-no2 = ipbf-ttInputOrd.job-no2.
+        v-job-no  = bf-oe-ord.job-no
+        v-job-no2 = bf-oe-ord.job-no2.
 
     FOR EACH job
-        WHERE job.company EQ ipbf-ttInputOrd.company
+        WHERE job.company EQ bf-oe-ord.company
         AND job.job-no  EQ v-job-no
         AND job.job-no2 EQ v-job-no2:
         DELETE job.
     END.
-
+         
     CREATE job.
     ASSIGN 
         job.job       = v-job-job
-        job.company   = ipbf-ttInputOrd.company
-        job.loc       = ipbf-ttInputOrd.loc
-        job.est-no    = ipbf-ttInputOrd.est-no
+        job.company   = bf-oe-ord.company
+        job.loc       = bf-oe-ord.loc
+        job.est-no    = bf-oe-ord.est-no
         job.job-no    = v-job-no
         job.job-no2   = v-job-no2
         job.stat      = "P"
-        job.ordertype = ipbf-ttInputOrd.type
+        job.ordertype = bf-oe-ord.type
         //op-recid      = RECID(job)
         .
 
-    FOR EACH oe-ordl WHERE oe-ordl.company EQ ipbf-ttInputOrd.company
-        AND oe-ordl.ord-no  EQ ipbf-ttInputOrd.ord-no exclusive:
+    FOR EACH oe-ordl WHERE oe-ordl.company EQ bf-oe-ord.company
+        AND oe-ordl.ord-no  EQ bf-oe-ord.ord-no exclusive:
         FIND FIRST job-hdr NO-LOCK
-            WHERE job-hdr.company EQ ipbf-ttInputOrd.company
-            AND job-hdr.job-no  EQ oe-ord.job-no
-            AND job-hdr.job-no2 EQ oe-ord.job-no2
-            AND job-hdr.ord-no  EQ oe-ord.ord-no
+            WHERE job-hdr.company EQ bf-oe-ord.company
+            AND job-hdr.job-no  EQ bf-oe-ord.job-no
+            AND job-hdr.job-no2 EQ bf-oe-ord.job-no2
+            AND job-hdr.ord-no  EQ bf-oe-ord.ord-no
             AND job-hdr.i-no    EQ oe-ordl.i-no
             NO-ERROR.
 
@@ -342,9 +384,9 @@ PROCEDURE pCreateJob PRIVATE:
 
             CREATE job-hdr.
             ASSIGN 
-                job-hdr.company  = ipbf-ttInputOrd.company
-                job-hdr.loc      = ipbf-ttInputOrd.loc
-                job-hdr.est-no   = ipbf-ttInputOrd.est-no
+                job-hdr.company  = bf-oe-ord.company
+                job-hdr.loc      = bf-oe-ord.loc
+                job-hdr.est-no   = bf-oe-ord.est-no
                 job-hdr.i-no     = oe-ordl.i-no
                 job-hdr.qty      = oe-ordl.qty 
                 job-hdr.cust-no  = oe-ordl.cust-no
@@ -376,7 +418,7 @@ PROCEDURE pCreateJob PRIVATE:
         END.
 
         ASSIGN 
-            job-hdr.est-no  = ipbf-ttInputOrd.est-no
+            job-hdr.est-no  = bf-oe-ord.est-no
             job-hdr.job     = job.job
             job-hdr.job-no  = job.job-no
             job-hdr.job-no2 = job.job-no2
@@ -388,17 +430,8 @@ PROCEDURE pCreateJob PRIVATE:
         FIND CURRENT job-hdr NO-LOCK.
     END.
     
-    FIND CURRENT job NO-LOCK.
-  
-    IF AVAILABLE job AND INDEX("HWPRL",job.stat) NE 0 THEN
-    DO:
-        ASSIGN            
-            nufile = YES.
-           
-        RUN jc/jc-calc.p(RECID(job), NO).
-    END.         
-    
-    
+    FIND CURRENT job NO-LOCK.   
+       
 END PROCEDURE.
 
 PROCEDURE pSaveData PRIVATE:
@@ -454,11 +487,16 @@ PROCEDURE pSaveData PRIVATE:
     
     IF ttInputOrd.lCreateJob AND bf-oe-ord.job-no NE "" THEN
     DO:
-        cJobNo  = bf-oe-ord.job-no.
+        cJobNo  = FILL(" ",6 - length(TRIM(STRING(iOrderNo)))) + string(iOrderNo).
         iJobNo2 = bf-oe-ord.job-no2.
         RUN jc/job-no.p (INPUT-OUTPUT cJobNo, INPUT-OUTPUT iJobNo2,INPUT /*eb.procat*/ "Boxes",
                                 INPUT ttInputOrd.est-no).
-                                   
+                                        
+        IF cJobNo NE "" THEN 
+        ASSIGN
+            bf-oe-ord.job-no  = cJobNo
+            bf-oe-ord.job-no2 = iJobNo2 .                                         
+     
         FIND FIRST job NO-LOCK
              WHERE job.company EQ bf-oe-ord.company
              AND job.job-no  EQ bf-oe-ord.job-no
@@ -466,7 +504,7 @@ PROCEDURE pSaveData PRIVATE:
              NO-ERROR.
         IF NOT AVAILABLE job THEN
         DO:
-           //RUN pCreateJob( BUFFER ttInputOrd) . 
+           RUN pCreateJob( ROWID(bf-oe-ord)) . 
         END.                
         
     END.
@@ -537,7 +575,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     IF lRecFound THEN
      giLastShip = INTEGER(cReturnChar) NO-ERROR. 
      
-     
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEPREPPRICE", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     gcCePrepPrice = cReturnChar NO-ERROR. 
+          
       
 END PROCEDURE.
 

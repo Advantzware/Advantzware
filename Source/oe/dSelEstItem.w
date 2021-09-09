@@ -151,7 +151,7 @@ DEFINE BROWSE BROWSE-1
     ttEstItem.isSelected COLUMN-LABEL '[]'  VIEW-AS TOGGLE-BOX 
     ttEstItem.estLine  WIDTH 10 FORMAT ">9"
     ttEstItem.estCust LABEL-BGCOLOR 14 FORMAT "x(8)"
-    ttEstItem.estItem FORMAT "x(15)" WIDTH 18 
+    ttEstItem.estItem FORMAT "x(15)" WIDTH 21 
     ttEstItem.estPart FORMAT "x(15)" WIDTH 18 
     ttEstItem.estDesc FORMAT "x(30)" WIDTH 32 
     ttEstItem.estQty FORMAT "->>,>>>,>>9" WIDTH 16 

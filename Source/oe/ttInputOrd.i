@@ -27,6 +27,9 @@ DEFINE TEMP-TABLE ttInputOrdLine like oe-ordl
          FIELD lCreateJob AS LOGICAL LABEL "Create Job"
          FIELD lCreatePo AS LOGICAL LABEL "Create Po"
          FIELD cOverUnderTagDesc AS CHARACTER 
+         FIELD cAccount AS CHARACTER
+         FIELD dAmount AS DECIMAL
+         FIELD cBill AS CHARACTER
     .
 
 DEFINE TEMP-TABLE ttEstItem 
