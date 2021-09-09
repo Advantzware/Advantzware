@@ -357,7 +357,7 @@ DEFINE VARIABLE begin_userid AS CHARACTER FORMAT "X(8)":U
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
-     LABEL "From Warehouse" 
+     LABEL "From Location" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -387,7 +387,7 @@ DEFINE VARIABLE end_userid AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_whs AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
-     LABEL "To Warehouse" 
+     LABEL "To Location" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -599,9 +599,9 @@ DEFINE FRAME FRAME-A
      end_i-no AT ROW 8.62 COL 69 COLON-ALIGNED HELP
           "Enter the To FG Item Number"
      end_whs AT ROW 9.57 COL 69 COLON-ALIGNED HELP
-          "Enter the To Warehouse" WIDGET-ID 4
+          "Enter the To Location" WIDGET-ID 4
      begin_whs AT ROW 9.62 COL 26 COLON-ALIGNED HELP
-          "Enter the from Warehouse" WIDGET-ID 2
+          "Enter the from Location" WIDGET-ID 2
      tg-recalc-cost AT ROW 10.71 COL 28 WIDGET-ID 32
      v-trans-lbl AT ROW 12.86 COL 2 NO-LABEL
      tgl-itemCD AT ROW 12.86 COL 38 WIDGET-ID 16
@@ -3549,7 +3549,7 @@ PROCEDURE print-and-post :
         MESSAGE "Sorry, these FG Transactions cannot be processed because 1 or " +
             "more have an invalid bin. Please correct and retry. "  SKIP          
             "     Item " + fg-rctd.i-no  SKIP
-            "     Whse " + fg-rctd.loc   SKIP
+            "     Loc " + fg-rctd.loc   SKIP
             "      Bin " + fg-rctd.loc-bin SKIP
             "     Sequence: " + string(fg-rctd.r-no)
         VIEW-AS ALERT-BOX ERROR.
@@ -3735,7 +3735,7 @@ FORM HEADER
     WITH FRAME after STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
 FORM HEADER
-     "WHSE:"
+     "LOC:"
      v-whse
      SKIP    
      "         TOTAL"   AT 128    
@@ -4437,7 +4437,7 @@ FUNCTION fnValidateTransfers RETURNS LOGICAL
         DO:
             MESSAGE "A transfer exists for item " w-fg-rctd.i-no SKIP
                 "with an invalid location:" SKIP
-                "  Warehouse = " w-fg-rctd.loc SKIP
+                "  Location = " w-fg-rctd.loc SKIP
                 "  Bin = " w-fg-rctd.loc-bin SKIP
                 "  Tag = " w-fg-rctd.tag SKIP
                 "Please correct and re-run the posting process." SKIP
@@ -4448,7 +4448,7 @@ FUNCTION fnValidateTransfers RETURNS LOGICAL
             DO:
                 MESSAGE "A blank UOM exists for item bin " w-fg-rctd.i-no SKIP
                     "with location:" SKIP
-                    "  Warehouse = " w-fg-rctd.loc SKIP
+                    "  Location = " w-fg-rctd.loc SKIP
                     "  Bin = " w-fg-rctd.loc-bin SKIP
                     "  Tag = " w-fg-rctd.tag SKIP
                     "Please correct and re-run the posting process." SKIP
