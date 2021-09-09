@@ -2646,6 +2646,8 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
  
+ DEFINE VARIABLE lGrossProfitVisible AS LOGICAL NO-UNDO.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
   FOR EACH probe EXCLUSIVE-LOCK 
@@ -2671,13 +2673,19 @@ PROCEDURE local-open-query :
     RUN est/usemargin.p (ROWID(est), OUTPUT ll-use-margin).
 
   ASSIGN
-     probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
+     lGrossProfitVisible = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
+     probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = lGrossProfitVisible
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
+  
   IF AVAIL est and est.estimateTypeID EQ "Misc" THEN 
-  ASSIGN
+    ASSIGN
        probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NO
        probe.net-profit:VISIBLE IN BROWSE {&browse-name} = NO.
-
+  ELSE 
+    ASSIGN 
+       probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = lGrossProfitVisible
+       probe.net-profit:VISIBLE IN BROWSE {&browse-name}   = YES.
+          
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"
                        NO-ERROR.
