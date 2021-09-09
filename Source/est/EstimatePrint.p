@@ -595,6 +595,79 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 40, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 30, NO, NO, NO).
     
+    RUN pPrintItemInfoDetailForSourceEstimate(BUFFER ipbf-estCostBlank, iItemColumn2, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    
+END PROCEDURE.
+
+PROCEDURE pPrintItemInfoDetailForSourceEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: If the item has a source estimate, print additional source estimate
+        details.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostBlank FOR estCostBlank.
+    DEFINE INPUT PARAMETER ipiColumn AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+        
+    DEFINE BUFFER bf-eb        FOR eb.
+    DEFINE BUFFER bfSource-eb  FOR eb.
+    DEFINE BUFFER bfSource-ef  FOR ef.
+    DEFINE BUFFER bfBoard-item FOR ITEM.
+    DEFINE BUFFER bfInk-item   FOR ITEM.
+    DEFINE BUFFER bfAdder-item FOR ITEM.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO. 
+    
+    FOR FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipbf-estCostBlank.company
+        AND bf-eb.est-no EQ ipbf-estCostBlank.estimateNo
+        AND bf-eb.form-no EQ ipbf-estCostBlank.formNo
+        AND bf-eb.blank-no EQ ipbf-estCostBlank.blankNo
+        AND bf-eb.sourceEstimate NE "",
+        FIRST bfSource-eb NO-LOCK 
+        WHERE bfSource-eb.company EQ bf-eb.company
+        AND bfSource-eb.est-no EQ bf-eb.sourceEstimate
+        AND bfSource-eb.form-no EQ bf-eb.form-no
+        AND bfSource-eb.blank-no EQ bf-eb.blank-no,
+        FIRST bfSource-ef NO-LOCK OF bfSource-eb,
+        FIRST bfBoard-item NO-LOCK 
+        WHERE bfBoard-item.company EQ bfSource-ef.company
+        AND bfBoard-item.i-no EQ bfSource-ef.board
+        :
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Board: " + bfBoard-item.est-dscr, 40 , NO, NO, NO).
+        DO iIndex = 1 TO EXTENT(bfSource-ef.adder):
+            IF bfSource-ef.adder[iIndex] NE "" THEN DO: 
+                FIND FIRST bfAdder-item NO-LOCK
+                    WHERE bfAdder-item.company EQ bfSource-ef.company
+                    AND bfAdder-item.i-no EQ bfSource-ef.adder[iIndex]
+                    NO-ERROR.
+                
+                IF AVAILABLE bfAdder-item THEN DO:
+                    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Adder: " + bfAdder-item.est-dscr, 40 , NO, NO, NO).
+                    RELEASE bfAdder-item.
+                END.
+            END.
+        END.
+        DO iIndex = 1 TO EXTENT(bfSource-eb.i-code):
+            IF bfSource-eb.i-code[iIndex] NE "" THEN 
+            DO:
+                FIND FIRST bfInk-item NO-LOCK
+                    WHERE bfInk-item.company EQ bfSource-ef.company
+                    AND bfInk-item.i-no EQ bfSource-eb.i-code[iIndex]
+                    NO-ERROR.
+                
+                IF AVAILABLE bfInk-item THEN DO:
+                    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Ink: " + bfInk-item.est-dscr, 40 , NO, NO, NO).
+                    RELEASE bfInk-item.
+                END.
+            END.
+        END.
+    END.
+
 END PROCEDURE.
 
 PROCEDURE pPrintItemInfoForForm PRIVATE:
