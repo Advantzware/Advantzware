@@ -6,31 +6,30 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 {custom/globdefs.i}
 
-DEF VAR li AS INT NO-UNDO.
+DEFINE VARIABLE iQNo AS INTEGER NO-UNDO.
 
-REPEAT:
-        
-   FIND FIRST ce-ctrl where
-        ce-ctrl.company = g_company and 
-        ce-ctrl.loc     = g_loc
-        EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-   IF AVAIL ce-ctrl THEN
-   DO:
-      ASSIGN
-         ce-ctrl.q-num = ce-ctrl.q-num + 1.
-         li = ce-ctrl.q-num.
-
-      FIND FIRST ce-ctrl WHERE
-           ce-ctrl.company = g_company and 
-           ce-ctrl.loc     = g_loc
-           NO-LOCK.
-      LEAVE.
-   END.
-END.
-
+DO WHILE TRUE:
+    FIND FIRST ce-ctrl EXCLUSIVE-LOCK
+         WHERE ce-ctrl.company EQ g_company
+           AND ce-ctrl.loc     EQ g_loc
+         NO-ERROR NO-WAIT.
+    IF AVAILABLE ce-ctrl THEN DO:
+        iQNo = ce-ctrl.q-num.
+        DO WHILE TRUE:
+            iQNo = iQNo + 1.
+            IF NOT CAN-FIND(FIRST {&TABLENAME}
+                            WHERE {&TABLENAME}.company EQ g_company
+                              AND {&TABLENAME}.loc     EQ g_loc
+                              AND {&TABLENAME}.q-no    EQ iQNo) THEN
+            LEAVE.
+        END. /* do while */
+        ce-ctrl.q-num = ce-ctrl.q-num.
+        RELEASE ce-ctrl.
+        LEAVE.
+    END. /* if avail */
+END. /* do while */
 ASSIGN
- {&TABLENAME}.company = g_company
- {&TABLENAME}.loc     = g_loc
- {&TABLENAME}.q-no    = li.
-
+    {&TABLENAME}.company = g_company
+    {&TABLENAME}.loc     = g_loc
+    {&TABLENAME}.q-no    = iQNo
+    .
