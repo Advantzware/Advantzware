@@ -120,6 +120,9 @@ FUNCTION fGetCostGroupLabel RETURNS CHARACTER PRIVATE
 	 ipcCostGroupID AS CHARACTER,
 	 ipcCostGroupLabel AS CHARACTER) FORWARD.
 
+FUNCTION fGetMaterialDescription RETURNS CHARACTER PRIVATE
+	(BUFFER ipbf-item FOR item) FORWARD.
+
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -636,7 +639,7 @@ PROCEDURE pPrintItemInfoDetailForSourceEstimate PRIVATE:
         AND bfBoard-item.i-no EQ bfSource-ef.board
         :
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Board: " + bfBoard-item.est-dscr, 40 , NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Board: " + fGetMaterialDescription(BUFFER bfBoard-item), 40 , NO, NO, NO).
         DO iIndex = 1 TO EXTENT(bfSource-ef.adder):
             IF bfSource-ef.adder[iIndex] NE "" THEN DO: 
                 FIND FIRST bfAdder-item NO-LOCK
@@ -646,7 +649,7 @@ PROCEDURE pPrintItemInfoDetailForSourceEstimate PRIVATE:
                 
                 IF AVAILABLE bfAdder-item THEN DO:
                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Adder: " + bfAdder-item.est-dscr, 40 , NO, NO, NO).
+                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Adder: " + fGetMaterialDescription(BUFFER bfAdder-item), 40 , NO, NO, NO).
                     RELEASE bfAdder-item.
                 END.
             END.
@@ -661,7 +664,7 @@ PROCEDURE pPrintItemInfoDetailForSourceEstimate PRIVATE:
                 
                 IF AVAILABLE bfInk-item THEN DO:
                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Ink: " + bfInk-item.est-dscr, 40 , NO, NO, NO).
+                    RUN pWriteToCoordinatesString(iopiRowCount, ipiColumn, "Ink: " + fGetMaterialDescription(BUFFER bfInk-item), 40 , NO, NO, NO).
                     RELEASE bfInk-item.
                 END.
             END.
@@ -2047,6 +2050,23 @@ FUNCTION fGetCostGroupLabel RETURNS CHARACTER PRIVATE
     
     RETURN cLabel.
 		
+END FUNCTION.
+
+FUNCTION fGetMaterialDescription RETURNS CHARACTER PRIVATE
+	(BUFFER ipbf-item FOR item ):
+/*------------------------------------------------------------------------------
+ Purpose:  Given an item buffer, return the description
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    
+    IF ipbf-item.est-dscr NE "" THEN 
+        cDescription = ipbf-item.est-dscr.
+    ELSE 
+        cDescription = ipbf-item.i-name.    
+
+    RETURN cDescription.
+    		
 END FUNCTION.
 
 FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
