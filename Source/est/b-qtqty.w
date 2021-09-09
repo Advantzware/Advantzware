@@ -610,7 +610,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+    
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   {methods/winReSizeLocInit.i}
@@ -640,7 +640,8 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  RUN pHideColumn.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -848,6 +849,37 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHideColumn B-table-Win 
+PROCEDURE pHideColumn :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE BUFFER bf-est FOR est.
+ DEFINE BUFFER bf-quotehd FOR quotehd.
+ IF AVAILABLE quoteitm THEN
+        FIND FIRST bf-quotehd OF quoteitm NO-LOCK NO-ERROR.
+
+ IF AVAIL bf-quotehd THEN
+ DO:
+     FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company EQ bf-quotehd.company 
+        AND bf-est.est-no  EQ bf-quotehd.est-no                     
+        USE-INDEX est-no NO-ERROR.
+     IF AVAIL bf-est AND bf-est.estimateTypeID EQ "Misc" THEN
+     DO:
+         quoteqty.profit:VISIBLE IN BROWSE {&browse-name} = NO.
+     END.
+     ELSE quoteqty.profit:VISIBLE IN BROWSE {&browse-name} = YES.
+        
+     
+ END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
