@@ -2673,6 +2673,10 @@ PROCEDURE local-open-query :
   ASSIGN
      probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
+  IF AVAIL est and est.estimateTypeID EQ "Misc" THEN 
+  ASSIGN
+       probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NO
+       probe.net-profit:VISIBLE IN BROWSE {&browse-name} = NO.
 
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"

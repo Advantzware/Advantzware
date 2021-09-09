@@ -321,7 +321,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         ASSIGN LvLineCnt = LvLineCnt + 1 
         v-cell = "R" + string(LvLineCnt) + "C2".
         chExcelApplication:Goto(v-cell) NO-ERROR.
-        ASSIGN chExcelApplication:ActiveCell:Value = "Color: " + STRING(eb.i-col + eb.i-coat) .
+        ASSIGN chExcelApplication:ActiveCell:Value = "Colors: " + STRING(eb.i-col + eb.i-coat) .
     END.
     
     IF AVAIL xqqty THEN DO:
@@ -361,7 +361,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ASSIGN v-cell = "R" + string(inrowcount) + "C7".
 
        chExcelApplication:Goto(v-cell) NO-ERROR.
-       ASSIGN chExcelApplication:ActiveCell:Value = (IF AVAIL probe THEN STRING(ROUND( probe.sell-price / probe.bsf,2)) ELSE ""). 
+       ASSIGN chExcelApplication:ActiveCell:Value = IF AVAIL est and est.estimateTypeID EQ "Misc" THEN "" ELSE (IF AVAIL probe THEN STRING(ROUND( probe.sell-price / probe.bsf,2)) ELSE ""). 
            
     END.
 

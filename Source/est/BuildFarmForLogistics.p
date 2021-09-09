@@ -339,7 +339,8 @@ PROCEDURE pCopyInksAndDesign PRIVATE:
              ipbf-eb.i-coat-p    = bf-eb.i-coat-p
              ipbf-eb.i-coldscr   = bf-eb.i-coldscr
              ipbf-eb.casNoCharge = YES
-             ipbf-eb.trNoCharge  = YES. 
+             ipbf-eb.trNoCharge  = YES
+             ipbf-eb.inkNoCharge = YES. 
         FIND CURRENT ipbf-eb NO-LOCK NO-ERROR.     
     END.   
     
