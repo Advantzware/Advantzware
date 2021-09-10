@@ -641,8 +641,8 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                v-shpnote[4] = ''
                v-whs-ship-id = IF AVAIL xoe-ordl AND
                                   AVAIL oe-rel-whse THEN
-                                  "WHSE" ELSE ""
-               v-ship-id    = IF v-whs-ship-id NE "" THEN "WHSE"
+                                  "LOC" ELSE ""
+               v-ship-id    = IF v-whs-ship-id NE "" THEN "LOC"
                               ELSE IF AVAIL xoe-rel AND TRIM(xoe-rel.ship-id) NE "" THEN
                                  xoe-rel.ship-id
                               ELSE IF AVAIL xoe-ord AND TRIM(xoe-ord.sold-id) NE "" THEN
@@ -677,12 +677,12 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                FIND FIRST b1-shipto NO-LOCK WHERE
                           b1-shipto.company EQ xoe-ordl.company AND
                           b1-shipto.cust-no EQ b1-in-house-cust.cust-no AND
-                          b1-shipto.ship-id EQ "WHSE" NO-ERROR.
+                          b1-shipto.ship-id EQ "LOC" NO-ERROR.
 
             ASSIGN v-whs-ship-id = IF AVAIL xoe-ordl AND
                                    AVAIL b1-shipto THEN
-                                   "WHSE" ELSE ""
-                   v-ship-id     = IF v-whs-ship-id NE "" THEN "WHSE"
+                                   "LOC" ELSE ""
+                   v-ship-id     = IF v-whs-ship-id NE "" THEN "LOC"
                                    ELSE IF AVAIL xoe-rel AND TRIM(xoe-rel.ship-id) NE "" THEN
                                    xoe-rel.ship-id
                                    ELSE IF AVAIL xoe-ord AND TRIM(xoe-ord.sold-id) NE "" THEN
@@ -694,7 +694,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
         END.
                 
         
-        /* this is for in house shipto WHSE */
+        /* this is for in house shipto LOC */
         if AVAIL b1-shipto AND v-whs-ship-id NE ""  then do:
            ASSIGN               
               v-ship = "".              
@@ -743,7 +743,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                            bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
           END.
           
-          IF v-whs-ship-id EQ "WHSE" THEN
+          IF v-whs-ship-id EQ "LOC" THEN
           DO:          
               FIND FIRST bf-shipto WHERE
                           bf-shipto.company EQ cust.company AND

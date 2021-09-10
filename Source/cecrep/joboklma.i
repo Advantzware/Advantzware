@@ -159,7 +159,7 @@ FORM HEADER
 /*
        "Our Order#:" AT 40 v-ord-no
        "Ord Date:" AT 80  v-ord-date
-       "Whs:" AT 109 v-loc 
+       "Loc:" AT 109 v-loc 
        
         "Underrun:" AT 17 lv-under-run FORMAT "x(7)"
        "FG#:" AT 40 v-fg FORM "x(15)"
