@@ -64,12 +64,12 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON btnProcess AUTO-GO 
+DEFINE BUTTON btnProcess 
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE VARIABLE fiExpDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2999 
+DEFINE VARIABLE fiExpDate AS DATE FORMAT "99/99/9999":U  
      LABEL "New Expiration Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
@@ -228,11 +228,17 @@ PROCEDURE RunProcess :
 ------------------------------------------------------------------------------*/
 DEF BUFFER bf-module FOR module.
 
+IF DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ ? THEN
+DO:
+    MESSAGE "Please enter Expirations date.." VIEW-AS ALERT-BOX ERROR.
+    RETURN NO-APPLY.
+END.
+
 SESSION:SET-WAIT-STATE("General").
 
 FOR EACH bf-module /* WHERE bf-module.db-name EQ ipvDBName */ EXCLUSIVE-LOCK:
-    IF bf-module.expire-date NE fiExpDate THEN
-        bf-module.expire-date = fiExpDate.
+    IF bf-module.expire-date NE DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
+        bf-module.expire-date = DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
         
 END.
 
@@ -240,7 +246,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE "Process Completed." VIEW-AS ALERT-BOX.
 
-APPLY "close" TO THIS-PROCEDURE.
+APPLY "END-ERROR":U TO SELF.
 
 END PROCEDURE.
 
