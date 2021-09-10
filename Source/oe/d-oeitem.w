@@ -202,6 +202,8 @@ DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCreateJobFromFG AS LOGICAL NO-UNDO.
+
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -286,7 +288,7 @@ IF v-rec-found THEN
 RUN sys/ref/nk1look.p (INPUT cocode, "JobCreateFromFG", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
-v-create-job = LOGICAL(v-rtn-char) NO-ERROR.
+lCreateJobFromFG = LOGICAL(v-rtn-char) NO-ERROR.
     
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -2935,6 +2937,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE sys-ctrl.log-fld.
   END.
+  
+  v-create-job = sys-ctrl.log-fld.
       
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
@@ -5796,7 +5800,7 @@ PROCEDURE final-steps :
      IF v-qty-mod AND xest.est-type GE 3 AND xest.est-type LE 4 THEN RUN oe/tancomup.p.*/
   END.
 
-  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND v-create-job THEN
+  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND lCreateJobFromFG THEN
   DO:
      FIND FIRST temp-itemfg NO-LOCK
           WHERE temp-itemfg.company EQ cocode
