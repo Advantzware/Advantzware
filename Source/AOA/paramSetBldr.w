@@ -54,7 +54,7 @@ DEFINE VARIABLE svSetAlignment AS CHARACTER NO-UNDO INITIAL "Custom".
 {AOA/tempTable/ttDynAction.i}
 {AOA/includes/dynFuncs.i}
 
-RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynInitializeProc.p PERSISTENT SET hDynInitProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -268,6 +268,8 @@ DO:
   IF VALID-HANDLE(iphParent) AND ipcType EQ "Set" AND
      INDEX(iphParent:INTERNAL-ENTRIES,"pGetParamSetID") NE 0 THEN
   RUN pGetParamSetID IN iphParent.
+  IF VALID-HANDLE(hDynInitProc) THEN
+  DELETE PROCEDURE hDynInitProc.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
