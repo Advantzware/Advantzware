@@ -18,18 +18,40 @@ CLASS system.Setting:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUser           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser                        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScopeTypeWithContextList    AS CHARACTER NO-UNDO INITIAL "System,Company,Customer,ShipTo,Vendor".
     DEFINE VARIABLE cScopeTypeWithoutContextList AS CHARACTER NO-UNDO INITIAL "System,Company".
-               
+    DEFINE VARIABLE cProgram                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSearchFieldListSettingType  AS CHARACTER NO-UNDO INITIAL "settingName,settingTypeDesc,defaultValue".
+    DEFINE VARIABLE cSearchFieldListSetting      AS CHARACTER NO-UNDO INITIAL "scopeTable,scopeField1,scopeField2,scopeField3,settingUser,inactive".
+                       
     {system/ttSetting.i}
  
 	CONSTRUCTOR PUBLIC Setting (  ):
 		SUPER ().
 		
+		DEFINE BUFFER bf-prgrms FOR prgrms.
+
 		RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
 		RUN spGetSessionParam (INPUT "UserID", OUTPUT cUser).
+
+        ASSIGN
+            cProgram   = PROGRAM-NAME(2)
+            cProgram   = SUBSTRING(cProgram,1,INDEX(cProgram,"."))
+            cProgram   = ENTRY(NUM-ENTRIES(cProgram," "),cProgram," ")
+            cProgram   = SUBSTR(cProgram, R-INDEX(cProgram, "/") + 1)
+            cProgram   = SUBSTR(cProgram, R-INDEX(cProgram, "\") + 1)
+            .
+        
+        FIND FIRST bf-prgrms NO-LOCK 
+             WHERE bf-prgrms.prgmname EQ cProgram 
+             NO-ERROR.
+        IF AVAILABLE bf-prgrms THEN
+            cProgram = bf-prgrms.mnemonic.
+        ELSE
+            cProgram = "".
+            
 	END CONSTRUCTOR.
 
 	/*------------------------------------------------------------------------------
@@ -69,6 +91,39 @@ CLASS system.Setting:
 		RETURN "".
 	END METHOD.
 
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PRIVATE VOID pConcatRecordData( BUFFER ipbf-ttSetting FOR ttSetting):
+		DEFINE VARIABLE cAllData AS CHARACTER NO-UNDO.
+		DEFINE VARIABLE hdBuffer AS HANDLE    NO-UNDO.
+		DEFINE VARIABLE hdColumn AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE iIndex   AS INTEGER   NO-UNDO.
+        
+        DEFINE VARIABLE cFieldList AS CHARACTER NO-UNDO.
+        
+        IF NOT AVAILABLE ipbf-ttSetting THEN
+            RETURN.
+            
+        hdBuffer = BUFFER ipbf-ttSetting:HANDLE.
+		
+		IF ipbf-ttSetting.recordSource EQ "SettingType" THEN
+		    cFieldList = cSearchFieldListSettingType.
+		ELSE
+		    cFieldList = cSearchFieldListSetting.
+		    
+		DO iIndex = 1 TO NUM-ENTRIES(cFieldList):
+		    hdColumn = hdBuffer:BUFFER-FIELD (ENTRY(iIndex, cFieldList)):HANDLE NO-ERROR.
+		    
+		    IF VALID-HANDLE (hdColumn) AND hdColumn:BUFFER-VALUE NE ? THEN
+		        cAllData = cAllData + "|" + STRING(hdColumn:BUFFER-VALUE, hdColumn:FORMAT).
+		END.
+
+        ipbf-ttSetting.allData = cAllData.
+	END METHOD.
+
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -106,6 +161,8 @@ CLASS system.Setting:
             IF AVAILABLE bf-scope THEN
                 BUFFER-COPY bf-scope EXCEPT rec_key TO iopttSetting.
         END.
+        
+        pConcatRecordData(BUFFER iopttSetting).
     END METHOD.
 
 	/*------------------------------------------------------------------------------
@@ -345,6 +402,7 @@ CLASS system.Setting:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC VOID GetBySearch(
+	    ipiSettingTypeID      AS INTEGER,
 	    ipcSettingName        AS CHARACTER, 
         iplInactive           AS LOGICAL,
         ipcCategory           AS CHARACTER,
@@ -358,6 +416,7 @@ CLASS system.Setting:
         OUTPUT TABLE ttSetting ):
 		
 		pGetAll (
+		   ipiSettingTypeID,
 		   ipcSettingName,
            iplInactive,
            ipcCategory,
@@ -378,6 +437,7 @@ CLASS system.Setting:
 	------------------------------------------------------------------------------*/
 
 	METHOD PRIVATE VOID pGetAll( 
+	    ipiSettingTypeID      AS INTEGER,
 	    ipcSettingName        AS CHARACTER, 
 	    iplInactive           AS LOGICAL,
 	    ipcCategory           AS CHARACTER,
@@ -397,6 +457,7 @@ CLASS system.Setting:
         DEFINE VARIABLE hdSettingQuery      AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cSettingQuery       AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lHasSettingOverride AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE iIndex              AS INTEGER   NO-UNDO.
         
         DEFINE BUFFER bf-setting     FOR setting.
         DEFINE BUFFER bf-settingType FOR settingType.
@@ -416,15 +477,32 @@ CLASS system.Setting:
     		
     		IF ipcSettingName NE "" OR ipcCategory NE "" THEN
     		    cSettingTypeQuery = cSettingTypeQuery + ' WHERE TRUE '.
-    		    
+            
+            IF ipiSettingTypeID NE 0 THEN
+                cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.settingTypeID EQ ' + STRING(ipiSettingTypeID).
+                                		    
     		IF ipcSettingName NE "" THEN
     		    cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.settingName BEGINS ' + QUOTER(ipcSettingname).
     
-    		IF ipcCategory NE "" THEN
-    		    cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.categoryTags CONTAINS ' + QUOTER(ipcCategory) + ' AND LOOKUP(' + QUOTER(ipcCategory) + ', bf-settingType.categoryTags) GT 0 '.
+    		IF ipcCategory NE "" AND ipcCategory NE ? THEN DO:
+    		    IF NUM-ENTRIES(ipcCategory) EQ 1 THEN
+    		        cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.categoryTags CONTAINS ' + QUOTER(ipcCategory) + ' AND LOOKUP(' + QUOTER(ipcCategory) + ', bf-settingType.categoryTags) GT 0 '. 
+    		    ELSE DO:
+                    cSettingTypeQuery = cSettingTypeQuery + ' AND ('.
+
+        		    DO iIndex = 1 TO NUM-ENTRIES(ipcCategory):
+        		        cSettingTypeQuery = cSettingTypeQuery + ' (bf-settingType.categoryTags CONTAINS ' + QUOTER(ENTRY(iIndex, ipcCategory)) + ' AND LOOKUP(' + QUOTER(ENTRY(iIndex, ipcCategory)) + ', bf-settingType.categoryTags) GT 0) '.
+        		        
+        		        IF iIndex NE NUM-ENTRIES(ipcCategory) THEN
+        		            cSettingTypeQuery = cSettingTypeQuery + " OR ".
+        		    END.
+        		    
+        		    cSettingTypeQuery = cSettingTypeQuery + ' )'.
+    		    END.
+    		END.
     		
     		hdSettingTypeQuery:QUERY-PREPARE (cSettingTypeQuery).
-    
+
     	    hdSettingTypeQuery:QUERY-OPEN().
     
     	    hdSettingTypeQuery:GET-NEXT ().
@@ -442,7 +520,9 @@ CLASS system.Setting:
 
                 IF AVAILABLE bf-scope THEN
                     BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
-                    
+                
+                pConcatRecordData(BUFFER ttSetting).
+                
     	        hdSettingTypeQuery:GET-NEXT ().
     	    END.
     	    
@@ -470,10 +550,13 @@ CLASS system.Setting:
                 cSettingQuery = " FOR EACH bf-setting NO-LOCK ".           
             END.
     
-            IF ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR 
+            IF ipiSettingTypeID NE 0 OR ipcSettingName NE "" OR iplInactive NE ? OR ipcUser NE "" OR ipcProgram NE "" OR 
                ipcScopeTable NE "" OR ipcScopeField1 NE "" OR ipcScopeField2 NE "" OR ipcScopeField3 NE "" THEN
                 cSettingQuery = cSettingQuery + IF INDEX(cSettingQuery, "WHERE") EQ 0 THEN " WHERE TRUE " ELSE "".
-            
+
+            IF ipiSettingTypeID NE 0 THEN
+                cSettingQuery = cSettingQuery + ' AND bf-setting.settingTypeID EQ ' + STRING(ipiSettingTypeID).
+                            
             IF ipcSettingName NE "" THEN
                 cSettingQuery = cSettingQuery + ' AND bf-setting.settingName BEGINS ' + QUOTER(ipcSettingname).                   
     
@@ -579,6 +662,8 @@ CLASS system.Setting:
                 
                 BUFFER-COPY bf-scope EXCEPT rec_key TO ttSetting.
                 
+                pConcatRecordData(BUFFER ttSetting).
+                
                 hdSettingQuery:GET-NEXT().                
             END.
             
@@ -606,6 +691,7 @@ CLASS system.Setting:
 
     METHOD PUBLIC VOID LoadByUser ( ipcUser AS CHARACTER ):
         pGetAll(
+           0,
            "",    /* SettingName  */
            ?,     /* Inactive     */
            "",    /* Category     */
@@ -627,6 +713,7 @@ CLASS system.Setting:
 
 	METHOD PUBLIC VOID LoadByCategory(ipcCategory AS CHARACTER ):
         pGetAll(
+           0,
            "",    /* SettingName  */
            ?,     /* Inactive     */
            ipcCategory,    /* Category     */
@@ -648,6 +735,7 @@ CLASS system.Setting:
 
     METHOD PUBLIC VOID GetAll( OUTPUT TABLE ttSetting ):
         pGetAll(
+           0,
            "",    /* SettingName  */
            ?,     /* Inactive     */
            "",    /* Category     */
@@ -838,7 +926,9 @@ CLASS system.Setting:
             bf-ttSetting.settingID = bf-setting.settingID
             bf-ttSetting.scopeID   = bf-setting.scopeID
             .
-
+        
+        pConcatRecordData(BUFFER bf-ttSetting).
+        
         RETURN "".
         
 	END METHOD.
@@ -881,7 +971,7 @@ CLASS system.Setting:
 
         IF bf-settingType.validValues NE "" AND LOOKUP(ipcSettingValue, bf-settingType.validValues) EQ 0 THEN
             RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Available values are '" + bf-settingType.validValues + "'".
-
+        
         IF ipcScopeTable EQ "Company" THEN DO:
             FIND FIRST bf-company NO-LOCK
                  WHERE bf-company.company EQ ipcScopeField1
@@ -914,6 +1004,23 @@ CLASS system.Setting:
             IF NOT AVAILABLE bf-vend THEN
                 RETURN "Invalid Company/Vendor '" + ipcScopeField1 + "/" + ipcScopeField2 + "'".        
         END.
+        ELSE IF ipcScopeTable EQ "" OR ipcScopeTable EQ ? THEN DO:
+            RETURN "Scope Type cannot be empty".
+        END.
+
+        IF ipcScopeTable EQ "System" THEN
+            ASSIGN
+                ipcScopeField1 = ""
+                ipcScopeField2 = ""
+                ipcScopeField3 = ""
+                .
+        ELSE IF ipcScopeTable EQ "Company" THEN
+            ASSIGN
+                ipcScopeField2 = ""
+                ipcScopeField3 = ""
+                .
+        ELSE IF ipcScopeTable EQ "Vendor" OR ipcScopeTable EQ "Customer" THEN
+            ipcScopeField3 = "".
 
         FIND FIRST bf-scope NO-LOCK
              WHERE bf-scope.scopeTable  EQ ipcScopeTable
@@ -929,7 +1036,7 @@ CLASS system.Setting:
                    AND bf-setting.programID     EQ ipcProgramID
                  NO-ERROR.
             IF AVAILABLE bf-setting AND bf-setting.settingID NE ipiSettingID THEN
-                RETURN "Setting already exists. Please enter a different scope/user/program".
+                RETURN "Setting already exists. Please enter a different scope/user/program or override existing setting".
         END.
 		
         RETURN "".

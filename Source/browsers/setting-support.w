@@ -77,10 +77,11 @@ DEFINE TEMP-TABLE ttColumn NO-UNDO
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tbTempTableSaveOnly tbHideSearch ~
-tbLoadDataFromTT BROWSE-2 Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS tbTempTableSaveOnly tbHideSearch ~
-tbLoadDataFromTT 
+&Scoped-Define ENABLED-OBJECTS cbFilterType tbTempTableSaveOnly ~
+tbHideSearch tbLoadDataFromTT tbHideSettingFilter tbHideScopeFilter ~
+BROWSE-2 Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbFilterType tbTempTableSaveOnly ~
+tbHideSearch tbLoadDataFromTT tbHideSettingFilter tbHideScopeFilter 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -105,10 +106,27 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE cbFilterType AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Filter By" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Setting","SettingType" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbHideScopeFilter AS LOGICAL INITIAL no 
+     LABEL "Hide Scope Filter" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbHideSearch AS LOGICAL INITIAL no 
      LABEL "Hide Search" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbHideSettingFilter AS LOGICAL INITIAL no 
+     LABEL "Hide Setting Filter" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbLoadDataFromTT AS LOGICAL INITIAL no 
      LABEL "Load Data From TT" 
@@ -143,13 +161,16 @@ ENABLE isActive
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     cbFilterType AT ROW 1 COL 79 COLON-ALIGNED WIDGET-ID 10
      tbTempTableSaveOnly AT ROW 1.24 COL 2.2 WIDGET-ID 2
      tbHideSearch AT ROW 1.24 COL 39 WIDGET-ID 4
      tbLoadDataFromTT AT ROW 1.95 COL 2.2 WIDGET-ID 6
-     BROWSE-2 AT ROW 2.86 COL 1.6 WIDGET-ID 200
-     Btn_OK AT ROW 13.81 COL 18
-     Btn_Cancel AT ROW 13.81 COL 49
-     SPACE(24.19) SKIP(0.33)
+     tbHideSettingFilter AT ROW 1.95 COL 39 WIDGET-ID 8
+     tbHideScopeFilter AT ROW 2.67 COL 2.2 WIDGET-ID 12
+     BROWSE-2 AT ROW 4.48 COL 1.6 WIDGET-ID 200
+     Btn_OK AT ROW 15.43 COL 18
+     Btn_Cancel AT ROW 15.43 COL 49
+     SPACE(35.79) SKIP(0.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FONT 6
@@ -174,7 +195,7 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 tbLoadDataFromTT Dialog-Frame */
+/* BROWSE-TAB BROWSE-2 tbHideScopeFilter Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -261,10 +282,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   tbHideSearch = LOGICAL(RETURN-VALUE).
 
+  RUN get-attribute IN p-Parent-Hdl ('HIDE-SETTING-FILTER').     
+
+  tbHideSettingFilter = LOGICAL(RETURN-VALUE).
+
+  RUN get-attribute IN p-Parent-Hdl ('HIDE-SCOPE-FILTER').     
+
+  tbHideScopeFilter = LOGICAL(RETURN-VALUE).
+  
   RUN get-attribute IN p-Parent-Hdl ('LOAD-DATA-FROM-TT').     
 
   tbLoadDatafromTT = LOGICAL(RETURN-VALUE).
     
+  RUN get-attribute IN p-Parent-Hdl ('SETTING-FILTER-TYPE').     
+
+  cbFilterType = RETURN-VALUE.
     
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -287,6 +319,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             + "BROWSE-COLUMNS= ":U + cBrowseCols + "," 
             + "BROWSE-COLUMNS-DISPLAY= ":U + cBrowseDisplay + ","
             + "HIDE-SEARCH= ":U + STRING(tbHideSearch:CHECKED, "TRUE/FALSE") + ","
+            + "HIDE-SETTING-FILTER= ":U + STRING(tbHideSettingFilter:CHECKED, "TRUE/FALSE") + ","
+            + "HIDE-SCOPE-FILTER= ":U + STRING(tbHideScopeFilter:CHECKED, "TRUE/FALSE") + ","
+            + "SETTING-FILTER-TYPE= ":U + cbFilterType:SCREEN-VALUE + ","
             + "LOAD-DATA-FROM-TT= ":U + STRING(tbLoadDataFromTT:CHECKED, "TRUE/FALSE").
 
   RUN set-attribute-list IN p-Parent-Hdl (INPUT attr-list).
@@ -330,10 +365,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tbTempTableSaveOnly tbHideSearch tbLoadDataFromTT 
+  DISPLAY cbFilterType tbTempTableSaveOnly tbHideSearch tbLoadDataFromTT 
+          tbHideSettingFilter tbHideScopeFilter 
       WITH FRAME Dialog-Frame.
-  ENABLE tbTempTableSaveOnly tbHideSearch tbLoadDataFromTT BROWSE-2 Btn_OK 
-         Btn_Cancel 
+  ENABLE cbFilterType tbTempTableSaveOnly tbHideSearch tbLoadDataFromTT 
+         tbHideSettingFilter tbHideScopeFilter BROWSE-2 Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

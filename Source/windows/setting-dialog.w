@@ -58,6 +58,8 @@ DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
@@ -74,18 +76,30 @@ DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
 /* Define a dialog box                                                  */
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_folder2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_scopefilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_settingfilter AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     SPACE(257.60) SKIP(28.33)
+     SPACE(182.04) SKIP(38.18)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 FONT 6
-         TITLE "Program Settings" WIDGET-ID 100.
+         BGCOLOR 15 
+         TITLE "Program Setting" WIDGET-ID 100.
+
+DEFINE FRAME Options-frame
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 182 BY 2
+         BGCOLOR 21  WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -111,12 +125,17 @@ DEFINE FRAME D-Dialog
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* REPARENT FRAME */
+ASSIGN FRAME Options-frame:FRAME = FRAME D-Dialog:HANDLE.
+
 /* SETTINGS FOR DIALOG-BOX D-Dialog
    FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FRAME Options-frame
+                                                                        */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -138,7 +157,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
-ON WINDOW-CLOSE OF FRAME D-Dialog /* Program Settings */
+ON WINDOW-CLOSE OF FRAME D-Dialog /* Program Setting */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   APPLY "END-ERROR":U TO SELF.
@@ -179,44 +198,135 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME Options-frame:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit-2 ).
+       RUN set-position IN h_exit-2 ( 1.00 , 174.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder2.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Setting|Scope' + ',
+                     FOLDER-TAB-TYPE = 1':U ,
+             OUTPUT h_folder2 ).
+       RUN set-position IN h_folder2 ( 3.14 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder2 ( 35.95 , 182.00 ) NO-ERROR.
+
+       /* Links to SmartFolder h_folder2. */
+       RUN add-link IN adm-broker-hdl ( h_folder2 , 'Page':U , THIS-PROCEDURE ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder2 ,
+             FRAME Options-frame:HANDLE , 'AFTER':U ).
+    END. /* Page 0 */
+    WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/settingfilter.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_settingfilter ).
+       RUN set-position IN h_settingfilter ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.29 , 180.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/setting.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
              INPUT  'SAVE-TYPE = DATABASE,
-                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
-                     BROWSE-COLUMNS-DISPLAY = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser,
+                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
+                     BROWSE-COLUMNS-DISPLAY = settingName|description|settingValue,
                      HIDE-SEARCH = TRUE,
+                     HIDE-SETTING-FILTER = TRUE,
+                     HIDE-SCOPE-FILTER = TRUE,
+                     SETTING-FILTER-TYPE = SettingType,
                      LOAD-DATA-FROM-TT = TRUE':U ,
              OUTPUT h_setting ).
-       RUN set-position IN h_setting ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_setting ( 27.14 , 186.00 ) NO-ERROR.
+       RUN set-position IN h_setting ( 8.95 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_setting ( 30.24 , 181.00 ) NO-ERROR.
+
+       /* Links to SmartBrowser h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_settingfilter , 'Search':U , h_setting ).
+       RUN add-link IN adm-broker-hdl ( h_settingfilter , 'State':U , h_setting ).
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Record':U , THIS-PROCEDURE ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_settingfilter ,
+             h_folder2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_settingfilter , 'AFTER':U ).
+    END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewerid/setting.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_setting-4 ).
+       RUN set-position IN h_setting-4 ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.67 , 180.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
+             INPUT  'browsers/scopefilter.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 250.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+             OUTPUT h_scopefilter ).
+       RUN set-position IN h_scopefilter ( 11.29 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.52 , 180.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/setting.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_setting-2 ).
-       RUN set-position IN h_setting-2 ( 3.76 , 187.80 ) NO-ERROR.
-       /* Size in UIB:  ( 24.43 , 70.00 ) */
+       RUN set-position IN h_setting-2 ( 15.91 , 107.20 ) NO-ERROR.
+       /* Size in UIB:  ( 14.71 , 70.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/setting.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  'SAVE-TYPE = DATABASE,
+                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
+                     BROWSE-COLUMNS-DISPLAY = scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
+                     HIDE-SEARCH = FALSE,
+                     HIDE-SETTING-FILTER = TRUE,
+                     HIDE-SCOPE-FILTER = FALSE,
+                     SETTING-FILTER-TYPE = Setting,
+                     LOAD-DATA-FROM-TT = TRUE':U ,
+             OUTPUT h_setting-3 ).
+       RUN set-position IN h_setting-3 ( 15.95 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_setting-3 ( 22.62 , 104.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_setting-4. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Record':U , h_setting-4 ).
 
        /* Links to SmartViewer h_setting-2. */
-       RUN add-link IN adm-broker-hdl ( h_setting , 'Record':U , h_setting-2 ).
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , h_setting-2 ).
+       RUN add-link IN adm-broker-hdl ( h_setting-3 , 'Record':U , h_setting-2 ).
+
+       /* Links to SmartBrowser h_setting-3. */
+       RUN add-link IN adm-broker-hdl ( h_scopefilter , 'Search':U , h_setting-3 ).
+       RUN add-link IN adm-broker-hdl ( h_scopefilter , 'State':U , h_setting-3 ).
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Record':U , h_setting-3 ).
+       RUN add-link IN adm-broker-hdl ( h_setting-2 , 'State':U , h_setting-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_setting , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting-4 ,
+             h_folder2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_scopefilter ,
+             h_setting-4 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_setting-2 ,
-             h_exit , 'AFTER':U ).
-    END. /* Page 0 */
+             h_scopefilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting-3 ,
+             h_setting-2 , 'AFTER':U ).
+    END. /* Page 2 */
 
   END CASE.
+  /* Select a Startup page. */
+  IF adm-current-page eq 0 
+  THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
 
@@ -257,6 +367,7 @@ PROCEDURE disable_UI :
 ------------------------------------------------------------------------------*/
   /* Hide all frames. */
   HIDE FRAME D-Dialog.
+  HIDE FRAME Options-frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,6 +386,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
+  VIEW FRAME Options-frame.
+  {&OPEN-BROWSERS-IN-QUERY-Options-frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
