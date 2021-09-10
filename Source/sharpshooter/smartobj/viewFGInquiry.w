@@ -218,6 +218,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChooseBtViewFGInquiry s-object
+PROCEDURE pChooseBtViewFGInquiry:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "CHOOSE":U TO btViewFGInquiry IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewFGInquiry s-object 
 PROCEDURE pViewFGInquiry PRIVATE :
 /*------------------------------------------------------------------------------

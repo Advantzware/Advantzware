@@ -75,7 +75,7 @@ DEFINE BUTTON btFind
      SIZE 8 BY 1.91.
 
 DEFINE VARIABLE fiRelease AS CHARACTER FORMAT "X(7)":U 
-     LABEL "Release #" 
+     LABEL "RELEASE" 
      VIEW-AS FILL-IN 
      SIZE 28 BY 1.38 TOOLTIP "Enter release #"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
@@ -178,7 +178,7 @@ END.
 
 &Scoped-define SELF-NAME fiRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
+ON ANY-KEY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
         APPLY "HELP" TO SELF.
@@ -192,10 +192,9 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
+ON ENTRY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
-    SELF:SET-SELECTION ( 1, -1).
-    
+    SELF:SET-SELECTION ( 1, -1).    
     SELF:BGCOLOR = 30.
 END.
 
@@ -204,7 +203,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON HELP OF fiRelease IN FRAME F-Main /* Release # */
+ON HELP OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -236,7 +235,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
+ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     IF LASTKEY NE -1 OR SELF:SCREEN-VALUE NE "" THEN
         RUN pReleaseScan.   
@@ -391,16 +390,18 @@ PROCEDURE pReleaseScan :
     IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
         RUN new-state (
             INPUT "release-exit"
-            ).
-        
+            ).        
         RETURN.        
     END.
     
     INTEGER(fiRelease:SCREEN-VALUE) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
-        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN new-state (
+            "Status-Message|INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'|3"
+            ).
+/*        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"*/
+/*            VIEW-AS ALERT-BOX ERROR.                                */
         RETURN.
     
     END.
@@ -408,17 +409,20 @@ PROCEDURE pReleaseScan :
     oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
     
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN new-state (
+            "Status-Message|INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'|3"
+            ).
+/*        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"*/
+/*            VIEW-AS ALERT-BOX ERROR.                                */
         RETURN.
     END.
     
     RUN new-state (
         INPUT "release-valid"
-        ).
-    
+        ).    
             
     SELF:BGCOLOR = 15.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

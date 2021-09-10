@@ -75,9 +75,9 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL ~
-btnDeleteText btnPrintBOLText 
-&Scoped-Define DISPLAYED-OBJECTS fiTrailer fiTag btnDeleteText ~
-btnPrintBOLText 
+btnExitText btnViewInquiryText btnDeleteText btnPrintBOLText 
+&Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer statusMessage btnExitText ~
+btnViewInquiryText btnDeleteText btnPrintBOLText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,7 +125,7 @@ DEFINE BUTTON btPrintBOL
 
 DEFINE BUTTON btReset 
      IMAGE-UP FILE "Graphics/32x32/back_white.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
@@ -134,34 +134,51 @@ DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE"
      SIZE 15 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 8 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE btnPrintBOLText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BOL" 
       VIEW-AS TEXT 
      SIZE 20 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
+DEFINE VARIABLE btnViewInquiryText AS CHARACTER FORMAT "X(256)":U INITIAL "VIEW INQUIRY" 
+      VIEW-AS TEXT 
+     SIZE 26 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Tag #" 
+     LABEL "TAG" 
      VIEW-AS FILL-IN 
      SIZE 64.2 BY 1.38 TOOLTIP "Enter Tag #"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Trailer #" 
+     LABEL "TRAILER" 
      VIEW-AS FILL-IN 
      SIZE 27.4 BY 1.38 TOOLTIP "Enter Trailer #"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
+      VIEW-AS TEXT 
+     SIZE 116 BY 1.43 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiTrailer AT ROW 1.24 COL 118 COLON-ALIGNED WIDGET-ID 10
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
-     btDelete AT ROW 31.71 COL 159 WIDGET-ID 16 NO-TAB-STOP 
+     fiTrailer AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
+     btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 187 WIDGET-ID 12 NO-TAB-STOP 
-     btnDeleteText AT ROW 31.95 COL 143 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     statusMessage AT ROW 1.24 COL 66 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
+     btnViewInquiryText AT ROW 3.38 COL 162 NO-LABEL WIDGET-ID 26
+     btnDeleteText AT ROW 31.95 COL 2 NO-LABEL WIDGET-ID 20
      btnPrintBOLText AT ROW 31.95 COL 165 COLON-ALIGNED NO-LABEL WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -238,7 +255,15 @@ IF NOT W-Win:LOAD-ICON("Graphics/asiicon.ico":U) THEN
 ASSIGN 
        btChange:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
+   ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
+   ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN btnViewInquiryText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiTrailer IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
@@ -279,12 +304,12 @@ END.
 &ANALYZE-RESUME
 
 
-
 &Scoped-define SELF-NAME btChange
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btChange W-Win
 ON CHOOSE OF btChange IN FRAME F-Main /* Change */
 DO:
-    RUN pInvalidRelease.   
+    RUN pStatusMessage ("", 0).
+    RUN pInvalidRelease.
     {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"}    
 END.
 
@@ -304,8 +329,50 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnDeleteText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteText W-Win
+ON MOUSE-SELECT-CLICK OF btnDeleteText IN FRAME F-Main
+DO:
+  APPLY "CHOOSE":U TO btDelete.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
+DO:
+    RUN dispatch ("exit").
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrintBOLText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintBOLText W-Win
+ON MOUSE-SELECT-CLICK OF btnPrintBOLText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE":U TO btPrintBOL.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnViewInquiryText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewInquiryText W-Win
+ON MOUSE-SELECT-CLICK OF btnViewInquiryText IN FRAME F-Main
+DO:
+    RUN pChooseBtViewFGInquiry IN h_viewfginquiry.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME btPrintBOL
@@ -333,7 +400,7 @@ END.
 
 &Scoped-define SELF-NAME fiTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
-ON ENTRY OF fiTag IN FRAME F-Main /* Tag # */
+ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
     SELF:SET-SELECTION (1, -1).      
     ASSIGN
@@ -347,7 +414,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
-ON LEAVE OF fiTag IN FRAME F-Main /* Tag # */
+ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
     IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
@@ -380,7 +447,7 @@ END.
 
 &Scoped-define SELF-NAME fiTrailer
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
-ON ENTRY OF fiTrailer IN FRAME F-Main /* Trailer # */
+ON ENTRY OF fiTrailer IN FRAME F-Main /* TRAILER */
 DO:
     SELF:SET-SELECTION (1, -1).      
     ASSIGN
@@ -394,7 +461,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
-ON LEAVE OF fiTrailer IN FRAME F-Main /* Trailer # */
+ON LEAVE OF fiTrailer IN FRAME F-Main /* TRAILER */
 DO:
     RUN state-changed (THIS-PROCEDURE, "scan-tag").       
     SELF:BGCOLOR = 15.      
@@ -444,19 +511,19 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 56.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_viewfginquiry ).
-       RUN set-position IN h_viewfginquiry ( 1.00 , 148.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.48 , 192.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 1.00 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_viewfginquiry ).
+       RUN set-position IN h_viewfginquiry ( 3.14 , 188.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -465,7 +532,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releaseitems ).
        RUN set-position IN h_b-releaseitems ( 5.05 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releaseitems ( 9.29 , 193.00 ) NO-ERROR.
+       RUN set-size IN h_b-releaseitems ( 10.24 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -504,15 +571,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
-       RUN set-position IN h_b-releasetags ( 14.57 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 16.43 , 193.00 ) NO-ERROR.
+       RUN set-position IN h_b-releasetags ( 15.52 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 16.19 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 16.71 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst ( 17.43 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -520,7 +587,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 18.86 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev ( 19.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -528,7 +595,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 20.76 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 21.48 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -536,7 +603,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 22.67 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 23.38 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
@@ -552,13 +619,13 @@ PROCEDURE adm-create-objects :
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             fiTrailer:HANDLE IN FRAME F-Main , 'BEFORE':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
-             h_releasefilter , 'AFTER':U ).
+             fiTag:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_releasefilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
-             fiTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             h_viewfginquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
              h_b-releaseitems , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
@@ -638,9 +705,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTrailer fiTag btnDeleteText btnPrintBOLText 
+  DISPLAY fiTag fiTrailer statusMessage btnExitText btnViewInquiryText 
+          btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btReset fiTag btDelete btPrintBOL btnDeleteText btnPrintBOLText 
+  ENABLE btReset fiTag btDelete btPrintBOL btnExitText btnViewInquiryText 
+         btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -699,6 +768,7 @@ PROCEDURE pInit :
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
         RUN spGetSessionParam ("CompanyName", OUTPUT cCompanyName).
         RUN spGetSessionParam ("Location", OUTPUT cLocation).
+        RUN pStatusMessage ("", 0).
     
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                              + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
@@ -798,9 +868,9 @@ PROCEDURE pPrintBOL PRIVATE :
     {methods/run_link.i "REL-TAGS-SOURCE" "CreateBOLFromRelease" "(INPUT cCompany, INPUT iReleaseID, OUTPUT lSuccess, OUTPUT cMessage, OUTPUT iBOLID)"}
 
     IF NOT lSuccess THEN DO:
-        MESSAGE cMessage
-        VIEW-AS ALERT-BOX ERROR.
-        
+        RUN pStatusMessage (cMessage, 3).
+/*        MESSAGE cMessage        */
+/*        VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.    
     
@@ -809,9 +879,9 @@ PROCEDURE pPrintBOL PRIVATE :
     oBOLHeader:SetContext(cCompany, iBOLID).
     
     IF NOT oBOLHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid BOL # '" + STRING(iBOLID) + "'"
-            VIEW-AS ALERT-BOX ERROR.
-        
+        RUN pStatusMessage ("INVALID BOL '" + STRING(iBOLID) + "'", 3).
+/*        MESSAGE "Invalid BOL # '" + STRING(iBOLID) + "'"*/
+/*            VIEW-AS ALERT-BOX ERROR.                    */        
         RETURN.        
     END.
     
@@ -877,47 +947,49 @@ PROCEDURE pScanRelease :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iReleaseID AS INTEGER NO-UNDO.
-    
+    DEFINE VARIABLE iReleaseID AS INTEGER NO-UNDO.    
     DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
     {methods/run_link.i "REL-ITEMS-SOURCE" "EmptyReleaseItems"}
-
-    {methods/run_link.i "REL-TAGS-SOURCE" "EmptyReleaseTags"}
-    
+    {methods/run_link.i "REL-TAGS-SOURCE" "EmptyReleaseTags"}    
     {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT oReleaseHeader)"}
     
+    RUN pStatusMessage ("", 0).
+
     IF NOT VALID-OBJECT(oReleaseHeader) THEN DO:
-        MESSAGE "Invalid Release#"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("INVALID RELEASE", 3).
+/*        MESSAGE "Invalid Release#"  */
+/*            VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.
 
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        MESSAGE "Invalid Release#"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("INVALID RELEASE", 3).
+/*        MESSAGE "Invalid Release#"  */
+/*            VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.    
 
     IF NOT LOGICAL(oReleaseHeader:GetValue("Printed")) THEN DO:
-        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is not printed"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS NOT PRINTED", 3).
+/*        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is not printed"*/
+/*            VIEW-AS ALERT-BOX ERROR.                                                    */
         RETURN.
     END.
 
     IF LOGICAL(oReleaseHeader:GetValue("Posted")) THEN DO:
-        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is already posted"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS ALREADY POSTED", 3).
+/*        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is already posted"*/
+/*            VIEW-AS ALERT-BOX ERROR.                                                       */
         RETURN.
     END.
 
     iReleaseID = INTEGER(oReleaseHeader:GetValue("ReleaseID")).
     
     {methods/run_link.i "REL-ITEMS-SOURCE" "BuildReleaseItems" "(INPUT cCompany, INPUT iReleaseID)"}
-
     {methods/run_link.i "REL-TAGS-SOURCE" "BuildReleaseTags" "(INPUT cCompany, INPUT iReleaseID)"}
     
     ASSIGN
@@ -925,7 +997,8 @@ PROCEDURE pScanRelease :
         fiTrailer:SCREEN-VALUE = ""
         .
     
-    APPLY "ENTRY" TO fiTag.
+    APPLY "ENTRY":U TO fiTag.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,8 +1026,9 @@ PROCEDURE pScanTag PRIVATE :
     {methods/run_link.i "REL-TAGS-SOURCE" "CreateReleaseTag" "(INPUT cCompany, INPUT iReleaseID, INPUT fiTag:SCREEN-VALUE, INPUT fiTrailer:SCREEN-VALUE, OUTPUT lError, OUTPUT cMessage)"}
 
     IF lError THEN DO:
-        MESSAGE cMessage
-        VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage (cMessage, 3).
+/*        MESSAGE cMessage        */
+/*        VIEW-AS ALERT-BOX ERROR.*/
         
         ASSIGN
             fiTag:SCREEN-VALUE     = ""
@@ -970,6 +1044,46 @@ PROCEDURE pScanTag PRIVATE :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusMessage W-Win
+PROCEDURE pStatusMessage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiStatusMessage AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        statusMessage:SCREEN-VALUE = " " + CAPS(ipcStatusMessage).
+        CASE ipiStatusMessage:
+            WHEN 0 THEN
+            ASSIGN
+                statusMessage:BGCOLOR = ?
+                statusMessage:FGCOLOR = ?
+                .
+            WHEN 1 THEN
+            ASSIGN
+                statusMessage:BGCOLOR = 10
+                statusMessage:FGCOLOR = 0
+                .
+            WHEN 2 THEN
+            ASSIGN
+                statusMessage:BGCOLOR = 11
+                statusMessage:FGCOLOR = 0
+                .
+            WHEN 3 THEN
+            ASSIGN
+                statusMessage:BGCOLOR = 12
+                statusMessage:FGCOLOR = 15
+                .
+        END CASE.
+    END. /* with frame */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1027,12 +1141,11 @@ PROCEDURE pWinReSize :
             btnPrintBOLText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
             btnPrintBOLText:COL                = btPrintBOL:COL - btnPrintBOLText:WIDTH - 1
             btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
-            btDelete:COL                       = btnPrintBOLText:COL - btDelete:WIDTH - 1
             btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            btnDeleteText:COL                  = btDelete:COL - btnDeleteText:WIDTH - 1
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8.
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                    = dCol - 9
             .
-        RUN set-position IN h_exit ( 1.48 , dCol ) NO-ERROR.
+        RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN get-position IN h_navigatefirst-2 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
@@ -1042,19 +1155,15 @@ PROCEDURE pWinReSize :
         dRow = dRow + 1.9.
         RUN set-position IN h_navigatelast-2 ( dRow , dCol ) NO-ERROR.
         RUN get-size IN h_b-releaseitems ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
-        ASSIGN
-            dHeight = ({&WINDOW-NAME}:HEIGHT - dHeight) * .65
-            dWidth  = dCol - 2
-            .
+        dWidth = dCol - 2.
         RUN set-size IN h_b-releaseitems ( dHeight , dWidth ) NO-ERROR.
-
-        RUN get-position IN h_b-releasetags ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         ASSIGN
             dRow    = dHeight + 5.25
-            dHeight = dHeight - 10
+            dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
             .
-        RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
+        RUN set-size IN h_b-releasetags ( 6 , dWidth ) NO-ERROR.
         RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
+        RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
         dRow = dRow + 1.9.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
@@ -1125,13 +1234,23 @@ PROCEDURE state-changed :
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
   
+    DEFINE VARIABLE cStatusMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessage AS INTEGER   NO-UNDO.
+
+    IF p-state BEGINS "Status-Message" THEN
+    ASSIGN
+        iStatusMessage = INTEGER(ENTRY(3,p-state,"|"))
+        cStatusMessage = ENTRY(2,p-state,"|")
+        p-state        = ENTRY(1,p-state,"|")
+        .
     CASE p-state:
+        WHEN "Status-Message" THEN
+        RUN pStatusMessage (cStatusMessage, iStatusMessage).
         WHEN "release-invalid" THEN DO:
             RUN pInValidRelease.
         END.
         WHEN "release-valid" THEN DO:
-            RUN pValidRelease.
-            
+            RUN pValidRelease.            
             RUN pScanRelease.
         END.
         WHEN "scan-tag" THEN DO:
