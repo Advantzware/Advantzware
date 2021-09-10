@@ -51,8 +51,8 @@ DEFINE VARIABLE lSSBOLPrint  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iSSBOLPrint  AS INTEGER   NO-UNDO.
 
 /* Required for run_link.i */
-DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE glScanTrailer            AS LOGICAL NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
@@ -74,8 +74,10 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL 
-&Scoped-Define DISPLAYED-OBJECTS fiTrailer fiTag 
+&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL ~
+btnDeleteText btnPrintBOLText 
+&Scoped-Define DISPLAYED-OBJECTS fiTrailer fiTag btnDeleteText ~
+btnPrintBOLText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -127,6 +129,16 @@ DEFINE BUTTON btReset
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
+DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
+      VIEW-AS TEXT 
+     SIZE 15 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnPrintBOLText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BOL" 
+      VIEW-AS TEXT 
+     SIZE 20 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "Tag #" 
      VIEW-AS FILL-IN 
@@ -146,9 +158,11 @@ DEFINE FRAME F-Main
      fiTrailer AT ROW 1.24 COL 118 COLON-ALIGNED WIDGET-ID 10
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
-     btDelete AT ROW 31.71 COL 178 WIDGET-ID 16 NO-TAB-STOP 
+     btDelete AT ROW 31.71 COL 159 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 187 WIDGET-ID 12 NO-TAB-STOP 
+     btnDeleteText AT ROW 31.95 COL 143 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     btnPrintBOLText AT ROW 31.95 COL 165 COLON-ALIGNED NO-LABEL WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -265,22 +279,12 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-RESIZED OF W-Win /* Create BOL */
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btChange
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btChange W-Win
 ON CHOOSE OF btChange IN FRAME F-Main /* Change */
 DO:
     RUN pInvalidRelease.   
-
     {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"}    
 END.
 
@@ -292,8 +296,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
 DO:
-    {methods/run_link.i "REL-TAGS-SOURCE" "DeleteReleaseTag"}
-    
+    {methods/run_link.i "REL-TAGS-SOURCE" "DeleteReleaseTag"}    
     RUN pScanRelease.
 END.
 
@@ -301,14 +304,15 @@ END.
 &ANALYZE-RESUME
 
 
+
+
+
+
 &Scoped-define SELF-NAME btPrintBOL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintBOL W-Win
 ON CHOOSE OF btPrintBOL IN FRAME F-Main /* Print BOL */
 DO:
-    RUN state-changed (
-        INPUT THIS-PROCEDURE,
-        INPUT "print-bol"
-        ).
+    RUN state-changed (THIS-PROCEDURE, "print-bol").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -319,8 +323,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
 ON CHOOSE OF btReset IN FRAME F-Main /* Reset */
 DO:
-    fiTag:SCREEN-VALUE = "".
-    
+    fiTag:SCREEN-VALUE = "".    
     APPLY "ENTRY" TO fiTag.
 END.
 
@@ -332,8 +335,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* Tag # */
 DO:
-    SELF:SET-SELECTION ( 1, -1).  
-    
+    SELF:SET-SELECTION (1, -1).      
     ASSIGN
         fiTrailer:BGCOLOR = 15
         SELF:BGCOLOR      = 30
@@ -351,20 +353,12 @@ DO:
         RETURN.
     
     IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
-        RUN state-changed (
-            INPUT THIS-PROCEDURE,
-            INPUT "tag-exit"
-            ).        
-    
+        RUN state-changed (THIS-PROCEDURE, "tag-exit").        
         RETURN.
     END.
     
     IF SELF:SCREEN-VALUE EQ "PRINT" THEN DO:
-        RUN state-changed (
-            INPUT THIS-PROCEDURE,
-            INPUT "print-bol"
-            ). 
-        
+        RUN state-changed (THIS-PROCEDURE, "print-bol").         
         SELF:SCREEN-VALUE = "".
         
         RETURN.
@@ -372,14 +366,10 @@ DO:
     
     IF glScanTrailer THEN DO:
         SELF:BGCOLOR = 15.
-
         RETURN.        
     END.
     
-    RUN state-changed (
-        INPUT THIS-PROCEDURE,
-        INPUT "scan-tag"
-        ).  
+    RUN state-changed (THIS-PROCEDURE, "scan-tag").  
     
     RETURN NO-APPLY.  
 END.
@@ -392,8 +382,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
 ON ENTRY OF fiTrailer IN FRAME F-Main /* Trailer # */
 DO:
-    SELF:SET-SELECTION ( 1, -1).  
-    
+    SELF:SET-SELECTION (1, -1).      
     ASSIGN
         fiTag:BGCOLOR = 15
         SELF:BGCOLOR  = 30
@@ -407,11 +396,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
 ON LEAVE OF fiTrailer IN FRAME F-Main /* Trailer # */
 DO:
-    RUN state-changed (
-        INPUT THIS-PROCEDURE,
-        INPUT "scan-tag"
-        ).   
-    
+    RUN state-changed (THIS-PROCEDURE, "scan-tag").       
     SELF:BGCOLOR = 15.      
 END.
 
@@ -527,7 +512,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 19.10 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst ( 16.71 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -535,7 +520,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 21.24 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev ( 18.86 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -543,7 +528,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 23.14 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 20.76 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -551,7 +536,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 25.05 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 22.67 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
@@ -653,9 +638,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTrailer fiTag 
+  DISPLAY fiTrailer fiTag btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btReset fiTag btDelete btPrintBOL 
+  ENABLE btReset fiTag btDelete btPrintBOL btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -692,8 +677,7 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-   APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+   APPLY "CLOSE":U TO THIS-PROCEDURE.   
    RETURN.
        
 END PROCEDURE.
@@ -712,40 +696,37 @@ PROCEDURE pInit :
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
-        RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
-        RUN spGetSessionParam (INPUT "CompanyName", OUTPUT cCompanyName).
-        RUN spGetSessionParam (INPUT "Location", OUTPUT cLocation).
+        RUN spGetSessionParam ("Company", OUTPUT cCompany).
+        RUN spGetSessionParam ("CompanyName", OUTPUT cCompanyName).
+        RUN spGetSessionParam ("Location", OUTPUT cLocation).
     
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                              + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
-                             + cCompanyName + " - " + cLocation.
+                             + cCompanyName + " - " + cLocation
+                             .
                              
         fiTrailer:HIDDEN = NOT glScanTrailer.
     
         RUN sys/ref/nk1look.p (
-            INPUT  cCompany,
-            INPUT  "SSBOLPRINT",
-            INPUT  "L",
-            INPUT  NO,
-            INPUT  NO,
-            INPUT  "",
-            INPUT  "",
+            cCompany,
+            "SSBOLPRINT",
+            "L",
+            NO,
+            NO,
+            "",
+            "",
             OUTPUT cResult,
             OUTPUT lFound
             ).
-        IF NOT lFound THEN
-            lSSBOLPrint = ?.
-        ELSE
-            lSSBOLPrint = LOGICAL(cResult).
-            
+        lSSBOLPrint = IF NOT lFound THEN ? ELSE LOGICAL(cResult).            
         RUN sys/ref/nk1look.p (
-            INPUT  cCompany,
-            INPUT  "SSBOLPRINT",
-            INPUT  "I",
-            INPUT  NO,
-            INPUT  NO,
-            INPUT  "",
-            INPUT  "",
+            cCompany,
+            "SSBOLPRINT",
+            "I",
+            NO,
+            NO,
+            "",
+            "",
             OUTPUT cResult,
             OUTPUT lFound
             ).
@@ -795,13 +776,13 @@ PROCEDURE pPrintBOL PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lSuccess            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iReleaseID          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iBOLID              AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cBOLPrintValueList  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBOLPrintFieldList  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lPostBOL            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iReleaseID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBOLID             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLPrintValueList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBOLPrintFieldList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPostBOL           AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
         
@@ -850,10 +831,10 @@ PROCEDURE pPrintBOL PRIVATE :
                 .
                 
             RUN custom/setUserPrint.p (
-                INPUT oBOLHeader:GetValue("Company"),
-                INPUT 'oe-boll_.',
-                INPUT cBOLPrintFieldList,
-                INPUT cBOLPrintValueList
+                oBOLHeader:GetValue("Company"),
+                'oe-boll_.',
+                cBOLPrintFieldList,
+                cBOLPrintValueList
                 ).
       
             RUN listobjs/oe-boll_.w.
@@ -866,13 +847,13 @@ PROCEDURE pPrintBOL PRIVATE :
             lPostBOL = iSSBOLPrint EQ 1.
              
             RUN bol/printBol.p (
-                INPUT oBOLHeader:GetValue("Company"),
-                INPUT cLocation,
-                INPUT oBOLHeader:GetValue("CustomerID"),
-                INPUT oBOLHeader:GetValue("BOLID"),
-                INPUT oBOLHeader:GetValue("Printed"),
-                INPUT oBOLHeader:GetValue("Posted"),
-                INPUT lPostBOL
+                oBOLHeader:GetValue("Company"),
+                cLocation,
+                oBOLHeader:GetValue("CustomerID"),
+                oBOLHeader:GetValue("BOLID"),
+                oBOLHeader:GetValue("Printed"),
+                oBOLHeader:GetValue("Posted"),
+                lPostBOL
                 ).
 
             SESSION:SET-WAIT-STATE ("").
@@ -1023,6 +1004,7 @@ PROCEDURE pWinReSize :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dColTmp AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
@@ -1042,15 +1024,23 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             btPrintBOL:ROW                     = {&WINDOW-NAME}:HEIGHT - 1.1
             btPrintBOL:COL                     = {&WINDOW-NAME}:WIDTH  - btPrintBOL:WIDTH - 1
+            btnPrintBOLText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnPrintBOLText:COL                = btPrintBOL:COL - btnPrintBOLText:WIDTH - 1
             btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
-            btDelete:COL                       = btPrintBOL:COL - btDelete:WIDTH - 1
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            btDelete:COL                       = btnPrintBOLText:COL - btDelete:WIDTH - 1
+            btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnDeleteText:COL                  = btDelete:COL - btnDeleteText:WIDTH - 1
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8.
             .
         RUN set-position IN h_exit ( 1.48 , dCol ) NO-ERROR.
-        RUN set-position IN h_navigatefirst-2 ( 6.95 , dCol ) NO-ERROR.
-        RUN set-position IN h_navigateprev-2 ( 8.86 , dCol ) NO-ERROR.
-        RUN set-position IN h_navigatenext-2 ( 10.76 , dCol ) NO-ERROR.
-        RUN set-position IN h_navigatelast-2 ( 12.67 , dCol ) NO-ERROR.
+        RUN get-position IN h_navigatefirst-2 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigateprev-2 ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatenext-2 ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatelast-2 ( dRow , dCol ) NO-ERROR.
         RUN get-size IN h_b-releaseitems ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
         ASSIGN
             dHeight = ({&WINDOW-NAME}:HEIGHT - dHeight) * .65
@@ -1058,17 +1048,14 @@ PROCEDURE pWinReSize :
             .
         RUN set-size IN h_b-releaseitems ( dHeight , dWidth ) NO-ERROR.
 
-        RUN get-position IN h_b-releasetags ( OUTPUT dRow , OUTPUT dCol ) NO-ERROR.
+        RUN get-position IN h_b-releasetags ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         ASSIGN
             dRow    = dHeight + 5.25
             dHeight = dHeight - 10
             .
-        RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
         RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
-        ASSIGN
-            dCol = {&WINDOW-NAME}:WIDTH - 8
-            dRow = dRow + 1.9
-            .
+        RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
         RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
@@ -1091,9 +1078,7 @@ PROCEDURE Select_Exit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN dispatch (
-        INPUT "exit"
-        ).
+    RUN dispatch ("exit").
 
 END PROCEDURE.
 
