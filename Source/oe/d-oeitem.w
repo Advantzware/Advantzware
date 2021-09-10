@@ -3904,7 +3904,12 @@ PROCEDURE create-job :
        ASSIGN
         oe-ordl.job-no  = v-job-no
         oe-ordl.job-no2 = v-job-no2.
-       DISPLAY oe-ordl.job-no oe-ordl.job-no2 WITH FRAME {&frame-name}.
+        
+     IF oe-ordl.est-no EQ "" THEN 
+        ASSIGN 
+            oe-ordl.est-no = ipEstNo.
+            
+       DISPLAY oe-ordl.job-no oe-ordl.job-no2 oe-ordl.est-no WITH FRAME {&frame-name}.
     END.
   END.
   ELSE
