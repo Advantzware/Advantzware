@@ -2260,7 +2260,7 @@ PROCEDURE pDisplayValue :
             FIND FIRST ef NO-LOCK
                 WHERE ef.company EQ eb.company
                 AND ef.est-no EQ eb.est-no
-                AND ef.form-no EQ eb.form-no  
+                AND (ef.form-no EQ eb.form-no OR eb.form-no EQ 0) 
                 NO-ERROR.
 
             ASSIGN
@@ -2399,7 +2399,7 @@ PROCEDURE pGetEstDetail :
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ cocode
                AND bf-eb.est-no EQ cSEst:SCREEN-VALUE
-               AND bf-eb.form-no NE 0 NO-ERROR.
+               AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN do:           
           ipriRowid = ROWID(bf-eb) .        

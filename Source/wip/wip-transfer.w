@@ -44,12 +44,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcJobno    AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiJobno2   AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER ipiFormno   AS INTEGER   NO-UNDO.
-DEFINE INPUT PARAMETER ipiBlankno  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdInventoryProcs    AS         HANDLE    NO-UNDO.
@@ -72,6 +68,8 @@ DEFINE VARIABLE cValidateJobNo      AS         CHARACTER NO-UNDO.
 {Inventory/ttBrowseInventory.i}
 {wip/keyboardDefs.i}
 
+RUN spGetSessionParam("Company", OUTPUT cCompany).
+RUN spGetSessionParam("Location", OUTPUT cLocation).
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -696,7 +694,7 @@ DO:
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
     RUN system/openlookup.p (
-        INPUT  ipcCompany, 
+        INPUT  cCompany, 
         INPUT  "job-no",        /* Lookup ID */
         INPUT  0,               /* Subject ID */
         INPUT  "",              /* User ID */
@@ -794,21 +792,21 @@ DO:
     END.
         
     RUN GetSecondaryJobForJob IN hdJobProcs (
-            ipcCompany,
+            cCompany,
             cFormattedJobno,
             INPUT-OUTPUT cJobno2ListItems
             ).
     
     DO iCount = 1 TO NUM-ENTRIES(cJobno2ListItems):
         RUN GetFormnoForJob IN hdJobProcs (
-            ipcCompany,
+            cCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cFormnoListItems
             ).
     
         RUN GetBlanknoForJob IN hdJobProcs (
-            ipcCompany,
+            cCompany,
             cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cBlanknoListItems
@@ -876,7 +874,7 @@ DO:
     END.
            
     RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT "", /* Blank Machine code */
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
@@ -894,7 +892,7 @@ DO:
     
         /* Additional validation to check if job still doesn't exist */
         RUN ValidateJob IN hdJobProcs (
-            INPUT ipcCompany,
+            INPUT cCompany,
             INPUT cFormattedJobno,
             INPUT "", /* Blank Machine code */
             INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
@@ -917,7 +915,7 @@ DO:
     RUN updateJobDetails.
     
     RUN rebuildTempTable (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -954,7 +952,7 @@ DO:
         RETURN.
             
     RUN locationScan (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT SUBSTRING(ls-location:SCREEN-VALUE, 1, 5),
         INPUT SUBSTRING(ls-location:SCREEN-VALUE, 6),
         INPUT ls-tag:SCREEN-VALUE
@@ -994,7 +992,7 @@ DO:
         RETURN.
         
     RUN tagScan (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT ls-tag:SCREEN-VALUE
         ). 
     
@@ -1149,18 +1147,9 @@ PROCEDURE init :
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
            
     FIND FIRST company NO-LOCK 
-         WHERE company.company EQ ipcCompany NO-ERROR .
+         WHERE company.company EQ cCompany NO-ERROR .
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
-                         + STRING(company.name) + " - " + ipcLocation  .
-
-    IF ipcJobNo NE "" THEN 
-        RUN jobScan (
-            INPUT ipcCompany,
-            INPUT ipcJobno,
-            INPUT ipiJobno2,
-            INPUT ipiFormno,
-            INPUT ipiBlankno
-            ).
+                         + STRING(company.name) + " - " + cLocation  .
 
 END PROCEDURE.
 
@@ -1377,7 +1366,7 @@ PROCEDURE onValueChangedOfJobDetails :
     DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
     
     RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT "", /* Blank Machine code */
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
@@ -1395,7 +1384,7 @@ PROCEDURE onValueChangedOfJobDetails :
     RUN updateJobDetails.
     
     RUN rebuildTempTable(
-        INPUT ipcCompany,
+        INPUT cCompany,
         INPUT cFormattedJobno,
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INPUT INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
@@ -1459,6 +1448,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.    
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
@@ -1580,7 +1586,7 @@ PROCEDURE updateJobDetails :
     DEFINE VARIABLE cIno     AS CHARACTER NO-UNDO.
     
     RUN GetJobHdrDetails IN hdJobProcs (
-        ipcCompany,
+        cCompany,
         cFormattedJobno,
         INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
