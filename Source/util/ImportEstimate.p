@@ -123,7 +123,8 @@ DEFINE TEMP-TABLE ttImportEstimate
 
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+    
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -133,6 +134,9 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is 
 /* **********************  Internal Procedures  *********************** */
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
+
+IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+    RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
 
 PROCEDURE pAddBoxDesign:
     /*------------------------------------------------------------------------------
@@ -796,6 +800,19 @@ PROCEDURE pAssignInks:
 
 END PROCEDURE.
 
+PROCEDURE pCalculateEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Runs the calculation program to build the calculated estimate data
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstNo   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO INIT NO.
+    
+    RUN CalculateEstimate IN hdEstimateCalcProcs (ipcCompany, ipcEstNo, lPurge).
+    
+END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1094,6 +1111,8 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
         RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
+    RUN pCalculateEstimate (est.company, est.est-no).
+    
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
