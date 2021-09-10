@@ -1,5 +1,6 @@
 // format: procedureName.p yes/no ((to indicate if session.p instantiates the procedure as a SUPER-PROCEDURE)
 // name new procedures alphabetically
+AOA/appServer/aoaBin.p no
 AOA/spDynCalcField.p no
 AOA/spDynDescriptionProc.p no
 AOA/spDynInitializeProc.p no
@@ -15,6 +16,7 @@ custom/schedule.p no
 est/ArtiosProcs.p no
 est/CadImgProcs.p no
 est/EstimateCalcProcs.p no
+est/EstimateCalcProcsAlt.p no
 est/EstimateProcs.p yes
 fg/FgBinBuild.p no
 fg/FGItemIDProcs.p no
@@ -35,6 +37,7 @@ methods/excelrep.p no
 nosweat/persist.p no
 oe/OrderProcs.p no
 oe/PriceProcs.p yes
+oe/PostInvoices.p no
 oerep/LoadtagProcs.p no
 oerep/r-invprtARSuper.p no
 oerep/r-invprtOESuper.p no
@@ -45,6 +48,7 @@ system/CostProcs.p no
 system/CreditProcs.p yes
 system/FileSysProcs.p yes
 system/FormatProcs.p yes
+system/FormulaProcs.p no
 system/FreightProcs.p no
 system/ftpProcs.p no
 system/GLProcs.p yes
@@ -58,9 +62,11 @@ system/Session.p no
 system/TagProcs.p yes
 system/TaxProcs.p yes
 system/VendorCostProcs.p yes
+system/VendorProcs.p no
 UDF/mfPersist.p no
 util/dev/spRefTable.p no
 util/dev/VendorCostConvProcs.p no
 util/ImportProcs.p no
 util/updQuoteProcs.p no
 util/Validate.p no
+XMLOutput/XMLProcs.p no
