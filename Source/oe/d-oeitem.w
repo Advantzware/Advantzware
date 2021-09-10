@@ -283,6 +283,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF v-rec-found THEN
     lQuotePriceMatrix = logical(v-rtn-char) NO-ERROR.    
 
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCreateFromFG", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
+v-create-job = LOGICAL(v-rtn-char) NO-ERROR.
+    
 DO TRANSACTION:
  {sys/inc/oeship.i}
  {sys/inc/oereleas.i}
@@ -2930,7 +2935,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE sys-ctrl.log-fld.
   END.
-  v-create-job = sys-ctrl.log-fld.
       
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
@@ -5792,7 +5796,7 @@ PROCEDURE final-steps :
      IF v-qty-mod AND xest.est-type GE 3 AND xest.est-type LE 4 THEN RUN oe/tancomup.p.*/
   END.
 
-  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND v-create-job EQ ? THEN
+  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND v-create-job THEN
   DO:
      FIND FIRST temp-itemfg NO-LOCK
           WHERE temp-itemfg.company EQ cocode
