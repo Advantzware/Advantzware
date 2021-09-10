@@ -5164,7 +5164,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gdWindowDimOverlap = DECIMAL(cReturn).
     
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVendor", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipcCompany, "CEPrompt", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glPromptForMaterialVendor = cReturn EQ "YES".
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
