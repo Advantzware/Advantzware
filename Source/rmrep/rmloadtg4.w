@@ -1892,7 +1892,8 @@ First Internal Machine,~
 First Press,~
 CasePalletLength,~
 CasePalletWidth,~
-CasePalletDepth,~ 
+CasePalletDepth,~
+Vendor Tag,~
 CreatedBy,~
 CreateDate,~
 CreateTime,~
@@ -2022,6 +2023,7 @@ PROCEDURE outputTagLine :
     '","' w-po.case-l
     '","' w-po.case-w
     '","' w-po.case-d 
+    '","' loadtag.misc-char[1]
     '","' loadtag.createUser
     '","' STRING(loadtag.tag-date,"99/99/9999")
     '","' STRING(loadtag.tag-time,"HH:MM") IF loadtag.tag-time LT 43140 THEN " AM" ELSE " PM"
