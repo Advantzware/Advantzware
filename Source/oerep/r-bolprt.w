@@ -1569,7 +1569,7 @@ DO:
                        NEXT mainblock.
                    END.
                END.       
-               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" THEN
+               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" AND oe-boll.qty NE 0 THEN
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
@@ -1582,7 +1582,7 @@ DO:
                   DELETE tt-post.
                   NEXT mainblock.         
                END.
-               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no THEN 
+               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no AND oe-boll.qty NE 0 THEN 
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 

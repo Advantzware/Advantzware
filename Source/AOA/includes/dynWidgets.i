@@ -915,6 +915,9 @@ PROCEDURE pSelectionList:
     IF iplMultiple EQ ? THEN
     iplMultiple = NO.
 
+    IF NOT CAN-DO(ipcListItems,ipcValue) THEN
+    ipcValue = ?.
+
     CREATE SELECTION-LIST ophWidget IN WIDGET-POOL ipcPoolName
       ASSIGN
         FRAME = iphFrame

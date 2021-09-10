@@ -155,7 +155,7 @@
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
@@ -217,7 +217,7 @@
             END.
           
             PUT UNFORMATTED "Machine Totals : " substring(cDisplay,17,300) SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    "Machine Totals : " + substring(cExcelDisplay,3,300) SKIP.
         END.

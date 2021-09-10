@@ -317,7 +317,7 @@ DEF VAR ld-tot-rate AS DEC NO-UNDO.
                 v-mat-var           column-label "%VAR MAT"
           with frame det STREAM-IO width 132 no-box down.
 
-IF tb_excel THEN 
+IF rd-dest EQ 3 THEN 
    EXPORT STREAM excel DELIMITER ","
         (IF v-frst THEN mch-act.m-code ELSE "")
         v-job 
@@ -364,7 +364,7 @@ IF tb_excel THEN
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.

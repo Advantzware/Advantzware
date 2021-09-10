@@ -229,10 +229,13 @@ DO:
 
   IF CAN-FIND(FIRST quoteitm OF quotehd) AND
      CAN-FIND(FIRST quoteqty OF quotehd) THEN DO:
-    /*MESSAGE "This will create/update FG price matrix record(s) from all Quote Items/Qtys" SKIP
-            "Do you want to continue?" VIEW-AS ALERT-BOX QUESTION
-        BUTTON YES-NO UPDATE ll-ans.
-    */
+    IF quotehd.effectiveDate EQ ? THEN
+    DO:
+        MESSAGE "The effective date is required before proceeding..." 
+        VIEW-AS ALERT-BOX INFO.
+        RETURN NO-APPLY.
+    END.
+    
     RUN est/dPrcMtxQ.w (OUTPUT ll-ans, OUTPUT cTransQ).
     IF ll-ans THEN RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, cTransQ).
     

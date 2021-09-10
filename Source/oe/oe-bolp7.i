@@ -324,9 +324,8 @@ IF NOT AVAIL inv-line THEN DO:
    inv-line.qty        = oe-ordl.qty
    inv-line.p-c        = oe-boll.p-c
    inv-line.po-no      = oe-boll.po-no
-   inv-line.lot-no     = oe-boll.lot-no.
-
-   
+   inv-line.lot-no     = oe-boll.lot-no
+   inv-line.taxGroup   = inv-head.tax-gr.   
 
    
       IF oe-boll.zeroPrice EQ 1 THEN

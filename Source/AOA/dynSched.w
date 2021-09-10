@@ -298,7 +298,7 @@ DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U
      LABEL "Search" 
      VIEW-AS FILL-IN 
      SIZE 84 BY 1 TOOLTIP "Search Bar"
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE showTasks AS LOGICAL INITIAL yes 
      VIEW-AS RADIO-SET VERTICAL
@@ -524,6 +524,27 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME optionsFrame
+     btnExit AT ROW 1.24 COL 152 HELP
+          "Exit" WIDGET-ID 288
+     showTasks AT ROW 1.24 COL 35 NO-LABEL WIDGET-ID 52
+     searchBar AT ROW 1.71 COL 60 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     btnMoveColumn AT ROW 1.24 COL 26 HELP
+          "Move Column" WIDGET-ID 42
+     btnRun AT ROW 1.24 COL 2 HELP
+          "Run Now" WIDGET-ID 44
+     btnSort AT ROW 1.24 COL 18 HELP
+          "Sort" WIDGET-ID 48
+     btnView AT ROW 1.24 COL 10 HELP
+          "Viewer" WIDGET-ID 46
+     RECT-OPTIONS AT ROW 1.19 COL 150 WIDGET-ID 290
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 2.38
+         BGCOLOR 21 FGCOLOR 15  WIDGET-ID 600.
+
 DEFINE FRAME viewFrame
      btnCopy AT ROW 22.71 COL 31 HELP
           "Copy" WIDGET-ID 24
@@ -540,6 +561,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnFirst AT ROW 22.67 COL 126 HELP
+          "First" WIDGET-ID 274
      Task.taskID AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 504 FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
@@ -565,13 +588,13 @@ DEFINE FRAME viewFrame
 "Weekly -----", "Weekly":U,
 "Monthly ----", "Monthly":U
           SIZE 13 BY 4.52
-     btnFirst AT ROW 22.67 COL 126 HELP
-          "First" WIDGET-ID 274
      Task.cTaskTime AT ROW 4.81 COL 39 COLON-ALIGNED WIDGET-ID 598
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     btnFirst AT ROW 22.67 COL 126 HELP
+          "First" WIDGET-ID 274
      Task.cFromTime AT ROW 4.81 COL 56 COLON-ALIGNED WIDGET-ID 626
           LABEL "From"
           VIEW-AS FILL-IN 
@@ -594,6 +617,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek4 AT ROW 6.48 COL 83 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
+     btnLast AT ROW 22.71 COL 150 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfWeek5 AT ROW 6.48 COL 101 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
@@ -607,14 +632,16 @@ DEFINE FRAME viewFrame
           LABEL "1"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnLast AT ROW 22.71 COL 150 HELP
-          "Last" WIDGET-ID 68
      Task.dayOfMonth[2] AT ROW 7.91 COL 43 WIDGET-ID 526
           LABEL "2"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
      Task.dayOfMonth[3] AT ROW 7.91 COL 51 WIDGET-ID 528
           LABEL "3"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
+     Task.dayOfMonth[4] AT ROW 7.91 COL 59 WIDGET-ID 530
+          LABEL "4"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -625,10 +652,8 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     Task.dayOfMonth[4] AT ROW 7.91 COL 59 WIDGET-ID 530
-          LABEL "4"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
+     btnLast AT ROW 22.71 COL 150 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfMonth[5] AT ROW 7.91 COL 67 WIDGET-ID 532
           LABEL "5"
           VIEW-AS TOGGLE-BOX
@@ -681,6 +706,8 @@ DEFINE FRAME viewFrame
           LABEL "17"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 22.67 COL 142 HELP
+          "Next" WIDGET-ID 276
      Task.dayOfMonth[18] AT ROW 9.81 COL 59 WIDGET-ID 552
           LABEL "18"
           VIEW-AS TOGGLE-BOX
@@ -693,8 +720,6 @@ DEFINE FRAME viewFrame
           LABEL "20"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnNext AT ROW 22.67 COL 142 HELP
-          "Next" WIDGET-ID 276
      Task.dayOfMonth[21] AT ROW 9.81 COL 83 WIDGET-ID 560
           LABEL "21"
           VIEW-AS TOGGLE-BOX
@@ -715,6 +740,12 @@ DEFINE FRAME viewFrame
           LABEL "25"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 22.67 COL 142 HELP
+          "Next" WIDGET-ID 276
+     Task.dayOfMonth[26] AT ROW 10.76 COL 67 WIDGET-ID 568
+          LABEL "26"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 3.38
@@ -723,10 +754,6 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     Task.dayOfMonth[26] AT ROW 10.76 COL 67 WIDGET-ID 568
-          LABEL "26"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
      Task.dayOfMonth[27] AT ROW 10.76 COL 75 WIDGET-ID 572
           LABEL "27"
           VIEW-AS TOGGLE-BOX
@@ -809,6 +836,11 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 
+     Task.prgmName AT ROW 25.05 COL 62 COLON-ALIGNED WIDGET-ID 512
+          LABEL "Program"
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
+          BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 3.38
@@ -822,8 +854,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 22.67 COL 134 HELP
-          "Previous" WIDGET-ID 278
      cPrgmTitle AT ROW 25.05 COL 95 COLON-ALIGNED WIDGET-ID 616
      Task.module AT ROW 25.05 COL 149 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
@@ -831,6 +861,8 @@ DEFINE FRAME viewFrame
           DROP-DOWN-LIST
           SIZE 8.2 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 22.67 COL 134 HELP
+          "Previous" WIDGET-ID 278
      btnAdd AT ROW 22.71 COL 23 HELP
           "Add" WIDGET-ID 20
      btnCancel AT ROW 22.71 COL 55 HELP
@@ -841,10 +873,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 18.38 COL 3 WIDGET-ID 602
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 4.1 COL 9 WIDGET-ID 618
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 16.48 COL 85 WIDGET-ID 614
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 4.1 COL 9 WIDGET-ID 618
      transPanel AT ROW 22.43 COL 14 WIDGET-ID 16
      navPanel AT ROW 22.43 COL 125 WIDGET-ID 280
      RECT-2 AT ROW 6.24 COL 34 WIDGET-ID 620
@@ -858,27 +890,6 @@ DEFINE FRAME viewFrame
          SIZE 160 BY 26.19
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME optionsFrame
-     btnExit AT ROW 1.24 COL 152 HELP
-          "Exit" WIDGET-ID 288
-     showTasks AT ROW 1.24 COL 35 NO-LABEL WIDGET-ID 52
-     searchBar AT ROW 1.71 COL 60 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     btnMoveColumn AT ROW 1.24 COL 26 HELP
-          "Move Column" WIDGET-ID 42
-     btnRun AT ROW 1.24 COL 2 HELP
-          "Run Now" WIDGET-ID 44
-     btnSort AT ROW 1.24 COL 18 HELP
-          "Sort" WIDGET-ID 48
-     btnView AT ROW 1.24 COL 10 HELP
-          "Viewer" WIDGET-ID 46
-     RECT-OPTIONS AT ROW 1.19 COL 150 WIDGET-ID 290
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 2.38
-         BGCOLOR 21 FGCOLOR 15  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1723,6 +1734,9 @@ END.
 &ANALYZE-RESUME
 
 
+
+
+
 &Scoped-define FRAME-NAME optionsFrame
 &Scoped-define SELF-NAME searchBar
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar C-Win
@@ -2020,12 +2034,15 @@ PROCEDURE pAssign :
             Task.subjectID
             Task.paramValueID
             Task.taskID
-            Task.taskTime = fConvertTime(Task.cTaskTime)
-            Task.fromTime = fConvertTime(Task.cFromTime)
-            Task.toTime   = fConvertTime(Task.cToTime)
-            Task.nextTime = fConvertTime(Task.cNextTime)
-            Task.lastTime = fConvertTime(Task.cLastTime)
-            Task.allData  = fAllData()
+            Task.taskTime   = fConvertTime(Task.cTaskTime)
+            Task.fromTime   = fConvertTime(Task.cFromTime)
+            Task.toTime     = fConvertTime(Task.cToTime)
+            Task.nextTime   = fConvertTime(Task.cNextTime)
+            Task.lastTime   = fConvertTime(Task.cLastTime)
+            Task.allData    = fAllData()
+            Task.recipients = REPLACE(Task.recipients,";",",")
+            Task.recipients = REPLACE(Task.recipients," ","")
+            Task.recipients = REPLACE(Task.recipients,CHR(10),"")
             .
         CASE Task.frequency:
             WHEN "Every" OR WHEN "Daily" THEN DO:

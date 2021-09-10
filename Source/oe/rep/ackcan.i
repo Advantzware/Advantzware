@@ -4,25 +4,25 @@ PUT "<FArial>".
      PUT "" SKIP. /* pacific package */ 
            
 PUT "<=1>" SKIP.
-IF AVAIL bf-shipto AND bf-shipto.broker THEN do:
+IF AVAIL bf-shipto AND bf-shipto.broker THEN DO:
 PUT "<C1><#2>" 
     "<=2><R+1>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"     
    "<P12><=2><R+2>"
      v-comp-add1 AT 8 SKIP
      v-comp-add2  AT 8  SKIP
      v-comp-add3  AT 8 SKIP
-     v-comp-add4  AT 8 skip
+     v-comp-add4  AT 8 SKIP
      v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
      lv-email AT 8 SKIP(3).
 END.
-ELSE do: 
+ELSE DO: 
     PUT "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP .
 END.
    PUT
    "<FCourier New>"
-   "<R-1>Facturé à:" SPACE(30) "Vendu à:"  SKIP
+   "<R-1>Facturé à,Bill To:" SPACE(22) "Vendu à,Sold to:"  SKIP
    SPACE(5) oe-ord.cust-name 
-    ( IF oe-ord.sold-name = "" THEN oe-ord.cust-name ELSE oe-ord.sold-name) AT 45 FORM "x(30)" skip
+    ( IF oe-ord.sold-name = "" THEN oe-ord.cust-name ELSE oe-ord.sold-name) AT 45 FORM "x(30)" SKIP
    SPACE(5) oe-ord.addr[1] 
     (IF oe-ord.sold-addr[1] = "" THEN oe-ord.addr[1] ELSE oe-ord.sold-addr[1]) AT 45 FORM "x(30)" SKIP
    SPACE(5) (IF oe-ord.addr[2] EQ "" THEN v-addr3 ELSE oe-ord.addr[2]) FORMAT "x(30)"
@@ -32,26 +32,26 @@ END.
        (IF oe-ord.sold-addr[2] NE "" OR oe-ord.addr[2] NE "" THEN v-sold-addr3 ELSE "") AT 45 FORMAT "x(30)" SKIP.
 
  IF AVAIL bf-shipto AND bf-shipto.broker THEN
-        PUT "<=2><C3><FGCOLOR=" trim(lv-comp-color) + ">"
-            "<=2><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
+        PUT "<=2><C3><FGCOLOR=" TRIM(lv-comp-color) + ">"
+            "<=2><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" TRIM(lv-other-color) + ">" FORM "x(6)" 
             "<P10>".
 
 v-printline = v-printline + 14.
-PUT "<|10><R4><C50><#3><FROM><R10><C80><RECT>" SKIP.
-PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP      
-    "<R8><C50><FROM><R8><C80><LINE>" SKIP      
+PUT "<|10><R4><C48><#3><FROM><R10><C80><RECT>" SKIP.
+PUT "<R6><C48><FROM><R6><C80><LINE>" SKIP      
+    "<R8><C48><FROM><R8><C80><LINE>" SKIP      
    "<R4><C61><FROM><R6><C61><LINE>" SKIP
    "<R6><C65><FROM><R8><C65><LINE>" SKIP
    "<R8><C65><FROM><R10><C65><LINE>" SKIP
    .
 
 PUT "<FArial><P12><=#3><R-2> <B>Reconnaissance/Acknowledgment</B> " "<P10>" SKIP
-    "<=#3> Client                   Contact"
-    "<=#3><R+2> Telephone                      Télécopieur" 
-    "<=#3><R+4> Bon De Commande       Date De La Commande <FCourier New>"
-    "<=3><R+1> " oe-ord.cust-no  space(5) oe-ord.contact
-    "<=3><R+3> " v-cust-phone  space(5) cust.fax
-    "<=3><R+5> " oe-ord.po-no space(5) oe-ord.ord-date .
+    "<=#3> Client                         Contact"
+    "<=#3><R+2> Téléphone                            Télécopieur" 
+    "<=#3><R+4> Bon De Commande/P.O.      Date <FCourier New>"
+    "<=3><R+1> " oe-ord.cust-no  SPACE(7) oe-ord.contact
+    "<=3><R+3> " v-cust-phone  SPACE(7) cust.fax
+    "<=3><R+5> " oe-ord.po-no SPACE(7) oe-ord.ord-date .
 
 /* same as request - no space between hd & line
 PUT "<R11><#4><R17><C80><RECT>" SKIP
@@ -76,12 +76,12 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C66.8><FROM><R23><C66.8><LINE>" SKIP
 "<R19><C74.5><FROM><R23><C74.5><LINE>" SKIP
 .
-PUT "<FArial><=4><C23>Expediteur <C39>Termes <C53>Représentant <C67>Commande     " SKIP
+PUT "<FArial><=4><C23>Expéditeur <C39>Termes <C53>Représentant <C67>Commande     " SKIP
     "<FArial><=4><R+1><C2>Date Req. <C12>Destination <C23>Ship Via <C39>Terms <C53>Sales Person <C67>Order# <C75>Quote#" SKIP
-"<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
+"<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" SPACE(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" "<C52.5>" v-salesman space(1) oe-ord.ord-no "<C74.8>" v-q-no FORMAT ">>>>>9" SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" "<C52.5>" v-salesman SPACE(1) oe-ord.ord-no "<C74.8>" v-q-no FORMAT ">>>>>9" SKIP.
 
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    

@@ -15,9 +15,6 @@ DEF VAR v-sb AS cha NO-UNDO.
 DEF VAR v-routing AS cha NO-UNDO.
 DEFINE  VARIABLE cShip-date AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-oe-rell FOR oe-rell .
-//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
-//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL2.f}
 
@@ -729,8 +726,8 @@ END.
 
   SESSION:SET-WAIT-STATE ("").
 
-  IF rd-dest = 3 THEN DO:
+  IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
+    IF tb_OpenCSV THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.

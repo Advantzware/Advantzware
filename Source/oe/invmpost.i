@@ -50,6 +50,7 @@ ASSIGN
   ar-invl.spare-char-1 = inv-misc.spare-char-1
   ar-invl.posted     = YES
   ar-invl.inv-date   = inv-head.inv-date
-  ar-invl.e-num      = inv-misc.spare-int-4.
+  ar-invl.e-num      = inv-misc.spare-int-4
+  ar-invl.taxGroup   = ar-invl.spare-char-1.
 
 IF NOT ar-invl.billable THEN ar-invl.amt = 0.

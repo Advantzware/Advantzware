@@ -64,6 +64,9 @@ DEFINE TEMP-TABLE ttRawData
     FIELD riCashReceipt AS ROWID
     FIELD cTaxGroup AS CHARACTER
     FIELD cAccount AS CHARACTER
+    FIELD riCashInvLine AS ROWID
+    FIELD invNumber AS INTEGER
+    FIELD invLine AS INTEGER
 .
 
 
@@ -1344,14 +1347,19 @@ FOR EACH cust
           AND ar-inv.inv-date       LE ipdtEnd
           AND ar-inv.tax-code       NE ''
           AND ar-inv.posted         
-        USE-INDEX inv-date NO-LOCK:
+        USE-INDEX inv-date NO-LOCK,
+        EACH ar-invl WHERE ar-invl.posted
+        AND ar-invl.company EQ ar-inv.company 
+        AND ar-invl.inv-no EQ ar-inv.inv-no:
 
         {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
 
         CREATE ttRawData.
         ASSIGN
-            ttRawData.riInvoice = ROWID(ar-inv)
-            ttRawData.cTaxGroup = ar-inv.tax-code
+            ttRawData.riInvoice = ROWID(ar-invl)
+            ttRawData.cTaxGroup = IF ar-invl.taxGroup NE "" THEN ar-invl.taxGroup ELSE ar-inv.tax-code
+            ttRawData.invNumber = ar-invl.inv-no
+            ttRawData.invLine   = ar-invl.LINE
             .
     END. /*each ar-inv*/
     FOR EACH ar-cash
@@ -1409,7 +1417,9 @@ FOR EACH stax
 
     FOR EACH ttRawData
         WHERE ttRawData.cTaxGroup EQ stax.tax-group
-        BREAK BY ttRawData.cTaxGroup:
+        BREAK BY ttRawData.cTaxGroup
+              BY ttRawData.invNumber
+              BY ttRawData.invLine:
 
         {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ttRawData.cTaxGroup) "}
 
@@ -1425,16 +1435,14 @@ FOR EACH stax
             IF cTaxDescription EQ '' THEN
                 cTaxDescription = stax.tax-dscr1[1].
         END.  /*first of ttRawData.cTaxGroup*/
-        FIND FIRST ar-inv 
-            WHERE ROWID(ar-inv) EQ ttRawData.riInvoice
+        FIND FIRST ar-invl 
+            WHERE ROWID(ar-invl) EQ ttRawData.riInvoice
             NO-LOCK NO-ERROR.
-        IF AVAIL ar-inv THEN DO:
-            FOR EACH ar-invl
-                WHERE ar-invl.company       EQ ar-inv.company
-                  AND ar-invl.cust-no       EQ ar-inv.cust-no
-                  AND ar-invl.inv-no        EQ ar-inv.inv-no
-                  AND ar-invl.posted
-                NO-LOCK:
+        IF AVAIL ar-invl THEN DO:
+            FIND FIRST ar-inv NO-LOCK 
+                 WHERE ar-inv.company EQ ar-invl.company
+                 AND ar-inv.inv-no EQ ar-invl.inv-no NO-ERROR.
+                 
                 dAmountSales = dAmountSales + ar-invl.amt.
                 IF ar-invl.tax THEN do: 
                     dTexRate = 0 . 
@@ -1452,16 +1460,16 @@ FOR EACH stax
                     END.
                     IF dTexRate GT 0 THEN
                     dAmountSalesTaxable = dAmountSalesTaxable + ar-invl.amt.                                           
-                END.
-            END. /*each ar-invl*/
+                END.               
+            IF FIRST-OF(ttRawData.invNumber) THEN do: 
             ASSIGN
                 dAmountFreight = dAmountFreight + 
                      (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)                                      
                 dAmountFreightTaxable = dAmountFreightTaxable + 
                     (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN (ar-inv.freight) ELSE 0)
                 dAmountTax = dAmountTax + (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN (ar-inv.freight * dRateFreightTotal / 100) ELSE 0).
-               
-        END.  /*avail ar-inv*/
+            END.   
+        END.  /*avail ar-invl*/
         ELSE DO: /*cash receipts*/ 
             FIND ar-cashl 
                 WHERE ROWID(ar-cashl) EQ ttRawData.riCashReceipt
@@ -1471,7 +1479,7 @@ FOR EACH stax
                 IF ar-cashl.actnum EQ stax.tax-acc1[1] THEN
                      dAmountSalesTaxable = dAmountSalesTaxable + (ar-cashl.amt-paid - ar-cashl.amt-disc).
             END. /*avail ar-cashl*/
-        END. /*not avail ar-inv*/                                                                             
+        END. /*not avail ar-invl*/                                                                             
         IF LAST-OF(ttRawData.cTaxGroup) THEN DO:            
              ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1682,14 +1690,19 @@ FOR EACH cust
           AND ar-inv.inv-date       LE ipdtEnd
           AND ar-inv.tax-code       NE ''
           AND ar-inv.posted         
-        USE-INDEX inv-date NO-LOCK:
+        USE-INDEX inv-date NO-LOCK,
+        EACH ar-invl WHERE ar-invl.posted
+        AND ar-invl.company EQ ar-inv.company 
+        AND ar-invl.inv-no EQ ar-inv.inv-no:
 
         {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
 
         CREATE ttRawData.
         ASSIGN
-            ttRawData.riInvoice = ROWID(ar-inv)
-            ttRawData.cTaxGroup = ar-inv.tax-code
+            ttRawData.riInvoice = ROWID(ar-invl)
+            ttRawData.cTaxGroup = IF ar-invl.taxGroup NE "" THEN ar-invl.taxGroup ELSE ar-inv.tax-code
+            ttRawData.invNumber = ar-invl.inv-no
+            ttRawData.invLine   = ar-invl.LINE
             .
     END. /*each ar-inv*/
     FOR EACH ar-cash
@@ -1716,12 +1729,13 @@ FOR EACH cust
             NO-LOCK:
 
             {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
-
+           
             CREATE ttRawData.
             ASSIGN
                 ttRawData.riCashReceipt = ROWID(ar-cashl)
                 ttRawData.cTaxGroup = ar-inv.tax-code
                 ttRawData.cAccount = stax.tax-acc1[1]
+                ttRawData.invNumber = ar-inv.inv-no
                 .
         END.  /*each ar-cashl*/
     END.  /*each ar-cash*/
@@ -1746,20 +1760,20 @@ FOR EACH stax
 
     FOR EACH ttRawData
         WHERE ttRawData.cTaxGroup EQ stax.tax-group
-        BREAK BY ttRawData.cTaxGroup:
+        BREAK BY ttRawData.cTaxGroup
+              BY ttRawData.invNumber
+              BY ttRawData.invLine:
 
         {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ttRawData.cTaxGroup) "}
         
-         FIND FIRST ar-inv 
-            WHERE ROWID(ar-inv) EQ ttRawData.riInvoice
+         FIND FIRST ar-invl 
+            WHERE ROWID(ar-invl) EQ ttRawData.riInvoice
             NO-LOCK NO-ERROR.  
-        IF AVAIL ar-inv THEN DO:
-            FOR EACH ar-invl
-                WHERE ar-invl.company       EQ ar-inv.company
-                  AND ar-invl.cust-no       EQ ar-inv.cust-no
-                  AND ar-invl.inv-no        EQ ar-inv.inv-no
-                  AND ar-invl.posted
-                NO-LOCK:
+        IF AVAIL ar-invl THEN DO:
+            FIND FIRST ar-inv NO-LOCK 
+                 WHERE ar-inv.company EQ ar-invl.company
+                 AND ar-inv.inv-no EQ ar-invl.inv-no NO-ERROR.
+           
                 dAmountSales = dAmountSales + ar-invl.amt.
                 IF ar-invl.tax THEN do: 
                     dTexRate = 0 .  
@@ -1772,7 +1786,8 @@ FOR EACH stax
                     IF dTexRate GT 0 THEN
                     dAmountSalesTaxable = dAmountSalesTaxable + ar-invl.amt.
                 END.
-            END. /*each ar-invl*/
+            
+            IF FIRST-OF(ttRawData.invNumber) THEN 
             ASSIGN
                 dAmountFreight = dAmountFreight + 
                      (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)                      

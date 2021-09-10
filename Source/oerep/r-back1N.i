@@ -224,7 +224,7 @@
         END.
       
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
          END.    

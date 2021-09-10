@@ -18,11 +18,11 @@ name-fld-list =
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187       188       189            190 */
 "CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource," +
-/*  191          192                193             194       195               196                  197        198          199                 200  */
-"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod" 
+/*  191          192                193             194       195               196                  197        198          199                 200                        201*/
+"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod,CEVendorDefault" 
 .
 
-DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
+DEFINE VARIABLE str-init AS CHARACTER EXTENT 250 NO-UNDO.
     
 ASSIGN
  str-init[1]  = "ABox,10 Pitch,ContSrvc,CSC-EXCEL,TRILAKE-EXCEL,HOP," +
@@ -47,7 +47,7 @@ ASSIGN
                 "ColonialLot#,LoylangJIT,Carded,Carded2,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
-                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
+                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,Lovepac-CAN,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
 		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2,Henry" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
@@ -60,7 +60,7 @@ ASSIGN
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
               + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex,POPrint-CAN2,"
-              + "Mclean,Altex,CapCity"
+              + "Mclean,Altex,CapCity,Ruffino"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,PremTarget,CSC-GA,CardedX," +
@@ -181,7 +181,7 @@ ASSIGN
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
  str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
- str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,StdStatement2,ARStmt3C,StmtPrint-Mex,SouleExcel"  /*stmtprin*/
+ str-init[89] = ",ASI,ASIXprnt,ASIXprnt-CAN,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10,StdStatement2,ARStmt3C,StmtPrint-Mex,SouleExcel"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
@@ -202,7 +202,7 @@ ASSIGN
  str-init[107] = ",Indiana,Dee,ScheduleCard1"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
- str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
+ str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10,Xprint-CAN"  
  str-init[111] = ",Positive Pay,Positive Pay-knight,Positive Pay-Santander,StandardCSV"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
@@ -287,13 +287,14 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[191] = "FG Item number,Item Name"
        str-init[192] = "Simple with options,Simple - Reduce Only,Unitization with options"
        str-init[193] = "With options,Reduce Only"
-       str-init[194] = "Add leading tab"
+       str-init[194] = ",Add leading tab"
        str-init[195] = "First Board,First Item,User Select"
        str-init[196] = "Entry,Update"
        str-init[197] = "RequestAlways,Yield Always,RequestNewOnly,YieldNewOnly"
        str-init[198] = "cURL,Internal"
        str-init[199] = "Manual,AutoSetOnAdd"
        str-init[200] = "Up To,From"
+       str-init[201] = "Best Vendor,Blank Vendor"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

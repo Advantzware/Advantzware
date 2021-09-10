@@ -175,6 +175,11 @@ DEFINE BUTTON btnTags
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
+     
+DEFINE BUTTON btnTaxTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".     
 
 DEFINE VARIABLE cBillFreightDscr AS CHARACTER FORMAT "x(15)" 
      VIEW-AS FILL-IN 
@@ -198,7 +203,7 @@ DEFINE VARIABLE fi_Cust-stat AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fi_Shipto-stat AS CHARACTER FORMAT "X(256)":U 
      LABEL "Ship To Taxable" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.     
+     SIZE 8 BY 1 NO-UNDO.     
      
 DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U 
      LABEL "Status" 
@@ -292,7 +297,8 @@ DEFINE FRAME F-Main
           SIZE 49 BY 1
      inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 7 BY 1
+     btnTaxTags AT ROW 9.33 COL 34.5    
      fi_Cust-stat AT ROW 9.33 COL 58.6 COLON-ALIGNED 
      fi_Shipto-stat AT ROW 9.33 COL 92.6 COLON-ALIGNED
             
@@ -422,7 +428,9 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE                                                            */     
+/* SETTINGS FOR BUTTON btnTaxTags IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN cBillFreightDscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.city IN FRAME F-Main
@@ -604,13 +612,26 @@ DO:
     RUN system/d-TagViewer.w(
         INPUT inv-head.rec_key,
         INPUT "",
-        INPUT ""
+        INPUT "Auto Approved"
         ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btnTaxTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTaxTags V-table-Win
+ON CHOOSE OF btnTaxTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w(
+        INPUT inv-head.rec_key,
+        INPUT "",
+        INPUT "Tax Group"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME inv-head.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-head.carrier V-table-Win
@@ -1421,10 +1442,13 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
   DEFINE VARIABLE ld-prev-auto-approved AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cOldTaxGroup AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTagDescription AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
   ld-prev-auto-approved = inv-head.autoApproved.
+  cOldTaxGroup = inv-head.tax-gr.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1438,24 +1462,51 @@ PROCEDURE local-assign-record :
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
-  IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:
-      FIND FIRST cust 
-          WHERE cust.company EQ inv-head.company
-            AND cust.cust-no EQ inv-head.cust-no
-          NO-LOCK NO-ERROR.
+  FIND FIRST cust 
+       WHERE cust.company EQ inv-head.company
+         AND cust.cust-no EQ inv-head.cust-no
+         NO-LOCK NO-ERROR.
+  IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:       
       IF AVAIL cust THEN
           ASSIGN 
             inv-head.sman[1] = cust.sman
             inv-head.s-pct[1] = 100.
   END.
-  IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
+  IF cOldTaxGroup NE inv-head.tax-gr THEN
   DO:
-     RUN ClearTagsByRecKey(inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
-     RUN AddTagInfo(
+      cTagDescription = IF AVAIL cust AND cust.tax-gr EQ inv-head.tax-gr THEN "Customer Tax Group  Cust:" + cust.cust-no ELSE "Manually Enter Tax Group". 
+      
+      MESSAGE "Update all lines with new tax group" 
+          VIEW-AS ALERT-BOX QUESTION 
+          BUTTONS YES-NO UPDATE lcheckflg as logical. 
+      IF lcheckflg THEN    
+      RUN pUpdateTaxGroup.
+      
+      RUN ClearTagsForGroup(
+            INPUT inv-head.rec_key,
+            INPUT "Tax Group"
+            ).
+      RUN AddTagInfoForGroup(
+                INPUT inv-head.rec_key,
+                INPUT "inv-head",
+                INPUT cTagDescription,
+                INPUT "",
+                INPUT "Tax Group"
+                ). /*From TagProcs Super Proc*/
+      
+  END.
+  IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
+  DO:     
+     RUN ClearTagsForGroup(
+            INPUT inv-head.rec_key,
+            INPUT "Auto Approved"
+            ).
+     RUN AddTagInfoForGroup(
         INPUT inv-head.rec_key,
         INPUT "inv-head",
         INPUT "Manually Approved",
-        INPUT ""
+        INPUT "",
+        INPUT "Auto Approved"
         ). /*From TagProcs Super Proc*/       
   END.
 
@@ -1586,9 +1637,10 @@ PROCEDURE local-display-fields :
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN set-status-btn-lbl IN WIDGET-HANDLE(char-hdl) (INPUT inv-head.stat).
         
-     RUN Tag_IsTagRecordAvailable(
+     RUN Tag_IsTagRecordAvailableForGroup(
          INPUT inv-head.rec_key,
          INPUT "inv-head",
+         INPUT "Auto Approved",
          OUTPUT lAvailable
          ).
        IF lAvailable THEN
@@ -1596,6 +1648,18 @@ PROCEDURE local-display-fields :
            .
        ELSE
            btnTags:SENSITIVE = FALSE.
+           
+     RUN Tag_IsTagRecordAvailableForGroup(
+         INPUT inv-head.rec_key,
+         INPUT "inv-head",
+         INPUT "Tax Group",
+         OUTPUT lAvailable
+         ).
+       IF lAvailable THEN  
+           btnTaxTags:SENSITIVE = TRUE
+           .
+       ELSE 
+           btnTaxTags:SENSITIVE = FALSE.       
   END.
   IF AVAILABLE inv-head THEN
   DO:
@@ -1819,6 +1883,38 @@ PROCEDURE pGetInterCompanyBilling :
                          OUTPUT lRecFound). 
     
   iopcReturnCharValue = IF cRtnChar NE "" THEN STRING(cRtnChar) ELSE iopcReturnCharValue NO-ERROR. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateTaxGroup V-table-Win 
+PROCEDURE pUpdateTaxGroup :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-inv-line FOR inv-line.
+  DEFINE BUFFER bf-inv-misc FOR inv-misc.
+  IF AVAIL inv-head THEN
+  DO:
+     FOR EACH bf-inv-line EXCLUSIVE-LOCK
+         WHERE bf-inv-line.company EQ inv-head.company
+         AND bf-inv-line.r-no EQ inv-head.r-no:
+         ASSIGN
+         bf-inv-line.taxGroup = inv-head.tax-gr.
+     END.
+     FOR EACH bf-inv-misc EXCLUSIVE-LOCK
+         WHERE bf-inv-misc.company EQ inv-head.company
+         AND bf-inv-misc.r-no EQ inv-head.r-no:
+         ASSIGN
+         bf-inv-misc.spare-char-1  = inv-head.tax-gr.
+     END.
+     RELEASE bf-inv-line.
+     RELEASE bf-inv-misc.
+  END.
 
 END PROCEDURE.
 
