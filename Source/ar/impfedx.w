@@ -68,6 +68,8 @@ DEF var cmdline         AS char NO-UNDO.
 DEF var v-amount        AS dec NO-UNDO.
 DEF var v-acct          AS char NO-UNDO.
 
+DEFINE VARIABLE chExcelApplication AS COM-HANDLE NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -333,6 +335,13 @@ DO:
        VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
   IF ll-ans THEN do:
       run processFile (INPUT in-file-name).
+      IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+          MESSAGE 
+            "Microsoft Excel is required.  This report is unable to be executed."
+          VIEW-AS ALERT-BOX ERROR.
+          APPLY "CLOSE":U TO THIS-PROCEDURE.
+          RETURN.
+      END.
       IF ERROR-STATUS:ERROR = NO THEN
         MESSAGE "Rates are imported." VIEW-AS ALERT-BOX.
   END.
@@ -532,10 +541,9 @@ PROCEDURE processFile :
   DEF VAR v-stat-win AS HANDLE NO-UNDO.
   DEF VAR vrun-count AS INT NO-UNDO.
 
-  DEFINE VAR chExcelApplication  AS COM-HANDLE NO-UNDO.
-  DEFINE VAR chWorkbook          AS COM-HANDLE NO-UNDO.
-  DEFINE VAR chWorksheet         AS COM-HANDLE NO-UNDO.
-  DEFINE VAR chRange            AS COM-HANDLE NO-UNDO. 
+  DEFINE VAR chWorkbook  AS COM-HANDLE NO-UNDO.
+  DEFINE VAR chWorksheet AS COM-HANDLE NO-UNDO.
+  DEFINE VAR chRange     AS COM-HANDLE NO-UNDO. 
 
   DISABLE TRIGGERS FOR LOAD OF carr-mtx.
 
@@ -562,7 +570,9 @@ PROCEDURE processFile :
   cFileName = ENTRY(NUM-ENTRIES(pcInFile,"\"),pcInFile,"\").
   cLogFile = "c:\temp\" + ENTRY(1,cFileName,".") + "-" + STRING(TODAY,'999999') + ".log".
 
-  CREATE "Excel.Application" chExcelApplication.
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
+  IF NOT VALID-HANDLE(chExcelApplication) THEN
+  RETURN.
   ASSIGN chExcelApplication:Visible = FALSE.
 
   chExcelApplication:Workbooks:Open(pcInFile,2,TRUE,,,,TRUE).
