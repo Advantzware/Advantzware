@@ -108,8 +108,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-br_table ttSetting.settingName ttSetting.description ttSetting.settingValue ttSetting.scopeTable ttSetting.scopeField1 ttSetting.scopeField2 ttSetting.scopeField3 ttSetting.inactive ttSetting.settingUser ttSetting.programID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName.
+&Scoped-define QUERY-STRING-br_table FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
 &Scoped-define TABLES-IN-QUERY-br_table ttSetting
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table ttSetting
 
@@ -276,7 +276,10 @@ ASSIGN
 OPEN QUERY {&SELF-NAME} FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR
 (ttSetting.recordSource EQ cFilterType AND
 ttSetting.allData MATCHES "*" + cGlobalSearch + "*")
-BY ttSetting.settingName.
+BY ttSetting.settingName
+BY ttSetting.priorityID DESCENDING
+BY ttSetting.programID DESCENDING
+BY ttSetting.settingUser DESCENDING.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -821,6 +824,8 @@ PROCEDURE pInit :
 
         IF VALID-OBJECT(oSetting) THEN
             oSetting:GetCurrentSetting(OUTPUT TABLE ttSetting).
+        
+        {methods/run_link.i "RECORD-TARGET" "AllowProgramIDEditable"}
     END.
     
     IF VALID-OBJECT (oSetting) THEN
@@ -904,7 +909,8 @@ PROCEDURE pSearch :
         OPEN QUERY {&BROWSE-NAME} 
             FOR EACH ttSetting 
                 WHERE (ttSetting.recordSource EQ "New") 
-                   OR (ttSetting.recordSource EQ cFilterType AND ttSetting.settingTypeID EQ iSettingTypeID AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName.
+                   OR (ttSetting.recordSource EQ cFilterType AND ttSetting.settingTypeID EQ iSettingTypeID AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") 
+                   BY ttSetting.settingName BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
     ELSE
         RUN dispatch ("open-query").
     

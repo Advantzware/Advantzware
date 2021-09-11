@@ -76,7 +76,7 @@ fiScopeField1 fiScopeField2 fiScopeField3
 DEFINE BUTTON btAdvancedFilter 
      IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Advanced Filter Options" 
-     SIZE 8 BY 1.91 TOOLTIP "Advanced Filter Options".
+     SIZE 8 BY 1.91 TOOLTIP "Show advanced filter options".
 
 DEFINE BUTTON btSearch 
      IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
@@ -275,10 +275,14 @@ ON CHOOSE OF btAdvancedFilter IN FRAME F-Main /* Advanced Filter Options */
 DO:
     lShowAdvancedFilter = NOT lShowAdvancedFilter.
     
-    IF lShowAdvancedFilter THEN
+    IF lShowAdvancedFilter THEN DO:
         btAdvancedFilter:LOAD-IMAGE ("Graphics\32x32\navigate_open.png").
-    ELSE
+        btAdvancedFilter:TOOLTIP = "Hide advanced filter options".
+    END.
+    ELSE DO:
         btAdvancedFilter:LOAD-IMAGE ("Graphics\32x32\navigate_close.png").
+        btAdvancedFilter:TOOLTIP = "Show advanced filter options".
+    END.
         
     ASSIGN
         cbScope:SCREEN-VALUE       = "All"
