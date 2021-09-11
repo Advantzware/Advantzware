@@ -1006,6 +1006,18 @@ CLASS system.Setting:
         IF bf-settingType.validValues NE "" AND LOOKUP(ipcSettingValue, bf-settingType.validValues) EQ 0 THEN
             RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Available values are '" + bf-settingType.validValues + "'".
         
+        IF bf-settingType.dataType EQ "Integer" THEN
+            INTEGER(ipcSettingValue) NO-ERROR.
+        IF bf-settingType.dataType EQ "Decimal" THEN
+            DECIMAL(ipcSettingValue) NO-ERROR.
+        IF bf-settingType.dataType EQ "Date" THEN
+            DATE(ipcSettingValue) NO-ERROR.
+        IF bf-settingType.dataType EQ "Logical" THEN
+            LOGICAL(ipcSettingValue) NO-ERROR.
+                                                
+        IF ERROR-STATUS:ERROR THEN
+             RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Value has to be " + STRING(bf-settingType.dataType EQ "Integer", "an/a") + "'" + bf-settingType.dataType + "'".
+             
         IF ipcScopeTable EQ "Company" THEN DO:
             FIND FIRST bf-company NO-LOCK
                  WHERE bf-company.company EQ ipcScopeField1

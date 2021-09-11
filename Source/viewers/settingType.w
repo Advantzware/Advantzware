@@ -583,7 +583,7 @@ PROCEDURE local-update-record:
     END.
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF settingType.defaultValue:SCREEN-VALUE NE "" THEN DO:
+    IF validValues:LIST-ITEMS NE "" AND validValues:LIST-ITEMS NE ? THEN DO:
         IF LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ 0 OR LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ ? THEN DO:
             MESSAGE "Default value has to one the value from Valid Values list"  
                 VIEW-AS ALERT-BOX ERROR.
