@@ -422,6 +422,7 @@ CLASS system.Setting:
            ipcScopeField3,
            ipcUser,
            ipcProgram,
+           FALSE, /* Include Empty program settings */
            ipcRecordSource,
            OUTPUT TABLE ttSetting
            ).
@@ -433,17 +434,18 @@ CLASS system.Setting:
 	------------------------------------------------------------------------------*/
 
 	METHOD PRIVATE VOID pGetAll( 
-	    ipiSettingTypeID      AS INTEGER,
-	    ipcSettingName        AS CHARACTER, 
-	    iplInactive           AS LOGICAL,
-	    ipcCategory           AS CHARACTER,
-	    ipcScopeTable         AS CHARACTER,
-	    ipcScopeField1        AS CHARACTER,
-	    ipcScopeField2        AS CHARACTER,
-	    ipcScopeField3        AS CHARACTER,
-        ipcUser               AS CHARACTER, 
-        ipcProgram            AS CHARACTER,
-        ipcRecordSource       AS CHARACTER,
+	    ipiSettingTypeID       AS INTEGER,
+	    ipcSettingName         AS CHARACTER, 
+	    iplInactive            AS LOGICAL,
+	    ipcCategory            AS CHARACTER,
+	    ipcScopeTable          AS CHARACTER,
+	    ipcScopeField1         AS CHARACTER,
+	    ipcScopeField2         AS CHARACTER,
+	    ipcScopeField3         AS CHARACTER,
+        ipcUser                AS CHARACTER, 
+        ipcProgram             AS CHARACTER,
+        iplIncludeEmptyProgram AS LOGICAL,
+        ipcRecordSource        AS CHARACTER,
 	    OUTPUT TABLE ttSetting):
 
         EMPTY TEMP-TABLE ttSetting.
@@ -564,9 +566,13 @@ CLASS system.Setting:
             IF ipcUser NE "" THEN
                 cSettingQuery = cSettingQuery + ' AND bf-setting.settingUser EQ ' + QUOTER(ipcUser).
     
-            IF ipcProgram NE "" THEN
-                cSettingQuery = cSettingQuery + ' AND bf-setting.programID EQ ' + QUOTER(ipcProgram).
-            
+            IF ipcProgram NE "" THEN DO:
+                IF NOT iplIncludeEmptyProgram THEN
+                    cSettingQuery = cSettingQuery + ' AND bf-setting.programID EQ ' + QUOTER(ipcProgram).
+                ELSE
+                    cSettingQuery = cSettingQuery + ' AND (bf-setting.programID EQ ' + QUOTER(ipcProgram) + "OR bf-setting.programID EQ '')".
+            END.
+
             IF ipcScopeTable NE "" THEN DO:
                 IF ipcScopeTable EQ "System" THEN
                     FIND FIRST bf-scope NO-LOCK 
@@ -676,7 +682,7 @@ CLASS system.Setting:
         FOR EACH ttSetting
             WHERE (ipcRecordSource EQ "Setting" AND ttSetting.recordSource EQ "SettingType")
                OR (ipcUser NE "" AND NOT ttSetting.settingUser BEGINS ipcUser)
-               OR (ipcProgram NE "" AND NOT ttSetting.programID BEGINS ipcProgram)
+               OR (ipcProgram NE "" AND NOT iplIncludeEmptyProgram AND NOT ttSetting.programID BEGINS ipcProgram)
                OR (ipcScopeTable NE "" AND ttSetting.scopeTable NE ipcScopetable)
                OR (iplInactive NE ? AND ttSetting.inactive NE iplInactive):  
             DELETE ttSetting.
@@ -701,6 +707,7 @@ CLASS system.Setting:
            "",    /* ScopeField3  */
            ipcUser,    /* User         */
            "",    /* Program      */  
+           FALSE, /* Include Empty program settings */
            "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).        
@@ -722,12 +729,36 @@ CLASS system.Setting:
            "",    /* ScopeField2  */
            "",    /* ScopeField3  */
            "",    /* User         */
-           "",    /* Program      */  
+           "",    /* Program      */ 
+           FALSE, /* Include Empty program settings */ 
            "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).
 	END METHOD.
 
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC VOID LoadByCategoryAndProgram(ipcCategory AS CHARACTER):
+        pGetAll(
+           0,
+           "",    /* SettingName  */
+           ?,     /* Inactive     */
+           ipcCategory,    /* Category     */
+           "",    /* ScopeTable   */
+           "",    /* ScopeField1  */
+           "",    /* ScopeField2  */
+           "",    /* ScopeField3  */
+           "",    /* User         */
+           CurrentProgramHotkey,    /* Program      */ 
+           TRUE,  /* Include Empty program settings */ 
+           "",    /* Record Source */
+           OUTPUT TABLE ttSetting
+           ).
+    END METHOD.
+    
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -744,7 +775,8 @@ CLASS system.Setting:
            "",    /* ScopeField2  */
            "",    /* ScopeField3  */
            "",    /* User         */
-           "",    /* Program      */ 
+           "",    /* Program      */
+           FALSE, /* Include Empty program settings */ 
            "",    /* Record Source */
            OUTPUT TABLE ttSetting).
     END METHOD.

@@ -88,7 +88,7 @@ DEFINE VARIABLE h_settingfilter AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     SPACE(182.04) SKIP(38.18)
+     SPACE(182.00) SKIP(30.10)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 
@@ -108,6 +108,7 @@ DEFINE FRAME Options-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartDialog
    Allow: Basic,Browse,DB-Fields,Query,Smart
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -203,7 +204,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit-2 ).
        RUN set-position IN h_exit-2 ( 1.00 , 174.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder2.w':U ,
@@ -212,7 +213,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder2 ).
        RUN set-position IN h_folder2 ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder2 ( 35.95 , 182.00 ) NO-ERROR.
+       RUN set-size IN h_folder2 ( 27.62 , 182.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder2. */
        RUN add-link IN adm-broker-hdl ( h_folder2 , 'Page':U , THIS-PROCEDURE ).
@@ -243,7 +244,7 @@ PROCEDURE adm-create-objects :
                      LOAD-DATA-FROM-TT = TRUE':U ,
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 8.95 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_setting ( 30.24 , 181.00 ) NO-ERROR.
+       RUN set-size IN h_setting ( 22.05 , 181.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_setting. */
        RUN add-link IN adm-broker-hdl ( h_settingfilter , 'Search':U , h_setting ).
@@ -294,7 +295,7 @@ PROCEDURE adm-create-objects :
                      LOAD-DATA-FROM-TT = TRUE':U ,
              OUTPUT h_setting-3 ).
        RUN set-position IN h_setting-3 ( 15.95 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_setting-3 ( 22.62 , 104.00 ) NO-ERROR.
+       RUN set-size IN h_setting-3 ( 14.57 , 104.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
