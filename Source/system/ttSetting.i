@@ -27,7 +27,7 @@ DEFINE {1} TEMP-TABLE ttSetting NO-UNDO
     FIELD priorityID      AS INTEGER 
     FIELD allData         AS CHARACTER
     INDEX settingID IS PRIMARY settingID
-    INDEX settingName settingName priorityID DESCENDING programID DESCENDING settingUser DESCENDING   
+    INDEX settingOrder settingName priorityID DESCENDING inactive programID DESCENDING settingUser DESCENDING   
     INDEX settingType settingTypeID settingID settingUser scopeTable scopeField1 scopeField2 scopeField3
     INDEX recordSource recordSource
     .

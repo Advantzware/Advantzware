@@ -959,10 +959,8 @@ CLASS system.Setting:
             bf-ttSetting.scopeID   = bf-setting.scopeID
             .
         
-        bf-ttSetting.priorityID = pGetPriorityID(bf-ttSetting.scopeTable).
-        
-        pConcatRecordData(BUFFER bf-ttSetting).
-        
+        Refresh(BUFFER bf-ttSetting).
+                
         RETURN "".
         
 	END METHOD.
