@@ -49,6 +49,10 @@ DEFINE VARIABLE lPackCodeBtn AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+
+RUN pSetGlobalSettings(cocode).
+
 RUN sys/ref/nk1look.p (INPUT cocode, "CePackEnhanced", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -3318,6 +3322,78 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitNo V-table-Win
+PROCEDURE pGetUnitNo:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipIdx AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iPS2    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iCode2  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE fiUnit  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iUnitNo AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bfEX-eb FOR eb.
+    
+    /* Run logic only if NK1 is set */
+    IF glAssignUnitsForInk = NO THEN
+        RETURN.
+    
+    RUN getObjectHandle (ipIdx,'i-ps2',OUTPUT iPS2).
+    RUN getObjectHandle (ipIdx,'i-code2',OUTPUT iCode2).
+    RUN getObjectHandle (ipIdx,'unitno',OUTPUT fiUnit).
+   
+   
+    IF iCode2:SCREEN-VALUE EQ "" OR fiUnit:SCREEN-VALUE NE "" THEN
+        RETURN.
+        
+    RUN est/GetInksUnitNo.p (BUFFER eb, ipIdx, iCode2:SCREEN-VALUE, OUTPUT iUnitNo). 
+    
+    fiUnit:SCREEN-VALUE = STRING(iUnitNo).
+    Do TRANSACTION:
+        FIND FIRST bfEX-eb EXCLUSIVE-LOCK
+            WHERE ROWID(bfEX-eb) = ROWID(eb) NO-ERROR.
+        
+        IF AVAILABLE bfEX-eb THEN
+            bfEX-eb.unitno[ipIdx] = iUnitNo.
+            
+        RELEASE bfEX-eb.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalSettings V-table-Win
+PROCEDURE pSetGlobalSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers V-table-Win 
 PROCEDURE release-shared-buffers :
