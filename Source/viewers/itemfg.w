@@ -1893,9 +1893,9 @@ PROCEDURE local-assign-record :
 
     IF adm-new-record AND NOT adm-adding-record AND AVAILABLE b-i THEN 
     DO: /* copy */
-
-      IF lNewVendorItemCost THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
-      ELSE DO:
+        
+      IF lNewVendorItemCost AND v-mat THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
+      ELSE IF NOT lNewVendorItemCost THEN DO:
         FOR EACH b-ei OF b-i NO-LOCK:
             FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
