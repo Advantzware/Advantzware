@@ -108,8 +108,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FIELDS-IN-QUERY-br_table ttSetting.settingName ttSetting.description ttSetting.settingValue ttSetting.scopeTable ttSetting.scopeField1 ttSetting.scopeField2 ttSetting.scopeField3 ttSetting.inactive ttSetting.settingUser ttSetting.programID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
+&Scoped-define QUERY-STRING-br_table FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.scopeTable BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttSetting WHERE (ttSetting.recordSource EQ "New") OR (ttSetting.recordSource EQ cFilterType AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.scopeTable BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
 &Scoped-define TABLES-IN-QUERY-br_table ttSetting
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table ttSetting
 
@@ -279,6 +279,7 @@ ttSetting.allData MATCHES "*" + cGlobalSearch + "*")
 BY ttSetting.settingName
 BY ttSetting.inactive
 BY ttSetting.priorityID DESCENDING
+BY ttSetting.scopeTable
 BY ttSetting.programID DESCENDING
 BY ttSetting.settingUser DESCENDING.
      _END_FREEFORM
@@ -911,7 +912,7 @@ PROCEDURE pSearch :
             FOR EACH ttSetting 
                 WHERE (ttSetting.recordSource EQ "New") 
                    OR (ttSetting.recordSource EQ cFilterType AND ttSetting.settingTypeID EQ iSettingTypeID AND ttSetting.allData MATCHES "*" + cGlobalSearch + "*") 
-                   BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
+                   BY ttSetting.settingName BY ttSetting.inactive BY ttSetting.priorityID DESCENDING BY ttSetting.scopeTable BY ttSetting.programID DESCENDING BY ttSetting.settingUser DESCENDING.
     ELSE
         RUN dispatch ("open-query").
     
