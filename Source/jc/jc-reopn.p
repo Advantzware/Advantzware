@@ -129,6 +129,19 @@ assign
 
 run jc/job-cls1.p (recid(job), -1).
 
+RUN api/ProcessOutboundRequest.p (
+    INPUT  job.company,                                     /* Company Code (Mandatory) */
+    INPUT  job.loc,                                         /* Location Code (Mandatory) */
+    INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+    INPUT  "",                                              /* Scope ID */
+    INPUT  "",                                              /* Scope Type */
+    INPUT  "ReopenJob",                                     /* Trigger ID (Mandatory) */
+    INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+    INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+    INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),    /* Primary ID for which API is called for (Mandatory) */   
+    INPUT  "Job Reopen triggered from " + PROGRAM-NAME(1)   /* Event's description (Optional) */
+    ) NO-ERROR.
+            
 /* run procedure to compare original buffer to current changes */
 RUN pAuditjob.
 
