@@ -39,6 +39,8 @@ FIND FIRST eb NO-LOCK
     NO-ERROR.
 IF NOT AVAILABLE eb THEN RETURN.
 
+cVendorItem = eb.sourceEstimate.
+
 FIND FIRST cust NO-LOCK 
     WHERE cust.company EQ eb.company
     AND cust.active EQ "X"
@@ -47,6 +49,8 @@ IF AVAILABLE cust THEN
     cVendor = cust.cust-no.
     
 RUN pCopyPrepCharge(BUFFER eb).                      
+
+RUN pCopyInksAndDesign(BUFFER eb).
     
 RUN pGetCostFrom(INPUT eb.company,OUTPUT cMiscEstimateSource). 
 
@@ -296,3 +300,94 @@ PROCEDURE pGetLastQuoteNO PRIVATE:
     END.
 
 END PROCEDURE.   
+
+PROCEDURE pCopyInksAndDesign PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    DEFINE VARIABLE cEstNo AS CHARACTER.
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line  FOR box-design-line.
+    
+    cEstNo = ipbf-eb.sourceEstimate.
+    RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipbf-eb.company 
+        AND bf-eb.est-no  EQ cEstNo                     
+        USE-INDEX est-no NO-ERROR.         
+            
+    IF AVAIL bf-eb THEN
+    DO:
+        FIND CURRENT ipbf-eb EXCLUSIVE-LOCK NO-ERROR.
+        DO li = 1 TO EXTENT(bf-eb.i-code):
+          ASSIGN
+              ipbf-eb.i-ps[li]   = bf-eb.i-ps[li]
+              ipbf-eb.i-code[li] = bf-eb.i-code[li]
+              ipbf-eb.i-dscr[li] = bf-eb.i-dscr[li]
+              ipbf-eb.i-%[li]    = bf-eb.i-%[li].
+        END.
+        ASSIGN
+             ipbf-eb.i-col       = bf-eb.i-col
+             ipbf-eb.i-pass      = bf-eb.i-pass
+             ipbf-eb.i-coat      = bf-eb.i-coat
+             ipbf-eb.i-coat-p    = bf-eb.i-coat-p
+             ipbf-eb.i-coldscr   = bf-eb.i-coldscr
+             ipbf-eb.casNoCharge = YES
+             ipbf-eb.trNoCharge  = YES
+             ipbf-eb.inkNoCharge = YES. 
+        FIND CURRENT ipbf-eb NO-LOCK NO-ERROR.     
+    END.   
+    
+    FOR EACH box-design-hdr
+      WHERE box-design-hdr.design-no eq 0
+        AND box-design-hdr.company   eq bf-eb.company
+        AND box-design-hdr.est-no    eq bf-eb.est-no
+        AND box-design-hdr.form-no   EQ bf-eb.form-no
+        AND box-design-hdr.blank-no  EQ bf-eb.blank-no
+      NO-LOCK:
+
+    IF NOT CAN-FIND(FIRST bf-box-design-hdr WHERE
+       bf-box-design-hdr.design-no = 0 AND
+       bf-box-design-hdr.company EQ ipbf-eb.company AND
+       bf-box-design-hdr.est-no EQ ipbf-eb.est-no AND
+       bf-box-design-hdr.eqty EQ box-design-hdr.eqty AND
+       bf-box-design-hdr.form-no EQ box-design-hdr.form-no AND
+       bf-box-design-hdr.blank-no EQ box-design-hdr.blank-no) THEN
+       DO:
+          create bf-box-design-hdr.
+          buffer-copy box-design-hdr except rec_key to bf-box-design-hdr
+          assign
+             bf-box-design-hdr.design-no = 0
+             bf-box-design-hdr.company   = ipbf-eb.company
+             bf-box-design-hdr.est-no    = ipbf-eb.est-no.
+       END.
+
+    for each box-design-line of box-design-hdr no-lock:
+
+          IF NOT CAN-FIND(FIRST bf-box-design-line WHERE
+             bf-box-design-line.design-no EQ 0 AND
+             bf-box-design-line.company EQ ipbf-eb.company AND
+             bf-box-design-line.est-no EQ ipbf-eb.est-no AND
+             bf-box-design-line.eqty EQ box-design-line.eqty AND
+             bf-box-design-line.form-no EQ box-design-line.form-no AND
+             bf-box-design-line.blank-no EQ box-design-line.blank-no AND
+             bf-box-design-line.line-no  EQ box-design-line.line-no) THEN
+             DO:
+                create bf-box-design-line.
+                buffer-copy box-design-line except rec_key to bf-box-design-line
+                assign
+                   bf-box-design-line.design-no = 0
+                   bf-box-design-line.company   = ipbf-eb.company
+                   bf-box-design-line.est-no    = ipbf-eb.est-no.
+             END.
+      end.
+    end.
+    
+    
+END PROCEDURE.

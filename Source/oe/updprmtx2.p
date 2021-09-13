@@ -254,8 +254,11 @@ PROCEDURE update-matrix.
   FOR EACH b-matrix BY b-matrix.qty:
     FOR EACH w-matrix
         WHERE w-matrix.qty GE b-matrix.qty
-          AND (w-matrix.price-m GE b-matrix.price-m OR
-               w-matrix.qty EQ b-matrix.qty)
+          AND w-matrix.qty EQ b-matrix.qty
+          AND w-matrix.price-m EQ b-matrix.price-m
+/* #103075 Remove logic to filter multiple diff-qty/same-price records */          
+/*          AND (w-matrix.price-m GT b-matrix.price-m OR*/
+/*               w-matrix.qty EQ b-matrix.qty)          */
           AND ROWID(w-matrix) NE ROWID(b-matrix):
       DELETE w-matrix.
     END.
@@ -379,8 +382,11 @@ PROCEDURE update-matrix-minus.
   FOR EACH b-matrix BY b-matrix.qty:
     FOR EACH w-matrix
         WHERE w-matrix.qty GE b-matrix.qty
-          AND (w-matrix.price-m GE b-matrix.price-m OR
-               w-matrix.qty EQ b-matrix.qty)
+          AND w-matrix.qty EQ b-matrix.qty
+          AND w-matrix.price-m EQ b-matrix.price-m
+/* #103075 Remove logic to filter multiple diff-qty/same-price records */          
+/*          AND (w-matrix.price-m GT b-matrix.price-m OR*/
+/*               w-matrix.qty EQ b-matrix.qty)          */
           AND ROWID(w-matrix) NE ROWID(b-matrix):
       DELETE w-matrix.
     END.
