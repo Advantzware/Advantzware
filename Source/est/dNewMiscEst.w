@@ -2260,7 +2260,7 @@ PROCEDURE pDisplayValue :
             FIND FIRST ef NO-LOCK
                 WHERE ef.company EQ eb.company
                 AND ef.est-no EQ eb.est-no
-                AND ef.form-no EQ eb.form-no  
+                AND (ef.form-no EQ eb.form-no OR eb.form-no EQ 0) 
                 NO-ERROR.
 
             ASSIGN
@@ -2288,7 +2288,7 @@ PROCEDURE pDisplayValue :
              cTest:SCREEN-VALUE = eb.test
              cFlute:SCREEN-VALUE = eb.flute
              dMsf:SCREEN-VALUE = string(ef.cost-msh)
-             dForceFrt:SCREEN-VALUE = string(ef.fr-msh)
+             dForceFrt:SCREEN-VALUE = IF ef.fr-uom EQ "CWT" THEN string(eb.fr-out-c) ELSE string(eb.fr-out-m) 
              cCad:SCREEN-VALUE = string(eb.cad-no)
              adder-dscr-1:SCREEN-VALUE = ef.adder[7]
              adder-dscr-2:SCREEN-VALUE = ef.adder[8]
@@ -2399,7 +2399,7 @@ PROCEDURE pGetEstDetail :
         FIND FIRST bf-eb NO-LOCK
              WHERE bf-eb.company EQ cocode
                AND bf-eb.est-no EQ cSEst:SCREEN-VALUE
-               AND bf-eb.form-no NE 0 NO-ERROR.
+               AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN do:           
           ipriRowid = ROWID(bf-eb) .        

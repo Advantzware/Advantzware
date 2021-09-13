@@ -1569,7 +1569,7 @@ DO:
                        NEXT mainblock.
                    END.
                END.       
-               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" THEN
+               IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" AND oe-boll.qty NE 0 THEN
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
@@ -1582,7 +1582,7 @@ DO:
                   DELETE tt-post.
                   NEXT mainblock.         
                END.
-               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no THEN 
+               IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no AND oe-boll.qty NE 0 THEN 
                DO:
                   IF lSingleBOL THEN
                      MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 
@@ -2925,7 +2925,9 @@ PROCEDURE build-work :
   DEF INPUT PARAM ic2ndKey  AS CHAR NO-UNDO.
 
   DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO. /* 05291402 */
-
+  
+  DEFINE VARIABLE lPrinted AS LOGICAL NO-UNDO.
+  
   build-work:
   FOR EACH oe-bolh
      WHERE oe-bolh.company EQ cocode
@@ -2943,7 +2945,9 @@ PROCEDURE build-work :
                        AND oe-boll.ord-no  GE v-s-ord
                        AND oe-boll.ord-no  LE v-e-ord)
      USE-INDEX post:
-          
+    
+    lPrinted = oe-bolh.printed.
+    
     RUN oe/custxship.p (oe-bolh.company,
         oe-bolh.cust-no,
           oe-bolh.ship-id,
@@ -3076,7 +3080,7 @@ PROCEDURE build-work :
             INPUT shipTo.loc,
             INPUT oe-bolh.cust-no,
             INPUT oe-bolh.bol-no,
-            INPUT oe-bolh.printed,
+            INPUT lPrinted,
             INPUT ROWID(oe-bolh)
             ) NO-ERROR.       
     END.

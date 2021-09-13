@@ -44,6 +44,7 @@ DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hGLProcs        AS HANDLE NO-UNDO.
+DEFINE VARIABLE lReturnError    AS LOGICAL NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
@@ -74,7 +75,8 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num ~
+ar-invl.taxGroup
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
 ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ~
@@ -83,7 +85,7 @@ ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
 ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
 ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
 ar-invl.bol-no ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ~
-ar-invl.e-num
+ar-invl.e-num ar-invl.taxGroup
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH ar-invl ~
@@ -103,7 +105,8 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num ~
+ar-invl.taxGroup
 &Scoped-define ENABLED-TABLES ar-invl
 &Scoped-define FIRST-ENABLED-TABLE ar-invl
 &Scoped-Define ENABLED-OBJECTS fi_acc-desc Btn_OK Btn_Done Btn_Cancel ~
@@ -115,7 +118,8 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight ar-invl.e-num ~
+ar-invl.taxGroup
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -293,6 +297,10 @@ DEFINE FRAME Dialog-Frame
           LABEL "Freight" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     ar-invl.taxGroup AT ROW 12.48 COL 85 COLON-ALIGNED
+          LABEL "Tax Group" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1     
      ar-invl.bol-no AT ROW 11.10 COL 115.2 COLON-ALIGNED
           LABEL "BOL #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -309,7 +317,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Ln#" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED
+     fi_acc-desc AT ROW 3.95 COL 29 COLON-ALIGNED      
      Btn_OK AT ROW 17.05 COL 37
      Btn_Done AT ROW 17 COL 57
      Btn_Cancel AT ROW 17 COL 77.2
@@ -423,6 +431,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-invl.e-num IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN ar-invl.taxGroup IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                  */    
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -460,6 +470,10 @@ DO:
     lw-focus = FOCUS.
 
     CASE lw-focus:NAME :
+       when "taxGroup" then do:
+              run windows/l-stax.w (g_company, focus:screen-value, output char-val).
+              if char-val <> "" then ASSIGN ar-invl.taxGroup:screen-value = entry(1,char-val).
+       end. 
        when "actnum" then do:
            RUN windows/l-acct.w (g_company,"", ar-invl.actnum:SCREEN-VALUE , OUTPUT char-val).
            IF char-val <> "" THEN ASSIGN ar-invl.actnum:SCREEN-VALUE  = ENTRY(1,char-val)
@@ -656,6 +670,9 @@ DO:
          IF ERROR-STATUS:ERROR THEN 
              RETURN NO-APPLY.        
      END.
+     
+     RUN valid-tax-group(OUTPUT lReturnError) NO-ERROR.
+     IF lReturnError THEN RETURN NO-APPLY.
 
      IF ar-invl.bol-no:MODIFIED 
          AND ar-invl.bol-no:SCREEN-VALUE NE "0" THEN DO:
@@ -1037,6 +1054,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME ar-invl.taxGroup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-invl.taxGroup Dialog-Frame
+ON LEAVE OF ar-invl.taxGroup IN FRAME Dialog-Frame /* Tax Group */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-tax-group(OUTPUT lReturnError) NO-ERROR.
+        IF lReturnError THEN RETURN NO-APPLY.
+  END.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1155,6 +1186,7 @@ PROCEDURE create-item :
             ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
             ar-invl.actnum =  ar-ctrl.sales
             ar-invl.inv-date = ar-inv.inv-date
+            ar-invl.taxGroup = ar-inv.tax-code
                 .
 
          FIND FIRST account WHERE account.company = g_company
@@ -1214,7 +1246,7 @@ PROCEDURE display-item :
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
                ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc ar-invl.ship-qty 
-               ar-invl.e-num
+               ar-invl.e-num ar-invl.taxGroup
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1254,6 +1286,7 @@ PROCEDURE enable_UI :
           ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
           ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
           ar-invl.ord-no ar-invl.po-no  ar-invl.tax ar-invl.t-freight ar-invl.e-num
+          ar-invl.taxGroup
       WITH FRAME Dialog-Frame.
   ENABLE ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
          ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
@@ -1263,7 +1296,7 @@ PROCEDURE enable_UI :
          ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
          ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
          ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc
-         ar-invl.e-num Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
+         ar-invl.e-num ar-invl.taxGroup Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1512,6 +1545,34 @@ PROCEDURE valid-actnum:
   END.              
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-group Dialog-Frame 
+PROCEDURE valid-tax-group :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF ar-invl.taxGroup:SCREEN-VALUE NE "" AND
+       NOT CAN-FIND(FIRST stax
+                    WHERE stax.company   EQ cocode
+                      AND stax.tax-group EQ ar-invl.taxGroup:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE TRIM(ar-invl.taxGroup:LABEL) + " is invalid, try help..."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO ar-invl.taxGroup.
+      oplReturnError = YES.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

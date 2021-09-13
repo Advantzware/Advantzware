@@ -31,7 +31,9 @@ DEFINE VARIABLE cSelectedColumns    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrv             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iIndent             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lDetailDataSet      AS LOGICAL   NO-UNDO EXTENT 10.
 DEFINE VARIABLE lJasperStarter      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSummaryDataSet     AS LOGICAL   NO-UNDO EXTENT 10.
 DEFINE VARIABLE lUseDefault         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE svShowParameters    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE svShowReportHeader  AS LOGICAL   NO-UNDO.
@@ -43,12 +45,17 @@ DEFINE VARIABLE svShowGroupFooter   AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
 
+DEFINE TEMP-TABLE ttTaskFile NO-UNDO
+    FIELD taskFile AS CHARACTER
+    .
+
 {AOA/includes/ttColumn.i}
 {AOA/includes/aoaProcedures.i}
 {AOA/includes/pRunBusinessLogic.i}
 
 DEFINE STREAM sLocalCSV.
 DEFINE STREAM sJasper.
+DEFINE STREAM sTemplate.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -168,6 +175,25 @@ lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pClearTaskFiles) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearTaskFiles Procedure
+PROCEDURE pClearTaskFiles:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttTaskFile.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pCreateDir) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDir Procedure
@@ -194,6 +220,31 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pCreateTaskFileRecord) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTaskFileRecord Procedure
+PROCEDURE pCreateTaskFileRecord:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTaskFile AS CHARACTER NO-UNDO.
+
+    IF NOT CAN-FIND(FIRST ttTaskFile
+                    WHERE ttTaskFile.taskFile EQ ipcTaskFile) THEN DO:
+        CREATE ttTaskFile.
+        ttTaskFile.taskFile = ipcTaskFile.
+    END. /* if not can-find */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pDeleteSessionParam) = 0 &THEN
 
@@ -613,16 +664,19 @@ PROCEDURE pJasperDetailBand :
     
     DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
 
     DEFINE BUFFER ttColumn FOR ttColumn.
     
     /* detail band */
-    RUN spGetSessionParam ("DetailTables", OUTPUT cTables).
-    iTables = INTEGER(cTables).
+    DO idx = 1 TO EXTENT(lDetailDataSet):
+        IF lDetailDataSet[idx] THEN
+        iTables = iTables + 1.
+    END. /* do itables */
     PUT STREAM sJasper UNFORMATTED
         "    <detail>" SKIP
-        "        <band height=~"" iTables * 56 + 14 + (IF iTables NE 0 THEN 4 ELSE 0) "~" splitType=~"Stretch~">" SKIP
+        "        <band height=~"" iTables * 42 + 14 + (IF iTables NE 0 THEN 4 ELSE 0) "~" splitType=~"Stretch~">" SKIP
         "            <rectangle radius=~"" 0 "~">" SKIP
         "                <reportElement style=~"Zebra~" mode=~"Opaque~" "
         "x=~"" 0 "~" "
@@ -1492,77 +1546,94 @@ PROCEDURE pJasperStarter :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcJastFile   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 5.
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTemplate      AS CHARACTER NO-UNDO EXTENT 2.
+    DEFINE VARIABLE cText          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     RUN pCreateDir (OUTPUT cUserFolder).
-    ASSIGN
-        dtDate         = TODAY
-        iTime          = TIME
-        cFileName      = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
-        cJasperFile[1] = SEARCH(cUserFolder + cFileName + ".jrxml")
-        cJasperFile[2] = SEARCH(cUserFolder + cFileName + ".json")
-        cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
-        cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
-        cJasperFile[4] = "TaskResults/"
-                       + REPLACE(aoaTitle," ","") + "."
-                       + STRING(YEAR(dtDate),"9999")
-                       + STRING(MONTH(dtDate),"99")
-                       + STRING(DAY(dtDate),"99") + "."
-                       + STRING(iTime,"99999")
-        cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[1],".jrxml",".err")
-                         ELSE cJasperFile[4] + ".err"
-        opcJastFile    = cJasperFile[4] + "." + LC(ipcType)
-        cJasperStarter = "jasperstarter process "
-                       + "-f " + LC(ipcType) + " "
-                       + "-t json "
-                       + "-o " + cJasperFile[4] + " "
-                       + "--data-file "
-                       + cJasperFile[2] + " "
-                       + "--json-query "
-                       + REPLACE(aoaTitle," ","_")
-                       + "." + REPLACE(aoaTitle," ","") + " "
-                       +  cJasperFile[1]
-                       + " 1>NUL 2>"
-                       + cJasperFile[5]
-                       .
-    DO idx = 1 TO EXTENT(cJasperFile) - 1:
-        IF cJasperFile[idx] EQ ? THEN DO:
-            MESSAGE 
-                "Unable to run" aoaTitle "Jasper Report" SKIP 
-                "Jasper Files .jrxml and/or .json not found!"
-            VIEW-AS ALERT-BOX ERROR.
-            RETURN.
-        END. /* if ? */
-    END. /* do idx */
-    
-    IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
-        CREATE TaskResult.
-        ASSIGN
-            TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
-            TaskResult.fileType     = ipcType
-            TaskResult.user-id      = aoaUserID
-            TaskResult.folderFile   = opcJastFile
-            .
-    END. /* if not can-do */
-    /* log jasperstarter command for debug purposes if needed */
     OUTPUT TO VALUE(cUserFolder + "JasperStarter.log").
-    PUT UNFORMATTED cJasperStarter SKIP.
-    PUT UNFORMATTED
-        REPLACE(
-        REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
-        REPLACE(cUserFolder,"/","~\"),"")
-        SKIP.
     OUTPUT CLOSE.
-    OS-DELETE VALUE(cJasperFile[3]).
-    OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+    FOR EACH ttTaskFile:
+        ASSIGN
+            idx            = idx + 1
+            cFileName      = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
+            cTemplate[1]   = SEARCH(cUserFolder + cFileName + ".jrxml")
+            cTemplate[2]   = cTemplate[1]
+            dtDate         = TODAY
+            iTime          = TIME
+            cJasperFile[1] = SEARCH(cTemplate[2])
+            cJasperFile[2] = ttTaskFile.taskFile //SEARCH(cUserFolder + cFileName + ".json")
+            cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
+            cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
+            cJasperFile[4] = "TaskResults/"
+                           + REPLACE(aoaTitle," ","") + "."
+                           + STRING(YEAR(dtDate),"9999")
+                           + STRING(MONTH(dtDate),"99")
+                           + STRING(DAY(dtDate),"99") + "."
+                           + STRING(iTime,"99999")
+            cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[2],".json",".err")
+                             ELSE cJasperFile[4] + ".err"
+            opcJasperFile  = opcJasperFile + cJasperFile[4] + "." + LC(ipcType) + ","
+            jdx            = jdx + 1
+            cJasperStarter = "jasperstarter process "
+                           + "-f " + LC(ipcType) + " "
+                           + "-t json "
+                           + "-o " + cJasperFile[4] + " "
+                           + "--data-file "
+                           + cJasperFile[2] + " "
+                           + "--json-query "
+                           + REPLACE(aoaTitle," ","_")
+                           + "." + REPLACE(aoaTitle," ","") + " "
+                           +  cJasperFile[1] + " "
+                        // + (IF dynParamValue.onePer THEN "-P jsonData=~"" + cJasperFile[2] + "~" " ELSE "")
+                           + "1>NUL 2>"
+                           + cJasperFile[5]
+                           .
+        DO idx = 1 TO EXTENT(cJasperFile) - 1:
+            IF cJasperFile[idx] EQ ? THEN DO:
+                MESSAGE 
+                    "Unable to run" aoaTitle "Jasper Report" SKIP 
+                    "Jasper Files .jrxml and/or .json not found!"
+                VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END. /* if ? */
+        END. /* do idx */
+        
+        IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
+            CREATE TaskResult.
+            ASSIGN
+                TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
+                TaskResult.fileType     = ipcType
+                TaskResult.user-id      = aoaUserID
+                TaskResult.folderFile   = ENTRY(jdx,opcJasperFile)
+                .
+        END. /* if not can-do */
+        /* log jasperstarter command for debug purposes if needed */
+        OUTPUT TO VALUE(cUserFolder + "JasperStarter.log") APPEND.
+        PUT UNFORMATTED cJasperStarter SKIP.
+        PUT UNFORMATTED
+            REPLACE(
+            REPLACE(cJasperStarter," -o " + cJasperFile[4],""),
+            REPLACE(cUserFolder,"/","~\"),"")
+            SKIP(1)
+            .
+        OUTPUT CLOSE.
+        OS-DELETE VALUE(cJasperFile[3]).
+        IF ipcType EQ "view" THEN
+        OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
+        ELSE
+        OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+    END. /* each tttaskfile */
+    opcJasperFile = TRIM(opcJasperFile,",").
 
 END PROCEDURE.
 
@@ -1622,6 +1693,7 @@ PROCEDURE pJasperSubDataSet:
     DEFINE VARIABLE iField     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iFieldIdx  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRow       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iWidth     AS INTEGER   NO-UNDO.
 
@@ -1629,6 +1701,13 @@ PROCEDURE pJasperSubDataSet:
     iTables = INTEGER(cTables).
     IF iTables NE 0 THEN
     DO idx = 1 TO iTables:
+        CASE ipcType:
+            WHEN "Detail" THEN
+            IF NOT lDetailDataSet[idx] THEN NEXT.
+            WHEN "Summary" THEN
+            IF NOT lSummaryDataSet[idx] THEN NEXT.
+        END CASE.
+        iRow = iRow + 1.
         RUN spGetSessionParam (ipcType + "Handle" + STRING(idx), OUTPUT cHandle).
         hTable = WIDGET-HANDLE(cHandle).
         IF NOT VALID-HANDLE(hTable) THEN NEXT.
@@ -1670,7 +1749,7 @@ PROCEDURE pJasperSubDataSet:
                     .
                 ELSE
                 PUT STREAM sJasper UNFORMATTED
-                    "                <reportElement key=~"~" style=~"" ipcType STRING(idx) "_CH~" isPrintRepeatedValues=~"false~" x=~"43~" y=~"" (idx - 1) * 42 + 14 "~" width=~"" iWidth "~" height=~"56~" isRemoveLineWhenBlank=~"true~">" SKIP
+                    "                <reportElement key=~"~" style=~"" ipcType STRING(idx) "_CH~" isPrintRepeatedValues=~"false~" x=~"43~" y=~"" (iRow - 1) * 42 + 14 "~" width=~"" iWidth "~" height=~"42~" isRemoveLineWhenBlank=~"true~">" SKIP
                     .
                 PUT STREAM sJasper UNFORMATTED
                     "                    <property name=~"com.jaspersoft.studio.layout~" value=~"com.jaspersoft.studio.editor.layout.VerticalRowLayout~"/>" SKIP
@@ -2162,7 +2241,7 @@ PROCEDURE pLocalCSV:
     OUTPUT STREAM sLocalCSV CLOSE.
     DELETE PROCEDURE hDynCalcField.
     DELETE PROCEDURE hOutputProcs.  
-    OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
+    OS-COMMAND NO-WAIT VALUE("~"" + cExcelFile + "~"").
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
@@ -2172,7 +2251,6 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-pSetColumnOrder) = 0 &THEN
 
@@ -2189,6 +2267,58 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pSubDataSetRecordsExist) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSubDataSetRecordsExist Procedure
+PROCEDURE pSubDataSetRecordsExist:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTables    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTypes     AS CHARACTER NO-UNDO INITIAL "Detail,Summary".
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTables    AS INTEGER   NO-UNDO.
+
+    DEFINE VARIABLE cHandle    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
+
+    DO idx = 1 TO NUM-ENTRIES(cTypes):
+        RUN spGetSessionParam (ENTRY(idx,cTypes) + "Tables", OUTPUT cTables).
+        iTables = INTEGER(cTables).
+        IF iTables EQ 0 THEN NEXT.
+        DO jdx = 1 TO iTables:
+            RUN spGetSessionParam (ENTRY(idx,cTypes) + "Handle" + STRING(jdx), OUTPUT cHandle).
+            hTable = WIDGET-HANDLE(cHandle).
+            IF NOT VALID-HANDLE(hTable) THEN NEXT.
+            hTable = hTable:DEFAULT-BUFFER-HANDLE.
+            CREATE QUERY hQuery.
+            hQuery:SET-BUFFERS(hTable:HANDLE).
+            hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+            hQuery:QUERY-OPEN.
+            hQuery:GET-FIRST().
+            IF hQuery:QUERY-OFF-END THEN NEXT.
+            CASE ENTRY(idx,cTypes):
+                WHEN "Detail" THEN
+                lDetailDataSet[jdx] = YES.
+                WHEN "Summary" THEN
+                lSummaryDataSet[jdx] = YES.
+            END CASE.
+            DELETE OBJECT hQuery.
+        END. /* do jdx */
+    END. /* do idx */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spJasper) = 0 &THEN
 
@@ -2295,15 +2425,16 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cjrxml       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFolder  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQuery       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSize        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cjrxml        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFolder   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSize         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOKJasperJSON AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lProgressBar  AS LOGICAL   NO-UNDO.
 
     ASSIGN
         aoaTitle     = ipcTitle
@@ -2316,55 +2447,7 @@ PROCEDURE spJasperQuery:
     RUN pGetUserParamValue (iprRowID).
     /* set columns for selected report columns */
     RUN pGetSelectedColumns.
-    /* if not local csv */
-    IF ipcType NE "LocalCSV" THEN DO:
-        /* check if using external form */
-        IF dynParamValue.externalForm NE "" AND
-           SEARCH(dynParamValue.externalForm) NE ? THEN DO:
-            RUN pCreateDir (OUTPUT cUserFolder).
-            OS-COPY
-                VALUE(dynParamValue.externalForm)
-                VALUE(cUserFolder + cjrxml + ".jrxml")
-                .
-            cJasperFile = SEARCH(cUserFolder + cjrxml + ".jrxml").
-        END. /* if external form */
-        ELSE DO: /* dynamically create jasper report */
-            /* calculate width of jasper report */
-            iSize = fJasperReportSize().
-            /* if no active columns, done */
-            IF iSize EQ ? THEN RETURN.    
-            /* create jasper jrxml file */
-            cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".
-            OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
-            RUN pJasperReport ("Open", ipcType, iSize).
-            RUN pJasperStyles.
-            RUN pJasperFieldDeclarations.
-            RUN pJasperVariableDeclarations.
-            IF svShowGroupHeader OR svShowGroupFooter THEN
-            RUN pJasperGroupDeclarations.
-            RUN pJasperBackgroundBand.    
-            IF svShowReportHeader THEN
-            RUN pJasterTitleBand (iSize).    
-            IF svShowPageHeader THEN DO:
-                RUN pJasperPageHeaderBand.    
-                RUN pJasperColumnHeaderBand.
-            END. /* show page header */
-            /*IF svShowGroupHeader THEN*/    
-            RUN pJasperDetailBand (iSize).    
-            IF svShowGroupFooter THEN
-            RUN pJasperColumnFooterBand.    
-            IF svShowPageFooter THEN
-            RUN pJasperPageFooterBand.    
-            IF svShowParameters THEN
-            RUN pJasperLastPageFooter ("dynParamValue").
-            IF svShowReportFooter THEN 
-            RUN pJasperSummaryBand.    
-            RUN pJasperReport ("Close", ipcType, iSize).    
-            OUTPUT STREAM sJasper CLOSE.
-        END. /* else if not using external form */
-        /* copy local jasper files to jasper studio workspace */
-        RUN pJasperCopy (cJasperFile).
-    END. /* if not local csv */
+
     /* get dynamic subject tables */
     FOR EACH dynSubjectTable
         WHERE dynSubjectTable.subjectID EQ dynParamValue.subjectID
@@ -2397,7 +2480,10 @@ PROCEDURE spJasperQuery:
             OUTPUT cError
             ).
         IF lOK THEN DO:
-            IF ipcType NE "LocalCSV" THEN DO:
+            /* if not local csv */
+            IF ipcType EQ "LocalCSV" THEN
+            RUN pLocalCSV (hQuery).
+            ELSE DO:
                 RUN AOA/jasperJSON.p (
                     ROWID(dynParamValue),
                     hQuery,
@@ -2406,19 +2492,62 @@ PROCEDURE spJasperQuery:
                     ipcTaskRecKey,
                     lProgressBar,
                     OUTPUT cJasperFile,
-                    OUTPUT lOK
+                    OUTPUT lOKJasperJSON
                     ).
-                IF lOK THEN DO:
-                    /* copy local jasper files to jasper studio workspace */
-                    RUN pJasperCopy (cJasperFile).
-                    /* command line call to jasperstarter script */
-                    RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
-                END. /* if lok */
-            END. /* if not local csv */
-            ELSE
-            RUN pLocalCSV (hQuery).
+                RUN pSubDataSetRecordsExist.
+                /* check if using external form */
+                IF dynParamValue.externalForm NE "" AND
+                   SEARCH(dynParamValue.externalForm) NE ? THEN DO:
+                    RUN pCreateDir (OUTPUT cUserFolder).
+                    OS-COPY
+                        VALUE(dynParamValue.externalForm)
+                        VALUE(cUserFolder + cjrxml + ".jrxml")
+                        .
+                    cJasperFile = SEARCH(cUserFolder + cjrxml + ".jrxml").
+                END. /* if external form */
+                ELSE DO: /* dynamically create jasper report */
+                    /* calculate width of jasper report */
+                    iSize = fJasperReportSize().
+                    /* if no active columns, done */
+                    IF iSize EQ ? THEN RETURN.    
+                    /* create jasper jrxml file */
+                    cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".
+                    OUTPUT STREAM sJasper TO VALUE(cJasperFile).    
+                    RUN pJasperReport ("Open", ipcType, iSize).
+                    RUN pJasperStyles.
+                    RUN pJasperFieldDeclarations.
+                    RUN pJasperVariableDeclarations.
+                    IF svShowGroupHeader OR svShowGroupFooter THEN
+                    RUN pJasperGroupDeclarations.
+                    RUN pJasperBackgroundBand.    
+                    IF svShowReportHeader THEN
+                    RUN pJasterTitleBand (iSize).    
+                    IF svShowPageHeader THEN DO:
+                        RUN pJasperPageHeaderBand.    
+                        RUN pJasperColumnHeaderBand.
+                    END. /* show page header */
+                    /*IF svShowGroupHeader THEN*/    
+                    RUN pJasperDetailBand (iSize).    
+                    IF svShowGroupFooter THEN
+                    RUN pJasperColumnFooterBand.    
+                    IF svShowPageFooter THEN
+                    RUN pJasperPageFooterBand.    
+                    IF svShowParameters THEN
+                    RUN pJasperLastPageFooter ("dynParamValue").
+                    IF svShowReportFooter THEN 
+                    RUN pJasperSummaryBand.    
+                    RUN pJasperReport ("Close", ipcType, iSize).    
+                    OUTPUT STREAM sJasper CLOSE.
+                END. /* else if not using external form */
+                /* copy local jasper files to jasper studio workspace */
+                RUN pJasperCopy (cJasperFile).
+                IF lOKJasperJSON THEN
+                /* command line call to jasperstarter script */
+                RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
+            END. /* if local csv */
         END. /* if lok */
     END. /* avail dynsubject */
+
     RUN pDeleteSessionParam ("Detail").
     RUN pDeleteSessionParam ("Summary").
 

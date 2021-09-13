@@ -223,7 +223,6 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.job-no  = ipbf-job.job-no
                 bf-job-hdr.job-no2 = ipbf-job.job-no2
                 bf-job-hdr.i-no    = estCostItem.itemID
-                bf-job-hdr.qty     = estCostBlank.quantityRequired
                 bf-job-hdr.cust-no = estCostItem.customerID
                 bf-job-hdr.est-no  = ipbf-job.est-no
                 bf-job-hdr.ord-no  = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
@@ -231,6 +230,7 @@ PROCEDURE pBuildHeaders PRIVATE:
                 .
         END.
         IF AVAILABLE bf-job-hdr THEN DO:
+            bf-job-hdr.qty     = estCostBlank.quantityRequired.
             CREATE ttJobHdrToKeep.
             ASSIGN 
                 dQtyInM                 = bf-job-hdr.qty / 1000

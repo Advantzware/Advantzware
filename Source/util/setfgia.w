@@ -1689,7 +1689,7 @@ main-loop:
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 END.
 
 /* Taking this out as it is a utility */

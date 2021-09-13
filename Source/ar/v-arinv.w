@@ -926,6 +926,8 @@ PROCEDURE local-assign-record :
 
   END. /* adm-adding-record */
 
+  RUN pUpdateTaxGroup.
+  
   /* gdm - 02270909 */
   FIND FIRST ar-invl EXCLUSIVE-LOCK
       WHERE ar-invl.x-no EQ ar-inv.x-no NO-ERROR.
@@ -1568,6 +1570,28 @@ PROCEDURE proc-enable :
        ar-inv.cust-no:SENSITIVE = NO.
        APPLY "entry" TO ar-inv.ship-id.
      END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateTaxGroup V-table-Win 
+PROCEDURE pUpdateTaxGroup :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-ar-invl FOR ar-invl.
+  
+  FOR EACH bf-ar-invl EXCLUSIVE-LOCK
+      WHERE bf-ar-invl.company EQ cocode
+      AND bf-ar-invl.x-no EQ ar-inv.x-no:
+      ASSIGN 
+          bf-ar-invl.taxGroup = ar-inv.tax-code. 
+  END.
+  RELEASE bf-ar-invl.
 
 END PROCEDURE.
 

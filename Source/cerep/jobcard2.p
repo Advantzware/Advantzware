@@ -568,8 +568,8 @@ END FUNCTION.
         FIND FIRST cust WHERE cust.company = job-hdr.company 
                           AND cust.cust-no = job-hdr.cust-no 
                         NO-LOCK NO-ERROR.
-        v-over% = IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE 0 .
-       v-under% = IF AVAIL oe-ordl THEN oe-ordl.under-pct ELSE 0 .
+        v-over% = IF AVAIL cust THEN cust.over-pct  ELSE 0 .
+       v-under% = IF AVAIL cust THEN cust.under-pct ELSE 0 .
 
         v-cust-name = IF AVAIL oe-ord THEN oe-ord.cust-name 
                       ELSE IF AVAIL cust THEN cust.name

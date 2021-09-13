@@ -142,23 +142,24 @@ RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS lv-text-1 begin_machine lv-text-2 ~
-end_machine fi_BeginEmp fi_EndEmp begin_date end_date begin_shift end_shift ~
+&Scoped-Define ENABLED-OBJECTS tb_ShowNoCrewIsEntered lv-text-1 ~
+begin_machine lv-text-2 end_machine begin_job-no begin_job-no2 end_job-no ~
+end_job-no2 fi_BeginEmp fi_EndEmp begin_date end_date begin_shift end_shift ~
 t-purge t-prt-rate tg_MachTrans tg_EmpMachTrans tg_blank-end-date rd-dest ~
-lv-ornt lines-per-page lv-font-no td-show-parm fi_file btn-ok btn-cancel ~
-begin_job-no begin_job-no2 end_job-no end_job-no2 tg_MachReltdTrans ~
-tb_excel tb_runExcel RECT-6 RECT-7 
-&Scoped-Define DISPLAYED-OBJECTS lv-text-1 begin_machine lv-text-2 ~
-end_machine fi_BeginEmp fi_EndEmp begin_date end_date FILL-IN-1 begin_shift ~
+lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+btn-ok btn-cancel tg_MachReltdTrans RECT-6 RECT-7 
+&Scoped-Define DISPLAYED-OBJECTS tb_ShowNoCrewIsEntered lv-text-1 ~
+begin_machine lv-text-2 end_machine begin_job-no begin_job-no2 end_job-no ~
+end_job-no2 fi_BeginEmp fi_EndEmp begin_date end_date FILL-IN-1 begin_shift ~
 end_shift t-purge t-prt-rate tg_MachTrans tg_EmpMachTrans tg_blank-end-date ~
-rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm fi_file ~
-begin_job-no begin_job-no2 end_job-no end_job-no2 tg_MachReltdTrans ~
-tb_excel tb_runExcel 
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file tg_MachReltdTrans 
 
 /* Custom List Definitions                                              */
 /* nonPurgeItems,purgeItems,List-3,List-4,List-5,F1                     */
-&Scoped-define nonPurgeItems FILL-IN-1 post t-prt-rate rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm RECT-6 
+&Scoped-define nonPurgeItems tb_ShowNoCrewIsEntered FILL-IN-1 post ~
+t-prt-rate rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm RECT-6 
 &Scoped-define purgeItems lv-text-1 lv-text-2 fi_BeginEmp fi_EndEmp t-purge ~
 tg_MachTrans tg_EmpMachTrans tg_blank-end-date tg_MachReltdTrans 
 
@@ -295,7 +296,7 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.05.
+     SIZE 94 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -328,6 +329,11 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_ShowNoCrewIsEntered AS LOGICAL INITIAL no 
+     LABEL "Don't Show No Crew Is Entered Message" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43 BY .81 NO-UNDO.
+
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -357,30 +363,32 @@ DEFINE VARIABLE tg_MachTrans AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     tb_ShowNoCrewIsEntered AT ROW 7.9 COL 12 HELP
+          "Don't Show No Crew Is Entered Message" WIDGET-ID 14
      lv-text-1 AT ROW 9.81 COL 45 COLON-ALIGNED NO-LABEL
-     begin_machine AT ROW 2.52 COL 22.8 COLON-ALIGNED HELP
+     begin_machine AT ROW 2.19 COL 22.8 COLON-ALIGNED HELP
           "Enter Beginning Machine"
      lv-text-2 AT ROW 11.48 COL 45 COLON-ALIGNED NO-LABEL
-     end_machine AT ROW 2.52 COL 65.6 COLON-ALIGNED HELP
+     end_machine AT ROW 2.19 COL 65.6 COLON-ALIGNED HELP
           "Enter Ending Machine"
-     begin_job-no AT ROW 3.57 COL 22.8 COLON-ALIGNED HELP
+     begin_job-no AT ROW 3.24 COL 22.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 4
-     begin_job-no2 AT ROW 3.57 COL 37.8 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.24 COL 37.8 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 6
-     end_job-no AT ROW 3.57 COL 65.6 COLON-ALIGNED HELP
+     end_job-no AT ROW 3.24 COL 65.6 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 8
-     end_job-no2 AT ROW 3.57 COL 80.8 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.24 COL 80.8 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 10
-     fi_BeginEmp AT ROW 7.1 COL 22.8 COLON-ALIGNED
-     fi_EndEmp AT ROW 7.1 COL 65.6 COLON-ALIGNED
-     begin_date AT ROW 4.81 COL 22.8 COLON-ALIGNED HELP
+     fi_BeginEmp AT ROW 6.76 COL 22.8 COLON-ALIGNED
+     fi_EndEmp AT ROW 6.76 COL 65.6 COLON-ALIGNED
+     begin_date AT ROW 4.48 COL 22.8 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 4.81 COL 65.6 COLON-ALIGNED HELP
+     end_date AT ROW 4.48 COL 65.6 COLON-ALIGNED HELP
           "Enter Ending Date"
      FILL-IN-1 AT ROW 14.05 COL 1 COLON-ALIGNED NO-LABEL
-     begin_shift AT ROW 5.91 COL 22.8 COLON-ALIGNED HELP
+     begin_shift AT ROW 5.57 COL 22.8 COLON-ALIGNED HELP
           "Enter Beginning Shift"
-     end_shift AT ROW 5.91 COL 65.6 COLON-ALIGNED HELP
+     end_shift AT ROW 5.57 COL 65.6 COLON-ALIGNED HELP
           "Enter Ending Shift"
      post AT ROW 8.91 COL 12 HELP
           "Post to ASI Database Indicator"
@@ -405,8 +413,8 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.48 COL 3
           BGCOLOR 2 
-     RECT-6 AT ROW 13.38 COL 1.8
-     RECT-7 AT ROW 1.24 COL 1.8
+     RECT-6 AT ROW 14.33 COL 1.8
+     RECT-7 AT ROW 1.24 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -464,16 +472,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -489,6 +487,14 @@ ASSIGN
 ASSIGN 
        begin_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -589,6 +595,8 @@ ASSIGN
        tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_ShowNoCrewIsEntered IN FRAME FRAME-A
+   1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    1                                                                    */
 ASSIGN 
@@ -625,7 +633,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -690,9 +698,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME begin_machine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_machine C-Win
-ON HELP OF begin_machine IN FRAME FRAME-A /* Beginning Date */
+ON HELP OF begin_machine IN FRAME FRAME-A /* Beginning Machine */
 DO:
   RUN lookups/mach.p.
   IF g_lookup-var NE ""                                AND
@@ -704,43 +713,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_machine
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_machine C-Win
-ON HELP OF end_machine IN FRAME FRAME-A /* Beginning Date */
-DO:
-  RUN lookups/mach.p.
-  IF g_lookup-var NE ""                                AND
-         TRIM(g_lookup-var) NE TRIM(end_machine:SCREEN-VALUE) THEN DO:
-        end_machine:SCREEN-VALUE = g_lookup-var.
-      END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME begin_shift
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shift C-Win
-ON HELP OF begin_shift IN FRAME FRAME-A /* Beginning Date */
+ON HELP OF begin_shift IN FRAME FRAME-A /* Beginning Shift */
 DO:
   RUN lookups/shifts.p.
   IF g_lookup-var NE ""                                AND
          TRIM(g_lookup-var) NE TRIM(begin_shift:SCREEN-VALUE) THEN DO:
         begin_shift:SCREEN-VALUE = g_lookup-var.
-      END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_shift
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shift C-Win
-ON HELP OF end_shift IN FRAME FRAME-A /* Beginning Date */
-DO:
-  RUN lookups/shifts.p.
-  IF g_lookup-var NE ""                                AND
-         TRIM(g_lookup-var) NE TRIM(end_shift:SCREEN-VALUE) THEN DO:
-        end_shift:SCREEN-VALUE = g_lookup-var.
       END.
 END.
 
@@ -1062,6 +1043,36 @@ END.
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_machine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_machine C-Win
+ON HELP OF end_machine IN FRAME FRAME-A /* Ending Machine */
+DO:
+  RUN lookups/mach.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(end_machine:SCREEN-VALUE) THEN DO:
+        end_machine:SCREEN-VALUE = g_lookup-var.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_shift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shift C-Win
+ON HELP OF end_shift IN FRAME FRAME-A /* Ending Shift */
+DO:
+  RUN lookups/shifts.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(end_shift:SCREEN-VALUE) THEN DO:
+        end_shift:SCREEN-VALUE = g_lookup-var.
+      END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1427,19 +1438,19 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lv-text-1 begin_machine lv-text-2 end_machine fi_BeginEmp fi_EndEmp 
-          begin_date end_date FILL-IN-1 begin_shift end_shift t-purge t-prt-rate 
-          tg_MachTrans tg_EmpMachTrans tg_blank-end-date rd-dest lv-ornt 
-          lines-per-page lv-font-no lv-font-name td-show-parm fi_file 
-          begin_job-no begin_job-no2 end_job-no end_job-no2 tg_MachReltdTrans 
-          tb_excel tb_runExcel 
+  DISPLAY tb_ShowNoCrewIsEntered lv-text-1 begin_machine lv-text-2 end_machine 
+          begin_job-no begin_job-no2 end_job-no end_job-no2 fi_BeginEmp 
+          fi_EndEmp begin_date end_date FILL-IN-1 begin_shift end_shift t-purge 
+          t-prt-rate tg_MachTrans tg_EmpMachTrans tg_blank-end-date rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file tg_MachReltdTrans 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE lv-text-1 begin_machine lv-text-2 end_machine fi_BeginEmp fi_EndEmp 
-         begin_date end_date begin_shift end_shift t-purge t-prt-rate 
+  ENABLE tb_ShowNoCrewIsEntered lv-text-1 begin_machine lv-text-2 end_machine 
+         begin_job-no begin_job-no2 end_job-no end_job-no2 fi_BeginEmp 
+         fi_EndEmp begin_date end_date begin_shift end_shift t-purge t-prt-rate 
          tg_MachTrans tg_EmpMachTrans tg_blank-end-date rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm fi_file btn-ok btn-cancel 
-         begin_job-no begin_job-no2 end_job-no end_job-no2 tg_MachReltdTrans 
-         tb_excel tb_runExcel RECT-6 RECT-7 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel tg_MachReltdTrans RECT-6 RECT-7 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1560,6 +1571,32 @@ PROCEDURE output-to-screen :
   run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
+PROCEDURE pCheckDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  
+    lInvalid = no.
+    
+    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "FG", output cMessage, output lSuccess ) .  
+    IF NOT lSuccess THEN 
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
+      lInvalid = YES.
+    END.      
+    
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2026,7 +2063,7 @@ DO:
   OUTPUT STREAM excel CLOSE.
 
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2192,27 +2229,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckDate C-Win 
-PROCEDURE pCheckDate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-  
-    lInvalid = no.
-    
-    RUN GL_CheckModClosePeriod(input cocode, input DATE(ipdtDate), input "FG", output cMessage, output lSuccess ) .  
-    IF NOT lSuccess THEN 
-    DO:
-      MESSAGE cMessage VIEW-AS ALERT-BOX INFO.
-      lInvalid = YES.
-    END.      
-    
-  
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

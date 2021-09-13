@@ -863,7 +863,7 @@ PROCEDURE pBusinessLogic:
             END. /* else do: */
         END. /* each ar-cashl */
     
-        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5] + dCustT[6].
+        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5].
         
         IF NOT lFirstCust OR dC1 NE 0 THEN DO:
             IF cType EQ "Detail" THEN DO:
@@ -951,7 +951,7 @@ PROCEDURE pBusinessLogic:
         END. /* if not lFirstCust */
         
         IF LAST-OF(tt-cust.sorter) THEN DO:
-            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5] + dSManT[6].
+            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5].
             IF cSort1 EQ "Name" THEN DO:
                 IF cType NE "Totals Only" THEN
                 RUN AgedReceivablesCreateTotals (

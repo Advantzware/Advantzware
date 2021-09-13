@@ -1513,20 +1513,20 @@ display with frame r-top.
        
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
    
      OUTPUT STREAM excel-2 CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
    END.
    ELSE DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
    
      OUTPUT STREAM excel-2 CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
 
    END.
    

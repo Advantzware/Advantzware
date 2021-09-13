@@ -476,7 +476,7 @@ PROCEDURE CreateReleaseTag :
     ELSE
         ASSIGN
             lValidateQtyExceed = FALSE
-            lSelectReleaseQty  = TRUE
+            lSelectReleaseQty  = FALSE
             .
                     
     RUN CreateReleaseTag IN hdReleaseProcs (

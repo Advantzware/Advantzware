@@ -13,9 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} TEMP-TABLE ttEstHeaderToCalc /*Master Print*/
-    FIELD iEstCostHeaderID AS INT64
-    .
+{est\ttEstCostHeaderToCalc.i}
 
 DEFINE {1} TEMP-TABLE ttEstBlank 
     FIELD estCostBlankID AS INT64

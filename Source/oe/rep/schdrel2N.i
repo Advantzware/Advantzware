@@ -159,7 +159,7 @@ form header
 
   if td-show-parm then run show-param.
 
-  IF rd-dest = 3 THEN 
+  IF rd-dest EQ 3 THEN 
   DO:
   
     OUTPUT STREAM excel TO VALUE(cFileName).
@@ -725,8 +725,8 @@ form header
 
   SESSION:SET-WAIT-STATE ("").
 
-  IF rd-dest = 3 THEN DO:
+  IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel:CHECKED THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+    IF tb_OpenCSV:CHECKED THEN
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.

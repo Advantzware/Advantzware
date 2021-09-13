@@ -145,7 +145,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
     IF ip-help OR li1 GT 1 THEN DO:
       IF lv-field EQ "stock-no" THEN RUN est/l-ebstf.w (gcompany,est.est-type,"", lv-rowid, lv-value, OUTPUT li-out-item , OUTPUT lv-rowid).
-      ELSE RUN est/l-eb.w (gcompany, gloc, est.est-type, lv-rowid, li, lv-value, OUTPUT lv-rowid).
+      ELSE RUN est/l-eb.w (gcompany, gloc, est.est-type, lv-rowid, li + 2, lv-value, OUTPUT lv-rowid).
 
       FIND b-eb WHERE ROWID(b-eb) EQ lv-rowid NO-LOCK NO-ERROR.
     END.

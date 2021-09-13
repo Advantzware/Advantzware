@@ -168,13 +168,13 @@ DEFINE FRAME F-Main
      box-design-hdr.description AT ROW 1.24 COL 22 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED
+     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
+          VIEW-AS FILL-IN 
+          SIZE 63 BY 1
+     box-design-hdr.box-3d-image AT ROW 1.24 COL 75 COLON-ALIGNED FORMAT "x(200)"
           VIEW-AS FILL-IN 
           SIZE 62 BY 1
           BGCOLOR 14 
-     box-design-hdr.box-image AT ROW 1.24 COL 75 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 63 BY 1
      box-design-hdr.lscore AT ROW 2.43 COL 2 NO-LABEL FORMAT "x(210)"
           VIEW-AS FILL-IN 
           SIZE 116 BY 1
@@ -194,10 +194,10 @@ DEFINE FRAME F-Main
      editor_wscore AT ROW 4.81 COL 133 NO-LABEL
      "Total" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.33 COL 122
-     "W Totals   W Score" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 4.1 COL 123
      "Score:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 2.43 COL 122
+     "W Totals   W Score" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 4.1 COL 123
      box-image-2 AT ROW 4.57 COL 2
      RECT-40 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -262,10 +262,12 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN box-design-hdr.box-3d-image IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
+   NO-DISPLAY NO-ENABLE EXP-FORMAT                                      */
 ASSIGN 
        box-design-hdr.box-3d-image:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN box-design-hdr.box-image IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 

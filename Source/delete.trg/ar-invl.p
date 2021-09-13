@@ -5,3 +5,7 @@
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 {methods/triggers/delete.i}
+
+FOR EACH InvoiceLineTax WHERE InvoiceLineTax.invoiceLineRecKey EQ ar-invl.rec_key:
+    DELETE InvoiceLineTax.
+END.

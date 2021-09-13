@@ -38,9 +38,9 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 fiBeginJob fiBeginJob-2 fiEndJob ~
-fiEndJob-2 fiBeginItem fiEndItem btn-process btn-cancel 
+fiEndJob-2 fiBeginItem fiEndItem tbAutoClose btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiBeginJob fiBeginJob-2 fiEndJob ~
-fiEndJob-2 fiBeginItem fiEndItem 
+fiEndJob-2 fiBeginItem fiEndItem tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -67,11 +67,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
      LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-process 
      LABEL "&Start Process" 
-     SIZE 18 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE fiBeginItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "Beginning Item" 
@@ -103,27 +103,34 @@ DEFINE VARIABLE fiEndJob-2 AS INTEGER FORMAT "99":U INITIAL 0
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 99 BY 5.48.
+     SIZE 94 BY 5.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiBeginJob AT ROW 3.14 COL 17 COLON-ALIGNED WIDGET-ID 28
-     fiBeginJob-2 AT ROW 3.14 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     fiEndJob AT ROW 3.14 COL 62 COLON-ALIGNED WIDGET-ID 30
-     fiEndJob-2 AT ROW 3.14 COL 79 COLON-ALIGNED NO-LABEL WIDGET-ID 34
-     fiBeginItem AT ROW 4.57 COL 17 COLON-ALIGNED WIDGET-ID 10
-     fiEndItem AT ROW 4.57 COL 62.2 COLON-ALIGNED WIDGET-ID 12
-     btn-process AT ROW 7.43 COL 24
-     btn-cancel AT ROW 7.43 COL 54
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 1.48 COL 3
-     RECT-17 AT ROW 1.71 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     fiBeginJob AT ROW 3.14 COL 18.6 COLON-ALIGNED WIDGET-ID 28
+     fiBeginJob-2 AT ROW 3.14 COL 35.6 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     fiEndJob AT ROW 3.14 COL 63.6 COLON-ALIGNED WIDGET-ID 30
+     fiEndJob-2 AT ROW 3.14 COL 80.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     fiBeginItem AT ROW 4.57 COL 18.6 COLON-ALIGNED WIDGET-ID 10
+     fiEndItem AT ROW 4.57 COL 63.8 COLON-ALIGNED WIDGET-ID 12
+     tbAutoClose AT ROW 6.95 COL 30.4 WIDGET-ID 16
+     btn-process AT ROW 7.91 COL 30.4
+     btn-cancel AT ROW 7.91 COL 54
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .62 AT ROW 1.38 COL 5
+     RECT-17 AT ROW 1.71 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 101.4 BY 8.71.
+         SIZE 100 BY 8.71
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -143,8 +150,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Print FG Labels"
-         HEIGHT             = 8.81
-         WIDTH              = 101.2
+         HEIGHT             = 8.76
+         WIDTH              = 100.2
          MAX-HEIGHT         = 22.67
          MAX-WIDTH          = 171.6
          VIRTUAL-HEIGHT     = 22.67
@@ -273,16 +280,6 @@ DO:
 
 
 &Scoped-define SELF-NAME fiBeginJob-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginJob-2 C-Win
-ON HELP OF fiBeginJob-2 IN FRAME FRAME-A
-DO:
- 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fiEndItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
 ON HELP OF fiEndItem IN FRAME FRAME-A /* Ending Item */
@@ -310,16 +307,6 @@ DO:
 
 
 &Scoped-define SELF-NAME fiEndJob-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndJob-2 C-Win
-ON HELP OF fiEndJob-2 IN FRAME FRAME-A
-DO:
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -346,6 +333,8 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     
+    btn-process:load-image("Graphics/32x32/Ok.png").
+    btn-cancel:load-image("Graphics/32x32/cancel.png").
     RUN enable_UI.
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN 
@@ -389,9 +378,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiBeginJob fiBeginJob-2 fiEndJob fiEndJob-2 fiBeginItem fiEndItem 
+          tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 fiBeginJob fiBeginJob-2 fiEndJob fiEndJob-2 fiBeginItem 
-         fiEndItem btn-process btn-cancel 
+         fiEndItem tbAutoClose btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -476,6 +466,9 @@ PROCEDURE pProcess PRIVATE :
     END.
     RUN fg/FGLabelProcs.p (g_company, cJobStart, cJobEnd, fiBeginJob-2, fiEndJob-2, fiBeginItem, fiEndItem, YES, YES).
 
+    IF tbAutoClose:CHECKED THEN 
+     APPLY 'CLOSE' TO THIS-PROCEDURE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

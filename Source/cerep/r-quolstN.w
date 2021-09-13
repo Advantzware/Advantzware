@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE list-name AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -41,20 +41,22 @@ ASSIGN
  locode = gloc.
 
 DEFINE VARIABLE ls-fax-file    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOGICAL   NO-UNDO.
 
 /* gdm - 10130808 */
 DEF STREAM excel.
 
-DEFINE VARIABLE ldummy             AS LOGICAL  NO-UNDO.
-DEFINE VARIABLE cTextListToSelect  AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFieldListToSelect AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFieldLength       AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFieldType         AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE iColumnLength      AS INTEGER  NO-UNDO.
-DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE ldummy              AS LOGICAL    NO-UNDO.
+DEFINE VARIABLE cTextListToSelect   AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFieldListToSelect  AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFieldLength        AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFieldType          AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE iColumnLength       AS INTEGER    NO-UNDO.
 DEFINE VARIABLE  cTextListToDefault AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE cFileName           AS CHARACTER  NO-UNDO .
+
+DEFINE BUFFER b-itemfg FOR itemfg .
+
 ASSIGN cTextListToSelect = "Company Name,Address1,Address2,City,State,Zip,Rep," +
     "Qty,Price/M,Rel,Cust Part#,Item Name,Size,Style,Board,Colors,Quote#,Est#,Date"
        cFieldListToSelect = "comp-name,add1,add2,city,state,zip,rep," +
@@ -84,11 +86,11 @@ ASSIGN cTextListToDefault  = "Company Name,Address1,Address2,City,State,Zip,Rep,
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
 begin_slsmn end_slsmn begin_date end_date sl_avail Btn_Def sl_selected ~
-Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file tb_runExcel tbAutoClose ~
+Btn_Add Btn_Remove btn_Up btn_down rd-dest fi_file tb_OpenCSV tbAutoClose ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_date end_date sl_avail sl_selected rd-dest fi_file ~
-tb_runExcel tbAutoClose 
+tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -205,7 +207,7 @@ DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
      LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
      SIZE 14 BY .81
@@ -240,7 +242,7 @@ DEFINE FRAME FRAME-A
      rd-dest AT ROW 14.1 COL 5.8 NO-LABEL
      fi_file AT ROW 16.95 COL 25.4 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 8
-     tb_runExcel AT ROW 17.05 COL 87 RIGHT-ALIGNED WIDGET-ID 12
+     tb_OpenCSV AT ROW 17.05 COL 87 RIGHT-ALIGNED WIDGET-ID 12
      tbAutoClose AT ROW 18.86 COL 26.2 WIDGET-ID 16
      btn-ok AT ROW 19.71 COL 25.8
      btn-cancel AT ROW 19.71 COL 48.4
@@ -349,10 +351,10 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -494,12 +496,11 @@ DO:
         ASSIGN {&displayed-objects}.
     END.
  IF rd-dest = 4 THEN
-  do:
-    fi_file:SCREEN-VALUE = "c:\tmp\r-quolst.csv".
-    assign fi_file.
+  DO:
+    ASSIGN fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     fi_file:SCREEN-VALUE =  cFileName.
-  end.
+  END.
   RUN GetSelectionList.
   RUN run-report. 
   STATUS DEFAULT "Processing Complete".
@@ -526,8 +527,19 @@ DO:
 
            END.
            END.
-       WHEN 4 THEN MESSAGE "CSV file " + fi_file:SCREEN-VALUE + " have been created."
-                   VIEW-AS ALERT-BOX.
+        WHEN 4 THEN DO:
+           IF NOT tb_OpenCSV THEN DO:        
+                  MESSAGE "CSV file have been created." SKIP(1)
+                           "~"OK"~"Want to open CSV file?"
+                  VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                  TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                  IF lChoice THEN
+                  DO:
+                     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                  END.
+              END.
+           END. /* WHEN 4 THEN DO: */
 
   END CASE. 
   
@@ -668,17 +680,7 @@ END.
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
     ASSIGN {&self-name}.
-    IF rd-dest = 4 THEN
-        ASSIGN
-            fi_file:sensitive     = TRUE  
-            tb_runExcel:sensitive = TRUE
-            .
-    ELSE
-        ASSIGN
-            fi_file:sensitive     = FALSE  
-            tb_runExcel:checked   = FALSE
-            tb_runExcel:sensitive = FALSE
-            .
+    RUN pChangeDest.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,9 +750,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Open CSV? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -803,9 +805,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn_down:load-image("Graphics/32x32/movedown.png").
     
   RUN enable_UI.
-    ASSIGN rd-dest.
-    APPLY 'VALUE-CHANGED' TO rd-dest.
-
+   
   {methods/nowait.i}
  /* {sys/inc/reportsConfigNK1.i "ER9" }
   assign
@@ -819,7 +819,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust-no.
    END.
-
+  RUN pChangeDest.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -973,11 +973,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          sl_avail sl_selected rd-dest fi_file tb_runExcel tbAutoClose 
+          sl_avail sl_selected rd-dest fi_file tb_OpenCSV tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
          begin_date end_date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
-         btn_Up btn_down rd-dest fi_file tb_runExcel tbAutoClose btn-ok 
+         btn_Up btn_down rd-dest fi_file tb_OpenCSV tbAutoClose btn-ok 
          btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1453,8 +1453,8 @@ SESSION:SET-WAIT-STATE("general").
 /* gdm - 10130808 */
     IF rd-dest = 4 THEN DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+        IF tb_OpenCSV THEN
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
 /* gdm - 10130807 */
@@ -1468,6 +1468,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+ Purpose:    
+ Parameters:  <none>
+ Notes:      
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+     IF rd-dest:SCREEN-VALUE EQ "4" THEN
+      ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "Yes"
+       fi_file:SENSITIVE = YES
+       tb_OpenCSV:SENSITIVE = YES      
+      .
+     ELSE
+       ASSIGN
+       tb_OpenCSV:SCREEN-VALUE = "NO"
+       fi_file:SENSITIVE = NO
+       tb_OpenCSV:SENSITIVE = NO      
+      .
+    ASSIGN fi_file:SCREEN-VALUE = "c:\tmp\r-quolst.csv".    
+ END.
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

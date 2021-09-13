@@ -184,7 +184,7 @@ DEF TEMP-TABLE ttledger
 DEFINE TEMP-TABLE ttJobMch NO-UNDO
     FIELD d-seq LIKE mach.d-seq
     FIELD rowID AS ROWID.
-        
+
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -2974,6 +2974,8 @@ PROCEDURE ipDataFix :
 		RUN ipDataFix210200.
     IF iCurrentVersion LT 21030000 THEN 
         RUN ipDataFix210300.
+    IF iCurrentVersion LT 21040000 THEN 
+        RUN ipDataFix210400.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3777,7 +3779,29 @@ PROCEDURE ipDataFix210300:
     RUN ipRemoveBadApiOutboundRecs.
     RUN ipConvertPolScore.
     RUN ipJobMchSequenceFix.
+    RUN ipFixEstimateScores.
     
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210400 C-Win
+PROCEDURE ipDataFix210400:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    RUN ipStatus ("  Data Fix 210400...").
+
+    RUN ipSetOT1Permissions.
+    RUN ipFixFoldingEstimateScores.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -4322,6 +4346,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFoldingEstimateScores C-Win
+PROCEDURE ipFixFoldingEstimateScores PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+
+    RUN ipStatus ("    Fix Estimate scores").
+
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bf-company     FOR company.
+    DEFINE BUFFER bf-style       FOR style.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+        
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
+    FOR EACH bf-company NO-LOCK:        
+        FOR EACH bf-panelheader NO-LOCK 
+            WHERE bf-panelHeader.company  EQ bf-company.company 
+              AND bf-panelHeader.linktype EQ "P",                      /* PO only */
+            FIRST bf-style NO-LOCK 
+            WHERE bf-style.company  EQ bf-panelHeader.company 
+              AND bf-style.style    EQ bf-panelHeader.styleID 
+              AND bf-style.industry EQ "1":                            /* Folding estimates */
+            RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+                INPUT bf-panelHeader.company,
+                INPUT bf-panelHeader.poID,
+                INPUT bf-panelHeader.poLine
+                ).            
+        END.   
+    END.
+    
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    DELETE PROCEDURE hdFormulaProcs.
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
@@ -5282,7 +5359,7 @@ PROCEDURE ipLoadDAOAData :
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
+        IF ERROR-STATUS:ERROR THEN
             DELETE {&tablename}.
     END.
     INPUT CLOSE.
@@ -5792,7 +5869,7 @@ PROCEDURE ipLoadPrograms :
         END.
         DELETE ttPrgrms.
     END.
-
+    
     DISABLE TRIGGERS FOR LOAD OF employee.
     FOR EACH employee EXCLUSIVE-LOCK:
         employee.employeeImage[1] = "Graphics\32x32\user.png".
@@ -7082,6 +7159,51 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetOT1Permissions C-Win
+PROCEDURE ipSetOT1Permissions:
+/*------------------------------------------------------------------------------
+ Purpose:   102427 Permissions to select bins/tags in O-T-1
+ Notes:     set the security on vp-oerell. to inherit permissions from p-ordhd
+------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("  Set OT1 Permissions").
+
+    DEFINE BUFFER bPrgrms FOR prgrms.
+    
+    FIND FIRST bPrgrms NO-LOCK
+         WHERE bPrgrms.prgmName EQ "p-updhd."
+         NO-ERROR.
+    IF AVAILABLE bPrgrms THEN DO:
+        FIND FIRST prgrms EXCLUSIVE-LOCK
+             WHERE prgrms.prgmName EQ "vp-oerell."
+             NO-ERROR.
+        IF NOT AVAILABLE prgrms THEN DO:
+            CREATE prgrms.
+            ASSIGN
+                prgrms.prgmName  = "vp-oerell."
+                prgrms.prgTitle  = "Access to Release Line Item Buttons"
+                prgrms.dir_group = "oe"
+                prgrms.module    = "OE"
+                prgrms.mfgroup   = "w-oerell."
+                .
+        END.
+        ASSIGN
+            prgrms.can_create = bPrgrms.can_create
+            prgrms.can_delete = bPrgrms.can_delete
+            prgrms.can_run    = bPrgrms.can_run
+            prgrms.can_update = bPrgrms.can_update
+            .
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
@@ -7213,6 +7335,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixEstimateScores C-Win
+PROCEDURE ipFixEstimateScores:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+    
+    RUN ipStatus ("    Fix Estimate scores").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    RUN util/dev/EstimateScoresFix.p
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :

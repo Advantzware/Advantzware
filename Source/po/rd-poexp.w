@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
                             "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
-                            "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description".
+                            "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description,Required Date".
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -94,7 +94,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
                             "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
-                            "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr"  .
+                            "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-ord.due-date"  .
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -115,7 +115,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId
                             "Status,Item Status,Printed,Opened,Type,Contact," +
                             "PO Date,Last Ship Date," +                             
                             "Setup,Discount,GL Number,Overrun,Underrun," +
-                            "Customer #,Order #,ShipTo Customer,Drop Shipment Type".
+                            "Customer #,Order #,ShipTo Customer,Drop Shipment Type,Required Date".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1595,7 +1595,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

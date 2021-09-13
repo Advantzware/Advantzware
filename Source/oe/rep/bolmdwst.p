@@ -52,7 +52,7 @@ format header
        v-ship-state
        v-ship-zip
        skip(2)
-       "BOL#" oe-bolh.bol-no format "999999"
+       "BOL#" oe-bolh.bol-no format "9999999"
        "Trailer #" at 23 oe-bolh.trailer FORM "x(8)" v-frt-pay-dscr
        "SHIP DATE" at 52 oe-bolh.bol-date at 63 SKIP
        "Carrier #" at 1 oe-bolh.carrier v-frt-pay-dscr 

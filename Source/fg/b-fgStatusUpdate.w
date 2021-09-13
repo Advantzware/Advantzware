@@ -186,7 +186,7 @@ DEFINE VARIABLE fiJobID2 AS INTEGER FORMAT ">>":U INITIAL 0
      SIZE 5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiLocationID AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Location" 
+     LABEL "Bin" 
      VIEW-AS FILL-IN 
      SIZE 16.4 BY 1 NO-UNDO.
 
@@ -206,7 +206,7 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
      SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiWarehouseID AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Warehouse" 
+     LABEL "Location" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -244,8 +244,8 @@ DEFINE BROWSE BROWSE-2
       inventoryStockID   COLUMN-LABEL "Tag #"            WIDTH 28 FORMAT "X(30)"
       quantity            COLUMN-LABEL "Quantity"         WIDTH 16 FORMAT "->>>>>>>>9"
       PoID                COLUMN-LABEL "PO #"             WIDTH 12 FORMAT ">>>>>>>>>"
-      WareHouseID         COLUMN-LABEL "Warehouse"        WIDTH 14
-      LocationID          COLUMN-LABEL "Location"         WIDTH 10
+      WareHouseID         COLUMN-LABEL "Location"         WIDTH 14
+      LocationID          COLUMN-LABEL "Bin"              WIDTH 10
       tagStatus           COLUMN-LABEL "Tag Status"       WIDTH 12
       StatusDescription   COLUMN-LABEL "Tag Description"  WIDTH 30 FORMAT "X(50)"
       onHold              COLUMN-LABEL "On Hold"          WIDTH 9  FORMAT "Yes/No"
@@ -864,7 +864,7 @@ PROCEDURE export-xl :
                                               INPUT FALSE /* Auto increment File name */,
                                               OUTPUT lSuccess,
                                               OUTPUT cMessage).    
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
       
   DELETE OBJECT hdOutputProcs.
  
