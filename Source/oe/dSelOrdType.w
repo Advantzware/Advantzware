@@ -81,8 +81,8 @@ IF lRecFound THEN
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 orderType.ord-type orderType.type-desc  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~         ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH orderType WHERE orderType.Company = cCompany AND orderType.inactive EQ NO ~         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany AND orderType.inactive EQ NO ~         ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 orderType
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 orderType
 
@@ -123,13 +123,13 @@ DEFINE BUTTON Btn_OK AUTO-GO
 DEFINE VARIABLE cOrderSource AS CHARACTER FORMAT "X(8)":U 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+    BGCOLOR 10 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cCustPo      AS CHARACTER FORMAT "X(15)":U 
     LABEL "Customer PO#" 
     VIEW-AS FILL-IN 
     SIZE 20.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+    BGCOLOR 10 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE iOrderType   AS INTEGER   FORMAT ">>>>>>>":U INITIAL 0 
     LABEL "Order Type" 
@@ -142,14 +142,14 @@ DEFINE VARIABLE lblLabel     AS CHARACTER FORMAT "X(15)":U
     SIZE 12.8 BY 1
     FONT 1 NO-UNDO.
 
-DEFINE VARIABLE lblLabel-2   AS CHARACTER FORMAT "X(25)":U 
+DEFINE VARIABLE lblLabel-2   AS CHARACTER FORMAT "X(250)":U 
     VIEW-AS FILL-IN 
     SIZE 71.4 BY 1
-    FONT 1 NO-UNDO.
+    FONT 1 FGCOLOR 12 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 179 BY 18.33
+    SIZE 198 BY 22.62
     BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -166,7 +166,7 @@ DEFINE BROWSE BROWSE-1
     orderType.orderTypeDescription FORMAT "x(35)"  LABEL-BGCOLOR 14         
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 175.4 BY 14.52
+    WITH NO-ASSIGN SEPARATORS SIZE 195.4 BY 18.52
          BGCOLOR 8 FONT 0.
 
 
@@ -177,8 +177,8 @@ DEFINE FRAME D-Dialog
     lblLabel AT ROW 2.57 COL 40.6 COLON-ALIGNED NO-LABELS WIDGET-ID 278
     cOrderSource AT ROW 2.57 COL 52 COLON-ALIGNED NO-LABELS WIDGET-ID 176
     cCustPo AT ROW 2.57 COL 100.6 COLON-ALIGNED WIDGET-ID 274         
-    Btn_OK AT ROW 2.48 COL 145
-    Btn_Cancel AT ROW 2.48 COL 161
+    Btn_OK AT ROW 2.48 COL 165
+    Btn_Cancel AT ROW 2.48 COL 181
     BROWSE-1 AT ROW 4.91 COL 3.8
     lblLabel-2 AT ROW 3.71 COL 54.6 COLON-ALIGNED NO-LABELS WIDGET-ID 280
     "Enter New Order" VIEW-AS TEXT
@@ -238,7 +238,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany ~
+OPEN QUERY {&SELF-NAME} FOR EACH orderType WHERE orderType.Company = cCompany AND orderType.inactive EQ NO ~
         ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -313,6 +313,10 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
+        
+        IF cCustPo:HIDDEN IN FRAME {&FRAME-NAME} EQ YES THEN
+        ASSIGN
+        cCustPo:SCREEN-VALUE  IN FRAME {&FRAME-NAME} = "".
            
         IF orderType.orderTypeSource EQ "Customer" THEN
         DO:   
@@ -413,7 +417,23 @@ ON LEAVE OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
     DO:
         IF LASTKEY NE -1 THEN 
         DO:
-            RUN pCheckPo NO-ERROR.            
+            RUN pCheckPo NO-ERROR. 
+            cOrderSource:BGCOLOR  = 10.
+            lblLabel-2:SCREEN-VALUE = "".
+        END.
+           
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cOrderSource D-Dialog
+ON VALUE-CHANGED OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
+    DO:
+        IF LASTKEY NE -1 THEN 
+        DO:               
+            cOrderSource:BGCOLOR  = 10.
+            lblLabel-2:SCREEN-VALUE = "".
         END.
            
     END.
@@ -559,6 +579,7 @@ PROCEDURE pValueChange :
    
     DO WITH FRAME {&FRAME-NAME}:
         lblLabel-2:SCREEN-VALUE = "". 
+        cOrderSource:BGCOLOR = 10.
         IF AVAILABLE orderType THEN
             ASSIGN
                 iOrderType:SCREEN-VALUE = STRING(orderType.orderTypeID)
@@ -623,8 +644,10 @@ PROCEDURE pCheckPo :
                     NO-ERROR.
                 IF AVAILABLE cust THEN
                 do:
-                    ASSIGN cCustPo:HIDDEN = NO.
-                    APPLY "entry" TO cCustPo .
+                    ASSIGN cCustPo:HIDDEN = NO
+                    cCustPo:SENSITIVE = YES.
+                    APPLY "entry" TO cCustPo .                    
+                    
                 END.    
             END.
         END.
@@ -638,7 +661,7 @@ PROCEDURE pCheckPo :
             IF AVAILABLE cust THEN
             DO:
               ASSIGN cCustPo:HIDDEN = NO.
-              APPLY "entry" TO cCustPo .
+              APPLY "entry" TO cCustPo .                
             END.  
         END.
     END.
@@ -721,7 +744,10 @@ PROCEDURE valid-est-no :
                 NO-ERROR.
             IF NOT AVAILABLE est THEN 
             DO:
-                MESSAGE "Invalid Estimate#, try help..." VIEW-AS ALERT-BOX ERROR.
+                //MESSAGE "Invalid Estimate#, try help..." VIEW-AS ALERT-BOX ERROR.
+                lblLabel-2:SCREEN-VALUE = "Invalid Estimate#, try help...".
+                
+                cOrderSource:BGCOLOR = 12.
                 APPLY "entry" TO cOrderSource.
                 oplOutError = YES.
                 RETURN.

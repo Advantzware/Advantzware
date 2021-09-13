@@ -2258,6 +2258,12 @@ PROCEDURE add-order :
            IF NOT lBack THEN LEAVE.
            IF lCancel THEN LEAVE.
        END.
+       ELSE IF cSourceType EQ "Customer" THEN
+       DO:                
+            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel, OUTPUT rwRowid  ).  
+            IF NOT lBack THEN LEAVE.
+            IF lCancel THEN LEAVE.
+       END.
        ELSE LEAVE.            
    END.     
    IF lCancel THEN RETURN NO-APPLY.  
