@@ -1602,9 +1602,20 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     DEFINE INPUT  PARAMETER iplcJobMachineData             AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplcConcatJobMachineDataByItem AS LONGCHAR  NO-UNDO.
 
-    DEFINE VARIABLE lcJobMachineDataByItem        AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcJobMachineDataByItem AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iQuantityWastedMR      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantityWastedRun     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantityWasted        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantityRun           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHoursMR               AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHoursRun              AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lComplete              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStartedMR             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStartedRun            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStarted               AS LOGICAL   NO-UNDO.
     
-    DEFINE BUFFER bf-mach FOR mach.
+    DEFINE BUFFER bf-mach    FOR mach.
+    DEFINE BUFFER bf-mch-act FOR mch-act.
     
     IF NOT AVAILABLE ipbf-job-mch THEN
         RETURN.
@@ -1641,6 +1652,7 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cSetupEndTime              = TRIM(STRING(ipbf-job-mch.end-time-su,"->,>>>,>>9"))
         cMRComplete                = STRING(ipbf-job-mch.mr-complete)
         cRunComplete               = STRING(ipbf-job-mch.run-complete)
+        lComplete                  = ipbf-job-mch.mr-complete AND ipbf-job-mch.run-complete
         cJobMchDueDate             = STRING(ipbf-job-mch.due-date,"99/99/9999")
         cJobMchDueTime             = TRIM(STRING(ipbf-job-mch.due-time,">>>>9"))
         cMRTotalRate               = TRIM(STRING(ipbf-job-mch.mr-trate,">>9.99"))
@@ -1655,7 +1667,35 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cJobMachineID              = TRIM(STRING(ipbf-job-mch.job-mchID,">>>>>>9"))
         cJobMchWastePct            = TRIM(STRING(ipbf-job-mch.wst-prct,">>9.99"))
         . 
+    
+    FOR EACH bf-mch-act NO-LOCK
+        WHERE bf-mch-act.company  EQ ipbf-job-mch.company
+          AND bf-mch-act.job      EQ ipbf-job-mch.job
+          AND bf-mch-act.job-no   EQ ipbf-job-mch.job-no
+          AND bf-mch-act.job-no2  EQ ipbf-job-mch.job-no2
+          AND bf-mch-act.frm      EQ ipbf-job-mch.frm
+          AND bf-mch-act.blank-no EQ ipbf-job-mch.blank-no
+          AND bf-mch-act.m-code   EQ ipbf-job-mch.m-code:
+        IF bf-mch-act.code EQ "MR" THEN
+            ASSIGN
+                lStartedMR        = TRUE
+                iQuantityWastedMR = iQuantityWastedMR + bf-mch-act.waste
+                dQuantityRun      = dQuantityRun + bf-mch-act.qty
+                dHoursMR          = dHoursMR + bf-mch-act.hours
+                .
+        IF bf-mch-act.code EQ "Run" THEN
+            ASSIGN
+                lStartedRun        = TRUE
+                iQuantityWastedRun = iQuantityWastedRun + bf-mch-act.waste
+                dHoursRun          = dHoursRun + bf-mch-act.hours
+                .
+    END.
 
+    ASSIGN
+        lStarted        = lStartedMR OR lStartedRun
+        iQuantityWasted = iQuantityWastedMR + iQuantityWastedRun
+        .
+                 
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Anchored",cAnchored).   
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Blank",cJobMchBlank).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Department",cDepartment).
@@ -1697,6 +1737,18 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "RunProfitPercentage",cRunProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MRProfitPercentage",cMRProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "WastePercentage",cJobMchWastePct).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedMR",STRING(lStartedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedRun",STRING(lStartedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Started", STRING(lStarted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedMR", cMRComplete).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedRun", cRunComplete).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Completed", STRING(lComplete)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedMR", STRING(iQuantityWastedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedRun", STRING(iQuantityWastedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWasted", STRING(iQuantityWasted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityRun", STRING(dQuantityRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursMR", STRING(dHoursMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursRun", STRING(dHoursRun)).
     
     FIND FIRST bf-mach NO-LOCK
          WHERE bf-mach.company EQ ipbf-job-mch.company
