@@ -1895,7 +1895,7 @@ PROCEDURE local-assign-record :
     DO: /* copy */
         
       IF lNewVendorItemCost AND v-mat THEN RUN CopyVendItemCost(b-i.i-no, itemfg.i-no).
-      ELSE IF NOT lNewVendorItemCost THEN DO:
+      ELSE IF NOT lNewVendorItemCost AND v-mat THEN DO:
         FOR EACH b-ei OF b-i NO-LOCK:
             FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
@@ -1961,7 +1961,7 @@ PROCEDURE local-assign-record :
     ASSIGN 
         lCheckPurMan = NO .
 
-    IF NOT  v-mat AND adm-new-record AND NOT adm-adding-record THEN 
+    IF NOT lNewVendorItemCost AND NOT v-mat AND adm-new-record AND NOT adm-adding-record THEN 
     DO: /* task 06161508 */
 
         FOR EACH e-itemfg OF itemfg  NO-LOCK:

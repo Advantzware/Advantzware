@@ -74,8 +74,6 @@ assign
  cocode = gcompany
  locode = gloc.
 
-{sys/inc/vendItemCost.i} 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -152,8 +150,8 @@ DEFINE VARIABLE tb_cpywhbn AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     tb_cpyall AT ROW 2.80 COL 69 RIGHT-ALIGNED WIDGET-ID 6
-     tb_cpywhbn AT ROW 2.80 COL 69 RIGHT-ALIGNED WIDGET-ID 8
+     tb_cpyall AT ROW 2.1 COL 69 RIGHT-ALIGNED WIDGET-ID 6
+     tb_cpywhbn AT ROW 3.67 COL 69 RIGHT-ALIGNED WIDGET-ID 8
      tb_cpyspcnts AT ROW 5.71 COL 36 RIGHT-ALIGNED WIDGET-ID 14
      begin_spec AT ROW 5.57 COL 51.6 COLON-ALIGNED WIDGET-ID 18
      end_spec AT ROW 6.81 COL 51.6 COLON-ALIGNED WIDGET-ID 20
@@ -468,17 +466,7 @@ PROCEDURE local-initialize :
       ASSIGN
           begin_spec:SENSITIVE IN FRAME {&FRAME-NAME} = NO
           end_spec:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
-          
-  IF lNewVendorItemCost THEN
-  DO:
-     ASSIGN
-          tb_cpyall:HIDDEN IN FRAME {&FRAME-NAME} = YES 
-          tb_cpyall:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" .
-  END.
-  ELSE 
-  ASSIGN
-      tb_cpywhbn:HIDDEN IN FRAME {&FRAME-NAME} = YES 
-      tb_cpywhbn:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" .  
+
 
 END PROCEDURE.
 
