@@ -134,7 +134,6 @@ DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
 
-RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 PROCEDURE pAddBoxDesign:
     /*------------------------------------------------------------------------------
@@ -146,6 +145,10 @@ PROCEDURE pAddBoxDesign:
 
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    
+    
+    IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+        RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     /* Build panelHeader and paneDetail records for vaiable width */
     RUN Formula_ReBuildBoxDesignForEstimate IN hdFormulaProcs (
@@ -1048,6 +1051,8 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAddFarm(BUFFER ipbf-ttImportEstimate, BUFFER eb, itemfg.i-no).
             
     END.
+    
+    FIND CURRENT eb NO-LOCK NO-ERROR.
     
     RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 

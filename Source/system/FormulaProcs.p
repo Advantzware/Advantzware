@@ -252,43 +252,44 @@ PROCEDURE Formula_ReBuildBoxDesignForEstimate:
         OUTPUT TABLE ttPanel
         ).
     
-    FIND FIRST bf-eb NO-LOCK
-        WHERE ROWID(bf-eb) = ipriEb NO-ERROR.
+    DO TRANSACTION:
+        FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE ROWID(bf-eb) = ipriEb NO-ERROR.
         
-    IF AVAILABLE bf-eb THEN
-    DO:     
-        IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
-                                    AND ttPanel.dPanelSize NE 0) THEN 
-        DO iExt = 1 TO EXTENT(bf-eb.k-len-array2): 
+        IF AVAILABLE bf-eb THEN
+        DO:     
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-len-array2): 
             
-            FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
-                                 AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
     
-            IF AVAILABLE ttPanel THEN
-                ASSIGN
-                    bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
-                    bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
-                    .
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
+                        .
              
-        END.  
+            END.  
         
-        IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
-                                    AND ttPanel.dPanelSize NE 0) THEN 
-        DO iExt = 1 TO EXTENT(bf-eb.k-wid-array2): 
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-wid-array2): 
             
-            FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
-                                 AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
     
-            IF AVAILABLE ttPanel THEN
-                ASSIGN
-                    bf-eb.k-wid-array2[iExt]    = ttPanel.dPanelSize
-                    bf-eb.k-wid-scr-type2[iExt] = ttPanel.cScoreType
-                    .
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-wid-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-wid-scr-type2[iExt] = ttPanel.cScoreType
+                        .
              
-        END.  
-         
-    END. // IF AVAILABLE bf-eb THEN
-
+            END.
+        END. // IF AVAILABLE bf-eb THEN
+        
+    END.
 END PROCEDURE.
 
 PROCEDURE GetSizeFactor:
