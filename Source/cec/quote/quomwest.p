@@ -233,8 +233,8 @@ if (not ch-multi) then do:
        END.
     end.
     
-    PUT "<C1><R" string(58 + li-cline,">9") + "><C22>" "Necessary printing plates and cutting dies to be furnished by customer " 
-        "<C1><R" string(58 + li-cline + 1,">9") + ">" "<C30><B>WE HOPE THAT WE CAN BE OF SERVICE"  .
+    PUT "<C1><R" string(58 + li-cline,">9") + "><C22>" "Quotations are based on current material costs and are subject to change. Prices will be confirmed " 
+        "<C1><R" string(58 + li-cline + 1,">9") + ">" "<C30><B>upon receipt of order Tooling supplied or at additional cost."  .
 
     v-printline = v-printline + 8.
 
@@ -398,8 +398,8 @@ else do:
         END.            
      end.
     
-     put "<C1><R" string(57 + li-cline + 2,">9") + "><C22>"  "Necessary printing plates and cutting dies to be furnished by customer " 
-         "<C1><R" string(57 + li-cline + 3,">9") + "><C30>"  "<B>WE HOPE THAT WE CAN BE OF SERVICE".  
+     put "<C1><R" string(57 + li-cline + 2,">9") + "><C22>"  "Quotations are based on current material costs and are subject to change. Prices will be confirmed " 
+         "<C1><R" string(57 + li-cline + 3,">9") + "><C30>"  "<B>upon receipt of order Tooling supplied or at additional cost.".  
 
      v-printline = v-printline + 8.
      IF v-printline < 50 THEN DO:

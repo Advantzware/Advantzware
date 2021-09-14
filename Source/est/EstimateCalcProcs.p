@@ -5164,7 +5164,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gdWindowDimOverlap = DECIMAL(cReturn).
     
-    RUN sys/ref/nk1look.p (ipcCompany, "CEVendor", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipcCompany, "CEPrompt", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glPromptForMaterialVendor = cReturn EQ "YES".
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
@@ -5259,7 +5259,7 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
                 AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
                 
            IF AVAILABLE bf-est-op THEN     
-                iOut = IF bf-est-op.n-out GT 0 THEN bf-est-op.n-out ELSE 1.
+                iOut = bf-est-op.n-out.
            
         END.
     END.

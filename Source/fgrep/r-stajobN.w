@@ -1983,70 +1983,6 @@ PROCEDURE run-report PRIVATE :
 
     SESSION:SET-WAIT-STATE ("general").
 
-    /* IF rd-dest = 3 THEN                                                                                         */
-    /*    DO:                                                                                                   */
-    /*     excelheader = "".                                                                                    */
-    /*     IF rd_smry-dtl = "s" THEN do:                                                                        */
-    /*     IF v-rec-dat THEN                                                                                    */
-    /*     DO:                                                                                                  */
-    /*         IF v-prt-cpn THEN  /* frame itemx2 */                                                            */
-    /*           excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," +                                       */
-    /*                         "DESCRIPTION,JOB,QTY ON HAND,RECEIPT DATE," +                                    */
-    /*                         "SELLING PRICE,TOTAL VALUE".                                                     */
-    /*         ELSE              /* frame itemx4 */                                                             */
-    /*           excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," +                                       */
-    /*                         "JOB,QTY ON HAND,RECEIPT DATE," +                                                */
-    /*                         "SELLING PRICE,TOTAL VALUE".                                                     */
-    /*     END.                                                                                                 */
-    /*     ELSE                                                                                                 */
-    /*     DO:                                                                                                  */
-    /*         if v-prt-cpn then                                                                                */
-    /*           excelheader = "CUSTOMER,PO #,ITEM #,CUST PART #," +                                            */
-    /*                         "DESCRIPTION,JOB #,QTY ORDERED,QTY SHIPPED," +                                   */
-    /*                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".                                         */
-    /*         ELSE                                                                                             */
-    /*            excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," +                                        */
-    /*                          "WHSE,QTY ORDERED,QTY SHIPPED,QTY ON HAND," +                                   */
-    /*                          "SELLING PRICE,TOTAL VALUE".                                                    */
-    /*     END.                                                                                                 */
-    /*     END.                                                                                                 */
-    /*     ELSE DO:                                                                                             */
-    /*         IF v-rec-dat THEN                                                                                */
-    /*     DO:                                                                                                  */
-    /*         IF v-prt-cpn THEN  /* frame itemx2 */                                                            */
-    /*           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," +                                     */
-    /*                         "DESCRIPTION,JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," + */
-    /*                         "SELLING PRICE,TOTAL VALUE".*/                                                   */
-    /*            excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," +                                      */
-    /*                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," +        */
-    /*                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".                            */
-    /*         ELSE              /* frame itemx4 */                                                             */
-    /*           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," +                                     */
-    /*                         "JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," +             */
-    /*                         "SELLING PRICE,TOTAL VALUE".*/                                                   */
-    /*           excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," +                                       */
-    /*                         "JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," +                    */
-    /*                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".                            */
-    /*     END.                                                                                                 */
-    /*     ELSE                                                                                                 */
-    /*     DO:                                                                                                  */
-    /*         if v-prt-cpn then                                                                                */
-    /*           excelheader = "CUSTOMER,PO #,ITEM #,CUST PART #," +                                            */
-    /*                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," +        */
-    /*                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".                                         */
-    /*         ELSE                                                                                             */
-    /*            excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," +                                        */
-    /*                          "WHSE/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY,QTY ON HAND," +       */
-    /*                          "SELLING PRICE,TOTAL VALUE".                                                    */
-    /*     END.                                                                                                 */
-    /*                                                                                                          */
-    /*     END.                                                                                                 */
-    /*                                                                                                          */
-    /*                                                                                                          */
-    /*     OUTPUT STREAM excel TO VALUE(cFileName).                                                               */
-    /*     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.                            */
-    /* END.                                                                                                     */
-
     DISPLAY "" WITH FRAME r-top.
 
     {fg/rep/fg-xstatN.i}
@@ -2055,7 +1991,7 @@ PROCEDURE run-report PRIVATE :
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

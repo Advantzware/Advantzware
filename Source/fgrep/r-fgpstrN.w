@@ -2450,7 +2450,7 @@ PROCEDURE run-report :
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2882,78 +2882,34 @@ PROCEDURE run-report_Save :
                             v-tot-pos2 = 135
                             v-tot-pos3 = 150.
 
-            ASSIGN
-                v-tot-qty      = v-tot-qty + v-fg-qty
-                v-tot-cost     = v-tot-cost + v-fg-cost
-                v-grd-tot-cost = v-grd-tot-cost + v-fg-cost   
-                /* Do this when sell uom = "L" and first-of job */
-                /*        v-tot-value = v-tot-value + v-fg-value  */
-                /*        v-grd-tot-value = v-grd-tot-value + v-fg-value */
-                v-msf[3]       = v-msf[3] + v-msf[1]
-                v-msf[4]       = v-msf[4] + v-msf[2].
+        ASSIGN
+         v-msf[5]    = v-msf[5] + v-msf[3]
+         v-msf[6]    = v-msf[6] + v-msf[4]
+         v-tot-qty   = 0
+         v-tot-cost  = 0
+         v-tot-value = 0
+         v-msf[3]    = 0
+         v-msf[4]    = 0.
+      END.  /* if last-of(fg-rcpth.i-no) */        
+    END. /* if v-pr-tots */
+  END.
 
-            /* Do not accumulate total for sell-uom = "L" */
-            IF (v-new-job = YES AND lv-sell-uom = "L") OR (lv-sell-uom <> "L") THEN
-                ASSIGN v-tot-value     = v-tot-value + v-fg-value
-                    v-grd-tot-value = v-grd-tot-value + v-fg-value.
+  IF v-pr-tots THEN
+    PUT " " TO 124 SKIP       
+        "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
+        "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
+        "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
+                             FORMAT "x(63)" AT 15
+        "GRAND TOTAL COST & SELL VALUE:" TO 111
+        v-grd-tot-cost TO v-tot-pos2
+        v-grd-tot-value TO v-tot-pos3
+        SKIP .  
 
-            IF fg-rdtlh.rita-code EQ "R" OR
-                fg-rdtlh.rita-code EQ "A" OR
-                fg-rdtlh.rita-code EQ "E" THEN
-                v-cum-tot  = v-cum-tot + v-fg-cost.
-            ELSE
-                IF fg-rdtlh.rita-code EQ "S" THEN
-                    v-cum-tot  = v-cum-tot - v-fg-cost.
-        END.  /*   if v-pr-tots   */ 
-
-        IF v-pr-tots THEN 
-        DO:                                                              
-            IF LAST-OF(tt-report.key-02) THEN 
-            DO:
-                PUT "-----------" TO v-tot-pos1
-                    "----------" TO v-tot-pos2
-                    "--------------" TO v-tot-pos3
-                    SKIP.                
-
-                IF fg-rcpth.rita-code EQ "R" THEN
-                    PUT "MSF->  FG: " + trim(STRING(v-msf[3],"->>,>>9.9<<")) +
-                        "  Wst: " + trim(STRING(v-msf[4],"->>,>>9.9<<"))    +
-                        "  Tot: " + trim(STRING(v-msf[3] + v-msf[4],"->>,>>9.9<<"))
-                        FORMAT "x(63)" AT 15.
-
-                PUT v-tot-qty TO v-tot-pos1
-                    v-tot-cost TO v-tot-pos2
-                    v-tot-value TO v-tot-pos3 SKIP(1).
-
-                ASSIGN
-                    v-msf[5]    = v-msf[5] + v-msf[3]
-                    v-msf[6]    = v-msf[6] + v-msf[4]
-                    v-tot-qty   = 0
-                    v-tot-cost  = 0
-                    v-tot-value = 0
-                    v-msf[3]    = 0
-                    v-msf[4]    = 0.
-            END.  /* if last-of(fg-rcpth.i-no) */        
-        END. /* if v-pr-tots */
-    END.
-
-    IF v-pr-tots THEN
-        PUT " " TO 124 SKIP       
-            "MSF->  FG: " + trim(STRING(v-msf[5],"->>,>>9.9<<")) +
-            "  Wst: " + trim(STRING(v-msf[6],"->>,>>9.9<<"))    +
-            "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],"->>,>>9.9<<"))
-            FORMAT "x(63)" AT 15
-            "GRAND TOTAL COST & SELL VALUE:" TO 111
-            v-grd-tot-cost TO v-tot-pos2
-            v-grd-tot-value TO v-tot-pos3
-            SKIP .  
-
-    IF rd-dest = 3 THEN 
-    DO:
-        OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
-    END.
+IF rd-dest = 3 THEN DO:
+   OUTPUT STREAM excel CLOSE.
+   IF tb_runExcel THEN
+     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

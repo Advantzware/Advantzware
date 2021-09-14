@@ -174,15 +174,16 @@ DO:
     WshNetwork:SetDefaultPrinter(AdobePrinter). 
 END.
 CREATE "Excel.Application" chExcelApplication NO-ERROR.
-chExcelApplication:VISIBLE = TRUE.
-IF LvOutputSelection = "Email" OR LvOutputSelection = "Printer" THEN
-    chExcelApplication:VISIBLE = FALSE.
 
 IF NOT(VALID-HANDLE(chExcelApplication)) THEN
 DO :
     MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
 END.
+
+chExcelApplication:VISIBLE = TRUE.
+IF LvOutputSelection = "Email" OR LvOutputSelection = "Printer" THEN
+    chExcelApplication:VISIBLE = FALSE.
 
 CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\invoice-py.xlt") - 2)
     NO-ERROR.

@@ -469,7 +469,7 @@
                    cItemName                  = job-mch.i-name
                    cJobMchItem                = job-mch.i-no
                    cJobMatForm                = TRIM(STRING(job-mch.frm,">>9"))
-                   cRunHours                  = TRIM(STRING(job-mch.run-hr,">>9.99"))
+                   cRunHours                  = TRIM(STRING(job-mch.run-hr,">>>,>>9.99"))
                    cRunMinutes                = TRIM(STRING(ROUND(job-mch.run-hr * 60, 0)))
                    cRunSpeed                  = TRIM(STRING(job-mch.speed, ">>>>9"))
                    cMRHours                   = TRIM(STRING(job-mch.mr-hr,">>9.99"))

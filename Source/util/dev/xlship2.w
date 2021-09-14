@@ -57,6 +57,8 @@ DEFINE VARIABLE gcTextExtList   AS CHAR NO-UNDO INIT "txt".
 DEFINE VARIABLE gcCSVTypeList   AS CHAR NO-UNDO INIT "csv,.csv,comma-delimited".
 DEFINE VARIABLE gcCSVExtList    AS CHAR NO-UNDO INIT "csv".
 DEFINE VARIABLE gcColumnStyle   AS CHAR NO-UNDO INIT "".
+DEFINE VARIABLE chExcel         AS COM-HANDLE NO-UNDO.
+
 
 /* Temp-table to hold data imported from the csv file. */
 DEFINE TEMP-TABLE ttData
@@ -683,7 +685,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport C-Win
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
-  RUN Import-Data.
+    RUN Import-Data.
+    IF NOT VALID-HANDLE(chExcel) THEN DO:
+        MESSAGE 
+          "Microsoft Excel is required.  This report is unable to be executed."
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -827,12 +836,13 @@ PROCEDURE Convert-File :
   DEFINE INPUT PARAMETER pcInputFile AS CHAR NO-UNDO.
   DEFINE OUTPUT PARAMETER pcOutputFile AS CHAR NO-UNDO INIT "".
 
-  DEF VAR chExcel     AS COM-HANDLE NO-UNDO.
   DEF VAR chWorkBook  AS COM-HANDLE NO-UNDO.
   DEF VAR chWorkSheet AS COM-HANDLE NO-UNDO.
 
   /* Start Excel */
-  CREATE "Excel.Application" chExcel.
+  CREATE "Excel.Application" chExcel NO-ERROR.
+  IF NOT VALID-HANDLE(chExcel) THEN
+  RETURN.
   ASSIGN chExcel:Visible = FALSE.
   
   /* Open the file. */
@@ -1084,7 +1094,8 @@ PROCEDURE Import-Data :
           /* Convert excel file to csv format. */
           RUN Convert-File (INPUT getFileName(),
                             OUTPUT vcFileName).
-
+          IF NOT VALID-HANDLE(chExcel) THEN
+          RETURN.
           /* Set the display file name as the new file name. */
           ASSIGN fiFileName:SCREEN-VALUE = TRIM(vcFileName).
       END.

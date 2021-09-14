@@ -2386,7 +2386,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
     IF tb_excel AND tb_runExcel THEN
-        OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 
 end procedure.
 

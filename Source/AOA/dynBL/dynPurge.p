@@ -140,6 +140,8 @@ PROCEDURE pBusinessLogic:
             DO TRANSACTION:
                 FIND taskResult EXCLUSIVE-LOCK
                      WHERE ROWID(taskResult) EQ ttPurge.purgeRowID.
+                IF SEARCH(taskResult.folderFile) NE ? THEN
+                OS-DELETE VALUE(SEARCH(taskResult.folderFile)).
                 DELETE taskResult.
             END.
             WHEN "User Task" THEN

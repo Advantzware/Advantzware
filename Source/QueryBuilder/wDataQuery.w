@@ -24,7 +24,8 @@ CREATE WIDGET-POOL.
 
 {queryLib.i}
 
-DEFINE VARIABLE ghQueryProc AS HANDLE      NO-UNDO.
+DEFINE VARIABLE ghQueryProc AS HANDLE     NO-UNDO.
+DEFINE VARIABLE chExcel     AS COM-HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -252,6 +253,13 @@ DO:
   SESSION:SET-WAIT-STATE('general').
   RUN saveAsCSV(cFilename).
   RUN saveAsExcel(cFilename).
+  IF NOT VALID-HANDLE(chExcel) THEN DO:
+      MESSAGE 
+        "Microsoft Excel is required.  This report is unable to be executed."
+      VIEW-AS ALERT-BOX ERROR.
+      APPLY "CLOSE":U TO THIS-PROCEDURE.
+      RETURN.
+  END.
   SESSION:SET-WAIT-STATE('').
   MESSAGE 'File saved as' cFilename VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
   OS-COMMAND NO-WAIT START VALUE('explorer.exe "' + cFilename + '"').  
@@ -497,7 +505,6 @@ PROCEDURE saveAsExcel :
   
   DEFINE VARIABLE iField      AS INTEGER          NO-UNDO.
   DEFINE VARIABLE hQuery      AS HANDLE           NO-UNDO.
-  DEFINE VARIABLE chExcel     AS COMPONENT-HANDLE NO-UNDO.
   DEFINE VARIABLE chWorkbook  AS COMPONENT-HANDLE NO-UNDO.
   DEFINE VARIABLE chQuery     AS COMPONENT-HANDLE NO-UNDO.
   DEFINE VARIABLE raw-array   AS RAW              NO-UNDO.
@@ -511,6 +518,8 @@ PROCEDURE saveAsExcel :
   
   /* Start excel */
   CREATE "Excel.Application" chExcel NO-ERROR.
+  IF NOT VALID-HANDLE(chExcel) THEN
+  RETURN.
   chExcel:visible       = NO.
   chExcel:DisplayAlerts = NO.
 

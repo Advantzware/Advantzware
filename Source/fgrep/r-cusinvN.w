@@ -1595,25 +1595,6 @@ PROCEDURE run-report :
                 IF INDEX("CZ",v-stat) EQ 0 THEN LEAVE.
             END.
 
-        /*DISPLAY itemfg.i-no                           COLUMN-LABEL "Item#"
-                itemfg.part-no                        COLUMN-LABEL "Customer Part#"
-                                                      FORMAT "x(15)"
-                itemfg.i-name                         COLUMN-LABEL "Description"
-                itemfg.ord-level                      COLUMN-LABEL "Re-Order!Point"
-                                                      FORMAT "->>>,>>>,>>>"
-                oe-rel.po-no WHEN AVAIL oe-rel        COLUMN-LABEL "Release!PO#"
-                itemfg.q-onh                          COLUMN-LABEL "Total!On-Hand"
-                                                      FORMAT "->>>,>>>,>>>"
-                v-pal-cnt                             COLUMN-LABEL "Pallet/!Count"
-                                                      FORMAT "->>,>>>"
-                "__________"                          COLUMN-LABEL "Release!Quantity"
-                oe-ordl.req-date WHEN AVAIL oe-ordl   COLUMN-LABEL "Date!Required"
-                                                      FORMAT "99/99/99"
-                skip(1)
-      
-            with frame detail{1} no-box no-attr-space stream-io width 132 down.
-        down with frame detail{1}.*/
-
         ASSIGN 
             cDisplay       = ""
             cTmpField      = ""
@@ -1679,7 +1660,7 @@ PROCEDURE run-report :
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

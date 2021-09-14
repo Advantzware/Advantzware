@@ -1377,6 +1377,7 @@ PROCEDURE pResultsJasper :
     SESSION:SET-WAIT-STATE("General").
     RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
     RUN AOA/spJasper.p PERSISTENT SET hJasper.
+    SESSION:ADD-SUPER-PROCEDURE (hJasper).
     RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
     RUN pGetDynParamValue (
         ttDynParamValue.subjectID,
