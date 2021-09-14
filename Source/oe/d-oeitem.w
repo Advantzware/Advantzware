@@ -202,6 +202,8 @@ DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCreateJobFromFG AS LOGICAL NO-UNDO.
+
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -283,6 +285,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF v-rec-found THEN
     lQuotePriceMatrix = logical(v-rtn-char) NO-ERROR.    
 
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCreateFromFG", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
+lCreateJobFromFG = LOGICAL(v-rtn-char) NO-ERROR.
+    
 DO TRANSACTION:
  {sys/inc/oeship.i}
  {sys/inc/oereleas.i}
@@ -2930,6 +2937,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE sys-ctrl.log-fld.
   END.
+  
   v-create-job = sys-ctrl.log-fld.
       
   FIND FIRST sys-ctrl
@@ -3840,6 +3848,7 @@ PROCEDURE create-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ipEstNo AS CHARACTER NO-UNDO.
   DEF OUTPUT PARAM op-recid AS RECID NO-UNDO.
   DEF VAR v-job-job LIKE job.job NO-UNDO.
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
@@ -3877,11 +3886,11 @@ PROCEDURE create-job :
   ELSE  IF oe-ordl.job-no EQ "" THEN DO:
     FIND FIRST est
       WHERE est.company EQ cocode
-        AND est.est-no  EQ oe-ordl.est-no NO-LOCK NO-ERROR.
+        AND est.est-no  EQ ipEstNo NO-LOCK NO-ERROR.
     IF AVAIL est THEN  
        FIND FIRST eb
              WHERE eb.company  EQ oe-ordl.company
-               AND eb.est-no   EQ oe-ordl.est-no
+               AND eb.est-no   EQ ipEstNo
                AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
     IF AVAIL eb THEN 
         v-prod-cat = eb.procat.
@@ -3895,7 +3904,12 @@ PROCEDURE create-job :
        ASSIGN
         oe-ordl.job-no  = v-job-no
         oe-ordl.job-no2 = v-job-no2.
-       DISPLAY oe-ordl.job-no oe-ordl.job-no2 WITH FRAME {&frame-name}.
+        
+     IF oe-ordl.est-no EQ "" THEN 
+        ASSIGN 
+            oe-ordl.est-no = ipEstNo.
+            
+       DISPLAY oe-ordl.job-no oe-ordl.job-no2 oe-ordl.est-no WITH FRAME {&frame-name}.
     END.
   END.
   ELSE
@@ -3915,7 +3929,7 @@ PROCEDURE create-job :
   ASSIGN job.job        = v-job-job
          job.company    = cocode
          job.loc        = locode
-         job.est-no     = oe-ordl.est-no
+         job.est-no     = ipEstNo
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
@@ -3938,7 +3952,7 @@ PROCEDURE create-job :
          ASSIGN job-hdr.company      = cocode
                 job-hdr.loc          = locode
                 job-hdr.e-num        = oe-ordl.e-num
-                job-hdr.est-no       = oe-ordl.est-no
+                job-hdr.est-no       = ipEstNo
                 job-hdr.i-no         = oe-ordl.i-no
             /*     job-hdr.qty          = oe-ordl.qty */
                 job-hdr.cust-no      = oe-ordl.cust-no
@@ -3958,7 +3972,7 @@ PROCEDURE create-job :
          ASSIGN job-hdr.std-tot-cost = (job-hdr.std-mat-cost + job-hdr.std-lab-cost +
                                         job-hdr.std-var-cost + job-hdr.std-fix-cost).
    END.
-   ASSIGN job-hdr.est-no  = oe-ordl.est-no
+   ASSIGN job-hdr.est-no  = ipEstNo
           job-hdr.job     = job.job
           job-hdr.job-no  = job.job-no
           job-hdr.job-no2 = job.job-no2
@@ -5753,7 +5767,7 @@ PROCEDURE final-steps :
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF VAR v-pallet-cnt AS DEC NO-UNDO.
   DEF BUFFER temp-itemfg FOR itemfg.
-  DEF VAR lv-job-recid AS RECID NO-UNDO.
+  DEF VAR lv-job-recid AS RECID NO-UNDO.    
 
   IF NOT AVAIL oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -5791,26 +5805,41 @@ PROCEDURE final-steps :
      IF v-qty-mod AND xest.est-type GE 3 AND xest.est-type LE 4 THEN RUN oe/tancomup.p.*/
   END.
 
-  IF AVAIL oe-ordl AND (oe-ordl.est-no NE "" AND oe-ordl.job-no EQ "") THEN
-    /*message "Since job number is blank, a job will not be created "
-            view-as alert-box*/. 
-
+  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND lCreateJobFromFG THEN
+  DO:
+     FIND FIRST temp-itemfg NO-LOCK
+          WHERE temp-itemfg.company EQ cocode
+          AND temp-itemfg.i-no EQ oe-ordl.i-no
+          NO-ERROR.
+          
+      IF AVAIL temp-itemfg AND temp-itemfg.stat EQ "A" AND temp-itemfg.pur-man EQ NO 
+         AND temp-itemfg.i-code EQ "C" AND temp-itemfg.est-no NE "" THEN
+      DO:
+            MESSAGE "Create a job using the estimate number from the FG item: " 
+                VIEW-AS ALERT-BOX  QUESTION BUTTONS YES-NO
+               UPDATE lCreateJob AS LOGICAL.
+            IF lCreateJob THEN
+            DO:                   
+               RUN create-job (INPUT temp-itemfg.est-no, OUTPUT lv-job-recid).
+               FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.                
+            END.
+      END.      
+  END.
   ELSE DO:
     IF AVAIL oe-ordl AND oe-ordl.est-no NE "" AND v-create-job THEN DO:
       FIND FIRST job WHERE job.company EQ cocode
                        AND job.job-no  EQ oe-ordl.job-no
                        AND job.job-no2 EQ oe-ordl.job-no2 NO-LOCK NO-ERROR.
       IF NOT AVAIL job THEN DO:
-        RUN create-job (OUTPUT lv-job-recid).
+        RUN create-job (INPUT oe-ordl.est-no, OUTPUT lv-job-recid).
         FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.
       END.
     END.    
-    
-    RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
-
+      
   END.
   
-
+  RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
+   
   /*                      Moved to final-steps2 JLF 10/25/04
   IF oe-ordl.est-no NE "" THEN DO:
     fil_id = RECID(oe-ordl).
