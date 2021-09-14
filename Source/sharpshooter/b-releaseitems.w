@@ -354,6 +354,8 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+{sharpshooter/smartobj/browseNavigate.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

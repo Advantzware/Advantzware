@@ -1116,24 +1116,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-objects W-Win 
-PROCEDURE local-create-objects :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
 PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
@@ -1172,6 +1154,7 @@ PROCEDURE local-enable :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

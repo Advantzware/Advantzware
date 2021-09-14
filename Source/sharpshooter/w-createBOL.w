@@ -37,10 +37,12 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-// {system/sysconst.i}
+{wip/keyboardDefs.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -74,10 +76,10 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btReset fiTag btDelete btPrintBOL ~
+&Scoped-Define ENABLED-OBJECTS btnNumPad btReset fiTag btDelete btPrintBOL ~
 btnExitText btnViewInquiryText btnDeleteText btnPrintBOLText 
-&Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer statusMessage btnExitText ~
-btnViewInquiryText btnDeleteText btnPrintBOLText 
+&Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer btnExitText ~
+btnViewInquiryText btnDeleteText statusMessage btnPrintBOLText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -117,6 +119,11 @@ DEFINE BUTTON btDelete
      IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete Selected Tag".
+
+DEFINE BUTTON btnNumPad 
+     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "NumPad" 
+     SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btPrintBOL 
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
@@ -165,21 +172,28 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
       VIEW-AS TEXT 
      SIZE 116 BY 1.43 NO-UNDO.
 
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 10 BY 2.38
+     BGCOLOR 12 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnNumPad AT ROW 1.19 COL 163 WIDGET-ID 120 NO-TAB-STOP 
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
      fiTrailer AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
      btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 187 WIDGET-ID 12 NO-TAB-STOP 
-     statusMessage AT ROW 1.24 COL 66 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      btnViewInquiryText AT ROW 3.38 COL 162 NO-LABEL WIDGET-ID 26
      btnDeleteText AT ROW 31.95 COL 2 NO-LABEL WIDGET-ID 20
+     statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnPrintBOLText AT ROW 31.95 COL 165 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     RECT-2 AT ROW 1 COL 162 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -263,6 +277,8 @@ ASSIGN
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiTrailer IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
@@ -296,6 +312,9 @@ ON WINDOW-CLOSE OF W-Win /* Create BOL */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  IF VALID-HANDLE(hKeyboard) THEN
+      DELETE OBJECT hKeyboard.
+
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -346,6 +365,20 @@ ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
 DO:
     RUN dispatch ("exit").
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnNumPad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNumPad W-Win
+ON CHOOSE OF btnNumPad IN FRAME F-Main /* NumPad */
+DO:
+    ASSIGN
+        lKeyboard = NOT lKeyboard
+        RECT-2:BGCOLOR = IF lKeyboard THEN 10 ELSE 12
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,6 +440,12 @@ DO:
         fiTrailer:BGCOLOR = 15
         SELF:BGCOLOR      = 30
         .
+    hFocusField = SELF.    
+    IF lKeyboard THEN
+        RUN pKeyboard (
+            INPUT SELF, 
+            INPUT "Qwerty"
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -454,6 +493,12 @@ DO:
         fiTag:BGCOLOR = 15
         SELF:BGCOLOR  = 30
         .     
+    hFocusField = SELF.    
+    IF lKeyboard THEN
+        RUN pKeyboard (
+            INPUT SELF, 
+            INPUT "Qwerty"
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,10 +525,10 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+{wip/pKeyboard.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -538,32 +583,32 @@ PROCEDURE adm-create-objects :
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatefirst-2 ).
-       RUN set-position IN h_navigatefirst-2 ( 6.95 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatefirst ).
+       RUN set-position IN h_navigatefirst ( 7.19 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigateprev-2 ).
-       RUN set-position IN h_navigateprev-2 ( 8.86 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 9.33 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatenext-2 ).
-       RUN set-position IN h_navigatenext-2 ( 10.76 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 11.24 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatelast-2 ).
-       RUN set-position IN h_navigatelast-2 ( 12.67 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatelast ).
+       RUN set-position IN h_navigatelast ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -578,32 +623,32 @@ PROCEDURE adm-create-objects :
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 17.43 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatefirst-2 ).
+       RUN set-position IN h_navigatefirst-2 ( 17.67 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 19.57 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigateprev-2 ).
+       RUN set-position IN h_navigateprev-2 ( 19.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 21.48 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatenext-2 ).
+       RUN set-position IN h_navigatenext-2 ( 21.48 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 23.38 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatelast-2 ).
+       RUN set-position IN h_navigatelast-2 ( 23.38 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
@@ -614,36 +659,54 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInq':U , h_b-releaseitems ).
        RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'REL-ITEMS':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_navigatefirst. */
+       RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-FIRST':U , h_navigatefirst ).
+
+       /* Links to SmartObject h_navigateprev. */
+       RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-PREV':U , h_navigateprev ).
+
+       /* Links to SmartObject h_navigatenext. */
+       RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-NEXT':U , h_navigatenext ).
+
+       /* Links to SmartObject h_navigatelast. */
+       RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-LAST':U , h_navigatelast ).
+
        /* Links to SmartBrowser h_b-releasetags. */
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'REL-TAGS':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_navigatefirst-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-FIRST':U , h_navigatefirst-2 ).
+
+       /* Links to SmartObject h_navigateprev-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-PREV':U , h_navigateprev-2 ).
+
+       /* Links to SmartObject h_navigatenext-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-NEXT':U , h_navigatenext-2 ).
+
+       /* Links to SmartObject h_navigatelast-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-LAST':U , h_navigatelast-2 ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             fiTag:HANDLE IN FRAME F-Main , 'BEFORE':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_releasefilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
              h_viewfginquiry , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
-             h_b-releaseitems , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
-             h_navigatefirst-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
-             h_navigateprev-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
-             h_navigatenext-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releasetags ,
-             h_navigatelast-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
-             h_b-releasetags , 'AFTER':U ).
+             h_b-releaseitems , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releasetags ,
+             h_navigatelast , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
+             h_b-releasetags , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
+             h_navigatefirst-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
+             h_navigateprev-2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -705,16 +768,37 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiTrailer statusMessage btnExitText btnViewInquiryText 
-          btnDeleteText btnPrintBOLText 
+  DISPLAY fiTag fiTrailer btnExitText btnViewInquiryText btnDeleteText 
+          statusMessage btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btReset fiTag btDelete btPrintBOL btnExitText btnViewInquiryText 
-         btnDeleteText btnPrintBOLText 
+  ENABLE btnNumPad btReset fiTag btDelete btPrintBOL btnExitText 
+         btnViewInquiryText btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hKeyboard) THEN
+      DELETE OBJECT hKeyboard.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1047,8 +1131,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusMessage W-Win
-PROCEDURE pStatusMessage:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusMessage W-Win 
+PROCEDURE pStatusMessage :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1083,7 +1167,7 @@ PROCEDURE pStatusMessage:
     END. /* with frame */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1142,18 +1226,19 @@ PROCEDURE pWinReSize :
             btnPrintBOLText:COL                = btPrintBOL:COL - btnPrintBOLText:WIDTH - 1
             btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
             btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
-        RUN get-position IN h_navigatefirst-2 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
-        RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
+        RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigateprev-2 ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigatenext-2 ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigatelast-2 ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
         RUN get-size IN h_b-releaseitems ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
         dWidth = dCol - 2.
         RUN set-size IN h_b-releaseitems ( dHeight , dWidth ) NO-ERROR.
@@ -1165,13 +1250,13 @@ PROCEDURE pWinReSize :
         RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
         RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigateprev-2 ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatenext-2 ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
-        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_navigatelast-2 ( dRow , dCol ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
