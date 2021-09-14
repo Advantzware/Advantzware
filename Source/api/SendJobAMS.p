@@ -1621,7 +1621,7 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cItemName                  = ipbf-job-mch.i-name
         cJobMchItem                = ipbf-job-mch.i-no
         cJobMchForm                = TRIM(STRING(ipbf-job-mch.frm,">>9"))
-        cRunHours                  = TRIM(STRING(ipbf-job-mch.run-hr,">>9.99"))
+        cRunHours                  = TRIM(STRING(ipbf-job-mch.run-hr,">>>,>>9.99"))
         cRunMinutes                = TRIM(STRING(ROUND(ipbf-job-mch.run-hr * 60, 0)))
         cRunSpeed                  = TRIM(STRING(ipbf-job-mch.speed, ">>>>9"))
         cMRHours                   = TRIM(STRING(ipbf-job-mch.mr-hr,">>9.99"))
