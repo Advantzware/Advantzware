@@ -397,7 +397,9 @@ DEF VAR cQueryWhere AS CHAR.
     
     SESSION:SET-WAIT-STATE("general").
     STATUS INPUT "Opening Excel. Please wait...".
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
     STATUS INPUT "Exporting data. Please wait...".
 
     ASSIGN 
@@ -688,7 +690,9 @@ DEF VAR iNumRecs AS INT NO-UNDO.
 
     STATUS DEFAULT "Exporting data. Please wait...".
     SESSION:SET-WAIT-STATE("general").
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
 
     ASSIGN 
         chWorkbook                 = chExcelApplication:Workbooks:Add()
