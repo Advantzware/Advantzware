@@ -26,7 +26,12 @@ CREATE WIDGET-POOL.
 DEFINE INPUT-OUTPUT PARAMETER iopiSourceID AS INTEGER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcSourceType AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcSourceValue AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcCustomerPo AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcCustomerPo AS CHARACTER NO-UNDO.  
+DEFINE INPUT-OUTPUT PARAMETER iopdPrice AS DECIMAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcPrUom AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiQty AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiQuoteNumber AS INTEGER NO-UNDO. 
+
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -44,6 +49,12 @@ DEFINE VARIABLE lOeprompt      AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cNewOrderEntry AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cPrUom AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iQuoteNumber AS INTEGER NO-UNDO.
+DEFINE VARIABLE cChoice AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cCompany, "OEPROMPT", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -92,9 +103,9 @@ IF lRecFound THEN
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS iOrderType cOrderSource cCustPo Btn_OK Btn_Cancel ~
+&Scoped-Define ENABLED-OBJECTS iOrderType cOrderSource cCustPo iQuoteNo Btn_OK Btn_Cancel ~
 BROWSE-1 
-&Scoped-Define DISPLAYED-OBJECTS iOrderType cOrderSource cCustPo lblLabel ~
+&Scoped-Define DISPLAYED-OBJECTS iOrderType cOrderSource cCustPo iQuoteNo lblLabel ~
 lblLabel-2 
 
 /* Custom List Definitions                                              */
@@ -133,6 +144,12 @@ DEFINE VARIABLE cCustPo      AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE iOrderType   AS INTEGER   FORMAT ">>>>>>>":U INITIAL 0 
     LABEL "Order Type" 
+    VIEW-AS FILL-IN 
+    SIZE 15.4 BY 1
+    BGCOLOR 15 FONT 1 NO-UNDO.
+ 
+DEFINE VARIABLE iQuoteNo   AS INTEGER   FORMAT ">>>>>>>":U INITIAL 0 
+    LABEL "Quote" 
     VIEW-AS FILL-IN 
     SIZE 15.4 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
@@ -176,7 +193,8 @@ DEFINE FRAME D-Dialog
     iOrderType AT ROW 2.57 COL 19.6 COLON-ALIGNED WIDGET-ID 268
     lblLabel AT ROW 2.57 COL 40.6 COLON-ALIGNED NO-LABELS WIDGET-ID 278
     cOrderSource AT ROW 2.57 COL 52 COLON-ALIGNED NO-LABELS WIDGET-ID 176
-    cCustPo AT ROW 2.57 COL 100.6 COLON-ALIGNED WIDGET-ID 274         
+    iQuoteNo AT ROW 2.57 COL 85.6 COLON-ALIGNED  
+    cCustPo AT ROW 2.57 COL 130.6 COLON-ALIGNED WIDGET-ID 274  
     Btn_OK AT ROW 2.48 COL 165
     Btn_Cancel AT ROW 2.48 COL 181
     BROWSE-1 AT ROW 4.91 COL 3.8
@@ -336,7 +354,12 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
             iopiSourceID    = orderType.orderTypeID 
             iopcSourceType  = orderType.orderTypeSource
             iopcSourceValue = cOrderSource:SCREEN-VALUE  IN FRAME {&FRAME-NAME}
-            iopcCustomerPo  = cCustPo:SCREEN-VALUE  IN FRAME {&FRAME-NAME}.
+            iopcCustomerPo  = cCustPo:SCREEN-VALUE  IN FRAME {&FRAME-NAME}              
+            iopdPrice       = dPrice
+            iopcPrUom       = cPrUom
+            iopiQty         = iQty
+            iopiQuoteNumber = iQuoteNumber.
+            
                 
         APPLY "close" TO THIS-PROCEDURE.
    
@@ -446,12 +469,13 @@ ON VALUE-CHANGED OF cOrderSource IN FRAME D-Dialog /* Customer ID# */
 
 &Scoped-define SELF-NAME cCustPo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustPo D-Dialog
-ON LEAVE OF cCustPo IN FRAME D-Dialog /* Customer PO# */
+ON VALUE-CHANGED OF cCustPo IN FRAME D-Dialog /* Customer PO# */
     DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:          
-                
+            cCustPo:BGCOLOR  = 10.
+            lblLabel-2:SCREEN-VALUE = "".    
         END.                                                                  
     END.
 
@@ -479,6 +503,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         APPLY "value-changed" TO BROWSE {&browse-name}.
         DISABLE iOrderType. 
         cCustPo:HIDDEN = YES.
+        iQuoteNo:HIDDEN = YES.
         RUN pSetValue.
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -557,7 +582,7 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    DISPLAY iOrderType cOrderSource cCustPo lblLabel lblLabel-2 
+    DISPLAY iOrderType cOrderSource cCustPo iQuoteNo lblLabel lblLabel-2 
         WITH FRAME D-Dialog.
     ENABLE iOrderType cOrderSource cCustPo Btn_OK Btn_Cancel BROWSE-1 
         WITH FRAME D-Dialog.
@@ -624,8 +649,7 @@ PROCEDURE pCheckPo :
               Purpose:     
               Parameters:  <none>
               Notes:       
-            ------------------------------------------------------------------------------*/
-    
+            ------------------------------------------------------------------------------*/        
     DO WITH FRAME {&FRAME-NAME}:
         lblLabel-2:SCREEN-VALUE = "".
         cCustPo:HIDDEN = YES.
@@ -648,7 +672,25 @@ PROCEDURE pCheckPo :
                     cCustPo:SENSITIVE = YES.
                     APPLY "entry" TO cCustPo .                    
                     
-                END.    
+                END.  
+                
+                RUN oe/d-quotedprices.w("",cCompany,
+                          cLoc,
+                          eb.est-no,
+                          eb.cust-no,
+                          eb.part-no,
+                          eb.stock-no,
+                          INPUT-OUTPUT dPrice,
+                          INPUT-OUTPUT cPrUom,
+                          INPUT-OUTPUT iQty,
+                          INPUT-OUTPUT iQuoteNumber,
+                          OUTPUT cChoice).  
+                IF cChoice EQ "ok" THEN
+                DO:
+                    iQuoteNo:HIDDEN = NO.
+                    iQuoteNo:SCREEN-VALUE = STRING(iQuoteNumber).
+                END.                                                                       
+                
             END.
         END.
         ELSE IF orderType.orderTypeSource EQ "Customer" THEN
@@ -686,6 +728,13 @@ PROCEDURE pSetValue :
         cCustPo:SCREEN-VALUE = iopcCustomerPo .
         cOrderSource:SCREEN-VALUE = iopcSourceValue.
         cCustPo:HIDDEN = IF iopcCustomerPo NE "" THEN NO ELSE YES.
+        dPrice = iopdPrice.
+        cPrUom = iopcPrUom.
+        iQty = iopiQty.
+        iQuoteNumber = iopiQuoteNumber.
+        iQuoteNo:SCREEN-VALUE = string(iQuoteNumber).
+        IF iQuoteNumber GT 0 THEN
+        iQuoteNo:HIDDEN = NO.
         
         FIND FIRST bf-orderType NO-LOCK
              WHERE bf-orderType.orderTypeID EQ iopiSourceID NO-ERROR.
@@ -714,8 +763,9 @@ PROCEDURE valid-cust-no :
         IF NOT CAN-FIND(FIRST cust
             WHERE cust.company  EQ cCompany
             AND cust.cust-no   EQ cOrderSource:SCREEN-VALUE)  THEN 
-        DO:
-            MESSAGE "Invalid Customer, try help..." VIEW-AS ALERT-BOX ERROR.
+        DO:               
+            lblLabel-2:SCREEN-VALUE = "Invalid Customer, try help...".                 
+            cOrderSource:BGCOLOR = 12.
             APPLY "entry" TO cOrderSource .
             oplOutError = YES .
         END.
@@ -744,14 +794,14 @@ PROCEDURE valid-est-no :
                 NO-ERROR.
             IF NOT AVAILABLE est THEN 
             DO:
-                //MESSAGE "Invalid Estimate#, try help..." VIEW-AS ALERT-BOX ERROR.
+                
                 lblLabel-2:SCREEN-VALUE = "Invalid Estimate#, try help...".
                 
                 cOrderSource:BGCOLOR = 12.
                 APPLY "entry" TO cOrderSource.
                 oplOutError = YES.
                 RETURN.
-            END. 
+            END.             
       
         END.  
     END.
@@ -795,9 +845,9 @@ PROCEDURE valid-po-no :
             NO-ERROR.
                     
         IF AVAILABLE cust AND TRIM(cCustPO:SCREEN-VALUE) EQ "" THEN 
-        DO:
-            MESSAGE "PO# is mandatory for Customer " + cust.cust-no
-                VIEW-AS ALERT-BOX ERROR.
+        DO:             
+            lblLabel-2:SCREEN-VALUE = "PO# is mandatory for Customer " + cust.cust-no .
+            cCustPO:BGCOLOR = 12.    
             APPLY "entry" TO cCustPO.
             oplOutError = YES . 
         END.

@@ -27,6 +27,10 @@ CREATE WIDGET-POOL.
 
 DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerPo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER ipcPrUom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiQty AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiQuoteNumber AS INTEGER NO-UNDO. 
 DEFINE OUTPUT PARAMETER oplBack AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCancel AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstItem.
@@ -36,6 +40,7 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstItem.
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSelectTrigger AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
  
 /* _UIB-CODE-BLOCK-END */
@@ -149,7 +154,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
     QUERY BROWSE-1 DISPLAY
     ttEstItem.isSelected COLUMN-LABEL '[]'  VIEW-AS TOGGLE-BOX 
-    ttEstItem.estLine  WIDTH 10 FORMAT ">9"
+    ttEstItem.estLine  WIDTH 5 FORMAT ">9"
     ttEstItem.estCust LABEL-BGCOLOR 14 FORMAT "x(8)"
     ttEstItem.estItem FORMAT "x(15)" WIDTH 21 
     ttEstItem.estPart FORMAT "x(15)" WIDTH 18 
@@ -430,7 +435,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}     
     DO WITH FRAME {&frame-name}:  
         RUN pBuildTable .              
-    END.                   
+    END. 
+    
+    IF iLine EQ 1 THEN
+    DO:
+         FOR EACH ttEstItem:
+            ttEstItem.isSelected = YES.  
+         END.
+        oplBack = NO.        
+        //RETURN NO-APPLY.
+        //APPLY "close" TO THIS-PROCEDURE.
+    END.
    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
@@ -526,7 +541,6 @@ PROCEDURE pBuildTable :
               Parameters:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iLine    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iLevel   AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttEstItem FOR ttEstItem.
@@ -595,6 +609,15 @@ PROCEDURE pBuildTable :
                         ttEstItem.estPrice        = itemfg.sell-price 
                         . 
                 END. 
+                
+                IF ipiQuoteNumber GT 0 THEN
+                DO:
+                   ASSIGN
+                    ttEstItem.estQty     = ipiQty
+                    ttEstItem.estQtyUom  = "EA" 
+                    ttEstItem.estPrUom   = ipcPrUom
+                    ttEstItem.estPrice   = ipdPrice.
+                END.
              
                 
                 RUN Conv_CalcTotalPrice(eb.company,            

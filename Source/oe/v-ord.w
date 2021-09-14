@@ -2236,19 +2236,23 @@ PROCEDURE add-order :
   DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lBack AS LOGICAL NO-UNDO.
   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cPrUom AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iQuoteNumber AS INTEGER NO-UNDO.
   
   IF lNewOrderEntry THEN
   DO:
    EMPTY TEMP-TABLE ttEstItem.
    DO WHILE TRUE:
-       RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, OUTPUT lCancel) .
+       RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, INPUT-OUTPUT dPrice, INPUT-OUTPUT cPrUom, INPUT-OUTPUT iQty, INPUT-OUTPUT iQuoteNumber, OUTPUT lCancel) .
 
        IF lCancel THEN LEAVE.
       
        IF cSourceType EQ "Estimate" THEN 
        DO: 
            DO WHILE TRUE:
-            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, OUTPUT lBack, OUTPUT lCancel, INPUT-OUTPUT TABLE ttEstItem ).
+            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, INPUT dPrice, INPUT cPrUom, INPUT iQty, INPUT iQuoteNumber, OUTPUT lBack, OUTPUT lCancel, INPUT-OUTPUT TABLE ttEstItem ).
             IF lCancel THEN LEAVE.
             IF lBack THEN LEAVE.
             RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel, OUTPUT rwRowid  ).  
