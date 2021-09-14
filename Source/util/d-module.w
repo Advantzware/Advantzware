@@ -228,7 +228,7 @@ PROCEDURE RunProcess :
 ------------------------------------------------------------------------------*/
 DEF BUFFER bf-module FOR module.
 
-IF DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ ? THEN
+IF DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
 DO:
     MESSAGE "Please enter Expirations date.." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
