@@ -185,7 +185,7 @@ PROCEDURE exportSnapshot:
             "Click OK to view a report."
             VIEW-AS ALERT-BOX.
        
-        OS-COMMAND NO-WAIT START excel.exe VALUE(gcProblemsFile).
+        OS-COMMAND NO-WAIT VALUE(gcProblemsFile).
           
         MESSAGE "Continue with the snapshot anyway?" 
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  UPDATE lChoice AS LOGICAL.
@@ -813,7 +813,7 @@ PROCEDURE pCheckCountDups:
         MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 

@@ -230,12 +230,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTransfer C-Win
 ON CHOOSE OF btnTransfer IN FRAME DEFAULT-FRAME /* WIP Transfer */
 DO:
-   RUN wip\wip-transfer.w(INPUT ipcCompany,     /* Company Code */
-                          INPUT ipcLocation,    /* Location Code */
-                          INPUT "",  /* Primary Job number */
-                          INPUT 0,        /* Second Job number */
-                          INPUT 0,        /* Form number of the Job */
-                          INPUT 0).       /* Blank number of the Job */
+   RUN wip\wip-transfer.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,13 +241,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCreate C-Win
 ON CHOOSE OF btnCreate IN FRAME DEFAULT-FRAME /* WIP Create */
 DO:   
-   RUN wip\wip-create.w(INPUT ipcCompany,     /* Company Code */
-                        INPUT ipcLocation,    /* Location Code */
-                        INPUT "",  /* Primary Job number */
-                        INPUT "",    /* Machine Code */
-                        INPUT 0,        /* Second Job number */
-                        INPUT 0,        /* Form number of the Job */
-                        INPUT 0).       /* Blank number of the Job */
+   RUN wip\wip-create.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,12 +252,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnIssue C-Win
 ON CHOOSE OF btnIssue IN FRAME DEFAULT-FRAME /* WIP Issue */
 DO:
-   RUN wip\wip-issue.w(INPUT ipcCompany,     /* Company Code */
-                       INPUT ipcLocation,    /* Location Code */
-                       INPUT "",  /* Primary Job number */
-                       INPUT 0,        /* Second Job number */
-                       INPUT 0,        /* Form number of the Job */
-                       INPUT 0).       /* Blank number of the Job */
+   RUN wip\wip-issue.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */

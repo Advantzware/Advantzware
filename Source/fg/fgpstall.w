@@ -3965,7 +3965,7 @@ IF tb_excel THEN
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
     END.
     
  FIND FIRST ttFGExceptionList NO-LOCK NO-ERROR.
@@ -3993,7 +3993,7 @@ IF tb_excel THEN
             OUTPUT lSuccess,
             OUTPUT cMessage
             ).  
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cOutputFileName)).  
+         OS-COMMAND NO-WAIT VALUE(SEARCH(cOutputFileName)).  
       END.
  END.
 

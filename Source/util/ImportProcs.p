@@ -119,7 +119,10 @@ PROCEDURE pConvertExceltoCSV:
         RETURN.
     END.
     /* Start Excel */
-    CREATE "Excel.Application" chExcel.
+    CREATE "Excel.Application" chExcel NO-ERROR.
+    IF NOT VALID-HANDLE(chExcel) THEN
+    RETURN.
+    
     ASSIGN 
         chExcel:Visible = FALSE.
   

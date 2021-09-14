@@ -8,8 +8,7 @@ PURPOSE:
  
  DEFINE INPUT PARAMETER inExcelheader  AS CHARACTER  NO-UNDO.
  DEFINE INPUT PARAMETER inFi_file      AS CHARACTER  NO-UNDO.
-
- DEFINE VARIABLE logExcelDump AS LOGICAL    NO-UNDO.
+ DEFINE INPUT PARAMETER inlogExcelDump AS LOGICAL  NO-UNDO.
 
  DEFINE VARIABLE chrCust AS CHARACTER  NO-UNDO.
  DEFINE VARIABLE chrINo  AS CHARACTER  NO-UNDO.
@@ -50,10 +49,7 @@ DEF SHARED VAR iColumnLength AS INT NO-UNDO.
  
 {sys/inc/ttRptSel.i}
 
- logExcelDump = FALSE.
- IF inExcelheader NE "" THEN DO:
-   logExcelDump = TRUE.
-
+ IF inlogExcelDump THEN DO:
    OUTPUT STREAM excel TO VALUE(inFi_file).
    PUT STREAM excel UNFORMATTED '"' REPLACE(inExcelheader,',','","') '"' SKIP.
  END.
@@ -62,7 +58,7 @@ DEF SHARED VAR iColumnLength AS INT NO-UNDO.
    {fg/rep/fg-cosNs.i tt-itemfg.loc-bin-tag tt-itemfg.i-no "by tt-itemfg.tag"}
  end.
 
- IF logExcelDump THEN DO:
+ IF inlogExcelDump THEN DO:
    OUTPUT STREAM excel CLOSE.
  END.
 

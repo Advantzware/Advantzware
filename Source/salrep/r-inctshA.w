@@ -1881,7 +1881,7 @@ END.
   IF tb_excel AND cFileName NE '' THEN
   OUTPUT STREAM st-excel CLOSE.
   IF tb_excel AND tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
