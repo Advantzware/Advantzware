@@ -114,6 +114,8 @@ DEFINE VARIABLE cLocation                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstimate                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCSRName                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesPersonID                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesPersonName              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStatus                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
@@ -352,18 +354,16 @@ DO:
         cJobStartDate = STRING(job.start-date)
         .
 
-    IF cCSRID EQ "" THEN DO:
-        FIND FIRST bf-oe-ord NO-LOCK
-             WHERE bf-oe-ord.company EQ job.company
-               AND bf-oe-ord.job-no  EQ job.job-no
-               AND bf-oe-ord.job-no2 EQ job.job-no2 
-             NO-ERROR.
-        IF AVAILABLE bf-oe-ord THEN
-            ASSIGN
-                cCSRID   = bf-oe-ord.sman[1]
-                cCSRName = bf-oe-ord.sname[1]
-                . 
-    END.
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ job.company
+           AND bf-oe-ord.job-no  EQ job.job-no
+           AND bf-oe-ord.job-no2 EQ job.job-no2 
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ord THEN
+        ASSIGN
+            cSalesPersonID   = bf-oe-ord.sman[1]
+            cSalesPersonName = bf-oe-ord.sname[1]
+            . 
     
     FOR EACH bf-notes NO-LOCK
         WHERE bf-notes.rec_key   EQ job.rec_key
@@ -484,6 +484,8 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Estimate",cEstimate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRID",cCSRID).              
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRName",cCSRName).  
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "SalesPersonName",cSalesPersonName).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "SalesPersonID",cSalesPersonID).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "EnteredBy",cEnteredBy).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueDate",cJobDueDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueTime",cJobDueTime).
