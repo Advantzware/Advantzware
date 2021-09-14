@@ -517,9 +517,12 @@ DO:
               END.       
           END.  
           /* gdm - */
-          WHEN "trailer" THEN DO:              
+          WHEN "trailer" THEN DO:
+              FIND FIRST oe-rell NO-LOCK 
+                    WHERE oe-rell.company EQ oe-relh.company
+                      AND oe-rell.r-no    EQ oe-relh.r-no NO-ERROR.
              RUN browsers/l-truck2.w (g_company,
-                                     g_loc,
+                                     oe-rell.loc,
                                      oe-relh.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME},
                                      oe-relh.trailer:SCREEN-VALUE IN FRAME {&FRAME-NAME}, 
                                      OUTPUT char-val).
