@@ -1143,7 +1143,7 @@ do transaction on error undo with width 255:
      .
 
 
-     IF ar-inv.EdiInvoice THEN DO: 
+     IF NOT ar-inv.EdiInvoice THEN DO: 
     
           RUN pRunAPIOutboundTrigger(BUFFER ar-inv).
                      
