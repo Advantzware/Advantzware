@@ -1040,6 +1040,7 @@ PROCEDURE hold-release :
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
   DEFINE VARIABLE cHoldMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
   
     IF AVAILABLE job AND job.opened THEN 
     DO:
@@ -1103,7 +1104,25 @@ PROCEDURE hold-release :
             IF job.stat <> "H" THEN job.reason = "".
 
             FIND CURRENT job NO-LOCK NO-ERROR.
-
+            
+            IF job.stat EQ "H" THEN
+                cTriggerID = "HoldJob".
+            ELSE
+                cTriggerID = "ReleaseJob".
+                
+            RUN api/ProcessOutboundRequest.p (
+                INPUT  job.company,                                     /* Company Code (Mandatory) */
+                INPUT  job.loc,                                         /* Location Code (Mandatory) */
+                INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+                INPUT  "",                                              /* Scope ID */
+                INPUT  "",                                              /* Scope Type */
+                INPUT  cTriggerID,                                      /* Trigger ID (Mandatory) */
+                INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Job " + STRING(job.stat EQ "H", "HoldJob/ReleaseJob") + " triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+                ) NO-ERROR.
+            
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
             RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed") .
         END. /* Not lOrderOnHold */
@@ -1292,6 +1311,10 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   DEFINE VARIABLE ll-warn AS LOG NO-UNDO.
 
+  DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+  
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF NOT adm-new-record THEN DO:*/
@@ -1366,9 +1389,35 @@ PROCEDURE local-delete-record :
   
   RUN pUpdateCommittedQty(recid(job)).
 
+  RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+  RUN Outbound_PrepareRequestForScope IN hdOutboundProcs (
+      INPUT  job.company,                                     /* Company Code (Mandatory) */
+      INPUT  job.loc,                                         /* Location Code (Mandatory) */
+      INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+      INPUT  "",                                              /* Scope ID */
+      INPUT  "",                                              /* Scope Type */
+      INPUT  "DeleteJob",                                     /* Trigger ID (Mandatory) */
+      INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+      INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+      INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),    /* Primary ID for which API is called for (Mandatory) */   
+      INPUT  "Job delete triggered from " + PROGRAM-NAME(1),  /* Event's description (Optional) */
+      OUTPUT lSuccess,
+      OUTPUT cMessage
+      ) NO-ERROR.
+        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
+  /* Verifying if the job is deleted */
+  IF NOT AVAILABLE job THEN
+      RUN Outbound_Execute IN hdOutboundProcs (
+          OUTPUT lSuccess,
+          OUTPUT cMessage
+          ) NO-ERROR.
+
+  RUN Outbound_ResetContext IN hdOutboundProcs.
+    
    RUN displayMessage (INPUT "47").
   
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -1376,6 +1425,11 @@ PROCEDURE local-delete-record :
   RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
   /* Code placed here will execute AFTER standard behavior.    */
   {&methods/lValidateError.i NO}
+
+  FINALLY:
+      IF VALID-HANDLE (hdOutboundProcs) THEN
+          DELETE PROCEDURE hdOutboundProcs.
+  END FINALLY.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1784,6 +1838,20 @@ PROCEDURE local-update-record :
   /*needed for immediately pushing print button after adding new job*/
   IF ll-new THEN
   DO:
+     IF AVAILABLE job THEN
+         RUN api/ProcessOutboundRequest.p (
+             INPUT  job.company,                                     /* Company Code (Mandatory) */
+             INPUT  job.loc,                                         /* Location Code (Mandatory) */
+             INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+             INPUT  "",                                              /* Scope ID */
+             INPUT  "",                                              /* Scope Type */
+             INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
+             INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+             INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+             INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+             INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+             ) NO-ERROR.
+      
      IF NOT AVAILABLE job-hdr THEN
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ job.company

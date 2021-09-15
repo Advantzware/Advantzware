@@ -651,7 +651,7 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE iCurrentPage    AS INT NO-UNDO.
   DEFINE VARIABLE lQuoteitmExists AS LOGICAL NO-UNDO.
    
   DEF VAR adm-current-page AS INT NO-UNDO.
@@ -671,6 +671,12 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+   RUN GET-ATTRIBUTE('CURRENT-PAGE').
+
+  iCurrentPage = INT(RETURN-VALUE).
+  IF iCurrentPage EQ 2 THEN
+    RUN dispatch IN h_p-navico ( INPUT 'adm-initialize':U ) .
+    
   {methods/winReSizePgChg.i}
 
 END PROCEDURE.
