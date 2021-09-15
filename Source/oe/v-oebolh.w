@@ -80,6 +80,7 @@ DEFINE VARIABLE dTotalFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iFreightCalculationValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lBOLHideBillableFreight AS LOGICAL     NO-UNDO.
 
 RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
 
@@ -93,7 +94,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "I" /* Logical */, NO
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRetChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.    
+    iFreightCalculationValue = INTEGER(cRetChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLHideBillableFreight", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRetChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBOLHideBillableFreight = LOGICAL(cRetChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1045,7 +1052,12 @@ FOR EACH cust NO-LOCK
   lv-cust-x = cust.cust-no.
   LEAVE.
 END.
-
+IF lBOLHideBillableFreight THEN
+    ASSIGN
+        dBillableFreight:SENSITIVE = NO
+        dBillableFreight:HIDDEN = YES
+        dBillableFreight:VISIBLE = NO.
+    
 RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

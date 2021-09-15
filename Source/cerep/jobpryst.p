@@ -239,6 +239,12 @@ DEF VAR iExcelRowCount AS INT NO-UNDO.
 
 
 RUN CreateExcelSheet.
+IF NOT VALID-HANDLE(chExcel) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 RUN JobReport.
 /*RUN CloseExcel.            */
 
@@ -1361,7 +1367,9 @@ PROCEDURE CreateExcelSheet:
       APPLY 'close' TO THIS-PROCEDURE.
 
    /* Create excel automation*/
-  CREATE "excel.application" chExcel.
+  CREATE "excel.application" chExcel NO-ERROR.
+  IF NOT VALID-HANDLE(chExcel) THEN
+  RETURN.
   /*chExcel:VISIBLE = TRUE.*/
 
   /* Open an Excel    */
