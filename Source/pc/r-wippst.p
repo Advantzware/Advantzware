@@ -19,6 +19,13 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+DEFINE TEMP-TABLE ttJob NO-UNDO
+    FIELD company  AS CHARACTER
+    FIELD jobID    AS CHARACTER
+    FIELD jobID2   AS INTEGER
+    FIELD location AS CHARACTER
+    FIELD jobRowID AS ROWID
+    .
 
 /* Parameters Definitions ---                                           */
 DEF VAR ip-post AS LOG INIT yes NO-UNDO.
@@ -1122,6 +1129,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    FOR EACH ttJob:
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ttJob.company,              /* Company Code (Mandatory) */
+            INPUT  ttJob.location,             /* Location Code (Mandatory) */
+            INPUT  "SendJobAMS",               /* API ID (Mandatory) */
+            INPUT  "",                         /* Scope ID */
+            INPUT  "",                         /* Scope Type */
+            INPUT  "PostDataCollection",       /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ttJob.jobRowID),     /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  ttJob.jobID + "-" + STRING(ttJob.jobID2),                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Triggered from pc/r-wippst.p",               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).           
+    END.
+    
+    FINALLY:
+        DELETE PROCEDURE hdOutboundProcs.    	
+    END FINALLY.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-wip C-Win 
 PROCEDURE post-wip :
 /* --------------------------------------------------- pc/pc-post.p  8/94 gb  */
@@ -1141,7 +1188,8 @@ PROCEDURE post-wip :
 
     DEF BUFFER b-mach FOR mach.
 
-
+    EMPTY TEMP-TABLE ttJob.
+    
     FOR EACH tt-report NO-LOCK,
 
         FIRST pc-prdd WHERE RECID(pc-prdd) EQ tt-report.rec-id,
@@ -1476,6 +1524,22 @@ PROCEDURE post-wip :
                       AND job.job-no2 EQ pc-prdd.job-no2) THEN
         RUN pTransferNotes (BUFFER pc-prdd).
 
+        FIND FIRST ttJob
+             WHERE ttJob.company EQ job.company
+               AND ttJob.jobID   EQ job.job-no
+               AND ttJob.jobID2  EQ job.job-no2
+             NO-ERROR.
+        IF NOT AVAILABLE ttJob THEN DO:
+            CREATE ttJob.
+            ASSIGN
+                ttJob.company  = job.company
+                ttJob.jobID    = job.job-no
+                ttJob.jobID2   = job.job-no2
+                ttJob.location = job.loc
+                ttJob.jobRowID = ROWID(job)
+                .
+        END.
+        
         DELETE pc-prdd.
     END. /* for each pc-prdd */
 
@@ -1509,7 +1573,8 @@ PROCEDURE post-wip :
     end.
     
     RUN job_CloseJob_DCPost IN hdJobProcs(INPUT cocode, INPUT TABLE w-job).    
- 
+    
+    RUN pCallOutboundAPI.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
