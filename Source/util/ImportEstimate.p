@@ -60,7 +60,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD WidthDie        AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die W" HELP "Optional - Decimal"
     FIELD LengthDie       AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die L" HELP "Optional - Decimal"
     FIELD InkDescription  AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ink Description" HELP "Optional - Size:30"
-    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors" HELP "Optional - If not provided, derived from provided Ink Codes or 0"
+    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors" HELP "Optional - If not provided derived from provided Ink Codes or 0"
     FIELD Ink1Code        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Ink 1 Code" HELP "Optional - Field Validated - Size:10"
     FIELD Ink1Coverage    AS DECIMAL   FORMAT ">>.99" COLUMN-LABEL "Ink 1 Coverage" HELP "Optional - Decimal"
     FIELD Ink1Unit        AS INTEGER   FORMAT ">>" COLUMN-LABEL "Ink 1 Unit" HELP "Optional - Integer"
@@ -123,7 +123,7 @@ DEFINE TEMP-TABLE ttImportEstimate
 
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -133,6 +133,7 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is 
 /* **********************  Internal Procedures  *********************** */
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
+
 
 PROCEDURE pAddBoxDesign:
     /*------------------------------------------------------------------------------
@@ -145,71 +146,30 @@ PROCEDURE pAddBoxDesign:
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
     
-    FIND FIRST box-design-hdr EXCLUSIVE-LOCK 
-        WHERE box-design-hdr.company EQ ipbf-eb.company
-        AND box-design-hdr.design-no EQ 0 
-        AND box-design-hdr.est-no EQ  ipbf-eb.est-no
-        AND box-design-hdr.form-no   EQ ipbf-eb.form-no
-        AND box-design-hdr.blank-no  EQ ipbf-eb.blank-no
-        NO-ERROR.
-    IF NOT AVAILABLE box-design-hdr THEN 
+    
+    IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+        RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildBoxDesignForEstimate IN hdFormulaProcs (
+        INPUT ROWID(ipbf-eb)
+        ).
+    
+    /* Builds the Box design */
+    RUN est/BuildBoxDesign.p ("B", ROWID(ipbf-eb)). 
+    
+    IF ipcImageFile NE "" THEN
     DO:
-        FIND FIRST style NO-LOCK  
-            WHERE style.company EQ ipbf-eb.company
-            AND style.style   EQ ipbf-eb.style
+        FIND FIRST bf-box-design-hdr EXCLUSIVE-LOCK 
+            WHERE bf-box-design-hdr.company EQ ipbf-eb.company
+            AND bf-box-design-hdr.design-no EQ 0 
+            AND bf-box-design-hdr.est-no EQ  ipbf-eb.est-no
+            AND bf-box-design-hdr.form-no   EQ ipbf-eb.form-no
+            AND bf-box-design-hdr.blank-no  EQ ipbf-eb.blank-no
             NO-ERROR.
-        IF AVAILABLE style THEN
-            FIND FIRST bf-box-design-hdr NO-LOCK  
-                WHERE bf-box-design-hdr.design-no EQ style.design-no
-                AND bf-box-design-hdr.company   EQ style.company   
-                AND bf-box-design-hdr.est-no    EQ ""
-                NO-ERROR.
         IF AVAILABLE bf-box-design-hdr THEN 
-        DO:
-            /*            RUN cec/descalc.p (RECID(xest), RECID(ipbf-eb)).*/
-     
-            CREATE box-design-hdr.
-            ASSIGN  
-                box-design-hdr.design-no    = 0
-                box-design-hdr.company      = ipbf-eb.company
-                box-design-hdr.est-no       = ipbf-eb.est-no
-                box-design-hdr.form-no      = ipbf-eb.form-no
-                box-design-hdr.blank-no     = ipbf-eb.blank-no
-                box-design-hdr.description  = IF AVAILABLE bf-box-design-hdr THEN
-                                             bf-box-design-hdr.description ELSE ""
-                /*                    box-design-hdr.lscore       = v-lscore-c    */
-                /*                    box-design-hdr.lcum-score   = v-lcum-score-c*/
-                box-design-hdr.wscore       = bf-box-design-hdr.wscore
-                box-design-hdr.wcum-score   = bf-box-design-hdr.wcum-score
-                box-design-hdr.box-text     = bf-box-design-hdr.box-text
-                box-design-hdr.box-image    = bf-box-design-hdr.box-image
-                box-design-hdr.box-3d-image = bf-box-design-hdr.box-3d-image
-                .
-           
-            FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
-                CREATE box-design-line.
-                ASSIGN 
-                    box-design-line.design-no = box-design-hdr.design-no
-                    box-design-line.company   = box-design-hdr.company
-                    box-design-line.est-no    = box-design-hdr.est-no
-                    box-design-line.form-no   = box-design-hdr.form-no
-                    box-design-line.blank-no  = box-design-hdr.blank-no
-                    box-design-line.line-no   = bf-box-design-line.line-no
-                    box-design-line.line-text = bf-box-design-line.line-text.
-     
-                /*                FIND FIRST w-box-design-line                                              */
-                /*                    WHERE w-box-design-line.line-no EQ box-design-line.line-no   NO-ERROR.*/
-                /*                                                                                          */
-                /*                IF AVAILABLE w-box-design-line THEN                                       */
-                /*                    ASSIGN  box-design-line.wscore     = w-box-design-line.wscore-c       */
-                /*                        box-design-line.wcum-score = w-box-design-line.wcum-score-c.      */
-
-                RELEASE box-design-line.
-            END.
-        END.
+            bf-box-design-hdr.box-image = ipcImageFile.
     END.
-    IF ipcImageFile NE "" THEN 
-        box-design-hdr.box-image = ipcImageFile.
     
 END PROCEDURE.
 
@@ -1090,14 +1050,19 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAddNotes(BUFFER ipbf-ttImportEstimate, "Spec", itemfg.rec_key).
         RUN pAddFarm(BUFFER ipbf-ttImportEstimate, BUFFER eb, itemfg.i-no).
             
-    END. 
-    IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
-        RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
+    END.
+    
+    FIND CURRENT eb NO-LOCK NO-ERROR.
+    
+    RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
     RELEASE eb.
+    
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
     
 END PROCEDURE.
 
