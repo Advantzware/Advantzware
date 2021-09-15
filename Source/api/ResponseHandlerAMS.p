@@ -20,7 +20,7 @@ DEFINE VARIABLE hdXMLProcs            AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iAmsDataResponseOrder AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iResponseOrder        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cErrorCode            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusCode           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cErrorMessage         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseText         AS CHARACTER NO-UNDO.
 
@@ -53,7 +53,7 @@ IF NOT lRecFound THEN DO:
 END.
 
 RUN XML_GetFieldOrderByNameAndParent (
-    INPUT  "Reponse",
+    INPUT  "Response",
     INPUT  iAmsDataResponseOrder,
     OUTPUT lRecFound,
     OUTPUT iResponseOrder
@@ -67,10 +67,10 @@ IF NOT lRecFound THEN DO:
 END.
 
 RUN XML_GetFieldValueByNameAndParent (
-    INPUT  "ErrorCode",
+    INPUT  "Status",
     INPUT  iResponseOrder,
     OUTPUT lRecFound,
-    OUTPUT cErrorCode 
+    OUTPUT cStatusCode 
     ).
 
 RUN XML_GetFieldValueByNameAndParent (
@@ -88,7 +88,7 @@ RUN XML_GetFieldValueByNameAndParent (
     ).    
 
 ASSIGN
-    oplSuccess = cErrorCode EQ "0"
+    oplSuccess = cStatusCode EQ "0"
     opcMessage = IF oplSuccess THEN
                      cResponseText
                  ELSE
