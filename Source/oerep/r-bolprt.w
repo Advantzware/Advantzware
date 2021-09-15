@@ -994,6 +994,7 @@ DO:
    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.   
    DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
    DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+   DEFINE VARIABLE lPrintExceptionBol AS LOGICAL NO-UNDO.
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
@@ -1601,7 +1602,8 @@ DO:
    END.
    RELEASE oe-bolh.  
    IF ll AND NOT lSingleBOL THEN DO: 
-       RUN pDisplayExceptionBol.
+       RUN pDisplayExceptionBol(OUTPUT lPrintExceptionBol).
+       IF lPrintExceptionBol THEN
        CASE rd-dest:
            WHEN 1 THEN 
                RUN output-exception-printer.
@@ -4350,8 +4352,9 @@ PROCEDURE pDisplayExceptionBOL PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: To display the Bols on screen  which will not post
  Notes:
-------------------------------------------------------------------------------*/
-
+------------------------------------------------------------------------------*/     
+    DEFINE OUTPUT PARAMETER oplPrint AS LOGICAL NO-UNDO.
+    
     {sys/form/r-top3w.f}
 
     FORM HEADER SKIP(1) WITH FRAME r-top.
@@ -4378,7 +4381,8 @@ PROCEDURE pDisplayExceptionBOL PRIVATE:
          PUT SKIP(1) "** Bills Of Lading Unable To Be Posted. **" 
              SKIP.    
            
-    FOR EACH ttExceptionBOL:      
+    FOR EACH ttExceptionBOL: 
+        oplPrint = YES.
         DISPLAY 
             ttExceptionBOL.bolNo     COLUMN-LABEL "BOL.#"
             ttExceptionBOL.bolDate   COLUMN-LABEL "Date"
