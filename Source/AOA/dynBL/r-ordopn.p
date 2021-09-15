@@ -700,10 +700,10 @@ PROCEDURE pBusinessLogic:
             ttOpenOrderReport.style        = tt-report.styl
             ttOpenOrderReport.dueDate      = tt-report.due-dt
             ttOpenOrderReport.runEndDate   = tt-report.run-end-date
-            ttOpenOrderReport.sheet        = tt-report.sht
+            ttOpenOrderReport.sheeted      = tt-report.sht
             ttOpenOrderReport.printed      = tt-report.prntd
             ttOpenOrderReport.dueCut       = tt-report.die-cut
-            ttOpenOrderReport.glue         = tt-report.glue
+            ttOpenOrderReport.glued        = tt-report.glue
             ttOpenOrderReport.xxIndex      = INTEGER(tt-report.key-08)
             iRecordID                      = iRecordID + 1            
             ttOpenOrderReport.recordID     = iRecordID
