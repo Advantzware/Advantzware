@@ -134,7 +134,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnProcess Dialog-Frame
 ON CHOOSE OF btnProcess IN FRAME Dialog-Frame /* OK */
 DO:
-  RUN RunProcess.
+  DEF VAR lError AS LOG NO-UNDO.
+  RUN RunProcess (OUTPUT lError).
+  IF lError THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,12 +228,16 @@ PROCEDURE RunProcess :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplError AS LOG INITIAL FALSE NO-UNDO.
+
 DEF BUFFER bf-module FOR module.
 
-IF DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
+IF DATE(fiExpDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ ? THEN
 DO:
-    MESSAGE "Please enter Expirations date.." VIEW-AS ALERT-BOX ERROR.
-    RETURN NO-APPLY.
+    MESSAGE "Please enter a valid expiration date." VIEW-AS ALERT-BOX ERROR.
+    ASSIGN 
+        oplError = TRUE.
+    RETURN.
 END.
 
 SESSION:SET-WAIT-STATE("General").
