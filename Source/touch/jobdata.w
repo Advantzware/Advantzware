@@ -771,15 +771,21 @@ PROCEDURE checkIssuedMaterials :
 {methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}     
+{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
        
 FOR EACH job-mat NO-LOCK
     WHERE job-mat.company EQ company_code
       AND job-mat.job-no EQ job_number 
       AND job-mat.job-no2 EQ INTEGER(job_sub) 
-      AND job-mat.frm EQ INTEGER(form_number)      
-      AND job-mat.all-flg EQ NO 
-      USE-INDEX seq-idx:
+      AND job-mat.frm EQ INTEGER(form_number)
+      AND (job-mat.blank-no EQ INTEGER(blank_number) OR job-mat.blank-no EQ 0)
+      AND job-mat.all-flg EQ NO       
+      USE-INDEX seq-idx,
+      FIRST item
+      WHERE item.company    EQ job-mat.company
+        AND item.i-no       EQ job-mat.i-no
+        AND index("BPR",item.mat-type) gt 0
+      NO-LOCK:
      
       RUN displayMessage(
                         INPUT "72"
