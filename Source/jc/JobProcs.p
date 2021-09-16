@@ -1124,7 +1124,8 @@ PROCEDURE getLastActivity:
     IF AVAILABLE mch-act AND mch-act.complete THEN
     ASSIGN
          opcLastActivity  = "Posted".
-    ELSE opcLastActivity = "Unposted".     
+    ELSE IF AVAILABLE mch-act THEN
+         opcLastActivity = "Unposted".     
                                          
 END PROCEDURE.
 
