@@ -76,8 +76,9 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnNumPad btReset fiTag btDelete btPrintBOL ~
-btnExitText btnViewInquiryText btnDeleteText btnPrintBOLText 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardTrailer btnKeyboardTag btReset ~
+btnNumPad fiTag btDelete btPrintBOL btnExitText btnViewInquiryText ~
+btnDeleteText btnPrintBOLText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer btnExitText ~
 btnViewInquiryText btnDeleteText statusMessage btnPrintBOLText 
 
@@ -119,6 +120,16 @@ DEFINE BUTTON btDelete
      IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete Selected Tag".
+
+DEFINE BUTTON btnKeyboardTag 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
+DEFINE BUTTON btnKeyboardTrailer 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnNumPad 
      IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
@@ -181,18 +192,20 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnNumPad AT ROW 1.19 COL 163 WIDGET-ID 120 NO-TAB-STOP 
+     btnKeyboardTrailer AT ROW 3.14 COL 149 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardTag AT ROW 3.14 COL 95 WIDGET-ID 136 NO-TAB-STOP 
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
+     btnNumPad AT ROW 1.19 COL 163 WIDGET-ID 120 NO-TAB-STOP 
      fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
      fiTrailer AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
      btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
-     btPrintBOL AT ROW 31.71 COL 187 WIDGET-ID 12 NO-TAB-STOP 
+     btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      btnViewInquiryText AT ROW 3.38 COL 162 NO-LABEL WIDGET-ID 26
      btnDeleteText AT ROW 31.95 COL 2 NO-LABEL WIDGET-ID 20
      statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
-     btnPrintBOLText AT ROW 31.95 COL 165 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     btnPrintBOLText AT ROW 31.95 COL 173 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      RECT-2 AT ROW 1 COL 162 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -273,6 +286,12 @@ ASSIGN
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
+ASSIGN 
+       btnKeyboardTag:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       btnKeyboardTrailer:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN btnViewInquiryText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiTrailer IN FRAME F-Main
@@ -365,6 +384,36 @@ ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
 DO:
     RUN dispatch ("exit").
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnKeyboardTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardTag W-Win
+ON CHOOSE OF btnKeyboardTag IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiTag.    
+    RUN pKeyboard (
+        fiTag:HANDLE,
+        "Qwerty"
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnKeyboardTrailer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardTrailer W-Win
+ON CHOOSE OF btnKeyboardTrailer IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiTrailer.    
+    RUN pKeyboard (
+        fiTrailer:HANDLE,
+        "Qwerty"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -525,10 +574,13 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+
 {wip/pKeyboard.i}
+{sharpshooter/pStatusMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -707,6 +759,8 @@ PROCEDURE adm-create-objects :
              h_navigatefirst-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
              h_navigateprev-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
+             h_navigatenext-2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -771,8 +825,9 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiTrailer btnExitText btnViewInquiryText btnDeleteText 
           statusMessage btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnNumPad btReset fiTag btDelete btPrintBOL btnExitText 
-         btnViewInquiryText btnDeleteText btnPrintBOLText 
+  ENABLE btnKeyboardTrailer btnKeyboardTag btReset btnNumPad fiTag btDelete 
+         btPrintBOL btnExitText btnViewInquiryText btnDeleteText 
+         btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -781,8 +836,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -798,7 +853,7 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1131,46 +1186,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusMessage W-Win 
-PROCEDURE pStatusMessage :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiStatusMessage AS INTEGER   NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-        statusMessage:SCREEN-VALUE = " " + CAPS(ipcStatusMessage).
-        CASE ipiStatusMessage:
-            WHEN 0 THEN
-            ASSIGN
-                statusMessage:BGCOLOR = ?
-                statusMessage:FGCOLOR = ?
-                .
-            WHEN 1 THEN
-            ASSIGN
-                statusMessage:BGCOLOR = 10
-                statusMessage:FGCOLOR = 0
-                .
-            WHEN 2 THEN
-            ASSIGN
-                statusMessage:BGCOLOR = 11
-                statusMessage:FGCOLOR = 0
-                .
-            WHEN 3 THEN
-            ASSIGN
-                statusMessage:BGCOLOR = 12
-                statusMessage:FGCOLOR = 15
-                .
-        END CASE.
-    END. /* with frame */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidRelease W-Win 
 PROCEDURE pValidRelease PRIVATE :
 /*------------------------------------------------------------------------------
@@ -1348,6 +1363,7 @@ PROCEDURE state-changed :
             RUN Select_Exit.
         END.
     END CASE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

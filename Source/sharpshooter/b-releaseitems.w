@@ -35,6 +35,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
 &SCOPED-DEFINE exclude-brwCustom
 
 /* Parameters Definitions ---                                           */
@@ -71,7 +72,7 @@ DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table itemID orderID customerPO fGetJobPOQuantityReceived() @ iJobPOQuantityReceived quantityOnHand quantityRelease quantityScanned quantityOfUnitsRelease quantityOfUnitsScanned   
+&Scoped-define FIELDS-IN-QUERY-br_table ttReleaseItem.itemID ttReleaseItem.orderID ttReleaseItem.customerPO fGetJobPOQuantityReceived() @ iJobPOQuantityReceived ttReleaseItem.quantityOnHand ttReleaseItem.quantityRelease ttReleaseItem.quantityScanned ttReleaseItem.quantityOfUnitsRelease ttReleaseItem.quantityOfUnitsScanned ttReleaseItem.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseItem
@@ -167,7 +168,7 @@ DEFINE BROWSE br_table
       ttReleaseItem.quantityScanned COLUMN-LABEL "Scanned" FORMAT "->>>>>>>9" WIDTH 19
       ttReleaseItem.quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
       ttReleaseItem.quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
-      ttReleaseItem.emptyColumn
+      ttReleaseItem.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71

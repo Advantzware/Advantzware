@@ -179,9 +179,10 @@ DEFINE BROWSE ttBrowseInventory
       ttBrowseInventory.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(60)" LABEL-BGCOLOR 14
     ttBrowseInventory.locDscr WIDTH 60 COLUMN-LABEL "Description" FORMAT "X(100)" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 190 BY 26.91
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 190 BY 26.91
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
@@ -361,6 +362,9 @@ PROCEDURE AdjustQuantity :
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
     /* Business logic is pending to adjust a tag from the available tags */
+    MESSAGE 
+    "Business logic is pending to adjust a tag from the available tags"
+    VIEW-AS ALERT-BOX.
     RETURN.
     
 /*    IF AVAILABLE ttBrowseInventory THEN DO:                                       */
