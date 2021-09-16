@@ -17,11 +17,10 @@ CLASS system.Keyboard:
     
     DEFINE VARIABLE cFieldValue       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hKeyboard         AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE dWindowCol        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dWindowRow        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hdProcedureHandle AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hdFrameHandle     AS HANDLE    NO-UNDO.
-    
+    DEFINE VARIABLE hdWindowHandle    AS HANDLE    NO-UNDO.
+        
     DEFINE PUBLIC PROPERTY FocusField AS HANDLE NO-UNDO 
     GET.
     SET. 
@@ -35,11 +34,8 @@ CLASS system.Keyboard:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
-	METHOD PUBLIC VOID SetWindowPosition( ipdWindowCol AS DECIMAL, ipdWindowRow AS DECIMAL ):
-		ASSIGN
-		    dWindowCol = ipdWindowCol
-		    dWindowRow = ipdWindowRow
-            .
+	METHOD PUBLIC VOID SetWindow( iphdWindowHandle AS HANDLE ):
+		hdWindowHandle = iphdWindowHandle.
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -87,11 +83,12 @@ CLASS system.Keyboard:
             FocusField = iphFocusField
             cFieldValue = FocusField:SCREEN-VALUE
             .
-
+MESSAGE FocusField:COL FocusField:ROW FocusField:FRAME:COL FocusField:FRAME:ROW
+VIEW-AS ALERT-BOX.
         IF VALID-HANDLE(hKeyboard) THEN
             RUN pSetPosition IN hKeyboard (
-                dWindowCol + FocusField:COL - 2,
-                dWindowRow + FocusField:ROW + 1.67
+                hdWindowHandle:COL + FocusField:FRAME:COL + FocusField:COL - 2,
+                hdWindowHandle:ROW + FocusField:FRAME:ROW + FocusField:ROW + 1.67
                 ).
     
     END METHOD.

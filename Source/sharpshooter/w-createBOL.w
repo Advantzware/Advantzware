@@ -59,6 +59,7 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE gcScanTrailer                AS CHARACTER NO-UNDO INITIAL "None".
 DEFINE VARIABLE gcSSBOLPrint                 AS CHARACTER NO-UNDO INITIAL "DoNotPrint".
 DEFINE VARIABLE gcSSReleaseTrailerValidation AS CHARACTER NO-UNDO INITIAL "Error".
+DEFINE VARIABLE glShowKeyboard               AS LOGICAL   NO-UNDO INITIAL FALSE.
 
 DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
 DEFINE VARIABLE oLoadTag  AS Inventory.LoadTag     NO-UNDO.
@@ -90,12 +91,13 @@ oSetting:LoadByCategoryAndProgram("SSCreateBOL").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboardTrailerRelease fiTag ~
+&Scoped-Define ENABLED-OBJECTS btClear fiTag btnKeyboardTrailerRelease ~
 btnKeyboardTrailer btnKeyboardTag btReset btnNumPad btDelete btPrintBOL ~
-btnSettings btnExitText btnViewInquiryText btnDeleteText btnPrintBOLText 
-&Scoped-Define DISPLAYED-OBJECTS fiTrailerRelease fiTag fiTrailerTag ~
-btnSettings btnExitText btnViewInquiryText btnDeleteText statusMessage ~
+btnExitText btnClearText btnViewInquiryText btnDeleteText btnSettingsText ~
 btnPrintBOLText 
+&Scoped-Define DISPLAYED-OBJECTS fiTrailerRelease fiTag fiTrailerTag ~
+btnExitText btnClearText btnViewInquiryText btnDeleteText statusMessage ~
+btnSettingsText btnPrintBOLText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,6 +132,12 @@ DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 DEFINE BUTTON btChange 
      IMAGE-UP FILE "Graphics/32x32/pencil.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Change" 
+     SIZE 8 BY 1.91.
+
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btDelete 
@@ -168,6 +176,11 @@ DEFINE BUTTON btReset
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
       VIEW-AS TEXT 
      SIZE 15 BY 1.43
@@ -183,7 +196,7 @@ DEFINE VARIABLE btnPrintBOLText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BO
      SIZE 20 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
-DEFINE VARIABLE btnSettings AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
       VIEW-AS TEXT 
      SIZE 18 BY 1.43
      BGCOLOR 21  NO-UNDO.
@@ -224,28 +237,30 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnKeyboardTrailerRelease AT ROW 1.19 COL 149 WIDGET-ID 144 NO-TAB-STOP 
-     fiTrailerRelease AT ROW 1.24 COL 119 COLON-ALIGNED WIDGET-ID 140
-     fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
-     fiTrailerTag AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
-     btnKeyboardTrailer AT ROW 3.14 COL 149 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardTag AT ROW 3.14 COL 95 WIDGET-ID 136 NO-TAB-STOP 
-     btReset AT ROW 2.91 COL 87 WIDGET-ID 18
-     btnNumPad AT ROW 1.19 COL 160 WIDGET-ID 120 NO-TAB-STOP 
+     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 146
+     fiTrailerRelease AT ROW 2.67 COL 119.2 COLON-ALIGNED WIDGET-ID 140
+     fiTag AT ROW 4.57 COL 20.2 COLON-ALIGNED WIDGET-ID 8
+     fiTrailerTag AT ROW 4.57 COL 119.2 COLON-ALIGNED WIDGET-ID 10
+     btnKeyboardTrailerRelease AT ROW 2.62 COL 149.2 WIDGET-ID 144 NO-TAB-STOP 
+     btnKeyboardTrailer AT ROW 4.57 COL 149.2 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardTag AT ROW 4.57 COL 95.2 WIDGET-ID 136 NO-TAB-STOP 
+     btReset AT ROW 4.33 COL 87.2 WIDGET-ID 18
+     btnNumPad AT ROW 2.62 COL 160.2 WIDGET-ID 120 NO-TAB-STOP 
      btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
-     btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
+     btChange AT ROW 2.43 COL 59.2 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
-     btnSettings AT ROW 1.24 COL 158.6 NO-LABEL WIDGET-ID 142
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
-     btnViewInquiryText AT ROW 3.38 COL 162 NO-LABEL WIDGET-ID 26
+     btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 148
+     btnViewInquiryText AT ROW 4.81 COL 162.2 NO-LABEL WIDGET-ID 26
      btnDeleteText AT ROW 31.95 COL 2 NO-LABEL WIDGET-ID 20
-     statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     statusMessage AT ROW 31.95 COL 26.2 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     btnSettingsText AT ROW 31.95 COL 146 NO-LABEL WIDGET-ID 142
      btnPrintBOLText AT ROW 31.95 COL 173 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     RECT-2 AT ROW 1 COL 159 WIDGET-ID 130
+     RECT-2 AT ROW 2.43 COL 159.2 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 202 BY 32.81
+         SIZE 202 BY 32.62
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -265,7 +280,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create BOL"
-         HEIGHT             = 32.81
+         HEIGHT             = 32.62
          WIDTH              = 202
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -317,6 +332,8 @@ IF NOT W-Win:LOAD-ICON("Graphics/asiicon.ico":U) THEN
 ASSIGN 
        btChange:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
@@ -330,7 +347,7 @@ ASSIGN
 ASSIGN 
        btnKeyboardTrailerRelease:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN btnSettings IN FRAME F-Main
+/* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnViewInquiryText IN FRAME F-Main
    ALIGN-L                                                              */
@@ -394,12 +411,42 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    RUN pStatusMessage ("", 0).
+    {methods/run_link.i "REL-ITEMS-SOURCE" "EmptyReleaseItems"}
+
+    {methods/run_link.i "REL-TAGS-SOURCE" "EmptyReleaseTags"}
+    
+    RUN pInvalidRelease.
+    
+    {methods/run_link.i "RELEASE-SOURCE" "EmptyRelease"} 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
 DO:
     {methods/run_link.i "REL-TAGS-SOURCE" "DeleteReleaseTag"}    
     RUN pScanRelease.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -493,9 +540,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSettings
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettings W-Win
-ON MOUSE-SELECT-CLICK OF btnSettings IN FRAME F-Main
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
 DO:
     RUN OpenSetting.
     RETURN NO-APPLY.
@@ -708,22 +755,6 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/releasefilter.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_releasefilter ).
-       RUN set-position IN h_releasefilter ( 1.00 , 1.80 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 56.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/setting.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_setting ).
-       RUN set-position IN h_setting ( 1.00 , 177.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.60 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -732,11 +763,19 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/releasefilter.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_releasefilter ).
+       RUN set-position IN h_releasefilter ( 2.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 56.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_viewfginquiry ).
-       RUN set-position IN h_viewfginquiry ( 3.14 , 188.00 ) NO-ERROR.
+       RUN set-position IN h_viewfginquiry ( 4.57 , 188.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -744,7 +783,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releaseitems ).
-       RUN set-position IN h_b-releaseitems ( 5.05 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-releaseitems ( 6.38 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-releaseitems ( 10.24 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -784,8 +823,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
-       RUN set-position IN h_b-releasetags ( 15.52 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 16.19 , 193.00 ) NO-ERROR.
+       RUN set-position IN h_b-releasetags ( 16.81 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 15.00 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -818,6 +857,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_navigatelast-2 ).
        RUN set-position IN h_navigatelast-2 ( 23.38 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 31.81 , 164.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        /* Links to SmartObject h_releasefilter. */
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).
@@ -855,10 +902,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-LAST':U , h_navigatelast-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
-             h_releasefilter , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_setting , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailerTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
@@ -875,10 +918,14 @@ PROCEDURE adm-create-objects :
              h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
              h_b-releasetags , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
+             h_navigatefirst-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
              h_navigateprev-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
              h_navigatenext-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_navigatelast-2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -940,12 +987,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTrailerRelease fiTag fiTrailerTag btnSettings btnExitText 
-          btnViewInquiryText btnDeleteText statusMessage btnPrintBOLText 
+  DISPLAY fiTrailerRelease fiTag fiTrailerTag btnExitText btnClearText 
+          btnViewInquiryText btnDeleteText statusMessage btnSettingsText 
+          btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnKeyboardTrailerRelease fiTag btnKeyboardTrailer btnKeyboardTag 
-         btReset btnNumPad btDelete btPrintBOL btnSettings btnExitText 
-         btnViewInquiryText btnDeleteText btnPrintBOLText 
+  ENABLE btClear fiTag btnKeyboardTrailerRelease btnKeyboardTrailer 
+         btnKeyboardTag btReset btnNumPad btDelete btPrintBOL btnExitText 
+         btnClearText btnViewInquiryText btnDeleteText btnSettingsText 
+         btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1096,7 +1145,7 @@ PROCEDURE pInit :
                              + cCompanyName + " - " + cLocation
                              .
         
-        oKeyboard:SetWindowPosition({&WINDOW-NAME}:COL, {&WINDOW-NAME}:ROW).
+        oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
         oKeyboard:SetProcedure(THIS-PROCEDURE).
         oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
         
@@ -1104,16 +1153,20 @@ PROCEDURE pInit :
             gcScanTrailer = oSetting:GetByName("SSCreateBOLScanTrailer")                      
             gcSSBOLPrint  = oSetting:GetByName("SSCreateBOLPrint")
             gcSSReleaseTrailerValidation = oSetting:GetByName("SSCreateBOLTrailerValidation")
+            glShowKeyboard               = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
             .
             
         ASSIGN
-            lShowTrailerTag                  = gcScanTrailer EQ "Tag" OR gcScanTrailer EQ "Both"
-            lShowTrailerRelease              = gcScanTrailer EQ "Release" OR gcScanTrailer EQ "Both"
-            fiTrailerTag:HIDDEN              = NOT lShowTrailerTag
-            fiTrailerRelease:HIDDEN          = NOT lShowTrailerRelease
-            fiTrailerRelease:SENSITIVE       = FALSE
-            btnKeyboardTrailerRelease:HIDDEN = fiTrailerRelease:HIDDEN
-            btnKeyboardTag:HIDDEN            = fiTrailerTag:HIDDEN
+            lShowTrailerTag                   = gcScanTrailer EQ "Tag" OR gcScanTrailer EQ "Both"
+            lShowTrailerRelease               = gcScanTrailer EQ "Release" OR gcScanTrailer EQ "Both"
+            fiTrailerTag:VISIBLE              = lShowTrailerTag
+            fiTrailerRelease:VISIBLE          = lShowTrailerRelease
+            fiTrailerRelease:SENSITIVE        = FALSE
+            btnKeyboardTrailerRelease:VISIBLE = fiTrailerRelease:VISIBLE AND glShowKeyboard
+            btnKeyboardTrailer:VISIBLE        = fiTrailerTag:VISIBLE AND glShowKeyboard
+            btnKeyboardTag:VISIBLE            = glShowKeyboard
+            btnNumPad:VISIBLE                 = glShowKeyboard
+            RECT-2:VISIBLE                    = glShowKeyboard
             .  
             
         RUN pInvalidRelease.
@@ -1139,8 +1192,11 @@ PROCEDURE pInValidRelease PRIVATE :
     
     ASSIGN
         fiTag:SENSITIVE                     = FALSE
+        fiTag:SCREEN-VALUE                  = ""        
         fiTrailerTag:SENSITIVE              = FALSE
         fiTrailerRelease:SENSITIVE          = FALSE
+        fiTrailerTag:SCREEN-VALUE           = ""
+        fiTrailerRelease:SCREEN-VALUE       = ""
         btnKeyboardTag:SENSITIVE            = FALSE
         btnKeyboardTrailer:SENSITIVE        = FALSE
         btnKeyboardTrailerRelease:SENSITIVE = TRUE                
@@ -1504,10 +1560,13 @@ PROCEDURE pWinReSize :
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
-            btnSettings:COL                    = dCol - 40
+            btnClearText:COL                   = dCol - 12
+            btClear:COL                        = dCol
+            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                = btnPrintBOLText:COL - btnSettingsText:WIDTH - 10
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
-        RUN set-position IN h_setting ( 1.00 , btnSettings:COL + 18 ) NO-ERROR.
+        RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
