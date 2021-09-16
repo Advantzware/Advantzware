@@ -16,6 +16,10 @@
 {sharpshooter/ttReleaseItem.i}
 {sharpshooter/ttReleaseTag.i}
 
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -238,7 +242,8 @@ PROCEDURE CreateReleaseTag:
     DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID         AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTrailerID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReleaseTrailerID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTagTrailerID      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplValidateQtyExceed AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplSelectReleaseQty  AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.   
@@ -248,7 +253,8 @@ PROCEDURE CreateReleaseTag:
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcTag,
-        INPUT  ipcTrailerID,
+        INPUT  ipcReleaseTrailerID,
+        INPUT  ipcTagTrailerID,
         INPUT  iplValidateQtyExceed,
         INPUT  iplSelectReleaseQty,
         OUTPUT oplError,   
@@ -321,9 +327,10 @@ PROCEDURE pCreateReleaseTag PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID         AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTag               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTrailerID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReleaseTrailerID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTagTrailerID      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplValidateQtyExceed AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplSelectReleaseQty  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSelectReleaseQty  AS LOGICAL   NO-UNDO.      /* TRUE - Selects quantity upto release quantity, FALSE - Selects entire pallet quantity */
     DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.   
     DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO. 
     
@@ -453,30 +460,39 @@ PROCEDURE pCreateReleaseTag PRIVATE:
         END.
         /* Perform fg-bin on hold validation. Currently zMessage 53 is used to control the popup */
 
-        IF ipcTrailerID NE "" THEN DO:
+        IF ipcReleaseTrailerID NE "" THEN DO:
             IF NOT CAN-FIND(FIRST truck 
                             WHERE truck.company    EQ bf-oe-relh.company 
-                              AND truck.truck-code EQ ipcTrailerID) THEN DO:
+                              AND truck.truck-code EQ ipcReleaseTrailerID) THEN DO:
                 ASSIGN
                     oplError   = TRUE
-                    opcMessage = "Invalid Trailer#. '" + ipcTrailerID + "'"
-                    .
-   
-                RETURN.            
-            END.
-            
-            IF bf-oe-relh.trailer NE "" AND bf-oe-relh.trailer NE ipcTrailerID THEN DO:
-                ASSIGN
-                    oplError   = TRUE
-                    opcMessage = "Trailer # '" + ipcTrailerID + "' does not match Release Trailer# '" + bf-oe-relh.trailer + "'" 
+                    opcMessage = "Invalid Trailer#. '" + ipcReleaseTrailerID + "'"
                     .
    
                 RETURN.            
             END.
         END.
         ELSE
-            ipcTrailerID = bf-oe-relh.trailer.
+            ipcReleaseTrailerID = bf-oe-relh.trailer.
 
+        IF ipcTagTrailerID NE "" THEN DO:
+            IF NOT CAN-FIND(FIRST truck 
+                            WHERE truck.company    EQ bf-oe-relh.company 
+                              AND truck.truck-code EQ ipcTagTrailerID) THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Invalid Trailer#. '" + ipcTagTrailerID + "'"
+                    .
+   
+                RETURN.            
+            END.
+        END.
+        ELSE
+            ipcTagTrailerID = IF ipcReleaseTrailerID NE "" THEN 
+                                  ipcReleaseTrailerID
+                              ELSE
+                                  bf-oe-relh.trailer.
+        
         IF bf-oe-rell.ord-no NE 0 THEN DO:
             FIND FIRST bf-oe-ord NO-LOCK
                  WHERE bf-oe-ord.company EQ bf-oe-rell.company
@@ -590,7 +606,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             bf-ssrelbol.company    = bf-oe-relh.company
             bf-ssrelbol.release#   = bf-oe-relh.release#
             bf-ssrelbol.tag#       = bf-loadtag.tag-no
-            bf-ssrelbol.trailer#   = ipcTrailerID
+            bf-ssrelbol.trailer#   = ipcTagTrailerID
             bf-ssrelbol.i-no       = bf-loadtag.i-no
             bf-ssrelbol.i-name     = bf-loadtag.i-name          
             bf-ssrelbol.ord-no     = bf-oe-rell.ord-no 
@@ -638,10 +654,10 @@ PROCEDURE pCreateReleaseTag PRIVATE:
         IF AVAILABLE bf-oe-ordl THEN            
             bf-ssrelbol.line = bf-oe-ordl.line.
         
-        IF ipcTrailerID NE "" AND bf-oe-relh.trailer EQ "" THEN DO:
+        IF ipcReleaseTrailerID NE "" AND bf-oe-relh.trailer EQ "" THEN DO:
             FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE bf-oe-relh THEN
-                bf-oe-relh.trailer = ipcTrailerID.
+                bf-oe-relh.trailer = ipcReleaseTrailerID.
         END.
     END.        
 END PROCEDURE.
@@ -854,4 +870,17 @@ PROCEDURE pGetReleaseQuantity PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE SetSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
+    
+    IF VALID-OBJECT (ipoSetting) THEN DO:
+        DELETE OBJECT oSetting.
+        oSetting = ipoSetting.
+    END.
+
+END PROCEDURE.
 

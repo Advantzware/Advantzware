@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/w-relbol.w
+  File: sharpshooter/w-createBol.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -38,10 +38,10 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+/* Do not remove these shared variables, as these are required for OrderProcs.p which called later */
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-{wip/keyboardDefs.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -49,15 +49,29 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSSBOLPrint  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iSSBOLPrint  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowTrailerRelease AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lShowTrailerTag     AS LOGICAL NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE glScanTrailer            AS LOGICAL NO-UNDO INITIAL TRUE.
-DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE gcScanTrailer                AS CHARACTER NO-UNDO INITIAL "None".
+DEFINE VARIABLE gcSSBOLPrint                 AS CHARACTER NO-UNDO INITIAL "DoNotPrint".
+DEFINE VARIABLE gcSSReleaseTrailerValidation AS CHARACTER NO-UNDO INITIAL "Error".
+
+DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
+DEFINE VARIABLE oLoadTag  AS Inventory.LoadTag     NO-UNDO.
+DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
+DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+DEFINE VARIABLE oTrailer       AS ar.Truck         NO-UNDO.
+
+oSetting = NEW system.Setting().
+oLoadTag = NEW Inventory.LoadTag().
+oKeyboard = NEW system.Keyboard().
+oTrailer = NEW ar.Truck().
+
+oSetting:LoadByCategoryAndProgram("SSCreateBOL").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,11 +90,12 @@ DEFINE VARIABLE glScanTrailerWithRelease AS LOGICAL NO-UNDO INITIAL TRUE.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboardTrailer btnKeyboardTag btReset ~
-btnNumPad fiTag btDelete btPrintBOL btnExitText btnViewInquiryText ~
-btnDeleteText btnPrintBOLText 
-&Scoped-Define DISPLAYED-OBJECTS fiTag fiTrailer btnExitText ~
-btnViewInquiryText btnDeleteText statusMessage btnPrintBOLText 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardTrailerRelease fiTag ~
+btnKeyboardTrailer btnKeyboardTag btReset btnNumPad btDelete btPrintBOL ~
+btnSettings btnExitText btnViewInquiryText btnDeleteText btnPrintBOLText 
+&Scoped-Define DISPLAYED-OBJECTS fiTrailerRelease fiTag fiTrailerTag ~
+btnSettings btnExitText btnViewInquiryText btnDeleteText statusMessage ~
+btnPrintBOLText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,6 +123,7 @@ DEFINE VARIABLE h_navigatenext-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_releasefilter AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -127,6 +143,11 @@ DEFINE BUTTON btnKeyboardTag
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnKeyboardTrailer 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
+DEFINE BUTTON btnKeyboardTrailerRelease 
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
@@ -162,6 +183,11 @@ DEFINE VARIABLE btnPrintBOLText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BO
      SIZE 20 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
+DEFINE VARIABLE btnSettings AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE btnViewInquiryText AS CHARACTER FORMAT "X(256)":U INITIAL "VIEW INQUIRY" 
       VIEW-AS TEXT 
      SIZE 26 BY 1.43
@@ -173,7 +199,13 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
      SIZE 64.2 BY 1.38 TOOLTIP "Enter Tag #"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiTrailer AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiTrailerRelease AS CHARACTER FORMAT "X(256)":U 
+     LABEL "TRAILER" 
+     VIEW-AS FILL-IN 
+     SIZE 27.4 BY 1.38 TOOLTIP "Enter Trailer #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+
+DEFINE VARIABLE fiTrailerTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "TRAILER" 
      VIEW-AS FILL-IN 
      SIZE 27.4 BY 1.38 TOOLTIP "Enter Trailer #"
@@ -192,21 +224,24 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboardTrailerRelease AT ROW 1.19 COL 149 WIDGET-ID 144 NO-TAB-STOP 
+     fiTrailerRelease AT ROW 1.24 COL 119 COLON-ALIGNED WIDGET-ID 140
+     fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
+     fiTrailerTag AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
      btnKeyboardTrailer AT ROW 3.14 COL 149 WIDGET-ID 138 NO-TAB-STOP 
      btnKeyboardTag AT ROW 3.14 COL 95 WIDGET-ID 136 NO-TAB-STOP 
      btReset AT ROW 2.91 COL 87 WIDGET-ID 18
-     btnNumPad AT ROW 1.19 COL 163 WIDGET-ID 120 NO-TAB-STOP 
-     fiTag AT ROW 3.14 COL 20 COLON-ALIGNED WIDGET-ID 8
-     fiTrailer AT ROW 3.14 COL 119 COLON-ALIGNED WIDGET-ID 10
+     btnNumPad AT ROW 1.19 COL 160 WIDGET-ID 120 NO-TAB-STOP 
      btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
      btChange AT ROW 1 COL 59 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
+     btnSettings AT ROW 1.24 COL 158.6 NO-LABEL WIDGET-ID 142
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      btnViewInquiryText AT ROW 3.38 COL 162 NO-LABEL WIDGET-ID 26
      btnDeleteText AT ROW 31.95 COL 2 NO-LABEL WIDGET-ID 20
      statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnPrintBOLText AT ROW 31.95 COL 173 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     RECT-2 AT ROW 1 COL 162 WIDGET-ID 130
+     RECT-2 AT ROW 1 COL 159 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -292,9 +327,16 @@ ASSIGN
 ASSIGN 
        btnKeyboardTrailer:HIDDEN IN FRAME F-Main           = TRUE.
 
+ASSIGN 
+       btnKeyboardTrailerRelease:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN btnSettings IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnViewInquiryText IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN fiTrailer IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiTrailerRelease IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiTrailerTag IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -331,9 +373,6 @@ ON WINDOW-CLOSE OF W-Win /* Create BOL */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  IF VALID-HANDLE(hKeyboard) THEN
-      DELETE OBJECT hKeyboard.
-
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -395,10 +434,8 @@ END.
 ON CHOOSE OF btnKeyboardTag IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiTag.    
-    RUN pKeyboard (
-        fiTag:HANDLE,
-        "Qwerty"
-        ).
+    
+    oKeyboard:OpenKeyboard (fiTag:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,11 +446,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardTrailer W-Win
 ON CHOOSE OF btnKeyboardTrailer IN FRAME F-Main /* Keyboard */
 DO:
-    APPLY "ENTRY":U TO fiTrailer.    
-    RUN pKeyboard (
-        fiTrailer:HANDLE,
-        "Qwerty"
-        ).
+    APPLY "ENTRY":U TO fiTrailerTag.    
+    
+    oKeyboard:OpenKeyboard (fiTrailerTag:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnKeyboardTrailerRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardTrailerRelease W-Win
+ON CHOOSE OF btnKeyboardTrailerRelease IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiTrailerRelease.    
+    
+    oKeyboard:OpenKeyboard (fiTrailerRelease:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -425,8 +473,8 @@ END.
 ON CHOOSE OF btnNumPad IN FRAME F-Main /* NumPad */
 DO:
     ASSIGN
-        lKeyboard = NOT lKeyboard
-        RECT-2:BGCOLOR = IF lKeyboard THEN 10 ELSE 12
+        oKeyboard:DisplayKeyboard = NOT oKeyboard:DisplayKeyboard
+        RECT-2:BGCOLOR = IF oKeyboard:DisplayKeyboard THEN 10 ELSE 12
         .
 END.
 
@@ -439,6 +487,18 @@ END.
 ON MOUSE-SELECT-CLICK OF btnPrintBOLText IN FRAME F-Main
 DO:
     APPLY "CHOOSE":U TO btPrintBOL.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSettings
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettings W-Win
+ON MOUSE-SELECT-CLICK OF btnSettings IN FRAME F-Main
+DO:
+    RUN OpenSetting.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,15 +546,11 @@ ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
     SELF:SET-SELECTION (1, -1).      
     ASSIGN
-        fiTrailer:BGCOLOR = 15
-        SELF:BGCOLOR      = 30
+        fiTrailerTag:BGCOLOR = 15
+        SELF:BGCOLOR         = 30
         .
-    hFocusField = SELF.    
-    IF lKeyboard THEN
-        RUN pKeyboard (
-            INPUT SELF, 
-            INPUT "Qwerty"
-            ).  
+    
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -504,8 +560,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
-        RETURN.
+    DEFINE VARIABLE lValidTag AS LOGICAL NO-UNDO.
+
+    IF SELF:SCREEN-VALUE EQ "" THEN
+        RETURN NO-APPLY.
     
     IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
         RUN state-changed (THIS-PROCEDURE, "tag-exit").        
@@ -519,7 +577,17 @@ DO:
         RETURN.
     END.
     
-    IF glScanTrailer THEN DO:
+    lValidTag = oLoadTag:SetContext (cCompany, FALSE, SELF:SCREEN-VALUE).
+    
+    IF NOT lValidTag THEN DO:
+        RUN pStatusMessage ("Invalid Tag '" + SELF:SCREEN-VALUE + "'", 3).
+        
+        SELF:SCREEN-VALUE = "".
+        
+        RETURN NO-APPLY.
+    END.
+    
+    IF lShowTrailerTag THEN DO:
         SELF:BGCOLOR = 15.
         RETURN.        
     END.
@@ -533,30 +601,72 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiTrailer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
-ON ENTRY OF fiTrailer IN FRAME F-Main /* TRAILER */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
+ON TAB OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    SELF:SET-SELECTION (1, -1).      
-    ASSIGN
-        fiTag:BGCOLOR = 15
-        SELF:BGCOLOR  = 30
-        .     
-    hFocusField = SELF.    
-    IF lKeyboard THEN
-        RUN pKeyboard (
-            INPUT SELF, 
-            INPUT "Qwerty"
-            ).  
+    APPLY "LEAVE" TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailer W-Win
-ON LEAVE OF fiTrailer IN FRAME F-Main /* TRAILER */
+&Scoped-define SELF-NAME fiTrailerRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailerRelease W-Win
+ON ENTRY OF fiTrailerRelease IN FRAME F-Main /* TRAILER */
 DO:
+    SELF:SET-SELECTION (1, -1).      
+    SELF:BGCOLOR = 30.
+
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailerRelease W-Win
+ON LEAVE OF fiTrailerRelease IN FRAME F-Main /* TRAILER */
+DO:
+    RUN pValidateTrailer(SELF:SCREEN-VALUE) NO-ERROR.
+
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+
+    RUN pScanReleaseTrailer.
+               
+    SELF:BGCOLOR = 15.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiTrailerTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailerTag W-Win
+ON ENTRY OF fiTrailerTag IN FRAME F-Main /* TRAILER */
+DO:
+    SELF:SET-SELECTION (1, -1).      
+    ASSIGN
+        fiTag:BGCOLOR = 15
+        SELF:BGCOLOR  = 30
+        .     
+
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTrailerTag W-Win
+ON LEAVE OF fiTrailerTag IN FRAME F-Main /* TRAILER */
+DO:
+    RUN pValidateTrailer(SELF:SCREEN-VALUE) NO-ERROR.
+
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+    
     RUN state-changed (THIS-PROCEDURE, "scan-tag").       
     SELF:BGCOLOR = 15.      
 END.
@@ -574,8 +684,6 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
-{wip/pKeyboard.i}
 {sharpshooter/pStatusMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,6 +714,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_releasefilter ).
        RUN set-position IN h_releasefilter ( 1.00 , 1.80 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 56.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 177.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -739,8 +855,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-LAST':U , h_navigatelast-2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_releasefilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_setting , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
-             fiTrailer:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             fiTrailerTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
              h_viewfginquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
@@ -755,8 +875,6 @@ PROCEDURE adm-create-objects :
              h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
              h_b-releasetags , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
-             h_navigatefirst-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
              h_navigateprev-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
@@ -822,15 +940,59 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiTrailer btnExitText btnViewInquiryText btnDeleteText 
-          statusMessage btnPrintBOLText 
+  DISPLAY fiTrailerRelease fiTag fiTrailerTag btnSettings btnExitText 
+          btnViewInquiryText btnDeleteText statusMessage btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnKeyboardTrailer btnKeyboardTag btReset btnNumPad fiTag btDelete 
-         btPrintBOL btnExitText btnViewInquiryText btnDeleteText 
-         btnPrintBOLText 
+  ENABLE btnKeyboardTrailerRelease fiTag btnKeyboardTrailer btnKeyboardTag 
+         btReset btnNumPad btDelete btPrintBOL btnSettings btnExitText 
+         btnViewInquiryText btnDeleteText btnPrintBOLText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win 
+PROCEDURE GetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoKeyboard AS system.Keyboard NO-UNDO.
+
+    opoKeyboard = oKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSettings W-Win 
+PROCEDURE GetSettings :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
+    
+    IF VALID-OBJECT (oSetting) THEN
+        opoSetting = oSetting.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win 
+PROCEDURE Key_Stroke :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcKeyStroke AS CHARACTER NO-UNDO.
+    
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:KeyStroke(ipcKeyStroke).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,9 +1006,15 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF VALID-HANDLE(hKeyboard) THEN
-      DELETE OBJECT hKeyboard.
+  IF VALID-OBJECT(oLoadTag) THEN
+      DELETE OBJECT oLoadTag.
 
+  IF VALID-OBJECT(oSetting) THEN
+      DELETE OBJECT oSetting.
+  
+  IF VALID-OBJECT(oKeyboard) THEN
+      DELETE OBJECT oKeyboard.
+      
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -893,6 +1061,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (oSetting).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -913,39 +1095,31 @@ PROCEDURE pInit :
                              + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                              + cCompanyName + " - " + cLocation
                              .
-                             
-        fiTrailer:HIDDEN = NOT glScanTrailer.
-    
-        RUN sys/ref/nk1look.p (
-            cCompany,
-            "SSBOLPRINT",
-            "L",
-            NO,
-            NO,
-            "",
-            "",
-            OUTPUT cResult,
-            OUTPUT lFound
-            ).
-        lSSBOLPrint = IF NOT lFound THEN ? ELSE LOGICAL(cResult).            
-        RUN sys/ref/nk1look.p (
-            cCompany,
-            "SSBOLPRINT",
-            "I",
-            NO,
-            NO,
-            "",
-            "",
-            OUTPUT cResult,
-            OUTPUT lFound
-            ).
         
-        iSSBOLPrint = INTEGER(cResult).
+        oKeyboard:SetWindowPosition({&WINDOW-NAME}:COL, {&WINDOW-NAME}:ROW).
+        oKeyboard:SetProcedure(THIS-PROCEDURE).
+        oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
+        
+        ASSIGN
+            gcScanTrailer = oSetting:GetByName("SSCreateBOLScanTrailer")                      
+            gcSSBOLPrint  = oSetting:GetByName("SSCreateBOLPrint")
+            gcSSReleaseTrailerValidation = oSetting:GetByName("SSCreateBOLTrailerValidation")
+            .
+            
+        ASSIGN
+            lShowTrailerTag                  = gcScanTrailer EQ "Tag" OR gcScanTrailer EQ "Both"
+            lShowTrailerRelease              = gcScanTrailer EQ "Release" OR gcScanTrailer EQ "Both"
+            fiTrailerTag:HIDDEN              = NOT lShowTrailerTag
+            fiTrailerRelease:HIDDEN          = NOT lShowTrailerRelease
+            fiTrailerRelease:SENSITIVE       = FALSE
+            btnKeyboardTrailerRelease:HIDDEN = fiTrailerRelease:HIDDEN
+            btnKeyboardTag:HIDDEN            = fiTrailerTag:HIDDEN
+            .  
             
         RUN pInvalidRelease.
         
         /* If scan trailer is enabled */
-        IF glScanTrailer THEN
+        IF gcScanTrailer EQ "Tag" THEN
             btReset:TAB-STOP = FALSE.
     END.
 
@@ -964,13 +1138,17 @@ PROCEDURE pInValidRelease PRIVATE :
     END.    
     
     ASSIGN
-        fiTag:SENSITIVE     = FALSE
-        fiTrailer:SENSITIVE = FALSE
-        btChange:HIDDEN     = TRUE
-        btChange:SENSITIVE  = FALSE
-        btReset:SENSITIVE   = FALSE
-        fiTag:BGCOLOR       = 15
-        fiTrailer:BGCOLOR   = 15
+        fiTag:SENSITIVE                     = FALSE
+        fiTrailerTag:SENSITIVE              = FALSE
+        fiTrailerRelease:SENSITIVE          = FALSE
+        btnKeyboardTag:SENSITIVE            = FALSE
+        btnKeyboardTrailer:SENSITIVE        = FALSE
+        btnKeyboardTrailerRelease:SENSITIVE = TRUE                
+        btChange:HIDDEN                     = TRUE
+        btChange:SENSITIVE                  = FALSE
+        btReset:SENSITIVE                   = FALSE
+        fiTag:BGCOLOR                       = 15
+        fiTrailerTag:BGCOLOR                = 15
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "EnableRelease"}
@@ -998,8 +1176,6 @@ PROCEDURE pPrintBOL PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
-    
     {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT oReleaseHeader)"}
     
     iReleaseID = INTEGER(oReleaseHeader:GetValue("ReleaseID")).
@@ -1008,8 +1184,6 @@ PROCEDURE pPrintBOL PRIVATE :
 
     IF NOT lSuccess THEN DO:
         RUN pStatusMessage (cMessage, 3).
-/*        MESSAGE cMessage        */
-/*        VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.    
     
@@ -1018,14 +1192,12 @@ PROCEDURE pPrintBOL PRIVATE :
     oBOLHeader:SetContext(cCompany, iBOLID).
     
     IF NOT oBOLHeader:IsAvailable() THEN DO:
-        RUN pStatusMessage ("INVALID BOL '" + STRING(iBOLID) + "'", 3).
-/*        MESSAGE "Invalid BOL # '" + STRING(iBOLID) + "'"*/
-/*            VIEW-AS ALERT-BOX ERROR.                    */        
+        RUN pStatusMessage ("INVALID BOL '" + STRING(iBOLID) + "'", 3).      
         RETURN.        
     END.
     
-    IF lSSBOLPrint NE ? THEN DO:
-        IF lSSBOLPrint EQ YES THEN DO:
+    IF gcSSBOLPrint NE "DoNotPrint" THEN DO:
+        IF gcSSBOLPrint EQ "ShowBOLPrintScreen" THEN DO:
             SESSION:SET-WAIT-STATE ("GENERAL").
 
             ASSIGN
@@ -1050,10 +1222,10 @@ PROCEDURE pPrintBOL PRIVATE :
 
             SESSION:SET-WAIT-STATE ("").
         END.
-        ELSE DO:
+        ELSE IF gcSSBOLPrint EQ "PrintSilently" OR gcSSBOLPrint EQ "PrintAndPostSilently" THEN DO:
             SESSION:SET-WAIT-STATE ("GENERAL").
             
-            lPostBOL = iSSBOLPrint EQ 1.
+            lPostBOL = gcSSBOLPrint EQ "PrintAndPostSilently".
              
             RUN bol/printBol.p (
                 oBOLHeader:GetValue("Company"),
@@ -1079,6 +1251,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseError W-Win 
+PROCEDURE pReleaseError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+    
+    {methods/run_link.i "RELEASE-SOURCE" "GetReleaseMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+    
+    RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScanRelease W-Win 
 PROCEDURE pScanRelease :
 /*------------------------------------------------------------------------------
@@ -1087,7 +1276,6 @@ PROCEDURE pScanRelease :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iReleaseID AS INTEGER NO-UNDO.    
-    DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1100,44 +1288,68 @@ PROCEDURE pScanRelease :
 
     IF NOT VALID-OBJECT(oReleaseHeader) THEN DO:
         RUN pStatusMessage ("INVALID RELEASE", 3).
-/*        MESSAGE "Invalid Release#"  */
-/*            VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.
 
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
         RUN pStatusMessage ("INVALID RELEASE", 3).
-/*        MESSAGE "Invalid Release#"  */
-/*            VIEW-AS ALERT-BOX ERROR.*/
         RETURN.
     END.    
 
     IF NOT LOGICAL(oReleaseHeader:GetValue("Printed")) THEN DO:
         RUN pStatusMessage ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS NOT PRINTED", 3).
-/*        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is not printed"*/
-/*            VIEW-AS ALERT-BOX ERROR.                                                    */
         RETURN.
     END.
 
     IF LOGICAL(oReleaseHeader:GetValue("Posted")) THEN DO:
         RUN pStatusMessage ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS ALREADY POSTED", 3).
-/*        MESSAGE "Release# '" + oReleaseHeader:GetValue("ReleaseID") + "' is already posted"*/
-/*            VIEW-AS ALERT-BOX ERROR.                                                       */
         RETURN.
     END.
-
+    
     iReleaseID = INTEGER(oReleaseHeader:GetValue("ReleaseID")).
     
     {methods/run_link.i "REL-ITEMS-SOURCE" "BuildReleaseItems" "(INPUT cCompany, INPUT iReleaseID)"}
     {methods/run_link.i "REL-TAGS-SOURCE" "BuildReleaseTags" "(INPUT cCompany, INPUT iReleaseID)"}
     
     ASSIGN
-        fiTag:SCREEN-VALUE     = ""
-        fiTrailer:SCREEN-VALUE = ""
+        fiTag:SCREEN-VALUE        = ""
+        fiTrailerTag:SCREEN-VALUE = ""
         .
     
     APPLY "ENTRY":U TO fiTag.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScanReleaseTrailer W-Win 
+PROCEDURE pScanReleaseTrailer PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStatuseMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid          AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+            
+    ASSIGN
+        fiTag:SENSITIVE                     = TRUE
+        fiTrailerTag:SENSITIVE              = TRUE
+        fiTrailerRelease:SENSITIVE          = FALSE
+        btnKeyboardTrailerRelease:SENSITIVE = FALSE        
+        btnKeyboardTrailer:SENSITIVE        = TRUE
+        btnKeyboardTag:SENSITIVE            = TRUE
+        btChange:HIDDEN                     = FALSE
+        btChange:SENSITIVE                  = TRUE
+        btReset:SENSITIVE                   = TRUE
+        .
+
+    {methods/run_link.i "RELEASE-SOURCE" "DisableRelease"}
+        
+    RUN pScanRelease. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1155,23 +1367,19 @@ PROCEDURE pScanTag PRIVATE :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
-    DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
     
     {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT oReleaseHeader)"}
     
     iReleaseID = INTEGER(oReleaseHeader:GetValue("ReleaseID")).
     
-    {methods/run_link.i "REL-TAGS-SOURCE" "CreateReleaseTag" "(INPUT cCompany, INPUT iReleaseID, INPUT fiTag:SCREEN-VALUE, INPUT fiTrailer:SCREEN-VALUE, OUTPUT lError, OUTPUT cMessage)"}
+    {methods/run_link.i "REL-TAGS-SOURCE" "CreateReleaseTag" "(INPUT cCompany, INPUT iReleaseID, INPUT fiTag:SCREEN-VALUE, INPUT fiTrailerRelease:SCREEN-VALUE, INPUT fiTrailerTag:SCREEN-VALUE, OUTPUT lError, OUTPUT cMessage)"}
 
     IF lError THEN DO:
         RUN pStatusMessage (cMessage, 3).
-/*        MESSAGE cMessage        */
-/*        VIEW-AS ALERT-BOX ERROR.*/
         
         ASSIGN
-            fiTag:SCREEN-VALUE     = ""
-            fiTrailer:SCREEN-VALUE = ""
+            fiTag:SCREEN-VALUE        = ""
+            fiTrailerTag:SCREEN-VALUE = ""
             .
 
         APPLY "ENTRY" TO fiTag.
@@ -1186,6 +1394,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateTrailer W-Win 
+PROCEDURE pValidateTrailer PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTrailerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cStatusMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+    
+    IF ipcTrailerID NE "" THEN DO:
+        lValid = oTrailer:SetContext(cCompany, ipcTrailerID).
+        
+        IF NOT lValid THEN DO:
+            RUN pStatusMessage("Invalid Trailer '" + ipcTrailerID + "'", 3).
+            RETURN ERROR.
+        END.
+        
+        {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT oReleaseHeader)"}
+        
+        IF ipcTrailerID NE oReleaseHeader:GetValue("Trailer") THEN DO:
+            cStatusMessage = "TRAILER '" + ipcTrailerID + "' DOES NOT MATCH RELEASE TRAILER '" + oReleaseHeader:GetValue("Trailer") + "'".
+            IF gcSSReleaseTrailerValidation EQ "Error" THEN DO:
+                RUN pStatusMessage(cStatusMessage, 3).
+                RETURN ERROR.
+            END.
+            ELSE IF gcSSReleaseTrailerValidation EQ "Warning" THEN DO:
+                RUN pStatusMessage(cStatusMessage, 2).
+            END.
+        END.
+    END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidRelease W-Win 
 PROCEDURE pValidRelease PRIVATE :
 /*------------------------------------------------------------------------------
@@ -1195,12 +1440,27 @@ PROCEDURE pValidRelease PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.    
     
+    IF lShowTrailerRelease THEN DO:
+        fiTrailerRelease:SENSITIVE = TRUE.
+
+        {methods/run_link.i "RELEASE-SOURCE" "GetReleaseID" "(OUTPUT oReleaseHeader)"}
+        
+        IF VALID-OBJECT (oReleaseHeader) THEN
+            fiTrailerRelease:SCREEN-VALUE = oReleaseHeader:GetValue("Trailer").
+                                 
+        RETURN.
+    END.
+        
     ASSIGN
-        fiTag:SENSITIVE     = TRUE
-        fiTrailer:SENSITIVE = TRUE
-        btChange:HIDDEN     = FALSE
-        btChange:SENSITIVE  = TRUE
-        btReset:SENSITIVE   = TRUE
+        fiTag:SENSITIVE                     = TRUE
+        fiTrailerTag:SENSITIVE              = TRUE
+        fiTrailerRelease:SENSITIVE          = FALSE
+        btnKeyboardTag:SENSITIVE            = TRUE
+        btnKeyboardTrailer:SENSITIVE        = TRUE
+        btnKeyboardTrailerRelease:SENSITIVE = FALSE        
+        btChange:HIDDEN                     = FALSE
+        btChange:SENSITIVE                  = TRUE
+        btReset:SENSITIVE                   = TRUE
         .
 
     {methods/run_link.i "RELEASE-SOURCE" "DisableRelease"}
@@ -1244,8 +1504,10 @@ PROCEDURE pWinReSize :
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
+            btnSettings:COL                    = dCol - 40
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
+        RUN set-position IN h_setting ( 1.00 , btnSettings:COL + 18 ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
@@ -1344,8 +1606,8 @@ PROCEDURE state-changed :
         p-state        = ENTRY(1,p-state,"|")
         .
     CASE p-state:
-        WHEN "Status-Message" THEN
-        RUN pStatusMessage (cStatusMessage, iStatusMessage).
+        WHEN "release-error" THEN
+            RUN pReleaseError.
         WHEN "release-invalid" THEN DO:
             RUN pInValidRelease.
         END.

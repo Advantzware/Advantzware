@@ -34,8 +34,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
 DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+DEFINE VARIABLE oKeyboard      AS system.Keyboard  NO-UNDO.
 
 oReleaseHeader = NEW oe.ReleaseHeader().
 
@@ -178,24 +182,16 @@ END.
 
 &Scoped-define SELF-NAME fiRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* RELEASE */
-DO:
-    IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
-        APPLY "HELP" TO SELF.
-        
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" OR KEY-LABEL(LASTKEY) EQ "TAB" THEN
-        APPLY "LEAVE" TO SELF.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
 ON ENTRY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     SELF:SET-SELECTION ( 1, -1).    
     SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN DO:
+        oKeyboard:FocusField = SELF.    
+        
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
+    END.      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,12 +233,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
 ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
-    IF LASTKEY NE -1 OR SELF:SCREEN-VALUE NE "" THEN
+    IF (LASTKEY NE -1 OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
         RUN pReleaseScan.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
+ON TAB OF fiRelease IN FRAME F-Main /* RELEASE */
+DO:
+    APPLY "LEAVE" TO SELF.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -341,6 +348,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseMessageAndType s-object 
+PROCEDURE GetReleaseMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -367,7 +392,12 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,6 +412,11 @@ PROCEDURE pReleaseScan :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
     
     RUN new-state (
         INPUT "release-invalid"
@@ -397,30 +432,40 @@ PROCEDURE pReleaseScan :
     INTEGER(fiRelease:SCREEN-VALUE) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            cStatusMessage     = "INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'"
+            iStatusMessageType = 3
+            .
         RUN new-state (
-            "Status-Message|INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'|3"
+            "release-error"
             ).
-/*        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"*/
-/*            VIEW-AS ALERT-BOX ERROR.                                */
-        RETURN.
-    
+
+        RETURN.    
     END.
             
     oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
     
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
+        ASSIGN
+            cStatusMessage     = "INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'"
+            iStatusMessageType = 3
+            .
         RUN new-state (
-            "Status-Message|INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'|3"
+            "release-error"
             ).
-/*        MESSAGE "Invalid release # '" + fiRelease:SCREEN-VALUE + "'"*/
-/*            VIEW-AS ALERT-BOX ERROR.                                */
+
         RETURN.
     END.
     
     RUN new-state (
         INPUT "release-valid"
         ).    
-            
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+                    
     SELF:BGCOLOR = 15.
 
 END PROCEDURE.

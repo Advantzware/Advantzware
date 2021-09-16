@@ -42,8 +42,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE gcBOLQtyPopup AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
 
 {sharpshooter/ttReleaseTag.i}
 
@@ -454,35 +459,21 @@ PROCEDURE CreateReleaseTag :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTrailerID AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.   
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReleaseTrailerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTagTrailerID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError            AS LOGICAL   NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO. 
 
-    DEFINE VARIABLE lBOLQtyPopup        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRtnChar            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidateQtyExceed  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSelectReleaseQty   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPromptQtySelection AS LOGICAL   NO-UNDO.
-    
-    RUN sys/ref/nk1look.p(
-        INPUT  ipcCompany,
-        INPUT  "BOLQtyPopup", 
-        INPUT  "L",     /* Logical */
-        INPUT  NO,      /* check by cust */
-        INPUT  NO,      /* use cust not vendor */
-        INPUT  "",      /* cust */
-        INPUT  "",      /* ship-to*/
-        OUTPUT cRtnChar,
-        OUTPUT lRecFound
-        ).
-    IF lRecFound THEN
-        lBOLQtyPopup = cRtnChar EQ "YES". 
 
-    IF lBOLQtyPopup THEN
+    IF gcBOLQtyPopup EQ "Prompt" THEN
         ASSIGN
             lValidateQtyExceed = TRUE
             lSelectReleaseQty  = FALSE
@@ -490,22 +481,28 @@ PROCEDURE CreateReleaseTag :
     ELSE
         ASSIGN
             lValidateQtyExceed = FALSE
-            lSelectReleaseQty  = FALSE
+            lSelectReleaseQty  = IF gcBOLQtyPopup EQ "Release" THEN
+                                     TRUE
+                                 ELSE IF gcBOLQtyPopup EQ "Pallet" THEN
+                                     FALSE
+                                 ELSE
+                                     FALSE
             .
-                    
+            
     RUN CreateReleaseTag IN hdReleaseProcs (
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcTag,
-        INPUT  ipcTrailerID,
+        INPUT  ipcReleaseTrailerID,
+        INPUT  ipcTagTrailerID,
         INPUT  lValidateQtyExceed,
         INPUT  lSelectReleaseQty,
         OUTPUT oplError,   
         OUTPUT opcMessage
         ).    
     
-    /* Prompt only if NK1 BOLQtyPopop is yes and scanned quantity exceeded release quantity */
-    lPromptQtySelection = system.SharedConfig:Instance:ConsumeValue("ReleaseProcs_QuantityExceededPrompt") EQ "TRUE" AND oplError AND lBOLQtyPopup.
+    /* Prompt only if SSBOLQtyPopup is "Prompt" and scanned quantity exceeded release quantity */
+    lPromptQtySelection = system.SharedConfig:Instance:ConsumeValue("ReleaseProcs_QuantityExceededPrompt") EQ "TRUE" AND oplError AND gcBOLQtyPopup EQ "Prompt".
     
     /* Have to send a prompt to user to choose a full pallet quantity or release quantity */
     IF lPromptQtySelection THEN DO:
@@ -521,7 +518,8 @@ PROCEDURE CreateReleaseTag :
             INPUT  ipcCompany,
             INPUT  ipiReleaseID,
             INPUT  ipcTag,
-            INPUT  ipcTrailerID,
+            INPUT  ipcReleaseTrailerID,
+            INPUT  ipcTagTrailerID,
             INPUT  FALSE, /* Validate if quantity exceeded */
             INPUT  lSelectReleaseQty,
             OUTPUT oplError,   
@@ -640,8 +638,16 @@ PROCEDURE pInit PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    
     RUN oe/ReleaseProcs.p PERSISTENT SET hdReleaseProcs.
     
+    {methods/run_link.i "CONTAINER-SOURCE" "GetSettings" "(OUTPUT oSetting)"}
+    IF NOT VALID-OBJECT (oSetting) THEN
+        oSetting = NEW system.Setting().    
+    
+    gcBOLQtyPopup = oSetting:GetByName("SSBOLQtyPopup").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
