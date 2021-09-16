@@ -561,6 +561,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnFirst AT ROW 22.67 COL 126 HELP
+          "First" WIDGET-ID 274
      Task.taskID AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 504 FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
@@ -615,6 +617,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek4 AT ROW 6.48 COL 83 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
+     btnLast AT ROW 22.71 COL 150 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfWeek5 AT ROW 6.48 COL 101 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
@@ -702,6 +706,8 @@ DEFINE FRAME viewFrame
           LABEL "17"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 22.67 COL 142 HELP
+          "Next" WIDGET-ID 276
      Task.dayOfMonth[18] AT ROW 9.81 COL 59 WIDGET-ID 552
           LABEL "18"
           VIEW-AS TOGGLE-BOX
@@ -843,6 +849,11 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.prgmName AT ROW 25.05 COL 62 COLON-ALIGNED WIDGET-ID 512
+          LABEL "Program"
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
+          BGCOLOR 15 
      cPrgmTitle AT ROW 25.05 COL 95 COLON-ALIGNED WIDGET-ID 616
      Task.module AT ROW 25.05 COL 149 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
@@ -1723,6 +1734,9 @@ END.
 &ANALYZE-RESUME
 
 
+
+
+
 &Scoped-define FRAME-NAME optionsFrame
 &Scoped-define SELF-NAME searchBar
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar C-Win
@@ -2020,12 +2034,15 @@ PROCEDURE pAssign :
             Task.subjectID
             Task.paramValueID
             Task.taskID
-            Task.taskTime = fConvertTime(Task.cTaskTime)
-            Task.fromTime = fConvertTime(Task.cFromTime)
-            Task.toTime   = fConvertTime(Task.cToTime)
-            Task.nextTime = fConvertTime(Task.cNextTime)
-            Task.lastTime = fConvertTime(Task.cLastTime)
-            Task.allData  = fAllData()
+            Task.taskTime   = fConvertTime(Task.cTaskTime)
+            Task.fromTime   = fConvertTime(Task.cFromTime)
+            Task.toTime     = fConvertTime(Task.cToTime)
+            Task.nextTime   = fConvertTime(Task.cNextTime)
+            Task.lastTime   = fConvertTime(Task.cLastTime)
+            Task.allData    = fAllData()
+            Task.recipients = REPLACE(Task.recipients,";",",")
+            Task.recipients = REPLACE(Task.recipients," ","")
+            Task.recipients = REPLACE(Task.recipients,CHR(10),"")
             .
         CASE Task.frequency:
             WHEN "Every" OR WHEN "Daily" THEN DO:

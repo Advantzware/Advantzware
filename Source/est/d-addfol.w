@@ -129,7 +129,7 @@ DEFINE BUTTON Btn_est-new-mold AUTO-GO
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_est-rel AUTO-GO 
-     LABEL "Logistics Estimate" 
+     LABEL "Distribution Estimate" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 

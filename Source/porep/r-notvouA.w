@@ -58,6 +58,7 @@ def var v-cost      like po-ordl.cost   no-undo.
 DEF STREAM excel.
 DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD po-no AS INT
+    FIELD po-line    AS INTEGER
     FIELD vend-no AS CHAR FORMAT "X(6)"
     FIELD gl-acct LIKE po-ordl.actnum
     FIELD date-rec AS DATE
@@ -65,6 +66,7 @@ DEF TEMP-TABLE temp-po-rec NO-UNDO
     FIELD descr   AS CHAR FORMAT "X(15)"
     FIELD prod-cat AS CHAR
     FIELD qty-to-inv AS DEC format "->>,>>>,>>9.9"
+    FIELD qty-uom AS CHARACTER
     FIELD whse AS CHAR
     FIELD cost-each AS DEC format ">>>,>>9.99<<<<"
     FIELD amt-to-inv AS DEC format "->>,>>>,>>9.99"
@@ -80,6 +82,8 @@ DEF TEMP-TABLE tt-neg-po-line NO-UNDO
     FIELD rcp-date AS DATE
     FIELD amt AS DEC DECIMALS 2
     INDEX po-no po-no i-no.
+
+{api/ttReceipt.i}
 
 form temp-po-rec.vend-no    COLUMN-LABEL "Vendor"
                             FORMAT "X(6)"
@@ -991,6 +995,47 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    
+    IF NOT TEMP-TABLE ttReceipt:HAS-RECORDS THEN
+        RETURN.
+        
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+                            
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+        INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "",                                                 /* Scope ID */
+        INPUT  "",                                                 /* Scoped Type */
+        INPUT  "UpdateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+        OUTPUT lSuccess,                                           /* Success/Failure flag */
+        OUTPUT cMessage                                            /* Status message */
+        ) NO-ERROR.
+        
+    EMPTY TEMP-TABLE ttReceipt.
+        
+    DELETE PROCEDURE hdOutboundProcs. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 {sys/form/r-topw.f}
@@ -1007,6 +1052,8 @@ DEF VAR fvend   AS CHAR NO-UNDO.
 DEF VAR tvend   AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1156,15 +1203,39 @@ display "" with frame r-top.
            ASSIGN
               temp-po-rec.vend-no = v-vend-no
               temp-po-rec.po-no = po-ordl.po-no
+              temp-po-rec.po-line = po-ordl.line
               temp-po-rec.gl-acct = po-ordl.actnum
               temp-po-rec.date-rec = v-date
               temp-po-rec.item-no = po-ordl.i-no
               temp-po-rec.descr = po-ordl.i-name  
               temp-po-rec.prod-cat = v-procat
               temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
+              temp-po-rec.qty-uom = po-ordl.pr-uom
               temp-po-rec.whse = po-ord.loc
               temp-po-rec.cost-each = v-cost
               temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
+
+           FIND FIRST ttReceipt
+                WHERE ttReceipt.poID   EQ po-ordl.po-no
+                  AND ttReceipt.poLine EQ po-ordl.line
+                NO-ERROR.
+           IF NOT AVAILABLE ttReceipt THEN DO:
+                CREATE ttReceipt.
+                ASSIGN
+                    iCount                 = iCount + 1
+                    ttReceipt.lineID       = iCount
+                    ttReceipt.company      = po-ordl.company
+                    ttReceipt.location     = po-ord.loc
+                    ttReceipt.poID         = po-ordl.po-no
+                    ttReceipt.poLine       = po-ordl.line
+                    ttReceipt.itemID       = po-ordl.i-no
+                    ttReceipt.itemName     = IF po-ordl.i-name EQ "" THEN po-ordl.i-no ELSE po-ordl.i-name
+                    ttReceipt.quantityUOM  = po-ordl.pr-uom
+                    .
+           END.
+           
+           ttReceipt.quantity = ttReceipt.quantity + temp-po-rec.qty-to-inv.
+                                  
            RELEASE temp-po-rec.
          end.
       END.
@@ -1217,6 +1288,8 @@ END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
+RUN pRunAPIOutboundTrigger.
+
 SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -1246,6 +1319,8 @@ DEF VAR tvend   AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR ll-neg-inv-found AS LOG NO-UNDO.
 DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
@@ -1483,12 +1558,14 @@ display "" with frame r-top.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
                   temp-po-rec.po-no = po-ordl.po-no
+                  temp-po-rec.po-line = po-ordl.line
                   temp-po-rec.gl-acct = po-ordl.actnum
                   temp-po-rec.date-rec = v-date
                   temp-po-rec.item-no = po-ordl.i-no
                   temp-po-rec.descr = po-ordl.i-name  
                   temp-po-rec.prod-cat = v-procat
                   temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
+                  temp-po-rec.qty-uom = po-ordl.pr-uom
                   temp-po-rec.whse = po-ord.loc
                   temp-po-rec.cost-each = v-cost
                   temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
@@ -1533,12 +1610,14 @@ display "" with frame r-top.
                      ASSIGN
                         temp-po-rec.vend-no = v-vend-no
                         temp-po-rec.po-no = po-ordl.po-no
+                        temp-po-rec.po-line = po-ordl.line
                         temp-po-rec.gl-acct = po-ordl.actnum
                         temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                         temp-po-rec.item-no = po-ordl.i-no
                         temp-po-rec.descr = po-ordl.i-name  
                         temp-po-rec.prod-cat = v-procat
                         temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+                        temp-po-rec.qty-uom = po-ordl.pr-uom
                         temp-po-rec.whse = po-ord.loc
                         temp-po-rec.cost-each = tt-neg-po-line.amt / tt-neg-po-line.qty
                         temp-po-rec.amt-to-inv =  tt-neg-po-line.amt.
@@ -1588,12 +1667,14 @@ display "" with frame r-top.
                   ASSIGN
                      temp-po-rec.vend-no = v-vend-no
                      temp-po-rec.po-no = po-ordl.po-no
+                     temp-po-rec.po-line = po-ordl.line
                      temp-po-rec.gl-acct = po-ordl.actnum
                      temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                      temp-po-rec.item-no = po-ordl.i-no
                      temp-po-rec.descr = po-ordl.i-name  
                      temp-po-rec.prod-cat = v-procat
                      temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+                     temp-po-rec.qty-uom = po-ordl.pr-uom
                      temp-po-rec.whse = po-ord.loc
                      temp-po-rec.cost-each = tt-neg-po-line.amt / tt-neg-po-line.qty
                      temp-po-rec.amt-to-inv =  tt-neg-po-line.amt.
@@ -1642,12 +1723,14 @@ display "" with frame r-top.
                ASSIGN
                   temp-po-rec.vend-no = v-vend-no
                   temp-po-rec.po-no = po-ordl.po-no
+                  temp-po-rec.po-line    = po-ordl.line
                   temp-po-rec.gl-acct = po-ordl.actnum
                   temp-po-rec.date-rec = tt-neg-po-line.rcp-date
                   temp-po-rec.item-no = po-ordl.i-no
                   temp-po-rec.descr = po-ordl.i-name  
                   temp-po-rec.prod-cat = v-procat
                   temp-po-rec.qty-to-inv = tt-neg-po-line.qty
+                  temp-po-rec.qty-uom = po-ordl.pr-uom
                   temp-po-rec.whse = po-ord.loc
                   temp-po-rec.cost-each = tt-neg-po-line.amt / tt-neg-po-line.qty
                   temp-po-rec.amt-to-inv =  tt-neg-po-line.amt.
@@ -1658,6 +1741,29 @@ display "" with frame r-top.
          END.
       END.
   end.  /* For each po-ordl */
+
+FOR EACH temp-po-rec:
+    FIND FIRST ttReceipt
+         WHERE ttReceipt.poID   EQ temp-po-rec.po-no
+           AND ttReceipt.poLine EQ temp-po-rec.po-line
+         NO-ERROR.
+    IF NOT AVAILABLE ttReceipt THEN DO:
+         CREATE ttReceipt.
+         ASSIGN
+             iCount                 = iCount + 1
+             ttReceipt.lineID       = iCount
+             ttReceipt.company      = cocode
+             ttReceipt.location     = temp-po-rec.whse
+             ttReceipt.poID         = temp-po-rec.po-no
+             ttReceipt.poLine       = temp-po-rec.po-line
+             ttReceipt.itemID       = temp-po-rec.item-no
+             ttReceipt.itemName     = IF temp-po-rec.descr EQ "" THEN temp-po-rec.item-no ELSE temp-po-rec.descr
+             ttReceipt.quantityUOM  = temp-po-rec.qty-uom
+             .
+    END.
+    
+    ttReceipt.quantity = ttReceipt.quantity + temp-po-rec.qty-to-inv.
+END.
 
 IF rd_sort = "Vendor" THEN
    FOR EACH temp-po-rec
@@ -1704,6 +1810,8 @@ IF tb_excel THEN DO:
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
+RUN pRunAPIOutboundTrigger.
 
 SESSION:SET-WAIT-STATE ("").
 

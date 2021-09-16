@@ -3800,7 +3800,8 @@ PROCEDURE ipDataFix210400:
     RUN ipStatus ("  Data Fix 210400...").
 
     RUN ipSetOT1Permissions.
-    
+    RUN ipFixFoldingEstimateScores.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -4345,6 +4346,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFoldingEstimateScores C-Win
+PROCEDURE ipFixFoldingEstimateScores PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
+
+    RUN ipStatus ("    Fix Estimate scores").
+
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bf-company     FOR company.
+    DEFINE BUFFER bf-style       FOR style.
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+        
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
+    FOR EACH bf-company NO-LOCK:        
+        FOR EACH bf-panelheader NO-LOCK 
+            WHERE bf-panelHeader.company  EQ bf-company.company 
+              AND bf-panelHeader.linktype EQ "P",                      /* PO only */
+            FIRST bf-style NO-LOCK 
+            WHERE bf-style.company  EQ bf-panelHeader.company 
+              AND bf-style.style    EQ bf-panelHeader.styleID 
+              AND bf-style.industry EQ "1":                            /* Folding estimates */
+            RUN DeletePanelDetailsForPO IN hdFormulaProcs (
+                INPUT bf-panelHeader.company,
+                INPUT bf-panelHeader.poID,
+                INPUT bf-panelHeader.poLine
+                ).            
+        END.   
+    END.
+    
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
+    DELETE PROCEDURE hdFormulaProcs.
+    
+    PROPATH = cOrigPropath.    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 

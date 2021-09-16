@@ -54,9 +54,38 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR v-signature AS cha FORM "x(100)" NO-UNDO.
 
-ASSIGN ls-image1 = "images\cccpo.jpg"
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN 
+DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+        "fFormatFilePath",
+        cRtnChar
+        ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN 
+    DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN 
+    ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO.

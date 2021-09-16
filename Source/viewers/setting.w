@@ -66,6 +66,8 @@ DEFINE VARIABLE cRecordSource    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE rittSetting      AS ROWID     NO-UNDO.
 DEFINE VARIABLE lRecordAvailable AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalledProgram   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lProgramEdit     AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
@@ -90,16 +92,16 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-3 RECT-4 edSettingDesc ~
-slCategoryTags btnCopy-2 btnDelete-2 btnUpdate-2 
-&Scoped-Define DISPLAYED-OBJECTS fiRecordSource fiSettingName edSettingDesc ~
-fiSettingValue cbSettingValue tbInactive fiSettingUser tbCurrentUser ~
-fiProgramID slCategoryTags cbScopeTable fiScopeField1 fiScopeField2 ~
-fiScopeField3 
+&Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-3 RECT-4 slCategoryTags ~
+edSettingDesc btnCopy-2 btnDelete-2 btnUpdate-2 
+&Scoped-Define DISPLAYED-OBJECTS fiRecordSource cbScopeTable fiScopeField1 ~
+fiScopeField2 fiScopeField3 fiSettingValue cbSettingValue tbInactive ~
+fiSettingUser tbCurrentUser fiProgramID tbCurrentProgram slCategoryTags ~
+fiSettingName edSettingDesc 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ENABLED-FIELDS,List-4,List-5,List-6 */
-&Scoped-define ENABLED-FIELDS edSettingDesc tbInactive cbScopeTable 
+&Scoped-define ENABLED-FIELDS cbScopeTable tbInactive edSettingDesc 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,12 +183,12 @@ DEFINE VARIABLE cbSettingValue AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE edSettingDesc AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 52 BY 4 NO-UNDO.
+     SIZE 9.2 BY 1.14 NO-UNDO.
 
 DEFINE VARIABLE fiProgramID AS CHARACTER FORMAT "X(256)":U 
      LABEL "Program" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 21.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiRecordSource AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -210,7 +212,7 @@ DEFINE VARIABLE fiScopeField3 AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiSettingName AS CHARACTER FORMAT "X(256)":U 
      LABEL "Name" 
      VIEW-AS FILL-IN 
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 3 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiSettingUser AS CHARACTER FORMAT "X(256)":U 
      LABEL "User" 
@@ -224,7 +226,7 @@ DEFINE VARIABLE fiSettingValue AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 70 BY 15.43.
+     SIZE 70 BY 5.19.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -237,7 +239,12 @@ DEFINE RECTANGLE transPanel-3
 
 DEFINE VARIABLE slCategoryTags AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 52 BY 4.95 NO-UNDO.
+     SIZE 6.2 BY 1.86 NO-UNDO.
+
+DEFINE VARIABLE tbCurrentProgram AS LOGICAL INITIAL no 
+     LABEL "Apply for this program" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29.8 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbCurrentUser AS LOGICAL INITIAL no 
      LABEL "Apply this for me only" 
@@ -253,42 +260,37 @@ DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnAdd-2 AT ROW 23.24 COL 20.2 HELP
+     btnAdd-2 AT ROW 13.19 COL 20.2 HELP
           "Add" WIDGET-ID 46
      fiRecordSource AT ROW 1.14 COL 1.4 NO-LABEL WIDGET-ID 60
-     fiSettingName AT ROW 2.48 COL 16 COLON-ALIGNED WIDGET-ID 2
-     edSettingDesc AT ROW 3.67 COL 17.8 NO-LABEL WIDGET-ID 32
-     fiSettingValue AT ROW 7.95 COL 16 COLON-ALIGNED WIDGET-ID 8
-     cbSettingValue AT ROW 7.95 COL 16 COLON-ALIGNED WIDGET-ID 12
-     tbInactive AT ROW 9.1 COL 18 WIDGET-ID 16
-     fiSettingUser AT ROW 10.05 COL 15.8 COLON-ALIGNED WIDGET-ID 28
-     tbCurrentUser AT ROW 10.05 COL 41.4 WIDGET-ID 68
-     fiProgramID AT ROW 11.24 COL 15.8 COLON-ALIGNED WIDGET-ID 30
-     slCategoryTags AT ROW 12.48 COL 17.8 NO-LABEL WIDGET-ID 62
-     btnCancel-2 AT ROW 23.24 COL 52.2 HELP
+     cbScopeTable AT ROW 2.52 COL 15.8 COLON-ALIGNED WIDGET-ID 18
+     fiScopeField1 AT ROW 3.71 COL 15.8 COLON-ALIGNED WIDGET-ID 20
+     fiScopeField2 AT ROW 4.95 COL 15.8 COLON-ALIGNED WIDGET-ID 22
+     fiScopeField3 AT ROW 6.19 COL 15.8 COLON-ALIGNED WIDGET-ID 24
+     fiSettingValue AT ROW 7.62 COL 15.8 COLON-ALIGNED WIDGET-ID 8
+     cbSettingValue AT ROW 7.62 COL 16 COLON-ALIGNED WIDGET-ID 12
+     tbInactive AT ROW 8.76 COL 18 WIDGET-ID 16
+     fiSettingUser AT ROW 9.71 COL 15.8 COLON-ALIGNED WIDGET-ID 28
+     tbCurrentUser AT ROW 9.71 COL 40.2 WIDGET-ID 68
+     fiProgramID AT ROW 10.91 COL 15.8 COLON-ALIGNED WIDGET-ID 30
+     tbCurrentProgram AT ROW 11 COL 40.2 WIDGET-ID 70
+     slCategoryTags AT ROW 12.67 COL 4 NO-LABEL WIDGET-ID 62
+     btnCancel-2 AT ROW 13.19 COL 52.2 HELP
           "Cancel" WIDGET-ID 48
-     btnCopy-2 AT ROW 23.24 COL 28.2 HELP
+     fiSettingName AT ROW 12.91 COL 65 COLON-ALIGNED WIDGET-ID 2
+     edSettingDesc AT ROW 14.57 COL 2 NO-LABEL WIDGET-ID 32
+     btnCopy-2 AT ROW 13.19 COL 28.2 HELP
           "Copy" WIDGET-ID 50
-     cbScopeTable AT ROW 18.05 COL 15.8 COLON-ALIGNED WIDGET-ID 18
-     fiScopeField1 AT ROW 19.24 COL 15.8 COLON-ALIGNED WIDGET-ID 20
-     btnDelete-2 AT ROW 23.24 COL 36.2 HELP
+     btnDelete-2 AT ROW 13.19 COL 36.2 HELP
           "Delete" WIDGET-ID 52
-     btnReset-2 AT ROW 23.24 COL 44.2 HELP
+     btnReset-2 AT ROW 13.19 COL 44.2 HELP
           "Reset" WIDGET-ID 54
-     fiScopeField2 AT ROW 20.48 COL 15.8 COLON-ALIGNED WIDGET-ID 22
-     btnUpdate-2 AT ROW 23.24 COL 12.2 HELP
+     btnUpdate-2 AT ROW 13.19 COL 12.2 HELP
           "Update/Save" WIDGET-ID 56
-     fiScopeField3 AT ROW 21.71 COL 15.8 COLON-ALIGNED WIDGET-ID 24
-     "Tags:" VIEW-AS TEXT
-          SIZE 6.6 BY .62 AT ROW 13.24 COL 11.2 WIDGET-ID 66
-     "Category" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 12.57 COL 6.4 WIDGET-ID 64
-     "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 3.62 COL 3.8 WIDGET-ID 34
-     RECT-3 AT ROW 2.24 COL 1 WIDGET-ID 4
-     RECT-4 AT ROW 17.71 COL 1 WIDGET-ID 26
-     transPanel-3 AT ROW 23.05 COL 11.2 WIDGET-ID 58
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+     RECT-3 AT ROW 7.43 COL 1 WIDGET-ID 4
+     RECT-4 AT ROW 2.19 COL 1 WIDGET-ID 26
+     transPanel-3 AT ROW 13 COL 11.2 WIDGET-ID 58
+    WITH 1 DOWN NO-BOX NO-HIDE KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FONT 6 WIDGET-ID 100.
@@ -343,7 +345,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   FRAME-NAME Size-to-Fit                                               */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -362,6 +364,7 @@ ASSIGN
 /* SETTINGS FOR EDITOR edSettingDesc IN FRAME F-Main
    3                                                                    */
 ASSIGN 
+       edSettingDesc:HIDDEN IN FRAME F-Main           = TRUE
        edSettingDesc:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiProgramID IN FRAME F-Main
@@ -385,12 +388,23 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiSettingName IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiSettingName:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiSettingUser IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSettingValue IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
        fiSettingValue:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       slCategoryTags:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tbCurrentProgram IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       tbCurrentProgram:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tbCurrentUser IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -644,6 +658,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tbCurrentProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbCurrentProgram V-table-Win
+ON VALUE-CHANGED OF tbCurrentProgram IN FRAME F-Main /* Apply for this program */
+DO:
+    IF SELF:CHECKED THEN
+        fiProgramID:SCREEN-VALUE = cCalledProgram.
+    ELSE
+        fiProgramID:SCREEN-VALUE = "".    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tbCurrentUser
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbCurrentUser V-table-Win
 ON VALUE-CHANGED OF tbCurrentUser IN FRAME F-Main /* Apply this for me only */
@@ -712,6 +740,23 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AllowProgramIDEditable V-table-Win
+PROCEDURE AllowProgramIDEditable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF cCalledProgram NE "" THEN
+        lProgramEdit = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -796,8 +841,37 @@ PROCEDURE pCRUD :
             WHEN "Add" OR 
             WHEN "Copy" OR 
             WHEN "Update" THEN DO:
+                IF iphMode:LABEL EQ "Add" THEN DO:
+                    /* Add logic goes here. Call a lookup to copy setting */
+                    {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
+                    IF lError THEN
+                        RETURN NO-APPLY.
+                        
+                    ENABLE tbCurrentUser.
+                    IF lProgramEdit THEN
+                        ENABLE tbCurrentProgram.
+                        
+                    DISABLE btnReset-2.
+                END. /* add */
+                ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
+                    APPLY "ENTRY":U TO edSettingDesc.
+                END.
+                ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
+                    /* Add logic goes here. Call a lookup to copy setting */
+                    {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
+                    IF lError THEN
+                        RETURN NO-APPLY.
+                        
+                    ENABLE tbCurrentUser.
+                    IF lProgramEdit THEN
+                        ENABLE tbCurrentProgram.
+                    
+                    DISABLE btnReset-2.
+                END. /* add */
+                                                
                 {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
-
+                RUN new-state ("record-update-begin").
+                
                 cMode = iphMode:LABEL.
                 
                 ENABLE btnUpdate-2 btnReset-2 btnCancel-2.
@@ -817,26 +891,7 @@ PROCEDURE pCRUD :
                 
                 btnUpdate-2:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
 
-                btnUpdate-2:LABEL = "Save".
-            
-                IF iphMode:LABEL EQ "Add" THEN DO:
-                    /* Add logic goes here. Call a lookup to copy setting */
-                    {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
-                    
-                    ENABLE tbCurrentUser.
-                    
-                    DISABLE btnReset-2.
-                END. /* add */
-                ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
-                    APPLY "ENTRY":U TO edSettingDesc.
-                END.
-                ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
-                    {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
-                    
-                    ENABLE tbCurrentUser.
-                     
-                    DISABLE btnReset-2.
-                END.
+                btnUpdate-2:LABEL = "Save".           
             END. /* add copy update */
             WHEN "Cancel" OR 
             WHEN "Save" THEN DO:
@@ -881,7 +936,11 @@ PROCEDURE pCRUD :
                 ENABLE btnAdd-2 btnCopy-2 btnDelete-2.
                 DISABLE btnReset-2 btnCancel-2 .
                 
-                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}   
+                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}  
+                RUN new-state ("record-update-end"). 
+
+                RUN pUpdateFields.
+                RUN pUpdatePanel.
             END. /* cancel save */
             WHEN "Delete" THEN DO:
                 IF lRecordAvailable THEN DO:
@@ -895,6 +954,9 @@ PROCEDURE pCRUD :
                             RETURN NO-APPLY.                        
                     END. /* if lcontinue */
                 END. /* if avail */
+                
+                RUN pUpdateFields.
+                RUN pUpdatePanel.
             END. /* delete */
             WHEN "Reset" THEN DO:
                 RUN pUpdateFields.
@@ -924,7 +986,18 @@ PROCEDURE pInit :
         OUTPUT cUser
         ).
 
-    oSetting = NEW system.Setting().        
+    {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}
+    
+    IF NOT VALID-OBJECT (oSetting) THEN
+        oSetting = NEW system.Setting().     
+    
+    cCalledProgram = oSetting:CurrentProgramHotkey.
+    
+    RUN pUpdateFields.
+        
+    RUN pUpdatePanel.
+    
+    FRAME {&FRAME-NAME}:TOP-ONLY = TRUE.       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,6 +1035,8 @@ PROCEDURE pUpdateFields :
             slCategoryTags:LIST-ITEMS   = ""
             tbCurrentUser:CHECKED       = FALSE
             tbCurrentUser:HIDDEN        = TRUE
+            tbCurrentProgram:CHECKED    = FALSE
+            tbCurrentProgram:HIDDEN     = TRUE
             lRecordAvailable            = FALSE
             .
         
@@ -1050,6 +1125,8 @@ PROCEDURE pUpdatePanel PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdSettingBuffer   AS HANDLE    NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
         IF lRecordAvailable AND cRecordSource EQ "New" AND (cMode EQ "Add" OR cMode EQ "Copy") THEN DO:            
             DISABLE btnAdd-2 btnReset-2 btnCopy-2 btnDelete-2.
@@ -1057,7 +1134,7 @@ PROCEDURE pUpdatePanel PRIVATE :
             RETURN.
         END.
         
-        DISABLE btnUpdate-2 btnCancel-2 btnDelete-2 btnReset-2 btnCopy-2.
+        DISABLE btnAdd-2 btnUpdate-2 btnCancel-2 btnDelete-2 btnReset-2 btnCopy-2.
     
         IF lRecordAvailable THEN DO:
             ENABLE btnAdd-2 btnCopy-2.
@@ -1066,8 +1143,13 @@ PROCEDURE pUpdatePanel PRIVATE :
             IF cRecordSource NE "SettingType" THEN
                 ENABLE btnUpdate-2 btnDelete-2.
         END.
-        ELSE 
-            ENABLE btnAdd-2.
+        ELSE DO:
+            {methods/run_link.i "Setting-SOURCE" "GetSetting" "(OUTPUT hdSettingBuffer)"}
+        
+            IF VALID-HANDLE(hdSettingBuffer) AND hdSettingBuffer:AVAILABLE THEN
+                ENABLE btnAdd-2.
+        
+        END.
     END.
 END PROCEDURE.
 

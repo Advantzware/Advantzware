@@ -1,10 +1,10 @@
 /* oe/rep/ack3cpak.i */
 
 PUT "<FCourier New>"   /*<R+8>*/
-    "<C9><R1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP. 
+    "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. 
     /*"<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP.  regular */
            
-PUT "<=1><C3><R+9><P10>"  /*bigger address */
+PUT "<=1><C3><R+8><P10>"  /*bigger address */
     /*"<P10>"  /*regular font*/ */
     SKIP(1)
    "Bill To:" AT 6 /*SPACE(57) "Ship To:" */ SKIP

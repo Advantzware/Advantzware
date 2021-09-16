@@ -1737,10 +1737,18 @@ PROCEDURE spSendEmail:
         ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.      
           
     ASSIGN
-        ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
-        ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
-        ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
-        ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
+        ipcRecipientsSendTO  = REPLACE(ipcRecipientsSendTO,";",",")
+        ipcRecipientsSendTO  = REPLACE(ipcRecipientsSendTO," ","")
+        ipcRecipientsSendTO  = REPLACE(ipcRecipientsSendTO,CHR(10),"")
+        ipcRecipientsSendCC  = REPLACE(ipcRecipientsSendCC,";",",")
+        ipcRecipientsSendCC  = REPLACE(ipcRecipientsSendCC," ","")
+        ipcRecipientsSendCC  = REPLACE(ipcRecipientsSendCC,CHR(10),"")
+        ipcRecipientsSendBCC = REPLACE(ipcRecipientsSendBCC,";",",")
+        ipcRecipientsSendBCC = REPLACE(ipcRecipientsSendBCC," ","")
+        ipcRecipientsSendBCC = REPLACE(ipcRecipientsSendBCC,CHR(10),"")
+        ipcRecipientsReplyTo = REPLACE(ipcRecipientsReplyTo,";",",")
+        ipcRecipientsReplyTo = REPLACE(ipcRecipientsReplyTo," ","")
+        ipcRecipientsReplyTo = REPLACE(ipcRecipientsReplyTo,CHR(10),"")
         .            
        
     /* If value for input body is null, then gets value from emailConfig table */

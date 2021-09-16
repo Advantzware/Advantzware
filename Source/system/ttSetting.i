@@ -17,14 +17,17 @@ DEFINE {1} TEMP-TABLE ttSetting NO-UNDO
     FIELD validValueMax   AS CHARACTER LABEL "Maximum Valid Value"
     FIELD programID       AS CHARACTER LABEL "Program"
     FIELD scopeID         AS INT64     LABEL "Scope ID"
-    FIELD inactive        AS LOGICAL   LABEL "Status"
+    FIELD inactive        AS LOGICAL   LABEL "Status" FORMAT "Inactive/Active"
     FIELD settingUser     AS CHARACTER LABEL "User"
     FIELD scopeTable      AS CHARACTER LABEL "Scope Type"
     FIELD scopeField1     AS CHARACTER LABEL "Scope Field 1"
     FIELD scopeField2     AS CHARACTER LABEL "Scope Field 2"
     FIELD scopeField3     AS CHARACTER LABEL "Scope Field 3"
-    FIELD recordSource    AS CHARACTER 
+    FIELD recordSource    AS CHARACTER
+    FIELD priorityID      AS INTEGER 
+    FIELD allData         AS CHARACTER
     INDEX settingID IS PRIMARY settingID
+    INDEX settingOrder settingName priorityID DESCENDING inactive programID DESCENDING settingUser DESCENDING   
     INDEX settingType settingTypeID settingID settingUser scopeTable scopeField1 scopeField2 scopeField3
     INDEX recordSource recordSource
     .

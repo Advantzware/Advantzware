@@ -353,6 +353,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pBuildttMenuTree.
   RUN pDisplayMenuTree-1 (FRAME menuTreeFrame:HANDLE, "{&parentMenu}").
   RUN pSetMenuTitle ("{&parentMenu}").
+  APPLY "ENTRY":U TO svFocus.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
