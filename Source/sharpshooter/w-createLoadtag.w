@@ -58,6 +58,7 @@ DEFINE VARIABLE oJobHeader          AS jc.JobHeader       NO-UNDO.
 DEFINE VARIABLE oItemFG             AS fg.ItemFG          NO-UNDO.
 DEFINE VARIABLE oCustomer           AS Inventory.Customer NO-UNDO.
 DEFINE VARIABLE oLoadTag            AS Inventory.Loadtag  NO-UNDO.
+DEFINE VARIABLE oSetting            AS system.Setting     NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
@@ -67,6 +68,7 @@ DEFINE VARIABLE giDefaultPrintCopies         AS INTEGER NO-UNDO INITIAL 1.
 DEFINE VARIABLE giNK1PrintCopies             AS INTEGER NO-UNDO INITIAL 1.
     
 oCustomer = NEW Inventory.Customer().
+oSetting = NEW system.Setting().
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,6 +116,7 @@ DEFINE VARIABLE h_fgfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_qtyunits AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_userfields AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -204,7 +207,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -462,6 +464,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 193.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -516,6 +526,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_userfields ).
        RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
        /* Size in UIB:  ( 9.19 , 68.00 ) */
+
+       /* Links to SmartObject h_qtyunits. */
+       RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_printcopies. */
        RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
@@ -775,6 +788,20 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (INPUT oSetting).    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
