@@ -132,7 +132,7 @@ DEFINE RECTANGLE RECT-1
      SIZE 67 BY 3.57.
 
 DEFINE VARIABLE tb_cpyall AS LOGICAL INITIAL yes 
-     LABEL "Copy View Item Costs?" 
+     LABEL "Copy Standard Costs?" 
      VIEW-AS TOGGLE-BOX
      SIZE 65.6 BY .81 NO-UNDO.
 
