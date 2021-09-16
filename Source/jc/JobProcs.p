@@ -1106,6 +1106,28 @@ PROCEDURE GetJobHdrDetails:
                                 
 END PROCEDURE.
 
+PROCEDURE getLastActivity:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLastActivity AS CHARACTER NO-UNDO.
+        
+    FIND FIRST mch-act NO-LOCK 
+         WHERE mch-act.company EQ ipcCompany
+           AND mch-act.job-no  EQ ipcJobno
+           AND mch-act.job-no2 EQ ipiJobno2
+           NO-ERROR.
+    IF AVAILABLE mch-act AND mch-act.complete THEN
+    ASSIGN
+         opcLastActivity  = "Posted".
+    ELSE opcLastActivity = "Unposted".     
+                                         
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fAddSpacesToString RETURNS CHARACTER 

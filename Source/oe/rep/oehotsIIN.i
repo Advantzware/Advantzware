@@ -17,7 +17,9 @@
    DEF VAR v-comp-qty         AS INT                  NO-UNDO.
    DEF VAR v-line             AS CHAR FORM "x(50)"    NO-UNDO.
    DEF VAR v-line2            AS CHAR FORMAT "x(13)"  NO-UNDO INITIAL "Comments</B>". 
-
+   DEF VAR cFullJobNo         AS CHAR FORM "x(15)"    NO-UNDO.
+   DEF VAR cLastAction        AS CHAR FORM "x(15)"    NO-UNDO.
+   
    ASSIGN 
       v-line  = "<C1><FROM><C107><LINE><||3>"
       v-line2 = IF rd_lComments THEN "Comments</B>" ELSE "Style Test</B>".
