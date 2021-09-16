@@ -1154,7 +1154,7 @@ do transaction on error undo with width 255:
           FIND FIRST edmast NO-LOCK
               WHERE edmast.cust EQ ar-inv.cust-no
               NO-ERROR.
-          IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:
+          IF AVAILABLE edmast AND NOT ar-inv.ediInvoice THEN DO:
               FIND FIRST eddoc NO-LOCK
                 WHERE eddoc.setid EQ '810'
                   AND eddoc.partner EQ edmast.partner
