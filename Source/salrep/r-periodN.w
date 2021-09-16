@@ -643,11 +643,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             IF tb_detailed THEN 
                             DO:
-                                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                             END.
                             ELSE 
                             DO:
-                                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
+                                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
                             END.
                         END.
                     END.
