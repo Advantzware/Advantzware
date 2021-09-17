@@ -595,7 +595,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    SELF:SET-SELECTION (1, -1).      
+    SELF:SET-SELECTION (1, -1).
     ASSIGN
         fiTrailerTag:BGCOLOR = 15
         SELF:BGCOLOR         = 30
@@ -1166,15 +1166,12 @@ PROCEDURE pInit :
         oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
         
         ASSIGN
-            gcScanTrailer = oSetting:GetByName("SSCreateBOLScanTrailer")                      
-            gcSSBOLPrint  = oSetting:GetByName("SSCreateBOLPrint")
-            gcSSReleaseTrailerValidation = oSetting:GetByName("SSCreateBOLTrailerValidation")
-            glShowKeyboard               = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-            gcShowFGItemInquiry          = oSetting:GetByName("ShowFGItemInquiry")
-            gcShowSettings               = oSetting:GetByName("ShowSettings")
-            .
-            
-        ASSIGN
+            gcScanTrailer                     = oSetting:GetByName("SSCreateBOLScanTrailer")                      
+            gcSSBOLPrint                      = oSetting:GetByName("SSCreateBOLPrint")
+            gcSSReleaseTrailerValidation      = oSetting:GetByName("SSCreateBOLTrailerValidation")
+            glShowKeyboard                    = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+            gcShowFGItemInquiry               = oSetting:GetByName("ShowFGItemInquiry")
+            gcShowSettings                    = oSetting:GetByName("ShowSettings")
             lShowTrailerTag                   = gcScanTrailer EQ "Tag" OR gcScanTrailer EQ "Both"
             lShowTrailerRelease               = gcScanTrailer EQ "Release" OR gcScanTrailer EQ "Both"
             fiTrailerTag:VISIBLE              = lShowTrailerTag

@@ -181,6 +181,7 @@ DEFINE BROWSE ttBrowseInventory
     ttBrowseInventory.quantityAllocated WIDTH 35 COLUMN-LABEL "Qty Committed" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityAvailable WIDTH 35 COLUMN-LABEL "Qty Available" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityBackOrder WIDTH 35 COLUMN-LABEL "Qty BackOrder" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 179 BY 26.91
