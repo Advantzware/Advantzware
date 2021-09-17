@@ -970,7 +970,8 @@ PROCEDURE fg-post:
                 
           IF LAST-OF(w-fg-rctd.i-no) AND fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
             lAnyJobCloses = YES.                  
-       END.
+       END.  
+       RUN pCheckIssueMaterial(INPUT job.company, INPUT job.job-no, INPUT job.job-no2, INPUT-OUTPUT lAnyJobCloses).
        IF NOT lAnyJobCloses THEN DELETE w-job.  
     END.
     
@@ -1637,6 +1638,50 @@ PROCEDURE pCloseJobs:
         DELETE w-job.
     END.
 
+END PROCEDURE.
+
+PROCEDURE pCheckIssueMaterial:
+/* --------------------------------------------------                         */
+/* Job Costing - Close Job logic for API                                      */
+/* -------------------------------------------------------------------------- */
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplCloseJob AS LOGICAL NO-UNDO.
+       
+    IF NOT ioplCloseJob THEN RETURN.
+    DEFINE VARIABLE lClose AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCheckClose AS LOGICAL NO-UNDO.
+           
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company EQ ipcCompany
+          AND job-mat.job-no EQ ipcJobNo 
+          AND job-mat.job-no2 EQ ipiJobNo2            
+          AND job-mat.all-flg EQ NO       
+          USE-INDEX seq-idx,
+          FIRST item
+          WHERE item.company    EQ job-mat.company
+            AND item.i-no       EQ job-mat.i-no
+            AND index("BPR",item.mat-type) gt 0
+          NO-LOCK:
+
+          RUN displayMessageQuestionLOG ("71", OUTPUT lClose). 
+          lCheckClose = YES.
+          LEAVE.                  
+    END.
+    IF lCheckClose THEN
+    ioplCloseJob = lClose.
+    
+    IF lCheckClose AND NOT lClose THEN
+    DO:
+        RUN AddTagInfo (
+                INPUT ipcJobNo + "-" + STRING(ipiJobNo2,"99"),
+                INPUT "JobNO",
+                INPUT ipcJobNo + "-" + STRING(ipiJobNo2,"99") + " - Materials not issued, job left open",
+                INPUT ""
+                ). /*From TagProcs Super Proc*/          
+    END.
+    
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
