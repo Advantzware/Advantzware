@@ -22,8 +22,7 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
       OUTPUT iWarehouseLength
       ).
   
-  IF NOT (ipcSVName = "VendXfer" OR
-     ipcSVName = "CustXfer" OR  ipcSVName = "ORDERXFER")
+  IF NOT (ipcSVName = "ORDERXFER")
   THEN DO: 
       /* valid-char-fld.i */
 
