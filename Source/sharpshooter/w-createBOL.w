@@ -67,10 +67,12 @@ DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
 DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
 DEFINE VARIABLE oTrailer       AS ar.Truck         NO-UNDO.
 
-oSetting = NEW system.Setting().
-oLoadTag = NEW Inventory.LoadTag().
-oKeyboard = NEW system.Keyboard().
-oTrailer = NEW ar.Truck().
+ASSIGN
+    oSetting  = NEW system.Setting()
+    oLoadTag  = NEW Inventory.LoadTag()
+    oKeyboard = NEW system.Keyboard()
+    oTrailer  = NEW ar.Truck()
+    .
 
 oSetting:LoadByCategoryAndProgram("SSCreateBOL").
 
@@ -597,7 +599,7 @@ DO:
         SELF:BGCOLOR         = 30
         .
     
-    oKeyboard:OpenKeyboard (SELF, "Qwerty").  
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -791,7 +793,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 7.19 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst ( 8.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -799,7 +801,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 9.33 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev ( 10.29 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -807,7 +809,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 11.24 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 12.19 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -815,16 +817,16 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 13.14 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 14.10 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-releasetags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_b-releasetags ).
-       RUN set-position IN h_b-releasetags ( 16.81 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releasetags ( 15.00 , 193.00 ) NO-ERROR.
+       /* Position in AB:  ( 16.81 , 2.00 ) */
+       /* Size in UIB:  ( 15.00 , 193.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -886,7 +888,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatelast. */
        RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-LAST':U , h_navigatelast ).
 
-       /* Links to SmartBrowser h_b-releasetags. */
+       /* Links to  h_b-releasetags. */
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'REL-TAGS':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_navigatefirst-2. */
@@ -902,6 +904,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-LAST':U , h_navigatelast-2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailerTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
@@ -914,18 +918,12 @@ PROCEDURE adm-create-objects :
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releasetags ,
-             h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
-             h_b-releasetags , 'AFTER':U ).
+             h_navigatelast , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
              h_navigatefirst-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
-             h_navigateprev-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
              h_navigatenext-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
-             h_navigatelast-2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.

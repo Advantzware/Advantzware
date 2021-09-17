@@ -37,9 +37,13 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,7 +76,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mch.frm job-mch.blank-no job-mch.pass job-mch.m-code job-mch.mr-complete job-mch.run-complete job-mch.run-qty   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mch.frm job-mch.blank-no job-mch.pass job-mch.m-code job-mch.mr-complete job-mch.run-complete job-mch.run-qty cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-mch WHERE job-mch.company = job.company ~   AND job-mch.job = job.job ~   AND job-mch.job-no = job.job-no ~   AND job-mch.job-no2 = job.job-no2 ~ USE-INDEX line-idx NO-LOCK     ~{&SORTBY-PHRASE}
@@ -157,10 +161,11 @@ DEFINE BROWSE br_table
       job-mch.mr-complete FORMAT "YES/NO":U WIDTH 30 COLUMN-LABEL "MR Completed"
       job-mch.run-complete FORMAT "YES/NO":U WIDTH 30 COLUMN-LABEL "Run Completed"
       job-mch.run-qty FORMAT ">,>>>,>>9.9<<":U COLUMN-LABEL "Qty"
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 153 BY 17.19
-         FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */

@@ -37,28 +37,28 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdFGInquiry      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lHasAccess       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iTotalRcvd       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdPgmSecurity    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cEmptyColumn     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
-
-DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iTotalRcvd AS INTEGER NO-UNDO.
-
-DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
-RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
-
-DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
 RUN epCanAccess IN hdPgmSecurity (
     INPUT  "sharpshooter/b-fgInqBins.w", 
     INPUT  "", 
@@ -91,7 +91,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
+&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
@@ -192,10 +192,11 @@ DEFINE BROWSE br_table
       job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 25
       fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 30
       itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 30
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
-         FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 181 BY 18.48
+         FONT 19 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -204,7 +205,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

@@ -90,9 +90,9 @@ DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btClearRecords 
-     LABEL "Clear Records" 
-     SIZE 25 BY 1.38 TOOLTIP "Clear records"
-     FONT 36.
+     LABEL "CLEAR RECORDS" 
+     SIZE 32 BY 1.38 TOOLTIP "Clear records"
+     FONT 38.
 
 DEFINE BUTTON btPrint 
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U
@@ -119,7 +119,7 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
 
 DEFINE FRAME F-Main
      btPrint AT ROW 22.67 COL 185 WIDGET-ID 4
-     btClearRecords AT ROW 1.48 COL 140 WIDGET-ID 2 NO-TAB-STOP 
+     btClearRecords AT ROW 2.91 COL 127 WIDGET-ID 2 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 177 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 22.91 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnPrintText AT ROW 22.91 COL 164 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -127,7 +127,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 192 BY 23.76
-         BGCOLOR 21 FGCOLOR 15 FONT 36 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,7 +227,7 @@ END.
 
 &Scoped-define SELF-NAME btClearRecords
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClearRecords W-Win
-ON CHOOSE OF btClearRecords IN FRAME F-Main /* Clear Records */
+ON CHOOSE OF btClearRecords IN FRAME F-Main /* CLEAR RECORDS */
 DO:
     {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadTag"}  
 END.
@@ -319,23 +319,23 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_bolfilter ).
-       RUN set-position IN h_bolfilter ( 1.24 , 4.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.95 , 41.00 ) */
+       RUN set-position IN h_bolfilter ( 2.67 , 4.20 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 41.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 1.24 , 64.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.95 , 49.00 ) */
+       RUN set-position IN h_printcopies ( 2.67 , 61.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 49.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags ).
-       RUN set-position IN h_b-loadtags ( 3.24 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags ( 4.67 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-loadtags ( 15.05 , 182.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -343,7 +343,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 5.05 , 185.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst ( 6.48 , 185.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -351,7 +351,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 6.95 , 185.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev ( 8.38 , 185.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -359,7 +359,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 8.62 , 185.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 10.05 , 185.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -367,7 +367,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 10.52 , 185.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 11.95 , 185.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_bolfilter. */
@@ -507,9 +507,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
-PROCEDURE local-enable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -525,11 +524,9 @@ PROCEDURE local-enable:
   RUN pStatusMessage ("", 0).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :

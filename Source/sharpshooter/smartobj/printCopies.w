@@ -74,7 +74,7 @@ DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0
      LABEL "COPIES" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.38 TOOLTIP "Copies to print"
-     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 38 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -84,7 +84,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 21 FGCOLOR 15 FONT 36 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

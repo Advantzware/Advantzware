@@ -37,6 +37,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -44,20 +46,18 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
+DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lHasAccess     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdPgmSecurity  AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
-
-DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
-
 RUN epCanAccess IN hdPgmSecurity (
     INPUT  "sharpshooter/b-fgInqBins.w", 
     INPUT  "", 
     OUTPUT lHasAccess
-    ).
-    
+    ).    
 DELETE OBJECT hdPgmSecurity.
 
 /* _UIB-CODE-BLOCK-END */
@@ -91,7 +91,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty job-mat.qty-iss job-mat.qty-uom   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty job-mat.qty-iss job-mat.qty-uom cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK, ~
@@ -180,10 +180,11 @@ DEFINE BROWSE br_table
       job-mat.qty COLUMN-LABEL "Required" FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 27
       job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>9.99<<<<":U WIDTH 27
       job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
-         FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */

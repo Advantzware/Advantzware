@@ -168,17 +168,17 @@ DEFINE BUTTON btnNumPad
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnPage1  NO-FOCUS
-     LABEL "Detail" 
+     LABEL "DETAIL" 
      SIZE 18 BY 1.43
      FONT 38.
 
 DEFINE BUTTON btnPage2  NO-FOCUS
-     LABEL "Location" 
-     SIZE 18 BY 1.43
+     LABEL "LOCATION" 
+     SIZE 20 BY 1.43
      FONT 36.
 
 DEFINE BUTTON btnPage3  NO-FOCUS
-     LABEL "Bin" 
+     LABEL "BIN" 
      SIZE 18 BY 1.43
      FONT 36.
 
@@ -228,47 +228,47 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-34
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 2.14.
+     SIZE 59 BY 2.14.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnPage1 AT ROW 3.86 COL 118 WIDGET-ID 182
-     btnPage2 AT ROW 3.86 COL 137 WIDGET-ID 178
-     btnPage3 AT ROW 3.86 COL 156 WIDGET-ID 180
-     btItemHelp AT ROW 1.33 COL 82.6 WIDGET-ID 138 NO-TAB-STOP 
-     btItemNameHelp AT ROW 3.62 COL 82 WIDGET-ID 140 NO-TAB-STOP 
-     btLocHelp AT ROW 1.24 COL 151 WIDGET-ID 146 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.33 COL 90 WIDGET-ID 136 NO-TAB-STOP 
-     btnNumPad AT ROW 3.33 COL 178 WIDGET-ID 120 NO-TAB-STOP 
-     fiFGItem AT ROW 1.38 COL 30.4 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fiCustItem AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiLocation AT ROW 1.29 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 142
-     btnKeyboardLoc AT ROW 1.24 COL 158.6 WIDGET-ID 144 NO-TAB-STOP 
-     btnKeyboardItemName AT ROW 3.62 COL 89.6 WIDGET-ID 134 NO-TAB-STOP 
-     fiSellUOM AT ROW 1.24 COL 175 COLON-ALIGNED NO-LABEL WIDGET-ID 148 NO-TAB-STOP 
+     btnPage1 AT ROW 5.05 COL 118 WIDGET-ID 182
+     btnPage2 AT ROW 5.05 COL 137 WIDGET-ID 178
+     btnPage3 AT ROW 5.05 COL 157 WIDGET-ID 180
+     btItemHelp AT ROW 2.52 COL 82.6 WIDGET-ID 138 NO-TAB-STOP 
+     btItemNameHelp AT ROW 4.81 COL 82 WIDGET-ID 140 NO-TAB-STOP 
+     btLocHelp AT ROW 2.43 COL 151 WIDGET-ID 146 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 2.52 COL 90 WIDGET-ID 136 NO-TAB-STOP 
+     btnNumPad AT ROW 4.81 COL 178 WIDGET-ID 120 NO-TAB-STOP 
+     fiFGItem AT ROW 2.57 COL 30.4 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiCustItem AT ROW 4.81 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiLocation AT ROW 2.48 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 142
+     btnKeyboardLoc AT ROW 2.43 COL 158.6 WIDGET-ID 144 NO-TAB-STOP 
+     btnKeyboardItemName AT ROW 4.81 COL 89.6 WIDGET-ID 134 NO-TAB-STOP 
+     fiSellUOM AT ROW 2.43 COL 175 COLON-ALIGNED NO-LABEL WIDGET-ID 148 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnAdjustQtyText AT ROW 31.95 COL 169 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      btnAdjustQtyText-2 AT ROW 31.95 COL 169 COLON-ALIGNED NO-LABEL WIDGET-ID 184
      " View Inventory By" VIEW-AS TEXT
-          SIZE 21 BY .67 AT ROW 2.91 COL 119 WIDGET-ID 154
+          SIZE 21 BY .67 AT ROW 4.1 COL 119 WIDGET-ID 154
           BGCOLOR 21 FGCOLOR 15 FONT 22
      "FG ITEM:" VIEW-AS TEXT
-          SIZE 16 BY 1.1 AT ROW 1.48 COL 16 WIDGET-ID 166
+          SIZE 16 BY 1.1 AT ROW 2.67 COL 16 WIDGET-ID 166
           BGCOLOR 21 FGCOLOR 15 FONT 38
      "CUSTOMER PART:" VIEW-AS TEXT
-          SIZE 31 BY 1.1 AT ROW 3.86 COL 1 WIDGET-ID 168
+          SIZE 31 BY 1.1 AT ROW 5.05 COL 1 WIDGET-ID 168
           BGCOLOR 21 FGCOLOR 15 FONT 38
      "LOCATION:" VIEW-AS TEXT
-          SIZE 20.4 BY 1.1 AT ROW 1.48 COL 97.6 WIDGET-ID 170
+          SIZE 20.4 BY 1.1 AT ROW 2.67 COL 97.6 WIDGET-ID 170
           BGCOLOR 21 FGCOLOR 15 FONT 38
      "UOM:" VIEW-AS TEXT
-          SIZE 10.2 BY 1.1 AT ROW 1.48 COL 166 WIDGET-ID 172
+          SIZE 10.2 BY 1.1 AT ROW 2.67 COL 166 WIDGET-ID 172
           BGCOLOR 21 FGCOLOR 15 FONT 38
-     RECT-34 AT ROW 3.38 COL 117 WIDGET-ID 152
-     RECT-2 AT ROW 3.14 COL 177 WIDGET-ID 130
+     RECT-34 AT ROW 4.57 COL 117 WIDGET-ID 152
+     RECT-2 AT ROW 4.57 COL 177 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -532,7 +532,7 @@ END.
 
 &Scoped-define SELF-NAME btnPage1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPage1 W-Win
-ON CHOOSE OF btnPage1 IN FRAME F-Main /* Detail */
+ON CHOOSE OF btnPage1 IN FRAME F-Main /* DETAIL */
 DO:
     RUN select-page(1).
     ASSIGN
@@ -548,7 +548,7 @@ END.
 
 &Scoped-define SELF-NAME btnPage2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPage2 W-Win
-ON CHOOSE OF btnPage2 IN FRAME F-Main /* Location */
+ON CHOOSE OF btnPage2 IN FRAME F-Main /* LOCATION */
 DO:
     RUN select-page(2).
     ASSIGN
@@ -566,7 +566,7 @@ END.
 
 &Scoped-define SELF-NAME btnPage3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPage3 W-Win
-ON CHOOSE OF btnPage3 IN FRAME F-Main /* Bin */
+ON CHOOSE OF btnPage3 IN FRAME F-Main /* BIN */
 DO:
     RUN select-page(3).
     ASSIGN
@@ -929,15 +929,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-fginqbins ).
-       RUN set-position IN h_b-fginqbins ( 5.52 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqbins ( 25.95 , 192.80 ) NO-ERROR.
+       RUN set-position IN h_b-fginqbins ( 6.95 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqbins ( 24.52 , 192.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 8.38 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -945,7 +945,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 6.48 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst ( 7.67 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -953,7 +953,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 10.05 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext ( 11.24 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -961,7 +961,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 11.95 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_adjustqty. */
@@ -997,7 +997,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext-2 ).
-       RUN set-position IN h_navigatenext-2 ( 10.05 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext-2 ( 11.24 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1005,7 +1005,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast-2 ).
-       RUN set-position IN h_navigatelast-2 ( 11.95 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast-2 ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1013,7 +1013,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst-2 ).
-       RUN set-position IN h_navigatefirst-2 ( 6.48 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst-2 ( 7.67 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1021,15 +1021,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-fginqloc ).
-       RUN set-position IN h_b-fginqloc ( 5.52 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqloc ( 25.95 , 192.80 ) NO-ERROR.
+       RUN set-position IN h_b-fginqloc ( 6.95 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqloc ( 24.52 , 192.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev-2 ).
-       RUN set-position IN h_navigateprev-2 ( 8.38 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev-2 ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_adjustqty-2. */
@@ -1057,7 +1057,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast-3 ).
-       RUN set-position IN h_navigatelast-3 ( 11.95 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatelast-3 ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1065,7 +1065,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst-3 ).
-       RUN set-position IN h_navigatefirst-3 ( 6.48 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatefirst-3 ( 7.67 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1073,15 +1073,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-fginqlocbin ).
-       RUN set-position IN h_b-fginqlocbin ( 5.52 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqlocbin ( 25.95 , 192.80 ) NO-ERROR.
+       RUN set-position IN h_b-fginqlocbin ( 6.95 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqlocbin ( 24.52 , 192.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext-3 ).
-       RUN set-position IN h_navigatenext-3 ( 10.05 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigatenext-3 ( 11.24 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1089,7 +1089,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev-3 ).
-       RUN set-position IN h_navigateprev-3 ( 8.38 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_navigateprev-3 ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_navigatelast-3. */
@@ -1238,7 +1238,7 @@ PROCEDURE local-change-page :
             ASSIGN
                 dCol    = {&WINDOW-NAME}:WIDTH  - 8
                 dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
-                dWidth  = dCol - 2
+                dWidth  = dCol - 3
                 .
             RUN set-size IN h_b-fginqloc ( dHeight , dWidth ) NO-ERROR.
           END.
@@ -1260,7 +1260,7 @@ PROCEDURE local-change-page :
             ASSIGN
                 dCol    = {&WINDOW-NAME}:WIDTH  - 8
                 dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
-                dWidth  = dCol - 2
+                dWidth  = dCol - 3
                 .
             RUN set-size IN h_b-fginqlocbin ( dHeight , dWidth ) NO-ERROR.
           END.
@@ -1545,7 +1545,7 @@ PROCEDURE pWinReSize :
         RUN get-size IN h_b-fginqbins ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
         ASSIGN
             dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
-            dWidth  = dCol - 2
+            dWidth  = dCol - 3
             .
         RUN set-size IN h_b-fginqbins ( dHeight , dWidth ) NO-ERROR.
     END. /* do with */
