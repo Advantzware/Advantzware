@@ -83,12 +83,11 @@ CLASS system.Keyboard:
             FocusField = iphFocusField
             cFieldValue = FocusField:SCREEN-VALUE
             .
-MESSAGE FocusField:COL FocusField:ROW FocusField:FRAME:COL FocusField:FRAME:ROW
-VIEW-AS ALERT-BOX.
+
         IF VALID-HANDLE(hKeyboard) THEN
             RUN pSetPosition IN hKeyboard (
                 hdWindowHandle:COL + FocusField:FRAME:COL + FocusField:COL - 2,
-                hdWindowHandle:ROW + FocusField:FRAME:ROW + FocusField:ROW + 1.67
+                hdWindowHandle:ROW + FocusField:FRAME:ROW + FocusField:ROW + 1
                 ).
     
     END METHOD.

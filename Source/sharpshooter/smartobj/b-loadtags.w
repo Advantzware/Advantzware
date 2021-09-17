@@ -170,11 +170,11 @@ DEFINE BROWSE br_table
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
-      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 40
       ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
+      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 15
+      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 15
+      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 15
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
@@ -333,6 +333,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -827,9 +828,6 @@ PROCEDURE PrintTTLoadTags :
         ).
     
     SESSION:SET-WAIT-STATE("").
-    
-    MESSAGE "Printing complete!"
-        VIEW-AS ALERT-BOX INFORMATION.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

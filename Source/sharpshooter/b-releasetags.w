@@ -215,7 +215,7 @@ DEFINE BROWSE br_table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+         FONT 36 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -358,6 +358,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -647,7 +648,7 @@ PROCEDURE pInit PRIVATE :
     IF NOT VALID-OBJECT (oSetting) THEN
         oSetting = NEW system.Setting().    
     
-    gcBOLQtyPopup = oSetting:GetByName("SSBOLQtyPopup").
+    gcBOLQtyPopup = oSetting:GetByName("SSBOLQuantitySelection").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

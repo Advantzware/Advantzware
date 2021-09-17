@@ -44,6 +44,9 @@ CREATE WIDGET-POOL.
 // {system/sysconst.i}
 {wip/keyboardDefs.i}
 
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
@@ -74,6 +77,18 @@ DEFINE VARIABLE lLocBinsQueryRan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 &SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.tag
 
+DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcShowAdjustQuantity  AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
+DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
+
+oSetting  = NEW system.Setting().
+oKeyboard = NEW system.Keyboard().
+
+oSetting:LoadByCategoryAndProgram("SSFGInquiry").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -94,9 +109,10 @@ DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS btnPage1 btnPage2 btnPage3 btItemHelp ~
 btItemNameHelp btLocHelp btnKeyboardItem btnNumPad fiFGItem fiCustItem ~
 fiLocation btnKeyboardLoc btnKeyboardItemName btnExitText btnAdjustQtyText ~
-btnAdjustQtyText-2 
+btnAdjustQtyText-2 btClear btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiFGItem fiCustItem fiLocation fiSellUOM ~
-btnExitText statusMessage btnAdjustQtyText btnAdjustQtyText-2 
+btnExitText statusMessage btnAdjustQtyText btnAdjustQtyText-2 btnClearText ~
+btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,8 +146,15 @@ DEFINE VARIABLE h_navigatenext-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
+
 DEFINE BUTTON btItemHelp 
      IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -192,9 +215,19 @@ DEFINE VARIABLE btnAdjustQtyText-2 AS CHARACTER FORMAT "X(256)":U INITIAL "ADJUS
      SIZE 24 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
       VIEW-AS TEXT 
      SIZE 8 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE fiCustItem AS CHARACTER FORMAT "X(256)":U 
@@ -249,9 +282,12 @@ DEFINE FRAME F-Main
      btnKeyboardItemName AT ROW 4.81 COL 89.6 WIDGET-ID 134 NO-TAB-STOP 
      fiSellUOM AT ROW 2.43 COL 175 COLON-ALIGNED NO-LABEL WIDGET-ID 148 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
-     statusMessage AT ROW 31.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     statusMessage AT ROW 31.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      btnAdjustQtyText AT ROW 31.95 COL 169 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      btnAdjustQtyText-2 AT ROW 31.95 COL 169 COLON-ALIGNED NO-LABEL WIDGET-ID 184
+     btClear AT ROW 3.19 COL 194.8 WIDGET-ID 186
+     btnClearText AT ROW 3.38 COL 182 NO-LABEL WIDGET-ID 188
+     btnSettingsText AT ROW 31.95 COL 141.6 NO-LABEL WIDGET-ID 190
      " View Inventory By" VIEW-AS TEXT
           SIZE 21 BY .67 AT ROW 4.1 COL 119 WIDGET-ID 154
           BGCOLOR 21 FGCOLOR 15 FONT 22
@@ -282,7 +318,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -337,6 +372,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
        btnAdjustQtyText-2:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
 ASSIGN 
@@ -348,6 +385,8 @@ ASSIGN
 ASSIGN 
        btnKeyboardLoc:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiSellUOM IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
@@ -396,6 +435,28 @@ DO:
         
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    RUN pStatusMessage ("", 0).
+    
+    RUN pClearRecords.
+    
+    ASSIGN
+        fiFGItem:SCREEN-VALUE   = ""
+        fiCustItem:SCREEN-VALUE = ""
+        fiLocation:SCREEN-VALUE = ""
+        fiSellUOM:SCREEN-VALUE  = ""
+        .
+    
+    APPLY "ENTRY" TO fiFGItem.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,6 +512,18 @@ END.
 ON MOUSE-SELECT-CLICK OF btnAdjustQtyText-2 IN FRAME F-Main
 DO:
     RUN AdjustQuantity IN h_b-fginqloc.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -576,6 +649,18 @@ DO:
         .
     IF NOT lLocBinsQueryRan THEN
         RUN pScanItem.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+DO:
+    RUN OpenSetting.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -904,6 +989,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 31.76 , 160.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -911,17 +1004,20 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_exit ( 1.00 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              fiFGItem:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_adjustqty ).
-       RUN set-position IN h_adjustqty ( 31.71 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -933,11 +1029,11 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-fginqbins ( 24.52 , 192.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 9.57 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatelast ).
+       RUN set-position IN h_navigatelast ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -957,21 +1053,21 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 13.14 , 195.00 ) NO-ERROR.
+             OUTPUT h_adjustqty ).
+       RUN set-position IN h_adjustqty ( 31.71 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_adjustqty. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
+       /* Links to SmartObject h_navigateprev. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-PREV':U , h_navigateprev ).
 
        /* Links to SmartBrowser h_b-fginqbins. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Bins':U , h_b-fginqbins ).
 
-       /* Links to SmartObject h_navigateprev. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-PREV':U , h_navigateprev ).
+       /* Links to SmartObject h_navigatelast. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-LAST':U , h_navigatelast ).
 
        /* Links to SmartObject h_navigatefirst. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-FIRST':U , h_navigatefirst ).
@@ -979,41 +1075,18 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatenext. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-NEXT':U , h_navigatenext ).
 
-       /* Links to SmartObject h_navigatelast. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'NAV-LAST':U , h_navigatelast ).
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqbins , 'ADJUST':U , h_adjustqty ).
+       RUN add-link IN adm-broker-hdl ( h_adjustqty , 'ADJUST':U , THIS-PROCEDURE ).
 
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_adjustqty-2 ).
-       RUN set-position IN h_adjustqty-2 ( 31.71 , 195.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatenext-2 ).
-       RUN set-position IN h_navigatenext-2 ( 11.24 , 195.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatelast-2 ).
-       RUN set-position IN h_navigatelast-2 ( 13.14 , 195.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatefirst-2 ).
-       RUN set-position IN h_navigatefirst-2 ( 7.67 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigateprev-2 ).
+       RUN set-position IN h_navigateprev-2 ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1025,39 +1098,80 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-fginqloc ( 24.52 , 192.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_navigateprev-2 ).
-       RUN set-position IN h_navigateprev-2 ( 9.57 , 195.00 ) NO-ERROR.
+             OUTPUT h_navigatelast-2 ).
+       RUN set-position IN h_navigatelast-2 ( 13.14 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_adjustqty-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'ADJUST':U , h_adjustqty-2 ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext-2 ).
+       RUN set-position IN h_navigatenext-2 ( 11.24 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_navigatenext-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-NEXT':U , h_navigatenext-2 ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty-2 ).
+       RUN set-position IN h_adjustqty-2 ( 31.71 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_navigatelast-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-LAST':U , h_navigatelast-2 ).
-
-       /* Links to SmartObject h_navigatefirst-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-FIRST':U , h_navigatefirst-2 ).
-
-       /* Links to SmartBrowser h_b-fginqloc. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatefirst-2 ).
+       RUN set-position IN h_navigatefirst-2 ( 7.67 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartObject h_navigateprev-2. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-PREV':U , h_navigateprev-2 ).
 
+       /* Links to SmartBrowser h_b-fginqloc. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Loc':U , h_b-fginqloc ).
+
+       /* Links to SmartObject h_navigatelast-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-LAST':U , h_navigatelast-2 ).
+
+       /* Links to SmartObject h_navigatenext-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-NEXT':U , h_navigatenext-2 ).
+
+       /* Links to SmartObject h_adjustqty-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'ADJUST':U , h_adjustqty-2 ).
+       RUN add-link IN adm-broker-hdl ( h_adjustqty-2 , 'ADJUST-2':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_navigatefirst-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqloc , 'NAV-FIRST':U , h_navigatefirst-2 ).
+
     END. /* Page 2 */
     WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/b-fginqlocbin.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-fginqlocbin ).
+       RUN set-position IN h_b-fginqlocbin ( 6.95 , 2.20 ) NO-ERROR.
+       RUN set-size IN h_b-fginqlocbin ( 24.52 , 192.80 ) NO-ERROR.
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast-3 ).
        RUN set-position IN h_navigatelast-3 ( 13.14 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext-3 ).
+       RUN set-position IN h_navigatenext-3 ( 11.24 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1069,22 +1183,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/b-fginqlocbin.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-fginqlocbin ).
-       RUN set-position IN h_b-fginqlocbin ( 6.95 , 2.20 ) NO-ERROR.
-       RUN set-size IN h_b-fginqlocbin ( 24.52 , 192.80 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatenext-3 ).
-       RUN set-position IN h_navigatenext-3 ( 11.24 , 195.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -1092,17 +1190,17 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigateprev-3 ( 9.57 , 195.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_navigatelast-3. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-LAST':U , h_navigatelast-3 ).
-
-       /* Links to SmartObject h_navigatefirst-3. */
-       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-FIRST':U , h_navigatefirst-3 ).
-
        /* Links to SmartBrowser h_b-fginqlocbin. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'LocBin':U , h_b-fginqlocbin ).
 
+       /* Links to SmartObject h_navigatelast-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-LAST':U , h_navigatelast-3 ).
+
        /* Links to SmartObject h_navigatenext-3. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-NEXT':U , h_navigatenext-3 ).
+
+       /* Links to SmartObject h_navigatefirst-3. */
+       RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-FIRST':U , h_navigatefirst-3 ).
 
        /* Links to SmartObject h_navigateprev-3. */
        RUN add-link IN adm-broker-hdl ( h_b-fginqlocbin , 'NAV-PREV':U , h_navigateprev-3 ).
@@ -1173,12 +1271,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiFGItem fiCustItem fiLocation fiSellUOM btnExitText statusMessage 
-          btnAdjustQtyText btnAdjustQtyText-2 
+          btnAdjustQtyText btnAdjustQtyText-2 btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btnPage1 btnPage2 btnPage3 btItemHelp btItemNameHelp btLocHelp 
          btnKeyboardItem btnNumPad fiFGItem fiCustItem fiLocation 
          btnKeyboardLoc btnKeyboardItemName btnExitText btnAdjustQtyText 
-         btnAdjustQtyText-2 
+         btnAdjustQtyText-2 btClear btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1211,12 +1309,15 @@ PROCEDURE local-change-page :
 
   DO WITH FRAME {&FRAME-NAME}:
       CASE adm-current-page:
-          WHEN 1 THEN 
-          ASSIGN
-              btnAdjustQtyText:HIDDEN   = NO
-              btnAdjustQtyText-2:HIDDEN = YES
-              .
+          WHEN 1 THEN
+              IF INDEX(gcShowAdjustQuantity, "Text") GT 0 THEN 
+                  ASSIGN
+                      btnAdjustQtyText:HIDDEN   = NO
+                      btnAdjustQtyText-2:HIDDEN = YES
+                      .
           WHEN 2 THEN DO:
+            IF INDEX(gcShowAdjustQuantity, "Icon") EQ 0 THEN
+                {methods/run_link.i "ADJUST-2-SOURCE" "HideAdjustQuantity"}            
             RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dCol ) NO-ERROR.
             RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
             RUN get-position IN h_navigateprev ( OUTPUT dRow , OUTPUT dCol ) NO-ERROR.
@@ -1230,9 +1331,14 @@ PROCEDURE local-change-page :
             ASSIGN
                 btnAdjustQtyText-2:COL    = btnAdjustQtyText:COL
                 btnAdjustQtyText-2:ROW    = btnAdjustQtyText:ROW
-                btnAdjustQtyText:HIDDEN   = YES
-                btnAdjustQtyText-2:HIDDEN = NO
                 .
+
+            IF INDEX(gcShowAdjustQuantity, "Text") GT 0 THEN
+                ASSIGN        
+                    btnAdjustQtyText:HIDDEN   = YES
+                    btnAdjustQtyText-2:HIDDEN = NO
+                    .
+
             RUN get-position IN h_b-fginqloc ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
             RUN get-size IN h_b-fginqloc ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
             ASSIGN
@@ -1285,7 +1391,13 @@ PROCEDURE local-destroy :
 
     IF VALID-HANDLE(hdFGProcs) THEN
         DELETE PROCEDURE hdFGProcs.
-        
+
+    IF VALID-OBJECT (oSetting) THEN
+        DELETE OBJECT oSetting.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        DELETE OBJECT oKeyboard.
+              
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1334,6 +1446,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (oSetting).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearRecords W-Win 
 PROCEDURE pClearRecords :
 /*------------------------------------------------------------------------------
@@ -1363,7 +1489,10 @@ PROCEDURE pInit :
     DEFINE VARIABLE hdPgmSecurity    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cLoc             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
-    
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+        
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN spGetSessionParam ("Location", OUTPUT cLoc).
     RUN pStatusMessage ("", 0).
@@ -1375,7 +1504,33 @@ PROCEDURE pInit :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLoc.
+    
+    ASSIGN
+        glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+        gcShowSettings        = oSetting:GetByName("ShowSettings")
+        gcShowAdjustQuantity  = oSetting:GetByName("ShowAdjustQuantity")
+        .
 
+    ASSIGN        
+        btnKeyboardItem:VISIBLE     = glShowVirtualKeyboard
+        btnKeyboardItemName:VISIBLE = glShowVirtualKeyboard
+        btnKeyboardLoc:VISIBLE      = glShowVirtualKeyboard
+        btnNumPad:VISIBLE           = glShowVirtualKeyboard
+        RECT-2:VISIBLE              = glShowVirtualKeyboard        
+        btnSettingsText:VISIBLE     = INDEX(gcShowSettings, "Text") GT 0
+        btnAdjustQtyText:VISIBLE    = INDEX(gcShowAdjustQuantity, "Text") GT 0
+        btnAdjustQtyText-2:VISIBLE  = INDEX(gcShowAdjustQuantity, "Text") GT 0
+        .  
+        
+    IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+        {methods/run_link.i "Setting-SOURCE" "HideSettings"}    
+
+    IF INDEX(gcShowAdjustQuantity, "Icon") EQ 0 THEN
+        {methods/run_link.i "ADJUST-SOURCE" "HideAdjustQuantity"}   
+
+    IF INDEX(gcShowAdjustQuantity, "Icon") EQ 0 THEN
+        {methods/run_link.i "ADJUST-2-SOURCE" "HideAdjustQuantity"}  
+                            
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
@@ -1529,7 +1684,13 @@ PROCEDURE pWinReSize :
             btnExitText:COL                    = dCol - 9
             btnAdjustQtyText:COL               = dCol - btnAdjustQtyText:WIDTH - 1
             btnAdjustQtyText:ROW               = {&WINDOW-NAME}:HEIGHT - .86
+            btnClearText:COL                   = dCol - 12
+            btClear:COL                        = dCol
+            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                = btnAdjustQtyText:COL - btnSettingsText:WIDTH - 10
             .
+
+        RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
@@ -1597,6 +1758,19 @@ PROCEDURE send-records :
   /* SEND-RECORDS does nothing because there are no External
      Tables specified for this SmartWindow, and there are no
      tables specified in any contained Browse, Query, or Frame. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "ENTRY" TO fiFGItem IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 

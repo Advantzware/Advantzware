@@ -45,7 +45,16 @@ CREATE WIDGET-POOL.
 {inventory/ttBrowseInventory.i}
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
+{methods/template/brwcustomdef.i}
 
+DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
+
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE oSetting         AS system.Setting    NO-UNDO.
 DEFINE VARIABLE oLoadTag         AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE oFGBin           AS fg.FGBin          NO-UNDO.
 DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
@@ -65,7 +74,10 @@ ASSIGN
     oKeyboard = NEW system.Keyboard()
     oFGBin   = NEW fg.FGBin()
     oItemFG  = NEW fg.ItemFG()
+    oSetting = NEW system.Setting()
     .
+
+oSetting:LoadByCategoryAndProgram("SSFGReceiveTransfer").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -102,11 +114,11 @@ ASSIGN
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboardlOCATION fiTag btnKeyboardTAG ~
-btReset fiLocation btnNumPad btClearRecords btnFirst BROWSE-1 btnLast ~
-btnNext btnPrevious btExit btnExitText 
-&Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation fiMessage btnExitText ~
-statusMessage 
+&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation BROWSE-1 btReset ~
+btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast btnNext ~
+btnPrevious btExit btnExitText btnClearText btnSettingsText 
+&Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
+statusMessage btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,10 +149,15 @@ FUNCTION fGetInventoryStatus RETURNS CHARACTER
 /* Define the widget handle for the window                              */
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
+/* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
+
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btClearRecords 
-     LABEL "CLEAR RECORDS" 
-     SIZE 31 BY 1.38 TOOLTIP "Clear all the scanned data from grid".
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btExit AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
@@ -187,16 +204,27 @@ DEFINE BUTTON btPost
      SIZE 19 BY 1.43.
 
 DEFINE BUTTON btReset 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "RESET" 
-     SIZE 20 BY 1.48.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btTransfer 
      LABEL "TRANSFER" 
      SIZE 20 BY 1.43.
 
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
       VIEW-AS TEXT 
      SIZE 8 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
@@ -204,10 +232,6 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 71 BY 1.38
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
-
-DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 89 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "TAG" 
@@ -242,31 +266,32 @@ DEFINE BROWSE BROWSE-1
       ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 180 BY 20.95
-         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 180 BY 22.48
+         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnKeyboardlOCATION AT ROW 4.33 COL 93 WIDGET-ID 138 NO-TAB-STOP 
-     fiTag AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 4
-     btnKeyboardTAG AT ROW 2.67 COL 93 WIDGET-ID 144 NO-TAB-STOP 
-     btReset AT ROW 2.67 COL 100 WIDGET-ID 32 NO-TAB-STOP 
-     fiLocation AT ROW 4.33 COL 19 COLON-ALIGNED WIDGET-ID 6
-     btnNumPad AT ROW 2.86 COL 148 WIDGET-ID 120 NO-TAB-STOP 
+     btClear AT ROW 3.14 COL 182 WIDGET-ID 186
+     fiTag AT ROW 2.67 COL 19.8 COLON-ALIGNED WIDGET-ID 4
+     fiLocation AT ROW 4.33 COL 19.8 COLON-ALIGNED WIDGET-ID 6
      btTransfer AT ROW 4.33 COL 100 WIDGET-ID 8
-     fiMessage AT ROW 6 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     btPost AT ROW 6 COL 100 WIDGET-ID 20 NO-TAB-STOP 
-     btClearRecords AT ROW 6 COL 137 WIDGET-ID 28 NO-TAB-STOP 
+     btPost AT ROW 4.33 COL 121 WIDGET-ID 20 NO-TAB-STOP 
+     BROWSE-1 AT ROW 6.14 COL 2 WIDGET-ID 200
+     btReset AT ROW 2.52 COL 100 WIDGET-ID 32 NO-TAB-STOP 
+     btnKeyboardlOCATION AT ROW 4.33 COL 93 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardTAG AT ROW 2.67 COL 93 WIDGET-ID 144 NO-TAB-STOP 
+     btnNumPad AT ROW 2.86 COL 148 WIDGET-ID 120 NO-TAB-STOP 
      btnFirst AT ROW 8.38 COL 182 WIDGET-ID 44
-     BROWSE-1 AT ROW 7.67 COL 2 WIDGET-ID 200
      btnLast AT ROW 14.1 COL 182 WIDGET-ID 46
      btnNext AT ROW 12.19 COL 182 WIDGET-ID 42
      btnPrevious AT ROW 10.29 COL 182 WIDGET-ID 40
      btExit AT ROW 1 COL 182 WIDGET-ID 26 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 174 NO-LABEL WIDGET-ID 36
-     statusMessage AT ROW 28.86 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     btnClearText AT ROW 3.38 COL 169 NO-LABEL WIDGET-ID 188
+     statusMessage AT ROW 28.86 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     btnSettingsText AT ROW 29.05 COL 163 NO-LABEL WIDGET-ID 146
      RECT-2 AT ROW 2.67 COL 147 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -332,7 +357,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-1 btnFirst F-Main */
+/* BROWSE-TAB BROWSE-1 btPost F-Main */
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
 ASSIGN 
@@ -341,6 +368,8 @@ ASSIGN
 ASSIGN 
        btnKeyboardTAG:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR BUTTON btPost IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -351,8 +380,6 @@ ASSIGN
 ASSIGN 
        btTransfer:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
@@ -415,13 +442,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btClearRecords
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClearRecords W-Win
-ON CHOOSE OF btClearRecords IN FRAME F-Main /* CLEAR RECORDS */
+&Scoped-define BROWSE-NAME BROWSE-1
+&Scoped-define SELF-NAME BROWSE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
+ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
 DO:
+    {methods/template/brwrowdisplay.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    RUN pStatusMessage ("", 0).
+    
     EMPTY TEMP-TABLE ttBrowseInventory.
     
     {&OPEN-QUERY-{&BROWSE-NAME}}
+    
+    ASSIGN
+        fiTag:SCREEN-VALUE      = ""
+        fiLocation:SCREEN-VALUE = ""
+        .
+    
+    APPLY "ENTRY" TO fiTag.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,6 +486,18 @@ DO:
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     
     RETURN.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -538,6 +598,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+DO:
+    RUN OpenSetting.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
 ON CHOOSE OF btReset IN FRAME F-Main /* RESET */
@@ -569,6 +641,8 @@ DO:
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
+    
+    RUN pStatusMessage ("", 0).
     
     IF TRIM(fiTag:SCREEN-VALUE) EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
@@ -613,10 +687,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    ASSIGN
-        btTransfer:VISIBLE     = FALSE
-        fiMessage:SCREEN-VALUE = ""
-        .  
+    btTransfer:VISIBLE = FALSE.
+
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
@@ -630,6 +702,8 @@ DO:
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIsTransfer AS LOGICAL   NO-UNDO.
+    
+    RUN pStatusMessage ("", 0).
     
     IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
@@ -660,7 +734,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME BROWSE-1
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -686,6 +759,29 @@ PROCEDURE adm-create-objects :
                After SmartObjects are initialized, then SmartLinks are added.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
+
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
+
+  CASE adm-current-page: 
+
+    WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 28.81 , 182.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
+
+       /* Adjust the tab order of the smart objects. */
+    END. /* Page 0 */
+
+  END CASE.
 
 END PROCEDURE.
 
@@ -744,11 +840,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiLocation fiMessage btnExitText statusMessage 
+  DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
+          btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnKeyboardlOCATION fiTag btnKeyboardTAG btReset fiLocation btnNumPad 
-         btClearRecords btnFirst BROWSE-1 btnLast btnNext btnPrevious btExit 
-         btnExitText 
+  ENABLE btClear fiTag fiLocation BROWSE-1 btReset btnKeyboardlOCATION 
+         btnKeyboardTAG btnNumPad btnFirst btnLast btnNext btnPrevious btExit 
+         btnExitText btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -782,6 +879,39 @@ PROCEDURE Key_Stroke :
     
     IF VALID-OBJECT (oKeyboard) THEN
         oKeyboard:KeyStroke(ipcKeyStroke).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-OBJECT(oLoadTag) THEN
+      DELETE OBJECT oLoadTag.
+
+  IF VALID-OBJECT(oSetting) THEN
+      DELETE OBJECT oSetting.
+  
+  IF VALID-OBJECT(oKeyboard) THEN
+      DELETE OBJECT oKeyboard.
+
+  IF VALID-OBJECT(oFGBin) THEN
+      DELETE OBJECT oFGBin.
+
+  IF VALID-OBJECT(oItemFG) THEN
+      DELETE OBJECT oItemFG.
+                  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -824,12 +954,67 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (oSetting).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+        gcShowSettings        = oSetting:GetByName("ShowSettings")
+        .
+
+    oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
+    oKeyboard:SetProcedure(THIS-PROCEDURE).
+    oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
+
+    ASSIGN
+        btnSettingsText:VISIBLE     = INDEX(gcShowSettings, "Text") GT 0
+        btnKeyboardTag:VISIBLE      = glShowVirtualKeyboard
+        btnKeyboardLocation:VISIBLE = glShowVirtualKeyboard
+        btnNumPad:VISIBLE           = glShowVirtualKeyboard
+        RECT-2:VISIBLE              = glShowVirtualKeyboard
+        .
+    
+    IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+        {methods/run_link.i "Setting-SOURCE" "HideSettings"}
+                        
+    ASSIGN
+        {&BROWSE-NAME}:BGCOLOR           = 25
+        {&BROWSE-NAME}:FGCOLOR           = 0
+        {&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15
+        {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 1
+        {&BROWSE-NAME}:FONT              = 36
+        {&BROWSE-NAME}:FIT-LAST-COLUMN   = TRUE
+        .
+
+    hColumnRowColor = {&BROWSE-NAME}:FIRST-COLUMN.
+    DO WHILE VALID-HANDLE(hColumnRowColor):
+        ASSIGN
+            cColHandList    = cColHandList + ","  + string(hColumnRowColor)
+            hColumnRowColor = hColumnRowColor:NEXT-COLUMN
+            .
+    END. /* do while */
+    cColHandList = TRIM(cColHandList, ",").
+    
     RUN pWinReSize.
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).    
@@ -963,7 +1148,7 @@ PROCEDURE pLocationScan PRIVATE :
     IF glAutoPost AND NOT lLocationConfirm THEN
         RUN pPost.
     ELSE
-        fiMessage:SCREEN-VALUE = "Receipt Transaction created".
+        RUN pStatusMessage ("Receipt Transaction created", 1).
         
     {&OPEN-QUERY-{&BROWSE-NAME}}    
 END PROCEDURE.
@@ -1019,11 +1204,11 @@ PROCEDURE pPost PRIVATE :
         IF lError THEN
             RUN pStatusMessage (CAPS(cMessage), 3).
             
-        IF NOT lError AND AVAILABLE ttBrowseInventory THEN
-            ASSIGN
-                ttBrowseInventory.inventoryStatus = "Posted"
-                fiMessage:SCREEN-VALUE            = "Transaction posted successfully"
-                .
+        IF NOT lError AND AVAILABLE ttBrowseInventory THEN DO:
+            ttBrowseInventory.inventoryStatus = "Posted".
+            
+            RUN pStatusMessage ("Transaction posted successfully", 1).
+        END.
     END.
 END PROCEDURE.
 
@@ -1181,7 +1366,7 @@ PROCEDURE pTagScan PRIVATE :
     IF glAutoPost THEN
         RUN pPost.
     ELSE
-        fiMessage:SCREEN-VALUE = "Receipt Transaction created".
+        RUN pStatusMessage("Receipt Transaction created", 1).
         
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
@@ -1221,9 +1406,17 @@ PROCEDURE pWinReSize :
             btnPrevious:COL                    = dCol
             btnNext:COL                        = dCol
             btnLast:COL                        = dCol
-            BROWSE {&BROWSE-NAME}:HEIGHT       = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1
+            btnClearText:COL                   = dCol - 12
+            btClear:COL                        = dCol            
+            BROWSE {&BROWSE-NAME}:HEIGHT       = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1.62
             BROWSE {&BROWSE-NAME}:WIDTH        = dCol - 2
+            btnSettingsText:VISIBLE             = INDEX(gcShowSettings, "Text") GT 0
+            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                = dCol - 20
             .
+                
+        RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
+                    
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

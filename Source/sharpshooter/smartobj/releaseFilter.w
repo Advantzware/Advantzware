@@ -349,7 +349,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseMessageAndType s-object 
-PROCEDURE GetReleaseMessageAndType :
+PROCEDURE GetMessageAndType :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:

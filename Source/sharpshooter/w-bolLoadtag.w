@@ -44,6 +44,14 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE oSetting  AS system.Setting NO-UNDO.
+
+oSetting  = NEW system.Setting().
+
+oSetting:LoadByCategoryAndProgram("SSPrintBOLTag").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -61,9 +69,10 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btPrint btClearRecords btnExitText ~
-btnPrintText 
-&Scoped-Define DISPLAYED-OBJECTS btnExitText statusMessage btnPrintText 
+&Scoped-Define ENABLED-OBJECTS btClear btPrint btnExitText btnClearText ~
+btnSettingsText btnPrintText 
+&Scoped-Define DISPLAYED-OBJECTS btnExitText btnClearText statusMessage ~
+btnSettingsText btnPrintText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,18 +96,25 @@ DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btClearRecords 
-     LABEL "CLEAR RECORDS" 
-     SIZE 32 BY 1.38 TOOLTIP "Clear records"
-     FONT 38.
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btPrint 
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Print" 
      SIZE 8 BY 1.91.
+
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
       VIEW-AS TEXT 
@@ -110,6 +126,11 @@ DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT TAGS"
      SIZE 19 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
      SIZE 116 BY 1.43 NO-UNDO.
@@ -118,10 +139,12 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btClear AT ROW 2.76 COL 184.8 WIDGET-ID 146
      btPrint AT ROW 22.67 COL 185 WIDGET-ID 4
-     btClearRecords AT ROW 2.91 COL 127 WIDGET-ID 2 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 177 NO-LABEL WIDGET-ID 24
-     statusMessage AT ROW 22.91 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     btnClearText AT ROW 3.05 COL 173 NO-LABEL WIDGET-ID 148
+     statusMessage AT ROW 22.91 COL 2.6 NO-LABEL WIDGET-ID 28
+     btnSettingsText AT ROW 22.91 COL 136.2 NO-LABEL WIDGET-ID 142
      btnPrintText AT ROW 22.91 COL 164 COLON-ALIGNED NO-LABEL WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -182,10 +205,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -225,11 +252,29 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btClearRecords
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClearRecords W-Win
-ON CHOOSE OF btClearRecords IN FRAME F-Main /* CLEAR RECORDS */
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
 DO:
-    {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadTag"}  
+    RUN pStatusMessage ("", 0).
+    
+    {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadTag"}
+    
+    {methods/run_link.i "BOL-SOURCE" "EmptyBOL"}
+
+    RUN Set-Focus.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -253,6 +298,18 @@ END.
 ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
 DO:
     APPLY "CHOOSE":U TO btPrint.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+DO:
+    RUN OpenSetting.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,7 +377,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_bolfilter ).
        RUN set-position IN h_bolfilter ( 2.67 , 4.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 41.00 ) */
+       /* Size in UIB:  ( 2.05 , 41.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
@@ -370,6 +427,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigatelast ( 11.95 , 185.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 22.67 , 154.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+
        /* Links to SmartObject h_bolfilter. */
        RUN add-link IN adm-broker-hdl ( h_bolfilter , 'BOL':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_bolfilter , 'State':U , THIS-PROCEDURE ).
@@ -392,11 +457,16 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatelast. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'NAV-LAST':U , h_navigatelast ).
 
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_bolfilter ,
              h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
              h_bolfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags ,
+             h_printcopies , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-loadtags , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -405,6 +475,8 @@ PROCEDURE adm-create-objects :
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_navigatelast , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -466,9 +538,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY btnExitText statusMessage btnPrintText 
+  DISPLAY btnExitText btnClearText statusMessage btnSettingsText btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btPrint btClearRecords btnExitText btnPrintText 
+  ENABLE btClear btPrint btnExitText btnClearText btnSettingsText btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -522,7 +594,7 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pStatusMessage ("", 0).
-
+  RUN pInit.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -538,6 +610,38 @@ PROCEDURE local-exit :
    APPLY "CLOSE":U TO THIS-PROCEDURE.   
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (oSetting).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBolError W-Win 
+PROCEDURE pBolError PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+    
+    {methods/run_link.i "BOL-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+    
+    RUN pStatusMessage (cStatusMessage, iStatusMessageType).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,6 +670,27 @@ PROCEDURE pCreateTTLoadtags PRIVATE :
             .
     {methods/run_link.i "COPIES-SOURCE" "GetCopies" "(OUTPUT iCopies)"}    
     {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromBOL" "(INPUT cCompany, INPUT iBOLID, INPUT iCopies)"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    gcShowSettings = oSetting:GetByName("ShowSettings").
+
+    btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0.
+        
+    IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+        {methods/run_link.i "Setting-SOURCE" "HideSettings"}    
 
 END PROCEDURE.
 
@@ -604,7 +729,13 @@ PROCEDURE pWinReSize :
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
+            btnClearText:COL                   = dCol - 12
+            btClear:COL                        = dCol            
+            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                = btnPrintText:COL - btnSettingsText:WIDTH - 10
             .
+
+        RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.            
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
@@ -702,12 +833,14 @@ PROCEDURE state-changed :
         p-state        = ENTRY(1,p-state,"|")
         .
     CASE p-state:
-        WHEN "Status-Message" THEN
-        RUN pStatusMessage (cStatusMessage, iStatusMessage).
+        WHEN "bol-error" THEN
+            RUN pBolError.
         WHEN "bol-invalid" THEN DO:
             btPrint:SENSITIVE = FALSE.
         END.
         WHEN "bol-valid" THEN DO:
+            RUN pStatusMessage ("", 0).
+            
             RUN pCreateTTLoadtags (
                 OUTPUT lError,
                 OUTPUT cMessage

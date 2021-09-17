@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE exclude-brwCustom
+&SCOPED-DEFINE exclude-row-display
 
 /* Parameters Definitions ---                                           */
 
@@ -61,7 +62,7 @@ DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -172,7 +173,7 @@ DEFINE BROWSE br_table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+         FONT 36 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -234,7 +235,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -350,6 +351,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

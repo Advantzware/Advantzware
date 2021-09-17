@@ -34,7 +34,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
 
@@ -80,7 +82,7 @@ DEFINE VARIABLE fiBOL AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiBOL AT ROW 1.24 COL 8 COLON-ALIGNED WIDGET-ID 4
+     fiBOL AT ROW 1.24 COL 8.6 COLON-ALIGNED WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -243,6 +245,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyBOL s-object 
+PROCEDURE EmptyBOL :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    fiBOL:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetBOLHeader s-object 
 PROCEDURE GetBOLHeader :
 /*------------------------------------------------------------------------------
@@ -252,6 +267,25 @@ PROCEDURE GetBOLHeader :
     DEFINE OUTPUT PARAMETER opoBOLHeader AS bol.BOLHeader NO-UNDO.
 
     opoBOLHeader = oBOLHeader.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,7 +321,12 @@ PROCEDURE pBOLScan :
     DEFINE INPUT  PARAMETER ipiBOLID AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE lValidBOL AS LOGICAL NO-UNDO.
-    
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+        
     RUN new-state (
         INPUT "bol-invalid"
         ).
@@ -298,10 +337,21 @@ PROCEDURE pBOLScan :
         RUN new-state (
             INPUT "bol-valid"
              ).
-    ELSE
+    ELSE DO:
+        ASSIGN
+            cStatusMessage     = "INVALID BOL '" + STRING(ipiBOLID) + "'"
+            iStatusMessageType = 3
+            .
+                
         RUN new-state (
-            INPUT "Status-Message|INVALID BOL '" + STRING(ipiBOLID) + "'|3"
+            INPUT "bol-error"
              ).
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .                 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

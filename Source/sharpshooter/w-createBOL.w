@@ -60,6 +60,8 @@ DEFINE VARIABLE gcScanTrailer                AS CHARACTER NO-UNDO INITIAL "None"
 DEFINE VARIABLE gcSSBOLPrint                 AS CHARACTER NO-UNDO INITIAL "DoNotPrint".
 DEFINE VARIABLE gcSSReleaseTrailerValidation AS CHARACTER NO-UNDO INITIAL "Error".
 DEFINE VARIABLE glShowKeyboard               AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE gcShowFGItemInquiry          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcShowSettings               AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
 DEFINE VARIABLE oLoadTag  AS Inventory.LoadTag     NO-UNDO.
@@ -262,7 +264,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 202 BY 32.62
+         SIZE 202.2 BY 32.62
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -283,7 +285,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Create BOL"
          HEIGHT             = 32.62
-         WIDTH              = 202
+         WIDTH              = 202.2
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -786,7 +788,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-releaseitems ).
        RUN set-position IN h_b-releaseitems ( 6.38 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-releaseitems ( 10.24 , 193.00 ) NO-ERROR.
+       RUN set-size IN h_b-releaseitems ( 10.81 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -823,10 +825,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-releasetags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-releasetags ).
-       /* Position in AB:  ( 16.81 , 2.00 ) */
-       /* Size in UIB:  ( 15.00 , 193.00 ) */
+       RUN set-position IN h_b-releasetags ( 17.43 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-releasetags ( 14.38 , 193.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -872,6 +874,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'State':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_viewfginquiry. */
+       RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInquiry':U , THIS-PROCEDURE ).
+
        /* Links to SmartBrowser h_b-releaseitems. */
        RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInq':U , h_b-releaseitems ).
        RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'REL-ITEMS':U , THIS-PROCEDURE ).
@@ -888,7 +893,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatelast. */
        RUN add-link IN adm-broker-hdl ( h_b-releaseitems , 'NAV-LAST':U , h_navigatelast ).
 
-       /* Links to  h_b-releasetags. */
+       /* Links to SmartBrowser h_b-releasetags. */
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'REL-TAGS':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_navigatefirst-2. */
@@ -903,9 +908,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigatelast-2. */
        RUN add-link IN adm-broker-hdl ( h_b-releasetags , 'NAV-LAST':U , h_navigatelast-2 ).
 
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailerTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
@@ -918,12 +924,18 @@ PROCEDURE adm-create-objects :
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-releasetags ,
              h_navigatelast , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst-2 ,
+             h_b-releasetags , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev-2 ,
              h_navigatefirst-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext-2 ,
+             h_navigateprev-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast-2 ,
              h_navigatenext-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_setting ,
+             h_navigatelast-2 , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -1061,6 +1073,12 @@ PROCEDURE local-destroy :
   
   IF VALID-OBJECT(oKeyboard) THEN
       DELETE OBJECT oKeyboard.
+
+  IF VALID-OBJECT(oReleaseHeader) THEN
+      DELETE OBJECT oReleaseHeader.
+
+  IF VALID-OBJECT(oTrailer) THEN
+      DELETE OBJECT oTrailer.
       
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
@@ -1152,6 +1170,8 @@ PROCEDURE pInit :
             gcSSBOLPrint  = oSetting:GetByName("SSCreateBOLPrint")
             gcSSReleaseTrailerValidation = oSetting:GetByName("SSCreateBOLTrailerValidation")
             glShowKeyboard               = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+            gcShowFGItemInquiry          = oSetting:GetByName("ShowFGItemInquiry")
+            gcShowSettings               = oSetting:GetByName("ShowSettings")
             .
             
         ASSIGN
@@ -1165,8 +1185,16 @@ PROCEDURE pInit :
             btnKeyboardTag:VISIBLE            = glShowKeyboard
             btnNumPad:VISIBLE                 = glShowKeyboard
             RECT-2:VISIBLE                    = glShowKeyboard
+            btnViewInquiryText:VISIBLE        = INDEX(gcShowFGItemInquiry, "Text") GT 0
+            btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
             .  
-            
+        
+        IF INDEX(gcShowFGItemInquiry, "Icon") EQ 0 THEN
+            {methods/run_link.i "FGInquiry-SOURCE" "HideFGInquiry"}
+
+        IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+            {methods/run_link.i "Setting-SOURCE" "HideSettings"}
+
         RUN pInvalidRelease.
         
         /* If scan trailer is enabled */
@@ -1314,7 +1342,7 @@ PROCEDURE pReleaseError PRIVATE :
     DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
-    {methods/run_link.i "RELEASE-SOURCE" "GetReleaseMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+    {methods/run_link.i "RELEASE-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
     
     RUN pStatusMessage (cStatusMessage, iStatusMessageType).
 END PROCEDURE.
@@ -1577,7 +1605,7 @@ PROCEDURE pWinReSize :
         dWidth = dCol - 2.
         RUN set-size IN h_b-releaseitems ( dHeight , dWidth ) NO-ERROR.
         ASSIGN
-            dRow    = dHeight + 5.25
+            dRow    = dHeight + 6.5
             dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
             .
         RUN set-size IN h_b-releasetags ( 6 , dWidth ) NO-ERROR.
