@@ -1658,12 +1658,7 @@ PROCEDURE pCheckIssueMaterial:
           AND job-mat.job-no EQ ipcJobNo 
           AND job-mat.job-no2 EQ ipiJobNo2            
           AND job-mat.all-flg EQ NO       
-          USE-INDEX seq-idx,
-          FIRST item
-          WHERE item.company    EQ job-mat.company
-            AND item.i-no       EQ job-mat.i-no
-            AND index("BPR",item.mat-type) gt 0
-          NO-LOCK:
+          USE-INDEX seq-idx:
 
           RUN displayMessageQuestionLOG ("71", OUTPUT lClose). 
           lCheckClose = YES.
