@@ -1466,6 +1466,7 @@ PROCEDURE pCreateEDI PRIVATE:
     END.  /*ED Code available*/
 
     /* Generates request data and call the API */
+    IF NOT ipbf-inv-head.EdiInvoice THEN
     RUN pRunAPIOutboundTrigger (
         BUFFER ipbf-inv-head
         ).
@@ -2610,8 +2611,7 @@ PROCEDURE pPostInvoices PRIVATE:
                 . 
             RUN pCopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
         END.      
-        
-        IF NOT bf-inv-head.EdiInvoice THEN
+                
         RUN pCreateEDI(BUFFER bf-inv-head).
 
         RUN pPostSalesTaxForInvHead (
