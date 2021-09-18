@@ -82,7 +82,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.quantityOnHand ttBrowseInventory.quantityOnOrder ttBrowseInventory.quantityAllocated ttBrowseInventory.quantityAvailable ttBrowseInventory.quantityBackOrder   
+&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.quantityOnHand ttBrowseInventory.quantityOnOrder ttBrowseInventory.quantityAllocated ttBrowseInventory.quantityAvailable ttBrowseInventory.quantityBackOrder ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
 &Scoped-define SELF-NAME ttBrowseInventory
 &Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttBrowseInventory ~{&SORTBY-PHRASE}
@@ -184,7 +184,7 @@ DEFINE BROWSE ttBrowseInventory
     ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 179 BY 26.91
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 179 BY 26.91
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 

@@ -540,22 +540,27 @@ PROCEDURE DeleteReleaseTag :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iReleaseID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lChoice    AS LOGICAL   NO-UNDO.
 
     IF AVAILABLE ttReleaseTag THEN DO:
-        MESSAGE "Do you want to delete selected record?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+        RUN sharpShooter/messageDialog.w (
+            "DO YOU WANT TO DELETE SELECTED RECORD?",
+            YES,
+            YES,
+            NO,
+            OUTPUT lChoice
+            ).
         IF NOT lChoice THEN
-            RETURN.
-            
+            RETURN.            
         ASSIGN
             cCompany   = ttReleaseTag.company
             iReleaseID = ttReleaseTag.releaseID
-            .
-            
+            .            
         RUN DeleteReleaseTag IN hdReleaseProcs (
             INPUT ttReleaseTag.sourceRowID
             ).
     END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

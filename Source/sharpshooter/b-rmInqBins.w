@@ -82,7 +82,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.poID fGetConcatJob () @ ttBrowseInventory.jobID fGetConcatLocation () @ ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.quantity   
+&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.poID fGetConcatJob () @ ttBrowseInventory.jobID fGetConcatLocation () @ ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.quantity ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
 &Scoped-define SELF-NAME ttBrowseInventory
 &Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttBrowseInventory ~{&SORTBY-PHRASE}
@@ -186,7 +186,7 @@ DEFINE BROWSE ttBrowseInventory
     ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 186 BY 27.86
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 186 BY 27.86
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
@@ -472,9 +472,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse B-table-Win
-PROCEDURE pReOpenBrowse PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenBrowse B-table-Win 
+PROCEDURE pReOpenBrowse PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -495,11 +494,9 @@ PROCEDURE pReOpenBrowse PRIVATE:
     END CASE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanItem B-table-Win 
 PROCEDURE ScanItem :
