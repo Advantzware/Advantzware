@@ -107,7 +107,7 @@ RUN spGetSessionParam("Location", OUTPUT cLocation).
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory             WHERE (IF cFilterBy EQ "" THEN                        TRUE                    ELSE                        ttBrowseInventory.inventoryStatus EQ cFilterBy)  ~{&SORTBY-PHRASE}
@@ -121,7 +121,7 @@ RUN spGetSessionParam("Location", OUTPUT cLocation).
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btnNumPad ~
+&Scoped-Define ENABLED-OBJECTS bt-exit rSelected ls-tag btnNumPad ~
 btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine bt-create ~
 btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty ~
 ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext btnLast 
@@ -154,9 +154,9 @@ DEFINE BUTTON bt-create
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Exit".
+     SIZE 8 BY 1.9 TOOLTIP "Exit".
 
 DEFINE BUTTON bt-print-selected 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
@@ -264,13 +264,13 @@ DEFINE VARIABLE cb-machine AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 59 BY 1
-     FONT 35 NO-UNDO.
+     SIZE 57 BY 1
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiSize AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 24 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiSizeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Size:" 
      VIEW-AS FILL-IN 
@@ -280,7 +280,7 @@ DEFINE VARIABLE fiSizeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Size:"
 DEFINE VARIABLE fiUOM AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiUOMLabel AS CHARACTER FORMAT "X(256)":U INITIAL "UOM:" 
      VIEW-AS FILL-IN 
@@ -290,40 +290,32 @@ DEFINE VARIABLE fiUOMLabel AS CHARACTER FORMAT "X(256)":U INITIAL "UOM:"
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-num-tags AS INTEGER FORMAT ">>>9":U INITIAL 1 
      VIEW-AS FILL-IN 
      SIZE 9.8 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-qty-per-tag AS DECIMAL FORMAT ">,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 63.4 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-total-run-qty AS DECIMAL FORMAT ">,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1.38
-     FONT 37 NO-UNDO.
-
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 202 BY 32.86.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
      BGCOLOR 12 .
-
-DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 199 BY .1.
 
 DEFINE RECTANGLE rSelected
      EDGE-PIXELS 0    
@@ -348,38 +340,38 @@ DEFINE BROWSE br-table
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 186 BY 22.86
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 186 BY 22.86
+         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     bt-exit AT ROW 2.19 COL 192 WIDGET-ID 84
-     ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     btJobDetails AT ROW 2.19 COL 164 WIDGET-ID 154
-     btnNumPad AT ROW 2.38 COL 178.6 WIDGET-ID 120
-     btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
-     ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cb-jobno2 AT ROW 3.71 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     cb-formno AT ROW 3.71 COL 100.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     cb-blankno AT ROW 3.71 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     cb-machine AT ROW 6.05 COL 21.2 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiRMItem AT ROW 6.24 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 144
-     fiSizeLabel AT ROW 6.24 COL 121 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     fiSize AT ROW 6.24 COL 128.6 COLON-ALIGNED NO-LABEL WIDGET-ID 148
-     fiUOMLabel AT ROW 6.24 COL 153 COLON-ALIGNED NO-LABEL WIDGET-ID 150
-     fiUOM AT ROW 6.24 COL 161.6 COLON-ALIGNED NO-LABEL WIDGET-ID 152
-     bt-create AT ROW 6.81 COL 179 WIDGET-ID 108
-     btCreated AT ROW 7.71 COL 120.4 WIDGET-ID 136
-     btOH AT ROW 7.71 COL 139 WIDGET-ID 140
-     btAll AT ROW 7.71 COL 157.6 WIDGET-ID 138
-     btnNumPad-2 AT ROW 8.29 COL 36.6 WIDGET-ID 126
-     btnNumPad-1 AT ROW 8.29 COL 77.2 WIDGET-ID 124
-     btnNumPad-3 AT ROW 8.29 COL 107.8 WIDGET-ID 128
-     ls-total-run-qty AT ROW 8.38 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     ls-qty-per-tag AT ROW 8.38 COL 56.4 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     ls-num-tags AT ROW 8.38 COL 95.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     bt-exit AT ROW 1 COL 195 WIDGET-ID 84
+     ls-tag AT ROW 2.67 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     btJobDetails AT ROW 3.14 COL 163 WIDGET-ID 154
+     btnNumPad AT ROW 3.33 COL 177.6 WIDGET-ID 120
+     btnKeyboard AT ROW 4.57 COL 14 WIDGET-ID 132
+     ls-jobno AT ROW 4.67 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cb-jobno2 AT ROW 4.67 COL 72.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     cb-formno AT ROW 4.67 COL 99.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     cb-blankno AT ROW 4.67 COL 127 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     cb-machine AT ROW 6.48 COL 24 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiRMItem AT ROW 6.71 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 144
+     fiSizeLabel AT ROW 6.71 COL 120 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     fiSize AT ROW 6.71 COL 127.6 COLON-ALIGNED NO-LABEL WIDGET-ID 148
+     fiUOMLabel AT ROW 6.71 COL 152 COLON-ALIGNED NO-LABEL WIDGET-ID 150
+     fiUOM AT ROW 6.71 COL 160.6 COLON-ALIGNED NO-LABEL WIDGET-ID 152
+     bt-create AT ROW 7.29 COL 178 WIDGET-ID 108
+     btCreated AT ROW 8.14 COL 121 WIDGET-ID 136
+     btOH AT ROW 8.14 COL 140 WIDGET-ID 140
+     btAll AT ROW 8.14 COL 159 WIDGET-ID 138
+     btnNumPad-2 AT ROW 8.62 COL 38.6 WIDGET-ID 126
+     btnNumPad-1 AT ROW 8.62 COL 82.8 WIDGET-ID 124
+     btnNumPad-3 AT ROW 8.62 COL 112.8 WIDGET-ID 128
+     ls-total-run-qty AT ROW 8.71 COL 18 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     ls-qty-per-tag AT ROW 8.71 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     ls-num-tags AT ROW 8.71 COL 100.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
      bt-print-selected AT ROW 10.52 COL 188.6 WIDGET-ID 114
      btnFirst AT ROW 14.19 COL 189.6 WIDGET-ID 44
@@ -388,42 +380,32 @@ DEFINE FRAME F-Main
      btnNext AT ROW 23.95 COL 189.6 WIDGET-ID 42
      btnLast AT ROW 26.81 COL 189.6 WIDGET-ID 46
      bt-adjust-qty AT ROW 30.14 COL 188.6 WIDGET-ID 110
-     "Machine/Op:" VIEW-AS TEXT
-          SIZE 18.8 BY 1.33 AT ROW 6 COL 4.2 WIDGET-ID 92
+     "MACHINE/OP:" VIEW-AS TEXT
+          SIZE 24 BY 1.33 AT ROW 6.48 COL 2 WIDGET-ID 92
+     "(OPTIONAL)" VIEW-AS TEXT
+          SIZE 18.8 BY .95 AT ROW 2.86 COL 100.2 WIDGET-ID 90
           FONT 36
-     "RM or WIP Tag:" VIEW-AS TEXT
-          SIZE 23 BY 1.33 AT ROW 1.71 COL 9.6 WIDGET-ID 86
-          FONT 36
-     "(optional)" VIEW-AS TEXT
-          SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
-          FONT 36
-     "Run Qty:" VIEW-AS TEXT
-          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
-          FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
-          FONT 36
-     "Qty/Tag:" VIEW-AS TEXT
-          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
-          FONT 36
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
-          FONT 36
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
-          FONT 36
-     "#Tags:" VIEW-AS TEXT
-          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
-          FONT 36
-     RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
-     RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
-     RECT-2 AT ROW 2.19 COL 177.6 WIDGET-ID 130
-     rSelected AT ROW 7.52 COL 156.6 WIDGET-ID 142
+     "RUN QTY:" VIEW-AS TEXT
+          SIZE 18 BY 1.33 AT ROW 8.86 COL 2 WIDGET-ID 100
+     "FORM:" VIEW-AS TEXT
+          SIZE 11.8 BY 1.33 AT ROW 4.81 COL 89 WIDGET-ID 48
+     "QTY/TAG:" VIEW-AS TEXT
+          SIZE 17.4 BY 1.33 AT ROW 8.81 COL 45.6 WIDGET-ID 96
+     "TAGS:" VIEW-AS TEXT
+          SIZE 11 BY 1.33 AT ROW 8.71 COL 91 WIDGET-ID 104
+     "BLANK:" VIEW-AS TEXT
+          SIZE 14 BY 1.33 AT ROW 4.76 COL 114.2 WIDGET-ID 58
+     "JOB:" VIEW-AS TEXT
+          SIZE 9 BY 1.33 AT ROW 4.57 COL 24 WIDGET-ID 12
+     "RM or WIP TAG:" VIEW-AS TEXT
+          SIZE 28 BY 1.33 AT ROW 2.67 COL 5 WIDGET-ID 86
+     RECT-2 AT ROW 3.14 COL 176.6 WIDGET-ID 130
+     rSelected AT ROW 7.91 COL 158 WIDGET-ID 142
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 202.2 BY 32.91
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -449,6 +431,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 202.2
          VIRTUAL-HEIGHT     = 32.91
          VIRTUAL-WIDTH      = 202.2
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -513,8 +499,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiUOM IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiUOMLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -1583,11 +1567,10 @@ PROCEDURE enable_UI :
           fiSizeLabel fiSize fiUOMLabel fiUOM ls-total-run-qty ls-qty-per-tag 
           ls-num-tags 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit RECT-26 rSelected ls-tag btnNumPad btnKeyboard ls-jobno 
-         cb-jobno2 cb-formno cb-blankno cb-machine bt-create btCreated btOH 
-         btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty 
-         ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext 
-         btnLast 
+  ENABLE bt-exit rSelected ls-tag btnNumPad btnKeyboard ls-jobno cb-jobno2 
+         cb-formno cb-blankno cb-machine bt-create btCreated btOH btAll 
+         btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty ls-qty-per-tag 
+         ls-num-tags br-table btnFirst btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1993,7 +1976,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMachine W-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMachineList W-Win 
 PROCEDURE pUpdateMachineList :
 /*------------------------------------------------------------------------------
   Purpose:     Gets machine list for Job no and Job no2 combination
@@ -2185,9 +2168,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2196,11 +2178,9 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.    
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

@@ -69,6 +69,7 @@ DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 RUN spGetSessionParam("Location", OUTPUT cLocation).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -104,9 +105,9 @@ RUN spGetSessionParam("Location", OUTPUT cLocation).
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboard RECT-26 RECT-29 bt-exit ~
-bt-change ls-jobno cb-jobno2 btnNumPad cb-formno cb-blankno ls-tag ~
-btnKeyboard-2 br-table btnFirst btnPrevious btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS bt-exit btnKeyboard bt-change ls-jobno ~
+cb-jobno2 btnNumPad cb-formno cb-blankno ls-tag btnKeyboard-2 br-table ~
+btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS ls-jobno cb-jobno2 ls-order ls-cust ~
 cb-formno cb-blankno ls-item ls-wipitemid ls-tag ls-lastop ls-message 
 
@@ -130,9 +131,9 @@ DEFINE BUTTON bt-change
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9.6 BY 2.29.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON bt-post 
      LABEL "Post" 
@@ -198,22 +199,22 @@ DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0
 DEFINE VARIABLE ls-cust AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-item AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-lastop AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-message AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -223,21 +224,17 @@ DEFINE VARIABLE ls-message AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-order AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 80 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-wipitemid AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
-
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 202 BY 32.86.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -248,17 +245,9 @@ DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.2 BY 3.33.
 
-DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 199 BY .1.
-
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.2 BY 3.62.
-
-DEFINE RECTANGLE RECT-29
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 199 BY .1.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -278,28 +267,28 @@ DEFINE BROWSE br-table
       ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 189 BY 20.05
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 189 BY 20.05
+         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnKeyboard AT ROW 1.95 COL 22 WIDGET-ID 136
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     bt-change AT ROW 1.95 COL 2 WIDGET-ID 8
-     ls-jobno AT ROW 1.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cb-jobno2 AT ROW 1.95 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
-     ls-order AT ROW 2.67 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 62
-     ls-cust AT ROW 2.67 COL 163.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-     cb-formno AT ROW 3.38 COL 54.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     cb-blankno AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     ls-item AT ROW 3.86 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     ls-wipitemid AT ROW 6.95 COL 133.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     ls-tag AT ROW 7.19 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     btnKeyboard-2 AT ROW 7.19 COL 99 WIDGET-ID 142
-     ls-lastop AT ROW 8.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     bt-exit AT ROW 1.24 COL 194 WIDGET-ID 84
+     btnKeyboard AT ROW 2.71 COL 21 WIDGET-ID 136
+     bt-change AT ROW 2.71 COL 1 WIDGET-ID 8
+     ls-jobno AT ROW 2.71 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cb-jobno2 AT ROW 2.71 COL 79.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     btnNumPad AT ROW 3.43 COL 97 WIDGET-ID 138
+     ls-order AT ROW 3.43 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     ls-cust AT ROW 3.43 COL 162.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     cb-formno AT ROW 4.14 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     cb-blankno AT ROW 4.29 COL 79.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     ls-item AT ROW 4.62 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     ls-wipitemid AT ROW 7.48 COL 132.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     ls-tag AT ROW 7.71 COL 15.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     btnKeyboard-2 AT ROW 7.71 COL 98 WIDGET-ID 142
+     ls-lastop AT ROW 8.91 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
      btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
      btnPrevious AT ROW 14.81 COL 192.2 WIDGET-ID 134
@@ -307,50 +296,43 @@ DEFINE FRAME F-Main
      btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
      bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
      ls-message AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
-     "Cust #:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
+     "CUST:" VIEW-AS TEXT
+          SIZE 8.6 BY .81 AT ROW 3.48 COL 155 WIDGET-ID 66
           FONT 34
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 7.29 COL 10 WIDGET-ID 22
-          FONT 36
-     "Last Operation:" VIEW-AS TEXT
-          SIZE 21.6 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 78
+     "ITEM:" VIEW-AS TEXT
+          SIZE 8 BY .81 AT ROW 4.71 COL 116 WIDGET-ID 70
           FONT 34
-     "Order #:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
-          FONT 34
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
-          FONT 36
-     "Job Details" VIEW-AS TEXT
-          SIZE 18.4 BY .62 AT ROW 1.67 COL 113.6 WIDGET-ID 16
-          FONT 35
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 3.67 COL 68 WIDGET-ID 58
-          FONT 36
-     "Item #:" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
-          FONT 34
-     "Tag Details" VIEW-AS TEXT
-          SIZE 19.2 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
-          FONT 35
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.52 COL 42 WIDGET-ID 48
-          FONT 36
      "WIP ID:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
+          SIZE 10 BY .81 AT ROW 7.48 COL 124 WIDGET-ID 74
           FONT 34
-     RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
-     RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
-     RECT-27 AT ROW 6.19 COL 111 WIDGET-ID 26
-     RECT-29 AT ROW 10.14 COL 2.2 WIDGET-ID 60
-     RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
-     RECT-2 AT ROW 2.43 COL 97 WIDGET-ID 140
+     "TAG:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 7.81 COL 9 WIDGET-ID 22
+     " JOB DETAILS" VIEW-AS TEXT
+          SIZE 18.4 BY .62 AT ROW 2.43 COL 112.6 WIDGET-ID 16
+          FONT 35
+     "ORDER:" VIEW-AS TEXT
+          SIZE 11 BY .81 AT ROW 3.48 COL 113 WIDGET-ID 64
+          FONT 34
+     " TAG DETAILS" VIEW-AS TEXT
+          SIZE 19.2 BY .76 AT ROW 6.43 COL 112.8 WIDGET-ID 28
+          FONT 35
+     "FORM:" VIEW-AS TEXT
+          SIZE 12.6 BY 1.29 AT ROW 4.29 COL 43 WIDGET-ID 48
+     "JOB:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 2.91 COL 32 WIDGET-ID 12
+     "LAST OPERATION:" VIEW-AS TEXT
+          SIZE 23.6 BY .81 AT ROW 8.91 COL 111 WIDGET-ID 78
+          FONT 34
+     "BLANK:" VIEW-AS TEXT
+          SIZE 14 BY 1.38 AT ROW 4.43 COL 67 WIDGET-ID 58
+     RECT-25 AT ROW 2.71 COL 110 WIDGET-ID 14
+     RECT-27 AT ROW 6.71 COL 110 WIDGET-ID 26
+     RECT-2 AT ROW 3.19 COL 96 WIDGET-ID 140
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 202 BY 32.86
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -372,10 +354,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Issue WIP"
          HEIGHT             = 32.86
          WIDTH              = 202
-         MAX-HEIGHT         = 32.86
-         MAX-WIDTH          = 202
-         VIRTUAL-HEIGHT     = 32.86
-         VIRTUAL-WIDTH      = 202
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -430,8 +416,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ls-order IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-wipitemid IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -1056,9 +1040,9 @@ PROCEDURE enable_UI :
   DISPLAY ls-jobno cb-jobno2 ls-order ls-cust cb-formno cb-blankno ls-item 
           ls-wipitemid ls-tag ls-lastop ls-message 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnKeyboard RECT-26 RECT-29 bt-exit bt-change ls-jobno cb-jobno2 
-         btnNumPad cb-formno cb-blankno ls-tag btnKeyboard-2 br-table btnFirst 
-         btnPrevious btnNext btnLast 
+  ENABLE bt-exit btnKeyboard bt-change ls-jobno cb-jobno2 btnNumPad cb-formno 
+         cb-blankno ls-tag btnKeyboard-2 br-table btnFirst btnPrevious btnNext 
+         btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1294,9 +1278,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1304,11 +1287,9 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.    
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
