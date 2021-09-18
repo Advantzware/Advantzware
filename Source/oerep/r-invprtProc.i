@@ -3527,6 +3527,12 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
 
     IF NOT AVAILABLE bf-inv-head AND NOT AVAILABLE bf-ar-inv THEN
         RETURN.
+        
+    IF AVAIL bf-inv-head AND bf-inv-head.ediInvoice THEN 
+        RETURN.
+        
+    IF AVAIL bf-ar-inv AND bf-ar-inv.ediInvoice THEN 
+        RETURN.    
                       
     ASSIGN 
         cAPIID       = "SendInvoice"
