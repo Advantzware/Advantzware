@@ -80,17 +80,17 @@ DEFINE BUTTON btnYes AUTO-GO
 
 DEFINE VARIABLE messageText AS CHARACTER 
      VIEW-AS EDITOR NO-BOX
-     SIZE 62 BY 4 NO-UNDO.
+     SIZE 101 BY 6.67 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
      messageText AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 4
-     btnYes AT ROW 5.52 COL 17
-     btnNo AT ROW 5.52 COL 33 WIDGET-ID 2
-     btnCancel AT ROW 5.52 COL 49
-     SPACE(0.00) SKIP(0.04)
+     btnYes AT ROW 8.14 COL 56
+     btnNo AT ROW 8.14 COL 72 WIDGET-ID 2
+     btnCancel AT ROW 8.14 COL 88
+     SPACE(0.39) SKIP(0.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 FGCOLOR 15 FONT 38

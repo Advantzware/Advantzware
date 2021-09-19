@@ -395,6 +395,8 @@ ON WINDOW-CLOSE OF W-Win /* Job Inquiry */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  IF VALID-HANDLE(hdJobProcs) THEN
+  DELETE PROCEDURE hdJobProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
