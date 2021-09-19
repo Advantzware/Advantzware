@@ -36,9 +36,11 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cJob      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cLocation          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJob               AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdJobDetails            AS HANDLE    NO-UNDO.
@@ -65,7 +67,7 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-3 imJobLookup cbJobNo2 fiJobNo cbFormNo ~
+&Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 fiJobNo cbFormNo ~
 cbBlankNo 
 &Scoped-Define DISPLAYED-OBJECTS cbJobNo2 fiJobNoLabel fiJobNo cbFormNo ~
 cbBlankNo fiFormNoLabel fiBlankNoLabel 
@@ -84,7 +86,7 @@ cbBlankNo fiFormNoLabel fiBlankNoLabel
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btJobDetails 
      IMAGE-UP FILE "Graphics/32x32/form.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/form_disabled.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/form_disabled.ico":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "" 
      SIZE 11 BY 2.62 TOOLTIP "View Current Job Details".
 
@@ -92,66 +94,62 @@ DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
-     FONT 36 NO-UNDO.
+     SIZE 9.8 BY 1
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9 BY 1
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
-     FONT 36 NO-UNDO.
+     SIZE 9.8 BY 1
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Blank #:" 
+DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "BLANK" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1.29 NO-UNDO.
+
+DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "FORM:" 
      VIEW-AS FILL-IN 
      SIZE 12.4 BY 1.29 NO-UNDO.
 
-DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Form #:" 
-     VIEW-AS FILL-IN 
-     SIZE 11.8 BY 1.29 NO-UNDO.
-
 DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1.29 NO-UNDO.
+     SIZE 31.2 BY 1.43
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job #:" 
+DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
      VIEW-AS FILL-IN 
      SIZE 9.6 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
-     FILENAME "Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/search_new.png":U
      STRETCH-TO-FIT RETAIN-SHAPE
-     SIZE 5.4 BY 1.29.
-
-DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 64 BY 3.29.
+     SIZE 6.4 BY 1.52.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btJobDetails AT ROW 1.33 COL 66.4 WIDGET-ID 160
      cbJobNo2 AT ROW 1.24 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 162
      fiJobNoLabel AT ROW 1.29 COL 4.8 NO-LABEL WIDGET-ID 2
      fiJobNo AT ROW 1.29 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     btJobDetails AT ROW 1.33 COL 66.4 WIDGET-ID 160
-     cbFormNo AT ROW 2.71 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     cbBlankNo AT ROW 2.71 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
-     fiFormNoLabel AT ROW 2.76 COL 2.6 NO-LABEL WIDGET-ID 16
-     fiBlankNoLabel AT ROW 2.76 COL 33.6 NO-LABEL WIDGET-ID 20
-     RECT-3 AT ROW 1.05 COL 1 WIDGET-ID 24
-     imJobLookup AT ROW 1.14 COL 56.2 WIDGET-ID 182
+     cbFormNo AT ROW 2.81 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
+     cbBlankNo AT ROW 2.81 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     fiFormNoLabel AT ROW 2.86 COL 2 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 2.86 COL 32 NO-LABEL WIDGET-ID 20
+     imJobLookup AT ROW 1.24 COL 56.8 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -180,8 +178,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.33
-         WIDTH              = 79.
+         HEIGHT             = 3.95
+         WIDTH              = 82.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -261,7 +259,7 @@ DO:
             INPUT INTEGER(cbJobno2:SCREEN-VALUE),
             INPUT INTEGER(cbFormno:SCREEN-VALUE),
             INPUT INTEGER(cbBlankno:SCREEN-VALUE)
-            ) NO-ERROR.            
+            ).            
 
         IF hdJobDetailsWin:WINDOW-STATE EQ 2 THEN ASSIGN 
             hdJobDetailsWin:WINDOW-STATE = 3.
@@ -360,7 +358,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
@@ -372,7 +369,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fiJobNo
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
@@ -392,6 +389,11 @@ DO:
     DEFINE VARIABLE cBlankNoListItems AS CHARACTER NO-UNDO.
     
     lScanNextJob = FALSE.
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
     
     IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
@@ -638,9 +640,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object
-PROCEDURE JobFGItemChanged:
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideJobDetails s-object 
+PROCEDURE HideJobDetails :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    btJobDetails:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object 
+PROCEDURE JobFGItemChanged :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -677,11 +710,9 @@ PROCEDURE JobFGItemChanged:
     
     RUN pValidateJob.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -797,9 +828,9 @@ PROCEDURE pInit :
     RUN spGetSessionParam ("Location", OUTPUT cLocation).
     
     ASSIGN
-        fiJobNoLabel:SCREEN-VALUE   = "Job #:"
-        fiFormNoLabel:SCREEN-VALUE  = "Form #:"
-        fiBlankNoLabel:SCREEN-VALUE = "Blank #:"
+        fiJobNoLabel:SCREEN-VALUE   = "JOB:"
+        fiFormNoLabel:SCREEN-VALUE  = "FORM:"
+        fiBlankNoLabel:SCREEN-VALUE = "BLANK:"
         .      
 
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.                      
@@ -934,16 +965,26 @@ PROCEDURE pValidateJob PRIVATE :
         OUTPUT lError,
         OUTPUT cMessage
         ).       
-    IF lError THEN
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    IF lError THEN DO:
+        ASSIGN
+            cStatusMessage     = cMessage
+            iStatusMessageType = 3
+            .
+            
+        RUN new-state("job-error").
+
+        ASSIGN
+            cStatusMessage     = ""
+            iStatusMessageType = 0
+            .        
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobClosed s-object
-PROCEDURE pValidateJobClosed PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobClosed s-object 
+PROCEDURE pValidateJobClosed PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -972,11 +1013,9 @@ PROCEDURE pValidateJobClosed PRIVATE:
         
     oplError = NOT lResponse.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextJob s-object 
 PROCEDURE ScanNextJob :
@@ -990,9 +1029,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1003,11 +1041,37 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO fiJobNo.    
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetJob s-object 
+PROCEDURE SetJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER  ipcJobno    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER  ipiJobno2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER  ipiFormno   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER  ipiBlankno  AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiJobNo:SCREEN-VALUE   = ipcJobNo
+        cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2)
+        cbFormNo:SCREEN-VALUE  = STRING(ipiFormno)
+        cbBlankNo:SCREEN-VALUE = STRING(ipiBlankno)        
+        .       
+        
+    RUN pValidteJob.
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

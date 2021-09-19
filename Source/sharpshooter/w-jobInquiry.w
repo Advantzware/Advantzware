@@ -42,17 +42,18 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-// {system/sysconst.i}
-{custom/globdefs.i}
-{sys/inc/var.i}
-{sys/inc/varasgn.i}
-{methods/defines/hndlset.i}
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cJobNo2ListItems  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFormattedJobno   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE oJobHeader AS jc.JobHeader NO-UNDO.
 
 RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 
@@ -83,11 +84,11 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btFGInq btFGItems btMaterials btRoutings ~
-btExit btnFirst btnLast btnNext btnPrevious fiJobNo cbJobNo2 btnExitText ~
-btnPrintJobText btnAdjustQtyText btnIssueQtyText rSelected 
-&Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
-fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR ~
-btnExitText statusMessage btnPrintJobText btnAdjustQtyText btnIssueQtyText 
+btExit btnFirst btnLast btnNext btnPrevious btnExitText btnPrintJobText ~
+btnAdjustQtyText btnIssueQtyText rSelected 
+&Scoped-Define DISPLAYED-OBJECTS fiStatusLabel fiStatus fiCreatedLabel ~
+fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage ~
+btnPrintJobText btnAdjustQtyText btnIssueQtyText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,6 +109,7 @@ DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_issueqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printjob AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -161,13 +163,6 @@ DEFINE BUTTON btRoutings  NO-FOCUS
      SIZE 30 BY 2.52
      FONT 37.
 
-DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
-     DROP-DOWN-LIST
-     SIZE 9.8 BY 1
-     FONT 37 NO-UNDO.
-
 DEFINE VARIABLE btnAdjustQtyText AS CHARACTER FORMAT "X(256)":U INITIAL "ADJUST QTY" 
       VIEW-AS TEXT 
      SIZE 23 BY 1.43
@@ -190,48 +185,39 @@ DEFINE VARIABLE btnPrintJobText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT JO
 
 DEFINE VARIABLE fiCreated AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 21.8 BY 1.19
-     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+     SIZE 21.8 BY 1.43
+     FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiCreatedLabel AS CHARACTER FORMAT "X(256)":U INITIAL "CREATED:" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.19 NO-UNDO.
+     SIZE 18.2 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiCSR AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 27.6 BY 1.43
-     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+     SIZE 27 BY 1.43
+     FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiCSRLabel AS CHARACTER FORMAT "X(256)":U INITIAL "CSR:" 
      VIEW-AS FILL-IN 
-     SIZE 8.6 BY 1.43 NO-UNDO.
+     SIZE 9 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiDue AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 21.8 BY 1.19
-     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+     SIZE 21.8 BY 1.43
+     FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiDueLabel AS CHARACTER FORMAT "X(256)":U INITIAL "DUE:" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1.19 NO-UNDO.
-
-DEFINE VARIABLE fiJoblabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1.43 NO-UNDO.
-
-DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(15)":U 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
+     SIZE 9.5 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1.43
-     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+     FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS:" 
      VIEW-AS FILL-IN 
-     SIZE 14.4 BY 1.38 NO-UNDO.
+     SIZE 15.4 BY 1.38 NO-UNDO.
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
@@ -246,36 +232,33 @@ DEFINE RECTANGLE rSelected
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFGInq AT ROW 5.76 COL 118 WIDGET-ID 130
-     btFGItems AT ROW 5.67 COL 3.6 WIDGET-ID 118
-     btMaterials AT ROW 5.67 COL 35.2 WIDGET-ID 122
-     btRMInq AT ROW 5.76 COL 138 WIDGET-ID 132
-     btRoutings AT ROW 5.67 COL 66.8 WIDGET-ID 120
+     btFGInq AT ROW 7.43 COL 118 WIDGET-ID 130
+     btFGItems AT ROW 7.33 COL 3.6 WIDGET-ID 118
+     btMaterials AT ROW 7.33 COL 35.2 WIDGET-ID 122
+     btRMInq AT ROW 7.43 COL 138 WIDGET-ID 132
+     btRoutings AT ROW 7.33 COL 66.8 WIDGET-ID 120
      btExit AT ROW 1 COL 197 WIDGET-ID 126
-     btnFirst AT ROW 10.29 COL 197 WIDGET-ID 44
-     btnLast AT ROW 16 COL 197 WIDGET-ID 46
-     btnNext AT ROW 14.1 COL 197 WIDGET-ID 42
-     btnPrevious AT ROW 12.19 COL 197 WIDGET-ID 40
-     fiJobNo AT ROW 2.19 COL 17.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbJobNo2 AT ROW 2.24 COL 59.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     fiJoblabel AT ROW 2.19 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     fiStatusLabel AT ROW 2.19 COL 113 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiStatus AT ROW 2.19 COL 127.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     fiCreatedLabel AT ROW 3.86 COL 2 NO-LABEL WIDGET-ID 112
-     fiCreated AT ROW 3.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiDueLabel AT ROW 3.86 COL 40.8 COLON-ALIGNED NO-LABEL WIDGET-ID 108
-     fiDue AT ROW 3.86 COL 50 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     fiCSRLabel AT ROW 3.86 COL 118.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     fiCSR AT ROW 3.86 COL 127.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     btnFirst AT ROW 10.67 COL 197 WIDGET-ID 44
+     btnLast AT ROW 16.38 COL 197 WIDGET-ID 46
+     btnNext AT ROW 14.48 COL 197 WIDGET-ID 42
+     btnPrevious AT ROW 12.57 COL 197 WIDGET-ID 40
+     fiStatusLabel AT ROW 2.91 COL 79 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiStatus AT ROW 2.91 COL 94.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiCreatedLabel AT ROW 2.91 COL 125 NO-LABEL WIDGET-ID 112
+     fiCreated AT ROW 2.91 COL 141.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+     fiDueLabel AT ROW 4.57 COL 131.6 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+     fiDue AT ROW 4.57 COL 141.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     fiCSRLabel AT ROW 4.57 COL 85.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiCSR AT ROW 4.57 COL 94.6 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
-     statusMessage AT ROW 31.95 COL 3 NO-LABEL WIDGET-ID 28
-     btnPrintJobText AT ROW 31.95 COL 176 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     btnAdjustQtyText AT ROW 31.95 COL 145 COLON-ALIGNED NO-LABEL WIDGET-ID 134
-     btnIssueQtyText AT ROW 31.95 COL 147 COLON-ALIGNED NO-LABEL WIDGET-ID 136
+     statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
+     btnPrintJobText AT ROW 30.76 COL 176 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     btnAdjustQtyText AT ROW 30.76 COL 145 COLON-ALIGNED NO-LABEL WIDGET-ID 134
+     btnIssueQtyText AT ROW 30.76 COL 147 COLON-ALIGNED NO-LABEL WIDGET-ID 136
      "-" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 2.67 COL 60 WIDGET-ID 86
+          SIZE 2 BY .62 AT ROW 5.52 COL 60 WIDGET-ID 86
           FONT 37
-     rSelected AT ROW 5.29 COL 2 WIDGET-ID 124
+     rSelected AT ROW 6.95 COL 2 WIDGET-ID 124
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -290,7 +273,7 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 3
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -355,8 +338,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiDue IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiDueLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiJoblabel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiStatus IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -507,7 +488,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnIssueQtyText W-Win
 ON MOUSE-SELECT-CLICK OF btnIssueQtyText IN FRAME F-Main
 DO:
-    RUN AdjustQuantity IN h_issueqty.
+    RUN IssueQuantity IN h_b-job-mat.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,81 +571,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cbJobNo2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbJobNo2 W-Win
-ON VALUE-CHANGED OF cbJobNo2 IN FRAME F-Main
-DO:
-    RUN pJobScan (
-        INPUT  cocode,
-        INPUT  cFormattedJobno,
-        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
-        INPUT  0,
-        INPUT  0
-        ).  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiJobNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo W-Win
-ON LEAVE OF fiJobNo IN FRAME F-Main
-DO:
-    DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobNo2    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormNo    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
-    
-    RUN pStatusMessage ("", 0).
-    RUN JobParser IN hdJobProcs (
-        SELF:SCREEN-VALUE,
-        OUTPUT cJobNo,
-        OUTPUT cJobNo2,
-        OUTPUT cFormNo,
-        OUTPUT cBlankNo,
-        OUTPUT lParse,
-        OUTPUT cMessage
-        ).
-
-    IF NOT lParse THEN
-        cJobNo = SELF:SCREEN-VALUE.
-
-    cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
-                      ).
-    
-    cJobno2ListItems = "".
-    
-    RUN GetSecondaryJobForJob IN hdJobProcs (
-        INPUT        cCompany,
-        INPUT        cFormattedJobno,
-        INPUT-OUTPUT cJobno2ListItems
-        ).
-
-    ASSIGN
-        cbJobNo2:LIST-ITEMS   = cJobno2ListItems.
-        cbJobNo2:SCREEN-VALUE = IF cJobNo2 EQ "" THEN 
-                                    ENTRY(1,cJobno2ListItems)
-                                ELSE
-                                    STRING(INTEGER(cJobNo2),"99")
-        NO-ERROR.       
-    
-    RUN pJobScan (
-        INPUT  cocode,
-        INPUT  cFormattedJobno,
-        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
-        INPUT  0,
-        INPUT  0
-        ).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -699,19 +605,28 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_jobfilter ).
+       RUN set-position IN h_jobfilter ( 2.91 , 2.20 ) NO-ERROR.
+       /* Size in UIB:  ( 3.62 , 76.40 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printjob.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printjob ).
-       RUN set-position IN h_printjob ( 31.71 , 197.00 ) NO-ERROR.
+       RUN set-position IN h_printjob ( 30.52 , 197.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       /* Links to SmartObject h_jobfilter. */
+       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_printjob. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PRINTJOB':U , h_printjob ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printjob ,
-             fiJobNo:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -727,8 +642,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-hdr ).
-       RUN set-position IN h_b-job-hdr ( 8.86 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-job-hdr ( 21.91 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_b-job-hdr ( 10.33 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-job-hdr ( 20.24 , 195.00 ) NO-ERROR.
 
        /* Links to SmartObject h_adjustqty. */
        RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'ADJUST':U , h_adjustqty ).
@@ -750,16 +665,16 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_issueqty ).
-       RUN set-position IN h_issueqty ( 31.71 , 169.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
+       RUN set-position IN h_issueqty ( 30.52 , 169.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.76 , 7.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-job-mat.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-mat ).
-       RUN set-position IN h_b-job-mat ( 8.86 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-job-mat ( 21.91 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_b-job-mat ( 10.29 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-job-mat ( 20.48 , 195.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -784,8 +699,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-mch ).
-       RUN set-position IN h_b-job-mch ( 8.86 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-job-mch ( 21.91 , 195.00 ) NO-ERROR.
+       RUN set-position IN h_b-job-mch ( 10.33 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-job-mch ( 19.05 , 195.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -870,39 +785,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
-          fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage 
-          btnPrintJobText btnAdjustQtyText btnIssueQtyText 
+  DISPLAY fiStatusLabel fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue 
+          fiCSRLabel fiCSR btnExitText statusMessage btnPrintJobText 
+          btnAdjustQtyText btnIssueQtyText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btFGInq btFGItems btMaterials btRoutings btExit btnFirst btnLast 
-         btnNext btnPrevious fiJobNo cbJobNo2 btnExitText btnPrintJobText 
-         btnAdjustQtyText btnIssueQtyText rSelected 
+         btnNext btnPrevious btnExitText btnPrintJobText btnAdjustQtyText 
+         btnIssueQtyText rSelected 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob W-Win 
-PROCEDURE GetJob :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcJobNo  AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiJobNo2 AS INTEGER   NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    ASSIGN
-        opcJobNo  = cFormattedJobno
-        opiJobNo2 = INTEGER(cbJobNo2:SCREEN-VALUE)
-        .
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -984,22 +876,25 @@ PROCEDURE local-enable :
 
     /* Code placed here will execute PRIOR to standard behavior. */
     RUN pWinReSize.
-  
+
+    RUN spGetSessionParam("Company", OUTPUT cCompany).
+    RUN spGetSessionParam("Location", OUTPUT cLocation).
+
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
   
     /* Code placed here will execute AFTER standard behavior.    */
     FIND FIRST company NO-LOCK 
-         WHERE company.company EQ g_company NO-ERROR .
+         WHERE company.company EQ cCompany NO-ERROR .
     IF AVAILABLE company THEN            
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
-                             + STRING(company.name) + " - " + g_loc.
-    ASSIGN
-        cCompany = cocode
-        btnIssueQtyText:HIDDEN IN FRAME {&FRAME-NAME} = YES
-        .
-    RUN pStatusMessage ("", 0).
+                             + STRING(company.name) + " - " + cLocation.
 
+    btnIssueQtyText:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+    
+    RUN pStatusMessage ("", 0).
+    
+    {methods/run_link.i "JOB-SOURCE" "HideJobDetails"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1047,31 +942,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
-PROCEDURE pInit :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError W-Win 
+PROCEDURE pJobError :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/   
-    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
-
-    SESSION:SET-WAIT-STATE("GENERAL").   
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
-    RUN pJobScan (
-        ipcCompany,
-        ipcJobNo,
-        ipiJobNo2,
-        ipiFormNo,
-        ipiBlankNo
-        ).
+    {methods/run_link.i "JOB-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
     
-    SESSION:SET-WAIT-STATE("").            
+    RUN pStatusMessage (cStatusMessage, iStatusMessageType).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1084,52 +967,27 @@ PROCEDURE pJobScan :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER  ipcJobno    AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER  ipiJobno2   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER  ipiFormno   AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER  ipiBlankno  AS INTEGER   NO-UNDO.
-
-    DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
-
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    RUN ValidateJobHdr IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT ipcJobno,
-        INPUT ipiJobno2,
-        OUTPUT lValidJob
-        ).
-
-    IF NOT lValidJob THEN DO:
-        RUN pStatusMessage ("INVALID JOB NUMBER, PLEASE ENTER A VALID JOB NUMBER", 3).
-        APPLY "ENTRY" TO fiJobNo.
-        RETURN ERROR.
-    END.    
-
-    fiJobNo:SCREEN-VALUE = ipcJobno.
+    DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
     
-    RUN pUpdateComboBoxes (
-        INPUT ipcCompany
-        ).
-       
-    DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN 
-            cbJobNo2:LIST-ITEMS    = cJobno2ListItems
-            cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
-            NO-ERROR.
-    END.
+    {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
     
+    ASSIGN
+        cJobNo   = oJobHeader:GetValue("JobNo")
+        iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
+        iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
+        iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
+        .
+
     RUN pUpdateBrowse (
-        INPUT ipcCompany,
-        INPUT ipcJobNo,
-        INPUT ipiJobNo2
+        INPUT cCompany,
+        INPUT cJobNo,
+        INPUT iJobNo2
         ) NO-ERROR.
-
+        
     APPLY "CHOOSE" TO btFGItems IN FRAME {&FRAME-NAME}.
-    
-    cCompany = ipcCompany.
     
     IF AVAILABLE job THEN
         ASSIGN
@@ -1212,41 +1070,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateComboBoxes W-Win 
-PROCEDURE pUpdateComboBoxes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    ASSIGN
-        cJobno2ListItems  = ""
-        .
-        
-    RUN GetSecondaryJobForJob IN hdJobProcs (
-        ipcCompany,
-        fiJobNo:SCREEN-VALUE,
-        INPUT-OUTPUT cJobno2ListItems
-        ).    
-    
-    IF cJobno2ListItems EQ "" THEN
-        ASSIGN 
-            cJobNo2ListItems      = "00"
-            cbJobNo2:LIST-ITEMS   = cJobno2ListItems 
-            cbJobNo2:SCREEN-VALUE = "00".
-    ELSE
-        cbJobNo2:LIST-ITEMS = cJobno2ListItems.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
@@ -1285,7 +1108,7 @@ PROCEDURE pWinReSize :
             btnAdjustQtyText:ROW               = {&WINDOW-NAME}:HEIGHT - .86
             btnIssueQtyText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
             .
-        dRow = {&WINDOW-NAME}:HEIGHT - 1.62.
+        dRow = {&WINDOW-NAME}:HEIGHT - 1.
         RUN set-position IN h_printjob ( dRow , dCol ) NO-ERROR.
         RUN set-position IN h_adjustqty ( dRow , btnAdjustQtyText:COL + btnAdjustQtyText:WIDTH ) NO-ERROR.
         RUN set-position IN h_issueqty ( dRow , btnIssueQtyText:COL + btnIssueQtyText:WIDTH ) NO-ERROR.
@@ -1299,6 +1122,30 @@ PROCEDURE pWinReSize :
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanJob W-Win 
+PROCEDURE ScanJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/   
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("GENERAL").   
+    
+    {methods/run_link.i "JOB-SOURCE" "SetJob" "(ipcJobNo,ipiJobNo2,ipiFormNo,ipiBlankNo)"}
+            
+    SESSION:SET-WAIT-STATE("").            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1333,9 +1180,18 @@ PROCEDURE state-changed :
   Parameters:  <none>
   Notes:       
 -------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
-  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.    
+    
+    CASE p-state:
+        WHEN "job-valid" THEN
+            RUN pJobScan.
+        WHEN "job-error" THEN
+            RUN pJobError.
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

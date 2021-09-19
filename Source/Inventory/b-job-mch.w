@@ -154,9 +154,9 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      job-mch.frm FORMAT ">>9":U WIDTH 12 COLUMN-LABEL "S"
-      job-mch.blank-no FORMAT ">9":U WIDTH 12 COLUMN-LABEL "B"
-      job-mch.pass FORMAT ">>9":U WIDTH 12 COLUMN-LABEL "P"
+      job-mch.frm FORMAT ">>9":U WIDTH 12 COLUMN-LABEL "Form"
+      job-mch.blank-no FORMAT ">9":U WIDTH 12 COLUMN-LABEL "Blank"
+      job-mch.pass FORMAT ">>9":U WIDTH 12 COLUMN-LABEL "Pass"
       job-mch.m-code FORMAT "x(6)":U WIDTH 40 COLUMN-LABEL "Machine"
       job-mch.mr-complete FORMAT "YES/NO":U WIDTH 30 COLUMN-LABEL "MR Completed"
       job-mch.run-complete FORMAT "YES/NO":U WIDTH 30 COLUMN-LABEL "Run Completed"
@@ -312,6 +312,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
