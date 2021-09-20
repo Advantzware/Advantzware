@@ -172,7 +172,7 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER) FORWARD.    
 
 FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job for job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
+    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job FOR job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER) FORWARD.      
@@ -196,10 +196,10 @@ FUNCTION fGetEstimateType RETURNS CHARACTER PRIVATE
     (ipiEstType AS INTEGER, ipcEstimateTypeID AS CHARACTER) FORWARD.
 
 FUNCTION fValidMachineLimits RETURNS LOGICAL PRIVATE
-	(BUFFER ipbf-eb FOR eb, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL, INPUT ipcDept AS CHARACTER) FORWARD.
+	(BUFFER ipbf-eb FOR eb, BUFFER ipbf-mach FOR mach, INPUT ipdQty AS DECIMAL, INPUT ipcDept AS CHARACTER) FORWARD.
 	
 FUNCTION fVerifyLimitsForPrinter RETURNS LOGICAL PRIVATE
-    (BUFFER ipbf-mach for mach, ipcDept AS CHARACTER) FORWARD.	
+    (BUFFER ipbf-mach FOR mach, ipcDept AS CHARACTER) FORWARD.	
 
 /* ***************************  Main Block  *************************** */
 
@@ -231,11 +231,24 @@ PROCEDURE pBuildRouting:
     DEFINE INPUT PARAMETER ipiFormNo          AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE lValidFarmOut AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidFarmOut    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iRouteX          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRouteY          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPageX           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPageY           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iIndex           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dXAttributeValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dYAttributeValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMSF             AS DECIMAL NO-UNDO.
+                
     
-    DEFINE BUFFER bf-est    for est.
-    DEFINE BUFFER bf-ef     for ef.
-    DEFINE BUFFER bf-eb     for eb.
+    DEFINE BUFFER bf-est         FOR est.
+    DEFINE BUFFER bf-ef          FOR ef.
+    DEFINE BUFFER bf-eb          FOR eb.
+    DEFINE BUFFER bf-Style       FOR style.
+    DEFINE BUFFER bf-routing-mtx FOR routing-mtx.
+    DEFINE BUFFER bf-routing     FOR routing.
+    
     
     FIND FIRST bf-est NO-LOCK
         WHERE bf-est.company = ipcCompany
@@ -266,15 +279,39 @@ PROCEDURE pBuildRouting:
             /* Other Manufactured FG */
             ELSE
             DO:
-                RUN pProcessCRDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
-                RUN pProcessRCDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
-                RUN pProcessInk (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
-                RUN pProcessGUDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
-                RUN pProcessLMDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
-                RUN pProcessDCDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                RUN pGetStyleBuffer(bf-eb.company, bf-eb.style, BUFFER bf-Style).
                 
-                RUN pProcessGLDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                dMSF = ((ipdEstQty * bf-eb.t-len * bf-eb.t-wid) / 144) / 1000.
                 
+                RUN pGetRoutingMatrix(bf-ef.company, bf-ef.loc, bf-eb.style, dMSF, BUFFER bf-routing-mtx).
+                
+                IF AVAILABLE bf-routing-mtx THEN
+                DO:
+                    RUN pGetCoordinates(dXAttributeValue, "RX", OUTPUT iRouteX, OUTPUT iPageX).
+                    RUN pGetCoordinates(dYAttributeValue, "RY", OUTPUT iRouteY, OUTPUT iPageY).
+                    
+                    iIndex = ((iRouteY - 1) * 10) + iRouteX.
+                     
+                    FIND FIRST bf-routing NO-LOCK
+                        WHERE bf-routing.company EQ bf-routing-mtx.company
+                          AND bf-routing.loc     EQ bf-routing-mtx.loc
+                          AND bf-routing.r-code  EQ bf-routing-mtx.r-code[iIndex] NO-ERROR.
+                          
+                    IF AVAILABLE bf-routing THEN
+                       RUN pProcessDeptFromRouting (BUFFER bf-ef, BUFFER bf-eb, BUFFER bf-routing, ipdEstQty).
+                        
+                END.
+                ELSE
+                DO:
+                    RUN pProcessCRDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                    RUN pProcessRCDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                    RUN pProcessInk (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                    RUN pProcessGUDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                    RUN pProcessLMDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                    RUN pProcessDCDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                
+                    RUN pProcessGLDept (BUFFER bf-ef, BUFFER bf-eb, ipdEstQty).
+                END.
                 
             END. /* ELSE Manufactured FG  */
            
@@ -507,6 +544,89 @@ PROCEDURE pCheckAndAddMachine PRIVATE:
     END. /* FOR EACH ttMachineList */
     
 END PROCEDURE.
+    
+PROCEDURE pCheckAndAddMachineFromRouting PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Check if respective deptt Machine and add routing if valid machine 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef             FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb             FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-routing        FOR routing.
+    DEFINE INPUT  PARAMETER iplRunValidation    AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdEstQty           AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iCnt       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE rMachRowId AS ROWID   NO-UNDO.
+    DEFINE VARIABLE lValidMach AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cDeptToAdd AS CHARACTER NO-UNDO.
+        
+    DEFINE BUFFER bf-mach  FOR mach.
+    
+    EMPTY TEMP-TABLE ttMachineList.
+    
+    Mach-blk:
+    DO iCnt = 1 TO EXTENT(ipbf-routing.m-code):
+        IF ipbf-routing.m-code[iCnt] EQ "" THEN 
+            NEXT.
+                    
+        FIND FIRST bf-mach NO-LOCK
+            WHERE bf-mach.company  EQ ipbf-eb.company
+              AND bf-mach.obsolete EQ NO  
+              AND bf-mach.m-code   EQ ipbf-routing.m-code[iCnt] NO-ERROR.
+                
+        IF AVAILABLE bf-mach THEN
+        DO:
+            CREATE ttMachineList.
+            ASSIGN 
+                ttMachineList.Company     = bf-mach.company
+                ttMachineList.OperationId = bf-mach.m-code.
+                    
+        END. /* IF AVAILABLE bf-mach */
+            
+    END. /* Mach-blk */
+    
+    FOR EACH ttMachineList,
+        FIRST bf-mach NO-LOCK
+        WHERE bf-mach.company = ttMachineList.Company
+          AND bf-mach.m-code  = ttMachineList.OperationId:
+        
+        cDeptToAdd = bf-mach.dept[1]. 
+        
+        /* Department for Printers*/
+        IF LOOKUP(gcDeptsForCoaters, cDeptToAdd) GT 0 THEN
+        DO:
+            RUN pProcessInk (BUFFER ipbf-ef, BUFFER ipbf-eb, ipdEstQty).
+            NEXT.
+        END.
+        
+        /* Other Departments */
+        IF iplRunValidation THEN
+        DO:
+            IF fValidMachineLimits(BUFFER ipbf-eb, BUFFER bf-mach, ipdEstQty, cDeptToAdd) THEN
+                lValidMach = YES.
+                        
+            IF lValidMach = YES AND LOOKUP(gcDeptsForCoaters, cDeptToAdd) GT 0 THEN
+            DO:
+                IF fVerifyLimitsForPrinter(BUFFER bf-mach, cDeptToAdd) = NO THEN
+                   lValidMach = NO.
+            END.
+        END.
+        ELSE
+            lValidMach = YES.
+            
+        IF lValidMach THEN
+        DO:
+            RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, cDeptToAdd, ipiPass).
+            
+            oplSuccess = YES.
+            LEAVE.
+        END.
+    END. /* FOR EACH ttMachineList */
+    
+END PROCEDURE.
 
 PROCEDURE pCreateInkRec PRIVATE:
     /*------------------------------------------------------------------------------
@@ -585,6 +705,48 @@ PROCEDURE pGetInkTT PRIVATE:
     END.
                 
 END PROCEDURE.
+
+PROCEDURE pGetRoutingMatrix PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiMSF     AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-routing-mtx FOR routing-mtx.
+
+    FIND FIRST opbf-routing-mtx NO-LOCK
+        WHERE opbf-routing-mtx.company EQ ipcCompany
+          AND opbf-routing-mtx.loc     EQ ipcLoc
+          AND opbf-routing-mtx.style   EQ ipcStyle
+          AND opbf-routing-mtx.msf     GE ipiMSF NO-ERROR.
+          
+    IF AVAILABLE opbf-routing-mtx THEN
+    DO:      
+        RUN pAddAxis("RX", 0, opbf-routing-mtx.bl-len).
+        RUN pAddAxis("RY", 0, opbf-routing-mtx.bl-wid).
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pProcessDeptFromRouting PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Process machines from Routing dept
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb          FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-routing     FOR routing.
+    DEFINE INPUT  PARAMETER ipdEstQty        AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lMachineAdded AS LOGICAL NO-UNDO.
+    
+    RUN pCheckAndAddMachineFromRouting(BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER ipbf-routing,Yes, ipdEstQty,1,OUTPUT lMachineAdded).
+        
+END PROCEDURE.
+
 
 PROCEDURE pProcessCRDept PRIVATE:
     /*------------------------------------------------------------------------------
@@ -783,7 +945,7 @@ PROCEDURE pProcessInk PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
     DEFINE INPUT  PARAMETER ipdEstQty   AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-Item for item.
+    DEFINE BUFFER bf-Item FOR item.
     
     FOR EACH ttInk
         WHERE ttInk.FormId  = ipbf-eb.form-no
@@ -1166,7 +1328,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
     
     IF AVAILABLE bf-est-op THEN
     DO:         
-        FIND FIRST bf-est NO-lOCK
+        FIND FIRST bf-est NO-LOCK
             WHERE bf-est.company  EQ bf-est-op.company
             AND bf-est.est-no   EQ bf-est-op.est-no NO-ERROR.
         
@@ -2495,7 +2657,7 @@ PROCEDURE pGetEstOPData PRIVATE:
         AND bf-est-op.qty   EQ ipdTargetQty :
     
         CREATE ttEstOp.
-        BUFFER-COPY bf-est-op to ttEstOp.
+        BUFFER-COPY bf-est-op TO ttEstOp.
         
         IF (ipcAction EQ "Add" OR ipcAction EQ "Replace") AND bf-est-op.m-code = ipcOriginalMachine THEN
         DO:
@@ -3394,7 +3556,7 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dReturnValue AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iCount       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iNumUp       as INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumUp       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dNumOutCal   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cError       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
@@ -3465,7 +3627,7 @@ FUNCTION fGetOperationsEstSheet RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dReturnValue  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dOperationQty AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iYldQty       as INTEGER NO-UNDO.
+    DEFINE VARIABLE iYldQty       AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNOut         AS INTEGER NO-UNDO.
     DEFINE VARIABLE cQtyValue     AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cAttrName     AS CHARACTER NO-UNDO.
@@ -3536,7 +3698,7 @@ FUNCTION fGetOperationsGrsShtWid RETURNS DECIMAL PRIVATE
         AND ef.est-no EQ ipbf-eb.est-no
         AND ef.form-no EQ ipbf-eb.form-no NO-ERROR.
         
-    IF available ef THEN
+    IF AVAILABLE ef THEN
         iOut = ef.n-out.
         
     dReturnValue = iOut .         
@@ -3694,12 +3856,12 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
 END FUNCTION.
 
 FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job for job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER):
+    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job FOR job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER):
         
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyPerSet   AS DECIMAL NO-UNDO.
     
-    DEFINE BUFFER bf-job-hdr for job-hdr.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
     
     dQtyPerSet = fGetQuantityPerSet(BUFFER ipbf-eb).
@@ -3802,7 +3964,7 @@ FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
 
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE ipbf-eb and ipbf-eb.t-sqin NE 0 THEN
+    IF AVAILABLE ipbf-eb AND ipbf-eb.t-sqin NE 0 THEN
         dReturnValue = DYNAMIC-FUNCTION("fConv_GetAreaSqFeet", ipbf-eb.t-sqin,"SQIN").
         
     IF dReturnValue = ? THEN
@@ -3845,7 +4007,7 @@ END FUNCTION.
 
 
 FUNCTION fValidMachineLimits RETURNS LOGICAL 
-    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-mach for mach, INPUT ipdQty AS DECIMAL, INPUT ipcDept AS CHARACTER):
+    (BUFFER ipbf-eb FOR eb, BUFFER ipbf-mach FOR mach, INPUT ipdQty AS DECIMAL, INPUT ipcDept AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3910,7 +4072,7 @@ FUNCTION fValidMachineLimits RETURNS LOGICAL
 END FUNCTION.
 
 FUNCTION fVerifyLimitsForPrinter RETURNS LOGICAL PRIVATE
-    (BUFFER ipbf-mach for mach, ipcDept AS CHARACTER):
+    (BUFFER ipbf-mach FOR mach, ipcDept AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3928,3 +4090,18 @@ FUNCTION fVerifyLimitsForPrinter RETURNS LOGICAL PRIVATE
         
         RETURN lResult.
 END FUNCTION.
+
+PROCEDURE pGetStyleBuffer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcStyle   AS CHARACTER NO-UNDO.
+DEFINE PARAMETER BUFFER opbf-Style FOR style.
+
+    FIND FIRST opbf-Style NO-LOCK 
+        WHERE opbf-Style.company EQ ipcCompany
+        AND opbf-Style.style EQ ipcStyle NO-ERROR.
+
+END PROCEDURE.

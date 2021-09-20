@@ -815,6 +815,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdOpProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
         
@@ -1094,6 +1095,11 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
         RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
+    RUN est/OperationProcs.p PERSISTENT SET hdOpProcs.
+    
+    RUN BuildEstimateRouting IN hdOpProcs (eb.company, eb.est-no, eb.form-no, ipbf-ttImportEstimate.Quantity). 
+    
+    DELETE OBJECT hdOpProcs.
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
