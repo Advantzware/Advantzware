@@ -1821,10 +1821,10 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedMR", cMRComplete).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedRun", cRunComplete).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Completed", STRING(lComplete)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedMR", STRING(iQuantityWastedMR)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedRun", STRING(iQuantityWastedRun)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWasted", STRING(iQuantityWasted)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityRun", STRING(dQuantityRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedMR", STRING(iQuantityWastedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedRun", STRING(iQuantityWastedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWasted", STRING(iQuantityWasted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityRun", STRING(dQuantityRun)).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursMR", STRING(dHoursMR)).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursRun", STRING(dHoursRun)).
     
