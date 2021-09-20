@@ -225,7 +225,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      iLineCnt COLUMN-LABEL "#" FORMAT "99":U LABEL-BGCOLOR 14
+      iLineCnt COLUMN-LABEL "#" FORMAT "999":U LABEL-BGCOLOR 14
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(23)":U LABEL-BGCOLOR 14
       fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 7
             LABEL-BGCOLOR 14
@@ -366,7 +366,7 @@ ASSIGN
 fg-rctd.rita-code = ""T"" and
 fg-rctd.created-by = USERID(""ASI"")"
      _FldNameList[1]   > "_<CALC>"
-"iLineCnt" "#" "99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"iLineCnt" "#" "999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.fg-rctd.tag
 "fg-rctd.tag" "From!Tag" "x(23)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.fg-rctd.loc
@@ -595,7 +595,7 @@ DO:
         iHoldCnt = integer(iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name}) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN DO:    
           iLineCnt = iLineCnt + 1.        
-          iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "99").
+          iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "999").
           CREATE tt-line-cnt.
           ASSIGN tt-line-cnt.line-rowid = ROWID(fg-rctd)
                  tt-line-cnt.line-number = iLineCnt.
@@ -1713,7 +1713,7 @@ DEFINE VARIABLE iHoldCnt AS INTEGER     NO-UNDO.
       iHoldCnt = integer(iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name}) NO-ERROR.
       IF NOT ERROR-STATUS:ERROR THEN DO:    
         iLineCnt = iLineCnt + 1.        
-        iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "99").
+        iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "999").
         CREATE tt-line-cnt.
         ASSIGN tt-line-cnt.line-rowid = ROWID(fg-rctd)
                tt-line-cnt.line-number = iLineCnt.
