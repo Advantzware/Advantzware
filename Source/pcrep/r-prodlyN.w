@@ -820,7 +820,9 @@ PROCEDURE InitializeExcel :
 ------------------------------------------------------------------------------*/
 
   /* Connect to the running Excel session. */
-  CREATE "Excel.Application" chExcelApplication.
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
+  IF NOT VALID-HANDLE(chExcelApplication) THEN
+  RETURN.
 
   RUN sys/ref/getFileFullPathName.p ("Template\ProdAnalysis.xlt", OUTPUT chFile).
   IF chFile = ? THEN  
@@ -1037,6 +1039,13 @@ assign
   END.
 
 run InitializeExcel.
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN.
+END.
 
 
 /* Open our Excel Template. */  

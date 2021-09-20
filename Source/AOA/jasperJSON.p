@@ -50,9 +50,10 @@ IF iNumResults GT 0 THEN DO:
     IF NOT iphQuery:QUERY-OFF-END THEN
     REPEAT:
         iRecordCount = iRecordCount + 1.
-        IF /*dynParamValue.onePer OR*/ iRecordCount EQ 1 THEN
-        RUN pTaskFile (iRecordCount, OUTPUT cJasperFile).
-        opcJasperFile = opcJasperFile + cJasperFile + ",".
+        IF iRecordCount EQ 1 THEN DO:
+            RUN pTaskFile (iRecordCount, OUTPUT cJasperFile).
+            opcJasperFile = opcJasperFile + cJasperFile + ",".
+        END. /* if first record */
         IF iplProgressBar THEN
         RUN spProgressBar (ipcSubjectName, iRecordCount, iNumResults).
         PUT STREAM sJasperJSON UNFORMATTED
@@ -160,7 +161,7 @@ IF iNumResults GT 0 THEN DO:
     RUN pSubDataSet ("Summary").
 END. /* inumresults gt 0 */
 ELSE DO:
-    RUN pTaskFile (0).
+    RUN pTaskFile (0, OUTPUT cJasperFile).
     PUT STREAM sJasperJSON UNFORMATTED
         FILL(" ",8) "~{" SKIP
         FILL(" ",12)

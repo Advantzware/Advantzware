@@ -127,18 +127,18 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 200 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME FRAME-OK
+     btnOK AT ROW 1.24 COL 12 WIDGET-ID 2
      btnUsers AT ROW 1.24 COL 2 HELP
           "Link Dynamic Parameters to User(s)" WIDGET-ID 8
-     btnOK AT ROW 1.24 COL 12 WIDGET-ID 2
      RECT-OK AT ROW 1 COL 11 WIDGET-ID 4
      RECT-USERS AT ROW 1 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 138 ROW 1
+         AT COL 179 ROW 1
          SIZE 20.8 BY 2.38
          FGCOLOR 1  WIDGET-ID 200.
 
@@ -161,11 +161,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Dynamic Browser Parameters"
          HEIGHT             = 28.57
-         WIDTH              = 160
+         WIDTH              = 200
          MAX-HEIGHT         = 28.57
-         MAX-WIDTH          = 160
+         MAX-WIDTH          = 200
          VIRTUAL-HEIGHT     = 28.57
-         VIRTUAL-WIDTH      = 160
+         VIRTUAL-WIDTH      = 200
          CONTROL-BOX        = no
          MIN-BUTTON         = no
          MAX-BUTTON         = no
@@ -364,7 +364,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
-  ENABLE btnUsers btnOK 
+  ENABLE btnOK btnUsers 
       WITH FRAME FRAME-OK IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-OK}
   VIEW C-Win.
@@ -390,7 +390,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue C-Win 
 PROCEDURE pGetDynParamValue :

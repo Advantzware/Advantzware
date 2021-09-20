@@ -165,14 +165,14 @@ for each est-op
 
   {ce/box/prokalk.i}
       
-  IF AVAILABLE w-qty THEN 
+  IF AVAILABLE w-qty THEN DO:
     ASSIGN
         w-qty.num-bl = v-blk
         w-qty.sav-bl = v-sav[2]
         w-qty.spo-bl = spo.
 
-  {sys/inc/roundup.i w-qty.num-bl}
-
+        {sys/inc/roundup.i w-qty.num-bl}
+    END.
   IF est-op.b-num NE 0 THEN spo = 0.
 end.
 

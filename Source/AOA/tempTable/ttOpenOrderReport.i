@@ -28,6 +28,15 @@ DEFINE TEMP-TABLE ttOpenOrderReport NO-UNDO
     FIELD ackDate      AS DATE      LABEL "Ack Date"         FORMAT "99/99/9999"
     FIELD ordStartDate AS DATE      LABEL "Order Start"      FORMAT "99/99/9999"
     FIELD csr          AS CHARACTER LABEL "CSR"              FORMAT "x(8)"
+    FIELD jobNo        AS CHARACTER LABEL "Job"              FORMAT "x(10)"
+    FIELD die          AS CHARACTER LABEL "Die"              FORMAT "x(15)"
+    FIELD style        AS CHARACTER LABEL "Style"            FORMAT "x(6)"
+    FIELD dueDate      AS DATE      LABEL "Due Date"         FORMAT "99/99/9999"
+    FIELD runEndDate   AS DATE      LABEL "End Run"          FORMAT "99/99/9999"
+    FIELD sheeted      AS CHARACTER LABEL "Sheeted"          FORMAT "x(3)"
+    FIELD printed      AS CHARACTER LABEL "Printed"          FORMAT "x(3)"
+    FIELD dueCut       AS CHARACTER LABEL "Die Cut"          FORMAT "x(3)"
+    FIELD glued        AS CHARACTER LABEL "Glued"            FORMAT "x(3)"
     FIELD xxIndex      AS INTEGER   LABEL "Index"            FORMAT ">>>>>>9"
         INDEX ttOpenOrderReport IS PRIMARY rowType
         .

@@ -30,6 +30,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     
+USING system.SharedConfig.     
 
 CREATE WIDGET-POOL.
 
@@ -43,6 +45,9 @@ CREATE WIDGET-POOL.
 {est/d-machex.i}
 
 {sys/inc/ceroute.i}
+
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE lRunUtil AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -222,6 +227,12 @@ END.
 IF ceroute-log THEN DO:
   FIND FIRST tt-mach-exc NO-ERROR.
   IF NOT AVAIL tt-mach-exc THEN RETURN.
+  
+  ASSIGN 
+  scInstance           = SharedConfig:instance
+  lRunUtil = IF STRING(scInstance:GetValue("UtilPrompt")) EQ "Yes" THEN TRUE ELSE FALSE NO-ERROR .
+  
+  IF lRunUtil THEN RETURN.
 
   FOR EACH tt-mach-exc BREAK BY tt-mach-exc.form-no BY tt-mach-exc.blank-no BY tt-mach-exc.m-code:
     IF NOT FIRST-OF(tt-mach-exc.m-code) THEN DELETE tt-mach-exc.
