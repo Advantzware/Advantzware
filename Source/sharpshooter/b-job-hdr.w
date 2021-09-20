@@ -48,6 +48,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobNo2          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iFormNo          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iBlankNo         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE hdFGInquiry      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdFGInquiryWin   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lHasAccess       AS LOGICAL   NO-UNDO.
@@ -94,10 +96,10 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define FIELDS-IN-QUERY-br_table job-hdr.frm job-hdr.blank-no job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no    EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no    EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-hdr job itemfg
@@ -187,7 +189,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       job-hdr.frm FORMAT ">>>" WIDTH 10
-      job-hdr.blank-no FORMAT ">>>" WIDTH 10
+      job-hdr.blank-no FORMAT ">>>" LABEL "Blank" WIDTH 10
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 30
       job-hdr.i-no FORMAT "x(15)":U WIDTH 30
       itemfg.i-name COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 37 
@@ -277,9 +279,11 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK
-      WHERE job-hdr.company EQ cCompany
-        AND job-hdr.job-no  EQ cJobNo
-        AND job-hdr.job-no2 EQ iJobNo2,
+      WHERE job-hdr.company   EQ cCompany
+        AND job-hdr.job-no    EQ cJobNo
+        AND job-hdr.job-no2   EQ iJobNo2
+        AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)
+        AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?),
       FIRST job
       WHERE job.company EQ job-hdr.company
         AND job.job     EQ job-hdr.job
@@ -507,6 +511,56 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
+    
+    IF AVAILABLE job-hdr THEN DO:
+        ASSIGN
+            opcCompany = job-hdr.company
+            opcItemID  = job-hdr.i-no
+            oplAvail   = TRUE
+            .
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenQuery B-table-Win 
+PROCEDURE OpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        cCompany = ipcCompany
+        cJobNo   = ipcJobNo
+        iJobNo2  = ipiJobNo2
+        iFormNo  = ipiFormNo
+        iBlankNo = ipiBlankNo
+        .
+        
+    RUN dispatch ('open-query').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

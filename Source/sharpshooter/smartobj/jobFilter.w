@@ -364,6 +364,8 @@ DO:
     cJob = SELF:SCREEN-VALUE.  
     
     fiJobNo:SET-SELECTION(1, -1).
+    
+    SELF:BGCOLOR = 30.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,6 +385,7 @@ DO:
     DEFINE VARIABLE iJobNo2    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iFormNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlankNo   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lChoice    AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE cJobNo2ListItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormNoListItems  AS CHARACTER NO-UNDO.
@@ -399,10 +402,17 @@ DO:
         RETURN.
 
     IF SELF:SCREEN-VALUE EQ cJob THEN DO:
-        MESSAGE "The job '" + cJob + "' is already scanned." SKIP
-            "Do you want scan the same job again?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.   
-        
+        cMessage = "THE JOB '" + cJob + "' IS ALREADY SCANNED. ~n"
+                 + "DO YOU WANT SCAN THE SAME JOB AGAIN?".
+
+        RUN sharpShooter/messageDialog.w (
+            cMessage,
+            YES,
+            YES,
+            NO,
+            OUTPUT lChoice
+            ).
+                    
         IF NOT lChoice THEN
             RETURN. 
         
@@ -426,7 +436,17 @@ DO:
         ).      
 
     IF cMessage NE "" THEN DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            cStatusMessage     = cMessage
+            iStatusMessageType = 3
+            .
+            
+        RUN new-state("job-error").
+
+        ASSIGN
+            cStatusMessage     = ""
+            iStatusMessageType = 0
+            .   
         RETURN.
     END.
     
@@ -450,8 +470,18 @@ DO:
         OUTPUT cJobNo2ListItems 
         ).
     IF lParse AND cJobNo2 NE "" AND INDEX(cJobNo2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0 THEN DO:
-        MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
-            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
+            iStatusMessageType = 3
+            .
+            
+        RUN new-state("job-error").
+
+        ASSIGN
+            cStatusMessage     = ""
+            iStatusMessageType = 0
+            .           
+
         RETURN.            
     END.
     
@@ -472,8 +502,17 @@ DO:
         OUTPUT cFormNoListItems 
         ).  
     IF lParse AND cFormNo NE "" AND INDEX(cFormNoListItems,STRING(INTEGER(cFormNo),"99")) LE 0 THEN DO:
-        MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
-            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
+            iStatusMessageType = 3
+            .
+            
+        RUN new-state("job-error").
+
+        ASSIGN
+            cStatusMessage     = ""
+            iStatusMessageType = 0
+            . 
         RETURN.            
     END.
 
@@ -494,8 +533,17 @@ DO:
         OUTPUT cBlankNoListItems 
         ).  
     IF lParse AND cBlankNo NE "" AND INDEX(cBlankNoListItems,STRING(INTEGER(cBlankNo),"99")) LE 0 THEN DO:
-        MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
-            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
+            iStatusMessageType = 3
+            .
+            
+        RUN new-state("job-error").
+
+        ASSIGN
+            cStatusMessage     = ""
+            iStatusMessageType = 0
+            . 
         RETURN.            
     END.
 
@@ -530,6 +578,8 @@ DO:
         
         RETURN NO-APPLY.
     END.
+    
+    SELF:BGCOLOR = 15.
 END.
 
 /* _UIB-CODE-BLOCK-END */

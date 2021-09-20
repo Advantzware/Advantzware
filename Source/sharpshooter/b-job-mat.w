@@ -395,6 +395,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiJobNo2  AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
+    
+    IF AVAILABLE job-mat THEN DO:
+        ASSIGN
+            opcCompany = job-mat.company
+            opcItemID  = job-mat.i-no
+            opcJobNo   = job-mat.job-no
+            opiJobNo2  = job-mat.job-no2
+            oplAvail   = TRUE
+            .
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IssueQuantity B-table-Win 
 PROCEDURE IssueQuantity :
 /*------------------------------------------------------------------------------
