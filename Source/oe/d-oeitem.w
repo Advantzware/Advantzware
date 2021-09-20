@@ -161,6 +161,8 @@ DEFINE VARIABLE OEPO#Xfer-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cPromManualChanged AS LOGICAL NO-UNDO. //97238 MFG Date - Weekends
+DEFINE VARIABLE cDueManualChanged AS LOGICAL NO-UNDO. //97238 MFG Date - Weekends
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
@@ -2520,7 +2522,8 @@ DO:
 
     IF SELF:MODIFIED AND oeDateAuto-log THEN DO:
     
-             
+        IF NOT cDueManualChanged THEN 
+        DO:      
             RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
                                 INPUT oe-ordl.req-date:SCREEN-VALUE,
                                 INPUT oe-ordl.prom-date:SCREEN-VALUE,
@@ -2529,13 +2532,23 @@ DO:
                                 OUTPUT dCalcDueDate,
                                 OUTPUT dCalcPromDate).
              oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
-       
+        END.
 
       /* Used to update due-date on header */
       IF gcLastDateChange EQ "" THEN
         gcLastDateChange = "prom-date".
     END.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
+ON VALUE-CHANGED OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
+DO:
+  cPromManualChanged = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2632,7 +2645,8 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
   IF SELF:MODIFIED AND oeDateAuto-log  THEN DO:
-      
+      IF NOT cPromManualChanged THEN 
+      DO:
         RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
                               INPUT oe-ordl.req-date:SCREEN-VALUE,
                               INPUT oe-ordl.prom-date:SCREEN-VALUE,
@@ -2642,7 +2656,7 @@ DO:
                               OUTPUT dCalcPromDate).
     
         oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
-      
+      END.
 
     /* Used to set date on header */
     IF gcLastDateChange EQ "" THEN
@@ -2654,6 +2668,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.req-date d-oeitem
+ON VALUE-CHANGED OF oe-ordl.req-date IN FRAME d-oeitem /* Due Date */
+DO:
+  cDueManualChanged = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME oe-ordl.s-man[1]
@@ -4141,7 +4164,10 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
       ELSE xoe-ord.carrier.
       
       IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
-      DO:                 
+      DO:
+          IF NOT cPromManualChanged AND  cDueManualChanged THEN 
+          DO:
+                
               RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
                   INPUT oe-ordl.req-date,
                   INPUT oe-ordl.prom-date,
@@ -4151,7 +4177,22 @@ IF TRUE OR ( NOT AVAIL xoe-rel OR oe-ordl.est-no NE "" ) THEN DO:
                   OUTPUT dCalcPromDate).
               FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
               oe-ordl.prom-date = dCalcPromDate.
-              FIND CURRENT oe-ordl NO-LOCK.           
+              FIND CURRENT oe-ordl NO-LOCK.
+          END.
+          ELSE IF NOT cDueManualChanged AND  cPromManualChanged THEN 
+              DO:
+                
+                  RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                      INPUT oe-ordl.req-date,
+                      INPUT oe-ordl.prom-date,
+                      INPUT "PromiseDate",
+                      INPUT ROWID(oe-ordl),
+                      OUTPUT dCalcDueDate,
+                      OUTPUT dCalcPromDate).
+                  FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+                  oe-ordl.req-date = dCalcDueDate.
+                  FIND CURRENT oe-ordl NO-LOCK.
+              END.
       END.
 
     END.
@@ -7562,7 +7603,8 @@ PROCEDURE OnSaveButton :
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:      
-            
+            IF NOT cPromManualChanged AND cDueManualChanged THEN 
+            DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
                     INPUT oe-ordl.req-date,
                     INPUT oe-ordl.prom-date,
@@ -7570,8 +7612,32 @@ PROCEDURE OnSaveButton :
                     INPUT ROWID(oe-ordl),
                     OUTPUT dCalcDueDate,
                     OUTPUT dCalcPromDate).
-                oe-ordl.prom-date = dCalcPromDate.            
-            
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
+            ELSE
+            IF NOT cDueManualChanged AND cPromManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "PromiseDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.req-date = dCalcDueDate.
+            END.
+            ELSE
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
         END.
     
         RUN final-steps.
