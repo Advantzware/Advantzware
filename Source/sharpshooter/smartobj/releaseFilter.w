@@ -70,24 +70,25 @@ oReleaseHeader = NEW oe.ReleaseHeader().
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btFind 
-     LABEL "Find" 
+     LABEL "FIND" 
      SIZE 11 BY 1.48.
 
 DEFINE VARIABLE fiRelease AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "Release #" 
+     LABEL "RELEASE" 
      VIEW-AS FILL-IN 
-     SIZE 28 BY 1.38 TOOLTIP "Enter release #" NO-UNDO.
+     SIZE 28 BY 1.38 TOOLTIP "Enter release #"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      btFind AT ROW 1.19 COL 48 WIDGET-ID 4
-     fiRelease AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
+     fiRelease AT ROW 1.24 COL 17.2 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -165,7 +166,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btFind
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
-ON CHOOSE OF btFind IN FRAME F-Main /* Find */
+ON CHOOSE OF btFind IN FRAME F-Main /* FIND */
 DO:
     APPLY "HELP" TO fiRelease.
 END.
@@ -176,7 +177,7 @@ END.
 
 &Scoped-define SELF-NAME fiRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ANY-KEY OF fiRelease IN FRAME F-Main /* Release # */
+ON ANY-KEY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     IF KEY-LABEL(LASTKEY) EQ "HELP" THEN
         APPLY "HELP" TO SELF.
@@ -190,7 +191,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON ENTRY OF fiRelease IN FRAME F-Main /* Release # */
+ON ENTRY OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     SELF:SET-SELECTION ( 1, -1).
 END.
@@ -200,7 +201,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON HELP OF fiRelease IN FRAME F-Main /* Release # */
+ON HELP OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -232,7 +233,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
-ON LEAVE OF fiRelease IN FRAME F-Main /* Release # */
+ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
     IF LASTKEY NE -1 AND SELF:SCREEN-VALUE NE "" THEN
         RUN pReleaseScan.

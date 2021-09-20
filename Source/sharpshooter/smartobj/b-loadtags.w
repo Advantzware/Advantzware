@@ -595,8 +595,13 @@ PROCEDURE DeleteSelected :
     DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
     
     IF AVAILABLE ttLoadTag THEN DO:
-        MESSAGE "Delete selected record?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice.    
+        RUN sharpshooter/messageDialog.w (
+            "DELETE SELECTED RECORD?",
+            YES,
+            YES,
+            NO,
+            OUTPUT lChoice
+            ).
         
         IF lChoice THEN DO:
             DELETE ttLoadTag.

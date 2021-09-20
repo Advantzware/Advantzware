@@ -80,8 +80,8 @@ oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btJob btPO btRelease btReturn btDelete ~
-btReprint btPrint btSplit btBOL RECT-1 RECT-34 rHighlight 
+&Scoped-Define ENABLED-OBJECTS btDelete btPrint btJob btPO btRelease ~
+btReturn btReprint btSplit btBOL rHighlight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -114,9 +114,9 @@ DEFINE BUTTON btBOL
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
-     SIZE 7.6 BY 1.81 TOOLTIP "Delete currently selected record".
+     SIZE 8 BY 1.91 TOOLTIP "Delete currently selected record".
 
 DEFINE BUTTON btJob 
      LABEL "Job" 
@@ -127,9 +127,9 @@ DEFINE BUTTON btPO
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print" 
-     SIZE 13 BY 10.33.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btRelease 
      LABEL "Release" 
@@ -147,16 +147,6 @@ DEFINE BUTTON btSplit
      LABEL "Split" 
      SIZE 22.4 BY 1.43.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 208 BY 20.1
-     BGCOLOR 1 FGCOLOR 1 .
-
-DEFINE RECTANGLE RECT-34
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 208 BY 1.81
-     BGCOLOR 21 FGCOLOR 21 .
-
 DEFINE RECTANGLE rHighlight
      EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24.4 BY 1.81
@@ -166,23 +156,21 @@ DEFINE RECTANGLE rHighlight
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJob AT ROW 1.19 COL 5.4 WIDGET-ID 2 NO-TAB-STOP 
-     btPO AT ROW 1.19 COL 29.8 WIDGET-ID 24 NO-TAB-STOP 
-     btRelease AT ROW 1.19 COL 53.8 WIDGET-ID 48 NO-TAB-STOP 
-     btReturn AT ROW 1.19 COL 77.8 WIDGET-ID 50 NO-TAB-STOP 
-     btDelete AT ROW 23.19 COL 185 WIDGET-ID 62
-     btReprint AT ROW 1.19 COL 101.6 WIDGET-ID 52 NO-TAB-STOP 
-     btPrint AT ROW 23.19 COL 194.4 WIDGET-ID 30
-     btSplit AT ROW 1.19 COL 125.4 WIDGET-ID 54 NO-TAB-STOP 
-     btBOL AT ROW 1.19 COL 149.2 WIDGET-ID 64 NO-TAB-STOP 
-     RECT-1 AT ROW 2.81 COL 1 WIDGET-ID 4
-     RECT-34 AT ROW 1 COL 1 WIDGET-ID 18
-     rHighlight AT ROW 1 COL 4.4 WIDGET-ID 20
+     btDelete AT ROW 25.29 COL 201 WIDGET-ID 62
+     btPrint AT ROW 23.14 COL 201 WIDGET-ID 30
+     btJob AT ROW 2.62 COL 3 WIDGET-ID 2 NO-TAB-STOP 
+     btPO AT ROW 2.62 COL 27.4 WIDGET-ID 24 NO-TAB-STOP 
+     btRelease AT ROW 2.62 COL 51.4 WIDGET-ID 48 NO-TAB-STOP 
+     btReturn AT ROW 2.62 COL 75.4 WIDGET-ID 50 NO-TAB-STOP 
+     btReprint AT ROW 2.62 COL 99.2 WIDGET-ID 52 NO-TAB-STOP 
+     btSplit AT ROW 2.62 COL 123 WIDGET-ID 54 NO-TAB-STOP 
+     btBOL AT ROW 2.62 COL 146.8 WIDGET-ID 64 NO-TAB-STOP 
+     rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 208 BY 32.95
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -204,10 +192,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Create LoadTag"
          HEIGHT             = 32.95
          WIDTH              = 208
-         MAX-HEIGHT         = 47.38
-         MAX-WIDTH          = 384
-         VIRTUAL-HEIGHT     = 47.38
-         VIRTUAL-WIDTH      = 384
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -437,7 +430,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_setting ).
-       RUN set-position IN h_setting ( 1.00 , 193.00 ) NO-ERROR.
+       RUN set-position IN h_setting ( 2.67 , 193.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -451,20 +444,17 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_b-loadtags-3. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
-             btPrint:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-job.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_f-job ).
-       RUN set-position IN h_f-job ( 3.14 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.48 , 203.80 ) */
+       RUN set-position IN h_f-job ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 17.05 , 199.00 ) */
 
-       /* Links to SmartFrame h_f-job. */
+       /* Links to  h_f-job. */
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
@@ -473,12 +463,12 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-poprint.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_f-poprint ).
-       RUN set-position IN h_f-poprint ( 3.14 , 20.40 ) NO-ERROR.
-       /* Size in UIB:  ( 19.52 , 151.60 ) */
+       RUN set-position IN h_f-poprint ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.91 , 151.60 ) */
 
-       /* Links to SmartFrame h_f-poprint. */
+       /* Links to  h_f-poprint. */
        RUN add-link IN adm-broker-hdl ( h_f-poprint , 'PO':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-poprint , 'State':U , THIS-PROCEDURE ).
 
@@ -489,7 +479,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-releasetag ).
-       RUN set-position IN h_f-releasetag ( 3.14 , 71.00 ) NO-ERROR.
+       RUN set-position IN h_f-releasetag ( 4.57 , 71.00 ) NO-ERROR.
        /* Size in UIB:  ( 11.86 , 60.40 ) */
 
        /* Links to SmartFrame h_f-releasetag. */
@@ -503,7 +493,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-return ).
-       RUN set-position IN h_f-return ( 3.14 , 56.00 ) NO-ERROR.
+       RUN set-position IN h_f-return ( 4.57 , 56.00 ) NO-ERROR.
        /* Size in UIB:  ( 7.05 , 83.80 ) */
 
        /* Links to SmartFrame h_f-return. */
@@ -517,7 +507,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-reprint ).
-       RUN set-position IN h_f-reprint ( 3.00 , 63.60 ) NO-ERROR.
+       RUN set-position IN h_f-reprint ( 4.57 , 63.60 ) NO-ERROR.
        /* Size in UIB:  ( 6.48 , 81.60 ) */
 
        /* Links to SmartFrame h_f-reprint. */
@@ -531,7 +521,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-splittag ).
-       RUN set-position IN h_f-splittag ( 3.14 , 71.00 ) NO-ERROR.
+       RUN set-position IN h_f-splittag ( 4.57 , 71.00 ) NO-ERROR.
        /* Size in UIB:  ( 6.95 , 81.00 ) */
 
        /* Links to SmartFrame h_f-splittag. */
@@ -545,7 +535,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-boltag ).
-       RUN set-position IN h_f-boltag ( 3.14 , 73.00 ) NO-ERROR.
+       RUN set-position IN h_f-boltag ( 4.57 , 73.00 ) NO-ERROR.
        /* Size in UIB:  ( 11.86 , 61.40 ) */
 
        /* Links to SmartFrame h_f-boltag. */
@@ -617,8 +607,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btJob btPO btRelease btReturn btDelete btReprint btPrint btSplit btBOL 
-         RECT-1 RECT-34 rHighlight 
+  ENABLE btDelete btPrint btJob btPO btRelease btReturn btReprint btSplit btBOL 
+         rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -771,9 +761,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTagFromJob W-Win
-PROCEDURE pCreateTagFromJob PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTagFromJob W-Win 
+PROCEDURE pCreateTagFromJob PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -799,11 +788,9 @@ PROCEDURE pCreateTagFromJob PRIVATE:
 
     {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :

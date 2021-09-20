@@ -71,10 +71,10 @@ DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Tag" 
+     LABEL "TAG" 
      VIEW-AS FILL-IN 
      SIZE 67 BY 1.38 TOOLTIP "Enter Tag"
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE RECT-35
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -85,12 +85,12 @@ DEFINE RECTANGLE RECT-35
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiTag AT ROW 1.48 COL 7.6 COLON-ALIGNED WIDGET-ID 2
+     fiTag AT ROW 1.48 COL 10 COLON-ALIGNED WIDGET-ID 2
      RECT-35 AT ROW 1 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -168,7 +168,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME fiTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
-ON LEAVE OF fiTag IN FRAME F-Main /* Tag */
+ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
     IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN DO:
         IF lAutoScanNextTag AND LASTKEY NE -1 THEN

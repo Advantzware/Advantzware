@@ -79,13 +79,14 @@ DEFINE VARIABLE h_tagfilter AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btSplit 
-     LABEL "Split Tag" 
-     SIZE 20 BY 1.62.
+     LABEL "SPLIT TAG" 
+     SIZE 22 BY 1.62.
 
 DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT "->,>>>,>>>,>>9.99<<<<":U INITIAL 0 
-     LABEL "Quantity" 
+     LABEL "QUANTITY" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1.38 NO-UNDO.
+     SIZE 36 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -97,7 +98,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 81 BY 6.95
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -172,7 +173,7 @@ END.
 
 &Scoped-define SELF-NAME btSplit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSplit F-Frame-Win
-ON CHOOSE OF btSplit IN FRAME F-Main /* Split Tag */
+ON CHOOSE OF btSplit IN FRAME F-Main /* SPLIT TAG */
 DO:
     RUN new-state ("split-tag").
     
