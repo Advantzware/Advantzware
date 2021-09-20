@@ -38,6 +38,9 @@ DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE lReleasePrintedValidation AS LOGICAL NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lReleasePostedValidation  AS LOGICAL NO-UNDO INITIAL FALSE.
+
 DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
 DEFINE VARIABLE oKeyboard      AS system.Keyboard  NO-UNDO.
 
@@ -432,39 +435,42 @@ PROCEDURE pReleaseScan :
     INTEGER(fiRelease:SCREEN-VALUE) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'"
-            iStatusMessageType = 3
-            .
-        RUN new-state (
-            "release-error"
-            ).
-
+        RUN pSendError ("INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'").
+        
+        fiRelease:SCREEN-VALUE = "".
+        
         RETURN.    
     END.
             
     oReleaseHeader:SetContext(cCompany, INTEGER(fiRelease:SCREEN-VALUE)).
     
     IF NOT oReleaseHeader:IsAvailable() THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'"
-            iStatusMessageType = 3
-            .
-        RUN new-state (
-            "release-error"
-            ).
-
+        RUN pSendError ("INVALID RELEASE '" + fiRelease:SCREEN-VALUE + "'").
+        
+        fiRelease:SCREEN-VALUE = "".
+        
         RETURN.
+    END.
+    
+    IF lReleasePrintedValidation AND NOT LOGICAL(oReleaseHeader:GetValue("Printed")) THEN DO:
+        RUN pSendError ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS NOT PRINTED").
+        
+        fiRelease:SCREEN-VALUE = "".
+            
+        RETURN.    
+    END.
+
+    IF lReleasePostedValidation AND LOGICAL(oReleaseHeader:GetValue("Posted")) THEN DO:
+        RUN pSendError ("RELEASE '" + oReleaseHeader:GetValue("ReleaseID") + "' IS ALREADY POSTED").
+        
+        fiRelease:SCREEN-VALUE = "".
+            
+        RETURN.    
     END.
     
     RUN new-state (
         INPUT "release-valid"
         ).    
-
-    ASSIGN
-        cStatusMessage     = ""
-        iStatusMessageType = 0
-        .
                     
     SELF:BGCOLOR = 15.
 
@@ -472,6 +478,69 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object
+PROCEDURE pSendError:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+    RUN new-state (
+        "release-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePostedValidation s-object
+PROCEDURE ReleasePostedValidation:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplReleasePostedValidation AS LOGICAL NO-UNDO.
+    
+    lReleasePostedValidation = iplReleasePostedValidation.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePrintedValidation s-object
+PROCEDURE ReleasePrintedValidation:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplReleasePrintedValidation AS LOGICAL NO-UNDO.
+    
+    lReleasePrintedValidation = iplReleasePrintedValidation.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
 PROCEDURE Set-Focus :

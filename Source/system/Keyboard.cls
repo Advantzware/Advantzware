@@ -28,7 +28,11 @@ CLASS system.Keyboard:
     DEFINE PUBLIC PROPERTY DisplayKeyboard AS LOGICAL NO-UNDO 
     GET.
     SET. 
-    
+
+	DEFINE PUBLIC PROPERTY LastKeyClicked AS CHARACTER NO-UNDO 
+	GET.
+	SET.     
+
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
@@ -57,6 +61,8 @@ CLASS system.Keyboard:
     END METHOD.
         
     METHOD VOID OpenKeyboard(iphFocusField AS HANDLE, ipcKeyboard AS CHARACTER): 
+        LastKeyClicked = "".
+            
         IF NOT DisplayKeyboard THEN
             RETURN.
             
@@ -94,6 +100,8 @@ CLASS system.Keyboard:
     
     METHOD VOID KeyStroke (ipcKeyStroke AS CHARACTER):
         IF VALID-HANDLE(FocusField) THEN DO:
+            LastKeyClicked = ipcKeyStroke.
+            
             CASE ipcKeyStroke:
                 WHEN "BACKSPACE" THEN
                     cFieldValue = SUBSTR(cFieldValue,1,LENGTH(cFieldValue) - 1).

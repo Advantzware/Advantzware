@@ -32,6 +32,9 @@ DEFINE OUTPUT PARAMETER oplChoice       AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE dWidth AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPos   AS DECIMAL NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -193,11 +196,22 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  
+  dWidth = FRAME {&FRAME-NAME}:WIDTH.
+  
   ASSIGN
       messageText:SCREEN-VALUE = ipcMessageText
       btnYes:HIDDEN            = NOT iplYesButton
       btnNo:HIDDEN             = NOT iplNoButton
       btnCancel:HIDDEN         = NOT iplCancelButton
+      .
+  
+  dPos = 1 / (INT(iplYesButton) + INT(iplNoButton) + INT(iplCancelButton) + 1).
+
+  ASSIGN
+      btnYes:COL    = 1 * dPos * dWidth - (btnYes:WIDTH * 0.5)
+      btnNo:COL     = (2 - INT(NOT iplYesButton)) * dPos * dWidth - (btnNo:WIDTH * 0.5)
+      btnCancel:COL = (3 - INT(NOT iplYesButton) - INT(NOT iplNoButton)) * dPos * dWidth - (btnCancel:WIDTH * 0.5)
       .
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

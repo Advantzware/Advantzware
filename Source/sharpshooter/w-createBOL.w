@@ -614,8 +614,11 @@ DO:
     DEFINE VARIABLE lValidTag AS LOGICAL NO-UNDO.
 
     IF SELF:SCREEN-VALUE EQ "" THEN
-        RETURN NO-APPLY.
+        RETURN.
     
+    IF LASTKEY EQ -1 AND (VALID-OBJECT (oKeyboard) AND oKeyboard:LastKeyClicked NE "TAB" AND oKeyboard:LastKeyClicked NE "ENTER" ) THEN
+        RETURN.
+        
     IF SELF:SCREEN-VALUE EQ "EXIT" THEN DO:
         RUN state-changed (THIS-PROCEDURE, "tag-exit").        
         RETURN.
@@ -1191,6 +1194,9 @@ PROCEDURE pInit :
 
         IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
             {methods/run_link.i "Setting-SOURCE" "HideSettings"}
+
+        {methods/run_link.i "RELEASE-SOURCE" "ReleasePrintedValidation" "(TRUE)"}
+        {methods/run_link.i "RELEASE-SOURCE" "ReleasePostedValidation" "(TRUE)"}
 
         RUN pInvalidRelease.
         

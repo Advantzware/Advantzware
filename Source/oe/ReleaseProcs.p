@@ -536,6 +536,7 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             INPUT  bf-oe-relh.company,
             INPUT  bf-oe-relh.release#,
             INPUT  bf-oe-relh.r-no,
+            INPUT  bf-loadtag.i-no,
             INPUT  dScannedQuantity,
             BUFFER bf-oe-rell
             ).
@@ -594,10 +595,11 @@ PROCEDURE pCreateReleaseTag PRIVATE:
             RETURN.
         END.
         
-        FOR EACH bf-ssrelbol NO-LOCK
+        FOR LAST bf-ssrelbol NO-LOCK
             WHERE bf-ssrelbol.company  EQ bf-oe-relh.company
-               AND bf-ssrelbol.release# EQ bf-oe-relh.release#:
-            iNextSequenceID = iNextSequenceID + 1.
+              AND bf-ssrelbol.release# EQ bf-oe-relh.release#
+            BY bf-ssrelbol.seq:
+            iNextSequenceID = bf-ssrelbol.seq.
         END.
         
         CREATE bf-ssrelbol.
@@ -702,6 +704,7 @@ PROCEDURE pGetReleaseLineForTag PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiRNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO.
     DEFINE PARAMETER BUFFER opbf-oe-rell FOR oe-rell.
         
@@ -712,21 +715,26 @@ PROCEDURE pGetReleaseLineForTag PRIVATE:
         ).
 
     FIND FIRST ttReleaseItem
-         WHERE ttReleaseItem.quantityScanned + ipdQuantity EQ ttReleaseItem.quantityRelease
+         WHERE ttReleaseItem.itemID EQ ipcItemID 
+           AND ttReleaseItem.quantityScanned + ipdQuantity EQ ttReleaseItem.quantityRelease
          NO-ERROR.
 
     IF NOT AVAILABLE ttReleaseItem THEN         
         FIND FIRST ttReleaseItem
-             WHERE ttReleaseItem.quantityScanned EQ 0
+             WHERE ttReleaseItem.itemID          EQ ipcItemID
+               AND ttReleaseItem.quantityScanned EQ 0
              NO-ERROR.
 
     IF NOT AVAILABLE ttReleaseItem THEN         
         FIND FIRST ttReleaseItem
-             WHERE ttReleaseItem.quantityScanned + ipdQuantity LE ttReleaseItem.quantityRelease + (ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100))
+             WHERE ttReleaseItem.itemID EQ ipcItemID 
+               AND ttReleaseItem.quantityScanned + ipdQuantity LE ttReleaseItem.quantityRelease + (ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100))
              NO-ERROR.
 
     IF NOT AVAILABLE ttReleaseItem THEN         
-        FIND FIRST ttReleaseItem NO-ERROR.
+        FIND FIRST ttReleaseItem 
+             WHERE ttReleaseItem.itemID EQ ipcItemID
+             NO-ERROR.
 
     IF AVAILABLE ttReleaseItem THEN
         FIND FIRST opbf-oe-rell NO-LOCK

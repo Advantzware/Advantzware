@@ -49,6 +49,7 @@ DEFINE VARIABLE hdJobProcs              AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
 DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 oJobHeader = NEW JobHeader().
 
@@ -67,10 +68,10 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 fiJobNo cbFormNo ~
-cbBlankNo 
-&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 fiJobNoLabel fiJobNo cbFormNo ~
-cbBlankNo fiFormNoLabel fiBlankNoLabel 
+&Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 cbFormNo cbBlankNo ~
+fiJobNo 
+&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 cbFormNo cbBlankNo fiJobNo ~
+fiFormNoLabel fiBlankNoLabel fiJobNoLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,15 +138,15 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJobDetails AT ROW 1.33 COL 66.4 WIDGET-ID 160
+     btJobDetails AT ROW 1 COL 116 WIDGET-ID 160
      cbJobNo2 AT ROW 1.24 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     fiJobNoLabel AT ROW 1.29 COL 4.8 NO-LABEL WIDGET-ID 2
+     cbFormNo AT ROW 1.24 COL 68.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
+     cbBlankNo AT ROW 1.24 COL 94.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
      fiJobNo AT ROW 1.29 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbFormNo AT ROW 2.81 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     cbBlankNo AT ROW 2.81 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
-     fiFormNoLabel AT ROW 2.86 COL 2 NO-LABEL WIDGET-ID 16
-     fiBlankNoLabel AT ROW 2.86 COL 32 NO-LABEL WIDGET-ID 20
-     imJobLookup AT ROW 1.24 COL 56.8 WIDGET-ID 182
+     fiFormNoLabel AT ROW 1.29 COL 58 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 1.29 COL 82 NO-LABEL WIDGET-ID 20
+     fiJobNoLabel AT ROW 1.33 COL 4.8 NO-LABEL WIDGET-ID 2
+     imJobLookup AT ROW 1.24 COL 107 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -179,7 +180,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 3.95
-         WIDTH              = 82.4.
+         WIDTH              = 140.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -241,7 +242,7 @@ DO:
     END.
 
     IF NOT VALID-HANDLE(hdJobDetails) THEN DO:         
-        RUN inventory/job-details.w PERSISTENT SET hdJobDetails.
+        RUN sharpshooter/w-jobInquiry.w PERSISTENT SET hdJobDetails.
 
         RUN dispatch IN hdJobDetails (
             INPUT 'initialize':U
@@ -252,7 +253,7 @@ DO:
 
     IF VALID-HANDLE(hdJobDetails) AND
         VALID-HANDLE(hdJobDetailsWin) THEN DO:        
-        RUN pInit IN hdJobDetails (
+        RUN ScanJob IN hdJobDetails (
             INPUT cCompany,
             INPUT cLocation,
             INPUT fiJobno:SCREEN-VALUE,
@@ -401,7 +402,7 @@ DO:
     IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
         RETURN.
 
-    IF SELF:SCREEN-VALUE EQ cJob THEN DO:
+    IF SELF:SCREEN-VALUE EQ cJob AND lValidateSameJobScan THEN DO:
         cMessage = "THE JOB '" + cJob + "' IS ALREADY SCANNED. ~n"
                  + "DO YOU WANT SCAN THE SAME JOB AGAIN?".
 
@@ -633,6 +634,21 @@ RUN pInit.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object 
+PROCEDURE DisableAll :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE fiJobNo cbJobNo2 cbFormNo cbBlankNo imJobLookup btJobDetails.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -646,6 +662,32 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob s-object 
+PROCEDURE GetJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER  opcJobno    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER  opiJobno2   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER  opiFormno   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER  opiBlankno  AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        opcJobNo   = fiJobNo:SCREEN-VALUE
+        opiJobNo2  = INTEGER(cbJobNo2:SCREEN-VALUE)
+        opiFormNo  = INTEGER(cbFormNo:SCREEN-VALUE)
+        opiBlankNo = INTEGER(cbBlankNo:SCREEN-VALUE)
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1112,12 +1154,15 @@ PROCEDURE SetJob :
     
     ASSIGN
         fiJobNo:SCREEN-VALUE   = ipcJobNo
+        cbJobNo2:LIST-ITEMS    = STRING(ipiJobno2)
         cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2)
+        cbFormNo:LIST-ITEMS    = STRING(ipiFormno)
         cbFormNo:SCREEN-VALUE  = STRING(ipiFormno)
+        cbBlankNo:LIST-ITEMS   = STRING(ipiBlankno)        
         cbBlankNo:SCREEN-VALUE = STRING(ipiBlankno)        
         .       
-        
-    RUN pValidteJob.
+
+    RUN pValidateJob.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1139,6 +1184,21 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateSameJobScan s-object 
+PROCEDURE ValidateSameJobScan :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplValidateSameJobScan AS LOGICAL NO-UNDO.
+    
+    lValidateSameJobScan = iplValidateSameJobScan.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

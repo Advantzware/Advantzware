@@ -544,7 +544,7 @@ PROCEDURE DeleteReleaseTag :
 
     IF AVAILABLE ttReleaseTag THEN DO:
         RUN sharpShooter/messageDialog.w (
-            "DO YOU WANT TO DELETE SELECTED RECORD?",
+            "DO YOU WANT TO DELETE SELECTED TAG ('" + ttReleaseTag.tag +  "')?",
             YES,
             YES,
             NO,

@@ -229,22 +229,22 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btFGItems AT ROW 7.33 COL 3.6 WIDGET-ID 118
-     btMaterials AT ROW 7.33 COL 35.2 WIDGET-ID 122
-     btRoutings AT ROW 7.33 COL 66.8 WIDGET-ID 120
+     btFGItems AT ROW 7.33 COL 2 WIDGET-ID 118
+     btMaterials AT ROW 7.33 COL 33.6 WIDGET-ID 122
+     btRoutings AT ROW 7.33 COL 65.2 WIDGET-ID 120
      btExit AT ROW 1 COL 197 WIDGET-ID 126
      btnFirst AT ROW 10.67 COL 197 WIDGET-ID 44
      btnLast AT ROW 16.38 COL 197 WIDGET-ID 46
      btnNext AT ROW 14.48 COL 197 WIDGET-ID 42
      btnPrevious AT ROW 12.57 COL 197 WIDGET-ID 40
-     fiStatusLabel AT ROW 2.91 COL 79 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiStatus AT ROW 2.91 COL 94.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     fiCreatedLabel AT ROW 2.91 COL 125 NO-LABEL WIDGET-ID 112
-     fiCreated AT ROW 2.91 COL 141.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiDueLabel AT ROW 4.57 COL 131.6 COLON-ALIGNED NO-LABEL WIDGET-ID 108
-     fiDue AT ROW 4.57 COL 141.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     fiCSRLabel AT ROW 4.57 COL 85.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     fiCSR AT ROW 4.57 COL 94.6 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     fiStatusLabel AT ROW 5.52 COL 2 NO-LABEL WIDGET-ID 94
+     fiStatus AT ROW 5.52 COL 15.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiCreatedLabel AT ROW 5.52 COL 46 NO-LABEL WIDGET-ID 112
+     fiCreated AT ROW 5.52 COL 62.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+     fiDueLabel AT ROW 5.52 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+     fiDue AT ROW 5.52 COL 131.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     fiCSRLabel AT ROW 5.52 COL 85 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiCSR AT ROW 5.52 COL 94.2 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
      btnPrintJobText AT ROW 30.76 COL 176 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -252,9 +252,6 @@ DEFINE FRAME F-Main
      btnIssueQtyText AT ROW 30.76 COL 147 COLON-ALIGNED NO-LABEL WIDGET-ID 136
      btnViewRM AT ROW 7.91 COL 98.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btnViewFG AT ROW 7.91 COL 98.2 COLON-ALIGNED NO-LABEL WIDGET-ID 140
-     "-" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 5.52 COL 60 WIDGET-ID 86
-          FONT 37
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -336,7 +333,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiStatus IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiStatusLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
@@ -588,8 +585,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
-       RUN set-position IN h_jobfilter ( 2.91 , 2.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.62 , 76.40 ) */
+       RUN set-position IN h_jobfilter ( 2.76 , 4.40 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 126.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printjob.w':U ,
@@ -899,6 +896,7 @@ PROCEDURE local-enable :
     
     {methods/run_link.i "JOB-SOURCE" "HideJobDetails"}
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(FALSE)"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,14 +980,7 @@ PROCEDURE pJobScan :
     DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
     
-    {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
-    
-    ASSIGN
-        cJobNo   = oJobHeader:GetValue("JobNo")
-        iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
-        iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
-        iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
-        .
+    {methods/run_link.i "JOB-SOURCE" "GetJob" "(OUTPUT cJobNo, OUTPUT iJobNo2, OUTPUT iFormNo, OUTPUT iBlankNo)"}
 
     RUN pUpdateBrowse (
         INPUT cCompany,
@@ -1159,7 +1150,9 @@ PROCEDURE ScanJob :
 
     SESSION:SET-WAIT-STATE("GENERAL").   
     
-    {methods/run_link.i "JOB-SOURCE" "SetJob" "(ipcJobNo,ipiJobNo2,ipiFormNo,ipiBlankNo)"}
+    {methods/run_link.i "JOB-SOURCE" "SetJob" "(ipcJobNo,ipiJobNo2,?,?)"}
+    
+    {methods/run_link.i "JOB-SOURCE" "DisableAll"}
             
     SESSION:SET-WAIT-STATE("").            
 END PROCEDURE.
