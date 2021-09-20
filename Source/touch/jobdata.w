@@ -759,8 +759,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkIssuedMaterials s-object 
-PROCEDURE checkIssuedMaterials :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIssuedMaterials s-object 
+PROCEDURE pCheckIssuedMaterials :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -772,19 +772,24 @@ PROCEDURE checkIssuedMaterials :
 {methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
 {methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-       
+{methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+    
+IF CAN-FIND(FIRST mach
+                  WHERE mach.company EQ company_code
+                    AND mach.m-code  EQ machine_code
+                    AND (mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" )) THEN     
 FOR EACH job-mat NO-LOCK
     WHERE job-mat.company EQ company_code
       AND job-mat.job-no EQ job_number 
       AND job-mat.job-no2 EQ INTEGER(job_sub) 
       AND job-mat.frm EQ INTEGER(form_number)
-      AND (job-mat.blank-no EQ INTEGER(blank_number) OR job-mat.blank-no EQ 0)
+      AND (job-mat.blank-no EQ INTEGER(blank_number) OR INTEGER(blank_number) EQ 0)
       AND job-mat.all-flg EQ NO       
       USE-INDEX seq-idx,
       FIRST item
       WHERE item.company    EQ job-mat.company
         AND item.i-no       EQ job-mat.i-no
-        AND index("BPR",item.mat-type) gt 0
+        AND index("1234ABPR",item.mat-type) gt 0
       NO-LOCK:
      
       RUN displayMessage(
@@ -1989,7 +1994,7 @@ PROCEDURE pClick :
               RETURN NO-APPLY.
             END.     
             IF job_sequence BEGINS 'END' THEN DO: /* task 10050516*/
-               RUN checkIssuedMaterials NO-ERROR.
+               RUN pCheckIssuedMaterials NO-ERROR.
                RUN check-tsqty NO-ERROR.
                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
                IF v-tsfinish THEN DO:
