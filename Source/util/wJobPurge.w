@@ -48,6 +48,9 @@ CREATE WIDGET-POOL.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cOutDir AS CHAR NO-UNDO.
 DEF VAR lVerbose AS LOG NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
+
+RUN util/purgeProcs.p PERSISTENT SET hPurgeProcs.
 
 ASSIGN
     cocode = gcompany
@@ -434,7 +437,7 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  YES,      /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -443,7 +446,7 @@ DO:
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  NO,        /* Purge Records? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -472,7 +475,7 @@ DO:
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  YES,       /* Purge Recordss? */
                     INPUT  lVerbose,  /* Create .csv for child tables? */
@@ -481,7 +484,7 @@ DO:
                     OUTPUT cMessage
                     ). 
             ELSE 
-                RUN Purge_SimulateAndPurgeJobRecords(
+                RUN Purge_SimulateAndPurgeJobRecords IN hPurgeProcs (
                     BUFFER job,
                     INPUT  NO,         /* Purge Records? */
                     INPUT  lVerbose,   /* Create .csv for child tables?*/

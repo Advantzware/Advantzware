@@ -72,7 +72,6 @@ ASSIGN
                     + "system/FormatProcs.p,"
                     + "system/GLProcs.p,"
                     + "system/OSProcs.p,"
-                    + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
                     + "system/TaxProcs.p,"
                     + "system/VendorCostProcs.p,"

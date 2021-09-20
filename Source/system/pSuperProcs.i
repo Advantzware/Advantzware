@@ -83,7 +83,6 @@ PROCEDURE pSuperProcs:
                 + "system/OutputProcs.p,"
                 + "system/PgmMstrSecur.p,"
                 + "system/ProgramMasterSecurity.p,"
-                + "system/PurgeProcs.p,"
                 + "system/Session.p,"
                 + "system/TagProcs.p,"
                 + "system/TaxProcs.p,"
