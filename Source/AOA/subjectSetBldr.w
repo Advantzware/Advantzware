@@ -54,7 +54,7 @@ IF NOT AVAILABLE dynSubject THEN RETURN.
 {AOA/tempTable/ttDynAction.i}
 {AOA/includes/dynFuncs.i}
 
-RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
+RUN AOA/spDynInitializeProc.p PERSISTENT SET hDynInitProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,6 +262,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Dynamic Subject Parameter Set Builder */
 DO:
+  IF VALID-HANDLE(hDynInitProc) THEN
+  DELETE PROCEDURE hDynInitProc.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
