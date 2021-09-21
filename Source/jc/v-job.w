@@ -2440,6 +2440,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query-main V-table-Win 
+PROCEDURE reopen-query-main :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE updateOrderDate V-table-Win 
 PROCEDURE updateOrderDate :
 /*------------------------------------------------------------------------------
