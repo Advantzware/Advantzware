@@ -23,6 +23,9 @@ DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE chExcel AS COM-HANDLE NO-UNDO.
+
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -403,12 +406,13 @@ PROCEDURE pConvertXLStoCSV :
     DEFINE INPUT PARAMETER ipcInputFile AS CHAR NO-UNDO.
     DEFINE OUTPUT PARAMETER ipcOutputFile AS CHAR NO-UNDO INIT "".
 
-    DEF VAR chExcel     AS COM-HANDLE NO-UNDO.
     DEF VAR chWorkBook  AS COM-HANDLE NO-UNDO.
     DEF VAR chWorkSheet AS COM-HANDLE NO-UNDO.
 
     /* Start Excel */
-    CREATE "Excel.Application" chExcel.
+    CREATE "Excel.Application" chExcel NO-ERROR.
+    IF NOT VALID-HANDLE(chExcel) THEN
+    RETURN.
     ASSIGN 
         chExcel:Visible = FALSE.
   
@@ -560,8 +564,16 @@ PROCEDURE pRunProcess :
     DEFINE INPUT PARAMETER ipcImportFileName  AS CHARACTER NO-UNDO.
     
     SESSION:SET-WAIT-STATE("general").   
-    IF fIsExcel(ipcImportFileName) THEN 
+    IF fIsExcel(ipcImportFileName) THEN DO: 
         RUN pConvertXLStoCSV(ipcImportFileName, OUTPUT ipcImportFileName).
+        IF NOT VALID-HANDLE(chExcel) THEN DO:
+            MESSAGE 
+              "Microsoft Excel is required.  This report is unable to be executed."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+            RETURN.
+        END.
+    END.
     RUN pImport (ipcImportFileName).
     RUN pValidateImportedData. 
     SESSION:SET-WAIT-STATE(""). 

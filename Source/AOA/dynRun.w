@@ -509,8 +509,10 @@ ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
     IF iplParameters THEN
     FRAME resultsFrame:HIDDEN = YES.
-    ELSE
-    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    ELSE DO:
+        RUN pDeleteProcedure.
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+    END. /* else */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -874,12 +876,18 @@ PROCEDURE pDeleteProcedure :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   IF VALID-HANDLE(hAppSrvBin) THEN
-   DELETE PROCEDURE hAppSrvBin.
-   IF VALID-HANDLE(hJasper) THEN
-   DELETE PROCEDURE hJasper.
-   IF VALID-HANDLE(hDynCalcField) THEN
-   DELETE PROCEDURE hDynCalcField.
+    IF VALID-HANDLE(hAppSrvBin) THEN
+    DELETE PROCEDURE hAppSrvBin.
+    IF VALID-HANDLE(hJasper) THEN
+    DELETE PROCEDURE hJasper.
+    IF VALID-HANDLE(hDynDescripProc) THEN
+    DELETE PROCEDURE hDynDescripProc.
+    IF VALID-HANDLE(hDynInitProc) THEN
+    DELETE PROCEDURE hDynInitProc.
+    IF VALID-HANDLE(hDynValProc) THEN
+    DELETE PROCEDURE hDynValProc.
+    IF VALID-HANDLE(hDynCalcField) THEN
+    DELETE PROCEDURE hDynCalcField.
 
 END PROCEDURE.
 

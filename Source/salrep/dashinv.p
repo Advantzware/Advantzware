@@ -88,6 +88,12 @@ DEF VAR v-days-this-month AS INT NO-UNDO.
 ASSIGN
   v-this-month = MONTH(ip-as-of-date)
   v-days-this-month = DAY(ip-as-of-date).
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 run InitializeExcel.
 run MainLoop.
 run Cleanup.
@@ -131,7 +137,9 @@ PROCEDURE InitializeExcel :
 ------------------------------------------------------------------------------*/
 
   /* Connect to the running Excel session. */
-  CREATE "Excel.Application" chExcelApplication.
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
+  IF NOT VALID-HANDLE(chExcelApplication) THEN
+  RETURN.
 
   FILE-INFO:FILE-NAME = "template\DashInv.xlt".
 

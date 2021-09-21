@@ -132,7 +132,7 @@ DEFINE RECTANGLE RECT-1
      SIZE 67 BY 3.57.
 
 DEFINE VARIABLE tb_cpyall AS LOGICAL INITIAL yes 
-     LABEL "Copy View Item Costs?" 
+     LABEL "Copy Standard Costs?" 
      VIEW-AS TOGGLE-BOX
      SIZE 65.6 BY .81 NO-UNDO.
 
@@ -223,14 +223,7 @@ ASSIGN
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON GO OF FRAME D-Dialog /* Copy Transactions */
-DO:
-    IF tb_cpyall:SCREEN-VALUE EQ "YES" THEN
-        ip-all = YES .
-    ELSE ip-all = NO .
-    IF tb_cpywhbn:SCREEN-VALUE EQ "YES" THEN
-        ip-whbn = YES .
-    ELSE ip-whbn = NO .
-       
+DO:            
     IF tb_cpyspcnts:SCREEN-VALUE EQ "YES" THEN do:
         ASSIGN
             ip-cpyspc = YES 
@@ -264,8 +257,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel D-Dialog
 ON CHOOSE OF btn-cancel IN FRAME D-Dialog /* Cancel */
 DO:
-    ip-all = YES .
-    ip-whbn = YES . 
+    ip-all = NO .
+    ip-whbn = NO . 
  END.
 
 /* _UIB-CODE-BLOCK-END */

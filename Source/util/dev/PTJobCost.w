@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE chExcelApplication AS COMPONENT-HANDLE NO-UNDO.
+
 DEFINE TEMP-TABLE ttJobHeader
     FIELD job-no             LIKE job.job-no
     FIELD job-no2            LIKE job.job-no2
@@ -229,6 +232,13 @@ ON WINDOW-CLOSE OF FRAME gDialog /* Job Cost Report */
 ON CHOOSE OF Btn_OK IN FRAME gDialog /* OK */
     DO:
         RUN ipRunReport.
+        IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+            MESSAGE 
+              "Microsoft Excel is required.  This report is unable to be executed."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+            RETURN.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +342,6 @@ PROCEDURE ipRunReport :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE chExcelApplication AS COMPONENT-HANDLE NO-UNDO.
     DEFINE VARIABLE chWorkBook         AS COMPONENT-HANDLE NO-UNDO.
     DEFINE VARIABLE chWorksheet        AS COMPONENT-HANDLE NO-UNDO.
     DEFINE VARIABLE chHyper            AS COMPONENT-HANDLE NO-UNDO. 
@@ -341,7 +350,9 @@ PROCEDURE ipRunReport :
     DEFINE VARIABLE ihdrct             AS INTEGER          NO-UNDO.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
 
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
     RUN sys/ref/getFileFullPathName.p ("Template\PTJobCost.xlt", OUTPUT chFile).
 
     IF SEARCH (chFile) = ? THEN 

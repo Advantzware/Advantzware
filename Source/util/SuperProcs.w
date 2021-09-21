@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: runningProcs.w
+  File: SuperProcs.w
 
   Description: Access Currently Running Procedures/Functions
 
@@ -36,18 +36,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cProgressBar AS CHARACTER NO-UNDO INITIAL "Super Procedures".
+DEFINE VARIABLE cProgressBar AS CHARACTER NO-UNDO INITIAL "Procedures".
 DEFINE VARIABLE lProgressBar AS LOGICAL   NO-UNDO INITIAL YES.
 
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
-
-DEFINE TEMP-TABLE ttRunning NO-UNDO
-    FIELD procHandle AS CHARACTER 
-    FIELD procName   AS CHARACTER 
-    FIELD calledFrom AS CHARACTER 
-        INDEX ttRunning IS PRIMARY procHandle procName
-        .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -413,7 +406,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunning C-Win
 ON CHOOSE OF btnRunning IN FRAME DEFAULT-FRAME /* Running */
 DO:
-    RUN pRunning.
+    RUN sys/isRunning.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,47 +706,6 @@ PROCEDURE pReopenBrowse :
     END CASE.
     {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunning C-Win 
-PROCEDURE pRunning :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cSuperProcedure AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hCalledFrom     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hSuperProcedure AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttRunning.
-    DO idx = 1 TO NUM-ENTRIES(SESSION:SUPER-PROCEDURES):
-        CREATE ttRunning.
-        ASSIGN
-            hSuperProcedure      = HANDLE(ENTRY(idx,SESSION:SUPER-PROCEDURES))
-            hCalledFrom          = hSuperProcedure:INSTANTIATING-PROCEDURE
-            ttRunning.procHandle = ENTRY(idx,SESSION:SUPER-PROCEDURES)
-            ttRunning.procName   = hSuperProcedure:NAME
-            ttRunning.calledFrom = IF VALID-HANDLE(hCalledFrom) THEN hCalledFrom:NAME
-                                   ELSE "?"
-            .
-    END. /* do idx */
-    FOR EACH ttRunning:
-        cSuperProcedure = cSuperProcedure
-                        + "[" + ttRunning.procHandle + "] "
-                        + "[" + ttRunning.calledFrom + "] => "
-                        + ttRunning.procName
-                        + CHR(10)
-                        .
-    END. /* each ttrunning */
-    cSuperProcedure = TRIM(cSuperProcedure,CHR(10)).
-    MESSAGE
-        cSuperProcedure
-    VIEW-AS ALERT-BOX TITLE "Running Super Procedures".
 
 END PROCEDURE.
 
