@@ -586,7 +586,7 @@ ON VALUE-CHANGED OF est-prep.code IN FRAME Dialog-Frame /* Code */
                 est-prep.ml:screen-value          = STRING(prep.ml)
                 est-prep.simon:screen-value       = STRING(prep.simon)
                 est-prep.mkup:screen-value        = STRING(prep.mkup)
-                est-prep.spare-dec-1:screen-value = STRING(prep.spare-dec-1)
+                est-prep.spare-dec-1:screen-value = STRING(prep.price)
                 est-prep.amtz:screen-value        = STRING(prep.amtz)
                 .
             v-qty = dec(est-prep.qty:screen-value).
@@ -597,7 +597,7 @@ ON VALUE-CHANGED OF est-prep.code IN FRAME Dialog-Frame /* Code */
 
             est-prep.qty:screen-value = STRING(v-qty).
             fiTotalCost:SCREEN-VALUE = STRING( v-qty * prep.cost) .
-            fiTotalPrice:screen-value = STRING( v-qty * prep.spare-dec-1) .
+            fiTotalPrice:screen-value = STRING( v-qty * prep.price) .
         END.
     END.
 
