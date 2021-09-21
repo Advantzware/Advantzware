@@ -618,23 +618,22 @@ DEFINE VARIABLE riEb          AS ROWID     NO-UNDO .
     DO:
         RUN util/CalcEstimateForRange.p(cocode, 5, begin_est-no, end_est-no, OUTPUT cError).
      
-        IF cError EQ "" THEN
+        IF cError NE "" THEN
             PUT UNFORMATTED cError  SKIP.
     END.
     
     IF tb_create-quote THEN
     DO:
         RUN util/CreateEstQuoteForRange.p(cocode, 5, begin_est-no, end_est-no, OUTPUT  cError).
-    
-        IF cError EQ "" THEN
+        
+        IF cError NE "" THEN
             PUT UNFORMATTED cError  SKIP.
     END.
     
-    SESSION:SET-WAIT-STATE("").      
+    SESSION:SET-WAIT-STATE(""). 
+    OUTPUT CLOSE.     
     
-    MESSAGE TRIM(c-win:TITLE) + " Created [" STRING(iCount) "] Quotes from [" STRING(iCount)"] source estimates.  View log in " STRING(cFileName) " file." VIEW-AS ALERT-BOX.  
-
-    OUTPUT CLOSE.
+    MESSAGE TRIM(c-win:TITLE) + " Processing Complete." VIEW-AS ALERT-BOX.  
     
     STATUS DEFAULT "Processing Complete".
     
