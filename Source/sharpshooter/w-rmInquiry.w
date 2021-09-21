@@ -400,7 +400,7 @@ END.
 ON CHOOSE OF btnKeyboardItem IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiRMItem.
-    oKeyboard:OpenKeyboard (fiRMItem:HANDLE, "Qwerty").
+    oKeyboard:OpenKeyboardOverride (fiRMItem:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,7 +412,7 @@ END.
 ON CHOOSE OF btnKeyboardLoc IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiLocation.
-    oKeyboard:OpenKeyboard (fiLocation:HANDLE, "Qwerty").
+    oKeyboard:OpenKeyboardOverride (fiLocation:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -424,7 +424,7 @@ END.
 ON CHOOSE OF btnKeyboardName IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiRMName.
-    oKeyboard:OpenKeyboard (fiRMName:HANDLE, "Qwerty").
+    oKeyboard:OpenKeyboardOverride (fiRMName:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */

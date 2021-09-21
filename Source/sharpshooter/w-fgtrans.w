@@ -532,7 +532,7 @@ END.
 ON CHOOSE OF btnKeyboardlOCATION IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiLocation.    
-    oKeyboard:OpenKeyboard (fiLocation:HANDLE, "Qwerty"). 
+    oKeyboard:OpenKeyboardOverride (fiLocation:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -544,7 +544,7 @@ END.
 ON CHOOSE OF btnKeyboardTAG IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiTag.    
-    oKeyboard:OpenKeyboard (fiTag:HANDLE, "Qwerty"). 
+    oKeyboard:OpenKeyboardOverride (fiTag:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -53,8 +53,9 @@ DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSelectAll AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 
@@ -162,7 +163,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttLoadTag.isSelected COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+      ttLoadTag.isSelected COLUMN-LABEL "[]All" WIDTH 10 VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
@@ -261,6 +262,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -309,6 +313,29 @@ DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
    {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+    IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
+        lSelectAll = NOT lSelectAll.
+        
+        FOR EACH ttLoadTag:
+            ttLoadTag.isSelected = lSelectAll.
+        END.
+        
+        SELF:CURRENT-COLUMN:LABEL = IF lSelectAll THEN
+                                        "[*] All"
+                                    ELSE
+                                        "[ ] All".
+                                        
+        RUN dispatch ("open-query").   
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */

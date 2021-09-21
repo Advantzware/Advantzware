@@ -486,7 +486,7 @@ ON CHOOSE OF btnKeyboardTag IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiTag.    
     
-    oKeyboard:OpenKeyboard (fiTag:HANDLE, "Qwerty"). 
+    oKeyboard:OpenKeyboardOverride (fiTag:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +499,7 @@ ON CHOOSE OF btnKeyboardTrailer IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiTrailerTag.    
     
-    oKeyboard:OpenKeyboard (fiTrailerTag:HANDLE, "Qwerty"). 
+    oKeyboard:OpenKeyboardOverride (fiTrailerTag:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -512,7 +512,7 @@ ON CHOOSE OF btnKeyboardTrailerRelease IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiTrailerRelease.    
     
-    oKeyboard:OpenKeyboard (fiTrailerRelease:HANDLE, "Qwerty"). 
+    oKeyboard:OpenKeyboardOverride (fiTrailerRelease:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */

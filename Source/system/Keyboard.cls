@@ -59,11 +59,19 @@ CLASS system.Keyboard:
     METHOD PUBLIC VOID SetFrame( iphdFrameHandle AS HANDLE ):
         hdFrameHandle = iphdFrameHandle.
     END METHOD.
+
+    METHOD PUBLIC VOID OpenKeyboardOverride(iphFocusField AS HANDLE, ipcKeyboard AS CHARACTER): 
+        pOpenKeyboard (iphFocusField, ipcKeyboard, TRUE).
+    END.
+    
+    METHOD PUBLIC VOID OpenKeyboard(iphFocusField AS HANDLE, ipcKeyboard AS CHARACTER): 
+        pOpenKeyboard (iphFocusField, ipcKeyboard, DisplayKeyboard).
+    END.
         
-    METHOD VOID OpenKeyboard(iphFocusField AS HANDLE, ipcKeyboard AS CHARACTER): 
+    METHOD PRIVATE VOID pOpenKeyboard(iphFocusField AS HANDLE, ipcKeyboard AS CHARACTER, iplDisplayKeyboard AS LOGICAL): 
         LastKeyClicked = "".
             
-        IF NOT DisplayKeyboard THEN
+        IF NOT iplDisplayKeyboard THEN
             RETURN.
             
         CASE ipcKeyboard:
@@ -98,7 +106,7 @@ CLASS system.Keyboard:
     
     END METHOD.
     
-    METHOD VOID KeyStroke (ipcKeyStroke AS CHARACTER):
+    METHOD PUBLIC VOID KeyStroke (ipcKeyStroke AS CHARACTER):
         IF VALID-HANDLE(FocusField) THEN DO:
             LastKeyClicked = ipcKeyStroke.
             
