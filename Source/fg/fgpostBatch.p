@@ -1657,7 +1657,8 @@ PROCEDURE pCheckIssueMaterial:
         WHERE job-mat.company EQ ipcCompany
           AND job-mat.job-no EQ ipcJobNo 
           AND job-mat.job-no2 EQ ipiJobNo2            
-          AND job-mat.all-flg EQ NO       
+          AND job-mat.all-flg EQ YES
+          AND job-mat.qty-all GT 0
           USE-INDEX seq-idx:
 
           RUN displayMessageQuestionLOG ("71", OUTPUT lClose). 
