@@ -1,10 +1,10 @@
-/* subjectID154Defs.i - auto generated 09.21.2021 @ 10:47:03 am */
+/* subjectID182Defs.i - auto generated 09.21.2021 @  4:03:46 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
-DEFINE VARIABLE lAllPO AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllPO AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cStartPONumber AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndPONumber AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtStartPoDate AS DATE NO-UNDO.
@@ -15,23 +15,12 @@ DEFINE VARIABLE dtStartReceiptDate AS DATE NO-UNDO.
 DEFINE VARIABLE cDatePickList-3 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEndReceiptDate AS DATE NO-UNDO.
 DEFINE VARIABLE cDatePickList-4 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSvRunSync AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cSvRecipients AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSvAutoClose AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowAll AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowReportHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowReportFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowPageHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowPageFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowGroupHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowGroupFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowParameters AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
     ASSIGN
-        lAllPO = DYNAMIC-FUNCTION("fGetDynParamValue","allPO") EQ "YES"
         cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
+        lAllPO = DYNAMIC-FUNCTION("fGetDynParamValue","allPO") EQ "YES"
         cStartPONumber = DYNAMIC-FUNCTION("fGetDynParamValue","StartPONumber")
         cEndPONumber = DYNAMIC-FUNCTION("fGetDynParamValue","endPONumber")
         dtStartPoDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","startPoDate"))
@@ -46,16 +35,5 @@ PROCEDURE pAssignParamVariables:
         dtEndReceiptDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endReceiptDate"))
         cDatePickList-4 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-4")
         dtEndReceiptDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-4,dtEndReceiptDate)
-        lSvRunSync = DYNAMIC-FUNCTION("fGetDynParamValue","svRunSync") EQ "YES"
-        cSvRecipients = DYNAMIC-FUNCTION("fGetDynParamValue","svRecipients")
-        lSvAutoClose = DYNAMIC-FUNCTION("fGetDynParamValue","svAutoClose") EQ "YES"
-        lSvShowAll = DYNAMIC-FUNCTION("fGetDynParamValue","svShowAll") EQ "YES"
-        lSvShowReportHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowReportHeader") EQ "YES"
-        lSvShowReportFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowReportFooter") EQ "YES"
-        lSvShowPageHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowPageHeader") EQ "YES"
-        lSvShowPageFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowPageFooter") EQ "YES"
-        lSvShowGroupHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowGroupHeader") EQ "YES"
-        lSvShowGroupFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowGroupFooter") EQ "YES"
-        lSvShowParameters = DYNAMIC-FUNCTION("fGetDynParamValue","svShowParameters") EQ "YES"
         .
 END PROCEDURE.
