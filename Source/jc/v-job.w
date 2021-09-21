@@ -320,6 +320,7 @@ DEFINE FRAME F-Main
           SIZE 11.6 BY 1
           BGCOLOR 15 
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 
