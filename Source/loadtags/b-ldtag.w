@@ -318,7 +318,7 @@ DEFINE BROWSE Browser-Table
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       loadtag.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
-      loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14

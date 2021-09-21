@@ -1062,7 +1062,7 @@ PROCEDURE build-report-recs :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipv-s-pono LIKE po-ord.po-no FORMAT ">>>>>>" NO-UNDO.
+    DEFINE INPUT PARAMETER ipv-s-pono LIKE po-ord.po-no FORMAT ">>>>>>>>" NO-UNDO.
     DEFINE INPUT PARAMETER ipv-e-pono LIKE ipv-s-pono INIT 999999 NO-UNDO.
     DEFINE INPUT PARAMETER ipv-s-date LIKE po-ord.po-date FORMAT "99/99/9999" INIT "01/01/0001" NO-UNDO.
     DEFINE INPUT PARAMETER ipv-e-date LIKE ipv-s-date INIT TODAY NO-UNDO.
@@ -1579,7 +1579,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-foot-rem     LIKE ap-invl.amt-msf NO-UNDO.
     DEFINE VARIABLE v-msf-cal      AS LOG       NO-UNDO.
 
-    DEFINE VARIABLE v-s-pono       LIKE po-ord.po-no FORMAT ">>>>>>" NO-UNDO.
+    DEFINE VARIABLE v-s-pono       LIKE po-ord.po-no FORMAT ">>>>>>>>" NO-UNDO.
     DEFINE VARIABLE v-e-pono       LIKE v-s-pono INIT 999999 NO-UNDO.
     DEFINE VARIABLE v-s-date       LIKE po-ord.po-date FORMAT "99/99/9999" INIT "01/01/0001" NO-UNDO.
     DEFINE VARIABLE v-e-date       LIKE v-s-date INIT TODAY NO-UNDO.
@@ -1966,7 +1966,7 @@ PROCEDURE run-report :
             cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
             CASE cTmpField:             
                 WHEN "po"    THEN 
-                    cVarValue = STRING(po-ord.po-no,">>>>>>") .
+                    cVarValue = STRING(po-ord.po-no,">>>>>>>>") .
                 WHEN "vend"   THEN 
                     cVarValue = STRING(po-ord.vend-no,"x(8)").
                 WHEN "item"   THEN 

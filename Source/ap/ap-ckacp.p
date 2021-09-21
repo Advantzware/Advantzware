@@ -194,7 +194,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
                  wrk-chk.vend-no EQ v-vend-no:
                
                put wrk-chk.inv-no                to 12 format "x(12)"
-               trim(string(wrk-chk.po-no,">>>>>>"))
+               trim(string(wrk-chk.po-no,">>>>>>>>"))
                                              to 25 format "x(12)"
                wrk-chk.inv-date              to 34 format "99/99/99"
                wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
@@ -241,7 +241,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
                  wrk-chk.vend-no EQ v-vend-no:
         
                put wrk-chk.inv-no                to 12 format "x(12)"
-                  trim(string(wrk-chk.po-no,">>>>>>"))
+                  trim(string(wrk-chk.po-no,">>>>>>>>"))
                                                 to 25 format "x(12)"
                   wrk-chk.inv-date              to 34 format "99/99/99"
                   wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
@@ -310,7 +310,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
           wrk-chk.vend-no EQ v-vend-no:
         
         put wrk-chk.inv-no                to 12 format "x(12)"
-            trim(string(wrk-chk.po-no,">>>>>>"))
+            trim(string(wrk-chk.po-no,">>>>>>>>"))
                                           to 25 format "x(12)"
             wrk-chk.inv-date              to 34 format "99/99/99"
             wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
@@ -356,7 +356,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
           wrk-chk.vend-no EQ v-vend-no:
         
         put wrk-chk.inv-no                to 12 format "x(12)"
-            trim(string(wrk-chk.po-no,">>>>>>"))
+            trim(string(wrk-chk.po-no,">>>>>>>>"))
                                           to 25 format "x(12)"
             wrk-chk.inv-date              to 34 format "99/99/99"
             wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
