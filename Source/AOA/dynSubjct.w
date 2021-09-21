@@ -69,6 +69,7 @@ DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCopySubjectID     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iOrder             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hDynBL             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSection           AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lBusinessLogic     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
@@ -2310,6 +2311,8 @@ DO:
     RETURN NO-APPLY.
   END. /* if lsave */
   RUN pSaveSettings.
+  IF VALID-HANDLE(hDynBL) THEN
+  DELETE PROCEDURE hDynBL.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -3338,34 +3341,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectBrowse C-Win
-ON VALUE-CHANGED OF subjectBrowse IN FRAME DEFAULT-FRAME /* Subject */
-DO:
-    ASSIGN
-        lBusinessLogic     = dynSubject.businessLogic NE ""
-        btnDesign:HIDDEN   = lBusinessLogic
-        btnLookup:HIDDEN   = dynSubject.isLookup EQ NO
-        .
-    IF lBusinessLogic THEN
-    RUN pGetBusinessLogicTable (dynSubject.businessLogic).
-    {&OPEN-QUERY-tableBrowse}
-    {&OPEN-QUERY-subjectTableBrowse}
-    IF AVAILABLE ttSubjectTable THEN
-    APPLY "VALUE-CHANGED":U TO BROWSE subjectTableBrowse.
-    {&OPEN-QUERY-subjectColumnBrowse}
-    RUN pGetFields.
-    {&OPEN-QUERY-paramSetBrowse}
-    RUN pGetParamList.
-    {&OPEN-QUERY-subjectParamSetBrowse}
-    APPLY "VALUE-CHANGED":U TO tableList.
-    fShowQuery().
-    IF NOT FRAME viewFrame:HIDDEN THEN
-    RUN pDisplay.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define BROWSE-NAME subjectColumnBrowse
 &Scoped-define SELF-NAME subjectColumnBrowse
@@ -3839,6 +3814,33 @@ lContinue = YES.
 {AOA/includes/dynProcs.i "tt"}
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pJasperGroupCalc.i "tt"}
+
+/* moved this trigger here, because hBusinessLogic defined in above dynProcs.i */
+ON VALUE-CHANGED OF subjectBrowse IN FRAME DEFAULT-FRAME /* Subject */
+DO:
+    IF VALID-HANDLE(hBusinessLogic) THEN
+    DELETE PROCEDURE hBusinessLogic.
+    ASSIGN
+        lBusinessLogic     = dynSubject.businessLogic NE ""
+        btnDesign:HIDDEN   = lBusinessLogic
+        btnLookup:HIDDEN   = dynSubject.isLookup EQ NO
+        .
+    IF lBusinessLogic THEN
+    RUN pGetBusinessLogicTable (dynSubject.businessLogic).
+    {&OPEN-QUERY-tableBrowse}
+    {&OPEN-QUERY-subjectTableBrowse}
+    IF AVAILABLE ttSubjectTable THEN
+    APPLY "VALUE-CHANGED":U TO BROWSE subjectTableBrowse.
+    {&OPEN-QUERY-subjectColumnBrowse}
+    RUN pGetFields.
+    {&OPEN-QUERY-paramSetBrowse}
+    RUN pGetParamList.
+    {&OPEN-QUERY-subjectParamSetBrowse}
+    APPLY "VALUE-CHANGED":U TO tableList.
+    fShowQuery().
+    IF NOT FRAME viewFrame:HIDDEN THEN
+    RUN pDisplay.
+END.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -5009,7 +5011,10 @@ PROCEDURE pGetBusinessLogicTable :
         .
     IF cBLFile NE ? THEN DO:
         RUN VALUE(cBLFile) PERSISTENT SET hBusinessLogic.
-        hBusinessLogicTable = DYNAMIC-FUNCTION("fGetTableHandle" IN hBusinessLogic).
+        ASSIGN
+            hBusinessLogicTable = DYNAMIC-FUNCTION("fGetTableHandle" IN hBusinessLogic)
+            hDynBL              = hBusinessLogic
+            .
         IF CAN-FIND(FIRST ttTable
                     WHERE ttTable.tableName EQ hBusinessLogicTable:NAME
                       AND ttTable.businessLogic EQ YES) THEN

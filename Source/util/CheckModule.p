@@ -39,12 +39,14 @@ oplAccess = YES.
 
 IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
 RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
-IF VALID-HANDLE(hPgmMstrSecur) THEN
-RUN epCanAccess IN hPgmMstrSecur (
-    "util/CheckModule.p",
-    "SuperAdmin",
-    OUTPUT lAdmin 
-    ).
+IF VALID-HANDLE(hPgmMstrSecur) THEN DO:
+    RUN epCanAccess IN hPgmMstrSecur (
+        "util/CheckModule.p",
+        "SuperAdmin",
+        OUTPUT lAdmin 
+        ).
+    DELETE PROCEDURE hPgmMstrSecur.
+END.
 IF lAdmin THEN RETURN.
 
 FIND FIRST module NO-LOCK

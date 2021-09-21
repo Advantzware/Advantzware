@@ -136,7 +136,7 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS)"
+         TITLE              = "LOCATION TRANSACTION RECEIPT UPDATE (FINISHED GOODS)"
          HEIGHT             = 24.14
          WIDTH              = 150.2
          MAX-HEIGHT         = 33.29
@@ -223,7 +223,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON END-ERROR OF W-Win /* LOCATION TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -236,7 +236,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* WAREHOUSE TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
+ON WINDOW-CLOSE OF W-Win /* LOCATION TRANSACTION RECEIPT UPDATE (FINISHED GOODS) */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
