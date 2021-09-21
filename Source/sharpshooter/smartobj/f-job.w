@@ -96,7 +96,7 @@ DEFINE VARIABLE h_userfields AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCreate 
-     LABEL "Create" 
+     LABEL "CREATE" 
      SIZE 20 BY 2.24.
 
 
@@ -107,8 +107,8 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 203.8 BY 18.48
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         SIZE 203.8 BY 15.24
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -135,18 +135,11 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 18.48
+         HEIGHT             = 15.24
          WIDTH              = 203.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartFrameCues" F-Frame-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartFrame,ab,49268
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
@@ -189,7 +182,7 @@ Destroy on next read */
 
 &Scoped-define SELF-NAME btCreate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCreate F-Frame-Win
-ON CHOOSE OF btCreate IN FRAME F-Main /* Create */
+ON CHOOSE OF btCreate IN FRAME F-Main /* CREATE */
 DO:
     RUN new-state ("create-tags-job").
       
@@ -245,35 +238,35 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_fgfilter ).
+       RUN set-position IN h_fgfilter ( 1.00 , 77.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.52 , 85.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 1.19 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 3.52 , 76.40 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_fgfilter ).
-       RUN set-position IN h_fgfilter ( 4.81 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 3.76 , 85.00 ) */
+       /* Size in UIB:  ( 3.52 , 73.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 5.29 , 97.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.19 , 46.60 ) */
+       RUN set-position IN h_printcopies ( 4.57 , 108.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 46.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_qtyunits ).
-       RUN set-position IN h_qtyunits ( 8.86 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_qtyunits ( 6.95 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 9.29 , 131.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -281,16 +274,16 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_userfields ).
-       RUN set-position IN h_userfields ( 8.95 , 135.00 ) NO-ERROR.
+       RUN set-position IN h_userfields ( 6.95 , 136.00 ) NO-ERROR.
        /* Size in UIB:  ( 9.19 , 68.00 ) */
-
-       /* Links to SmartObject h_jobfilter. */
-       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_fgfilter. */
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_jobfilter. */
+       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_printcopies. */
        RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
@@ -303,12 +296,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_jobfilter ,
-             btCreate:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
+             btCreate:HANDLE IN FRAME F-Main , 'BEFORE':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_jobfilter ,
              h_fgfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
+             btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
              h_printcopies , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
@@ -524,20 +517,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :

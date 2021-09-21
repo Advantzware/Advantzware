@@ -80,8 +80,11 @@ oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete btPrint btJob btPO btRelease ~
-btReturn btReprint btSplit btBOL rHighlight 
+&Scoped-Define ENABLED-OBJECTS btPrint btDelete btJob btPO btRelease ~
+btReturn btReprint btSplit btBOL statusMessage btnExitText btnSettingsText ~
+btnDeleteText btnPrintText rHighlight 
+&Scoped-Define DISPLAYED-OBJECTS statusMessage btnExitText btnSettingsText ~
+btnDeleteText btnPrintText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,7 +122,7 @@ DEFINE BUTTON btDelete
      SIZE 8 BY 1.91 TOOLTIP "Delete currently selected record".
 
 DEFINE BUTTON btJob 
-     LABEL "Job" 
+     LABEL "JOB" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btPO 
@@ -132,20 +135,44 @@ DEFINE BUTTON btPrint
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btRelease 
-     LABEL "Release" 
+     LABEL "RELEASE" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btReprint 
-     LABEL "Re-Print" 
+     LABEL "RE-PRINT" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btReturn 
-     LABEL "Return" 
+     LABEL "RETURN" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btSplit 
-     LABEL "Split" 
+     LABEL "SPLIT" 
      SIZE 22.4 BY 1.43.
+
+DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
+      VIEW-AS TEXT 
+     SIZE 15 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 8 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
+      VIEW-AS TEXT 
+     SIZE 116 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE rHighlight
      EDGE-PIXELS 1 GRAPHIC-EDGE    
@@ -156,8 +183,8 @@ DEFINE RECTANGLE rHighlight
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btDelete AT ROW 25.29 COL 201 WIDGET-ID 62
-     btPrint AT ROW 23.14 COL 201 WIDGET-ID 30
+     btPrint AT ROW 31.95 COL 201 WIDGET-ID 30
+     btDelete AT ROW 31.95 COL 17 WIDGET-ID 62
      btJob AT ROW 2.62 COL 3 WIDGET-ID 2 NO-TAB-STOP 
      btPO AT ROW 2.62 COL 27.4 WIDGET-ID 24 NO-TAB-STOP 
      btRelease AT ROW 2.62 COL 51.4 WIDGET-ID 48 NO-TAB-STOP 
@@ -165,6 +192,11 @@ DEFINE FRAME F-Main
      btReprint AT ROW 2.62 COL 99.2 WIDGET-ID 52 NO-TAB-STOP 
      btSplit AT ROW 2.62 COL 123 WIDGET-ID 54 NO-TAB-STOP 
      btBOL AT ROW 2.62 COL 146.8 WIDGET-ID 64 NO-TAB-STOP 
+     statusMessage AT ROW 32.19 COL 30 COLON-ALIGNED NO-LABEL
+     btnExitText AT ROW 1.24 COL 191 COLON-ALIGNED NO-LABEL
+     btnSettingsText AT ROW 2.67 COL 172 COLON-ALIGNED NO-LABEL
+     btnDeleteText AT ROW 32.19 COL 2 NO-LABEL
+     btnPrintText AT ROW 32.19 COL 187 COLON-ALIGNED NO-LABEL
      rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -231,6 +263,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
+/* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
+   ALIGN-L                                                              */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -296,11 +330,56 @@ END.
 
 &Scoped-define SELF-NAME btJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btJob W-Win
-ON CHOOSE OF btJob IN FRAME F-Main /* Job */
+ON CHOOSE OF btJob IN FRAME F-Main /* JOB */
 DO:
     RUN select-page(1).
 
     rHighlight:X = SELF:X - 5.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDeleteText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteText W-Win
+ON MOUSE-SELECT-CLICK OF btnDeleteText IN FRAME F-Main
+DO:
+  APPLY "CHOOSE":U TO btDelete.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
+DO:
+    RUN dispatch ("exit").
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+DO:
+    RUN OpenSetting.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrintText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
+ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE":U TO btPrint.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +415,7 @@ END.
 
 &Scoped-define SELF-NAME btRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRelease W-Win
-ON CHOOSE OF btRelease IN FRAME F-Main /* Release */
+ON CHOOSE OF btRelease IN FRAME F-Main /* RELEASE */
 DO:
     RUN select-page(3).
 
@@ -349,7 +428,7 @@ END.
 
 &Scoped-define SELF-NAME btReprint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReprint W-Win
-ON CHOOSE OF btReprint IN FRAME F-Main /* Re-Print */
+ON CHOOSE OF btReprint IN FRAME F-Main /* RE-PRINT */
 DO:
     RUN select-page(5).
     
@@ -362,7 +441,7 @@ END.
 
 &Scoped-define SELF-NAME btReturn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReturn W-Win
-ON CHOOSE OF btReturn IN FRAME F-Main /* Return */
+ON CHOOSE OF btReturn IN FRAME F-Main /* RETURN */
 DO:
     RUN select-page(4).
 
@@ -375,7 +454,7 @@ END.
 
 &Scoped-define SELF-NAME btSplit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSplit W-Win
-ON CHOOSE OF btSplit IN FRAME F-Main /* Split */
+ON CHOOSE OF btSplit IN FRAME F-Main /* SPLIT */
 DO:
     RUN select-page(6).
 
@@ -395,6 +474,8 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+
+{sharpshooter/pStatusMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -438,23 +519,26 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags-3 ).
-       RUN set-position IN h_b-loadtags-3 ( 23.24 , 4.20 ) NO-ERROR.
-       RUN set-size IN h_b-loadtags-3 ( 10.29 , 179.00 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags-3 ( 24.10 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-loadtags-3 ( 7.86 , 199.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-loadtags-3. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
+             h_setting , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-job.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_f-job ).
        RUN set-position IN h_f-job ( 4.57 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.05 , 199.00 ) */
+       /* Size in UIB:  ( 15.24 , 203.80 ) */
 
-       /* Links to  h_f-job. */
+       /* Links to SmartFrame h_f-job. */
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
@@ -463,12 +547,12 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-poprint.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_f-poprint ).
        RUN set-position IN h_f-poprint ( 4.57 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.91 , 151.60 ) */
+       /* Size in UIB:  ( 19.38 , 151.60 ) */
 
-       /* Links to  h_f-poprint. */
+       /* Links to SmartFrame h_f-poprint. */
        RUN add-link IN adm-broker-hdl ( h_f-poprint , 'PO':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-poprint , 'State':U , THIS-PROCEDURE ).
 
@@ -607,7 +691,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btDelete btPrint btJob btPO btRelease btReturn btReprint btSplit btBOL 
+  DISPLAY statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  ENABLE btPrint btDelete btJob btPO btRelease btReturn btReprint btSplit btBOL 
+         statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
          rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -693,6 +780,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pWinReSize.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
@@ -805,7 +893,8 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    RUN spGetSessionParam("UserID", OUTPUT cUser).
+    //RUN spGetSessionParam("UserID", OUTPUT cUser).
+    RUN pStatusMessage ("", 0).
 
 END PROCEDURE.
 
@@ -985,6 +1074,56 @@ PROCEDURE pSplitTag :
             END.
         END.       
     END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dColTmp AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&WINDOW-NAME}:ROW                 = 1
+            {&WINDOW-NAME}:COL                 = 1
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
+            btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
+            btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
+            btnPrintText:COL                   = btPrint:COL - btnPrintText:WIDTH - 1
+            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
+            btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                    = dCol - 9
+            .
+        RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
+        RUN get-position IN h_b-loadtags-3 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        ASSIGN
+            dWidth  = dCol - 2
+            dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
+            .
+        RUN set-size IN h_b-loadtags-3 ( dHeight , dWidth ) NO-ERROR.
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

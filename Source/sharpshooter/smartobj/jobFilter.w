@@ -83,52 +83,53 @@ cbBlankNo fiFormNoLabel fiBlankNoLabel
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btJobDetails 
-     IMAGE-UP FILE "Graphics/32x32/form.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/form_disabled.ico":U
+     IMAGE-UP FILE "Graphics\32x32\UDF.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/UDF_disabled.png":U
      LABEL "" 
-     SIZE 11 BY 2.62 TOOLTIP "View Current Job Details".
+     SIZE 8 BY 1.91 TOOLTIP "View Current Job Details".
 
 DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
-     FONT 36 NO-UNDO.
+     SIZE 9.8 BY 1
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9 BY 1
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
-     FONT 36 NO-UNDO.
+     SIZE 9.8 BY 1
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Blank #:" 
+DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "BLANK:" 
      VIEW-AS FILL-IN 
      SIZE 12.4 BY 1.29 NO-UNDO.
 
-DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Form #:" 
+DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "FORM:" 
      VIEW-AS FILL-IN 
      SIZE 11.8 BY 1.29 NO-UNDO.
 
 DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1.29 NO-UNDO.
+     SIZE 31.2 BY 1.29
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job #:" 
+DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
      VIEW-AS FILL-IN 
      SIZE 9.6 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
-     FILENAME "Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/search_new.png":U
      STRETCH-TO-FIT RETAIN-SHAPE
-     SIZE 5.4 BY 1.29.
+     SIZE 8 BY 1.91.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -151,7 +152,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -180,8 +181,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.33
-         WIDTH              = 79.
+         HEIGHT             = 8.19
+         WIDTH              = 96.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -360,7 +361,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
@@ -372,7 +372,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fiJobNo
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
@@ -638,9 +638,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object
-PROCEDURE JobFGItemChanged:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE JobFGItemChanged s-object 
+PROCEDURE JobFGItemChanged :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -677,11 +676,9 @@ PROCEDURE JobFGItemChanged:
     
     RUN pValidateJob.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -941,9 +938,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobClosed s-object
-PROCEDURE pValidateJobClosed PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobClosed s-object 
+PROCEDURE pValidateJobClosed PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -972,11 +968,9 @@ PROCEDURE pValidateJobClosed PRIVATE:
         
     oplError = NOT lResponse.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextJob s-object 
 PROCEDURE ScanNextJob :
@@ -990,9 +984,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1003,11 +996,9 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO fiJobNo.    
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

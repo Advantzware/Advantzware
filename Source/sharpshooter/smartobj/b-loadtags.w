@@ -188,10 +188,11 @@ DEFINE BROWSE br_table
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
+      ttLoadTag.emptyColumn COLUMN-LABEL ""
       ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH SEPARATORS SIZE 150 BY 6.71.
+    WITH SEPARATORS SIZE 150 BY 6.71 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -449,11 +450,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromPO B-table-Win
-PROCEDURE BuildLoadTagsFromPO:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromPO B-table-Win 
+PROCEDURE BuildLoadTagsFromPO :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -492,14 +490,12 @@ PROCEDURE BuildLoadTagsFromPO:
         MESSAGE cMessage
         VIEW-AS ALERT-BOX ERROR.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromRelease B-table-Win
-PROCEDURE BuildLoadTagsFromRelease:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromRelease B-table-Win 
+PROCEDURE BuildLoadTagsFromRelease :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -526,14 +522,12 @@ PROCEDURE BuildLoadTagsFromRelease:
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromTag B-table-Win
-PROCEDURE BuildLoadTagsFromTag:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildLoadTagsFromTag B-table-Win 
+PROCEDURE BuildLoadTagsFromTag :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -558,11 +552,9 @@ PROCEDURE BuildLoadTagsFromTag:
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CreateLoadTagFromTT B-table-Win 
 PROCEDURE CreateLoadTagFromTT :

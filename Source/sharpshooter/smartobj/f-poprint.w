@@ -89,7 +89,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiPOLine btDelete BROWSE-2 
+&Scoped-Define ENABLED-OBJECTS fiPOLine BROWSE-2 btDelete 
 &Scoped-Define DISPLAYED-OBJECTS fiPOLine 
 
 /* Custom List Definitions                                              */
@@ -108,22 +108,25 @@ DEFINE VARIABLE h_qtyunits AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCreate 
-     LABEL "Create Tags" 
-     SIZE 23 BY 2.14.
+     LABEL "CREATE TAGS" 
+     SIZE 27.2 BY 2.14.
 
 DEFINE BUTTON btDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 7.6 BY 1.81 TOOLTIP "Delete currently selected record".
 
 DEFINE BUTTON btUpdate 
-     LABEL "Update" 
-     SIZE 15 BY 1.57.
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "UPDATE" 
+     SIZE 8 BY 1.91.
 
 DEFINE VARIABLE fiPOLine AS CHARACTER FORMAT "X(256)":U 
-     LABEL "PO # and Line" 
+     LABEL "PO and LINE" 
      VIEW-AS FILL-IN 
-     SIZE 38 BY 1.38 NO-UNDO.
+     SIZE 38 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -143,22 +146,22 @@ DEFINE BROWSE BROWSE-2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 131.8 BY 7.48
-         FONT 17 ROW-HEIGHT-CHARS .91 FIT-LAST-COLUMN.
+         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btCreate AT ROW 1.14 COL 113.2 WIDGET-ID 6
-     fiPOLine AT ROW 1.48 COL 24.4 COLON-ALIGNED WIDGET-ID 4
-     btDelete AT ROW 3.48 COL 136.8 WIDGET-ID 62
-     BROWSE-2 AT ROW 3.52 COL 4.2 WIDGET-ID 200
+     btCreate AT ROW 1.14 COL 109 WIDGET-ID 6
      btUpdate AT ROW 11.48 COL 136.8 WIDGET-ID 66
+     fiPOLine AT ROW 1.48 COL 27 COLON-ALIGNED WIDGET-ID 4
+     BROWSE-2 AT ROW 3.52 COL 4.2 WIDGET-ID 200
+     btDelete AT ROW 3.48 COL 136.8 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.6 BY 19.52
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         SIZE 151.6 BY 19.38
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -185,7 +188,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 19.57
+         HEIGHT             = 19.33
          WIDTH              = 152.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -209,7 +212,7 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE                                                          */
-/* BROWSE-TAB BROWSE-2 btDelete F-Main */
+/* BROWSE-TAB BROWSE-2 fiPOLine F-Main */
 /* SETTINGS FOR BUTTON btCreate IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btUpdate IN FRAME F-Main
@@ -265,7 +268,7 @@ END.
 
 &Scoped-define SELF-NAME btCreate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCreate F-Frame-Win
-ON CHOOSE OF btCreate IN FRAME F-Main /* Create Tags */
+ON CHOOSE OF btCreate IN FRAME F-Main /* CREATE TAGS */
 DO:
     RUN new-state ("create-tag-po").
     
@@ -297,7 +300,7 @@ END.
 
 &Scoped-define SELF-NAME btUpdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate F-Frame-Win
-ON CHOOSE OF btUpdate IN FRAME F-Main /* Update */
+ON CHOOSE OF btUpdate IN FRAME F-Main /* UPDATE */
 DO:
     DEFINE VARIABLE iQuantity          AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQuantityInSubUnit AS INTEGER NO-UNDO.
@@ -332,7 +335,7 @@ END.
 
 &Scoped-define SELF-NAME fiPOLine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOLine F-Frame-Win
-ON LEAVE OF fiPOLine IN FRAME F-Main /* PO # and Line */
+ON LEAVE OF fiPOLine IN FRAME F-Main /* PO and LINE */
 DO:   
     IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
@@ -390,8 +393,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
-             BROWSE-2:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -454,7 +455,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiPOLine 
       WITH FRAME F-Main.
-  ENABLE fiPOLine btDelete BROWSE-2 
+  ENABLE fiPOLine BROWSE-2 btDelete 
       WITH FRAME F-Main.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
