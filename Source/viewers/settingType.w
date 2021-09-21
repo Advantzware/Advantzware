@@ -165,7 +165,7 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY .81
      settingType.description AT ROW 2.43 COL 28 NO-LABEL WIDGET-ID 16
-          VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 77 BY 4
      settingType.isPassword AT ROW 2.43 COL 131 WIDGET-ID 12
           VIEW-AS TOGGLE-BOX
@@ -583,7 +583,7 @@ PROCEDURE local-update-record:
     END.
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF settingType.defaultValue:SCREEN-VALUE NE "" THEN DO:
+    IF validValues:LIST-ITEMS NE "" AND validValues:LIST-ITEMS NE ? THEN DO:
         IF LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ 0 OR LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ ? THEN DO:
             MESSAGE "Default value has to one the value from Valid Values list"  
                 VIEW-AS ALERT-BOX ERROR.

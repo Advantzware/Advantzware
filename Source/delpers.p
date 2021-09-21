@@ -1,19 +1,27 @@
 /* delpers.p */
 
-DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE shandle AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE i AS INTEGER FORMAT ">>9" NO-UNDO.
-DEFINE VARIABLE delnames AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE sHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalledFrom AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER   NO-UNDO FORMAT ">>9".
+DEFINE VARIABLE delNames    AS CHARACTER NO-UNDO.
 
-phandle = SESSION:FIRST-PROCEDURE.
-DO WHILE VALID-HANDLE(phandle):
-  shandle = phandle:NEXT-SIBLING.
-  delnames = delnames + phandle:FILE-NAME + ",".
-  DELETE PROCEDURE phandle.
-  phandle = shandle.
+pHandle = SESSION:FIRST-PROCEDURE.
+DO WHILE VALID-HANDLE(pHandle):
+    ASSIGN
+        sHandle     = pHandle:NEXT-SIBLING
+        hCalledFrom = pHandle:INSTANTIATING-PROCEDURE
+        delNames    = delNames
+                    + pHandle:FILE-NAME
+                    + (IF VALID-HANDLE(hCalledFrom) THEN " [" + hCalledFrom:NAME + "]" ELSE "")
+                    + ","
+        .
+    DELETE PROCEDURE pHandle.
+    pHandle = sHandle.
 END.
-DO i = 1 TO NUM-ENTRIES(delnames) - 1:
-  DISPLAY i ENTRY(i,delnames) FORMAT "x(60)"
+delNames = TRIM(delNames,",").
+DO idx = 1 TO NUM-ENTRIES(delNames) - 1:
+  DISPLAY idx ENTRY(idx,delNames) FORMAT "x(60)"
       WITH NO-LABELS DOWN.
   DOWN.
 END.

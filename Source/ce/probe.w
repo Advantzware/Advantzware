@@ -1963,10 +1963,12 @@ IF CAN-FIND(FIRST xprobe
                   v-tot-lab = (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000))) *
                               (1 + (quotechg.mkup / 100)).
              
-            quotechg.amt = v-tot-mat + v-tot-lab.
-            
-            IF quotechg.prep-qty NE 0 THEN
-               quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
+             quotechg.amt = v-tot-mat + v-tot-lab.
+                
+              IF quotechg.prep-qty NE 0 THEN
+                  ASSIGN 
+                    quotechg.spare-dec-1 = quotechg.amt / quotechg.prep-qty 
+                    quotechg.cost        = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
                              + (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000)))) / quotechg.prep-qty.
 
              IF ceprep-cha EQ "FiveDollar" THEN DO:

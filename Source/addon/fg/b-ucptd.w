@@ -223,7 +223,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.loc COLUMN-LABEL "Loc" FORMAT "x(13)":U WIDTH 7
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -363,7 +363,7 @@ fg-rctd.rita-code = ""R"""
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whse" ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Loc" ? "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
@@ -688,7 +688,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.loc IN BROWSE br_table /* Whse */
+ON LEAVE OF fg-rctd.loc IN BROWSE br_table /* Loc */
 DO:
     IF LASTKEY = -1 THEN RETURN.
 
@@ -708,7 +708,7 @@ DO:
 
           RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
           IF NOT lActiveBin THEN DO:
-             MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+             MESSAGE "Invalid Location. Try Help. " VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
           END.
           RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
@@ -730,7 +730,7 @@ DO:
     ELSE DO:
         RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
         IF NOT lActiveBin THEN DO:
-             MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+             MESSAGE "Invalid Location. Try Help. " VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
         END.
     END.
@@ -1477,7 +1477,7 @@ PROCEDURE validate-record :
     ------------------------------------------------------------------------------*/
        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
        IF NOT lActiveBin THEN DO:
-          MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+          MESSAGE "Invalid Location. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
