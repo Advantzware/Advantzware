@@ -893,7 +893,7 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    //RUN spGetSessionParam("UserID", OUTPUT cUser).
+    RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
 
 END PROCEDURE.
