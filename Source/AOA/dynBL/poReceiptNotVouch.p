@@ -60,7 +60,7 @@ PROCEDURE pBusinessLogic:
           AND po-ordl.excludeFromVoucher EQ NO
         USE-INDEX opened,
         FIRST po-ord NO-LOCK
-        WHERE po-ord.company EQ cCompany
+        WHERE po-ord.company EQ po-ordl.company
           AND po-ord.po-no   EQ po-ordl.po-no
           AND po-ord.po-date GE dtStartPoDate
           AND po-ord.po-date LE dtEndPoDate           
@@ -69,7 +69,7 @@ PROCEDURE pBusinessLogic:
         :        
         IF po-ordl.item-type AND
             NOT CAN-FIND(FIRST rm-rcpth
-                         WHERE rm-rcpth.company        EQ cCompany
+                         WHERE rm-rcpth.company    EQ po-ordl.company
                            AND rm-rcpth.i-no       EQ po-ordl.i-no
                            AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
                            AND rm-rcpth.job-no     EQ po-ordl.job-no
@@ -80,7 +80,7 @@ PROCEDURE pBusinessLogic:
         NEXT MAIN-LOOP.
         ELSE IF NOT po-ordl.item-type AND
                 NOT CAN-FIND(FIRST fg-rcpth
-                             WHERE fg-rcpth.company    EQ cCompany
+                             WHERE fg-rcpth.company    EQ po-ordl.company
                                AND fg-rcpth.i-no       EQ po-ordl.i-no
                                AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
                                AND fg-rcpth.rita-code  EQ "R"
@@ -98,13 +98,12 @@ PROCEDURE pBusinessLogic:
             .        
         IF po-ordl.item-type THEN DO:
             FIND FIRST item NO-LOCK
-                WHERE item.company EQ cCompany
+                WHERE item.company EQ po-ordl.company
                   AND item.i-no    EQ po-ordl.i-no
                 NO-ERROR.
             cProcat = IF AVAILABLE item THEN item.procat ELSE "".
-
             FOR EACH rm-rcpth FIELDS(trans-date r-no pur-uom) NO-LOCK
-                WHERE rm-rcpth.company    EQ cCompany
+                WHERE rm-rcpth.company    EQ po-ordl.company
                   AND rm-rcpth.i-no       EQ po-ordl.i-no
                   AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
                   AND rm-rcpth.job-no     EQ po-ordl.job-no
@@ -134,12 +133,12 @@ PROCEDURE pBusinessLogic:
         END.
         ELSE DO:
             FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ cCompany
+                WHERE itemfg.company EQ po-ordl.company
                   AND itemfg.i-no    EQ po-ordl.i-no
                 NO-ERROR.
             cProcat = IF AVAILABLE itemfg THEN itemfg.procat ELSE "".
             FOR EACH fg-rcpth FIELDS(trans-date pur-uom) NO-LOCK
-                WHERE fg-rcpth.company    EQ cCompany
+                WHERE fg-rcpth.company    EQ po-ordl.company
                   AND fg-rcpth.i-no       EQ po-ordl.i-no
                   AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
                   AND fg-rcpth.rita-code  EQ "R"
@@ -218,8 +217,7 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
         INPUT  "Triggered from PO Qty QuantityReceived", /* Event's description (Optional) */
         OUTPUT lSuccess,                                 /* Success/Failure flag */
         OUTPUT cMessage                                  /* Status message */
-        ) NO-ERROR.        
-            
+        ) NO-ERROR.            
     DELETE PROCEDURE hdOutboundProcs.  
 
 END PROCEDURE.
