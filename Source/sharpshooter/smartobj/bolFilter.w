@@ -178,6 +178,8 @@ END.
 ON ENTRY OF fiBOL IN FRAME F-Main /* BOL */
 DO:
     SELF:SET-SELECTION(1, -1).  
+    
+    SELF:BGCOLOR = 30.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -203,6 +205,8 @@ DO:
     RUN pBOLScan (
         INPUT INTEGER(fiBOL:SCREEN-VALUE)
         ).
+    
+    SELF:BGCOLOR = 15.
 END.
 
 /* _UIB-CODE-BLOCK-END */
