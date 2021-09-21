@@ -780,6 +780,9 @@ DO:
     IF VALID-HANDLE(hdOutputProcs) THEN
         DELETE OBJECT hdOutputProcs.
 
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE OBJECT hdJobProcs.
+
     IF VALID-HANDLE(hdJobDetailsWin) THEN
         APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
 

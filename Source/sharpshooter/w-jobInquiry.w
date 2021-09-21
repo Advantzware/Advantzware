@@ -55,7 +55,7 @@ DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oJobHeader AS jc.JobHeader NO-UNDO.
 
-RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -866,6 +866,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdJobProcs) THEN
+  DELETE PROCEDURE hdJobProcs.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :

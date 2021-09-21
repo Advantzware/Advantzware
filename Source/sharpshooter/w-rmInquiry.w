@@ -970,8 +970,11 @@ PROCEDURE local-destroy:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+  DELETE PROCEDURE hdInventoryProcs.
+
   IF VALID-OBJECT(oKeyboard) THEN
-      DELETE OBJECT oKeyboard.
+  DELETE OBJECT oKeyboard.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
