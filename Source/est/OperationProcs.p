@@ -240,6 +240,7 @@ PROCEDURE pBuildRouting:
     DEFINE VARIABLE dXAttributeValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dYAttributeValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dMSF             AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lRoutingMatrixApplied AS LOGICAL NO-UNDO.
                 
     
     DEFINE BUFFER bf-est         FOR est.
@@ -283,10 +284,23 @@ PROCEDURE pBuildRouting:
                 
                 dMSF = ((ipdEstQty * bf-eb.t-len * bf-eb.t-wid) / 144) / 1000.
                 
-                RUN pGetRoutingMatrix(bf-ef.company, bf-ef.loc, bf-eb.style, dMSF, BUFFER bf-routing-mtx).
                 
+                RUN pGetRoutingMatrix(bf-ef.company, bf-ef.loc, bf-eb.style, dMSF, BUFFER bf-ef, BUFFER bf-eb, BUFFER bf-routing-mtx).
+               
                 IF AVAILABLE bf-routing-mtx THEN
                 DO:
+                    lRoutingMatrixApplied = YES.
+                    
+                    IF bf-routing-mtx.dim-type EQ "BLANK"  THEN
+                        ASSIGN
+                            dXAttributeValue = bf-eb.t-len
+                            dYAttributeValue = bf-eb.t-wid.
+                    ELSE
+                        ASSIGN
+                            dXAttributeValue = bf-ef.nsh-len
+                            dYAttributeValue = bf-ef.nsh-len.
+                   
+                    
                     RUN pGetCoordinates(dXAttributeValue, "RX", OUTPUT iRouteX, OUTPUT iPageX).
                     RUN pGetCoordinates(dYAttributeValue, "RY", OUTPUT iRouteY, OUTPUT iPageY).
                     
@@ -319,8 +333,8 @@ PROCEDURE pBuildRouting:
         
     END. /* FOR EACH bf-ef NO-LOCK */
 
-    /* In discussion
-    RUN pRemoveRedundantDept(ipcCompany, ipcEstimateNo). */
+    IF NOT lRoutingMatrixApplied THEN
+        RUN pRemoveRedundantDept(ipcCompany, ipcEstimateNo). 
 
 END PROCEDURE.
 
@@ -622,7 +636,6 @@ PROCEDURE pCheckAndAddMachineFromRouting PRIVATE:
             RUN pAddMachine(BUFFER ipbf-eb, BUFFER bf-mach, cDeptToAdd, ipiPass).
             
             oplSuccess = YES.
-            LEAVE.
         END.
     END. /* FOR EACH ttMachineList */
     
@@ -715,6 +728,8 @@ PROCEDURE pGetRoutingMatrix PRIVATE:
     DEFINE INPUT  PARAMETER ipcLoc     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcStyle   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiMSF     AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb          FOR eb.
     DEFINE PARAMETER BUFFER opbf-routing-mtx FOR routing-mtx.
 
     FIND FIRST opbf-routing-mtx NO-LOCK
@@ -985,7 +1000,7 @@ PROCEDURE pRemoveRedundantDept PRIVATE:
     RUN pCleanupSubDeptForAnyDept (ipcCompany, ipcEstimateNo, "WS" ).
     RUN pCleanupSubDeptForAnyDept (ipcCompany, ipcEstimateNo, "WN" ).
     RUN pCleanupSubDeptForAnyDept (ipcCompany, ipcEstimateNo, "FS" ).
-    RUN pCleanupSubDeptForAnyDepts (ipcCompany, ipcEstimateNo, "FB" ).
+    RUN pCleanupSubDeptForAnyDept (ipcCompany, ipcEstimateNo, "FB" ).
     
     
 END PROCEDURE.
