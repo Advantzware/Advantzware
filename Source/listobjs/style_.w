@@ -167,9 +167,8 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 1
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To Email", 5,
     "To File", 3
-    SIZE 16 BY 4.52 NO-UNDO.
+    SIZE 16 BY 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
