@@ -5,19 +5,17 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: api\PrintDialog.w
+  File: messageDialog.w
 
-  Description: Displays user an option to select
+  Description: Message Dialog with larger text/buttons
 
-  Input Parameters:
-      <none>
+  Input Parameters: Message Text, Yes Button, No Button, Cancel Button
 
-  Output Parameters:
-      <none>
+  Output Parameters: Choice
 
-  Author: Porandla Mithun
+  Author: Ron Stark
 
-  Created: 08/29/2019
+  Created: 9.17.2021
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -25,10 +23,17 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE OUTPUT PARAMETER oplButtonClicked AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcOption        AS CHARACTER NO-UNDO.
+
+DEFINE INPUT  PARAMETER ipcMessageText  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplYesButton    AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER iplNoButton     AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER iplCancelButton AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER oplChoice       AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE dWidth AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPos   AS DECIMAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -45,9 +50,8 @@ DEFINE OUTPUT PARAMETER opcOption        AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit btPrintSelected btPrintAll ~
-btnExitText 
-&Scoped-Define DISPLAYED-OBJECTS btnExitText 
+&Scoped-Define ENABLED-OBJECTS messageText btnYes btnNo btnCancel 
+&Scoped-Define DISPLAYED-OBJECTS messageText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,39 +66,39 @@ btnExitText
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91.
+DEFINE BUTTON btnCancel AUTO-END-KEY 
+     LABEL "CANCEL" 
+     SIZE 15 BY 2.1
+     BGCOLOR 8 .
 
-DEFINE BUTTON btPrintAll AUTO-GO 
-     LABEL "Print All" 
-     SIZE 30 BY 3.76
-     FONT 37.
+DEFINE BUTTON btnNo AUTO-GO 
+     LABEL "NO" 
+     SIZE 15 BY 2.14
+     BGCOLOR 8 .
 
-DEFINE BUTTON btPrintSelected AUTO-GO 
-     LABEL "Print Selected" 
-     SIZE 30 BY 3.76
-     FONT 37.
+DEFINE BUTTON btnYes AUTO-GO 
+     LABEL "YES" 
+     SIZE 15 BY 2.14
+     BGCOLOR 8 .
 
-DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
-      VIEW-AS TEXT 
-     SIZE 9 BY 1.43
-     BGCOLOR 21  NO-UNDO.
+DEFINE VARIABLE messageText AS CHARACTER 
+     VIEW-AS EDITOR NO-BOX
+     SIZE 101 BY 6.67 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btExit AT ROW 1 COL 70 WIDGET-ID 6
-     btPrintSelected AT ROW 6 COL 4 WIDGET-ID 2
-     btPrintAll AT ROW 6 COL 45.8 WIDGET-ID 4
-     btnExitText AT ROW 1.24 COL 61 NO-LABEL WIDGET-ID 24
-     SPACE(8.59) SKIP(9.61)
+     messageText AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 4
+     btnYes AT ROW 8.14 COL 56
+     btnNo AT ROW 8.14 COL 72 WIDGET-ID 2
+     btnCancel AT ROW 8.14 COL 88
+     SPACE(0.39) SKIP(0.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 FGCOLOR 15 FONT 38
-         TITLE "Select Print Option" WIDGET-ID 100.
+         TITLE BGCOLOR 21 FGCOLOR 15 "Message Dialog"
+         DEFAULT-BUTTON btnYes CANCEL-BUTTON btnCancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -118,8 +122,9 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN btnExitText IN FRAME Dialog-Frame
-   ALIGN-L                                                              */
+ASSIGN 
+       messageText:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -131,7 +136,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Select Print Option */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Message Dialog */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -140,39 +145,33 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnExitText
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText Dialog-Frame
-ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME Dialog-Frame
+&Scoped-define SELF-NAME btnCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel Dialog-Frame
+ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* CANCEL */
 DO:
-    APPLY "END-ERROR":U TO FRAME {&FRAME-NAME}.
+    oplChoice = ?.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btPrintAll
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintAll Dialog-Frame
-ON CHOOSE OF btPrintAll IN FRAME Dialog-Frame /* Print All */
+&Scoped-define SELF-NAME btnNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNo Dialog-Frame
+ON CHOOSE OF btnNo IN FRAME Dialog-Frame /* NO */
 DO:
-    ASSIGN
-        oplButtonClicked = TRUE
-        opcOption        = "All"
-        .
+    oplChoice = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btPrintSelected
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintSelected Dialog-Frame
-ON CHOOSE OF btPrintSelected IN FRAME Dialog-Frame /* Print Selected */
+&Scoped-define SELF-NAME btnYes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnYes Dialog-Frame
+ON CHOOSE OF btnYes IN FRAME Dialog-Frame /* YES */
 DO:
-    ASSIGN
-        oplButtonClicked = TRUE
-        opcOption        = "Selected"
-        .    
+    oplChoice = YES.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -197,6 +196,23 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  
+  dWidth = FRAME {&FRAME-NAME}:WIDTH.
+  
+  ASSIGN
+      messageText:SCREEN-VALUE = ipcMessageText
+      btnYes:HIDDEN            = NOT iplYesButton
+      btnNo:HIDDEN             = NOT iplNoButton
+      btnCancel:HIDDEN         = NOT iplCancelButton
+      .
+  
+  dPos = 1 / (INT(iplYesButton) + INT(iplNoButton) + INT(iplCancelButton) + 1).
+
+  ASSIGN
+      btnYes:COL    = 1 * dPos * dWidth - (btnYes:WIDTH * 0.5)
+      btnNo:COL     = (2 - INT(NOT iplYesButton)) * dPos * dWidth - (btnNo:WIDTH * 0.5)
+      btnCancel:COL = (3 - INT(NOT iplYesButton) - INT(NOT iplNoButton)) * dPos * dWidth - (btnCancel:WIDTH * 0.5)
+      .
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -235,9 +251,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY btnExitText 
+  DISPLAY messageText 
       WITH FRAME Dialog-Frame.
-  ENABLE btExit btPrintSelected btPrintAll btnExitText 
+  ENABLE messageText btnYes btnNo btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

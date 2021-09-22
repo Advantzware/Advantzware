@@ -62,8 +62,10 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAdjust 
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Adjust" 
-     SIZE 11 BY 2.62 TOOLTIP "Adjust"
+     SIZE 8 BY 1.91 TOOLTIP "Adjust"
      FONT 35.
 
 
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      btAdjust AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -191,6 +194,19 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideAdjustQuantity s-object 
+PROCEDURE HideAdjustQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    btAdjust:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

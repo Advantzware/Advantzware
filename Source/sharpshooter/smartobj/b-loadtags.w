@@ -36,23 +36,26 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
-
 {oerep/ttLoadTag.i}
 {oerep/r-loadtg.i NEW}
+
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
 
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSelectAll AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 
@@ -80,7 +83,7 @@ DEFINE VARIABLE hdLoadTagProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.custID ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.itemID ttLoadTag.itemName ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.custPONo ttLoadTag.poline   
+&Scoped-define FIELDS-IN-QUERY-br_table ttLoadTag.isSelected ttLoadTag.tagStatus ttLoadTag.custID ttLoadTag.orderID ttLoadTag.jobID ttLoadTag.jobID2 NO-LABEL ttLoadTag.itemID ttLoadTag.itemName ttLoadTag.tag ttLoadTag.quantityInUnit ttLoadTag.subUnitsPerUnit ttLoadTag.quantityInSubUnit ttLoadTag.quantityOfSubUnits ttLoadTag.jobQuantity ttLoadTag.printCopies ttLoadTag.ordQuantity ttLoadTag.relQuantity ttLoadTag.overPct ttLoadTag.partial ttLoadTag.totalTags ttLoadTag.quantityTotal ttLoadTag.unitWeight ttLoadTag.palletWeight ttLoadTag.lotID ttLoadTag.custPONo ttLoadTag.poline ttLoadTag.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table ttLoadTag.isSelected   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table ttLoadTag
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ttLoadTag
@@ -160,7 +163,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttLoadTag.isSelected COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
+      ttLoadTag.isSelected COLUMN-LABEL "[]All" WIDTH 10 VIEW-AS TOGGLE-BOX
       ttLoadTag.tagStatus COLUMN-LABEL "Status" WIDTH 15
       ttLoadTag.custID COLUMN-LABEL "Cust #" WIDTH 30
       ttLoadTag.orderID  COLUMN-LABEL "Order#" WIDTH 15
@@ -168,11 +171,11 @@ DEFINE BROWSE br_table
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 4
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
-      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 40
       ttLoadTag.quantityInUnit FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
+      ttLoadTag.subUnitsPerUnit FORMAT ">>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 15
+      ttLoadTag.quantityInSubUnit FORMAT ">>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 15
+      ttLoadTag.quantityOfSubUnits FORMAT ">>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 15
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
@@ -186,10 +189,12 @@ DEFINE BROWSE br_table
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
+      ttLoadTag.emptyColumn COLUMN-LABEL ""
       ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH SEPARATORS SIZE 150 BY 6.71.
+    WITH SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 150 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -198,7 +203,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -256,6 +262,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -311,6 +320,29 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON START-SEARCH OF br_table IN FRAME F-Main
+DO:
+    IF SELF:CURRENT-COLUMN:NAME EQ "isSelected" THEN DO:
+        lSelectAll = NOT lSelectAll.
+        
+        FOR EACH ttLoadTag:
+            ttLoadTag.isSelected = lSelectAll.
+        END.
+        
+        SELF:CURRENT-COLUMN:LABEL = IF lSelectAll THEN
+                                        "[*] All"
+                                    ELSE
+                                        "[ ] All".
+                                        
+        RUN dispatch ("open-query").   
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -328,10 +360,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{sharpshooter/smartobj/browseNavigate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -820,9 +855,6 @@ PROCEDURE PrintTTLoadTags :
         ).
     
     SESSION:SET-WAIT-STATE("").
-    
-    MESSAGE "Printing complete!"
-        VIEW-AS ALERT-BOX INFORMATION.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

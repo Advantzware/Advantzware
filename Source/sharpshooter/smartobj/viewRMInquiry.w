@@ -10,12 +10,12 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: smartobj/setting.w
+  File: sharpshooter/viewRMInquiry.w
 
-  Description: Smart Object to open setting menu
+  Description: from SMART.W - Template for basic SmartObject
 
   Author: DEVA$!
-  Created: 03-Sep-2021
+  Created: 09/20/2021
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -34,8 +34,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE char-hdl     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE phandle      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdRMInquiry    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdRMInquiryWin AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,11 +48,11 @@ DEFINE VARIABLE phandle      AS HANDLE    NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btSettings 
+&Scoped-Define ENABLED-OBJECTS btViewRMInquiry 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -66,17 +66,16 @@ DEFINE VARIABLE phandle      AS HANDLE    NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btSettings 
-     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/gearwheels_disabled.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Settings" 
-     SIZE 7.6 BY 1.81 TOOLTIP "Open Settings".
+DEFINE BUTTON btViewRMInquiry 
+     IMAGE-UP FILE "Graphics/32x32/UDF.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "View FG" 
+     SIZE 8 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btSettings AT ROW 1 COL 1 WIDGET-ID 2
+     btViewRMInquiry AT ROW 1 COL 1 WIDGET-ID 2 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -109,8 +108,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
-         WIDTH              = 46.8.
+         HEIGHT             = 3.1
+         WIDTH              = 24.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -132,7 +131,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -156,11 +155,28 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btSettings
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSettings s-object
-ON CHOOSE OF btSettings IN FRAME F-Main /* Settings */
+&Scoped-define SELF-NAME btViewRMInquiry
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btViewRMInquiry s-object
+ON CHOOSE OF btViewRMInquiry IN FRAME F-Main /* View FG */
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "OpenSetting"}
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lAvail   AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
+    
+    {methods/run_link.i "RMInq-TARGET" "GetItem" "(OUTPUT cCompany, OUTPUT cItemID, OUTPUT cJobNo, OUTPUT iJobNo2, OUTPUT lAvail)"}         
+
+    IF lAvail THEN
+        RUN pViewRMInquiry (
+            INPUT cCompany,
+            INPUT cItemID,
+            INPUT cJobNo,
+            INPUT iJobNo2
+            ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -179,11 +195,27 @@ END.
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+PROCEDURE No-Resize :
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ChooseBtViewRMInquiry s-object 
+PROCEDURE ChooseBtViewRMInquiry :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "CHOOSE":U TO btViewRMInquiry IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -203,14 +235,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideSettings s-object 
-PROCEDURE HideSettings :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideRMInquiry s-object 
+PROCEDURE HideRMInquiry :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btSettings:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+    btViewRMInquiry:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRMInquiry s-object 
+PROCEDURE pViewRMInquiry PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    
+    IF NOT VALID-HANDLE(hdRMInquiry) THEN DO:         
+        RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
+
+        RUN dispatch IN hdRMInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdRMInquiryWin = hdRMInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdRMInquiry) AND
+        VALID-HANDLE(hdRMInquiryWin) THEN DO: 
+
+        RUN ScanItem IN hdRMInquiry (
+            INPUT ipcCompany,
+            INPUT "",
+            INPUT "",
+            INPUT ipcItemID,
+            INPUT "",
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2
+            ) NO-ERROR.            
+
+        IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdRMInquiryWin:WINDOW-STATE = 3.
+
+        hdRMInquiryWin:MOVE-TO-TOP().
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2662,6 +2662,8 @@ PROCEDURE pCheckReleaseQty :
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcItemID,
+        INPUT  0,  /* Order ID */
+        INPUT  "", /* Customer PO */
         OUTPUT iTotalScannedQuantity
         ).        
 
@@ -2670,6 +2672,8 @@ PROCEDURE pCheckReleaseQty :
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcItemID,
+        INPUT  0,  /* Order ID */
+        INPUT  "", /* Customer PO */
         OUTPUT iTotalReleaseQuantity
         ). 
 
