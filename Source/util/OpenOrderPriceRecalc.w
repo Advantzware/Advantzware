@@ -502,7 +502,7 @@ PROCEDURE pRunProcess PRIVATE :
             OUTPUT cMessage
             ). 
     DO WITH FRAME {&FRAME-NAME}:
-      RUN util/OpenOrderPriceRecalc.p( 
+      RUN util/OpenOrderPriceRecalcProc.p( 
                                 INPUT cocode,
                                 INPUT fiBeginingCustomer:SCREEN-VALUE, 
                                 INPUT fiEndingCustomer:SCREEN-VALUE, 
