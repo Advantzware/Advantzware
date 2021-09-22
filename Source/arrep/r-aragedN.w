@@ -169,334 +169,334 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btnCustList 
-    LABEL "Preview" 
-    SIZE 9.8 BY .81.
+     LABEL "Preview" 
+     SIZE 9.8 BY .81.
 
 DEFINE BUTTON btn_SelectColumns 
-    LABEL "Select Columns" 
-    SIZE 47 BY 1.52.
+     LABEL "Select Columns" 
+     SIZE 47 BY 1.52.
 
-DEFINE VARIABLE as-of-date     AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/01 
-    LABEL "As of" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY .95 NO-UNDO.
+DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/01 
+     LABEL "As of" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_arclass  AS INTEGER   FORMAT ">>":U INITIAL 0 
-    LABEL "Beginning AR Class" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_arclass AS INTEGER FORMAT ">>":U INITIAL 0 
+     LABEL "Beginning AR Class" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_comp     AS CHARACTER FORMAT "X(3)":U 
-    LABEL "Beginning Company#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_comp AS CHARACTER FORMAT "X(3)":U 
+     LABEL "Beginning Company#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_curr     AS CHARACTER FORMAT "X(3)":U 
-    LABEL "Beginning Currency" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_curr AS CHARACTER FORMAT "X(3)":U 
+     LABEL "Beginning Currency" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_cust-no  AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_inv-date AS DATE      FORMAT "99/99/9999" INITIAL 01/01/001 
-    LABEL "Beginning Date" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1.
+DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_slsmn    AS CHARACTER FORMAT "XXX" 
-    LABEL "Beginning SalesRep#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX" 
+     LABEL "Beginning SalesRep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_term     AS CHARACTER FORMAT "X(5)":U 
-    LABEL "Beginning Terms" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_term AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Terms" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_arclass    AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Ending AR Class" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_arclass AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Ending AR Class" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_comp       AS CHARACTER FORMAT "X(3)":U INITIAL "zzz" 
-    LABEL "Ending Company#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_comp AS CHARACTER FORMAT "X(3)":U INITIAL "zzz" 
+     LABEL "Ending Company#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_curr       AS CHARACTER FORMAT "X(3)":U INITIAL "zzz" 
-    LABEL "Ending Currency" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_curr AS CHARACTER FORMAT "X(3)":U INITIAL "zzz" 
+     LABEL "Ending Currency" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_inv-date   AS DATE      FORMAT "99/99/9999" INITIAL 12/31/9999 
-    LABEL "Ending Date" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1.
+DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999" INITIAL 12/31/9999 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
 
-DEFINE VARIABLE end_slsmn      AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
-    LABEL "Ending SalesRep#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz" 
+     LABEL "Ending SalesRep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_term       AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
-    LABEL "Ending Terms" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_term AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Terms" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ARAgedReceivables.csv" 
-    LABEL "Name" 
-    VIEW-AS FILL-IN NATIVE 
-    SIZE 49 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ARAgedReceivables.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 49 BY 1.
 
-DEFINE VARIABLE lbl_sort       AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted By?" 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted By?" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort2      AS CHARACTER FORMAT "X(256)":U INITIAL "Aged By?" 
-    VIEW-AS FILL-IN 
-    SIZE 10.8 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Aged By?" 
+     VIEW-AS FILL-IN 
+     SIZE 10.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE period-days-1  AS INTEGER   FORMAT ">,>>>":U INITIAL 9999 
-    LABEL "Period Days 1" 
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1 NO-UNDO.
+DEFINE VARIABLE period-days-1 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
+     LABEL "Period Days 1" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE period-days-2  AS INTEGER   FORMAT ">,>>>":U INITIAL 9999 
-    LABEL "2" 
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1 NO-UNDO.
+DEFINE VARIABLE period-days-2 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
+     LABEL "2" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE period-days-3  AS INTEGER   FORMAT ">,>>>":U INITIAL 9999 
-    LABEL "3" 
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1 NO-UNDO.
+DEFINE VARIABLE period-days-3 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
+     LABEL "3" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE period-days-4  AS INTEGER   FORMAT ">,>>>":U INITIAL 9999 
-    LABEL "4" 
-    VIEW-AS FILL-IN 
-    SIZE 9 BY 1 NO-UNDO.
+DEFINE VARIABLE period-days-4 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
+     LABEL "4" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1 NO-UNDO.
 
-DEFINE VARIABLE trend_days     AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Days for Recent Trend" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE trend_days AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Days for Recent Trend" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 5,
-    "To CSV", 3
-    SIZE 17 BY 4.33 NO-UNDO.
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To Email", 5,
+"To CSV", 3
+     SIZE 14.4 BY 4.33 NO-UNDO.
 
-DEFINE VARIABLE rd_sort        AS CHARACTER INITIAL "Name" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Customer#", "#Number",
-    "Name", "Name",
-    "SalesRep#", "SalesRep#",
-    "Invoice#", "Invoice#",
-    "AR Class", "ArClass"
-    SIZE 64 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Customer#", "#Number",
+"Name", "Name",
+"SalesRep#", "SalesRep#",
+"Invoice#", "Invoice#",
+"AR Class", "ArClass"
+     SIZE 64 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_sort2       AS CHARACTER INITIAL "InvDate" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Due Date", "DueDate",
-    "Invoice Date", "InvDate"
-    SIZE 32 BY .86 NO-UNDO.
+DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Due Date", "DueDate",
+"Invoice Date", "InvDate"
+     SIZE 32 BY .86 NO-UNDO.
 
-DEFINE VARIABLE rs_detail      AS INTEGER 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Detail", 1,
-    "Summary", 2,
-    "Totals Only", 3
-    SIZE 42 BY 1.19 NO-UNDO.
+DEFINE VARIABLE rs_detail AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Detail", 1,
+"Summary", 2,
+"Totals Only", 3
+     SIZE 42 BY 1.19 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 4.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 90 BY 4.81.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 18.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 90 BY 18.33.
 
-DEFINE VARIABLE sl_avail            AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 33 BY 5.19 NO-UNDO.
+DEFINE VARIABLE sl_avail AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE sl_selected         AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 33 BY 5.19 NO-UNDO.
+DEFINE VARIABLE sl_selected AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tbAutoClose         AS LOGICAL   INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list        AS LOGICAL   INITIAL NO 
-    LABEL "Use Defined Customer List" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 31.8 BY .62 NO-UNDO.
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+     LABEL "Use Defined Customer List" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 31.8 BY .62 NO-UNDO.
 
-DEFINE VARIABLE tb_excel            AS LOGICAL   INITIAL YES 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .95 NO-UNDO.
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_fuel             AS LOGICAL   INITIAL YES 
-    LABEL "Include Fuel Surcharges?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL yes 
+     LABEL "Include Fuel Surcharges?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_include-factored AS LOGICAL   INITIAL NO 
-    LABEL "Include Factored FG Items?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 31 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL no 
+     LABEL "Include Factored FG Items?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_paid             AS LOGICAL   INITIAL NO 
-    LABEL "Include Paid Invoices?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 27 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_OpenCSV          AS LOGICAL   INITIAL NO 
-    LABEL "Open CSV?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 15 BY .95 NO-UNDO.
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL no 
+     LABEL "Include Paid Invoices?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_separate-fc      AS LOGICAL   INITIAL NO 
-    LABEL "Separate Finance Charges?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 30.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL no 
+     LABEL "Separate Finance Charges?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm        AS LOGICAL   INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgInactiveCust      AS LOGICAL   INITIAL NO 
-    LABEL "Inactive Customers?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 26 BY .81 NO-UNDO.
+DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL no 
+     LABEL "Inactive Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_comp AT ROW 1.86 COL 27 COLON-ALIGNED
-    end_comp AT ROW 1.86 COL 70 COLON-ALIGNED
-    btnCustList AT ROW 3 COL 61.6 WIDGET-ID 22
-    tb_cust-list AT ROW 3.1 COL 29.2 WIDGET-ID 24
-    begin_cust-no AT ROW 3.81 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    end_cust-no AT ROW 3.81 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Customer Number"
-    sl_selected AT ROW 4.57 COL 7 NO-LABELS WIDGET-ID 28
-    begin_slsmn AT ROW 4.76 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Sales Rep Number"
-    end_slsmn AT ROW 4.76 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Sales Rep Number"
-    begin_curr AT ROW 5.71 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Currency Code"
-    end_curr AT ROW 5.71 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Currency Code"
-    begin_term AT ROW 6.67 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Terms Code" WIDGET-ID 30
-    end_term AT ROW 6.67 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Terms Code" WIDGET-ID 32
-    begin_arclass AT ROW 7.62 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Terms Code" WIDGET-ID 36
-    end_arclass AT ROW 7.62 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Terms Code" WIDGET-ID 38
-    trend_days AT ROW 8.57 COL 70 COLON-ALIGNED WIDGET-ID 14
-    as-of-date AT ROW 8.76 COL 27 COLON-ALIGNED
-    period-days-1 AT ROW 9.95 COL 27 COLON-ALIGNED
-    period-days-2 AT ROW 9.95 COL 39 COLON-ALIGNED
-    period-days-3 AT ROW 9.95 COL 51 COLON-ALIGNED
-    period-days-4 AT ROW 9.95 COL 63 COLON-ALIGNED WIDGET-ID 34
-    rs_detail AT ROW 10.91 COL 29 NO-LABELS WIDGET-ID 6
-    lbl_sort AT ROW 11.91 COL 14 COLON-ALIGNED NO-LABELS
-    rd_sort AT ROW 11.91 COL 29 NO-LABELS
-    sl_avail AT ROW 12.43 COL 6 NO-LABELS WIDGET-ID 26
-    lbl_sort2 AT ROW 12.95 COL 15.2 COLON-ALIGNED NO-LABELS
-    rd_sort2 AT ROW 12.95 COL 29 NO-LABELS
-    tb_paid AT ROW 13.81 COL 29
-    tb_include-factored AT ROW 13.81 COL 59.6
-    tb_fuel AT ROW 14.76 COL 29
-    tb_separate-fc AT ROW 14.76 COL 59.6
-    begin_inv-date AT ROW 15.76 COL 27 COLON-ALIGNED HELP
-    "Enter Beginning Invoice Date"
-    end_inv-date AT ROW 15.76 COL 70 COLON-ALIGNED HELP
-    "Enter Ending Invoice Date"
-    tgInactiveCust AT ROW 17 COL 29 WIDGET-ID 20
-    btn_SelectColumns AT ROW 18.1 COL 29 WIDGET-ID 10
-    rd-dest AT ROW 20.71 COL 4.6 NO-LABELS
-    lv-font-no AT ROW 20.76 COL 38 COLON-ALIGNED
-    lv-ornt AT ROW 20.76 COL 48 NO-LABELS
-    lines-per-page AT ROW 20.76 COL 87 COLON-ALIGNED
-    lv-font-name AT ROW 21.95 COL 29 COLON-ALIGNED NO-LABELS
-    tb_excel AT ROW 23 COL 92 RIGHT-ALIGNED
-    td-show-parm AT ROW 23.14 COL 28.8
-    fi_file AT ROW 24.05 COL 26.8 COLON-ALIGNED HELP
-    "Enter File Name"
-    tb_OpenCSV AT ROW 24.05 COL 92.2 RIGHT-ALIGNED
-    tbAutoClose AT ROW 25.29 COL 28.8 WIDGET-ID 64
-    btn-ok AT ROW 26.24 COL 28.6
-    btn-cancel AT ROW 26.24 COL 55
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.24 COL 4
-    " Output Destination" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 20.05 COL 4
-    RECT-6 AT ROW 20.48 COL 3
-    RECT-7 AT ROW 1.71 COL 3
+     begin_comp AT ROW 1.86 COL 27 COLON-ALIGNED
+     end_comp AT ROW 1.86 COL 70 COLON-ALIGNED
+     btnCustList AT ROW 3 COL 61.6 WIDGET-ID 22
+     tb_cust-list AT ROW 3.1 COL 29.2 WIDGET-ID 24
+     begin_cust-no AT ROW 3.81 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust-no AT ROW 3.81 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
+     sl_selected AT ROW 4.57 COL 7 NO-LABEL WIDGET-ID 28
+     begin_slsmn AT ROW 4.76 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Sales Rep Number"
+     end_slsmn AT ROW 4.76 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Sales Rep Number"
+     begin_curr AT ROW 5.71 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Currency Code"
+     end_curr AT ROW 5.71 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Currency Code"
+     begin_term AT ROW 6.67 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Terms Code" WIDGET-ID 30
+     end_term AT ROW 6.67 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Terms Code" WIDGET-ID 32
+     begin_arclass AT ROW 7.62 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Terms Code" WIDGET-ID 36
+     end_arclass AT ROW 7.62 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Terms Code" WIDGET-ID 38
+     trend_days AT ROW 8.57 COL 70 COLON-ALIGNED WIDGET-ID 14
+     as-of-date AT ROW 8.76 COL 27 COLON-ALIGNED
+     period-days-1 AT ROW 9.95 COL 27 COLON-ALIGNED
+     period-days-2 AT ROW 9.95 COL 39 COLON-ALIGNED
+     period-days-3 AT ROW 9.95 COL 51 COLON-ALIGNED
+     period-days-4 AT ROW 9.95 COL 63 COLON-ALIGNED WIDGET-ID 34
+     rs_detail AT ROW 10.91 COL 29 NO-LABEL WIDGET-ID 6
+     lbl_sort AT ROW 11.91 COL 14 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.91 COL 29 NO-LABEL
+     sl_avail AT ROW 12.43 COL 6 NO-LABEL WIDGET-ID 26
+     lbl_sort2 AT ROW 12.95 COL 15.2 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 12.95 COL 29 NO-LABEL
+     tb_paid AT ROW 13.81 COL 29
+     tb_include-factored AT ROW 13.81 COL 59.6
+     tb_fuel AT ROW 14.76 COL 29
+     tb_separate-fc AT ROW 14.76 COL 59.6
+     begin_inv-date AT ROW 15.76 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Invoice Date"
+     end_inv-date AT ROW 15.76 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Invoice Date"
+     tgInactiveCust AT ROW 17 COL 29 WIDGET-ID 20
+     btn_SelectColumns AT ROW 18.1 COL 29 WIDGET-ID 10
+     rd-dest AT ROW 20.71 COL 6.2 NO-LABEL
+     lv-font-no AT ROW 20.76 COL 38 COLON-ALIGNED
+     lv-ornt AT ROW 20.76 COL 48 NO-LABEL
+     lines-per-page AT ROW 20.76 COL 87 COLON-ALIGNED
+     lv-font-name AT ROW 21.95 COL 29 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 23 COL 92 RIGHT-ALIGNED
+     td-show-parm AT ROW 23.14 COL 28.8
+     fi_file AT ROW 24.05 COL 26.8 COLON-ALIGNED HELP
+          "Enter File Name"
+     tb_OpenCSV AT ROW 24.05 COL 92.2 RIGHT-ALIGNED
+     tbAutoClose AT ROW 25.29 COL 28.8 WIDGET-ID 64
+     btn-ok AT ROW 26.24 COL 28.6
+     btn-cancel AT ROW 26.24 COL 55
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 20.14 COL 5
+     RECT-6 AT ROW 20.48 COL 4
+     RECT-7 AT ROW 1.52 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 98.2 BY 26.81
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 96 BY 27.71
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -513,30 +513,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "AR Aged Receivables"
-        HEIGHT             = 26.81
-        WIDTH              = 98.2
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "AR Aged Receivables"
+         HEIGHT             = 27.71
+         WIDTH              = 96
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -551,158 +551,195 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    as-of-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_arclass:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_arclass:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_comp:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_curr:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_curr:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_inv-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_term:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_term:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_arclass:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_arclass:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_comp:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_curr:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_curr:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_inv-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_slsmn:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_term:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_term:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lbl_sort IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_sort:PRIVATE-DATA IN FRAME FRAME-A = "pram".
+       lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "pram".
 
 /* SETTINGS FOR FILL-IN lbl_sort2 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_sort2:PRIVATE-DATA IN FRAME FRAME-A = "pram".
+       lbl_sort2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "pram".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    period-days-1:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       period-days-1:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    period-days-2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       period-days-2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    period-days-3:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       period-days-3:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    period-days-4:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       period-days-4:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_sort:PRIVATE-DATA IN FRAME FRAME-A = "parm,Sort 1".
+       rd_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm,Sort 1".
 
 ASSIGN 
-    rd_sort2:PRIVATE-DATA IN FRAME FRAME-A = "parm,Sort 2".
+       rd_sort2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm,Sort 2".
 
 ASSIGN 
-    rs_detail:PRIVATE-DATA IN FRAME FRAME-A = "parm,Report Type".
+       rs_detail:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm,Report Type".
 
 /* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    sl_avail:HIDDEN IN FRAME FRAME-A = TRUE.
+       sl_avail:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR SELECTION-LIST sl_selected IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    sl_selected:HIDDEN IN FRAME FRAME-A = TRUE.
+       sl_selected:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
-    tb_excel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_fuel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_fuel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_include-factored:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    tb_paid:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_include-factored:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_separate-fc:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_paid:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_separate-fc:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    tgInactiveCust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tgInactiveCust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    trend_days:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       trend_days:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -716,7 +753,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* AR Aged Receivables */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -730,7 +767,7 @@ ON END-ERROR OF C-Win /* AR Aged Receivables */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* AR Aged Receivables */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -743,7 +780,7 @@ ON WINDOW-CLOSE OF C-Win /* AR Aged Receivables */
 &Scoped-define SELF-NAME as-of-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -754,7 +791,7 @@ ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
 &Scoped-define SELF-NAME begin_arclass
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_arclass C-Win
 ON LEAVE OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -765,7 +802,7 @@ ON LEAVE OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
 &Scoped-define SELF-NAME begin_comp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_comp C-Win
 ON LEAVE OF begin_comp IN FRAME FRAME-A /* Beginning Company# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -776,7 +813,7 @@ ON LEAVE OF begin_comp IN FRAME FRAME-A /* Beginning Company# */
 &Scoped-define SELF-NAME begin_curr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_curr C-Win
 ON LEAVE OF begin_curr IN FRAME FRAME-A /* Beginning Currency */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -787,7 +824,7 @@ ON LEAVE OF begin_curr IN FRAME FRAME-A /* Beginning Currency */
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -798,7 +835,7 @@ ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 &Scoped-define SELF-NAME begin_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv-date C-Win
 ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -809,7 +846,7 @@ ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Date */
 &Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
 ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -820,7 +857,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
 &Scoped-define SELF-NAME begin_term
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
 ON HELP OF begin_term IN FRAME FRAME-A /* Beginning Terms */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN windows/l-terms.w 
@@ -836,7 +873,7 @@ ON HELP OF begin_term IN FRAME FRAME-A /* Beginning Terms */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
 ON LEAVE OF begin_term IN FRAME FRAME-A /* Beginning Terms */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -847,7 +884,7 @@ ON LEAVE OF begin_term IN FRAME FRAME-A /* Beginning Terms */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -858,7 +895,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
 
         /*{&WINDOW-NAME}:WINDOW-STATE = WINDOW-minIMIZE.*/
 
@@ -955,7 +992,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME btnCustList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
-    DO:
+DO:
         RUN CustList.
 
     END.
@@ -967,7 +1004,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 &Scoped-define SELF-NAME btn_SelectColumns
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_SelectColumns C-Win
 ON CHOOSE OF btn_SelectColumns IN FRAME FRAME-A /* Select Columns */
-    DO:
+DO:
         DEFINE VARIABLE cTextSelected AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cTextListed   AS CHARACTER NO-UNDO.
 
@@ -992,7 +1029,7 @@ ON CHOOSE OF btn_SelectColumns IN FRAME FRAME-A /* Select Columns */
 &Scoped-define SELF-NAME end_arclass
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_arclass C-Win
 ON LEAVE OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1003,7 +1040,7 @@ ON LEAVE OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
 &Scoped-define SELF-NAME end_curr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_curr C-Win
 ON LEAVE OF end_curr IN FRAME FRAME-A /* Ending Currency */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1014,7 +1051,7 @@ ON LEAVE OF end_curr IN FRAME FRAME-A /* Ending Currency */
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1025,7 +1062,7 @@ ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 &Scoped-define SELF-NAME end_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-date C-Win
 ON LEAVE OF end_inv-date IN FRAME FRAME-A /* Ending Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1036,7 +1073,7 @@ ON LEAVE OF end_inv-date IN FRAME FRAME-A /* Ending Date */
 &Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1047,7 +1084,7 @@ ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
 &Scoped-define SELF-NAME end_term
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
 ON HELP OF end_term IN FRAME FRAME-A /* Ending Terms */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN windows/l-terms.w 
@@ -1063,17 +1100,18 @@ ON HELP OF end_term IN FRAME FRAME-A /* Ending Terms */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
 ON LEAVE OF end_term IN FRAME FRAME-A /* Ending Terms */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON HELP OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         DEFINE VARIABLE ls-filename AS cha NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG NO-UNDO.
 
@@ -1093,10 +1131,9 @@ ON HELP OF fi_file IN FRAME FRAME-A /* Name */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1107,7 +1144,7 @@ ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1118,7 +1155,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
@@ -1133,7 +1170,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -1144,7 +1181,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -1154,7 +1191,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
     END.
 
@@ -1165,7 +1202,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME period-days-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-1 C-Win
 ON LEAVE OF period-days-1 IN FRAME FRAME-A /* Period Days 1 */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1176,7 +1213,7 @@ ON LEAVE OF period-days-1 IN FRAME FRAME-A /* Period Days 1 */
 &Scoped-define SELF-NAME period-days-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-2 C-Win
 ON LEAVE OF period-days-2 IN FRAME FRAME-A /* 2 */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1187,7 +1224,7 @@ ON LEAVE OF period-days-2 IN FRAME FRAME-A /* 2 */
 &Scoped-define SELF-NAME period-days-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-3 C-Win
 ON LEAVE OF period-days-3 IN FRAME FRAME-A /* 3 */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1198,7 +1235,7 @@ ON LEAVE OF period-days-3 IN FRAME FRAME-A /* 3 */
 &Scoped-define SELF-NAME period-days-4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period-days-4 C-Win
 ON LEAVE OF period-days-4 IN FRAME FRAME-A /* 4 */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1209,7 +1246,7 @@ ON LEAVE OF period-days-4 IN FRAME FRAME-A /* 4 */
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
         RUN pChangeDest.
     END.
@@ -1221,7 +1258,7 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1232,7 +1269,7 @@ ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_sort2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort2 C-Win
 ON VALUE-CHANGED OF rd_sort2 IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1243,7 +1280,7 @@ ON VALUE-CHANGED OF rd_sort2 IN FRAME FRAME-A
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
-    DO:
+DO:
 
         IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
             sl_selected:NUM-ITEMS = 0)
@@ -1282,7 +1319,7 @@ ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 &Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
-    DO:
+DO:
         DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
             IF {&SELF-NAME}:IS-SELECTED(i) THEN 
             DO:
@@ -1308,7 +1345,7 @@ ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_cust-list
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
-    DO:
+DO:
         ASSIGN {&self-name}.
         RUN SetCustRange(INPUT tb_cust-list).
     END.
@@ -1320,7 +1357,7 @@ ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List *
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1331,18 +1368,7 @@ ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 &Scoped-define SELF-NAME tb_include-factored
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-factored C-Win
 ON VALUE-CHANGED OF tb_include-factored IN FRAME FRAME-A /* Include Factored FG Items? */
-    DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_paid
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_paid C-Win
-ON VALUE-CHANGED OF tb_paid IN FRAME FRAME-A /* Include Paid Invoices? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1353,7 +1379,18 @@ ON VALUE-CHANGED OF tb_paid IN FRAME FRAME-A /* Include Paid Invoices? */
 &Scoped-define SELF-NAME tb_OpenCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
 ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
-    DO:
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_paid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_paid C-Win
+ON VALUE-CHANGED OF tb_paid IN FRAME FRAME-A /* Include Paid Invoices? */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1364,7 +1401,7 @@ ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1375,7 +1412,7 @@ ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 &Scoped-define SELF-NAME trend_days
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL trend_days C-Win
 ON LEAVE OF trend_days IN FRAME FRAME-A /* Days for Recent Trend */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1502,7 +1539,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
 PROCEDURE BuildCustList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Builds the temp table of customers   
       Parameters:  Company Code, Customer list logical and/or customer range
       Notes:       
@@ -1545,7 +1582,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustList C-Win 
 PROCEDURE CustList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:  Display a UI of selected customers   
       Parameters:  
       Notes:       
@@ -1562,18 +1599,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1581,7 +1618,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
 PROCEDURE DisplaySelectionDefault :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1604,7 +1641,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList C-Win 
 PROCEDURE DisplaySelectionList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1648,7 +1685,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 C-Win 
 PROCEDURE DisplaySelectionList2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1697,33 +1734,33 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_comp end_comp tb_cust-list begin_cust-no end_cust-no begin_slsmn 
-        end_slsmn begin_curr end_curr begin_term end_term begin_arclass 
-        end_arclass trend_days as-of-date period-days-1 period-days-2 
-        period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 
-        rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
-        begin_inv-date end_inv-date tgInactiveCust rd-dest fi_file tb_OpenCSV 
-        tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
-        begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
-        begin_term end_term begin_arclass end_arclass trend_days as-of-date 
-        period-days-1 period-days-2 period-days-3 period-days-4 rs_detail 
-        rd_sort rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
-        begin_inv-date end_inv-date tgInactiveCust btn_SelectColumns rd-dest 
-        fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_comp end_comp tb_cust-list begin_cust-no end_cust-no begin_slsmn 
+          end_slsmn begin_curr end_curr begin_term end_term begin_arclass 
+          end_arclass trend_days as-of-date period-days-1 period-days-2 
+          period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 
+          rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
+          begin_inv-date end_inv-date tgInactiveCust rd-dest fi_file tb_OpenCSV 
+          tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
+         begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
+         begin_term end_term begin_arclass end_arclass trend_days as-of-date 
+         period-days-1 period-days-2 period-days-3 period-days-4 rs_detail 
+         rd_sort rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
+         begin_inv-date end_inv-date tgInactiveCust btn_SelectColumns rd-dest 
+         fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1731,7 +1768,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList C-Win 
 PROCEDURE GetSelectionList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1764,7 +1801,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-to-File C-Win 
 PROCEDURE Output-to-File :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1795,7 +1832,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1809,7 +1846,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1836,7 +1873,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1847,9 +1884,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+     Purpose:    
+     Parameters:  <none>
+     Notes:      
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "Yes"
+                fi_file:SENSITIVE       = YES
+                tb_OpenCSV:SENSITIVE    = YES
+                tb_excel                = YES
+                .
+        ELSE
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "NO"
+                fi_file:SENSITIVE       = NO
+                tb_OpenCSV:SENSITIVE    = NO
+                tb_excel                = NO
+                .
+        ASSIGN 
+            fi_file:SCREEN-VALUE = "c:\tmp\ARAgedReceivables.csv".    
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-cust-add C-Win 
 PROCEDURE print-cust-add :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1868,7 +1936,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* --------------------------------------------------- ar/ar-aging.p  9/94 RM */
+/* --------------------------------------------------- ar/ar-aging.p  9/94 RM */
     /* A/R Aged Receivables Report Program - A/R Module                           */
     /* -------------------------------------------------------------------------- */
 
@@ -2139,7 +2207,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
 PROCEDURE SetCustRange :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2162,7 +2230,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2231,37 +2299,6 @@ PROCEDURE show-param :
     PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
     PAGE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
-PROCEDURE pChangeDest :
-    /*------------------------------------------------------------------------------
-     Purpose:    
-     Parameters:  <none>
-     Notes:      
-    ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF rd-dest:SCREEN-VALUE EQ "3" THEN
-            ASSIGN
-                tb_OpenCSV:SCREEN-VALUE = "Yes"
-                fi_file:SENSITIVE       = YES
-                tb_OpenCSV:SENSITIVE    = YES
-                tb_excel                = YES
-                .
-        ELSE
-            ASSIGN
-                tb_OpenCSV:SCREEN-VALUE = "NO"
-                fi_file:SENSITIVE       = NO
-                tb_OpenCSV:SENSITIVE    = NO
-                tb_excel                = NO
-                .
-        ASSIGN 
-            fi_file:SCREEN-VALUE = "c:\tmp\ARAgedReceivables.csv".    
-    END.
 
 END PROCEDURE.
 

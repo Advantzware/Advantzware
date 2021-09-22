@@ -94,6 +94,7 @@ DEFINE VARIABLE cSourceMenu       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTickerInterval   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMenuLink         AS HANDLE    NO-UNDO EXTENT 8.
+DEFINE VARIABLE hPgmMstrSecur     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE idx               AS INTEGER   NO-UNDO.
@@ -210,10 +211,6 @@ DEFINE SUB-MENU m_Help
 DEFINE MENU MENU-BAR-MAINMENU MENUBAR
        SUB-MENU  m_Help         LABEL "Help"          .
 
-
-/* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
@@ -444,11 +441,11 @@ DEFINE FRAME FRAME-USER
      "Location:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 52.6
           FONT 22
-     "User ID:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 83
-          FONT 22
      "Company:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.71 COL 3.6
+          FONT 22
+     "User ID:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 83
           FONT 22
      boxes AT ROW 8.38 COL 56.2
      menu-image AT ROW 3.24 COL 56.2
@@ -485,17 +482,27 @@ DEFINE FRAME FRAME-USER
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 31  WIDGET-ID 100.
+
 DEFINE FRAME searchFrame
      btnClear AT ROW 13.86 COL 100 HELP
           "Clear Search Filters" WIDGET-ID 42
      menuTreeFilter AT ROW 1.14 COL 53 COLON-ALIGNED HELP
           "Enter Search Filter" NO-LABEL WIDGET-ID 2
      favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
      BtnFavorites AT ROW 1.1 COL 1 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 54
      btnSearch AT ROW 1 COL 49 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 40
+     searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveDown AT ROW 5.86 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
      btnMoveUp AT ROW 3.48 COL 1 HELP
@@ -516,16 +523,6 @@ DEFINE FRAME searchFrame
          AT COL 1 ROW 3.14
          SIZE 108 BY 14.05
          BGCOLOR 21 FGCOLOR 1  WIDGET-ID 600.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 31  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -733,28 +730,6 @@ THEN MAINMENU:HIDDEN = no.
  
 
 
-/* **********************  Create OCX Containers  ********************** */
-
-&ANALYZE-SUSPEND _CREATE-DYNAMIC
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-
-CREATE CONTROL-FRAME CtrlFrame ASSIGN
-       FRAME           = FRAME FRAME-USER:HANDLE
-       ROW             = 18.38
-       COLUMN          = 16
-       HEIGHT          = 4.76
-       WIDTH           = 20
-       WIDGET-ID       = 84
-       HIDDEN          = yes
-       SENSITIVE       = yes.
-/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(FRAME menuTreeFrame:HANDLE).
-
-&ENDIF
-
-&ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -928,101 +903,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define FRAME-NAME FRAME-USER
-&Scoped-define SELF-NAME CtrlFrame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame MAINMENU OCX.Tick
-PROCEDURE CtrlFrame.PSTimer.Tick .
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  None required for OCX.
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStatusDefault    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lSaveErrStat      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
-    
-    lSaveErrStat = ERROR-STATUS:ERROR.
-    IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
-        FIND FIRST taskResult NO-LOCK
-             WHERE taskResult.user-id EQ USERID("ASI")
-               AND taskResult.viewed  EQ NO
-            NO-ERROR.    
-        IF AVAILABLE taskResult AND
-           SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
-            IF lViewTaskResults EQ ? THEN
-            MESSAGE
-                "An Unviewed Task Result Exists, View Now?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-            UPDATE lViewTaskResults.
-            IF lViewTaskResults THEN DO:
-                PAUSE 2 NO-MESSAGE.
-                OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
-                FIND CURRENT taskResult EXCLUSIVE-LOCK.
-                taskResult.viewed = YES.
-                RELEASE taskResult.
-            END. /* if lViewTaskResults eq ? */
-        END. /* if avail */
-    END.
-    ELSE
-    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
-    FIND FIRST config NO-LOCK.
-    cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
-    IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
-        cStatusDefault = "Task Monitor Currently Not Running".
-        RUN sys/ref/nk1look.p (
-            g_company,"TaskerNotRunning","I",NO,NO,"","",
-            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-            ).
-        iConfigID = INTEGER(cTaskerNotRunning).
-        IF CAN-FIND(FIRST emailConfig
-                    WHERE emailConfig.configID EQ iConfigID
-                      AND emailConfig.isActive EQ YES
-                      AND emailConfig.notified EQ NO) THEN DO:
-            DO TRANSACTION:
-                FIND FIRST emailConfig EXCLUSIVE-LOCK
-                     WHERE emailConfig.configID EQ iConfigID
-                     NO-ERROR NO-WAIT.
-                IF AVAILABLE emailConfig AND NOT LOCKED emailConfig THEN
-                emailConfig.notified = YES.
-            END. /* do trans */
-            IF NOT LOCKED emailConfig THEN DO:
-                RUN sys/ref/nk1look.p (
-                    g_company,"TaskerNotRunning","L",NO,NO,"","",
-                    OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                    ).
-                IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
-                RUN spSendEmail (
-                    iConfigID,       /* emailConfig.ConfigID */
-                    "",              /* Override for Email RecipientsinTo */
-                    "",              /* Override for Email RecipientsinReplyTo */
-                    "",              /* Override for Email RecipientsinCC */
-                    "",              /* Override for Email RecipientsinBCC */
-                    "",              /* Override for Email Subject */
-                    "",              /* Override for Email Body */
-                    "",              /* Email Attachment */
-                    OUTPUT lSuccess, /* Email success or not */
-                    OUTPUT cMessage  /* Reason for failure in case email is not sent */
-                    ).
-            END. /* if not locked */
-        END. /* if sent eq no */
-    END. /* tasker not running */
-    RELEASE emailConfig.
-/*    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.*/
-    IF PROFILER:ENABLED THEN 
-    RUN pProcessProfiler.
-    /* Set error status to saved value since it gets reset in this procedure */
-    ERROR-STATUS:ERROR = lSaveErrStat.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define FRAME-NAME searchFrame
 &Scoped-define SELF-NAME favoritesList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL favoritesList MAINMENU
 ON DEFAULT-ACTION OF favoritesList IN FRAME searchFrame
@@ -1232,7 +1112,6 @@ END.
 
 
 &Scoped-define FRAME-NAME searchFrame
-
 &Scoped-define SELF-NAME menuTreeFilter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuTreeFilter MAINMENU
 ON RETURN OF menuTreeFilter IN FRAME searchFrame
@@ -1433,8 +1312,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*    IF iTickerInterval EQ 0 THEN*/
 /*    iTickerInterval = 1.        */
     RUN spGetSessionParam ("PSTimer", OUTPUT cDebug).
-    chCtrlFrame:PSTimer:Interval = IF cDebug NE "" THEN 0
-                                   ELSE iTickerInterval * 1000.
+/*    chCtrlFrame:PSTimer:Interval = IF cDebug NE "" THEN 0      */
+/*                                   ELSE iTickerInterval * 1000.*/
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1445,39 +1324,92 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE control_load MAINMENU  _CONTROL-LOAD
-PROCEDURE control_load :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CtrlFramePSTimerTick MAINMENU 
+PROCEDURE CtrlFramePSTimerTick :
 /*------------------------------------------------------------------------------
-  Purpose:     Load the OCXs    
-  Parameters:  <none>
-  Notes:       Here we load, initialize and make visible the 
-               OCXs in the interface.                        
+  Purpose:     Saved from original CtrlFrame.PSTimer.Tick procedure     
+  Parameters:  None required for OCX.
+  Notes:       Removed original per #103191
 ------------------------------------------------------------------------------*/
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
-DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
-
-OCXFile = SEARCH( "mainMenu.wrx":U ).
-IF OCXFile = ? THEN
-  OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
-                     R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
-
-IF OCXFile <> ? THEN
-DO:
-  ASSIGN
-    chCtrlFrame = CtrlFrame:COM-HANDLE
-    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
-    CtrlFrame:NAME = "CtrlFrame":U
-  .
-  RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
-END.
-ELSE MESSAGE "mainMenu.wrx":U SKIP(1)
-             "The binary control file could not be found. The controls cannot be loaded."
-             VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
-
-&ENDIF
-
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStatusDefault    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSaveErrStat      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
+    
+    lSaveErrStat = ERROR-STATUS:ERROR.
+    IF lViewTaskResults EQ YES OR lViewTaskResults EQ ? THEN DO:
+        FIND FIRST taskResult NO-LOCK
+             WHERE taskResult.user-id EQ USERID("ASI")
+               AND taskResult.viewed  EQ NO
+            NO-ERROR.    
+        IF AVAILABLE taskResult AND
+           SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
+            IF lViewTaskResults EQ ? THEN
+            MESSAGE
+                "An Unviewed Task Result Exists, View Now?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lViewTaskResults.
+            IF lViewTaskResults THEN DO:
+                PAUSE 2 NO-MESSAGE.
+                OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
+                FIND CURRENT taskResult EXCLUSIVE-LOCK.
+                taskResult.viewed = YES.
+                RELEASE taskResult.
+            END. /* if lViewTaskResults eq ? */
+        END. /* if avail */
+    END.
+    ELSE
+    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
+    FIND FIRST config NO-LOCK.
+    cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
+    IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
+        cStatusDefault = "Task Monitor Currently Not Running".
+        RUN sys/ref/nk1look.p (
+            g_company,"TaskerNotRunning","I",NO,NO,"","",
+            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+            ).
+        iConfigID = INTEGER(cTaskerNotRunning).
+        IF CAN-FIND(FIRST emailConfig
+                    WHERE emailConfig.configID EQ iConfigID
+                      AND emailConfig.isActive EQ YES
+                      AND emailConfig.notified EQ NO) THEN DO:
+            DO TRANSACTION:
+                FIND FIRST emailConfig EXCLUSIVE-LOCK
+                     WHERE emailConfig.configID EQ iConfigID
+                     NO-ERROR NO-WAIT.
+                IF AVAILABLE emailConfig AND NOT LOCKED emailConfig THEN
+                emailConfig.notified = YES.
+            END. /* do trans */
+            IF NOT LOCKED emailConfig THEN DO:
+                RUN sys/ref/nk1look.p (
+                    g_company,"TaskerNotRunning","L",NO,NO,"","",
+                    OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+                    ).
+                IF lTaskerNotRunning AND cTaskerNotRunning EQ "Yes" THEN
+                RUN spSendEmail (
+                    iConfigID,       /* emailConfig.ConfigID */
+                    "",              /* Override for Email RecipientsinTo */
+                    "",              /* Override for Email RecipientsinReplyTo */
+                    "",              /* Override for Email RecipientsinCC */
+                    "",              /* Override for Email RecipientsinBCC */
+                    "",              /* Override for Email Subject */
+                    "",              /* Override for Email Body */
+                    "",              /* Email Attachment */
+                    OUTPUT lSuccess, /* Email success or not */
+                    OUTPUT cMessage  /* Reason for failure in case email is not sent */
+                    ).
+            END. /* if not locked */
+        END. /* if sent eq no */
+    END. /* tasker not running */
+    RELEASE emailConfig.
+/*    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.*/
+    IF PROFILER:ENABLED THEN 
+    RUN pProcessProfiler.
+    /* Set error status to saved value since it gets reset in this procedure */
+    ERROR-STATUS:ERROR = lSaveErrStat.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1513,7 +1445,6 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  RUN control_load.
   DISPLAY company_name loc_loc users_user_id Mnemonic fFollow 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
@@ -1522,7 +1453,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE menuTreeFilter favoritesList searchSelections BtnFavorites btnSearch 
+  ENABLE menuTreeFilter favoritesList BtnFavorites btnSearch searchSelections 
          btnMoveDown btnMoveUp btnRemove btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
@@ -1725,7 +1656,6 @@ PROCEDURE pGetMenuSettings :
     DEFINE VARIABLE cNK1Value     AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 

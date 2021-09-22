@@ -29,6 +29,7 @@ DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSuperProc          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedure     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVersion            AS CHARACTER NO-UNDO.
@@ -40,6 +41,7 @@ DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lAdmin              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSessionSuperProc   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
@@ -59,26 +61,6 @@ DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
 DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO. 
-
-/* vv alphabetical list of super-procedures comma delimited vv */
-ASSIGN 
-    cSuperProcedure = "browsers/BrowserProcs.p,"
-                    + "est/EstimateProcs.p,"
-                    + "oe/PriceProcs.p,"
-                    + "system/CommonProcs.p,"
-                    + "system/ConversionProcs.p,"
-                    + "system/CreditProcs.p,"
-                    + "system/FileSysProcs.p,"
-                    + "system/FormatProcs.p,"
-                    + "system/GLProcs.p,"
-                    + "system/OSProcs.p,"
-                    + "system/PurgeProcs.p,"
-                    + "system/TagProcs.p,"
-                    + "system/TaxProcs.p,"
-                    + "system/VendorCostProcs.p,"
-    cSuperProcedure = TRIM(cSuperProcedure,",")
-    .
-/* ^^ alphabetical list of super-procedures comma delimited ^^ */
 
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
@@ -393,7 +375,19 @@ RUN spSetSessionParam("UserID",cUserID).
 /* get current ASI version */
 FIND LAST updateHist NO-LOCK NO-ERROR.
 cVersion = IF AVAILABLE updateHist THEN updateHist.toVersion ELSE "Unknown".
-/* build temp-table of super-procedures */
+/* build temp-table of super-procedures                                        */
+/* add run persistent procedures to Resources/ProcedureList.dat alphabetically */
+/* format: procedureName.p yes/no (to indicate if session.p instantiates the   */
+/* procedure as a SUPER-PROCEDURE)                                             */
+INPUT FROM VALUE(SEARCH("ProcedureList.dat")) NO-ECHO.
+IMPORT ^.
+IMPORT ^.
+REPEAT:
+    IMPORT cSuperProc lSessionSuperProc.
+    IF lSessionSuperProc THEN
+    cSuperProcedure = cSuperProcedure + cSuperProc + ",".
+END. /* repeat */
+cSuperProcedure = TRIM(cSuperProcedure,",").
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
     CREATE ttSuperProcedure.
     ttSuperProcedure.superProcedure = ENTRY(idx,cSuperProcedure).

@@ -442,7 +442,7 @@ DEFINE BROWSE br_table
   tt-relbol.i-no COLUMN-LABEL "Item#" 
   tt-relbol.i-name COLUMN-LABEL "Name" 
   tt-relbol.ord-no COLUMN-LABEL "Order#" 
-  tt-relbol.loc COLUMN-LABEL "Warehouse" 
+  tt-relbol.loc COLUMN-LABEL "Location" 
   tt-relbol.loc-bin COLUMN-LABEL "Bin"
   tt-relbol.cust-no COLUMN-LABEL "Customer#"
   tt-relbol.cases   COLUMN-LABEL "Units"

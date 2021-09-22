@@ -190,7 +190,7 @@ DEFINE BROWSE BROWSE-1
       loadtag.i-name FORMAT "x(30)":U
       loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
       loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      loadtag.loc FORMAT "x(5)":U
+      loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       loadtag.ord-no FORMAT ">>>>>9":U
       loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U

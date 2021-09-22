@@ -771,7 +771,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                  
                         IF lChoice THEN
                         DO:
-                            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
                 END. /* WHEN 3 THEN DO: */
@@ -2565,7 +2565,7 @@ PROCEDURE run-report :
 
     SESSION:SET-WAIT-STATE ("").
     IF rd-dest = 3 AND tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 
 END PROCEDURE.
 

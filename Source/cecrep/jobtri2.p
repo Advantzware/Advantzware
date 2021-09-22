@@ -273,7 +273,7 @@ do v-local-loop = 1 to v-local-copies:
 
        IF AVAIL itemfg THEN
           ASSIGN
-             v-loc     = "Whs: " + itemfg.def-loc 
+             v-loc     = "Loc: " + itemfg.def-loc 
              v-loc-bin = "Bin: " + itemfg.def-loc-bin.
        ELSE
           ASSIGN
