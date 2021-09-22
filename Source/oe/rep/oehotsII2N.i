@@ -3,7 +3,7 @@
 /* -----------------------------------------------------------------*/
 IF v-first THEN 
     PUT UNFORMATTED
-        "<FCourier New><B><C5><P26>Hots <P7>" 
+        "<FCourier New><B><C5><P26>Hots <P8>" 
           SKIP(1)
         STRING(TODAY) AT 3 FORM "x(5)"  
         "Begin Date:" AT 30 
