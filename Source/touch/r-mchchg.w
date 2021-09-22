@@ -435,7 +435,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     END.
                 END.
             WHEN 6 THEN RUN OUTPUT-to-port.
-        END CASE. 
+        END CASE.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 
 /* _UIB-CODE-BLOCK-END */
