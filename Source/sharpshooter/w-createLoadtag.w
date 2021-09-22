@@ -109,6 +109,10 @@ DEFINE VARIABLE h_f-releasetag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-reprint AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-return AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-splittag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -364,22 +368,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSettingsText
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
-ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+&Scoped-define SELF-NAME btnPrintText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
+ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
 DO:
-    RUN OpenSetting.
+    APPLY "CHOOSE":U TO btPrint.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnPrintText
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
-ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
 DO:
-    APPLY "CHOOSE":U TO btPrint.
+    RUN OpenSetting.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,12 +526,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-loadtags-3 ( 24.10 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-loadtags-3 ( 7.86 , 199.00 ) NO-ERROR.
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
        /* Links to SmartBrowser h_b-loadtags-3. */
+       RUN add-link IN adm-broker-hdl ( h_navigatefirst , 'NAV-FIRST':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigatelast , 'NAV-LAST':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigatenext , 'NAV-NEXT':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigateprev , 'NAV-PREV':U , h_b-loadtags-3 ).
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
-             h_setting , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -537,6 +545,38 @@ PROCEDURE adm-create-objects :
              OUTPUT h_f-job ).
        RUN set-position IN h_f-job ( 4.57 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 15.24 , 203.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatefirst ).
+       RUN set-position IN h_navigatefirst ( 25.05 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatelast ).
+       RUN set-position IN h_navigatelast ( 30.76 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 26.95 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartFrame h_f-job. */
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
@@ -1115,6 +1155,14 @@ PROCEDURE pWinReSize :
             btnExitText:COL                    = dCol - 9
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
+        RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
         RUN get-position IN h_b-loadtags-3 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         ASSIGN
             dWidth  = dCol - 2
