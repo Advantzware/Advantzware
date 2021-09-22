@@ -31,6 +31,7 @@
       str-tit3 SKIP
       str-tit4 SKIP
       str-tit5
+      "</B>"
       SKIP
      WITH FRAME pg-head NO-BOX PAGE-TOP NO-LABEL STREAM-IO WIDTH 200.
    
