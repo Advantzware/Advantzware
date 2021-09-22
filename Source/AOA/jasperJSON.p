@@ -7,6 +7,7 @@ DEFINE INPUT  PARAMETER ipcSubjectName AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcTaskRecKey  AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplProgressBar AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcJasperFile  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcRecipient   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
@@ -14,8 +15,10 @@ DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFullName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasonName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecipient    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
+/*DEFINE VARIABLE hMailProcs    AS HANDLE    NO-UNDO.*/
 DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumResults   AS INTEGER   NO-UNDO.
@@ -27,6 +30,7 @@ DEFINE STREAM sJasperJSON.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
+/*RUN system/MailProcs.p PERSISTENT SET hMailProcs.*/
 
 FIND FIRST dynParamValue NO-LOCK
      WHERE ROWID(dynParamValue) EQ iprRowID
@@ -99,6 +103,16 @@ IF iNumResults GT 0 THEN DO:
                 cFullName    = REPLACE(cFullName,"[","")
                 cFullName    = REPLACE(cFullName,"]","")
                 .
+/*            IF dynParamValue.formType NE "" AND                */
+/*               dynParamValue.onePer AND                        */
+/*               dynValueColumn.isFormField THEN DO:             */
+/*                RUN pFormEmail (                               */
+/*                    dynParamValue.formType,                    */
+/*                    cBufferValue,                              */
+/*                    OUTPUT cRecipient                          */
+/*                    ).                                         */
+/*                opcRecipient = opcRecipient + cRecipient + ",".*/
+/*            END. /* if a form type subject */                  */
             IF dynParamValue.outputFormat EQ "HTML" THEN
             cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web").
             /* handle how jasper auto multiplies % formatted fields by 100 */
@@ -122,6 +136,21 @@ IF iNumResults GT 0 THEN DO:
         PUT STREAM sJasperJSON UNFORMATTED SKIP FILL(" ",6) "}".
         iphQuery:GET-NEXT().
         IF iphQuery:QUERY-OFF-END THEN LEAVE.
+/*        IF dynParamValue.onePer AND iRecordCount GT 0 THEN DO:*/
+/*            PUT STREAM sJasperJSON UNFORMATTED                */
+/*                SKIP                                          */
+/*                FILL(" ",4) "]"                               */
+/*                .                                             */
+/*            RUN pSubDataSet ("Detail").                       */
+/*            RUN pSubDataSet ("Summary").                      */
+/*            PUT STREAM sJasperJSON UNFORMATTED                */
+/*                SKIP                                          */
+/*                FILL(" ",2) "}" SKIP                          */
+/*                "}" SKIP                                      */
+/*                .                                             */
+/*            OUTPUT STREAM sJasperJSON CLOSE.                  */
+/*        END.                                                  */
+/*        ELSE                                                  */
         PUT STREAM sJasperJSON UNFORMATTED "," SKIP.
     END. /* repeat */
     PUT STREAM sJasperJSON UNFORMATTED
@@ -132,7 +161,7 @@ IF iNumResults GT 0 THEN DO:
     RUN pSubDataSet ("Summary").
 END. /* inumresults gt 0 */
 ELSE DO:
-    RUN pTaskFile (0).
+    RUN pTaskFile (0, OUTPUT cJasperFile).
     PUT STREAM sJasperJSON UNFORMATTED
         FILL(" ",8) "~{" SKIP
         FILL(" ",12)
@@ -149,6 +178,7 @@ PUT STREAM sJasperJSON UNFORMATTED
 OUTPUT STREAM sJasperJSON CLOSE.
 ASSIGN
     opcJasperFile = TRIM(opcJasperFile,",")
+    opcRecipient  = TRIM(opcRecipient,",")
     oplOK         = TRUE
     .
 iphQuery:QUERY-CLOSE().
@@ -164,6 +194,7 @@ PROCEDURE pSubDataSet:
     DEFINE VARIABLE cFormat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHandle   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTables   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cWhere    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hQuery    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQueryBuf AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable    AS HANDLE    NO-UNDO.
@@ -185,10 +216,15 @@ PROCEDURE pSubDataSet:
             "~"" ipcType STRING(idx) "~": [" SKIP
             .
         /* scroll returned temp-table records */
+        cWhere = "FOR EACH " + hTable:NAME.
+/*        IF dynParamValue.onePer AND iRecordCount GT 0 THEN         */
+/*        cWhere = cWhere + " WHERE " + hTable:NAME + ".recordID EQ "*/
+/*               + STRING(iRecordCount)                              */
+/*               .                                                   */
         CREATE QUERY hQuery.
         hTable = hTable:DEFAULT-BUFFER-HANDLE.
         hQuery:SET-BUFFERS(hTable:HANDLE).
-        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-PREPARE(cWhere).
         hQuery:QUERY-OPEN.
         hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
         hQuery:GET-FIRST().
@@ -261,6 +297,9 @@ PROCEDURE pTaskFile:
 
     ASSIGN
         cJasonName    = REPLACE(ipcSubjectName," ","") + "." + ipcTaskRecKey
+/*                      + IF NOT dynParamValue.onePer THEN ""         */
+/*                   ELSE IF ipiRecordID NE 0 THEN STRING(ipiRecordId)*/
+/*                   ELSE ""                                          */
         opcJasperFile = "users\" + ipcUserID + "\"
                       + cJasonName
                       + ".json"

@@ -300,13 +300,13 @@ do v-local-loop = 1 to v-local-copies:
           no-lock no-error.
           if avail fg-bin then do:
             assign
-              v-loc     = "Whs: " + fg-bin.loc
+              v-loc     = "Loc: " + fg-bin.loc
               v-loc-bin = "Bin: " + fg-bin.loc-bin.
           end.
           else
           if avail itemfg then do:                             
             assign
-              v-loc     = "Whs: " + itemfg.def-loc
+              v-loc     = "Loc: " + itemfg.def-loc
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           end.
 
@@ -758,8 +758,8 @@ do v-local-loop = 1 to v-local-copies:
         ASSIGN 
                v-whs-ship-id = IF AVAIL xoe-ordl AND
                                   AVAIL oe-rel-whse THEN
-                                  "WHSE" ELSE "" .
-             /*  v-ship-id    = IF v-whs-ship-id NE "" THEN "WHSE"
+                                  "LOC" ELSE "" .
+             /*  v-ship-id    = IF v-whs-ship-id NE "" THEN "LOC"
                               ELSE IF AVAIL xoe-rel AND TRIM(xoe-rel.ship-id) NE "" THEN
                                  xoe-rel.ship-id
                               ELSE IF AVAIL xoe-ord AND TRIM(xoe-ord.sold-id) NE "" THEN

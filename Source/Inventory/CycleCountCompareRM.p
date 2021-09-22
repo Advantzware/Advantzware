@@ -865,6 +865,8 @@ PROCEDURE pCheckInvalidItems:
           AND rm-bin.i-no LE ipcFgItemEnd
            AND LOOKUP(rm-bin.loc, ipcWhseList) GT 0
         :
+        lNoMSF  = NO.
+        lNoCost = NO.
         FIND FIRST ITEM no-lock
             WHERE ITEM.company EQ cocode 
               AND ITEM.i-no EQ rm-bin.i-no
@@ -875,7 +877,7 @@ PROCEDURE pCheckInvalidItems:
                 ttProblems.loc1              = rm-bin.loc + rm-bin.loc-bin
                 ttProblems.i-no             = rm-bin.i-no
                 ttProblems.tag              = rm-bin.tag                
-                // ttProblems.lInactiveWithBin = (AVAIL(item) AND item.stat EQ "I" AND rm-bin.qty GT 0)
+                ttProblems.lInactiveWithBin = (AVAIL(item) AND item.stat EQ "I")
                 ttProblems.lNoitem          = NOT AVAIL(item)
                 ttProblems.lOnHandNobin     = (AVAIL(item) AND item.q-onh EQ 0 AND rm-bin.qty GT 0) 
                 lInvalidItems                   = TRUE     
@@ -884,7 +886,7 @@ PROCEDURE pCheckInvalidItems:
         RUN pGetCostMSF (INPUT ROWID(rm-bin), rm-bin.qty, OUTPUT dShtLen, OUTPUT dShtWid, OUTPUT dMSF, OUTPUT dCost).
         IF dMsf EQ 0 THEN            
             lNoMSF = YES. 
-        IF dCost EQ 0 THEN 
+        IF rm-bin.cost EQ 0 THEN 
             lNoCost = YES.
             
           
@@ -1779,11 +1781,11 @@ DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
             IF ttProblems.lNoMSFFound THEN 
                 cProblemList = cProblemList + " No MSF,".
             IF ttProblems.lInactiveWithBin THEN 
-                cProblemList = cProblemList + " Inactive Item with quantity,".
+                cProblemList = cProblemList + " Inactive Item,".
             IF ttProblems.lNoitem THEN 
-                cProblemList = cProblemList + " No item for bin,".
+                cProblemList = cProblemList + " Item not found,".
             IF ttProblems.lOnHandNobin THEN 
-                cProblemList = cProblemList + " On Hand Qty but no bin,".
+                cProblemList = cProblemList + " No On Hand Quantity,".
             IF ttProblems.lDuplicateFound THEN 
                 cProblemList = cProblemList + " Duplicate Tag,".
             IF ttProblems.tag EQ "" THEN 

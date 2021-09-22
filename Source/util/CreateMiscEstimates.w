@@ -812,6 +812,7 @@ PROCEDURE run-process :
     DEFINE BUFFER bf-ef  FOR ef.
     DEFINE BUFFER bf-eb  FOR eb.
     DEFINE BUFFER bff-eb FOR eb.
+    DEFINE BUFFER b-eb   FOR eb.
     
     EMPTY TEMP-TABLE ttEstimate.
   
@@ -833,11 +834,13 @@ PROCEDURE run-process :
  
     OUTPUT TO value(cFileName) .  
     iCount = 0. 
+    MAIN-LOOP:
     FOR EACH bf-est NO-LOCK
         WHERE bf-est.company EQ cocode
         AND bf-est.est-type GE 5         
         AND bf-est.est-no GE begin_est-no
-        AND bf-est.est-no LE end_est-no,
+        AND bf-est.est-no LE end_est-no
+        AND bf-est.estimateTypeID NE "MISC",
         FIRST bf-eb NO-LOCK
         WHERE bf-eb.company EQ cocode
         AND bf-eb.form-no NE 0
@@ -853,6 +856,23 @@ PROCEDURE run-process :
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
         AND quotehd.quo-date LE TODAY
         :
+        
+        FIND FIRST itemfg NO-LOCK 
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no EQ bf-eb.stock-no
+               USE-INDEX i-no NO-ERROR.
+        IF AVAILABLE itemfg AND itemfg.stat EQ "I" THEN NEXT MAIN-LOOP.
+        
+        FIND FIRST cust NO-LOCK 
+             WHERE cust.company EQ cocode
+               AND cust.cust-no EQ bf-eb.cust-no
+               USE-INDEX cust NO-ERROR.
+        IF AVAILABLE cust AND cust.ACTIVE EQ "I" THEN NEXT MAIN-LOOP.
+                        
+        IF CAN-FIND(FIRST b-eb
+            WHERE b-eb.company  EQ cocode
+            AND b-eb.sourceEstimate EQ bf-eb.est-no)  THEN NEXT MAIN-LOOP.        
+                               
         CREATE ttEstimate.
         ASSIGN
          ttEstimate.cEstimateNo    = bf-est.est-no  
@@ -965,6 +985,28 @@ PROCEDURE run-process :
          ttEstimate.cCustomer      = bf-eb.cust-no
          ttEstimate.dtOrderDate    = bf-est.ord-date
          ttEstimate.cCreated       = "Skip".
+         
+         IF bf-est.estimateTypeID EQ "MISC" THEN
+         ttEstimate.cReason  = ttEstimate.cReason  + "Estimate is Distribution estimate,".
+         
+         IF CAN-FIND(FIRST b-eb
+            WHERE b-eb.company  EQ cocode
+            AND b-eb.sourceEstimate EQ bf-eb.est-no)  THEN 
+         ttEstimate.cReason  = ttEstimate.cReason  + "Estimate is already created Distribution estimate,".  
+         
+         FIND FIRST itemfg NO-LOCK 
+              WHERE itemfg.company EQ cocode
+                AND itemfg.i-no EQ bf-eb.stock-no
+                USE-INDEX i-no NO-ERROR.
+         IF AVAILABLE itemfg AND itemfg.stat EQ "I" THEN 
+          ttEstimate.cReason  = ttEstimate.cReason  + "FG Item is inactive,".
+        
+         FIND FIRST cust NO-LOCK 
+              WHERE cust.company EQ cocode
+                AND cust.cust-no EQ bf-eb.cust-no 
+                USE-INDEX cust NO-ERROR.
+         IF AVAILABLE cust AND cust.ACTIVE EQ "I" THEN 
+         ttEstimate.cReason  = ttEstimate.cReason  + "Customer is inactive,".
          
          IF avail quotehd THEN
          DO:          

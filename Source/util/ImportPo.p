@@ -314,20 +314,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.under-pct).                         
     RUN pAssignValueC (ipbf-ttImportPo.cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.cust-no).                 
-    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).   
-    
-    
+    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).  
+    RUN pAssignValueCToL (ipbf-ttImportPo.opened, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.opened).     
+    RUN pAssignValueCToL (ipbf-ttImportPo.item-type,"RM", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.item-type).    
+    RUN pAssignValueCToL (ipbf-ttImportPo.printed, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.printed).        
         
-    IF ipbf-ttImportPo.printed EQ "Yes" THEN
-        ASSIGN bf-po-ord.printed = YES.
-    ELSE bf-po-ord.printed = NO .
-    IF ipbf-ttImportPo.opened EQ "Yes" THEN
-        ASSIGN bf-po-ordl.opened = YES.
-    ELSE bf-po-ordl.opened = NO .
-    IF ipbf-ttImportPo.item-type EQ "RM" THEN
-        ASSIGN bf-po-ordl.item-type = YES.
-    ELSE bf-po-ordl.item-type = NO .
-    
     IF ipbf-ttImportPo.item-type EQ "RM" THEN
     DO:
         FIND FIRST ITEM NO-LOCK

@@ -205,14 +205,14 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         IF AVAILABLE fg-bin THEN 
         DO:
             ASSIGN
-                v-loc     = "Whs: " + fg-bin.loc
+                v-loc     = "Loc: " + fg-bin.loc
                 v-loc-bin = "Bin: " + fg-bin.loc-bin.
         END.
         ELSE
             IF AVAILABLE itemfg THEN 
             DO:                             
                 ASSIGN
-                    v-loc     = "Whs: " + itemfg.def-loc
+                    v-loc     = "Loc: " + itemfg.def-loc
                     v-loc-bin = "Bin: " + itemfg.def-loc-bin.
             END.
 
