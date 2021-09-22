@@ -1099,7 +1099,8 @@ PROCEDURE pProcessRecord PRIVATE:
     
     RUN BuildEstimateRouting IN hdOpProcs (eb.company, eb.est-no, eb.form-no, ipbf-ttImportEstimate.Quantity). 
     
-    DELETE OBJECT hdOpProcs.
+    IF VALID-HANDLE(hdOpProcs) THEN
+        DELETE PROCEDURE hdOpProcs.
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
