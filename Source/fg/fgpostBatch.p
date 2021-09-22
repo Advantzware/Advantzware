@@ -971,7 +971,8 @@ PROCEDURE fg-post:
           IF LAST-OF(w-fg-rctd.i-no) AND fCanCloseJob(w-job.rec-id, w-fg-rctd.i-no) THEN
             lAnyJobCloses = YES.                  
        END.  
-       RUN pCheckIssueMaterial(INPUT job.company, INPUT job.job-no, INPUT job.job-no2, INPUT-OUTPUT lAnyJobCloses).
+       IF lAnyJobCloses THEN 
+            RUN pCheckIssueMaterial(INPUT job.company, INPUT job.job-no, INPUT job.job-no2, OUTPUT lAnyJobCloses).
        IF NOT lAnyJobCloses THEN DELETE w-job.  
     END.
     
@@ -1640,35 +1641,36 @@ PROCEDURE pCloseJobs:
 
 END PROCEDURE.
 
-PROCEDURE pCheckIssueMaterial:
-/* --------------------------------------------------                         */
-/* Job Costing - Close Job logic for API                                      */
-/* -------------------------------------------------------------------------- */
+PROCEDURE pCheckIssueMaterial PRIVATE:
+/* --------------------------------------------------                           */
+/* Given company and job #, run the issued material check and prompt zMessage   */
+/* --------------------------------------------------------------------------   */
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplCloseJob AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCloseJob AS LOGICAL NO-UNDO.
        
-    IF NOT ioplCloseJob THEN RETURN.
-    DEFINE VARIABLE lClose AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lCheckClose AS LOGICAL NO-UNDO.
-           
-    FOR EACH job-mat NO-LOCK
-        WHERE job-mat.company EQ ipcCompany
-          AND job-mat.job-no EQ ipcJobNo 
-          AND job-mat.job-no2 EQ ipiJobNo2            
-          AND job-mat.all-flg EQ YES
-          AND job-mat.qty-all GT 0
-          USE-INDEX seq-idx:
-
-          RUN displayMessageQuestionLOG ("71", OUTPUT lClose). 
-          lCheckClose = YES.
-          LEAVE.                  
-    END.
-    IF lCheckClose THEN
-    ioplCloseJob = lClose.
+    DEFINE VARIABLE lHasIssuedBoard AS LOGICAL NO-UNDO.
     
-    IF lCheckClose AND NOT lClose THEN
+    FOR FIRST mat-act NO-LOCK
+        WHERE mat-act.company EQ ipcCompany
+        AND mat-act.job-no EQ ipcJobNo
+        AND mat-act.job-no2 EQ ipiJobNo2,
+        FIRST item NO-LOCK 
+        WHERE item.company EQ mat-act.company
+        AND item.i-no EQ mat-act.i-no
+        AND item.mat-type EQ 'B':
+        
+        lHasIssuedBoard = YES.
+        LEAVE.
+    END.
+    
+    IF NOT lHasIssuedBoard THEN 
+          RUN displayMessageQuestionLOG ("71", OUTPUT oplCloseJob).  //Warns but allows the user to close job anyway
+    ELSE 
+        oplCloseJob = YES.
+    
+    IF NOT oplCloseJob THEN
     DO:
         RUN AddTagInfo (
                 INPUT ipcJobNo + "-" + STRING(ipiJobNo2,"99"),
