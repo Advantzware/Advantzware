@@ -1104,7 +1104,7 @@ PROCEDURE output-to-mail :
                             FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
                                 AND oe-ord.ord-no = {&line}.ord-no
                                 NO-LOCK NO-ERROR.
-                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "".
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE buf-{&head}.cust-no.
                         END.
                         vShipToNo = STRING(buf-{&head}.sold-no).
 
