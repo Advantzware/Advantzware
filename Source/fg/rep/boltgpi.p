@@ -167,18 +167,18 @@ IF AVAILABLE cust THEN
 
 FOR EACH w-fg-rctd NO-LOCK :
 
-     RUN oe/pallcalc2.p (INPUT cocode,
-                         INPUT w-fg-rctd.i-no,
-                         INPUT w-fg-rctd.job-no,
-                         INPUT INT(w-fg-rctd.job-no2),
-                         INPUT w-fg-rctd.loc,
-                         INPUT w-fg-rctd.loc-bin,
-                         INPUT w-fg-rctd.tag,
-                         INPUT w-fg-rctd.cust-no,
-                         INPUT INT(w-fg-rctd.partial),
-                         INPUT INT(w-fg-rctd.qty),
-                         INPUT INT(w-fg-rctd.cases),
-                         OUTPUT v-tot-pallets).
+    RUN oe/pallcalc2.p (INPUT cocode,
+        INPUT w-fg-rctd.i-no,
+        INPUT w-fg-rctd.job-no,
+        INPUT INT(w-fg-rctd.job-no2),
+        INPUT w-fg-rctd.loc,
+        INPUT w-fg-rctd.loc-bin,
+        INPUT w-fg-rctd.tag,
+        INPUT 0,
+        INPUT INT(w-fg-rctd.qty),
+        INPUT INT(w-fg-rctd.qty-case),
+        OUTPUT v-tot-pallets).
+        
     FIND FIRST itemfg NO-LOCK 
         WHERE itemfg.company EQ cocode 
         AND itemfg.i-no EQ w-fg-rctd.i-no NO-ERROR.
