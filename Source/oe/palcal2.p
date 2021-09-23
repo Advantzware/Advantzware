@@ -19,7 +19,7 @@ FOR EACH oe-boll
       AND oe-boll.b-no    EQ oe-bolh.b-no:   
  
   
-  RUN Inventory_calculatePallet IN hdInventoryProcs (rowid(oe-boll), OUTPUT iPallet).
+  RUN Inventory_GetQuantityOfUnitsForOeBoll IN hdInventoryProcs (ROWID(oe-boll), OUTPUT iPallet).
  
   oe-boll.tot-pallets = iPallet.
   op-pallets = op-pallets + oe-boll.tot-pallets.

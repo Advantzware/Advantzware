@@ -420,48 +420,68 @@ PROCEDURE Inventory_GetWarehouseLength:
         
 END PROCEDURE.
 
-PROCEDURE Inventory_calculatePallet:
+PROCEDURE Inventory_GetQuantityOfUnitsForOEBoll:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose:  Given an oe-boll rowid, this will return a recalculation of the # 
+ of pallets.
  Notes:
 ------------------------------------------------------------------------------*/       
-    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.              
-    DEFINE OUTPUT PARAMETER opiPallet      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriOeBoll      AS ROWID NO-UNDO.              
+    DEFINE OUTPUT PARAMETER opiQuantityOfUnits      AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
     
     DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dPartial AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iPallet AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dSubUnits AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityPartial AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityOfSubUnits AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iQuantityPerSubUnit AS INTEGER NO-UNDO. 
     
-    FIND FIRST oe-boll WHERE ROWID(oe-boll) EQ iprwRowid NO-LOCK NO-ERROR.
     
-    iQuantityPerSubUnit = oe-boll.qty-case. 
+    FIND FIRST bf-oe-boll NO-LOCK
+        WHERE ROWID(bf-oe-boll) EQ ipriOeBoll 
+        NO-ERROR.
     
-    FIND FIRST fg-bin NO-LOCK
-         WHERE fg-bin.company EQ oe-boll.company
-           AND fg-bin.job-no  EQ oe-boll.job-no
-           AND fg-bin.job-no2 EQ oe-boll.job-no2
-           AND fg-bin.i-no    EQ oe-boll.i-no
-           AND fg-bin.loc     EQ oe-boll.loc
-           AND fg-bin.loc-bin EQ oe-boll.loc-bin
-           AND fg-bin.tag     EQ oe-boll.tag NO-ERROR  .
-                              
-    iQuantitySubUnitsPerUnit = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0 .
-    IF iQuantitySubUnitsPerUnit EQ 0 THEN DO:
-       FIND FIRST oe-ordl NO-LOCK
-           WHERE oe-ordl.company EQ oe-boll.company 
-             AND oe-ordl.ord-no  EQ oe-boll.ord-no 
-             AND oe-ordl.i-no    EQ oe-boll.i-no NO-ERROR.
-      IF AVAIL oe-ordl THEN
-          ASSIGN
-          iQuantitySubUnitsPerUnit = oe-ordl.cases-unit .
-    END.      
+    IF NOT AVAILABLE bf-oe-boll THEN RETURN. 
     
-    RUN RecalcQuantityUnits (oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
-                                             OUTPUT dSubUnits, OUTPUT iPallet, OUTPUT dPartial).
-                                             
-    opiPallet = iPallet + (IF dPartial GT 0 THEN 1 ELSE 0).                                             
+    RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(bf-oe-boll.company, bf-oe-boll.i-no, bf-oe-boll.job-no, bf-oe-boll.job-no2, bf-oe-boll.loc, bf-oe-boll.loc-bin, bf-oe-boll.tag, bf-oe-boll.ord-no,
+        OUTPUT iQuantitySubUnitsPerUnit).  //Get the QuantitySubUnitsPerUnit (cases per pallet)
+    
+    iQuantityPerSubUnit = bf-oe-boll.qty-case. 
+    
+    RUN RecalcQuantityUnits (bf-oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
+                                             OUTPUT dQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dQuantityPartial).
+                                                                                      
+        
+END PROCEDURE.
+
+PROCEDURE Inventory_GetQuantityOfUnitsForBinAndOrder:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given bin and order inputs, return a recalculation of the # 
+     of Units (Pallets).
+     Notes:
+    ------------------------------------------------------------------------------*/       
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantityPerSubUnit AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantityOfUnits      AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER NO-UNDO.    
+    DEFINE VARIABLE dQuantityPartial         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityOfSubUnits      AS DECIMAL NO-UNDO.   
+    
+    RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(ipcCompany, ipcItemID, ipcJobID, ipiJobID2, ipcLocationID, ipcBin, ipcTag, ipiOrderID,
+        OUTPUT iQuantitySubUnitsPerUnit).
+            
+    RUN RecalcQuantityUnits (ipiQuantity, INPUT-OUTPUT ipiQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
+        OUTPUT dQuantityOfSubUnits, OUTPUT opiQuantityOfUnits, OUTPUT dQuantityPartial).
+                                                                                         
         
 END PROCEDURE.
 
@@ -2742,7 +2762,7 @@ PROCEDURE pGetJobFromPOAndRMItem PRIVATE:
          WHERE bf-po-ordl.company EQ bf-po-ord.company
            AND bf-po-ordl.po-no   EQ bf-po-ord.po-no
            AND bf-po-ordl.i-no    EQ ipcItemID
-         NO-ERROR.
+        NO-ERROR.
     IF AVAILABLE bf-po-ordl THEN
         ASSIGN
             opcJobNo   = bf-po-ordl.job-no
@@ -2750,6 +2770,55 @@ PROCEDURE pGetJobFromPOAndRMItem PRIVATE:
             opiFormNo  = bf-po-ordl.s-num
             opiBlankNo = bf-po-ordl.b-num
             .        
+END PROCEDURE.
+
+PROCEDURE pGetQuantityOfSubUnitsPerUnitFromBinAndOrder PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given inputs for a bin, return the Quantity of SubUnits Per Units (cases per pallet)
+     from a matching bin, or from an order
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    FIND FIRST bf-fg-bin NO-LOCK
+        WHERE bf-fg-bin.company EQ ipcCompany
+        AND bf-fg-bin.job-no  EQ ipcJobID
+        AND bf-fg-bin.job-no2 EQ ipiJobID2
+        AND bf-fg-bin.i-no    EQ ipcItemID
+        AND bf-fg-bin.loc     EQ ipcLocationID
+        AND bf-fg-bin.loc-bin EQ ipcBin
+        AND bf-fg-bin.tag     EQ ipcTag 
+        NO-ERROR.
+                              
+    IF AVAILABLE bf-fg-bin THEN 
+        opiQuantitySubUnitsPerUnit = bf-fg-bin.cases-unit.
+    ELSE DO: 
+        IF ipiOrderID NE 0 THEN 
+            FIND FIRST bf-oe-ordl NO-LOCK
+                WHERE bf-oe-ordl.company EQ ipcCompany 
+                AND bf-oe-ordl.ord-no  EQ ipiOrderID 
+                AND bf-oe-ordl.i-no    EQ ipcItemID 
+                NO-ERROR.
+        
+        IF AVAILABLE bf-oe-ordl THEN
+            opiQuantitySubUnitsPerUnit = bf-oe-ordl.cases-unit .
+    
+    opiQuantitySubUnitsPerUnit = MAX(1, opiQuantitySubUnitsPerUnit).
+    
+    END.      
+    
+
 END PROCEDURE.
 
 PROCEDURE pPostRawMaterialsGLTrans PRIVATE:

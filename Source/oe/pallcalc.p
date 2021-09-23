@@ -15,7 +15,7 @@ FIND oe-boll WHERE ROWID(oe-boll) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL oe-boll THEN DO:
   
-  RUN Inventory_calculatePallet IN hdInventoryProcs (rowid(oe-boll), OUTPUT iPallet).
+  RUN Inventory_GetQuantityOfUnitsForOEBoll IN hdInventoryProcs (rowid(oe-boll), OUTPUT iPallet).
   op-pallets = iPallet.
 END.
 
