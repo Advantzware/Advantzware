@@ -209,7 +209,7 @@ do v-local-loop = 1 to v-local-copies:
               by job.job-no2:
       
        
-         /* get whether warehous item or not */
+         /* get whether Location item or not */
          find first oe-ordl where oe-ordl.company eq job-hdr.company
              and oe-ordl.ord-no  eq job-hdr.ord-no
              and oe-ordl.job-no  eq job-hdr.job-no
@@ -220,7 +220,7 @@ do v-local-loop = 1 to v-local-copies:
                  and oe-ordl.ord-no  eq job-hdr.ord-no
                  and oe-ordl.i-no    eq job-hdr.i-no NO-LOCK no-error.
        IF AVAIL oe-ordl THEN
-       v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
+       v-managed-order = IF oe-ordl.managed = TRUE THEN "MANAGED   LOCATION    ORDER"
                          ELSE "".
        v-break = first-of(job.job-no2). 
        

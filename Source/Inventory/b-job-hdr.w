@@ -37,12 +37,16 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE cEmptyColumn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2      AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
@@ -172,9 +176,10 @@ DEFINE BROWSE br_table
       job-hdr.ord-no FORMAT ">>>>>9":U WIDTH 32
       job-hdr.po-no FORMAT "x(15)":U WIDTH 32
       job-hdr.due-date FORMAT "99/99/9999":U WIDTH 12
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 181 BY 18.48
          FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
 
 

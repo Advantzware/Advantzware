@@ -36,6 +36,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -48,6 +50,7 @@ DEFINE TEMP-TABLE ttInventoryLoc NO-UNDO
     FIELD totWhseTags    AS INTEGER
     FIELD totLocTags     AS INTEGER
     FIELD quantityOnHand AS DECIMAL
+    FIELD emptyColumn    AS CHARACTER
     INDEX locationID warehouseID locationID
     .
     
@@ -80,7 +83,7 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 &Scoped-define INTERNAL-TABLES ttInventoryLoc
 
 /* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttInventoryLoc.locationID ttInventoryLoc.totLocTags ttInventoryLoc.warehouseID   
+&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttInventoryLoc.locationID ttInventoryLoc.totLocTags ttInventoryLoc.warehouseID ttInventoryLoc.quantityOnHand   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
 &Scoped-define SELF-NAME ttBrowseInventory
 &Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttInventoryLoc ~{&SORTBY-PHRASE}
@@ -178,9 +181,10 @@ DEFINE BROWSE ttBrowseInventory
     ttInventoryLoc.totLocTags WIDTH 40 COLUMN-LABEL "Total Tags Per Bin" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
     ttInventoryLoc.warehouseID WIDTH 35 COLUMN-LABEL "Location" FORMAT "X(5)" LABEL-BGCOLOR 14
     ttInventoryLoc.quantityOnHand WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttInventoryLoc.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 179 BY 26.91
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 179 BY 26.91
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
@@ -324,6 +328,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -365,9 +370,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win
-PROCEDURE ClearRecords:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ClearRecords B-table-Win 
+PROCEDURE ClearRecords :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -380,11 +384,9 @@ PROCEDURE ClearRecords:
         ).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -404,9 +406,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -421,14 +422,12 @@ PROCEDURE local-destroy:
     /* Code placed here will execute AFTER standard behavior.    */
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win
-PROCEDURE local-enable:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -443,12 +442,12 @@ PROCEDURE local-enable:
     RUN pInit.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win
-PROCEDURE pInit PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
+PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -462,7 +461,7 @@ PROCEDURE pInit PRIVATE:
         OUTPUT iWarehouseLength
         ).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

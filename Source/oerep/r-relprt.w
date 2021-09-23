@@ -196,7 +196,7 @@ DEFINE VARIABLE begin_del-zone AS CHARACTER FORMAT "X(5)":U
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_loc AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Warehouse" 
+     LABEL "Location" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
@@ -216,7 +216,7 @@ DEFINE VARIABLE begin_relnum AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
      SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_whse AS CHARACTER FORMAT "X(5)" 
-     LABEL "Beginning Ship From Whse" 
+     LABEL "Beginning Ship From Loc" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -254,7 +254,7 @@ DEFINE VARIABLE end_relnum AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_whse AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
-     LABEL "Ending Ship From Whse" 
+     LABEL "Ending Ship From Loc" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -436,9 +436,9 @@ DEFINE FRAME FRAME-A
      end_del-zone AT ROW 6.43 COL 70 COLON-ALIGNED HELP
           "Enter Ending Delivery zone"
      begin_whse AT ROW 7.38 COL 27 COLON-ALIGNED HELP
-          "Enter Beginning Warehouse" WIDGET-ID 4
+          "Enter Beginning Location" WIDGET-ID 4
      end_whse AT ROW 7.38 COL 70 COLON-ALIGNED HELP
-          "Enter Ending Warehouse Number" WIDGET-ID 6
+          "Enter Ending Location Number" WIDGET-ID 6
      tb_exl-tg-bin AT ROW 8.33 COL 53
      tb_print-qty-uom AT ROW 8.52 COL 48.8 WIDGET-ID 16
      tb_printed AT ROW 8.62 COL 6
@@ -785,7 +785,7 @@ END.
 
 &Scoped-define SELF-NAME begin_whse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whse C-Win
-ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Ship From Whse */
+ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Ship From Loc */
 DO:
      ASSIGN {&self-name}.
 END.
@@ -1153,7 +1153,7 @@ END.
 
 &Scoped-define SELF-NAME end_whse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whse C-Win
-ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Ship From Whse */
+ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Ship From Loc */
 DO:
      ASSIGN {&self-name}.
 END.

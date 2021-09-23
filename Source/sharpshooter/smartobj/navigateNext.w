@@ -65,9 +65,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U
+     IMAGE-UP FILE "Graphics/32x32/next.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/next_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
-     SIZE 11 BY 2.62 TOOLTIP "Next".
+     SIZE 8 BY 1.9 TOOLTIP "Next".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -76,7 +77,8 @@ DEFINE FRAME F-Main
      btnNext AT ROW 1 COL 1 WIDGET-ID 44 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

@@ -2291,7 +2291,7 @@ PROCEDURE pRunApiOutboundTrigger :
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
    
 
-    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 THEN DO:    
+    IF AVAILABLE ipbf-inv-head AND ipbf-inv-head.t-inv-rev NE 0 AND NOT ipbf-inv-head.ediInvoice THEN DO:    
         ASSIGN 
             cAPIID       = "SendInvoice"
             cTriggerID   = "PostInvoice"

@@ -324,34 +324,8 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Help Information */
-DO:     
-    IF VALID-HANDLE(h_query) THEN DO:
-        IF h_query:IS-OPEN THEN
-        h_query:QUERY-CLOSE().
-        DELETE OBJECT h_query.
-    END.    
-    
-    IF VALID-HANDLE(h_brquery) THEN DO:
-        IF h_brquery:IS-OPEN THEN
-        h_brquery:QUERY-CLOSE().
-        DELETE OBJECT h_brquery.
-    END.    
-
-    IF VALID-HANDLE(h_ttquery) THEN DO:
-        IF h_ttquery:IS-OPEN THEN
-        h_ttquery:QUERY-CLOSE().
-        DELETE OBJECT h_ttquery.
-    END.    
-
-    IF VALID-HANDLE(h_tt) THEN
-    DELETE OBJECT h_tt.
-    
-    IF VALID-HANDLE(h_brtt) THEN
-    DELETE OBJECT h_brtt.
-    
-    IF VALID-HANDLE(hDynCalcField) THEN
-    DELETE OBJECT hDynCalcField.
-      
+DO:
+    RUN pClose.
     APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -659,6 +633,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "ENTRY":U TO h_focus.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
+RUN pClose.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1433,6 +1408,47 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClose Dialog-Frame
+PROCEDURE pClose:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(h_query) THEN DO:
+        IF h_query:IS-OPEN THEN
+        h_query:QUERY-CLOSE().
+        DELETE OBJECT h_query.
+    END.    
+    
+    IF VALID-HANDLE(h_brquery) THEN DO:
+        IF h_brquery:IS-OPEN THEN
+        h_brquery:QUERY-CLOSE().
+        DELETE OBJECT h_brquery.
+    END.    
+
+    IF VALID-HANDLE(h_ttquery) THEN DO:
+        IF h_ttquery:IS-OPEN THEN
+        h_ttquery:QUERY-CLOSE().
+        DELETE OBJECT h_ttquery.
+    END.    
+
+    IF VALID-HANDLE(h_tt) THEN
+    DELETE OBJECT h_tt.
+    
+    IF VALID-HANDLE(h_brtt) THEN
+    DELETE OBJECT h_brtt.
+    
+    IF VALID-HANDLE(hDynCalcField) THEN
+    DELETE OBJECT hDynCalcField.
+      
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame 
 PROCEDURE prevPage PRIVATE :

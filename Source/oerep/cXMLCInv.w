@@ -366,7 +366,8 @@ DO:
             AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
                 :
         cArgsValue = STRING(ROWID(inv-head)) + "," + cSuffix + "," + STRING(invDate).
-
+        
+        IF NOT inv-head.ediInvoice THEN
         RUN pCallOutboundAPI(
             INPUT inv-head.company,
             INPUT locode,
@@ -723,7 +724,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         
         cArgsValue = STRING(ROWID(ar-inv)) + "," + ipcInvSuffix + "," + STRING(ipdtInvoiceDate). 
 
-        IF ar-inv.gross NE 0 THEN               
+        IF ar-inv.gross NE 0 AND NOT ar-inv.ediInvoice THEN               
             RUN pCallOutboundAPI(
                 INPUT ar-inv.company,
                 INPUT locode,

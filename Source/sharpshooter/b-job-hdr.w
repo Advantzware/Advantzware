@@ -37,28 +37,30 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iFormNo          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iBlankNo         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdFGInquiry      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lHasAccess       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iTotalRcvd       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdPgmSecurity    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cEmptyColumn     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
-
-DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iTotalRcvd AS INTEGER NO-UNDO.
-
-DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
-RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
-
-DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
 RUN epCanAccess IN hdPgmSecurity (
     INPUT  "sharpshooter/b-fgInqBins.w", 
     INPUT  "", 
@@ -91,13 +93,13 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
+&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.frm job-hdr.blank-no job-hdr.cust-no job-hdr.i-no itemfg.i-name job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no    EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company   EQ cCompany         AND job-hdr.job-no    EQ cJobNo         AND job-hdr.job-no2   EQ iJobNo2         AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)         AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?), ~
              FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
              FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table job-hdr job itemfg
@@ -186,16 +188,19 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
+      job-hdr.frm FORMAT ">>>" WIDTH 10
+      job-hdr.blank-no FORMAT ">>>" LABEL "Blank" WIDTH 10
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 30
       job-hdr.i-no FORMAT "x(15)":U WIDTH 30
       itemfg.i-name COLUMN-LABEL "Item Description" FORMAT "x(30)":U WIDTH 37 
       job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 25
       fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 30
       itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 30
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
-         FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 181 BY 18.48
+         FONT 19 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -204,7 +209,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -273,9 +279,11 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK
-      WHERE job-hdr.company EQ cCompany
-        AND job-hdr.job-no  EQ cJobNo
-        AND job-hdr.job-no2 EQ iJobNo2,
+      WHERE job-hdr.company   EQ cCompany
+        AND job-hdr.job-no    EQ cJobNo
+        AND job-hdr.job-no2   EQ iJobNo2
+        AND (job-hdr.frm      EQ iFormNo OR iFormNo EQ ?)
+        AND (job-hdr.blank-no EQ iBlankNo OR iBlankNo EQ ?),
       FIRST job
       WHERE job.company EQ job-hdr.company
         AND job.job     EQ job-hdr.job
@@ -347,6 +355,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -502,6 +511,80 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
+    
+    IF AVAILABLE job-hdr THEN DO:
+        ASSIGN
+            opcCompany = job-hdr.company
+            opcItemID  = job-hdr.i-no
+            oplAvail   = TRUE
+            .
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+    DELETE PROCEDURE hdInventoryProcs.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenQuery B-table-Win 
+PROCEDURE OpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        cCompany = ipcCompany
+        cJobNo   = ipcJobNo
+        iJobNo2  = ipiJobNo2
+        iFormNo  = ipiFormNo
+        iBlankNo = ipiBlankNo
+        .
+        
+    RUN dispatch ('open-query').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

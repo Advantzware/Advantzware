@@ -45,7 +45,9 @@ DEFINE OUTPUT PARAMETER opcOption        AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit btPrintSelected btPrintAll 
+&Scoped-Define ENABLED-OBJECTS btExit btPrintSelected btPrintAll ~
+btnExitText 
+&Scoped-Define DISPLAYED-OBJECTS btnExitText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -61,9 +63,9 @@ DEFINE OUTPUT PARAMETER opcOption        AS CHARACTER NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 11 BY 2.62.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btPrintAll AUTO-GO 
      LABEL "Print All" 
@@ -75,17 +77,23 @@ DEFINE BUTTON btPrintSelected AUTO-GO
      SIZE 30 BY 3.76
      FONT 37.
 
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 9 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btExit AT ROW 1.24 COL 65 WIDGET-ID 6
+     btExit AT ROW 1 COL 70 WIDGET-ID 6
      btPrintSelected AT ROW 6 COL 4 WIDGET-ID 2
      btPrintAll AT ROW 6 COL 45.8 WIDGET-ID 4
-     SPACE(2.79) SKIP(2.52)
+     btnExitText AT ROW 1.24 COL 61 NO-LABEL WIDGET-ID 24
+     SPACE(8.59) SKIP(9.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 14 
+         BGCOLOR 21 FGCOLOR 15 FONT 38
          TITLE "Select Print Option" WIDGET-ID 100.
 
 
@@ -110,6 +118,8 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnExitText IN FRAME Dialog-Frame
+   ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -124,6 +134,17 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Select Print Option */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText Dialog-Frame
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME Dialog-Frame
+DO:
+    APPLY "END-ERROR":U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -214,7 +235,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btExit btPrintSelected btPrintAll 
+  DISPLAY btnExitText 
+      WITH FRAME Dialog-Frame.
+  ENABLE btExit btPrintSelected btPrintAll btnExitText 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

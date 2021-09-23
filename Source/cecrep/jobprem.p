@@ -222,13 +222,13 @@ do v-local-loop = 1 to v-local-copies:
           no-lock no-error.
           if avail fg-bin then do:
             assign
-              v-loc     = "Whs: " + fg-bin.loc
+              v-loc     = "Loc: " + fg-bin.loc
               v-loc-bin = "Bin: " + fg-bin.loc-bin.
           end.
           else
           if avail itemfg then do:                             
             assign
-              v-loc     = "Whs: " + itemfg.def-loc
+              v-loc     = "Loc: " + itemfg.def-loc
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           end.
 
@@ -407,7 +407,7 @@ do v-local-loop = 1 to v-local-copies:
                             and xxprep.code eq xeb.plate-no
                             no-lock no-error.
         IF AVAIL xxprep THEN
-            v-plate-loc = "Bin: " + xxprep.loc-bin + "   Whse: " + xxprep.loc.
+            v-plate-loc = "Bin: " + xxprep.loc-bin + "   Loc: " + xxprep.loc.
 
         find first xxprep where xxprep.company eq cocode
                             and xxprep.code eq xeb.die-no

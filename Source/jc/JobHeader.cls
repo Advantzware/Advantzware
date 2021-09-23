@@ -43,11 +43,11 @@ CLASS jc.JobHeader:
              NO-ERROR.
         IF AVAILABLE bf-job THEN
             FIND FIRST bf-job-hdr NO-LOCK
-                 WHERE bf-job-hdr.company  EQ ipcCompany
-                   AND bf-job-hdr.job-no   EQ ipcJobNo
-                   AND bf-job-hdr.job-no2  EQ ipiJobNo2
-                   AND bf-job-hdr.frm      EQ ipiFormNo
-                   AND bf-job-hdr.blank-no EQ ipiBlankNo
+                 WHERE bf-job-hdr.company   EQ ipcCompany
+                   AND bf-job-hdr.job-no    EQ ipcJobNo
+                   AND bf-job-hdr.job-no2   EQ ipiJobNo2
+                   AND (bf-job-hdr.frm      EQ ipiFormNo  OR ipiFormNo  EQ ?)
+                   AND (bf-job-hdr.blank-no EQ ipiBlankNo OR ipiBlankNo EQ ?)
                  NO-ERROR.
         
         lIsAvailable = AVAILABLE bf-job AND AVAILABLE bf-job-hdr.    
