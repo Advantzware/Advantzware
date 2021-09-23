@@ -4116,7 +4116,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
     ASSIGN 
         ipbf-estCostHeader.industry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
-        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetType", bf-est.est-type, bf-est.estimateTypeID)
+        ipbf-estCostHeader.estType                     = ENTRY(bf-est.est-type, gcTypeList)
         ipbf-estCostHeader.warehouseID                 = bf-est.loc
         ipbf-estCostHeader.marginOn                    = bf-ce-ctrl.sell-by
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
