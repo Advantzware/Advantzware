@@ -420,6 +420,51 @@ PROCEDURE Inventory_GetWarehouseLength:
         
 END PROCEDURE.
 
+PROCEDURE Inventory_calculatePallet:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/       
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.              
+    DEFINE OUTPUT PARAMETER opiPallet      AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dPartial AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iPallet AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dSubUnits AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iQuantityPerSubUnit AS INTEGER NO-UNDO. 
+    
+    FIND FIRST oe-boll WHERE ROWID(oe-boll) EQ iprwRowid NO-LOCK NO-ERROR.
+    
+    iQuantityPerSubUnit = oe-boll.qty-case. 
+    
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company EQ oe-boll.company
+           AND fg-bin.job-no  EQ oe-boll.job-no
+           AND fg-bin.job-no2 EQ oe-boll.job-no2
+           AND fg-bin.i-no    EQ oe-boll.i-no
+           AND fg-bin.loc     EQ oe-boll.loc
+           AND fg-bin.loc-bin EQ oe-boll.loc-bin
+           AND fg-bin.tag     EQ oe-boll.tag NO-ERROR  .
+                              
+    iQuantitySubUnitsPerUnit = IF AVAILABLE fg-bin THEN fg-bin.cases-unit ELSE 0 .
+    IF iQuantitySubUnitsPerUnit EQ 0 THEN DO:
+       FIND FIRST oe-ordl NO-LOCK
+           WHERE oe-ordl.company EQ oe-boll.company 
+             AND oe-ordl.ord-no  EQ oe-boll.ord-no 
+             AND oe-ordl.i-no    EQ oe-boll.i-no NO-ERROR.
+      IF AVAIL oe-ordl THEN
+          ASSIGN
+          iQuantitySubUnitsPerUnit = oe-ordl.cases-unit .
+    END.      
+    
+    RUN RecalcQuantityUnits (oe-boll.qty, INPUT-OUTPUT iQuantityPerSubUnit, INPUT-OUTPUT iQuantitySubUnitsPerUnit,
+                                             OUTPUT dSubUnits, OUTPUT iPallet, OUTPUT dPartial).
+                                             
+    opiPallet = iPallet + (IF dPartial GT 0 THEN 1 ELSE 0).                                             
+        
+END PROCEDURE.
+
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Builds temp-table from rm-rcpth and rm-rdtlh records for given criteria
