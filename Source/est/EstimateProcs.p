@@ -19,6 +19,65 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Estimate_CalcInkUsingUnitNo:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkCount     AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVarnCount    AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iMaxInkCnt  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMaxVarnCnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lsInkColor  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iCnt        AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-Item FOR item.
+
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no  = ipcEstimteNo
+        AND bf-eb.form-no = ipiFormNo:
+            
+        IF ipiBlankNo NE 0 AND ipiBlankNo NE bf-eb.blank-no THEN
+            NEXT. 
+        
+        IF AVAILABLE bf-eb THEN
+        DO iCnt = 1 TO 17:
+        
+            IF bf-eb.i-ps2[iCnt] NE ipiPass THEN
+                NEXT. 
+             
+            lsInkColor = NO.
+        
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company EQ bf-eb.company
+                AND bf-Item.i-no    EQ bf-eb.i-code2[iCnt]
+                AND INDEX("IV",bf-Item.mat-type) GT 0 NO-ERROR. 
+                
+            /* Coating */
+            IF NOT AVAILABLE bf-Item OR bf-Item.ink-type EQ "A" THEN
+                NEXT.
+        
+            IF AVAILABLE bf-Item AND bf-Item.mat-type EQ "I" THEN
+                iMaxInkCnt = MAX(iMaxInkCnt,bf-eb.unitno[iCnt]).
+            
+            ELSE 
+                iMaxVarnCnt = MAX(iMaxVarnCnt,bf-eb.unitno[iCnt]).
+        END. 
+    END.  
+    ASSIGN
+        opiInkCount  = iMaxInkCnt
+        opiVarnCount = iMaxVarnCnt.
+       
+END PROCEDURE.
+
 PROCEDURE Estimate_GetQuantities:
     /*------------------------------------------------------------------------------
      Purpose: Load the eb table data to ttGoto temp-table
