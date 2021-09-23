@@ -1007,9 +1007,9 @@ PROCEDURE output-to-mail :
                 OR
                 (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)) 
                 AND (if tb_cust-list then can-find(first ttCustList where ttCustList.cust-no eq buf-{&head}.cust-no
-                AND ttCustList.log-fld no-lock) else true)
-                AND  INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 
-                AND  (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                AND ttCustList.log-fld no-lock) else true)              
+                AND (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv")
+                AND  (((NOT tb_reprint) AND (buf-{&head}.inv-no EQ 0 OR "{&head}" EQ "ar-inv")) OR
                 (tb_reprint AND buf-{&head}.inv-no NE 0 AND
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
@@ -1104,7 +1104,7 @@ PROCEDURE output-to-mail :
                             FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
                                 AND oe-ord.ord-no = {&line}.ord-no
                                 NO-LOCK NO-ERROR.
-                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "".
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE buf-{&head}.cust-no.
                         END.
                         vShipToNo = STRING(buf-{&head}.sold-no).
 
@@ -1126,9 +1126,9 @@ PROCEDURE output-to-mail :
                 ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
                 OR
                 (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)
-                ) AND
-                   INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND 
-                (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                )
+                AND (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND 
+                (((NOT tb_reprint) AND (buf-{&head}.inv-no EQ 0 OR "{&head}" EQ "ar-inv")) OR
                 (tb_reprint AND buf-{&head}.inv-no NE 0 AND
                 (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
                 AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
