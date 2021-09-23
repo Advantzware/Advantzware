@@ -110,7 +110,7 @@ estRelease.freightCost estRelease.handlingCostTotal ~
 estRelease.storageCostTotal estRelease.createRelease 
 &Scoped-define DISPLAYED-TABLES estRelease
 &Scoped-define FIRST-DISPLAYED-TABLE estRelease
-&Scoped-Define DISPLAYED-OBJECTS cCarrMethod fi_Pallet-count 
+&Scoped-Define DISPLAYED-OBJECTS fiDimension cCarrMethod fi_Pallet-count 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -147,6 +147,10 @@ DEFINE VARIABLE cCarrMethod AS CHARACTER FORMAT "X(50)":U
      SIZE 55 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
+DEFINE VARIABLE fiDimension AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 24 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_Pallet-count AS CHARACTER FORMAT "X(15)":U 
      LABEL "Pallet Count" 
      VIEW-AS FILL-IN 
@@ -182,13 +186,13 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     fiDimension AT ROW 11.86 COL 2.2 NO-LABEL WIDGET-ID 6
      estRelease.estimateNo AT ROW 1.29 COL 14.8 COLON-ALIGNED
           LABEL "Estimate#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
      estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED
-          FORMAT "->>>>>>>" 
           VIEW-AS COMBO-BOX INNER-LINES 10
           DROP-DOWN-LIST
           SIZE 20 BY 1
@@ -293,7 +297,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.storageCostTotal AT ROW 12.95 COL 17.2 COLON-ALIGNED
+     estRelease.storageCostTotal AT ROW 11.71 COL 14.8 COLON-ALIGNED
           LABEL "Storage Cost" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 28.6 BY 1
@@ -361,6 +365,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN estRelease.estimateNo IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN fiDimension IN FRAME Dialog-Frame
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fi_Pallet-count IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estRelease.formNo IN FRAME Dialog-Frame
@@ -579,7 +585,7 @@ DO:
         END.
 
         IF AVAIL eb THEN do:
-             RUN GetStorageAndHandlingForLocation(eb.company,estRelease.shipFromLocationID,estRelease.stackHeight,
+             RUN GetStorageAndHandlingForLocation(eb.company,estRelease.shipFromLocationID,estRelease.stackHeight, eb.tr-wid, eb.tr-len,
                                                   OUTPUT dCostStorage, OUTPUT dCostHandling,OUTPUT lError,OUTPUT cMessage) .
              ASSIGN
                estRelease.storageCost  = dCostStorage
@@ -609,17 +615,6 @@ ON LEAVE OF estRelease.carrierID IN FRAME Dialog-Frame /* Carrier */
 DO:
      RUN pDisplayCarrMethod(estRelease.carrierID:SCREEN-VALUE,estRelease.shipFromLocationID:SCREEN-VALUE, OUTPUT cCarrMethod ) .   
       ASSIGN cCarrMethod:SCREEN-VALUE = cCarrMethod .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME estRelease.carrierZone
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.carrierZone Dialog-Frame
-ON LEAVE OF estRelease.carrierZone IN FRAME Dialog-Frame /* Zone */
-DO:
-      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -872,7 +867,8 @@ PROCEDURE display-item :
     IF AVAILABLE estRelease  THEN 
     DO:
         ASSIGN 
-            fi_Pallet-count = STRING(quantityPerSubUnit * quantitySubUnitsPerUnit) .
+            fi_Pallet-count = STRING(quantityPerSubUnit * quantitySubUnitsPerUnit)
+            .
         
         estRelease.quantity:LIST-ITEMS IN FRAME {&frame-name} = "".
         IF AVAIL eb THEN
@@ -881,7 +877,10 @@ PROCEDURE display-item :
             AND est-qty.est-no EQ eb.est-no
             AND est-qty.eqty EQ eb.eqty 
             NO-ERROR.
-        
+
+        IF AVAILABLE eb THEN
+            fiDimension = "W X L: " + STRING(eb.tr-wid) + " X " + STRING(eb.tr-len).
+               
         IF AVAIL est-qty THEN
         DO i = 1 TO 20:
             IF est-qty.qty[i] NE 0 THEN
@@ -901,7 +900,7 @@ PROCEDURE display-item :
             estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits estRelease.palletMultiplier 
             estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost estRelease.handlingCost 
             estRelease.freightCost estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.createRelease 
-            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cCarrMethod
+            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cCarrMethod fiDimension
             WITH FRAME Dialog-Frame.
     END.
 
@@ -930,7 +929,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cCarrMethod fi_Pallet-count 
+  DISPLAY fiDimension cCarrMethod fi_Pallet-count 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estRelease THEN 
     DISPLAY estRelease.estimateNo estRelease.quantity estRelease.formNo 
