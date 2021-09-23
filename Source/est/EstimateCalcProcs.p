@@ -67,6 +67,8 @@ DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INITI
 DEFINE VARIABLE glApplyOperationMinimumCharge         AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
+DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
+DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -79,12 +81,13 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     ipiBlankNo AS INTEGER) FORWARD.
 
 FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
-	(ipcCompany AS CHARACTER,
-	 ipcMaterialType AS CHARACTER) FORWARD.
+    (ipcCompany AS CHARACTER,
+     ipcMaterialType AS CHARACTER) FORWARD.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
     (ipiEstCostOperationID AS INT64,
-    ipiDefaultOut AS INTEGER) FORWARD.
+    ipiDefaultOut AS INTEGER,
+    INPUT ipdEstOPQty AS DECIMAL) FORWARD.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER,
@@ -108,6 +111,9 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
 FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION IsFoamStyle RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER) FORWARD.
+
 FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -121,7 +127,6 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-                                                                                                                                                      
 
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
@@ -140,14 +145,23 @@ PROCEDURE CalculateEstimate:
     
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
-    RUN pSetGlobalSettings(ipcCompany).  
-    IF iplPurge THEN 
-        RUN pPurgeCalculation(ipcCompany, ipcEstimateNo).
-    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, "", 0, 0, OUTPUT iEstCostHeaderID).
-    FOR EACH ttEstHeaderToCalc: 
-        RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
-    END.
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
 
+END PROCEDURE.
+
+PROCEDURE CalculateEstimateWithPrompts:
+    /*------------------------------------------------------------------------------
+    Purpose:  Public Procedure that calculates estimate and may include UI prompts
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
+    
 END PROCEDURE.
 
 PROCEDURE CalculateJob:
@@ -163,14 +177,24 @@ PROCEDURE CalculateJob:
     DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
-    RUN pSetGlobalSettings(ipcCompany).  
-    IF iplPurge THEN 
-        RUN pPurgeJobCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
-        
-    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
-    FOR EACH ttEstHeaderToCalc: 
-        RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
-    END.
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, NO, OUTPUT opiEstCostHeaderID).
+
+END PROCEDURE.
+
+PROCEDURE CalculateJobWithPrompts:
+    /*------------------------------------------------------------------------------
+        Purpose: Primary Public Procedure for calculating the estimate
+        Notes:
+       ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
+
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, YES, OUTPUT opiEstCostHeaderID).
 
 END PROCEDURE.
 
@@ -1040,14 +1064,9 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.isCoater = YES.
         IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID) THEN 
         DO: 
-            IF NOT CAN-FIND(FIRST estCostOperation 
-                WHERE estCostOperation.estCostHeaderID EQ opbf-estCostOperation.estCostHeaderID
-                AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostOperation.isNetSheetMaker
-                AND estCostOperation.estCostOperationID NE opbf-estCostOperation.estCostOperationID) THEN   
-                opbf-estCostOperation.isNetSheetMaker = YES.
-            
-            opbf-estCostOperation.outputType      = "S".
+            ASSIGN
+                opbf-estCostOperation.isNetSheetMaker = YES
+                opbf-estCostOperation.outputType      = "S".
         END.
         IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
@@ -1084,7 +1103,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
+                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet, ipbf-est-op.qty)
                 .
         IF opbf-estCostOperation.isBlankMaker THEN 
             ASSIGN 
@@ -1730,10 +1749,12 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
 
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
-    EMPTY TEMP-TABLE ttEstHeaderToCalc.
+    EMPTY TEMP-TABLE ttEstCostHeaderToCalc.
     FIND FIRST bf-est NO-LOCK 
         WHERE bf-est.company EQ ipcCompany
         AND bf-est.est-no EQ ipcEstimateNo
@@ -1742,9 +1763,9 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     IF ipiQuantityOverride NE 0 THEN 
     DO:
         RUN pAddHeader(BUFFER bf-est, ipiQuantityOverride, 1, ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-        CREATE ttEstHeaderToCalc.
+        CREATE ttEstCostHeaderToCalc.
         ASSIGN 
-            ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+            ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
     END.
     ELSE 
     DO:
@@ -1754,16 +1775,19 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
-                IF IsComboType(ENTRY(bf-est.est-type, gcTypeList)) AND iQtyCount GT 1 THEN LEAVE.
-                
+
                 iQty = IF bf-est-qty.qty[iQtyCount] EQ 0 AND iQtyCount EQ 1 THEN bf-est-qty.eqty ELSE bf-est-qty.qty[iQtyCount].
                 IF iQty NE 0 THEN 
                 DO:
                     RUN pAddHeader(BUFFER bf-est, iQty, MAX(bf-est-qty.qty[iQtyCount + 20], 1), 
                         ipcJobID, ipiJobID2, OUTPUT opiEstCostHeaderID).
-                    CREATE ttEstHeaderToCalc.
+                    CREATE ttEstCostHeaderToCalc.
                     ASSIGN 
-                        ttEstHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                        ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                    FIND FIRST bf-estCostHeader NO-LOCK 
+                        WHERE bf-estCostHeader.estCostHeaderID EQ opiEstCostHeaderID
+                        NO-ERROR.
+                    IF AVAILABLE bf-estCostHeader AND fIsComboType(bf-estCostHeader.estType) THEN LEAVE.
                 END.
             END.
     END.
@@ -1998,7 +2022,52 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
  
 END PROCEDURE.
 
-PROCEDURE pCalculateHeader PRIVATE:
+PROCEDURE pCalcHeaderCosts PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Calculates all costs for the cost header based on operations and materials
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
+    RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
+
+    RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
+    RUN pBuildCostSummary(ipiEstCostHeaderID).
+    RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
+    RUN pBuildProbe(ipiEstCostHeaderID).
+
+END PROCEDURE.
+
+PROCEDURE pCalcEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Internal master procedure for calculating an estimate/job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pSetGlobalSettings(ipcCompany).  
+    IF iplPurge THEN 
+        RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
+        
+    RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, OUTPUT opiEstCostHeaderID).
+    FOR EACH ttEstCostHeaderToCalc: 
+        RUN pCalcHeader(ttEstCostHeaderToCalc.iEstCostHeaderID).
+    END.
+    IF iplPrompt THEN 
+        RUN pPromptForCalculationChanges.
+    
+
+END PROCEDURE.
+
+PROCEDURE pCalcHeader PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Main Build of data from Estimate
      Notes:
@@ -4041,7 +4110,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
     ASSIGN 
         ipbf-estCostHeader.industry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
-        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetType", bf-est.est-type, bf-est.estimateTypeID)
+        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-est.est-type, bf-est.estimateTypeID)
         ipbf-estCostHeader.warehouseID                 = bf-est.loc
         ipbf-estCostHeader.marginOn                    = bf-ce-ctrl.sell-by
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
@@ -4539,6 +4608,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE dCostTotal          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
 
     ASSIGN
         lCostFound = NO
@@ -4552,7 +4622,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
-        IF ipbf-estCostMaterial.vendorID NE "" THEN 
+        IF ipbf-estCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
         DO:
             opcVendorID = ipbf-estCostMaterial.vendorID.
             RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
@@ -4563,17 +4633,18 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                 NO,
                 OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
         END.
-        ELSE
-            
+        ELSE 
+        DO:
             RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
-                ipbf-estCostMaterial.itemID, "RM", 
-                cScope, lIncludeBlankVendor, 
-                ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
-                ipdQty, ipcQtyUOM, 
-                ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-                ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-                OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
-                OUTPUT lError, OUTPUT cMessage).
+                    ipbf-estCostMaterial.itemID, "RM", 
+                    cScope, lIncludeBlankVendor, 
+                    ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
+                    ipdQty, ipcQtyUOM, 
+                    ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
+                    OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
+                    OUTPUT lError, OUTPUT cMessage).
+         END.
 
         RETURN.
     END.
@@ -4785,6 +4856,27 @@ PROCEDURE pProcessOperation PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pPromptForCalculationChanges PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Create Prompt for Calculation Changes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    IF glPromptForMaterialVendor THEN 
+    DO:
+        //run prompt for vendors
+        RUN est/estCostMaterialList.w (INPUT-OUTPUT TABLE ttEstCostHeaderToCalc BY-REFERENCE).
+        
+        FOR EACH ttEstCostHeaderToCalc
+            WHERE ttEstCostHeaderToCalc.lRecalcRequired EQ YES:
+                
+            RUN pRecalcMaterials(ttEstCostHeaderToCalc.iEstCostHeaderID).
+            RUN pCalcHeaderCosts(ttEstCostHeaderToCalc.iEstCostHeaderID).
+        END.
+    END.
+    
+END PROCEDURE.
+
 PROCEDURE pPurgeCalculation PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a company and estimate number, purges all related data for 
@@ -4793,26 +4885,32 @@ PROCEDURE pPurgeCalculation PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
 
     DEFINE BUFFER bf-probe         FOR probe.
     DEFINE BUFFER bf-probeit       FOR probeit.
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
     
-    FOR EACH bf-probe EXCLUSIVE-LOCK 
-        WHERE bf-probe.company EQ ipcCompany
-        AND bf-probe.est-no  EQ ipcEstimateNo:
-        DELETE bf-probe.                 
-    END.
-    FOR EACH bf-probeit EXCLUSIVE-LOCK 
-        WHERE bf-probeit.company EQ ipcCompany
-        AND bf-probeit.est-no  EQ ipcEstimateNo:
-        DELETE bf-probeit.                 
+    IF ipcJobNo EQ "" THEN DO:
+        FOR EACH bf-probe EXCLUSIVE-LOCK 
+            WHERE bf-probe.company EQ ipcCompany
+            AND bf-probe.est-no  EQ ipcEstimateNo:
+            DELETE bf-probe.                 
+        END.
+        FOR EACH bf-probeit EXCLUSIVE-LOCK 
+            WHERE bf-probeit.company EQ ipcCompany
+            AND bf-probeit.est-no  EQ ipcEstimateNo:
+            DELETE bf-probeit.                 
+        END.
     END.
     FOR EACH bf-estCostHeader EXCLUSIVE-LOCK 
         WHERE bf-estCostHeader.company EQ ipcCompany
         AND bf-estCostHeader.estimateNo EQ ipcEstimateNo
-        AND bf-estCostHeader.jobID EQ "":
-        DELETE bf-estCostHeader.
+        AND bf-estCostHeader.jobID EQ ipcJobNo
+        AND bf-estCostHeader.jobID2 EQ ipiJobNo2:
+            
+        DELETE bf-estCostHeader.    
     END.
     RELEASE bf-probe.
     RELEASE bf-probeit.
@@ -4936,6 +5034,36 @@ PROCEDURE pRecalcEstOperationFromStandardsSetupWaste PRIVATE:
 /*REFACTOR To handle the "Plain Jobs only* function in EB1*/
 /*        RUN est/diewaste.p (BUFFER est-op).*/
 
+
+END PROCEDURE.
+
+PROCEDURE pRecalcMaterials PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given an estCostHeaderID, recalculate all estCostMaterials (includes vendor selection)
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64.
+    
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostForm FOR estCostForm.
+    
+    RUN pResetCostTotals(ipiEstCostHeaderID). 
+    RUN pPurgeCostDetail(ipiEstCostHeaderID, "").
+    RUN pPurgeCostSummary(ipiEstCostHeaderID).
+    FOR EACH bf-estCostForm NO-LOCK
+        WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
+        FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ bf-estCostForm.estCostHeaderID:
+        
+        FOR EACH bf-estCostMaterial EXCLUSIVE-LOCK
+            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+            AND bf-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID:
+                    
+            RUN pCalcEstMaterial(BUFFER bf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+        END.
+       // RUN pCalcCostTotals(bf-estCostForm.estCostHeaderID, bf-estCostForm.estCostFormID, YES).
+    END.
 
 END PROCEDURE.
 
@@ -5069,11 +5197,11 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
 END FUNCTION.
 
 FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
-	(ipcCompany AS CHARACTER, ipcMaterialType AS CHARACTER):
+    (ipcCompany AS CHARACTER, ipcMaterialType AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
-------------------------------------------------------------------------------*/	
+------------------------------------------------------------------------------*/    
     DEFINE VARIABLE cCalculationType AS CHARACTER NO-UNDO.
     
     FIND FIRST materialType NO-LOCK 
@@ -5085,40 +5213,66 @@ FUNCTION fGetMatTypeCalc RETURNS CHARACTER PRIVATE
     ELSE 
         cCalculationType = gcMaterialTypeCalcDefault.
     
-	RETURN cCalculationType.
-	
+    RETURN cCalculationType.
+    
 END FUNCTION.
 
 FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
-    (ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER):
+    (ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER, INPUT ipdEstOPQty AS DECIMAL):
     /*------------------------------------------------------------------------------
      Purpose:  Given an operation buffer, return the # out based on the 
      specific net sheet pass of the operation
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE BUFFER bf-ef-nsh           FOR ef-nsh.
     DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
-    DEFINE VARIABLE iOut AS INTEGER.
+    DEFINE BUFFER bf-est-op            FOR est-op.
     
+    DEFINE VARIABLE iOut AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lFoam AS LOGICAL NO-UNDO.
     
     FIND FIRST bf-estCostOperation NO-LOCK 
         WHERE bf-estCostOperation.estCostOperationID EQ ipiEstCostOperationID
         NO-ERROR.
     IF AVAILABLE bf-estCostOperation THEN
-        FIND FIRST bf-ef-nsh NO-LOCK    
-            WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
-            AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
-            AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
-            AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
-            NO-ERROR.
-    IF AVAILABLE bf-ef-nsh THEN 
-        iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
-	
+    DO:
+         lFoam = IsFoamStyle (bf-estCostOperation.company, bf-estCostOperation.estimateNo, bf-estCostOperation.formNo).
+         
+        IF lFoam THEN
+        DO:
+            FIND FIRST bf-ef-nsh NO-LOCK    
+                WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
+                AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
+                AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
+                AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
+                NO-ERROR.
+            
+            IF AVAILABLE bf-ef-nsh THEN 
+                iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
+        END.
+        ELSE
+        DO: 
+            /* pull Numout for sheeters */
+            FIND FIRST bf-est-op NO-LOCK
+                WHERE bf-est-op.company EQ bf-estCostOperation.company
+                AND bf-est-op.est-no    EQ bf-estCostOperation.estimateNo
+                AND bf-est-op.s-num     EQ bf-estCostOperation.formNo
+                AND bf-est-op.b-num     EQ bf-estCostOperation.blankNo
+                AND bf-est-op.op-Pass   EQ bf-estCostOperation.pass
+                AND bf-est-op.line      LT 500
+                AND bf-est-op.qty       EQ ipdEstOPQty NO-ERROR.
+                
+           IF AVAILABLE bf-est-op THEN     
+                iOut = bf-est-op.n-out.
+           
+        END.
+    END.
+    
     IF iOut LE 0 THEN 
         iOut = ipiDefaultOut.
-	
+    
     RETURN iOut.
-		
+        
 END FUNCTION.
 
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
@@ -5126,7 +5280,7 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose:  Gets the part count for a set for partition feed type calculation
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE BUFFER bf-eb FOR eb.
     
     DEFINE VARIABLE dParts AS DECIMAL NO-UNDO.
@@ -5142,7 +5296,7 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     RETURN dParts.
 
 
-		
+        
 END FUNCTION.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
@@ -5167,10 +5321,10 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose: Returns the quantity per set in decimal form for an eb 
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
 
     RETURN DYNAMIC-FUNCTION("fEstimate_GetQuantityPerSet", BUFFER ipbf-eb).
-		
+        
 END FUNCTION.
 
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
@@ -5189,10 +5343,10 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose: Given a value, rounds up to next integer
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
 
     RETURN DYNAMIC-FUNCTION("sfCommon_RoundUp", ipdValue).
-		
+        
 END FUNCTION.
 
 
@@ -5206,6 +5360,36 @@ FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
     
 END FUNCTION.
 
+FUNCTION IsFoamStyle RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if any Item is Foam type in the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-Style FOR Style.
+    DEFINE BUFFER bf-eb    FOR eb.
+    
+    FIND FIRST bf-eb
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no  EQ ipcEstNo
+        AND bf-eb.form-no EQ ipiFormNo
+        AND bf-eb.pur-man EQ NO
+        AND CAN-FIND(FIRST bf-Style
+        WHERE bf-Style.company EQ bf-eb.company
+        AND bf-Style.style   EQ bf-eb.style
+        AND bf-Style.type    EQ "F")
+        NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE bf-eb THEN
+        lResult = YES.
+
+    RETURN lResult.
+END FUNCTION.
+
+
 FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
@@ -5213,7 +5397,7 @@ FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/    
     RETURN DYNAMIC-FUNCTION("fEstimate_IsMiscType", ipcEstType).
-		
+        
 END FUNCTION.
 
 FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
@@ -5223,7 +5407,7 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/    
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSetType", ipcEstType).
-		
+        
 END FUNCTION.
 
 FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE
@@ -5231,9 +5415,9 @@ FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose:  Returns the constant value for Single Estimate Type
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSingleType", ipcEstType).
-	
+    
 END FUNCTION.
 
 FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
@@ -5245,4 +5429,3 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
     RETURN DYNAMIC-FUNCTION("fEstimate_IsWoodType", ipcEstType).
     
 END FUNCTION.
-
