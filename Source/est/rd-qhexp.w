@@ -58,19 +58,29 @@ DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
+    
+
 ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                           "Item Description 2,Est Style,Dimensions,Board,Color,FG Category, EST Category"
+                           "Item Description 2,Est Style,Dimensions,Board,Color,FG Category,EST Category" + (IF lQuotePriceMatrix THEN ",Pricing method" ELSE "")
             cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
                                  "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
-                                 "item-dscr2,style,dimension,board,color,itemCategory,estCategory"    .
+                                 "item-dscr2,style,dimension,board,color,itemCategory,estCategory" + (IF lQuotePriceMatrix THEN ",Pricing-method" ELSE "")   .
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                              "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                             "Item Description 2,Est Style,Dimensions,Board,Color,FG Category,EST Category" .
+                             "Item Description 2,Est Style,Dimensions,Board,Color" + (IF lQuotePriceMatrix THEN ",Pricing method" ELSE "").
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1290,6 +1300,8 @@ FOR EACH quotehd
                   v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cItemCategory).
             WHEN "estCategory" THEN                                                              
                   v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cEstCategory).
+            WHEN "Pricing-method" THEN                                                              
+                  v-excel-detail-lines = v-excel-detail-lines + appendXLLine(quotehd.pricingMethod).      
           END CASE.  
         
     END.
