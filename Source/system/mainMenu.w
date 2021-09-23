@@ -1971,6 +1971,11 @@ PROCEDURE pInit :
     {&WINDOW-NAME}:TITLE = fTranslate({&WINDOW-NAME}:PRIVATE-DATA,NO) + " "
                          + DYNAMIC-FUNCTION("sfVersion")
                          .
+    
+    /* Ticket 100278 - will ONLY occur in Develop or Branch Test environment */
+    IF INDEX({&WINDOW-NAME}:TITLE,"99.99.99") NE 0 THEN ASSIGN 
+        {&WINDOW-NAME}:TITLE = "Advantzware QA System Testing: " + "{&awversion}".
+    
 
 END PROCEDURE.
 
