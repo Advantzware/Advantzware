@@ -1340,7 +1340,6 @@ PROCEDURE run-process :
 
     MESSAGE (IF lProcess THEN TRIM(c-win:TITLE) ELSE "Simulation")+ " Process Is Completed."
         + "~n" + "An Export File is Stored in Location " + cFileName VIEW-AS ALERT-BOX.
-    APPLY "close" TO THIS-PROCEDURE.
 
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
