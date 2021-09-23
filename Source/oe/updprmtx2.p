@@ -166,8 +166,8 @@ IF AVAIL quotehd THEN DO:
     END.   
     FIND CURRENT quotehd NO-LOCK NO-ERROR. 
      
-    IF lQuoteExpireDuplicates THEN
-    RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.effectiveDate - 1) .
+    //IF lQuoteExpireDuplicates THEN
+    //RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(quoteitm), quotehd.effectiveDate - 1) .
      
   END.
 END.
