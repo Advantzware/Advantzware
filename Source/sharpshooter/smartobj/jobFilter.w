@@ -69,9 +69,9 @@ oJobHeader = NEW JobHeader().
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 cbFormNo cbBlankNo ~
-fiJobNo 
-&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 cbFormNo cbBlankNo fiJobNo ~
-fiFormNoLabel fiBlankNoLabel fiJobNoLabel 
+fiJobNo btnJobDetailsText 
+&Scoped-Define DISPLAYED-OBJECTS cbJobNo2 cbFormNo cbBlankNo fiJobNoLabel ~
+fiJobNo fiFormNoLabel fiBlankNoLabel btnJobDetailsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,7 +87,7 @@ fiFormNoLabel fiBlankNoLabel fiJobNoLabel
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btJobDetails 
      IMAGE-UP FILE "Graphics\32x32\UDF.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/UDF_disabled.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/UDF_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "View Current Job Details".
 
@@ -112,22 +112,26 @@ DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 9.8 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
+DEFINE VARIABLE btnJobDetailsText AS CHARACTER FORMAT "X(256)":U INITIAL "DETAIL" 
+      VIEW-AS TEXT 
+     SIZE 13 BY 1.48 NO-UNDO.
+
 DEFINE VARIABLE fiBlankNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "BLANK:" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1.29 NO-UNDO.
+     SIZE 14 BY 1.48 NO-UNDO.
 
 DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "FORM:" 
      VIEW-AS FILL-IN 
-     SIZE 12.4 BY 1.29 NO-UNDO.
+     SIZE 12.4 BY 1.48 NO-UNDO.
 
 DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1.29
+     SIZE 31.2 BY 1.48
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
      VIEW-AS FILL-IN 
-     SIZE 9.6 BY 1.29 NO-UNDO.
+     SIZE 9.6 BY 1.48 NO-UNDO.
 
 DEFINE IMAGE imJobLookup
      FILENAME "Graphics/32x32/search_new.png":U
@@ -138,15 +142,16 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJobDetails AT ROW 1 COL 116 WIDGET-ID 160
-     cbJobNo2 AT ROW 1.24 COL 44.2 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     cbFormNo AT ROW 1.24 COL 68.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     cbBlankNo AT ROW 1.24 COL 94.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
-     fiJobNo AT ROW 1.29 COL 12.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiFormNoLabel AT ROW 1.29 COL 58 NO-LABEL WIDGET-ID 16
-     fiBlankNoLabel AT ROW 1.29 COL 82 NO-LABEL WIDGET-ID 20
-     fiJobNoLabel AT ROW 1.33 COL 4.8 NO-LABEL WIDGET-ID 2
-     imJobLookup AT ROW 1.24 COL 107 WIDGET-ID 182
+     btJobDetails AT ROW 1 COL 122 WIDGET-ID 160
+     cbJobNo2 AT ROW 1.24 COL 41.4 COLON-ALIGNED NO-LABEL WIDGET-ID 162
+     cbFormNo AT ROW 1.24 COL 64.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
+     cbBlankNo AT ROW 1.24 COL 89.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     fiJobNoLabel AT ROW 1.29 COL 2 NO-LABEL WIDGET-ID 2
+     fiJobNo AT ROW 1.29 COL 10 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiFormNoLabel AT ROW 1.29 COL 54 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 1.29 COL 77 NO-LABEL WIDGET-ID 20
+     btnJobDetailsText AT ROW 1.24 COL 109 NO-LABEL
+     imJobLookup AT ROW 1.24 COL 102 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -179,8 +184,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 3.95
-         WIDTH              = 140.4.
+         HEIGHT             = 2.05
+         WIDTH              = 135.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -209,6 +214,8 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btJobDetails IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN btnJobDetailsText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiBlankNoLabel IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiFormNoLabel IN FRAME F-Main
@@ -271,6 +278,19 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnJobDetailsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnJobDetailsText s-object
+ON MOUSE-SELECT-CLICK OF btnJobDetailsText IN FRAME F-Main
+DO:
+    IF btJobDetails:SENSITIVE THEN
+    APPLY "CHOOSE":U TO btJobDetails.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME cbBlankNo
@@ -806,9 +826,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -824,10 +843,9 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE No-Resize s-object 
 PROCEDURE No-Resize :
@@ -946,8 +964,8 @@ PROCEDURE pInit :
         fiJobNoLabel:SCREEN-VALUE   = "JOB:"
         fiFormNoLabel:SCREEN-VALUE  = "FORM:"
         fiBlankNoLabel:SCREEN-VALUE = "BLANK:"
+        btnJobDetailsText:SCREEN-VALUE = "DETAIL"
         .      
-
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.                      
 END PROCEDURE.
 

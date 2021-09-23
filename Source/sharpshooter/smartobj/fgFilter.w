@@ -68,7 +68,7 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 imItemLookup 
+&Scoped-Define ENABLED-OBJECTS imItemLookup 
 &Scoped-Define DISPLAYED-OBJECTS cbFGItem fiFGItem fiFGItemName 
 
 /* Custom List Definitions                                              */
@@ -87,35 +87,30 @@ DEFINE VARIABLE cbFGItem AS CHARACTER FORMAT "X(256)":U
      LABEL "FG ITEM" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 59.6 BY 1.52
+     SIZE 59.6 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiFGItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 59.6 BY 1.29
+     SIZE 59.6 BY 1.67
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiFGItemName AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 75 BY 1.29 NO-UNDO.
+     SIZE 77 BY 1.29 NO-UNDO.
 
 DEFINE IMAGE imItemLookup
-     FILENAME "Graphics/32x32/magnifying_glass.ico":U
+     FILENAME "Graphics/32x32/search_new.png":U
      STRETCH-TO-FIT RETAIN-SHAPE
      SIZE 5.4 BY 1.29.
-
-DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 85 BY 3.52.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      cbFGItem AT ROW 1.24 COL 16.8 COLON-ALIGNED WIDGET-ID 170
-     fiFGItem AT ROW 1.48 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 180
-     fiFGItemName AT ROW 3 COL 3 NO-LABEL WIDGET-ID 176
-     RECT-33 AT ROW 1 COL 1 WIDGET-ID 178
+     fiFGItem AT ROW 1.24 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 180
+     fiFGItemName AT ROW 3.14 COL 2 NO-LABEL WIDGET-ID 176
      imItemLookup AT ROW 1.38 COL 78.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -402,9 +397,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -420,11 +414,9 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable s-object 
 PROCEDURE local-enable :
