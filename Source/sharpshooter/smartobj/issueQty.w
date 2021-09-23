@@ -61,8 +61,9 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btIssue 
+     IMAGE-UP FILE "Graphics/32x32/gearwheels.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Issue" 
-     SIZE 11 BY 2.62 TOOLTIP "Issue"
+     SIZE 8 BY 1.91 TOOLTIP "Issue"
      FONT 35.
 
 
@@ -72,7 +73,8 @@ DEFINE FRAME F-Main
      btIssue AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 FGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -101,7 +103,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 2.62
+         HEIGHT             = 3.95
          WIDTH              = 24.8.
 /* END WINDOW DEFINITION */
                                                                         */

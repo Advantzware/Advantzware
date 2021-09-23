@@ -84,7 +84,7 @@ ASSIGN
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost ~
-prep.mkup prep.spare-dec-1 prep.taxable prep.loc 
+prep.mkup prep.price prep.taxable prep.loc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = ip-company NO-LOCK ~
@@ -160,7 +160,7 @@ DEFINE BROWSE BROWSE-1
       prep.dscr FORMAT "x(20)":U
       prep.cost FORMAT "->>,>>9.99":U
       prep.mkup FORMAT "->>9.99":U
-      prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
+      prep.price COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
       prep.taxable COLUMN-LABEL "Taxable" FORMAT "yes/no":U
       prep.loc COLUMN-LABEL "is" FORMAT "OPENED":U
 /* _UIB-CODE-BLOCK-END */
@@ -226,8 +226,8 @@ ASSIGN
      _FldNameList[3]   = ASI.prep.cost
      _FldNameList[4]   > ASI.prep.mkup
 "mkup" ? "->>9.99" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.prep.spare-dec-1
-"spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.prep.price
+"price" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.prep.taxable
 "taxable" "Taxable" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
      _FldNameList[7]   > ASI.prep.loc

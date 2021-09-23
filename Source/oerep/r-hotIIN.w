@@ -89,18 +89,21 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE hdJobProcs   AS HANDLE NO-UNDO.
+RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 
 ASSIGN cTextListToSelect = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
                            "Order #,Sales,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
                            "Line Promise Date Change Reason,Last Machine,Job#,Job Promise Date,Order Promise Date," +
-                           "Order LINE Promise Date Priority"
+                           "Order LINE Promise Date Priority,LastActionOnJob,Full Job Number"
        cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
                             "order,sales,rel-qty,rel-date,rel,pro-date,style," +
-                            "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + "prom-code"
+                            "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + 
+                            "prom-code,LastActionOnJob,full-job-no"
                             
-       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,10,6," + "32,12,9,11,13," + "18"
-       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c,c,c," + "c" 
+       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,10,6," + "32,12,9,11,13," + "18,15,15"
+       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c,c,c," + "c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -710,6 +713,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Hots Report by Release Number */
 DO:
+   DELETE OBJECT hdJobProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.

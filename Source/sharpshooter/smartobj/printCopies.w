@@ -74,13 +74,13 @@ DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0
      LABEL "COPIES" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.38 TOOLTIP "Copies to print"
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 38 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiCopies AT ROW 1.48 COL 31.6 COLON-ALIGNED WIDGET-ID 2
+     fiCopies AT ROW 1.24 COL 34 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -113,7 +113,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 6.52
+         HEIGHT             = 2.91
          WIDTH              = 50.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -309,7 +309,7 @@ PROCEDURE pInit :
                     hdWidget:HIDDEN = NOT LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "visible")).
 
                 IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "label") THEN
-                    hdWidget:LABEL = oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "label").
+                    hdWidget:LABEL = CAPS(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "label")).
 
                 IF oSSLoadTagJobDesignConfig:IsAttributeAvailable("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive") THEN
                     hdWidget:SENSITIVE = LOGICAL(oSSLoadTagJobDesignConfig:GetAttributeValue("PrintCopies", hdWidget:PRIVATE-DATA, "sensitive")).
