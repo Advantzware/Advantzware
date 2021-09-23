@@ -3801,7 +3801,8 @@ PROCEDURE ipDataFix210400:
 
     RUN ipSetOT1Permissions.
     RUN ipFixFoldingEstimateScores.
-
+    RUN ipFixLocationStorageCost.
+    RUN ipSetSystemScope.
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -4483,6 +4484,48 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixLocationStorageCost C-Win
+PROCEDURE ipFixLocationStorageCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Location storage cost conversion").
+    
+    FOR EACH company NO-LOCK:
+        FOR EACH loc NO-LOCK
+            WHERE loc.company EQ company.company:
+            CREATE storageCost.
+            ASSIGN
+                storageCost.company     = loc.company
+                storageCost.location    = loc.loc
+                storageCost.positions   = 1
+                storageCost.handlingFee = loc.handlingCost
+                storageCost.stack1High  = loc.storageCost[1]
+                storageCost.stack2High  = loc.storageCost[2]
+                storageCost.stack3High  = loc.storageCost[3]
+                storageCost.stack4High  = loc.storageCost[4]
+                .
+            
+            CREATE palletSize.
+            ASSIGN
+                palletSize.company    = loc.company
+                palletSize.location   = loc.loc
+                palletSize.positions  = 1
+                palletSize.upToWidth  = 9999.99
+                palletSize.upToLength = 9999.99
+                .
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
@@ -7197,6 +7240,33 @@ PROCEDURE ipSetOT1Permissions:
     END.
 
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetSystemScope C-Win
+PROCEDURE ipSetSystemScope:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-scope FOR scope.
+     
+    RUN ipStatus ("  Adding System scope for new settings").
+
+    FIND FIRST bf-scope NO-LOCK
+         WHERE bf-scope.scopeTable EQ "System"
+         NO-ERROR.
+    IF NOT AVAILABLE bf-scope THEN DO:
+        CREATE bf-scope.
+        ASSIGN
+            bf-scope.scopeTable = "System"
+            .
+    END. 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
