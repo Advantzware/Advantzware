@@ -43,13 +43,6 @@ DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
 
-DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITIAL "Single".
-DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
-DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
-DEFINE VARIABLE gcTypeMisc                            AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
-DEFINE VARIABLE gcTypeWood                            AS CHARACTER NO-UNDO INITIAL "Wood".
-DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
-
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
 DEFINE VARIABLE gcErrorImportant                      AS CHARACTER NO-UNDO INITIAL "Important".
 DEFINE VARIABLE gcErrorCritical                       AS CHARACTER NO-UNDO INITIAL "Critical".
@@ -134,10 +127,6 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-ASSIGN 
-    /*Build mapping from estimate type # to descriptive type*/ 
-    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
-    .
 
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
@@ -1760,6 +1749,8 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
 
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
@@ -1784,8 +1775,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
-                IF fIsComboType(ENTRY(bf-est.est-type, gcTypeList)) AND iQtyCount GT 1 THEN LEAVE.
-                
+
                 iQty = IF bf-est-qty.qty[iQtyCount] EQ 0 AND iQtyCount EQ 1 THEN bf-est-qty.eqty ELSE bf-est-qty.qty[iQtyCount].
                 IF iQty NE 0 THEN 
                 DO:
@@ -1794,6 +1784,10 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
                     CREATE ttEstCostHeaderToCalc.
                     ASSIGN 
                         ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                    FIND FIRST bf-estCostHeader NO-LOCK 
+                        WHERE bf-estCostHeader.estCostHeaderID EQ opiEstCostHeaderID
+                        NO-ERROR.
+                    IF AVAILABLE bf-estCostHeader AND fIsComboType(bf-estCostHeader.estType) THEN LEAVE.
                 END.
             END.
     END.
@@ -4116,7 +4110,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
     ASSIGN 
         ipbf-estCostHeader.industry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
-        ipbf-estCostHeader.estType                     = ENTRY(bf-est.est-type, gcTypeList)
+        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-est.est-type, bf-est.estimateTypeID)
         ipbf-estCostHeader.warehouseID                 = bf-est.loc
         ipbf-estCostHeader.marginOn                    = bf-ce-ctrl.sell-by
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
@@ -4150,12 +4144,6 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.special3MarkupPct           = IF bf-ce-ctrl.spec-%[3] < 1 THEN bf-ce-ctrl.spec-%[3] ELSE 0 /*ctrl[4] - already a fraction?*/ 
         ipbf-estCostHeader.special3FlatValue           = IF bf-ce-ctrl.spec-%[3] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[3] /*REFACTOR - treatment of Special Costs*/
         .
-    CASE bf-est.estimateTypeID:
-        WHEN "Misc" THEN 
-            ipbf-estCostHeader.estType = gcTypeMisc.
-        WHEN "Wood" THEN
-            ipbf-estCostHeader.estType = gcTypeWood.
-    END CASE.
     
 END PROCEDURE.
 
