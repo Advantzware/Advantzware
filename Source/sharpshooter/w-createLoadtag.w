@@ -36,28 +36,32 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+{api/inbound/ttItem.i}
+DEFINE TEMP-TABLE ttPOLine NO-UNDO
+    LIKE po-ordl
+    FIELD   quantity            AS INTEGER     
+    FIELD   quantityInSubUnit   AS INTEGER
+    FIELD   subUnitsPerUnit     AS INTEGER
+    .
+    
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUser    AS CHARACTER NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
  
-DEFINE VARIABLE oJobHeader          AS jc.JobHeader       NO-UNDO.
-DEFINE VARIABLE oItemFG             AS fg.ItemFG          NO-UNDO.
-DEFINE VARIABLE oCustomer           AS Inventory.Customer NO-UNDO.
+DEFINE VARIABLE oLoadTag AS Inventory.Loadtag  NO-UNDO.
+DEFINE VARIABLE oSetting AS system.Setting     NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
-
-DEFINE VARIABLE glAutoCreateLoadtagOnJobScan AS LOGICAL NO-UNDO.
-DEFINE VARIABLE glAutoPrintLoadtagOnJobScan  AS LOGICAL NO-UNDO.
-DEFINE VARIABLE giDefaultPrintCopies         AS INTEGER NO-UNDO INITIAL 1.
-DEFINE VARIABLE giNK1PrintCopies             AS INTEGER NO-UNDO INITIAL 1.
     
-oCustomer = NEW Inventory.Customer().
+oSetting = NEW system.Setting().
+
+oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,8 +80,11 @@ oCustomer = NEW Inventory.Customer().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btJob btPO btRelease btReturn btDelete ~
-btReprint btPrint btSplit RECT-1 RECT-34 rHighlight 
+&Scoped-Define ENABLED-OBJECTS btPrint btDelete btJob btPO btRelease ~
+btReturn btReprint btSplit btBOL statusMessage btnExitText btnSettingsText ~
+btnDeleteText btnPrintText rHighlight 
+&Scoped-Define DISPLAYED-OBJECTS statusMessage btnExitText btnSettingsText ~
+btnDeleteText btnPrintText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -95,24 +102,31 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_b-loadtags-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_fgfilter AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_qtyunits AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_userfields AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-boltag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-job AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-poprint AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-releasetag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-reprint AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-return AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-splittag AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatefirst AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatelast AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btCreate 
-     LABEL "Create" 
-     SIZE 20 BY 2.24.
+DEFINE BUTTON btBOL 
+     LABEL "BOL" 
+     SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
-     SIZE 7.6 BY 1.81 TOOLTIP "Delete currently selected record".
+     SIZE 8 BY 1.91 TOOLTIP "Delete currently selected record".
 
 DEFINE BUTTON btJob 
-     LABEL "Job" 
+     LABEL "JOB" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btPO 
@@ -120,35 +134,49 @@ DEFINE BUTTON btPO
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print" 
-     SIZE 13 BY 10.33.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btRelease 
-     LABEL "Release" 
+     LABEL "RELEASE" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btReprint 
-     LABEL "Re-Print" 
+     LABEL "RE-PRINT" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btReturn 
-     LABEL "Return" 
+     LABEL "RETURN" 
      SIZE 22.4 BY 1.43.
 
 DEFINE BUTTON btSplit 
-     LABEL "Split" 
+     LABEL "SPLIT" 
      SIZE 22.4 BY 1.43.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 208 BY 20.1
-     BGCOLOR 1 FGCOLOR 1 .
+DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
+      VIEW-AS TEXT 
+     SIZE 15 BY 1.43
+     BGCOLOR 21  NO-UNDO.
 
-DEFINE RECTANGLE RECT-34
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 208 BY 1.81
-     BGCOLOR 21 FGCOLOR 21 .
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 8 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnSettingsText AS CHARACTER FORMAT "X(256)":U INITIAL "SETTINGS" 
+      VIEW-AS TEXT 
+     SIZE 18 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
+      VIEW-AS TEXT 
+     SIZE 116 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE rHighlight
      EDGE-PIXELS 1 GRAPHIC-EDGE    
@@ -159,23 +187,26 @@ DEFINE RECTANGLE rHighlight
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJob AT ROW 1.19 COL 5.4 WIDGET-ID 2 NO-TAB-STOP 
-     btPO AT ROW 1.19 COL 29.8 WIDGET-ID 24 NO-TAB-STOP 
-     btRelease AT ROW 1.19 COL 53.8 WIDGET-ID 48 NO-TAB-STOP 
-     btCreate AT ROW 2.95 COL 188.4 WIDGET-ID 58
-     btReturn AT ROW 1.19 COL 77.8 WIDGET-ID 50 NO-TAB-STOP 
-     btDelete AT ROW 23.19 COL 185 WIDGET-ID 62
-     btReprint AT ROW 1.19 COL 101.6 WIDGET-ID 52 NO-TAB-STOP 
-     btPrint AT ROW 23.19 COL 194.4 WIDGET-ID 30
-     btSplit AT ROW 1.19 COL 125.4 WIDGET-ID 54 NO-TAB-STOP 
-     RECT-1 AT ROW 2.81 COL 1 WIDGET-ID 4
-     RECT-34 AT ROW 1 COL 1 WIDGET-ID 18
-     rHighlight AT ROW 1 COL 4.4 WIDGET-ID 20
+     btPrint AT ROW 31.95 COL 201 WIDGET-ID 30
+     btDelete AT ROW 31.95 COL 17 WIDGET-ID 62
+     btJob AT ROW 2.62 COL 3 WIDGET-ID 2 NO-TAB-STOP 
+     btPO AT ROW 2.62 COL 27.4 WIDGET-ID 24 NO-TAB-STOP 
+     btRelease AT ROW 2.62 COL 51.4 WIDGET-ID 48 NO-TAB-STOP 
+     btReturn AT ROW 2.62 COL 75.4 WIDGET-ID 50 NO-TAB-STOP 
+     btReprint AT ROW 2.62 COL 99.2 WIDGET-ID 52 NO-TAB-STOP 
+     btSplit AT ROW 2.62 COL 123 WIDGET-ID 54 NO-TAB-STOP 
+     btBOL AT ROW 2.62 COL 146.8 WIDGET-ID 64 NO-TAB-STOP 
+     statusMessage AT ROW 32.19 COL 30 COLON-ALIGNED NO-LABEL
+     btnExitText AT ROW 1.24 COL 191 COLON-ALIGNED NO-LABEL
+     btnSettingsText AT ROW 2.67 COL 172 COLON-ALIGNED NO-LABEL
+     btnDeleteText AT ROW 32.19 COL 2 NO-LABEL
+     btnPrintText AT ROW 32.19 COL 187 COLON-ALIGNED NO-LABEL
+     rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 208 BY 32.95
-         BGCOLOR 15 FONT 17 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -184,6 +215,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -196,10 +228,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Create LoadTag"
          HEIGHT             = 32.95
          WIDTH              = 208
-         MAX-HEIGHT         = 32.95
-         MAX-WIDTH          = 208
-         VIRTUAL-HEIGHT     = 32.95
-         VIRTUAL-WIDTH      = 208
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -230,8 +267,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
-/* SETTINGS FOR BUTTON btCreate IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
+   ALIGN-L                                                              */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -271,14 +308,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btCreate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCreate W-Win
-ON CHOOSE OF btCreate IN FRAME F-Main /* Create */
+&Scoped-define SELF-NAME btBOL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btBOL W-Win
+ON CHOOSE OF btBOL IN FRAME F-Main /* BOL */
 DO:
-    RUN state-changed (
-        INPUT THIS-PROCEDURE,
-        INPUT "create-tags"
-        ).  
+    RUN select-page(7).
+
+    rHighlight:X = SELF:X - 5.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,11 +334,56 @@ END.
 
 &Scoped-define SELF-NAME btJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btJob W-Win
-ON CHOOSE OF btJob IN FRAME F-Main /* Job */
+ON CHOOSE OF btJob IN FRAME F-Main /* JOB */
 DO:
     RUN select-page(1).
 
     rHighlight:X = SELF:X - 5.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDeleteText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteText W-Win
+ON MOUSE-SELECT-CLICK OF btnDeleteText IN FRAME F-Main
+DO:
+  APPLY "CHOOSE":U TO btDelete.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
+DO:
+    RUN dispatch ("exit").
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrintText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
+ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE":U TO btPrint.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSettingsText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSettingsText W-Win
+ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
+DO:
+    RUN OpenSetting.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,7 +419,7 @@ END.
 
 &Scoped-define SELF-NAME btRelease
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRelease W-Win
-ON CHOOSE OF btRelease IN FRAME F-Main /* Release */
+ON CHOOSE OF btRelease IN FRAME F-Main /* RELEASE */
 DO:
     RUN select-page(3).
 
@@ -351,7 +432,7 @@ END.
 
 &Scoped-define SELF-NAME btReprint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReprint W-Win
-ON CHOOSE OF btReprint IN FRAME F-Main /* Re-Print */
+ON CHOOSE OF btReprint IN FRAME F-Main /* RE-PRINT */
 DO:
     RUN select-page(5).
     
@@ -364,7 +445,7 @@ END.
 
 &Scoped-define SELF-NAME btReturn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReturn W-Win
-ON CHOOSE OF btReturn IN FRAME F-Main /* Return */
+ON CHOOSE OF btReturn IN FRAME F-Main /* RETURN */
 DO:
     RUN select-page(4).
 
@@ -377,7 +458,7 @@ END.
 
 &Scoped-define SELF-NAME btSplit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSplit W-Win
-ON CHOOSE OF btSplit IN FRAME F-Main /* Split */
+ON CHOOSE OF btSplit IN FRAME F-Main /* SPLIT */
 DO:
     RUN select-page(6).
 
@@ -397,7 +478,8 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-{custom/initializeprocs.i}
+
+{sharpshooter/pStatusMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -429,83 +511,163 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 2.67 , 193.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags-3 ).
-       RUN set-position IN h_b-loadtags-3 ( 23.24 , 4.20 ) NO-ERROR.
-       RUN set-size IN h_b-loadtags-3 ( 10.29 , 179.00 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags-3 ( 24.10 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-loadtags-3 ( 7.86 , 199.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartBrowser h_b-loadtags-3. */
+       RUN add-link IN adm-broker-hdl ( h_navigatefirst , 'NAV-FIRST':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigatelast , 'NAV-LAST':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigatenext , 'NAV-NEXT':U , h_b-loadtags-3 ).
+       RUN add-link IN adm-broker-hdl ( h_navigateprev , 'NAV-PREV':U , h_b-loadtags-3 ).
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
-             btPrint:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
+             INPUT  'sharpshooter/smartobj/f-job.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_jobfilter ).
-       RUN set-position IN h_jobfilter ( 2.95 , 5.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.52 , 76.40 ) */
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-job ).
+       RUN set-position IN h_f-job ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 15.24 , 203.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/userfields.w':U ,
+             INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_userfields ).
-       RUN set-position IN h_userfields ( 11.05 , 138.60 ) NO-ERROR.
-       /* Size in UIB:  ( 9.19 , 68.00 ) */
+             OUTPUT h_navigatefirst ).
+       RUN set-position IN h_navigatefirst ( 25.05 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
+             INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_fgfilter ).
-       RUN set-position IN h_fgfilter ( 6.91 , 5.20 ) NO-ERROR.
-       /* Size in UIB:  ( 3.76 , 85.00 ) */
+             OUTPUT h_navigatelast ).
+       RUN set-position IN h_navigatelast ( 30.76 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/printcopies.w':U ,
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 7.14 , 98.40 ) NO-ERROR.
-       /* Size in UIB:  ( 1.86 , 46.60 ) */
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_qtyunits ).
-       RUN set-position IN h_qtyunits ( 10.95 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 9.29 , 131.40 ) */
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 26.95 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       /* Links to SmartObject h_jobfilter. */
-       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
+       /* Links to SmartFrame h_f-job. */
+       RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_userfields. */
-       RUN add-link IN adm-broker-hdl ( h_userfields , 'State':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
+    END. /* Page 1 */
+    WHEN 2 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-poprint.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-poprint ).
+       RUN set-position IN h_f-poprint ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 19.38 , 151.60 ) */
 
-       /* Links to SmartObject h_fgfilter. */
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
+       /* Links to SmartFrame h_f-poprint. */
+       RUN add-link IN adm-broker-hdl ( h_f-poprint , 'PO':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-poprint , 'State':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_printcopies. */
-       RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
+    END. /* Page 2 */
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-releasetag.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-releasetag ).
+       RUN set-position IN h_f-releasetag ( 4.57 , 71.00 ) NO-ERROR.
+       /* Size in UIB:  ( 11.86 , 60.40 ) */
 
-       /* Links to SmartObject h_qtyunits. */
-       RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
+       /* Links to SmartFrame h_f-releasetag. */
+       RUN add-link IN adm-broker-hdl ( h_f-releasetag , 'RELEASE':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-releasetag , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 3 */
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-return.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-return ).
+       RUN set-position IN h_f-return ( 4.57 , 56.00 ) NO-ERROR.
+       /* Size in UIB:  ( 7.05 , 83.80 ) */
+
+       /* Links to SmartFrame h_f-return. */
+       RUN add-link IN adm-broker-hdl ( h_f-return , 'RETURN':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-return , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-reprint.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-reprint ).
+       RUN set-position IN h_f-reprint ( 4.57 , 63.60 ) NO-ERROR.
+       /* Size in UIB:  ( 6.48 , 81.60 ) */
+
+       /* Links to SmartFrame h_f-reprint. */
+       RUN add-link IN adm-broker-hdl ( h_f-reprint , 'REPRINT':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-reprint , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 5 */
+    WHEN 6 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-splittag.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-splittag ).
+       RUN set-position IN h_f-splittag ( 4.57 , 71.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.95 , 81.00 ) */
+
+       /* Links to SmartFrame h_f-splittag. */
+       RUN add-link IN adm-broker-hdl ( h_f-splittag , 'SPLIT':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-splittag , 'State':U , THIS-PROCEDURE ).
+
+    END. /* Page 6 */
+    WHEN 7 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/f-boltag.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-boltag ).
+       RUN set-position IN h_f-boltag ( 4.57 , 73.00 ) NO-ERROR.
+       /* Size in UIB:  ( 11.86 , 61.40 ) */
+
+       /* Links to SmartFrame h_f-boltag. */
+       RUN add-link IN adm-broker-hdl ( h_f-boltag , 'BOL':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_f-boltag , 'State':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
-             h_printcopies , 'AFTER':U ).
-    END. /* Page 1 */
+    END. /* Page 7 */
 
   END CASE.
   /* Select a Startup page. */
@@ -569,8 +731,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btJob btPO btRelease btReturn btDelete btReprint btPrint btSplit 
-         RECT-1 RECT-34 rHighlight 
+  DISPLAY statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  ENABLE btPrint btDelete btJob btPO btRelease btReturn btReprint btSplit btBOL 
+         statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
+         rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -632,6 +797,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSetting W-Win 
+PROCEDURE GetSetting :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
+
+    opoSetting = oSetting.    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -640,6 +820,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pWinReSize.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
@@ -668,13 +849,83 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win 
+PROCEDURE OpenSetting :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF VALID-OBJECT(oSetting) THEN
+        RUN windows/setting-dialog.w (INPUT oSetting).    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBOLTagPrint W-Win 
+PROCEDURE pBOLTagPrint :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iBOLID   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCopies  AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
+    
+    {methods/run_link.i "BOL-SOURCE" "GetBOLHeader" "(OUTPUT oBOLHeader)"}
+    
+    IF VALID-OBJECT(oBOLHeader) THEN DO:
+        ASSIGN
+            cCompany = oBOLHeader:GetValue("Company")
+            iBOLID   = INTEGER(oBOLHeader:GetValue("BOLID"))
+            .
+    
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromBOL" "(INPUT cCompany, INPUT iBOLID, INPUT 1)"}
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTagFromJob W-Win 
+PROCEDURE pCreateTagFromJob PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cJobNo             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cItemID            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustID            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iQuantity          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantityInSubUnit AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubUnitsPerUnit   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCopies            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cUserField1        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserField2        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserField3        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFieldValue1   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFieldValue2   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFieldValue3   AS CHARACTER NO-UNDO.
+        
+    {methods/run_link.i "JOB-SOURCE" "GetDetails" "(OUTPUT cJobNo,OUTPUT iJobNo2,OUTPUT iFormNo,OUTPUT iBlankNo,OUTPUT cItemID,OUTPUT cCustID,OUTPUT iQuantity,OUTPUT iQuantityInSubUnit,OUTPUT iSubUnitsPerUnit,OUTPUT iCopies,OUTPUT cUserField1,OUTPUT cUserField2,OUTPUT cUserField3,OUTPUT cUserFieldValue1,OUTPUT cUserFieldValue2,OUTPUT cUserFieldValue3)"}
+
+    {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE oSSLoadTagConfig AS system.Config NO-UNDO.
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
     
@@ -682,41 +933,245 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    oSSLoadTagConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTag").
+    RUN spGetSessionParam("UserID", OUTPUT cUser).
+    RUN pStatusMessage ("", 0).
 
-    IF VALID-OBJECT(oSSLoadTagConfig) THEN DO:
-        IF oSSLoadTagConfig:IsAttributeAvailable("AutoCreateLoadtagOnJobScan", "Active") THEN
-            ASSIGN
-                glAutoCreateLoadtagOnJobScan = LOGICAL(oSSLoadTagConfig:GetAttributeValue("AutoCreateLoadtagOnJobScan", "Active"))
-                btCreate:HIDDEN              = glAutoCreateLoadtagOnJobScan
-                .
-        
-        IF oSSLoadTagConfig:IsAttributeAvailable("AutoPrintLoadtagOnJobScan", "Active") THEN
-            ASSIGN
-                glAutoPrintLoadtagOnJobScan  = LOGICAL(oSSLoadTagConfig:GetAttributeValue("AutoPrintLoadtagOnJobScan", "Active"))
-                btDelete:HIDDEN              = glAutoPrintLoadtagOnJobScan
-                .
-        
-        IF oSSLoadTagConfig:IsAttributeAvailable("DefaultPrintCopies", "Copies") THEN
-            giDefaultPrintCopies = INTEGER(oSSLoadTagConfig:GetAttributeValue("DefaultPrintCopies", "Copies")).
-    END.
+END PROCEDURE.
 
-    RUN sys/ref/nk1look.p (
-        INPUT  cCompany,           /* Company Code */ 
-        INPUT  "LOADTAG",          /* sys-ctrl name */
-        INPUT  "I",                /* Output return value */
-        INPUT  NO,                 /* Use ship-to */
-        INPUT  NO,                 /* ship-to vendor */
-        INPUT  "",                 /* ship-to vendor value */
-        INPUT  "",                 /* shi-id value */
-        OUTPUT cReturnValue, 
-        OUTPUT lRecFound
-        ).    
-    IF lRecFound THEN 
-        giNK1PrintCopies = INTEGER(cReturnValue).
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPOTagPrint W-Win 
+PROCEDURE pPOTagPrint PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPOID              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLine            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantity          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM       AS CHARACTER NO-UNDO.
     
-    IF giNK1PrintCopies GT 0 THEN
-        {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.   
+    {methods/run_link.i "PO-SOURCE" "GetPOLineTT" "(OUTPUT TABLE ttPOLine)"}
+    
+    FOR EACH ttPOLine:
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromPO" "(INPUT ttPOLine.company, INPUT ttPOLine.po-no, INPUT ttPOLine.line, INPUT ttPOLine.quantity, INPUT ttPOLine.quantityInSubUnit, INPUT ttPOLine.subUnitsPerUnit, INPUT ttPOLine.pr-qty-uom, INPUT 1)"}
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseTagPrint W-Win 
+PROCEDURE pReleaseTagPrint :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iReleaseID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCopies    AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+    
+    {methods/run_link.i "RELEASE-SOURCE" "GetRelease" "(OUTPUT oReleaseHeader)"}
+
+    IF VALID-OBJECT(oReleaseHeader) THEN DO:
+        ASSIGN
+            cCompany   = oReleaseHeader:GetValue("Company")
+            iReleaseID = INTEGER(oReleaseHeader:GetValue("ReleaseID"))
+            .
+
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromRelease" "(INPUT cCompany, INPUT iReleaseID, INPUT 1)"}
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReprintTag W-Win 
+PROCEDURE pReprintTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTag     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    
+    {methods/run_link.i "REPRINT-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}
+
+    IF VALID-OBJECT(oLoadtag) THEN DO:
+        ASSIGN
+            cCompany = oLoadTag:GetValue("Company")
+            cTag     = oLoadTag:GetValue("Tag")
+            .
+
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}         
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReturnTag W-Win 
+PROCEDURE pReturnTag :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dReturnQuantity  AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lError           AS LOG.
+    DEFINE VARIABLE cMessage         AS CHARACTER.
+    DEFINE VARIABLE cTag             AS CHARACTER.
+    
+    {methods/run_link.i "RETURN-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}   
+
+    IF VALID-OBJECT(oLoadTag) THEN 
+    DO:        
+        {methods/run_link.i "RETURN-SOURCE" "GetQuantity" "(OUTPUT dReturnQuantity)"}   
+    
+        ASSIGN
+            cCompany = oLoadtag:GetValue("Company")
+            cTag     = oLoadtag:GetValue("Tag")
+            .   
+
+        RUN inventory/inventoryprocs.p PERSISTENT SET hdInventoryProcs.
+    
+        RUN Inventory_CreateReturnFromTag IN hdInventoryProcs(
+            INPUT  cCompany,
+            INPUT  cTag,
+            INPUT  dReturnQuantity,
+            INPUT  TRUE,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+
+        DELETE PROCEDURE hdInventoryProcs.
+
+        IF lError THEN
+            MESSAGE cMessage
+                VIEW-AS ALERT-BOX ERROR.
+        ELSE
+            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSplitTag W-Win 
+PROCEDURE pSplitTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTag              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSplitQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cItemType         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO. 
+
+    {methods/run_link.i "SPLIT-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}   
+
+    IF VALID-OBJECT(oLoadTag) THEN DO:        
+        {methods/run_link.i "SPLIT-SOURCE" "GetQuantity" "(OUTPUT dSplitQuantity)"}   
+    
+        ASSIGN
+            cCompany       = oLoadtag:GetValue("Company")
+            cTag           = oLoadtag:GetValue("Tag")
+            cItemID        = oLoadtag:GetValue("ItemID")
+            cItemType      = STRING(LOGICAL(oLoadtag:GetValue("ItemType")), "RM/FG")
+            .   
+
+        RUN api\inbound\SplitTag.p (
+            INPUT  cCompany, 
+            INPUT  cTag,
+            INPUT  cItemID,
+            INPUT  dSplitQuantity,
+            INPUT  cItemType,
+            INPUT  cUser,
+            OUTPUT lSuccess,
+            OUTPUT cMessage,
+            OUTPUT TABLE ttItem
+            ) NO-ERROR. 
+
+        IF NOT lSuccess THEN DO:
+            MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.
+        END.    
+        ELSE DO:
+            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
+            FOR EACH ttItem:
+                {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT ttItem.tag, INPUT 1)"}
+            END.
+        END.       
+    END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dColTmp AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&WINDOW-NAME}:ROW                 = 1
+            {&WINDOW-NAME}:COL                 = 1
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
+            btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
+            btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
+            btnPrintText:COL                   = btPrint:COL - btnPrintText:WIDTH - 1
+            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
+            btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                    = dCol - 9
+            .
+        RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
+        RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
+        RUN get-position IN h_b-loadtags-3 ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        ASSIGN
+            dWidth  = dCol - 2
+            dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
+            .
+        RUN set-size IN h_b-loadtags-3 ( dHeight , dWidth ) NO-ERROR.
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -774,147 +1229,13 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustID  AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE iQuantity          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iQuantityInSubUnit AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iSubUnitsPerUnit   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iCopies            AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE cUserField1      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserField2      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserField3      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFieldValue1 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFieldValue2 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFieldValue3 AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE dOvers AS DECIMAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
     
     CASE p-state:
-        WHEN "job-invalid" THEN DO:
-            {methods/run_link.i "QTY-SOURCE" "DisableQuantities"}
-            {methods/run_link.i "FGITEM-SOURCE" "DisableFGItem"}   
-            {methods/run_link.i "USERFIELD-SOURCE" "DisableUserFields"}
-            {methods/run_link.i "COPIES-SOURCE" "DisableCopies"}
-            
-            btCreate:SENSITIVE = FALSE.         
-        END.
-        WHEN "job-valid" THEN DO:
-            
-            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
-            
-            ASSIGN
-                cJobNo   = oJobHeader:GetValue("JobNo")
-                iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
-                iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
-                iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
-                cCustID  = oJobHeader:GetValue("Customer")
-                .
-
-            oCustomer:SetContext(cCompany, cCustID).
-            
-            IF VALID-OBJECT(oCustomer) THEN
-                iCopies = INTEGER(oCustomer:GetValue("PrintCopies")).
-                        
-            IF iCopies LE 0 THEN
-                iCopies = giNK1PrintCopies.
-                
-            IF iCopies LE 0 THEN
-                iCopies = giDefaultPrintCopies.
-
-            IF iCopies LE 0 THEN
-                iCopies = 1.
-                
-            {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT iCopies)"}
-
-            {methods/run_link.i "FGITEM-SOURCE" "UpdateItemForJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo)"}
-            
-            {methods/run_link.i "FGITEM-SOURCE" "EnableFGItem"} 
-            {methods/run_link.i "COPIES-SOURCE" "EnableCopies"}
-        END.
-        WHEN "fgitem-changed" THEN DO:
-            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
-            
-            cItemID = oItemFG:GetValue("ItemID").
-            
-            {methods/run_link.i "JOB-SOURCE" "JobFGItemChanged" "(INPUT cItemID)"}
-        END.
-        WHEN "fgitem-valid" THEN DO:
-            
-            {methods/run_link.i "QTY-SOURCE" "EnableQuantities"}
-            {methods/run_link.i "USERFIELD-SOURCE" "EnableUserFields"}
-            
-            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
-            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
-            
-            ASSIGN
-                iQuantityInSubUnit = INTEGER(oItemFG:GetValue("QuantityInSubUnit"))
-                iSubUnitsPerUnit   = INTEGER(oItemFG:GetValue("SubUnitsPerUnit"))
-/*                iQuantity        = INTEGER(oJobHeader:GetValue("Quantity"))*/
-                iQuantity          = iQuantityInSubUnit * iSubUnitsPerUnit
-                .
-            
-            {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT 0)"}
-            {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT 0)"} 
-            
-            IF NOT glAutoCreateLoadtagOnJobScan THEN           
-                btCreate:SENSITIVE = TRUE.
-            ELSE
-                RUN state-changed (
-                    INPUT THIS-PROCEDURE,
-                    INPUT "create-tags"
-                    ).          
-        END.
-        WHEN "overs-changed" THEN DO:
-            {methods/run_link.i "USERFIELD-SOURCE" "GetOvers" "(OUTPUT dOvers)" }
-            
-            {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT dOvers)"}
-        END.
-        WHEN "create-tags" THEN DO:
-            {methods/run_link.i "JOB-SOURCE" "GetJobHeader" "(OUTPUT oJobHeader)"}
-            
-            ASSIGN
-                cJobNo   = oJobHeader:GetValue("JobNo")
-                iJobNo2  = INTEGER(oJobHeader:GetValue("JobNo2"))
-                iFormNo  = INTEGER(oJobHeader:GetValue("FormNo"))
-                iBlankNo = INTEGER(oJobHeader:GetValue("BlankNo"))
-                .
-            
-            {methods/run_link.i "FGITEM-SOURCE" "GetItemFG" "(OUTPUT oItemFG)"}
-            
-            cItemID = oItemFG:GetValue("ItemID").
-            
-            {methods/run_link.i "QTY-SOURCE" "GetQuantities" "(OUTPUT iQuantity, OUTPUT iQuantityInSubUnit, OUTPUT iSubUnitsPerUnit)"}
-            
-            {methods/run_link.i "COPIES-SOURCE" "GetCopies" "(OUTPUT iCopies)"}
-            
-            {methods/run_link.i "USERFIELD-SOURCE" "GetUserFields" "(OUTPUT cUserField1, OUTPUT cUserField2, OUTPUT cUserField3, OUTPUT cUserFieldValue1, OUTPUT cUserFieldValue2, OUTPUT cUserFieldValue3)" }
-            
-            {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromJob" "(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, INPUT cItemID, INPUT iQuantity, INPUT iQuantityInSubUnit, INPUT iSubUnitsPerUnit, INPUT iCopies, INPUT cUserField1, INPUT cUserField2, INPUT cUserField3, INPUT cUserFieldValue1, INPUT cUserFieldValue2, INPUT cUserFieldValue3)" }
-            
-            IF glAutoPrintLoadtagOnJobScan THEN DO:
-                RUN state-changed (
-                    INPUT THIS-PROCEDURE,
-                    INPUT "print-tags"
-                    ).
-                
-                RUN state-changed (
-                    INPUT THIS-PROCEDURE,
-                    INPUT "job-invalid"
-                    ).
-                    
-                /* Makes the cursor stay in Job No field in JobFilter.w */
-                {methods/run_link.i "JOB-SOURCE" "ScanNextJob"}
-            END.
+        WHEN "create-tags-job" THEN DO:
+            RUN pCreateTagFromJob.
         END. 
         WHEN "print-tags" THEN DO:
             SESSION:SET-WAIT-STATE ("GENERAL").
@@ -922,6 +1243,24 @@ PROCEDURE state-changed :
             {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}
 
             SESSION:SET-WAIT-STATE ("").
+        END.
+        WHEN "create-tag-reprint" THEN DO:
+            RUN pReprintTag.
+        END.
+        WHEN "split-tag" THEN DO:
+            RUN pSplitTag.
+        END.
+        WHEN "bol-tag-print" THEN DO:
+            RUN pBOLTagPrint.
+        END.
+        WHEN "release-tag-print" THEN DO:
+            RUN pReleaseTagPrint.
+        END.
+        WHEN "create-tag-po" THEN DO:
+            RUN pPOTagPrint.
+        END.
+        WHEN "return-tag" THEN DO:
+            RUN pReturnTag.
         END.
     END CASE.  
 END PROCEDURE.

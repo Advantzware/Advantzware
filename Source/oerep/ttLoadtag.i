@@ -64,7 +64,8 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   boxDep                       AS      DECIMAL FORMAT  ">>>9.99<<<"
     FIELD   flute                        AS      CHARACTER       
     FIELD   test                         AS      CHARACTER       
-    FIELD   vendor                       LIKE    company.name        
+    FIELD   vendorID                     AS      CHARACTER
+    FIELD   vendorName                   AS      CHARACTER        
     FIELD   grossWeight                  AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   tareWeight                   AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   netWeight                    AS      DECIMAL FORMAT  ">>>>9.99"
@@ -122,6 +123,6 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   exportFileType               AS      CHARACTER
     FIELD   errorMessage                 AS      CHARACTER
     FIELD   isError                      AS      LOGICAL
-    FIELD   emptyColumn                  AS      CHARACTER 
+    FIELD   emptyColumn                  AS      CHARACTER
     INDEX   recordID IS PRIMARY UNIQUE recordID
     .                   
