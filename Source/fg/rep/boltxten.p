@@ -164,10 +164,9 @@ FOR EACH ttTransBin WHERE ttTransBin.IS-SELECTED NO-LOCK  :
         INPUT ttTransBin.loc,
         INPUT ttTransBin.loc-bin,
         INPUT ttTransBin.tag,
-        INPUT ttTransBin.cust-no,
-        INPUT INT(ttTransBin.partial-count),
+        INPUT 0,
         INPUT INT(ttTransBin.qty),
-        INPUT INT(ttTransBin.cases),
+        INPUT INT(ttTransBin.case-count),
         OUTPUT v-tot-pallets).
     FIND FIRST itemfg NO-LOCK 
         WHERE itemfg.company EQ cocode 
