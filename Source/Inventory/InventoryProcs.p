@@ -7178,15 +7178,17 @@ PROCEDURE RecalcQuantityUnits:
     DEFINE OUTPUT PARAMETER opiQuantityOfSubUnits AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiQuantityOfUnits AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdQuantityPartialSubUnit AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dQuantityPerUnit AS DECIMAL NO-UNDO.
 
     ASSIGN 
         iopdQuantityPerSubUnit      = MAX(1,iopdQuantityPerSubUnit) 
         iopiQuantitySubUnitsPerUnit = MAX(1,iopiQuantitySubUnitsPerUnit)
         opiQuantityOfSubUnits       = TRUNC(ipdQuantityTotal / iopdQuantityPerSubUnit, 0)
         opdQuantityPartialSubUnit   = ipdQuantityTotal - iopdQuantityPerSubUnit * opiQuantityOfSubUnits
-        opiQuantityOfUnits          = INTEGER(TRUNC(opiQuantityOfSubUnits / iopiQuantitySubUnitsPerUnit, 0)) 
-        + INTEGER((opiQuantityOfSubUnits MODULO iopiQuantitySubUnitsPerUnit) NE 0)
-        .  
+        dQuantityPerUnit            = iopdQuantityPerSubUnit * iopiQuantitySubUnitsPerUnit
+        opiQuantityOfUnits          = DYNAMIC-FUNCTION("sfCommon_Roundup",ipdQuantityTotal / dQuantityPerUnit)
+    .   
     
 END PROCEDURE.
 
