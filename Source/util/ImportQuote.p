@@ -41,6 +41,7 @@ DEFINE TEMP-TABLE ttImportQuote
     FIELD Dimensions     AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Dimensions" HELP "Optional - Size:30"  
     FIELD Board          AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Board" HELP "Optional - Size:30"  
     FIELD Color1         AS CHARACTER FORMAT "X(20)" COLUMN-LABEL "Color" HELP "Optional - Size:20"  
+    FIELD pricingMethod  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Pricing Method" HELP "Optional - ShipTo (Default)Customer Type"  
     
     .
     
@@ -70,6 +71,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE riItemfg AS ROWID NO-UNDO.
     DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
 
     
@@ -198,7 +200,12 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportQuote.Style NE "" THEN 
             RUN pIsValidStyle (ipbf-ttImportQuote.Style, NO, ipbf-ttImportQuote.Company, OUTPUT oplValid, OUTPUT cValidNote).
-        
+            
+        IF oplValid AND ipbf-ttImportQuote.pricingMethod NE "" THEN do: 
+            RUN pGetNk1Settings(INPUT ipbf-ttImportQuote.Company, OUTPUT lQuotePriceMatrix). 
+            IF lQuotePriceMatrix THEN
+            RUN pIsValidFromList ("pricingMethod", ipbf-ttImportQuote.pricingMethod, "Ship To,Customer,Type", OUTPUT oplValid, OUTPUT cValidNote).     
+        END.
     END.
 
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
@@ -210,6 +217,9 @@ PROCEDURE pValidate PRIVATE:
 
     IF ipbf-ttImportQuote.QuoteDate EQ ? THEN
         ipbf-ttImportQuote.QuoteDate = TODAY .
+        
+    IF ipbf-ttImportQuote.pricingMethod EQ "" THEN
+    ipbf-ttImportQuote.pricingMethod = "Ship To".
     
     ipbf-ttImportQuote.EstNo = FILL(" ",8 - LENGTH(TRIM(ipbf-ttImportQuote.EstNo))) +
                                                    TRIM(ipbf-ttImportQuote.EstNo).
@@ -304,7 +314,10 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAssignValueC (ipbf-ttImportQuote.terms, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.terms).
         RUN pAssignValueC (ipbf-ttImportQuote.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.carrier).
         RUN pAssignValueC (ipbf-ttImportQuote.zone, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.del-zone).
-
+        
+        IF lQuotePriceMatrix THEN
+        RUN pAssignValueC (ipbf-ttImportQuote.pricingMethod, iplIgnoreBlanks, INPUT-OUTPUT bf-quotehd.pricingMethod).
+        
          FIND FIRST cust WHERE cust.company = bf-quotehd.company
                 AND cust.cust-no = bf-quotehd.cust-no NO-LOCK NO-ERROR.
 
@@ -462,6 +475,7 @@ PROCEDURE pGetNk1Settings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.     
     DEFINE OUTPUT PARAMETER iplFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     
     RUN sys/ref/nk1look.p  (INPUT ipcCompany,
@@ -472,7 +486,8 @@ PROCEDURE pGetNk1Settings PRIVATE:
         INPUT "",
         INPUT "", 
         OUTPUT cReturn, 
-        OUTPUT iplFound ).
+        OUTPUT lFound ).
+        iplFound = LOGICAL(cReturn) NO-ERROR.
                      
 END PROCEDURE.
 
