@@ -72,12 +72,12 @@ IF lRecFound THEN
     lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
     
 ASSIGN 
-ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
-                           "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                           "Item Description 2,Est Style,Dimensions,Board,Color,FG Category,EST Category" + (IF lQuotePriceMatrix THEN ",Pricing method" ELSE "")
-            cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
-                                 "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
-                                 "item-dscr2,style,dimension,board,color,itemCategory,estCategory" + (IF lQuotePriceMatrix THEN ",Pricing-method" ELSE "")   .
+    cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
+                        "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
+                        "Item Description 2,Est Style,Dimensions,Board,Color,FG Category,EST Category" + (IF lQuotePriceMatrix THEN ",Pricing method" ELSE "")
+    cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
+                         "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
+                         "item-dscr2,style,dimension,board,color,itemCategory,estCategory" + (IF lQuotePriceMatrix THEN ",Pricing-method" ELSE "")   .
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
