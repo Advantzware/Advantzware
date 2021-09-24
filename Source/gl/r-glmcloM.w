@@ -344,7 +344,7 @@ DO:
      IF choice THEN do:
         RUN close-month.
         MESSAGE "Closing " ipcModule " Period is completed. " VIEW-AS ALERT-BOX INFO.       
-
+        APPLY "close" TO THIS-PROCEDURE.
      END.
   END.
 

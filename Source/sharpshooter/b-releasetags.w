@@ -36,11 +36,21 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{sharpshooter/ttReleaseTag.i}
+
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE gcBOLQtyPopup AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
+
+{sharpshooter/ttReleaseTag.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,6 +82,9 @@ DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cUnitization AS CHARACTER NO-UNDO.
+
+&SCOPED-DEFINE exclude-brwCustom
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,7 +110,7 @@ DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table sequenceID orderID tag itemID itemName trailerID jobID jobID2 location bin customerID quantityOfSubUnits quantityInSubUnit quantityOfSubUnitsInUnit quantityPartial quantity quantityTotal lineID custPoNo   
+&Scoped-define FIELDS-IN-QUERY-br_table sequenceID tag quantity fGetUnitization() @ cUnitization trailerID itemID itemName orderID lineID jobID jobID2 location bin customerID custPoNo   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseTag BY ttReleaseTag.sequenceID DESC
@@ -160,6 +173,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetUnitization B-table-Win 
+FUNCTION fGetUnitization RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -175,28 +197,25 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      sequenceID               COLUMN-LABEL "Seq"            WIDTH 5  
-    orderID                  COLUMN-LABEL "Order #"         
+      sequenceID               COLUMN-LABEL "#"            WIDTH 5  
     tag                      COLUMN-LABEL "Tag #"           
+    quantity                 COLUMN-LABEL "Quantity"
+    fGetUnitization() @ cUnitization COLUMN-LABEL "Unitization" WIDTH 35 FORMAT "X(40)"       
+    trailerID                COLUMN-LABEL "Trailer #"       
     itemID                   COLUMN-LABEL "Item #"          
     itemName                 COLUMN-LABEL "Item Name"       
-    trailerID                COLUMN-LABEL "Trailer #"       
+    orderID                  COLUMN-LABEL "Order #"         
+    lineID                   COLUMN-LABEL "Order!Line #"          
     jobID                    COLUMN-LABEL "Job #"           
     jobID2                   COLUMN-LABEL "Run"             
     location                 COLUMN-LABEL "Location"       
-    bin                      COLUMN-LABEL "Bin"        
-    customerID               COLUMN-LABEL "Customer #"      
-    quantityOfSubUnits       COLUMN-LABEL "Cases"           
-    quantityInSubUnit        COLUMN-LABEL "Case!Quantity"   
-    quantityOfSubUnitsInUnit COLUMN-LABEL "Cases Per!Pallet"
-    quantityPartial          COLUMN-LABEL "Partial"         
-    quantity                 COLUMN-LABEL "Quantity"        
-    quantityTotal            COLUMN-LABEL "Total!Quantity"  
-    lineID                   COLUMN-LABEL "Line #"          
+    bin                      COLUMN-LABEL "Bin" WIDTH 15       
+    customerID               COLUMN-LABEL "Customer #" WIDTH 20    
     custPoNo                 COLUMN-LABEL "Customer!PO #"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71.
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -205,7 +224,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -264,10 +284,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
-       br_table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE
-       br_table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE
-       br_table:ROW-RESIZABLE IN FRAME F-Main          = TRUE.
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -341,10 +358,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{sharpshooter/smartobj/browseNavigate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -440,35 +460,21 @@ PROCEDURE CreateReleaseTag :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTrailerID AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.   
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReleaseTrailerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTagTrailerID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError            AS LOGICAL   NO-UNDO.   
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO. 
 
-    DEFINE VARIABLE lBOLQtyPopup        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRtnChar            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidateQtyExceed  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSelectReleaseQty   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPromptQtySelection AS LOGICAL   NO-UNDO.
-    
-    RUN sys/ref/nk1look.p(
-        INPUT  ipcCompany,
-        INPUT  "BOLQtyPopup", 
-        INPUT  "L",     /* Logical */
-        INPUT  NO,      /* check by cust */
-        INPUT  NO,      /* use cust not vendor */
-        INPUT  "",      /* cust */
-        INPUT  "",      /* ship-to*/
-        OUTPUT cRtnChar,
-        OUTPUT lRecFound
-        ).
-    IF lRecFound THEN
-        lBOLQtyPopup = cRtnChar EQ "YES". 
 
-    IF lBOLQtyPopup THEN
+    IF gcBOLQtyPopup EQ "Prompt" THEN
         ASSIGN
             lValidateQtyExceed = TRUE
             lSelectReleaseQty  = FALSE
@@ -476,22 +482,28 @@ PROCEDURE CreateReleaseTag :
     ELSE
         ASSIGN
             lValidateQtyExceed = FALSE
-            lSelectReleaseQty  = FALSE
+            lSelectReleaseQty  = IF gcBOLQtyPopup EQ "Release" THEN
+                                     TRUE
+                                 ELSE IF gcBOLQtyPopup EQ "Pallet" THEN
+                                     FALSE
+                                 ELSE
+                                     FALSE
             .
-                    
+            
     RUN CreateReleaseTag IN hdReleaseProcs (
         INPUT  ipcCompany,
         INPUT  ipiReleaseID,
         INPUT  ipcTag,
-        INPUT  ipcTrailerID,
+        INPUT  ipcReleaseTrailerID,
+        INPUT  ipcTagTrailerID,
         INPUT  lValidateQtyExceed,
         INPUT  lSelectReleaseQty,
         OUTPUT oplError,   
         OUTPUT opcMessage
         ).    
     
-    /* Prompt only if NK1 BOLQtyPopop is yes and scanned quantity exceeded release quantity */
-    lPromptQtySelection = system.SharedConfig:Instance:ConsumeValue("ReleaseProcs_QuantityExceededPrompt") EQ "TRUE" AND oplError AND lBOLQtyPopup.
+    /* Prompt only if SSBOLQtyPopup is "Prompt" and scanned quantity exceeded release quantity */
+    lPromptQtySelection = system.SharedConfig:Instance:ConsumeValue("ReleaseProcs_QuantityExceededPrompt") EQ "TRUE" AND oplError AND gcBOLQtyPopup EQ "Prompt".
     
     /* Have to send a prompt to user to choose a full pallet quantity or release quantity */
     IF lPromptQtySelection THEN DO:
@@ -507,7 +519,8 @@ PROCEDURE CreateReleaseTag :
             INPUT  ipcCompany,
             INPUT  ipiReleaseID,
             INPUT  ipcTag,
-            INPUT  ipcTrailerID,
+            INPUT  ipcReleaseTrailerID,
+            INPUT  ipcTagTrailerID,
             INPUT  FALSE, /* Validate if quantity exceeded */
             INPUT  lSelectReleaseQty,
             OUTPUT oplError,   
@@ -527,22 +540,27 @@ PROCEDURE DeleteReleaseTag :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iReleaseID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lChoice    AS LOGICAL   NO-UNDO.
 
     IF AVAILABLE ttReleaseTag THEN DO:
-        MESSAGE "Do you want to delete selected record?"
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+        RUN sharpShooter/messageDialog.w (
+            "DO YOU WANT TO DELETE SELECTED TAG ('" + ttReleaseTag.tag +  "')?",
+            YES,
+            YES,
+            NO,
+            OUTPUT lChoice
+            ).
         IF NOT lChoice THEN
-            RETURN.
-            
+            RETURN.            
         ASSIGN
             cCompany   = ttReleaseTag.company
             iReleaseID = ttReleaseTag.releaseID
-            .
-            
+            .            
         RUN DeleteReleaseTag IN hdReleaseProcs (
             INPUT ttReleaseTag.sourceRowID
             ).
     END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,8 +644,16 @@ PROCEDURE pInit PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    
     RUN oe/ReleaseProcs.p PERSISTENT SET hdReleaseProcs.
     
+    {methods/run_link.i "CONTAINER-SOURCE" "GetSettings" "(OUTPUT oSetting)"}
+    IF NOT VALID-OBJECT (oSetting) THEN
+        oSetting = NEW system.Setting().    
+    
+    gcBOLQtyPopup = oSetting:GetByName("SSBOLQuantitySelection").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -671,6 +697,30 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetUnitization B-table-Win 
+FUNCTION fGetUnitization RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    IF AVAILABLE ttReleaseTag THEN
+        RETURN TRIM(STRING(ttReleaseTag.quantityOfSubUnits, "->>>>>>>>9")) + " @ "
+             + TRIM(STRING(ttReleaseTag.quantityInSubUnit, "->>>>>>>>9"))
+             + IF ttReleaseTag.quantityPartial EQ 0 THEN 
+                   "" 
+               ELSE 
+                   (" + " + TRIM(STRING(ttReleaseTag.quantityPartial, "->>>>>>>>9"))).
+    ELSE    
+        RETURN "".
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

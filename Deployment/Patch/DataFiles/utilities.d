@@ -16,6 +16,7 @@ This is designed to allow read only access." 1000
 "autoCloseOrder.r" "OE" "OC" "Auto Close Order" "Close orders automatically based on a parameter settings used." 800
 "BOLweight.r" "OP" "OS1" "Fix Bill of Lading Weight per Line" "Update Bill of Lading weight for each line item on the bill of lading for a user selected range of Bill of Lading numbers.  The weight per 100 cartons in the I-F-1 finished goods file is used to update the weight for each bill of lading line.   " 900
 "BuildFluteMatrix.r" "CE" "" "Restore Flute Stacking Matrix that were Deleted" "Utility to Export and restore stack matrix table for pallets, which have deleted stacking patterns defined on their matric." 900
+"CalculateEstimates.r" "EC" "" "Calculate Estimates and Create Quotes" "Calculate Estimates and Create Quotes" 900
 "chgapchk.r" "AP" "VC" "Change AP Check Number" "Change check number utility that will allow the change of check numbers in A/P, A/P Checks, Disbursements for a posted check to correct numbering." 900
 "chgorduser.r" "OP" "OU1" "Update Replace User ID on all Orders" "Updated orders to replace the user id on the orders from the old user id to the new user id.  OPtion for open orders only or all orders." 900
 "CloseOrderTester.r" "OE" "OU6" "Close Order Tester" "Tests orders to see why they are in current state" 900
@@ -48,6 +49,7 @@ This is designed to allow read only access." 1000
 "delDupOrds.r" "OE" "OW" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers based on a customer and order date.  Can search to find or delete duplicates." 900
 "delnotes.r" "FG" "IF" "Delete Finished Goods Spec Notes  (Drop Down)" "Allows for mass delete of spec codes from a range of FG item numbers." 900
 "delordln.r" "OP" "OU1" "Delete Duplicate Line Item with Qty 0" "Utility to delete duplicate order lines with zero quantity from an order." 900
+"dev/impGL.r" "GF" "GF2" "Import GL" "Import of GL template." 900
 "DPBOXIMG.R" "CE" "EB" "Export Box Images" "Export box images to a file.  user specifies location for export." 900
 "DPINKS.r" "RM" "MF" "Export Inks" "Export of inks and vendor costs for inks." 900
 "Dpstyle.r" "CE" "EB" "Export Styles to Style.Dat File" "Export of Styles to a text file." 900
@@ -174,6 +176,10 @@ Another utility will update the FG Item from the job - Same program but in fg di
 "PurgeActMchBlankNo.r" "JC" "JQ1" "Purge Blank Number on Sheet Fed Transactions" "Prompts for job number range and if job machine is Sheet fed or Roll fed, removes the blank number record from the job-mach table.
 
 Destructive delete." 1000
+"purgeEItemRecs.r" "PO" "PF3" "Purge Old e-Item Records" "This utility will purge e-Items when a user moves to the new VendItemCost records.
+
+Creates a restore file to allow restoration of the records.
+ASI Only access." 1000
 "PurgeGLHist.r" "GL" "NQ5" "Consolidate/Purge GL Transactions" "The G/L Consolidation will consoidate all G/L hisstory ino a single net entry for each period and year such that prior period trail balances can be run for previous years." 900
 "PurgeMU2.r" "RM" "MU2" "Delete UnPosted RM Issues by Date Range" "Deletes unposted RM issues to a job that have not been posted in date range." 900
 "purgeorders.r" "OP" "OU1" "Purge Orders with no Customer or Order Lines" "* Warning No Prompt! * - Deletes all orders with no customer and no line items." 900
@@ -228,6 +234,10 @@ Sets the FG item purchase uom based on the last PO line that ordered the item." 
 "setTaxStat.r" "AR" "" "Set Tax Status Globally" "Allows for setting the customer ship to taxable flags, updates order lines, invoice lines and such for proper sales tax processing.
 
 Prompt for customer range, a default tax group which if entered, will default all items to a single tax group." 900
+"settingType.r" "SS" "BS" "Default Setting Type Maintenance" "*ASI Only*
+
+Maintenance screen for the default settings.  This is used by ASI only to add and configure default settings for deployment to all customers upon upgrade." 1000
+"SettingType.w" "UTIL" "" "Setting Type Maintenance" "" 900
 "Show-Neg-Jobs.r" "JC" "JU1" "Find negative job quantity on Job Routing" "* Warning - No Prompt *
 
 Display all job material quantities that are less than zero." 900
@@ -281,6 +291,6 @@ Will create a CSV file of results." 900
 "wInactiveQuotesByCustomer.r" "CE" "EQ" "Inactivate customer related records" "This utility will allow the administrator to make quotes, price matrix entries, vendor cost records inactive if the customer is inactive.  Option to simulate or execute updates." 900
 "wJobPurge" "JC" "JU1" "Job Purge Program" "This program will purge jobs from the system." 900
 "wLockMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
-"wUpdateReceivers.w" "PO" "" "Update AP Link to PO" "This utility allows a user to view and clear a link between a PO and an AP invoice to celar up bad data entries." 900
+"wUpdateReceivers.w" "PO" "VU1" "Clear PO Receiver on a PO" "This utility allows a user to view and clear a link between a PO and an AP invoice to celar up bad data entries." 900
 "XrefTypetoGroup.r" "AF" "AF1" "COPY the A-F-1 Customer Type to the A-F-1 Cust G" "Utility to copy the customer type into a permanent field." 1000
 "ZeroParts.r" "FG" "IF1" "Set Qty on Hand to Zero for Overrun Parts of Set" "Zero out set parts and make bins equal zero for overruns of sets." 900

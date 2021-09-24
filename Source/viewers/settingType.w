@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -136,7 +136,7 @@ DEFINE BUTTON btValidValuesRemove
 
 DEFINE VARIABLE fiCategoryTag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 50 BY 1 NO-UNDO.
+     SIZE 36.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiValidValue AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -144,11 +144,11 @@ DEFINE VARIABLE fiValidValue AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 206.2 BY 18.86.
+     SIZE 182 BY 18.86.
 
 DEFINE VARIABLE categoryTags AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 77 BY 6.19 NO-UNDO.
+     SIZE 63.4 BY 6.19 NO-UNDO.
 
 DEFINE VARIABLE validValues AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -158,14 +158,14 @@ DEFINE VARIABLE validValues AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     settingType.settingName AT ROW 1.24 COL 26 COLON-ALIGNED WIDGET-ID 4
+     settingType.settingName AT ROW 1.24 COL 26 COLON-ALIGNED WIDGET-ID 4 FORMAT "x(256)"
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 77 BY 1
      settingType.hasContext AT ROW 1.24 COL 131 WIDGET-ID 10
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY .81
      settingType.description AT ROW 2.43 COL 28 NO-LABEL WIDGET-ID 16
-          VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 77 BY 4
      settingType.isPassword AT ROW 2.43 COL 131 WIDGET-ID 12
           VIEW-AS TOGGLE-BOX
@@ -178,13 +178,13 @@ DEFINE FRAME F-Main
           LIST-ITEMS "Character","Integer","Decimal","Logical","Date" 
           DROP-DOWN-LIST
           SIZE 23.6 BY 1
-     btCategoryTagsInsert AT ROW 7.67 COL 175.2 WIDGET-ID 36
-     btCategoryTagsRemove AT ROW 7.67 COL 188.8 WIDGET-ID 34
-     fiCategoryTag AT ROW 7.76 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     btCategoryTagsInsert AT ROW 7.67 COL 154.8 WIDGET-ID 36
+     btCategoryTagsRemove AT ROW 7.67 COL 168.4 WIDGET-ID 34
+     fiCategoryTag AT ROW 7.76 COL 115.6 COLON-ALIGNED NO-LABEL WIDGET-ID 38
      btValidValuesInsert AT ROW 7.81 COL 78.6 WIDGET-ID 28
      btValidValuesRemove AT ROW 7.81 COL 92.2 WIDGET-ID 30
-     fiValidValue AT ROW 7.9 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 32
-     categoryTags AT ROW 8.95 COL 124.6 NO-LABEL WIDGET-ID 42
+     fiValidValue AT ROW 7.91 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     categoryTags AT ROW 8.95 COL 117.6 NO-LABEL WIDGET-ID 42
      validValues AT ROW 9.1 COL 28 NO-LABEL WIDGET-ID 24
      settingType.defaultValue AT ROW 15.48 COL 26 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
@@ -195,12 +195,14 @@ DEFINE FRAME F-Main
      settingType.validValueMin AT ROW 17.81 COL 26 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     "Category Tags:" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 9.05 COL 106.4 WIDGET-ID 40
-     "Valid Values:" VIEW-AS TEXT
-          SIZE 14.5 BY .62 AT ROW 9.05 COL 13.4 WIDGET-ID 26
+     "Tags:" VIEW-AS TEXT
+          SIZE 6.2 BY .62 AT ROW 9.81 COL 110.8 WIDGET-ID 48
+     "Category" VIEW-AS TEXT
+          SIZE 10.6 BY .62 AT ROW 9.05 COL 106.4 WIDGET-ID 40
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 2.43 COL 14 WIDGET-ID 18
+     "Valid Values:" VIEW-AS TEXT
+          SIZE 14.6 BY .62 AT ROW 9.05 COL 13.4 WIDGET-ID 26
      RECT-2 AT ROW 1 COL 1 WIDGET-ID 46
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -236,7 +238,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 18.86
-         WIDTH              = 206.2.
+         WIDTH              = 182.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -258,7 +260,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -277,6 +279,8 @@ ASSIGN
    NO-ENABLE 3 4                                                        */
 /* SETTINGS FOR FILL-IN settingType.securityLevel IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN settingType.settingName IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -291,13 +295,6 @@ ASSIGN
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,ab,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -445,6 +442,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        validValues:LIST-ITEMS    = ""
+        validValues:SCREEN-VALUE  = ""
+        categoryTags:LIST-ITEMS   = ""
+        categoryTags:SCREEN-VALUE = ""
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
 PROCEDURE local-assign-statement :
 /*------------------------------------------------------------------------------
@@ -583,7 +608,7 @@ PROCEDURE local-update-record:
     END.
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF settingType.defaultValue:SCREEN-VALUE NE "" THEN DO:
+    IF validValues:LIST-ITEMS NE "" AND validValues:LIST-ITEMS NE ? THEN DO:
         IF LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ 0 OR LOOKUP (settingType.defaultValue:SCREEN-VALUE, validValues:LIST-ITEMS) EQ ? THEN DO:
             MESSAGE "Default value has to one the value from Valid Values list"  
                 VIEW-AS ALERT-BOX ERROR.

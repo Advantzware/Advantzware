@@ -197,7 +197,7 @@ DEFINE BROWSE BROWSE-1
       tt-loadtag-temp.i-name COLUMN-LABEL "Name" FORMAT "x(30)":U
       tt-loadtag-temp.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
       tt-loadtag-temp.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      tt-loadtag-temp.loc COLUMN-LABEL "Warehouse" FORMAT "x(5)":U
+      tt-loadtag-temp.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       tt-loadtag-temp.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       tt-loadtag-temp.ord-no COLUMN-LABEL "Order#" FORMAT ">>>>>9":U
       tt-loadtag-temp.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
@@ -277,7 +277,7 @@ loadtag.is-case-tag = ll-casetag
      _FldNameList[5]   > ASI.tt-loadtag-temp.job-no2
 "job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[6]   = ASI.tt-loadtag-temp.loc
-"loc" "Warehouse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+"loc" "Location" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
      _FldNameList[7]   > ASI.tt-loadtag-temp.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[8]   = ASI.tt-loadtag-temp.ord-no

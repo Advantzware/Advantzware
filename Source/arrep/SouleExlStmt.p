@@ -104,6 +104,13 @@ ELSE
 
 /* ***************************  Main Block  *************************** */
 run InitializeExcel.
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN.
+END.
 run MainLoop.
 run Cleanup.
 
@@ -320,7 +327,9 @@ PROCEDURE InitializeExcel :
     APPLY 'CLOSE':U TO THIS-PROCEDURE.
 
   /* Connect to the running Excel session. */
-  CREATE "Excel.Application" chExcelApplication.
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
+  IF NOT VALID-HANDLE(chExcelApplication) THEN
+  RETURN.
 
   /* Network connection checks. */
   CREATE "WScript.Network" WshNetwork.

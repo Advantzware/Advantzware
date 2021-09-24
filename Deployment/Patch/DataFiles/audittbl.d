@@ -296,6 +296,8 @@
 "oe-retl" no no no no no no no no 0 0
 "oe-ship" no no no no no no no no 0 0
 "optconfg" yes no no no no no no no 0 0
+"orderType" no no no no no no no no 0 0
+"palletSize" no no no no no no no no 0 0
 "panelDetail" no no no no no no no no 0 0
 "panelHeader" no no no no no no no no 0 0
 "parmfile" yes yes yes yes no no no no 0 0
@@ -389,6 +391,7 @@
 "stax" no no no no no no no no 0 0
 "stax-group" no no no no no no no no 0 0
 "std-code" no no no no no no no no 0 0
+"storageCost" no no no no no no no no 0 0
 "style" no no no no no no no no 0 0
 "style-score" no no no no no no no no 0 0
 "styleFluteXref" no no no no no no no no 0 0

@@ -234,13 +234,13 @@ do v-local-loop = 1 to v-local-copies:
           no-lock no-error.
           if avail fg-bin then do:
             assign
-              v-loc     = "Whs: " + fg-bin.loc
+              v-loc     = "Loc: " + fg-bin.loc
               v-loc-bin = "Bin: " + fg-bin.loc-bin.
           end.
           else
           if avail itemfg then do:                             
             assign
-              v-loc     = "Whs: " + itemfg.def-loc
+              v-loc     = "Loc: " + itemfg.def-loc
               v-loc-bin = "Bin: " + itemfg.def-loc-bin.
           end.
         end. /*brick format*/

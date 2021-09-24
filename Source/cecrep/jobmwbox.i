@@ -86,7 +86,7 @@ FORM HEADER
        v-job-prt
        "Our Order#:" AT 40 v-ord-no
        "Ord Date:" AT 80  v-ord-date
-       "Whs:" AT 109 v-loc 
+       "Loc:" AT 109 v-loc 
        "Est#:" AT 2 v-est-no
        "FG#:" AT 40 v-fg FORM "x(30)"
        "Due Date:" AT 80 trim(v-due-on) + " " + v-due-date FORM "x(18)"

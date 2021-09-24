@@ -102,6 +102,7 @@ PROCEDURE pComboBox:
     DEFINE INPUT  PARAMETER ipdWidth         AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplListItemPairs AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcListItems     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSort          AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFormat        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcValue         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiLines         AS INTEGER   NO-UNDO.
@@ -121,6 +122,7 @@ PROCEDURE pComboBox:
         ROW = ipdRow
         WIDTH = ipdWidth
         FORMAT = ipcFormat
+        SORT = ipcSort
         INNER-LINES = ipiLines
         SIDE-LABEL-HANDLE = hLabel
         SENSITIVE = iplSensitive
@@ -308,6 +310,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.paramWidth,
                 CAN-DO(dynParamSetDtl.action,"LIST-ITEM-PAIRS"),
                 cInitItems,
+                CAN-DO(dynParamSetDtl.action,"SORT"),
                 dynParam.paramFormat,
                 cParamValue,
                 dynParam.innerLines,

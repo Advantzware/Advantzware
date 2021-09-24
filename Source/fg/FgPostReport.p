@@ -189,7 +189,7 @@ FORM HEADER
     WITH FRAME after STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
 FORM HEADER
-    "WHSE:"
+    "LOC:"
     v-whse
     SKIP    
     "         TOTAL"   AT 128    

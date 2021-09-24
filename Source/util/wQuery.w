@@ -2529,6 +2529,13 @@ END.
 ON CHOOSE OF MENU-ITEM m_Excel /* Export to Excel */
 DO:
     run ipExcel in this-procedure.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+        MESSAGE 
+          "Microsoft Excel is required.  This report is unable to be executed."
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3586,7 +3593,9 @@ PROCEDURE ipExcel :
     SESSION:SET-WAIT-STATE("general").
     */
     STATUS DEFAULT "Exporting data. Instantiating Excel.".
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
 
     ASSIGN 
         chExcelApplication:ScreenUpdating = false
