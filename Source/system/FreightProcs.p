@@ -553,8 +553,8 @@ PROCEDURE GetStorageAndHandlingForLocation:
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiStackHeight  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdWidth        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdLength       AS DECIMAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipdUnitWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdUnitLength   AS DECIMAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdCostStorage  AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostHandling AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError        AS LOGICAL   NO-UNDO.
@@ -573,8 +573,8 @@ PROCEDURE GetStorageAndHandlingForLocation:
             INPUT  ipcCompany,
             INPUT  ipcLocationID,
             INPUT  ipiStackHeight,
-            INPUT  ipdWidth,
-            INPUT  ipdLength,
+            INPUT  ipdUnitWidth,
+            INPUT  ipdUnitLength,
             OUTPUT opdCostStorage,
             OUTPUT opdCostHandling
             ).
@@ -1334,9 +1334,9 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         ipbf-estRelease.quantitySubUnitsPerUnit = ipbf-eb.cas-pal
         ipbf-estRelease.stackHeight             = MAXIMUM(ipbf-eb.stackHeight,1)
         ipbf-estRelease.quantityRelease         = ipbf-estRelease.quantity 
-        ipbf-estRelease.dimEachLen              = ipbf-eb.tr-len
-        ipbf-estRelease.dimEachWid              = ipbf-eb.tr-wid
-        ipbf-estRelease.dimEachDep              = ipbf-eb.tr-dep
+        ipbf-estRelease.dimEachLen              = ipbf-eb.t-len
+        ipbf-estRelease.dimEachWid              = ipbf-eb.t-wid
+        ipbf-estRelease.dimEachDep              = ipbf-eb.t-dep
         ipbf-estRelease.dimEachUOM              = "IN"
         .
 
