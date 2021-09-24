@@ -22,10 +22,9 @@ DEF VAR ip-rowid AS ROWID NO-UNDO.
 DEF NEW SHARED VAR CALL_id AS RECID NO-UNDO.
 DEF VAR fil_id AS RECID NO-UNDO.
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
-RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalSettings (xest.company).
+RUN pSetGlobalVars (xest.company).
 
 {ce/mach-ink.i new}
 
@@ -61,10 +60,8 @@ find xef where recid(xef) = fil_id no-error.
 xef.gsh-qty = cumul.
 release est-op.
 
-IF VALID-HANDLE(hdEstimateProc) THEN
-    DELETE PROCEDURE hdEstimateProc.
 
-PROCEDURE pSetGlobalSettings PRIVATE:
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

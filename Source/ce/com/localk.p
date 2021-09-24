@@ -69,9 +69,10 @@ DEF VAR v-program-6 AS CHAR.
 DEF TEMP-TABLE tt-est-op LIKE est-op FIELD row-id AS ROWID.
 
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
-RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
-RUN pSetGlobalSettings(xef.company).
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pSetGlobalVars(xef.company).
 
 
 {ce/mach-ink.i}
@@ -232,9 +233,6 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 /*AND ip-rowid EQ ?*/ THEN DO:
 END.
 
 qty = save-qty.
-
-IF VALID-HANDLE(hdEstimateProc) THEN
-    DELETE PROCEDURE hdEstimateProc.
 
 RETURN.
 
@@ -400,7 +398,7 @@ END.
 
 END PROCEDURE.
 
-PROCEDURE pSetGlobalSettings PRIVATE:
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

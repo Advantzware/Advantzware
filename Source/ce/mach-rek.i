@@ -53,9 +53,10 @@ DEF WORKFILE w-qty
 {ce/mach-ink.i new}
 
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
-RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
-RUN pSetGlobalSettings(xef.company).
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pSetGlobalVars(xef.company).
 
 
 find est-op where recid(est-op) eq fil_id no-error.
@@ -187,10 +188,8 @@ find est-op where recid(est-op) = fil_id no-lock no-error.
 find xef where recid(xef) = save_id no-lock no-error.
 qty = save-qty.
 
-IF VALID-HANDLE(hdEstimateProc) THEN
-    DELETE PROCEDURE hdEstimateProc.
 
-PROCEDURE pSetGlobalSettings PRIVATE:
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

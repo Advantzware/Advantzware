@@ -30,10 +30,9 @@ DEF NEW SHARED VAR CALL_id AS RECID NO-UNDO.
 DEF SHARED VAR qty AS INT NO-UNDO.
 
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
-RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalSettings (xest.company).
+RUN pSetGlobalVars (xest.company).
 
 def workfile w-qty
   field b-num  like est-op.b-num
@@ -127,10 +126,8 @@ for each w-qty:
 end.
 release est-op.
 
-IF VALID-HANDLE(hdEstimateProc) THEN
-    DELETE PROCEDURE hdEstimateProc.
     
-PROCEDURE pSetGlobalSettings PRIVATE:
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

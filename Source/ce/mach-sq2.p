@@ -32,10 +32,9 @@ DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 
 {est/d-machex.i NEW}
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
-RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalSettings (xest.company).
+RUN pSetGlobalVars (xest.company).
 
 run ce/mach-chk.p (no).
 
@@ -134,10 +133,8 @@ end.
 
 find xef where recid(xef) eq call_id no-lock no-error.
 
-IF VALID-HANDLE(hdEstimateProc) THEN
-    DELETE PROCEDURE hdEstimateProc.
 
-PROCEDURE pSetGlobalSettings PRIVATE:
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

@@ -51,7 +51,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalSettings(cocode).
+RUN pSetGlobalVars(cocode).
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CePackEnhanced", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -3374,8 +3374,8 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalSettings V-table-Win
-PROCEDURE pSetGlobalSettings PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalVars V-table-Win
+PROCEDURE pSetGlobalVars PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:
