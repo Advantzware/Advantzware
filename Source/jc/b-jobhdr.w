@@ -891,6 +891,16 @@ PROCEDURE local-delete-record :
      IF AVAIL bf-itemfg AND NOT bf-itemfg.pur-man THEN
       bf-itemfg.q-ono = bf-itemfg.q-ono - dJobQty.      
   END.
+  
+  IF AVAILABLE job AND NOT CAN-FIND(FIRST job-hdr of job) THEN
+  DO:  
+      FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+      DELETE job.
+     
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query-main IN WIDGET-HANDLE(char-hdl).       
+  END.
 
 END PROCEDURE.
 

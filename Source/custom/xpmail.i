@@ -207,9 +207,13 @@ IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
 
 cCheckMailFormat = entry(1,ipType,"|") .
 
+
 /* Customer, Vendor, ShipTo   = DIALOG BOX        */
 IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) ne '1' THEN
 do:
+  /* Workaround for blank recipient list */
+  IF lv-mailto EQ "To:" THEN ASSIGN
+    lv-mailto = "".
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
             lv-mailbody,      /* Body             */

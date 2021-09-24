@@ -320,6 +320,7 @@ DEFINE FRAME F-Main
           SIZE 11.6 BY 1
           BGCOLOR 15 
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 
@@ -2434,6 +2435,24 @@ PROCEDURE update-schedule :
     IF noDate THEN RETURN. /* rstark 06241201 */
     RUN jc/updateSchedule.p (INPUT job.start-date, INPUT ROWID(job)).
     ll-sch-updated = YES.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query-main V-table-Win 
+PROCEDURE reopen-query-main :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN reopen-query1 IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
 

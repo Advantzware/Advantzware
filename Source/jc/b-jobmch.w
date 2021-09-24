@@ -950,6 +950,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-tag-info B-table-Win
+PROCEDURE get-tag-info:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF AVAILABLE job-mch THEN
+        RUN system/d-TagViewer.w (
+            INPUT job-mch.rec_key,
+            INPUT "",
+            INPUT ""
+            ). 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------

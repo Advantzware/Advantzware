@@ -68,11 +68,11 @@ DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 fiTotalQty fiSubUnits btnDel ~
-btnClear btnDiv fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit ~
-btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero btnPeriod ~
-btnEqual Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText fiTotalQtyLabel fiTotalQty fiResult ~
+&Scoped-Define ENABLED-OBJECTS Btn_Cancel Btn_OK RECT-30 RECT-31 fiTotalQty ~
+fiSubUnits fiSubUnitCount btnDel btnClear btnDiv fiSubUnitsPerUnit btn7 ~
+btn8 btn9 btnMult btn4 btn5 btn6 btnMinus fiPartial btn1 btn2 btn3 btnPlus ~
+btnZero btnPeriod btnEqual 
+&Scoped-Define DISPLAYED-OBJECTS fiTotalQtyLabel fiTotalQty fiText fiResult ~
 fiSubUnitsLabel fiSubUnits fiSubUnitCountLabel fiSubUnitCount ~
 fiSubUnitsPerUnitLabel fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount ~
 fiPartialLabel fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel ~
@@ -182,105 +182,107 @@ DEFINE BUTTON btnZero DEFAULT
      FONT 37.
 
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
-     SIZE 15 BY 2
+     SIZE 8 BY 1.9
      BGCOLOR 8 FONT 37.
 
 DEFINE BUTTON Btn_OK AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "OK" 
-     SIZE 15 BY 2
+     SIZE 8 BY 1.91
      BGCOLOR 8 FONT 37.
 
 DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
      SIZE 61.4 BY 1
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiPartial AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiPartialLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Partial:" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 12.2 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiReasonCodeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Adjust Reason Code:" 
      VIEW-AS FILL-IN 
-     SIZE 30.6 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 33 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiResult AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 39.6 BY 1.76
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle Count:" 
      VIEW-AS FILL-IN 
-     SIZE 28.8 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 32 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle:" 
      VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 21 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitsPerUnitLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle Per Pallet:" 
      VIEW-AS FILL-IN 
-     SIZE 33.6 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 37 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 39.6 BY 1.19
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Total Quantity:" 
      VIEW-AS FILL-IN 
-     SIZE 22.2 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 24 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallet Count:" 
      VIEW-AS FILL-IN 
-     SIZE 19 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 20.2 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallets:" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.43
-     FONT 36 NO-UNDO.
+     SIZE 12 BY 1.43
+     BGCOLOR 21 FGCOLOR 15 FONT 36 NO-UNDO.
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -294,52 +296,52 @@ DEFINE RECTANGLE RECT-31
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiText AT ROW 1.1 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     fiTotalQtyLabel AT ROW 1.95 COL 14.8 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     Btn_Cancel AT ROW 16 COL 136
+     Btn_OK AT ROW 16 COL 125
+     fiTotalQtyLabel AT ROW 1.95 COL 13 COLON-ALIGNED NO-LABEL WIDGET-ID 128
      fiTotalQty AT ROW 1.95 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     fiResult AT ROW 2.57 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiSubUnitsLabel AT ROW 3.71 COL 17.6 COLON-ALIGNED NO-LABEL WIDGET-ID 134
+     fiText AT ROW 2.05 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
+     fiResult AT ROW 3.52 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
+     fiSubUnitsLabel AT ROW 3.71 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 134
      fiSubUnits AT ROW 3.71 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     btnDel AT ROW 4.52 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
-     btnClear AT ROW 4.52 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
-     btnDiv AT ROW 4.52 COL 136 WIDGET-ID 6 NO-TAB-STOP 
-     fiSubUnitCountLabel AT ROW 5.52 COL 8.2 COLON-ALIGNED NO-LABEL WIDGET-ID 136
+     fiSubUnitCountLabel AT ROW 5.52 COL 5 COLON-ALIGNED NO-LABEL WIDGET-ID 136
      fiSubUnitCount AT ROW 5.52 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     btn7 AT ROW 6.57 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
-     btn8 AT ROW 6.57 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
-     btn9 AT ROW 6.57 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
-     btnMult AT ROW 6.57 COL 136 WIDGET-ID 14 NO-TAB-STOP 
-     fiSubUnitsPerUnitLabel AT ROW 7.38 COL 5.4 NO-LABEL WIDGET-ID 138
+     btnDel AT ROW 5.76 COL 105 WIDGET-ID 4 NO-TAB-STOP 
+     btnClear AT ROW 5.76 COL 125.4 WIDGET-ID 2 NO-TAB-STOP 
+     btnDiv AT ROW 5.76 COL 135.8 WIDGET-ID 6 NO-TAB-STOP 
+     fiSubUnitsPerUnitLabel AT ROW 7.38 COL 2 NO-LABEL WIDGET-ID 138
      fiSubUnitsPerUnit AT ROW 7.38 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     btn4 AT ROW 8.67 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
-     btn5 AT ROW 8.67 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
-     btn6 AT ROW 8.67 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
-     btnMinus AT ROW 8.67 COL 136 WIDGET-ID 26 NO-TAB-STOP 
-     fiUnitCountLabel AT ROW 9.19 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 140
+     btn7 AT ROW 7.81 COL 105 WIDGET-ID 18 NO-TAB-STOP 
+     btn8 AT ROW 7.81 COL 115.2 WIDGET-ID 10 NO-TAB-STOP 
+     btn9 AT ROW 7.81 COL 125.4 WIDGET-ID 12 NO-TAB-STOP 
+     btnMult AT ROW 7.81 COL 135.8 WIDGET-ID 14 NO-TAB-STOP 
+     fiUnitCountLabel AT ROW 9.19 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 140
      fiUnitCount AT ROW 9.19 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     btn1 AT ROW 10.71 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
-     btn2 AT ROW 10.71 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
-     btn3 AT ROW 10.71 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
-     btnPlus AT ROW 10.76 COL 136 WIDGET-ID 34 NO-TAB-STOP 
-     fiPartialLabel AT ROW 11.1 COL 26.2 COLON-ALIGNED NO-LABEL WIDGET-ID 142
+     btn4 AT ROW 9.91 COL 105 WIDGET-ID 20 NO-TAB-STOP 
+     btn5 AT ROW 9.91 COL 115.2 WIDGET-ID 22 NO-TAB-STOP 
+     btn6 AT ROW 9.91 COL 125.4 WIDGET-ID 24 NO-TAB-STOP 
+     btnMinus AT ROW 9.91 COL 135.8 WIDGET-ID 26 NO-TAB-STOP 
+     fiPartialLabel AT ROW 11.1 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 142
      fiPartial AT ROW 11.1 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     btnZero AT ROW 12.81 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
-     btnPeriod AT ROW 12.81 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
-     btnEqual AT ROW 12.81 COL 136 WIDGET-ID 42 NO-TAB-STOP 
-     fiUnitsLabel AT ROW 12.91 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 144
+     btn1 AT ROW 11.95 COL 105 WIDGET-ID 28 NO-TAB-STOP 
+     btn2 AT ROW 11.95 COL 115.2 WIDGET-ID 30 NO-TAB-STOP 
+     btn3 AT ROW 11.95 COL 125.4 WIDGET-ID 32 NO-TAB-STOP 
+     btnPlus AT ROW 12 COL 135.8 WIDGET-ID 34 NO-TAB-STOP 
+     fiUnitsLabel AT ROW 12.91 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 144
      fiUnits AT ROW 12.91 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiReasonCodeLabel AT ROW 14.57 COL 6.4 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     cbReasonCode AT ROW 14.67 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     Btn_OK AT ROW 15.24 COL 105.4
-     Btn_Cancel AT ROW 15.24 COL 131
-     RECT-30 AT ROW 2.48 COL 105 WIDGET-ID 52
-     RECT-31 AT ROW 1 COL 105 WIDGET-ID 54
-     SPACE(4.39) SKIP(14.86)
+     btnZero AT ROW 14.05 COL 105 WIDGET-ID 38 NO-TAB-STOP 
+     btnPeriod AT ROW 14.05 COL 125.4 WIDGET-ID 40 NO-TAB-STOP 
+     btnEqual AT ROW 14.05 COL 135.8 WIDGET-ID 42 NO-TAB-STOP 
+     fiReasonCodeLabel AT ROW 14.57 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     cbReasonCode AT ROW 14.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     RECT-30 AT ROW 3.43 COL 105 WIDGET-ID 52
+     RECT-31 AT ROW 1.95 COL 105 WIDGET-ID 54
+     SPACE(0.19) SKIP(14.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 
+         BGCOLOR 21 
          TITLE "Insert Value"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -948,15 +950,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText fiTotalQtyLabel fiTotalQty fiResult fiSubUnitsLabel fiSubUnits 
+  DISPLAY fiTotalQtyLabel fiTotalQty fiText fiResult fiSubUnitsLabel fiSubUnits 
           fiSubUnitCountLabel fiSubUnitCount fiSubUnitsPerUnitLabel 
           fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount fiPartialLabel 
           fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel cbReasonCode 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-30 RECT-31 fiTotalQty fiSubUnits btnDel btnClear btnDiv 
-         fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit btn4 btn5 btn6 
-         btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero btnPeriod btnEqual 
-         Btn_OK Btn_Cancel 
+  ENABLE Btn_Cancel Btn_OK RECT-30 RECT-31 fiTotalQty fiSubUnits fiSubUnitCount 
+         btnDel btnClear btnDiv fiSubUnitsPerUnit btn7 btn8 btn9 btnMult btn4 
+         btn5 btn6 btnMinus fiPartial btn1 btn2 btn3 btnPlus btnZero btnPeriod 
+         btnEqual 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

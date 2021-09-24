@@ -203,3 +203,11 @@
 "" "202106284869307444552" "CalculateTaxToken" "GetRefreshToken" "Trigger to fetch the Vertex access token" no 2021-06-28T13:31:33.649 "asi" "_default" 208 42
 "" "202107062593307682615" "SendBankCheck" "PrintCheck" "Generate cXML file on print of check" no 2021-07-06T07:12:13.463 "asi" "_default" 209 43
 "" "202107232927407771461" "SendJobAMS" "CloseJob" "Trigger to send job close command" no 2021-07-23T08:11:58.304 "asi" "_default1" 210 44
+"" "202108171110707906298" "SendBankCheck" "PrintCheck" "Generate txt file on print of check" no 2021-08-17T03:05:07.740 "asi" "_default1" 211 45
+"" "202109126191507978045" "SendJobAMS" "DeleteJob" "Trigger to send job delete command" no 2021-09-12T17:27:23.963 "asi" "_default2" 212 46
+"" "202109126273807978048" "SendJobAMS" "ReopenJob" "Trigger to send job re-open command" no 2021-09-12T17:27:32.926 "asi" "_default3" 213 47
+"" "202109126288307978052" "SendJobAMS" "HoldJob" "Trigger to send job hold command" no 2021-09-12T17:28:38.669 "asi" "_default4" 214 48
+"" "202109126294007978056" "SendJobAMS" "ReleaseJob" "Trigger to send job release command" no 2021-09-12T17:29:25.490 "asi" "_default5" 215 49
+"" "202109126301207978057" "SendJobAMS" "AddJob" "Trigger when job is added" no 2021-09-12T17:30:12.928 "asi" "_default" 216 38
+"" "202109156372007978948" "SendJobAMS" "PostDataCollection" "Triggers from Transfer WIP to Job cost" no 2021-09-15T17:42:00.169 "asi" "_default" 217 38
+"" "202109204479407979233" "SendPurchaseOrder" "QuantityReceived" "Trigger to send PO on quantity receive" no 2021-09-20T12:26:34.288 "asi" "_default15" 218 40

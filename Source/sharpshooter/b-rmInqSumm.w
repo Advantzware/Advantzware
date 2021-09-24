@@ -82,7 +82,7 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE ttBrowseInventory                             */
-&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.quantityOnHand ttBrowseInventory.quantityOnOrder ttBrowseInventory.quantityAllocated ttBrowseInventory.quantityAvailable ttBrowseInventory.quantityBackOrder   
+&Scoped-define FIELDS-IN-QUERY-ttBrowseInventory ttBrowseInventory.quantityOnHand ttBrowseInventory.quantityOnOrder ttBrowseInventory.quantityAllocated ttBrowseInventory.quantityAvailable ttBrowseInventory.quantityBackOrder ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttBrowseInventory   
 &Scoped-define SELF-NAME ttBrowseInventory
 &Scoped-define QUERY-STRING-ttBrowseInventory FOR EACH ttBrowseInventory ~{&SORTBY-PHRASE}
@@ -181,9 +181,10 @@ DEFINE BROWSE ttBrowseInventory
     ttBrowseInventory.quantityAllocated WIDTH 35 COLUMN-LABEL "Qty Committed" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityAvailable WIDTH 35 COLUMN-LABEL "Qty Available" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
     ttBrowseInventory.quantityBackOrder WIDTH 35 COLUMN-LABEL "Qty BackOrder" FORMAT "->,>>>,>>>,>>9" LABEL-BGCOLOR 14
+    ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS NO-TAB-STOP SIZE 179 BY 26.91
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 179 BY 26.91
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
@@ -384,6 +385,27 @@ PROCEDURE disable_UI :
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+  DELETE PROCEDURE hdInventoryProcs.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

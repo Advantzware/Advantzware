@@ -1094,6 +1094,8 @@ DO:
   &IF DEFINED(AuditHistory) EQ 0 &THEN
   RUN pSaveSettings.
   &ENDIF
+  IF VALID-HANDLE(hAppSrvBin) THEN
+      DELETE OBJECT hAppSrvBin.
   IF VALID-HANDLE(hdAuditHdrQuery) THEN 
       DELETE OBJECT hdAuditHdrQuery.
   IF VALID-HANDLE(hdAuditDtlQuery) THEN   
@@ -1955,6 +1957,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         "Restore",
         OUTPUT lAdmin 
         ).
+    DELETE PROCEDURE hPgmMstrSecur.
     fDateOptions (svStartDateOption:HANDLE).
     fDateOptions (svEndDateOption:HANDLE).
     fDateOptions (svStartRecKeyDateOption:HANDLE).

@@ -65,10 +65,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_up2_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/first.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/first_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
-     SIZE 11 BY 2.62 TOOLTIP "First".
+     SIZE 8 BY 1.9 TOOLTIP "First".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -77,7 +77,8 @@ DEFINE FRAME F-Main
      btnFirst AT ROW 1 COL 1 WIDGET-ID 44 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

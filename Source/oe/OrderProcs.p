@@ -2862,7 +2862,7 @@ PROCEDURE OrderProcsPostReleases:
         OUTPUT lRecFoundBol
         ).
     IF lRecFoundBol THEN
-       cBOLDate = sys-ctrl.char-fld NO-ERROR.
+       cBOLDate = cRtnCharBol.
      
     FIND FIRST oe-relh NO-LOCK
          WHERE oe-relh.company  EQ ipcCompany

@@ -43,24 +43,24 @@ DEFINE VARIABLE lAllowFGBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAllowRMBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAllowWIPBin AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
-	    (INPUT "LocationFGBin",
-	     INPUT "ALL", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAllowFGBin, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+            (INPUT "LocationFGBin",
+             INPUT "ALL", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAllowFGBin, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
-	    (INPUT "LocationRMBin",
-	     INPUT "ALL", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+            (INPUT "LocationRMBin",
+             INPUT "ALL", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
         (INPUT "LocationWIPBin",
@@ -73,14 +73,14 @@ RUN methods/prgsecur.p
         OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN methods/prgsecur.p
-	    (INPUT "Location",
-	     INPUT "ALL", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAllowLoc, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+            (INPUT "Location",
+             INPUT "ALL", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAllowLoc, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 
 /* Parameters Definitions ---                                           */
@@ -128,10 +128,14 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportfg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportrm AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exportwip AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fg-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fg-bin-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loc-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loc-3 AS HANDLE NO-UNDO.
@@ -143,15 +147,17 @@ DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav-5 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsav-6 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_palletsize AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_palletsize-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_rm-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_rm-bin-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_storagecost AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_storagecost-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_wip-bin-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exportfg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exportrm AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exportwip AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -159,14 +165,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 114 BY 24
-         BGCOLOR 15 .
-
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 10 ROW 1
-         SIZE 24 BY 1.67
+         SIZE 153.2 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -174,6 +173,13 @@ DEFINE FRAME OPTIONS-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 113 BY 2.14
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 10 ROW 1
+         SIZE 24 BY 1.67
          BGCOLOR 15 .
 
 
@@ -184,7 +190,7 @@ DEFINE FRAME OPTIONS-FRAME
    Type: SmartWindow
    External Tables: ASI.loc
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
+   Design Page: 6
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -196,7 +202,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Locations"
          HEIGHT             = 24
-         WIDTH              = 114
+         WIDTH              = 153.2
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -246,7 +252,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-    /* END-ASSIGN-TABS */.
+/* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -322,6 +328,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -352,6 +359,15 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 24.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|F/G Bins|R/M Bins|WIP Bins|Storage' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
+             OUTPUT h_folder ).
+       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 21.67 , 152.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -368,30 +384,24 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 55.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/folder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|F/G Bins|R/M Bins|WIP Bins' + ',
-                     FOLDER-TAB-TYPE = 2':U ,
-             OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 21.67 , 112.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 106.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
-             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
+             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
     END. /* Page 0 */
@@ -399,7 +409,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/import.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_import ).
        RUN set-position IN h_import ( 1.00 , 26.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
@@ -427,7 +437,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-        /* Links to SmartViewer h_import. */
+       /* Links to SmartObject h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartObject h_export. */
@@ -438,6 +448,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_import , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_loc ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -487,7 +499,7 @@ PROCEDURE adm-create-objects :
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
-      RUN init-object IN THIS-PROCEDURE (
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -532,7 +544,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartObject h_export. */
+       /* Links to SmartObject h_exportfg. */
        RUN add-link IN adm-broker-hdl ( h_fg-bin , 'export-xl':U , h_exportfg ).
 
        /* Links to SmartViewer h_loc-3. */
@@ -562,8 +574,8 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exportrm ).
        RUN set-position IN h_exportrm ( 1.00 , 34.20 ) NO-ERROR.
-
        /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/loc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -601,7 +613,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartObject h_export. */
+       /* Links to SmartObject h_exportrm. */
        RUN add-link IN adm-broker-hdl ( h_rm-bin , 'export-xl':U , h_exportrm ).
 
        /* Links to SmartViewer h_loc-4. */
@@ -625,7 +637,7 @@ PROCEDURE adm-create-objects :
              h_rm-bin-2 , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
-        RUN init-object IN THIS-PROCEDURE (
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -670,7 +682,7 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartObject h_export. */
+       /* Links to SmartObject h_exportwip. */
        RUN add-link IN adm-broker-hdl ( h_wip-bin , 'export-xl':U , h_exportwip ).
 
        /* Links to SmartViewer h_loc-5. */
@@ -693,6 +705,90 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-4 ,
              h_wip-bin-2 , 'AFTER':U ).
     END. /* Page 5 */
+    WHEN 6 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/storagecost.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_storagecost ).
+       RUN set-position IN h_storagecost ( 4.57 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_storagecost ( 8.81 , 88.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/storagecost.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_storagecost-2 ).
+       RUN set-position IN h_storagecost-2 ( 4.57 , 92.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.67 , 37.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav-5 ).
+       RUN set-position IN h_p-updsav-5 ( 11.48 , 91.80 ) NO-ERROR.
+       RUN set-size IN h_p-updsav-5 ( 2.00 , 55.20 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/palletsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_palletsize ).
+       RUN set-position IN h_palletsize ( 13.86 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_palletsize ( 8.81 , 88.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/palletsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_palletsize-2 ).
+       RUN set-position IN h_palletsize-2 ( 14.33 , 91.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.62 , 63.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav-6 ).
+       RUN set-position IN h_p-updsav-6 ( 18.33 , 91.80 ) NO-ERROR.
+       RUN set-size IN h_p-updsav-6 ( 2.00 , 55.20 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartBrowser h_storagecost. */
+       RUN add-link IN adm-broker-hdl ( h_loc , 'Record':U , h_storagecost ).
+
+       /* Links to SmartViewer h_storagecost-2. */
+       RUN add-link IN adm-broker-hdl ( h_p-updsav-5 , 'TableIO':U , h_storagecost-2 ).
+       RUN add-link IN adm-broker-hdl ( h_storagecost , 'Record':U , h_storagecost-2 ).
+
+       /* Links to SmartBrowser h_palletsize. */
+       RUN add-link IN adm-broker-hdl ( h_storagecost , 'Record':U , h_palletsize ).
+
+       /* Links to SmartViewer h_palletsize-2. */
+       RUN add-link IN adm-broker-hdl ( h_p-updsav-6 , 'TableIO':U , h_palletsize-2 ).
+       RUN add-link IN adm-broker-hdl ( h_palletsize , 'Record':U , h_palletsize-2 ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_storagecost ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_storagecost-2 ,
+             h_storagecost , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-5 ,
+             h_storagecost-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_palletsize ,
+             h_p-updsav-5 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_palletsize-2 ,
+             h_palletsize , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-6 ,
+             h_palletsize-2 , 'AFTER':U ).
+    END. /* Page 6 */
 
   END CASE.
   /* Select a Startup page. */

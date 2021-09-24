@@ -91,7 +91,7 @@ item.dept-name[10] item.box-case item.speed%[1] item.speed%[2] ~
 item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] item.speed%[7] ~
 item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall item.stat ~
 item.sqin-lb item.ink-type item.flute item.press-type item.yield ~
-item.min-lbs item.linin-lb 
+item.min-lbs item.linin-lb item.wastePercent
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 RECT-5 RECT-6 ~
@@ -106,7 +106,8 @@ item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
 item.speed%[10] item.case-pall item.stat item.sqin-lb item.ink-type ~
-item.flute item.press-type item.yield item.min-lbs item.linin-lb 
+item.flute item.press-type item.yield item.min-lbs item.linin-lb ~
+item.wastePercent
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
@@ -532,6 +533,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 FONT 4
+     item.wastePercent AT ROW 14.71 COL 127 COLON-ALIGNED HELP
+          "This value will be used to calculate additional waste on top of the calculated required quantity in estimating.  This applies to material added as an additional miscellaneous material." WIDGET-ID 2
+          LABEL "Est. Waste %"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1      
      group1-text AT ROW 6.24 COL 2 COLON-ALIGNED NO-LABEL
      group4-text AT ROW 6.24 COL 81 COLON-ALIGNED NO-LABEL
      group3-text AT ROW 14.1 COL 1 COLON-ALIGNED NO-LABEL
@@ -780,6 +786,9 @@ ASSIGN
        item.linin-lb:PRIVATE-DATA IN FRAME F-Main     = 
                 "group3".
 
+/* SETTINGS FOR FILL-IN item.wastePercent IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                    */
+   
 /* SETTINGS FOR FILL-IN mat_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN item.min-lbs IN FRAME F-Main

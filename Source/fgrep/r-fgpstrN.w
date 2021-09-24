@@ -708,7 +708,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                  
                         IF lChoice THEN
                         DO:
-                            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
                 END. /* WHEN 3 THEN DO: */
@@ -2508,9 +2508,7 @@ PROCEDURE run-report_Save :
     DEFINE VARIABLE v-tot-pos2      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-tot-pos3      AS INTEGER   NO-UNDO.
     DEFINE BUFFER b-fgrdtlh FOR fg-rdtlh.
-    DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
 
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
     {ce/msfcalc.i}
 
     FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
@@ -2584,7 +2582,7 @@ PROCEDURE run-report_Save :
 
     IF rd-dest = 3 THEN 
     DO:
-        OUTPUT STREAM excel TO VALUE(cFileName2).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         excelheader = "DATE,ITEM,DESCRIPTN,P.O. #,VENDOR,T,TAG #,UNITS,"
             + "COUNT,COUNT,BIN,CUOM,TOT QTY,TOT COST,TOT SELL VALUE".
         PUT STREAM excel UNFORMATTED 
@@ -2889,8 +2887,7 @@ PROCEDURE run-report_Save :
          v-tot-cost  = 0
          v-tot-value = 0
          v-msf[3]    = 0
-         v-msf[4]    = 0.
-      END.  /* if last-of(fg-rcpth.i-no) */        
+         v-msf[4]    = 0.        
     END. /* if v-pr-tots */
   END.
 
@@ -2907,8 +2904,8 @@ PROCEDURE run-report_Save :
 
 IF rd-dest = 3 THEN DO:
    OUTPUT STREAM excel CLOSE.
-   IF tb_runExcel THEN
-     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+   IF tb_OpenCSV THEN
+     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

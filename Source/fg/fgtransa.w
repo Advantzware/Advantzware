@@ -93,7 +93,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "FG Warehouse Transactions"
+         TITLE              = "FG Location Transactions"
          HEIGHT             = 19.1
          WIDTH              = 40.8
          MAX-HEIGHT         = 27.48
@@ -144,7 +144,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* FG Warehouse Transactions */
+ON END-ERROR OF W-Win /* FG Location Transactions */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -157,7 +157,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* FG Warehouse Transactions */
+ON WINDOW-CLOSE OF W-Win /* FG Location Transactions */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */

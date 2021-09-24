@@ -213,7 +213,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U LABEL-BGCOLOR 14
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      fg-rctd.loc COLUMN-LABEL "Locn" FORMAT "x(5)":U LABEL-BGCOLOR 14
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U LABEL-BGCOLOR 14
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U

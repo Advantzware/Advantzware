@@ -1040,7 +1040,8 @@ PROCEDURE value-change-material :
                 estMaterial.dimLength:Screen-value    = STRING(item.case-l)
                 estMaterial.dimWidth:Screen-value     = STRING(item.case-w)
                 estMaterial.dimDepth:Screen-value     = STRING(item.case-d) 
-                estMaterial.weightPerEA:Screen-value  = STRING(item.weight-100 / 100) .
+                estMaterial.weightPerEA:Screen-value  = STRING(item.weight-100 / 100) 
+                estMaterial.wastePercent:SCREEN-VALUE = STRING(ITEM.wastePercent).
         END.
     END.
 
