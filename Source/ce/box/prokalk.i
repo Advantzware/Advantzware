@@ -1,8 +1,10 @@
 /* ----------------------------------------------- ce/box/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
 {est/op-lock.i xest}
-DEFINE VARIABLE iVarn AS INTEGER NO-UNDO.
 
 IF NEW op-lock AND NOT xef.op-lock THEN
     ASSIGN
@@ -20,9 +22,9 @@ DO:
     
     /* In case of NK1 settings Color count wil be determined by Unit#*/
     IF glAssignUnitsForInk THEN
-        RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, est-op.b-num, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat).
+        RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, 0, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat, OUTPUT lUnitSetup).
     
-    ELSE
+    IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
     DO:
         FIND FIRST w-ink
             WHERE w-ink.form-no EQ est-op.s-num
@@ -75,12 +77,13 @@ DO:
     /* In case of NK1 settings Color count wil be determined by Unit#*/
     IF glAssignUnitsForInk THEN
     DO:
-        RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, est-op.b-num, 0, OUTPUT maxco, OUTPUT iVarn).
+        RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, 0, 0, OUTPUT maxco, OUTPUT iVarn, OUTPUT lUnitSetup).
         
-        maxco = maxco + iVarn.
-       
+        IF lUnitSetup THEN
+            maxco = maxco + iVarn.
     END.
-    ELSE
+    
+    IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
     FOR EACH w-ink:
         maxco = maxco + w-ink.inks + w-ink.varn.
     END.

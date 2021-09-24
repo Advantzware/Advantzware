@@ -33,7 +33,7 @@ DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
 RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
 
-RUN pSetGlobalSettings.
+RUN pSetGlobalSettings (xest.company).
 
 def workfile w-qty
   field b-num  like est-op.b-num

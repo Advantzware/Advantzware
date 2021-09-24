@@ -1,6 +1,7 @@
 /* --------------------------------------------------- ce/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
+   DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
    
    {est/op-lock.i xest}
 
@@ -20,9 +21,9 @@
      
        /* In case of NK1 settings Color count wil be determined by Unit#*/
        IF glAssignUnitsForInk THEN
-           RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, est-op.b-num, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat).
+           RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, 0, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat, OUTPUT lUnitSetup).
   
-       ELSE
+       IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
        DO:
            find first w-ink
                where w-ink.form-no eq est-op.s-num

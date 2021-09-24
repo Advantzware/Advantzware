@@ -31,6 +31,7 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
     DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiInkCount     AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiVarnCount    AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUnitConfigured  AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE iMaxInkCnt  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMaxVarnCnt AS INTEGER NO-UNDO.
@@ -53,6 +54,9 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
         
             IF ipiPass NE 0 AND bf-eb.i-ps2[iCnt] NE ipiPass THEN
                 NEXT. 
+                
+            IF bf-eb.unitno[iCnt] NE 0 THEN
+                oplUnitConfigured = YES.
              
             lsInkColor = NO.
         
