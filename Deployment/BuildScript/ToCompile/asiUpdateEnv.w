@@ -7424,7 +7424,7 @@ PROCEDURE ipFixEstimateScores:
         PROPATH      = cNewPropath
         .
 
-    RUN util/dev/EstimateScoresFix.p
+    RUN util/dev/EstimateScoresFix.p.
     
     PROPATH = cOrigPropath.    
 
