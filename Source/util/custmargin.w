@@ -459,9 +459,14 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.
 
         RUN run-report.
-        STATUS DEFAULT "Processing Complete".
-
-   
+        IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+            MESSAGE 
+              "Microsoft Excel is required.  This report is unable to be executed."
+            VIEW-AS ALERT-BOX ERROR.
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+            RETURN.
+        END.
+        STATUS DEFAULT "Processing Complete".   
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,7 +777,9 @@ PROCEDURE run-report :
         v-dir = "c:\tmp\".
 
     /* Connect to the running Excel session. */
-    CREATE "Excel.Application" chExcelApplication.
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(chExcelApplication) THEN
+    RETURN.
 
     FILE-INFO:FILE-NAME = "template\CustMarginAnalysis.xlt". /* CustMarginAnalysis*/
 

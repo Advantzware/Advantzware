@@ -7008,7 +7008,7 @@ PROCEDURE pCreateMiscEstimate :
   END.
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
-      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT NO, OUTPUT iEstReleaseID ,
+      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT Yes, OUTPUT iEstReleaseID ,
                                      OUTPUT lError,OUTPUT cMessage) .
 
       FIND FIRST estRelease NO-LOCK

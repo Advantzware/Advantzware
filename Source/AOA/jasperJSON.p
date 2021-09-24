@@ -162,7 +162,7 @@ IF iNumResults GT 0 THEN DO:
     RUN pSubDataSet ("Summary").
 END. /* inumresults gt 0 */
 ELSE DO:
-    RUN pTaskFile (0).
+    RUN pTaskFile (0, OUTPUT cJasperFile).
     PUT STREAM sJasperJSON UNFORMATTED
         FILL(" ",8) "~{" SKIP
         FILL(" ",12)

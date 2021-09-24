@@ -109,16 +109,21 @@ ASSIGN
 
 cCheckMailFormat = ENTRY(1,ipType,"|") .
 
+
 /* Customer, Vendor, ShipTo   = DIALOG BOX        */
-IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) NE "1" THEN
-RUN mail (
-    lv-mailto,      /* Mail Recepients  */
-    lv-mailsubject, /* Subject          */
-    lv-mailbody,    /* Body             */
-    lv-mailattach,  /* Attachment       */
-    1,              /* Mail Dialog Type */
-    OUTPUT retCode  /* Return Code      */
-    ).
+IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) ne '1' THEN
+do:
+  /* Workaround for blank recipient list */
+  IF lv-mailto EQ "To:" THEN ASSIGN
+    lv-mailto = "".
+  RUN mail (lv-mailto,        /* Mail Recepients  */
+            lv-mailsubject,   /* Subject          */
+            lv-mailbody,      /* Body             */
+            lv-mailattach,    /* Attachment       */
+            1,                /* Mail Dialog Type */
+            OUTPUT retcode).  /* Return Code      */
+  
+end.
 
 /* Customer1, Vendor1, ShipTo1 = SILENT MODE      */ 
 ELSE

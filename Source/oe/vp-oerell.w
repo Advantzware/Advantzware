@@ -43,7 +43,7 @@ DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 
 RUN methods/prgsecur.p
-	    (INPUT "p-ordhd.",
+	    (INPUT "vp-oerell.",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
 	     INPUT NO,    /* use the directory in addition to the program */
 	     INPUT NO,    /* Show a message if not authorized */

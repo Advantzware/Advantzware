@@ -891,10 +891,9 @@ DO:
                          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
                          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
                          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
+                         INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
                          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
+                         INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
                          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
@@ -939,18 +938,18 @@ DO:
 
   IF INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) NE v-old-qty-case THEN
   DO:
-     RUN oe/pallcalc2.p (INPUT cocode,
-                         INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         OUTPUT v-tot-pallets).
+     
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -993,18 +992,17 @@ DO:
 
   IF INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}) NE v-old-partial THEN
   DO:
-     RUN oe/pallcalc2.p (INPUT cocode,
-                         INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                         INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                         OUTPUT v-tot-pallets).
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
      IF LASTKEY NE 13 THEN
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -2354,18 +2352,17 @@ PROCEDURE local-update-record :
     /*pressing enter*/
     IF LASTKEY EQ 13 OR (adm-new-record AND INT(oe-boll.tot-pallets:SCREEN-VALUE) EQ 0) THEN
     DO:
-       RUN oe/pallcalc2.p (INPUT cocode,
-                           INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                           INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                           OUTPUT v-tot-pallets).
+        RUN oe/pallcalc2.p (INPUT cocode,
+            INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+            INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+            INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+            OUTPUT v-tot-pallets).
 
        oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
     END.
@@ -2553,18 +2550,17 @@ PROCEDURE new-release :
 
     RUN value-changed-qty.
     
-    RUN oe/pallcalc2.p (INPUT cocode,
-                        INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                        INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                        OUTPUT v-tot-pallets).
+      RUN oe/pallcalc2.p (INPUT cocode,
+          INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+          INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+          INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+          OUTPUT v-tot-pallets).
 
     IF LASTKEY NE 13 THEN
        oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
@@ -2604,18 +2600,17 @@ PROCEDURE new-tag :
         .
         RUN new-bin.
 
-        RUN oe/pallcalc2.p (INPUT cocode,
-                   INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT oe-boll.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},
-                   INPUT INT(oe-boll.partial:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   INPUT INT(oe-boll.cases:SCREEN-VALUE IN BROWSE {&browse-name}),
-                   OUTPUT v-tot-pallets).
+          RUN oe/pallcalc2.p (INPUT cocode,
+              INPUT oe-boll.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT INT(oe-boll.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT oe-boll.loc:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT oe-boll.tag:SCREEN-VALUE IN BROWSE {&browse-name},
+              INPUT INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT INT(oe-boll.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
+              INPUT INT(oe-boll.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}),
+              OUTPUT v-tot-pallets).
 
         RUN value-changed-qty.
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).

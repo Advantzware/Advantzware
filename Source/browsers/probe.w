@@ -1906,7 +1906,7 @@ IF CAN-FIND(FIRST xprobe
      quoteqty.lab-cost   = w-probeit.lab-cost
      quoteqty.vo-cost    = w-probeit.vo-cost
      quoteqty.fo-cost    = w-probeit.fo-cost
-     quoteqty.tot-lbs    = w-probeit.tot-lbs
+     quoteqty.tot-lbs    = if est.estimateTypeID EQ "Misc" THEN 0 ELSE w-probeit.tot-lbs
      quoteqty.profit     = IF w-probeit.prof-on EQ "Net" THEN w-probeit.net-profit
                                                          ELSE w-probeit.gross-profit.
 
@@ -2049,7 +2049,9 @@ IF CAN-FIND(FIRST xprobe
             quotechg.amt = v-tot-mat + v-tot-lab.
             
             IF quotechg.prep-qty NE 0 THEN
-               quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
+               ASSIGN 
+                quotechg.spare-dec-1 = quotechg.amt / quotechg.prep-qty
+                quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
                              + (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000)))) / quotechg.prep-qty.
             
 
@@ -2646,6 +2648,7 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
  
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
   FOR EACH probe EXCLUSIVE-LOCK 
@@ -2673,7 +2676,8 @@ PROCEDURE local-open-query :
   ASSIGN
      probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
-
+  
+          
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"
                        NO-ERROR.
@@ -2693,48 +2697,8 @@ PROCEDURE pGetCEVersionCalcSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
-    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+    RUN Estimate_GetVersionSettings(ipbf-est.company, ipbf-est.estimateTypeID, OUTPUT glEstimateCalcNew, OUTPUT glEstimateCalcNewPrompt).
 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    glEstimateCalcNew = lFound AND cReturn EQ "New".
- 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    IF lRecFound THEN 
-        iCEVersion = INTEGER(cReturn).
-        
-    IF glEstimateCalcNew THEN 
-        CASE iCEVersion:
-            WHEN 1 THEN 
-                ASSIGN 
-                    glEstimateCalcNewPrompt = glEstimateCalcNew.
-            WHEN 2 THEN 
-                DO:
-                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNew = NO.            
-                    ASSIGN 
-                        glEstimateCalcNewPrompt = glEstimateCalcNew.
-                END.
-            WHEN 3 THEN 
-                DO:
-                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNewPrompt = YES.
-                    ELSE 
-                        glEstimateCalcNewPrompt = NO.            
-                END.
-            WHEN 4 THEN 
-                DO:
-                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
-                        ASSIGN 
-                            glEstimateCalcNew       = NO
-                            glEstimateCalcNewPrompt = NO.
-                END.
-        END CASE.
 
 END PROCEDURE.
 

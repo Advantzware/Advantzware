@@ -60,7 +60,7 @@ ASSIGN
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
               + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex,POPrint-CAN2,"
-              + "Mclean,Altex,CapCity"
+              + "Mclean,Altex,CapCity,Ruffino"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,PremTarget,CSC-GA,CardedX," +
@@ -287,7 +287,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[191] = "FG Item number,Item Name"
        str-init[192] = "Simple with options,Simple - Reduce Only,Unitization with options"
        str-init[193] = "With options,Reduce Only"
-       str-init[194] = "Add leading tab"
+       str-init[194] = ",Add leading tab"
        str-init[195] = "First Board,First Item,User Select"
        str-init[196] = "Entry,Update"
        str-init[197] = "RequestAlways,Yield Always,RequestNewOnly,YieldNewOnly"

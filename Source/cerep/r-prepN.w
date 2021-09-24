@@ -76,7 +76,7 @@ ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst U
                             "FG Category,RM Item #,RM Cat,Owner 1,Owner 1 %,Owner 2,Owner 2 %"  /*7*/
        cFieldListToSelect = "code,dscr,cust-name,ware,bin,dis-dt,lst-dt," +
                              "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file," +
-                             "cust,lst-est,lst-job,has-not,prep.box-style,prep.spare-dec-1," +
+                             "cust,lst-est,lst-job,has-not,prep.box-style,prep.price," +
                              "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
                              "prep.fgcat,prep.i-no,procat,owner1,owner%1,owner2,owner%2"
        cFieldLength = "15,30,30,5,8,10,10," + "7,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,5,15,25,9,25,9"
@@ -495,7 +495,7 @@ DO:
 
                 IF lChoice THEN
                 DO:
-                 OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                 END.
             END.
       END. /* WHEN 3 THEN DO: */

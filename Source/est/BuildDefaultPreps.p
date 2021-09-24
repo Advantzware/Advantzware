@@ -110,7 +110,7 @@ FOR EACH bf-prep
         est-prep.mkup   = bf-prep.mkup
         est-prep.amtz   = bf-prep.amtz
         est-prep.mat-type = bf-prep.mat-type
-        est-prep.spare-dec-1 = bf-prep.spare-dec-1
+        est-prep.spare-dec-1 = bf-prep.price
         .
         RUN est/GetPrepQty.p(INPUT ROWID(ipbf-est),
                          INPUT est-prep.mat-type,

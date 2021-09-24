@@ -99,18 +99,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -259,6 +259,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -285,7 +286,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.20 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 71.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -297,19 +298,11 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/expsurchrg.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  '':U ,
              OUTPUT h_expsurchrg ).
-       RUN set-position IN h_expsurchrg ( 1.00 , 85.00 ) NO-ERROR.
+       RUN set-position IN h_expsurchrg ( 1.00 , 84.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -322,25 +315,36 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/options.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options ).
+       RUN set-position IN h_options ( 1.00 , 92.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 55.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
-             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_expsurchrg ,
-             h_options , 'AFTER':U ).
+             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_expsurchrg , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_options , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (

@@ -99,7 +99,7 @@ for each {1}
         with frame f-detail.
     down with frame f-detail. */
     
-  /*  IF tb_excel THEN
+  /*  IF rd-dest = 3 THEN
     DO:
        IF detail-flag# THEN
        DO:
@@ -146,7 +146,7 @@ for each {1}
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                    cExcelDisplay SKIP.
         END.
@@ -176,7 +176,7 @@ for each {1}
     
     put skip(1).
 
-    IF tb_excel THEN
+    IF rd-dest = 3 THEN
     DO:
        PUT STREAM excel UNFORMATTED
            SKIP(1).
@@ -221,7 +221,7 @@ for each {1}
         END.
         
         PUT UNFORMATTED  "Grand Totals:" substring(cDisplay,14,300) SKIP(1).
-        IF tb_excel THEN DO:
+        IF rd-dest = 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                   "Grand Totals " + SUBSTRING(cExcelDisplay,3,300) SKIP.
         END.

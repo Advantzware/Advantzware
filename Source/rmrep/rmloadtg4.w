@@ -1892,12 +1892,13 @@ First Internal Machine,~
 First Press,~
 CasePalletLength,~
 CasePalletWidth,~
-CasePalletDepth,~ 
+CasePalletDepth,~
 CreatedBy,~
 CreateDate,~
 CreateTime,~
 PrintDate,~
-PrintTime' SKIP 
+PrintTime,~
+Vendor Tag' SKIP 
 .
 END PROCEDURE.
 
@@ -2021,12 +2022,13 @@ PROCEDURE outputTagLine :
     '","' removeChars(cFirstMachPress)
     '","' w-po.case-l
     '","' w-po.case-w
-    '","' w-po.case-d 
+    '","' w-po.case-d    
     '","' loadtag.createUser
     '","' STRING(loadtag.tag-date,"99/99/9999")
     '","' STRING(loadtag.tag-time,"HH:MM") IF loadtag.tag-time LT 43140 THEN " AM" ELSE " PM"
     '","' STRING(TODAY,"99/99/9999")
     '","' STRING(TIME,"HH:MM") IF TIME LT 43140 THEN " AM" ELSE " PM"
+    '","' loadtag.misc-char[1]
     '"'   SKIP .
 
 

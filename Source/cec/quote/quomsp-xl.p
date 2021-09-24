@@ -96,7 +96,13 @@ define variable WshNetwork as com-handle.
 /* Capture the current active printer */
 CREATE "WScript.Network" WshNetwork.
 
-CREATE "Excel.Application" chExcelApplication .
+CREATE "Excel.Application" chExcelApplication NO-ERROR.
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer"

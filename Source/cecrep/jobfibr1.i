@@ -112,7 +112,7 @@ FORM HEADER
        "</B><P10>Overrun:"  AT 17 lv-over-run format "x(7)"       
        "Our Order#:"  at 46 v-ord-no
        "<P12><B>Due Date: ON" AT 86 v-due-date  "</B><P10>" 
-       "Whs:" AT 128 v-loc 
+       "Loc:" AT 128 v-loc 
        "Est#:" AT 2 v-est-no
         "Underrun:" AT 20 lv-under-run FORMAT "x(7)"
        "FG#:" AT 40 v-fg FORM "x(15)"  v-blk-per-frm

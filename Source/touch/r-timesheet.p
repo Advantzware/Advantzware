@@ -117,10 +117,7 @@ END.
   
   /* Start a new session of Excel. */
   if not (valid-handle (chExcelApplication)) THEN
-  DO:
-    CREATE "Excel.Application" chExcelApplication NO-ERROR.
-    chExcelApplication:VISIBLE = TRUE.
-  END.
+  CREATE "Excel.Application" chExcelApplication NO-ERROR.
   
   /* Check if Excel got initialized. */
   IF not (valid-handle (chExcelApplication)) THEN
@@ -128,6 +125,8 @@ END.
     MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
   END.
+  
+  chExcelApplication:VISIBLE = TRUE.
   
   /* Open our Excel Template. */  
   assign chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.

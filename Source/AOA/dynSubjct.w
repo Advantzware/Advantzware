@@ -69,6 +69,7 @@ DEFINE VARIABLE i                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCopySubjectID     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iOrder             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hDynBL             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSection           AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lBusinessLogic     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
@@ -303,8 +304,8 @@ btnAddSelections btnGroupCalc btnAddUseIndex queryStr btnRemoveUseIndex ~
 btnAddParameter btnRemoveSelection btnMoveDown btnAddConstant btnRemove ~
 cUseIndexLabel cParameterLabel cConstantLabel queryText 
 &Scoped-define tableSection RECT-TABLE RECT-QUERYTABLE RECT-QUERYSTR ~
-tableSearch tableMatches tableBrowse cUseIndex findType subjectTableBrowse ~
-btnMoveUp btnSyntax btnAddSelections btnAddUseIndex queryStr ~
+tableSearch tableMatches tableBrowse cUseIndex findType btnMoveUp ~
+subjectTableBrowse btnSyntax btnAddSelections btnAddUseIndex queryStr ~
 btnRemoveUseIndex btnRemoveSelection btnMoveDown btnRemove cUseIndexLabel ~
 queryText 
 &Scoped-define whereSection RECT-FIELD RECT-QUERYSTR RECT-PARAM ~
@@ -316,8 +317,8 @@ btnDate btnDec btnInt btnMoveUp btnStr btnSubstr cParameter btnOpen ~
 btnClose cConstant btnPeriod btnDouble btnComma btnSingle btnSyntax ~
 btnAddSelections queryStr btnAddParameter btnRemoveSelection btnMoveDown ~
 btnAddConstant btnRemove cParameterLabel cConstantLabel queryText 
-&Scoped-define parameterSection btnSetInitialize RECT-PARAM ~
-btnSubjectParamSet paramSetSearch paramSetMatches paramSetBrowse ~
+&Scoped-define parameterSection btnSetInitialize btnSubjectParamSet ~
+RECT-PARAM paramSetSearch paramSetMatches paramSetBrowse ~
 subjectParamSetBrowse btnMoveUp btnAddSelections btnRemoveSelection ~
 btnMoveDown btnRemove 
 &Scoped-define columnsSection RECT-FIELD RECT-COLUMN RECT-PARAM fieldSearch ~
@@ -1222,6 +1223,8 @@ DEFINE FRAME DEFAULT-FRAME
           "Select for Table Search Matches" WIDGET-ID 40
      tableList AT ROW 4.1 COL 87 COLON-ALIGNED HELP
           "Select Table" WIDGET-ID 98
+     btnViewSubject AT ROW 1 COL 96 HELP
+          "Access View Subject" WIDGET-ID 288
      btnOF AT ROW 4.1 COL 111 WIDGET-ID 104
      tableListOf AT ROW 4.1 COL 114 COLON-ALIGNED HELP
           "Select Table" NO-LABEL WIDGET-ID 106
@@ -1242,6 +1245,8 @@ DEFINE FRAME DEFAULT-FRAME
      btnEQ AT ROW 7.67 COL 190 WIDGET-ID 68
      btnNE AT ROW 7.67 COL 195 WIDGET-ID 70
      btnLT AT ROW 8.86 COL 190 WIDGET-ID 72
+     btnCalcField AT ROW 18.38 COL 77 HELP
+          "Calculated Field" WIDGET-ID 280
      btnGT AT ROW 8.86 COL 195 WIDGET-ID 74
      fieldSearch AT ROW 9.81 COL 39 COLON-ALIGNED HELP
           "Enter Field Search" NO-LABEL WIDGET-ID 50
@@ -1277,6 +1282,8 @@ DEFINE FRAME DEFAULT-FRAME
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
      btnDec AT ROW 16 COL 190 WIDGET-ID 164
+     btnMoveUp AT ROW 9.81 COL 77 HELP
+          "Move Up" WIDGET-ID 64
      subjectTableBrowse AT ROW 16.95 COL 82 WIDGET-ID 400
      btnInt AT ROW 17.19 COL 190 WIDGET-ID 162
      columnSearch AT ROW 17.43 COL 2 HELP
@@ -1290,6 +1297,8 @@ DEFINE FRAME DEFAULT-FRAME
      btnSubstr AT ROW 19.57 COL 190 WIDGET-ID 170
      cParameter AT ROW 20.76 COL 91 COLON-ALIGNED HELP
           "Select Parameter Type" NO-LABEL WIDGET-ID 204
+     btnSave AT ROW 1 COL 137 HELP
+          "Update/Save" WIDGET-ID 248
      btnOpen AT ROW 20.76 COL 190 WIDGET-ID 94
      btnClose AT ROW 20.76 COL 195 WIDGET-ID 96
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
@@ -1297,6 +1306,7 @@ DEFINE FRAME DEFAULT-FRAME
           "Update/Save" WIDGET-ID 248
      btnPeriod AT ROW 21.95 COL 190 WIDGET-ID 236
      btnDouble AT ROW 21.95 COL 192.4 WIDGET-ID 240
+     btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
      btnComma AT ROW 21.95 COL 195 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 197.4 WIDGET-ID 244
      btnSyntax AT ROW 23.86 COL 78 WIDGET-ID 202
@@ -1626,7 +1636,7 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE
 /* BROWSE-TAB paramSetBrowse btnGE DEFAULT-FRAME */
 /* BROWSE-TAB fieldBrowse paramSetBrowse DEFAULT-FRAME */
 /* BROWSE-TAB subjectParamSetBrowse btnMinus DEFAULT-FRAME */
-/* BROWSE-TAB subjectTableBrowse btnDec DEFAULT-FRAME */
+/* BROWSE-TAB subjectTableBrowse btnMoveUp DEFAULT-FRAME */
 /* BROWSE-TAB subjectColumnBrowse btnStr DEFAULT-FRAME */
 /* SETTINGS FOR BUTTON btnAddConstant IN FRAME DEFAULT-FRAME
    1 3                                                                  */
@@ -2333,6 +2343,8 @@ DO:
     RETURN NO-APPLY.
   END. /* if lsave */
   RUN pSaveSettings.
+  IF VALID-HANDLE(hDynBL) THEN
+  DELETE PROCEDURE hDynBL.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -3361,34 +3373,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL subjectBrowse C-Win
-ON VALUE-CHANGED OF subjectBrowse IN FRAME DEFAULT-FRAME /* Subject */
-DO:
-    ASSIGN
-        lBusinessLogic     = dynSubject.businessLogic NE ""
-        btnDesign:HIDDEN   = lBusinessLogic
-        btnLookup:HIDDEN   = dynSubject.isLookup EQ NO
-        .
-    IF lBusinessLogic THEN
-    RUN pGetBusinessLogicTable (dynSubject.businessLogic).
-    {&OPEN-QUERY-tableBrowse}
-    {&OPEN-QUERY-subjectTableBrowse}
-    IF AVAILABLE ttSubjectTable THEN
-    APPLY "VALUE-CHANGED":U TO BROWSE subjectTableBrowse.
-    {&OPEN-QUERY-subjectColumnBrowse}
-    RUN pGetFields.
-    {&OPEN-QUERY-paramSetBrowse}
-    RUN pGetParamList.
-    {&OPEN-QUERY-subjectParamSetBrowse}
-    APPLY "VALUE-CHANGED":U TO tableList.
-    fShowQuery().
-    IF NOT FRAME viewFrame:HIDDEN THEN
-    RUN pDisplay.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define BROWSE-NAME subjectColumnBrowse
 &Scoped-define SELF-NAME subjectColumnBrowse
@@ -3862,6 +3846,33 @@ lContinue = YES.
 {AOA/includes/dynProcs.i "tt"}
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pJasperGroupCalc.i "tt"}
+
+/* moved this trigger here, because hBusinessLogic defined in above dynProcs.i */
+ON VALUE-CHANGED OF subjectBrowse IN FRAME DEFAULT-FRAME /* Subject */
+DO:
+    IF VALID-HANDLE(hBusinessLogic) THEN
+    DELETE PROCEDURE hBusinessLogic.
+    ASSIGN
+        lBusinessLogic     = dynSubject.businessLogic NE ""
+        btnDesign:HIDDEN   = lBusinessLogic
+        btnLookup:HIDDEN   = dynSubject.isLookup EQ NO
+        .
+    IF lBusinessLogic THEN
+    RUN pGetBusinessLogicTable (dynSubject.businessLogic).
+    {&OPEN-QUERY-tableBrowse}
+    {&OPEN-QUERY-subjectTableBrowse}
+    IF AVAILABLE ttSubjectTable THEN
+    APPLY "VALUE-CHANGED":U TO BROWSE subjectTableBrowse.
+    {&OPEN-QUERY-subjectColumnBrowse}
+    RUN pGetFields.
+    {&OPEN-QUERY-paramSetBrowse}
+    RUN pGetParamList.
+    {&OPEN-QUERY-subjectParamSetBrowse}
+    APPLY "VALUE-CHANGED":U TO tableList.
+    fShowQuery().
+    IF NOT FRAME viewFrame:HIDDEN THEN
+    RUN pDisplay.
+END.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -5034,7 +5045,10 @@ PROCEDURE pGetBusinessLogicTable :
         .
     IF cBLFile NE ? THEN DO:
         RUN VALUE(cBLFile) PERSISTENT SET hBusinessLogic.
-        hBusinessLogicTable = DYNAMIC-FUNCTION("fGetTableHandle" IN hBusinessLogic).
+        ASSIGN
+            hBusinessLogicTable = DYNAMIC-FUNCTION("fGetTableHandle" IN hBusinessLogic)
+            hDynBL              = hBusinessLogic
+            .
         IF CAN-FIND(FIRST ttTable
                     WHERE ttTable.tableName EQ hBusinessLogicTable:NAME
                       AND ttTable.businessLogic EQ YES) THEN
