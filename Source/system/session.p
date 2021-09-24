@@ -2706,7 +2706,9 @@ FUNCTION sfGetNextRecKey RETURNS CHARACTER
     RETURN STRING(YEAR(TODAY),"9999")
          + STRING(MONTH(TODAY),"99")
          + STRING(DAY(TODAY),"99")
-         + STRING(TIME,"99999")
+         + "_"
+         + STRING(TIME,"HH:MM:SS")
+         + "_"
          + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
          .
          
