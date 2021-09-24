@@ -51,7 +51,7 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
         IF AVAILABLE bf-eb THEN
         DO iCnt = 1 TO 17:
         
-            IF bf-eb.i-ps2[iCnt] NE ipiPass THEN
+            IF ipiPass NE 0 AND bf-eb.i-ps2[iCnt] NE ipiPass THEN
                 NEXT. 
              
             lsInkColor = NO.

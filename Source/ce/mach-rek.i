@@ -52,6 +52,11 @@ DEF WORKFILE w-qty
 
 {ce/mach-ink.i new}
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
+RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
+RUN pSetGlobalSettings(xef.company).
+
 
 find est-op where recid(est-op) eq fil_id no-error.
 
@@ -181,3 +186,21 @@ END. /* else */
 find est-op where recid(est-op) = fil_id no-lock no-error.
 find xef where recid(xef) = save_id no-lock no-error.
 qty = save-qty.
+
+IF VALID-HANDLE(hdEstimateProc) THEN
+    DELETE PROCEDURE hdEstimateProc.
+
+PROCEDURE pSetGlobalSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.

@@ -20,7 +20,7 @@
      
        /* In case of NK1 settings Color count wil be determined by Unit#*/
        IF glAssignUnitsForInk THEN
-           RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, est-op.b-num, OUTPUT est-op.num-col, OUTPUT est-op.num-coat).
+           RUN Estimate_CalcInkUsingUnitNo in hdEstimateProc (est-op.company, est-op.est-no, est-op.s-num, est-op.b-num, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat).
   
        ELSE
        DO:

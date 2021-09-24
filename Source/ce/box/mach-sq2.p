@@ -31,6 +31,11 @@ DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 
 {est/d-machex.i NEW}
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdEstimateProc      AS HANDLE NO-UNDO.
+RUN est/EstimateProcs.p    PERSISTENT SET hdEstimateProc.
+
+RUN pSetGlobalSettings.
 
 run ce/mach-chk.p (no).
 
@@ -126,5 +131,23 @@ for each est-op
 end.
 find xef where recid(xef) = call_id no-lock no-error.
 
+
+IF VALID-HANDLE(hdEstimateProc) THEN
+    DELETE PROCEDURE hdEstimateProc.
+
+PROCEDURE pSetGlobalSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1993  advanced software, inc. */
