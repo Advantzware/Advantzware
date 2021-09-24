@@ -83,18 +83,16 @@ DEFINE TEMP-TABLE ttEstimate
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-18 begin_est-no end_est-no ~
-begin_quo-date end_quo-date begin_cust-no end_cust-no ~
-tb_create-release tb_cal-est tb_create-quote btnCalendar-1 ~
-btnCalendar-2 btn-process btn-cancel 
+begin_quo-date btnCalendar-1 end_quo-date btnCalendar-2 begin_cust-no ~
+end_cust-no tb_create-release tb_cal-est tb_create-quote csv_file-path ~
+btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_est-no end_est-no begin_quo-date ~
-end_quo-date begin_cust-no end_cust-no tb_create-release ~
-tb_cal-est tb_create-quote csv_file-path
-
-&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2  ~
- 
+end_quo-date begin_cust-no end_cust-no tb_create-release tb_cal-est ~
+tb_create-quote csv_file-path 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
+&Scoped-define List-3 btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -104,113 +102,114 @@ tb_cal-est tb_create-quote csv_file-path
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE            VARIABLE C-Win  AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btnCalendar-2 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-
-DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 18 BY 1.14.
+DEFINE BUTTON btn-cancel AUTO-END-KEY 
+     LABEL "Ca&ncel" 
+     SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 18 BY 1.14.
+     LABEL "&Start Process" 
+     SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_cust-no  AS CHARACTER FORMAT "X(8)" 
-    LABEL "Begining Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1.
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE begin_est-no   AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1.
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
-DEFINE VARIABLE begin_quo-date AS DATE      FORMAT "99/99/9999" INITIAL 01/01/001 
-    LABEL "Beginning Quote Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1.
+DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
+     LABEL "Begining Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
 
-DEFINE VARIABLE end_cust-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1.
+DEFINE VARIABLE begin_est-no AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
 
-DEFINE VARIABLE end_est-no     AS CHARACTER FORMAT "X(8)" INITIAL "99999999" 
-    LABEL "Ending Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1.
+DEFINE VARIABLE begin_quo-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001 
+     LABEL "Beginning Quote Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
 
-DEFINE VARIABLE end_quo-date   AS DATE      FORMAT "99/99/9999" INITIAL 12/31/9999 
-    LABEL "Ending Quote Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1.
+DEFINE VARIABLE csv_file-path AS CHARACTER FORMAT "X(250)" 
+     LABEL "CSV File Path" 
+     VIEW-AS FILL-IN 
+     SIZE 50 BY 1.
+
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
+
+DEFINE VARIABLE end_est-no AS CHARACTER FORMAT "X(8)" INITIAL "99999999" 
+     LABEL "Ending Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
+
+DEFINE VARIABLE end_quo-date AS DATE FORMAT "99/99/9999" INITIAL 12/31/9999 
+     LABEL "Ending Quote Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.
 
 DEFINE RECTANGLE RECT-18
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 100 BY 10.43.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 100 BY 10.43.
 
-DEFINE VARIABLE tb_cal-est        AS LOGICAL INITIAL NO 
-    LABEL "Calculate Estimate" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 67.2 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_cal-est AS LOGICAL INITIAL no 
+     LABEL "Calculate Estimate" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 67.2 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_create-quote   AS LOGICAL INITIAL NO 
-    LABEL "Create a quote for the quantities from the source quote id" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 67.2 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_create-quote AS LOGICAL INITIAL no 
+     LABEL "Create a quote for the quantities from the source quote id" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 67.2 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_create-release AS LOGICAL INITIAL NO 
-    LABEL "Create Release for each quantity" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 43.2 BY .81 NO-UNDO.
-    
-DEFINE VARIABLE csv_file-path   AS CHARACTER FORMAT "X(250)" 
-    LABEL "CSV File Path" 
-    VIEW-AS FILL-IN 
-    SIZE 50 BY 1.    
+DEFINE VARIABLE tb_create-release AS LOGICAL INITIAL no 
+     LABEL "Create Release for each quantity" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43.2 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_est-no AT ROW 2.71 COL 31 COLON-ALIGNED HELP
-    "Enter Begining Estimate# " WIDGET-ID 6
-    end_est-no AT ROW 2.71 COL 78.8 COLON-ALIGNED HELP
-    "Enter Ending Estimate# " WIDGET-ID 8
-    begin_quo-date AT ROW 4.5 COL 31 COLON-ALIGNED HELP
-    "Enter Beginning Quote Date" WIDGET-ID 2
-    btnCalendar-1 AT ROW 4.5 COL 48      
-    end_quo-date AT ROW 4.5 COL 78.8 COLON-ALIGNED HELP
-    "Enter Ending Quote Date" WIDGET-ID 4
-    btnCalendar-2 AT ROW 4.5 COL 96     
-    begin_cust-no AT ROW 6.29 COL 31 COLON-ALIGNED HELP
-    "Enter Begining Customer No"
-    end_cust-no AT ROW 6.29 COL 78.8 COLON-ALIGNED HELP
-    "Enter Ending Customer No"
-    tb_create-release AT ROW 8.19 COL 33.8 WIDGET-ID 60
-    tb_cal-est AT ROW 9.52 COL 33.8 WIDGET-ID 62
-    tb_create-quote AT ROW 10.81 COL 33.8 WIDGET-ID 64
-    csv_file-path AT ROW 10.81 COL 33.8 
-    btn-process AT ROW 12.91 COL 33.4
-    btn-cancel AT ROW 12.91 COL 64.4
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .95 AT ROW 1.24 COL 4
-    FONT 4
-    RECT-18 AT ROW 1.76 COL 2
+     begin_est-no AT ROW 2.71 COL 31 COLON-ALIGNED HELP
+          "Enter Begining Estimate# " WIDGET-ID 6
+     end_est-no AT ROW 2.71 COL 78.8 COLON-ALIGNED HELP
+          "Enter Ending Estimate# " WIDGET-ID 8
+     begin_quo-date AT ROW 4.52 COL 31 COLON-ALIGNED HELP
+          "Enter Beginning Quote Date" WIDGET-ID 2
+     btnCalendar-1 AT ROW 4.52 COL 48
+     end_quo-date AT ROW 4.52 COL 78.8 COLON-ALIGNED HELP
+          "Enter Ending Quote Date" WIDGET-ID 4
+     btnCalendar-2 AT ROW 4.52 COL 96
+     begin_cust-no AT ROW 6.29 COL 31 COLON-ALIGNED HELP
+          "Enter Begining Customer No"
+     end_cust-no AT ROW 6.29 COL 78.8 COLON-ALIGNED HELP
+          "Enter Ending Customer No"
+     tb_create-release AT ROW 8.19 COL 33.8 WIDGET-ID 60
+     tb_cal-est AT ROW 9.52 COL 33.8 WIDGET-ID 62
+     tb_create-quote AT ROW 10.81 COL 33.8 WIDGET-ID 64
+     csv_file-path AT ROW 10.81 COL 45.8 COLON-ALIGNED
+     btn-process AT ROW 12.91 COL 33.4
+     btn-cancel AT ROW 12.91 COL 64.4
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .95 AT ROW 1.24 COL 4
+          FONT 4
+     RECT-18 AT ROW 1.76 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 102.6 BY 14.24.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 102.6 BY 14.24
+         CANCEL-BUTTON btn-cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,31 +226,31 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Create Logistics Estimates"
-        HEIGHT             = 14.24
-        WIDTH              = 102.6
-        MAX-HEIGHT         = 26.62
-        MAX-WIDTH          = 160
-        VIRTUAL-HEIGHT     = 26.62
-        VIRTUAL-WIDTH      = 160
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        FONT               = 6
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Create Logistics Estimates"
+         HEIGHT             = 14.24
+         WIDTH              = 102.6
+         MAX-HEIGHT         = 26.62
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 26.62
+         VIRTUAL-WIDTH      = 160
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         FONT               = 6
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -265,38 +264,44 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-   
-/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME  FRAME-A
+ASSIGN 
+       begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_est-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_quo-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME FRAME-A
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME FRAME-A
    3                                                                    */
-  
 ASSIGN 
-    begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_est-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_est-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_quo-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    end_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    end_est-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
-ASSIGN 
-    end_quo-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_quo-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -310,7 +315,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Create Logistics Estimates */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -324,7 +329,7 @@ ON END-ERROR OF C-Win /* Create Logistics Estimates */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Create Logistics Estimates */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -337,7 +342,7 @@ ON WINDOW-CLOSE OF C-Win /* Create Logistics Estimates */
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Begining Customer# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -350,7 +355,7 @@ ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Begining Customer# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON VALUE-CHANGED OF begin_cust-no IN FRAME FRAME-A /* Begining Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -360,30 +365,7 @@ ON VALUE-CHANGED OF begin_cust-no IN FRAME FRAME-A /* Begining Customer# */
 
 &Scoped-define SELF-NAME begin_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
-ON LEAVE OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
-    DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
-ON VALUE-CHANGED OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
-    DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
-ON HELP OF begin_est-no IN FRAME FRAME-A
+ON HELP OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
@@ -396,33 +378,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_quo-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo-date C-Win
-ON LEAVE OF begin_quo-date IN FRAME FRAME-A /* Beginning Quote Date */
-    DO:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
+ON LEAVE OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
+ON VALUE-CHANGED OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
+DO:
         ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btnCalendar-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
-ON CHOOSE OF btnCalendar-1 IN FRAME FRAME-A
-    DO:
-        {methods/btnCalendar.i begin_quo-date }
-        APPLY "entry" TO begin_quo-date .
-    END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnCalendar-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 C-Win
-ON CHOOSE OF btnCalendar-2 IN FRAME FRAME-A
-    DO:
-        {methods/btnCalendar.i end_quo-date}
-        APPLY 'entry' TO end_quo-date.
+&Scoped-define SELF-NAME begin_quo-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo-date C-Win
+ON HELP OF begin_quo-date IN FRAME FRAME-A /* Beginning Quote Date */
+DO:
+        {methods/calpopup.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -430,18 +413,9 @@ ON CHOOSE OF btnCalendar-2 IN FRAME FRAME-A
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo-date C-Win
-ON HELP OF begin_quo-date IN FRAME FRAME-A /* quote Date */
-    DO:
-        {methods/calpopup.i}
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_quo-date C-Win
-ON HELP OF end_quo-date IN FRAME FRAME-A /* quote Date */
-    DO:
-        {methods/calpopup.i}
+ON LEAVE OF begin_quo-date IN FRAME FRAME-A /* Beginning Quote Date */
+DO:
+        ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,7 +425,7 @@ ON HELP OF end_quo-date IN FRAME FRAME-A /* quote Date */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -462,7 +436,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         DEFINE VARIABLE v-process AS LOG INIT NO NO-UNDO.
     
         DO WITH FRAME {&FRAME-NAME}:  
@@ -483,10 +457,34 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 C-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME FRAME-A
+DO:
+        {methods/btnCalendar.i begin_quo-date }
+        APPLY "entry" TO begin_quo-date .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 C-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME FRAME-A
+DO:
+        {methods/btnCalendar.i end_quo-date}
+        APPLY 'entry' TO end_quo-date.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -499,19 +497,7 @@ ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 
 &Scoped-define SELF-NAME end_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est-no C-Win
-ON LEAVE OF end_est-no IN FRAME FRAME-A /* Ending Estimate# */
-    DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est-no C-Win
-ON HELP OF end_est-no IN FRAME FRAME-A
+ON HELP OF end_est-no IN FRAME FRAME-A /* Ending Estimate# */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
@@ -524,10 +510,33 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est-no C-Win
+ON LEAVE OF end_est-no IN FRAME FRAME-A /* Ending Estimate# */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_quo-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_quo-date C-Win
+ON HELP OF end_quo-date IN FRAME FRAME-A /* Ending Quote Date */
+DO:
+        {methods/calpopup.i}
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_quo-date C-Win
 ON LEAVE OF end_quo-date IN FRAME FRAME-A /* Ending Quote Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -537,8 +546,8 @@ ON LEAVE OF end_quo-date IN FRAME FRAME-A /* Ending Quote Date */
 
 &Scoped-define SELF-NAME tb_cal-est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cal-est C-Win
-ON VALUE-CHANGED OF tb_cal-est IN FRAME FRAME-A /* Calculate the estimate using the new estimate calculation engine */
-    DO:
+ON VALUE-CHANGED OF tb_cal-est IN FRAME FRAME-A /* Calculate Estimate */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -549,7 +558,7 @@ ON VALUE-CHANGED OF tb_cal-est IN FRAME FRAME-A /* Calculate the estimate using 
 &Scoped-define SELF-NAME tb_create-quote
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_create-quote C-Win
 ON VALUE-CHANGED OF tb_create-quote IN FRAME FRAME-A /* Create a quote for the quantities from the source quote id */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -560,7 +569,7 @@ ON VALUE-CHANGED OF tb_create-quote IN FRAME FRAME-A /* Create a quote for the q
 &Scoped-define SELF-NAME tb_create-release
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_create-release C-Win
 ON VALUE-CHANGED OF tb_create-release IN FRAME FRAME-A /* Create Release for each quantity */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -617,18 +626,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,26 +645,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_est-no end_est-no begin_quo-date end_quo-date  
-        begin_cust-no end_cust-no tb_create-release tb_cal-est 
-        tb_create-quote csv_file-path
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-18 begin_est-no end_est-no begin_quo-date
-        end_quo-date begin_cust-no end_cust-no 
-        tb_create-release tb_cal-est tb_create-quote btnCalendar-1
-        btnCalendar-2 btn-process btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_est-no end_est-no begin_quo-date end_quo-date begin_cust-no 
+          end_cust-no tb_create-release tb_cal-est tb_create-quote csv_file-path 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-18 begin_est-no end_est-no begin_quo-date btnCalendar-1 
+         end_quo-date btnCalendar-2 begin_cust-no end_cust-no tb_create-release 
+         tb_cal-est tb_create-quote csv_file-path btn-process btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +670,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateInputEst C-Win 
 PROCEDURE pCreateInputEst :
-    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
     DEFINE BUFFER b-eb FOR eb.
     
     
@@ -795,7 +802,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-    DEFINE VARIABLE riEb          AS ROWID     NO-UNDO .
+DEFINE VARIABLE riEb          AS ROWID     NO-UNDO .
     DEFINE VARIABLE iEstReleaseID AS INTEGER   NO-UNDO .
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO .
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO .
