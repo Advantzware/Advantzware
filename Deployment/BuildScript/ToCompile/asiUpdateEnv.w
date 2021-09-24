@@ -3803,6 +3803,7 @@ PROCEDURE ipDataFix210400:
     RUN ipFixFoldingEstimateScores.
     RUN ipFixLocationStorageCost.
     RUN ipSetSystemScope.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -3823,6 +3824,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadDAOAData.
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
+    RUN ipLoadSettingType.
     RUN ipSetCueCards.
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
@@ -5976,6 +5978,34 @@ PROCEDURE ipLoadProgramXref :
     
     EMPTY TEMP-TABLE tt{&tablename}.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadSettingType C-Win 
+PROCEDURE ipLoadSettingType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Setting Type Records").
+
+    &SCOPED-DEFINE tablename settingType
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
