@@ -73,7 +73,7 @@ oCustomer = NEW Inventory.Customer().
 
 &Scoped-define ADM-CONTAINER FRAME
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -97,13 +97,13 @@ DEFINE VARIABLE h_userfields AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCreate 
      LABEL "CREATE" 
-     SIZE 20 BY 2.24.
+     SIZE 16 BY 2.24.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btCreate AT ROW 1.24 COL 183.4 WIDGET-ID 60
+     btCreate AT ROW 1 COL 188 WIDGET-ID 60
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -158,7 +158,7 @@ END.
 /* SETTINGS FOR WINDOW F-Frame-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
 /* SETTINGS FOR BUTTON btCreate IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -238,28 +238,28 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_fgfilter ).
-       RUN set-position IN h_fgfilter ( 1.00 , 77.00 ) NO-ERROR.
-       /* Size in UIB:  ( 3.52 , 85.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
-       RUN set-position IN h_jobfilter ( 1.19 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 3.52 , 73.40 ) */
+       RUN set-position IN h_jobfilter ( 1.24 , 8.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 129.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 4.57 , 108.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.29 , 46.60 ) */
+       RUN set-position IN h_printcopies ( 1.24 , 138.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 49.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_fgfilter ).
+       RUN set-position IN h_fgfilter ( 3.14 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 3.43 , 83.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/qtyunits.w':U ,
@@ -277,16 +277,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_userfields ( 6.95 , 136.00 ) NO-ERROR.
        /* Size in UIB:  ( 9.19 , 68.00 ) */
 
-       /* Links to SmartObject h_fgfilter. */
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
-
        /* Links to SmartObject h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_printcopies. */
        RUN add-link IN adm-broker-hdl ( h_printcopies , 'COPIES':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_fgfilter. */
+       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'FGITEM':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_fgfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Links to SmartObject h_qtyunits. */
        RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
@@ -296,14 +296,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_userfields , 'USERFIELD':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
-             btCreate:HANDLE IN FRAME F-Main , 'BEFORE':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_jobfilter ,
-             h_fgfilter , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
              btCreate:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
+             h_jobfilter , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_fgfilter ,
              h_printcopies , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
+             h_fgfilter , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_userfields ,
              h_qtyunits , 'AFTER':U ).
     END. /* Page 0 */
