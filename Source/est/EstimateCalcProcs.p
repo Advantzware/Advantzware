@@ -25,15 +25,6 @@ DEFINE VARIABLE gcSourceTypeMisc                      AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcSourceTypeNonFactory                AS CHARACTER NO-UNDO INITIAL "NonFactory".
 DEFINE VARIABLE gcSourceTypeProfit                    AS CHARACTER NO-UNDO INITIAL "Profit".
 
-DEFINE VARIABLE gcBoardMatTypes                       AS CHARACTER NO-UNDO INITIAL "1,2,3,4,A,B,P,R".
-DEFINE VARIABLE gcGlueMatTypes                        AS CHARACTER NO-UNDO INITIAL "G,S,T".
-DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITIAL "I,V".
-DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
-DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
-DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
-DEFINE VARIABLE gcWaxMatTypes                         AS CHARACTER NO-UNDO INITIAL "W".
-DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITIAL "A".
-
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
@@ -69,6 +60,7 @@ DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
+DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -101,9 +93,33 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
 FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb) FORWARD.
 
+FUNCTION fIsAdderMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsBoardMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER,
     ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
+
+FUNCTION fIsGlueMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsInkMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsLeafMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsPackingMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsWaxMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fIsWindowMaterial RETURNS LOGICAL PRIVATE
+	(ipcMaterialTypeID AS CHARACTER) FORWARD.
 
 FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
@@ -111,7 +127,7 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
 FUNCTION fIsComboType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
-FUNCTION IsFoamStyle RETURNS LOGICAL 
+FUNCTION fIsFoamStyle RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER) FORWARD.
 
 FUNCTION fIsMiscType RETURNS LOGICAL PRIVATE 
@@ -273,8 +289,6 @@ PROCEDURE ChangeSellPrice:
     END.
 
 END PROCEDURE.
-
-
 
 PROCEDURE pAddCostDetail PRIVATE:
     /*------------------------------------------------------------------------------
@@ -795,15 +809,15 @@ PROCEDURE pAddEstMaterial PRIVATE:
             opbf-estCostMaterial.weightUOM        = gcDefaultWeightUOM
             .
         
-        IF CAN-DO(gcBoardMatTypes, opbf-estCostMaterial.materialType) THEN 
+        IF fIsBoardMaterial(opbf-estCostMaterial.materialType) THEN 
             opbf-estCostMaterial.sequenceOfMaterial = 1.
-        ELSE IF CAN-DO(gcInkMatTypes,opbf-estCostMaterial.materialType) THEN 
+        ELSE IF fIsInkMaterial(opbf-estCostMaterial.materialType) THEN 
                 opbf-estCostMaterial.sequenceOfMaterial = 2.
-            ELSE IF CAN-DO(gcGlueMatTypes,opbf-estCostMaterial.materialType) THEN 
+            ELSE IF fIsGlueMaterial(opbf-estCostMaterial.materialType) THEN 
                     opbf-estCostMaterial.sequenceOfMaterial = 3.
-                ELSE IF CAN-DO(gcLeafMatTypes,opbf-estCostMaterial.materialType) THEN 
+                ELSE IF fIsLeafMaterial(opbf-estCostMaterial.materialType) THEN 
                         opbf-estCostMaterial.sequenceOfMaterial = 4.
-                    ELSE IF CAN-DO(gcPackMatTypes,opbf-estCostMaterial.materialType) THEN 
+                    ELSE IF fIsPackingMaterial(opbf-estCostMaterial.materialType) THEN 
                             opbf-estCostMaterial.sequenceOfMaterial = 5.
                         ELSE  
                             opbf-estCostMaterial.sequenceOfMaterial = 6.
@@ -815,7 +829,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
                 NO-ERROR.
             IF AVAILABLE estCostBlank THEN 
             DO:
-                IF NOT opbf-estCostMaterial.isRealMaterial THEN 
+                IF NOT opbf-estCostMaterial.isRealMaterial AND fIsBoardMaterial(opbf-estCostMaterial.materialType) THEN 
                     ASSIGN 
                         opbf-estCostMaterial.dimLength = estCostBlank.blankLength
                         opbf-estCostMaterial.dimWidth  = estCostBlank.blankWidth
@@ -826,7 +840,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
                     .
             END.
         END.
-        ELSE IF NOT opbf-estCostMaterial.isRealMaterial THEN 
+        ELSE IF NOT opbf-estCostMaterial.isRealMaterial AND fIsBoardMaterial(opbf-estCostMaterial.materialType) THEN 
                 ASSIGN 
                     opbf-estCostMaterial.dimLength = ipbf-estCostForm.grossLength
                     opbf-estCostMaterial.dimWidth  = ipbf-estCostForm.grossWidth
@@ -1147,9 +1161,9 @@ PROCEDURE pAddGlue PRIVATE:
             RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is not valid", gcErrorImportant, ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo,ipbf-estCostBlank.blankNo).
             RETURN.
         END.
-        IF NOT CAN-DO(gcGlueMatTypes,bf-item.mat-type) THEN 
+        IF NOT fIsGlueMaterial(bf-item.mat-type) THEN 
         DO:
-            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid material but not a material type of " + gcGlueMatTypes, gcErrorImportant, ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo,ipbf-estCostBlank.blankNo).
+            RUN pAddError("Glue/Adhesive '" + ipbf-eb.adhesive + "' is valid material but not a glue material type", gcErrorImportant, ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo,ipbf-estCostBlank.blankNo).
             RETURN.
         END.
         IF bf-item.sqin-lb EQ 0 AND bf-item.linin-lb EQ 0 THEN 
@@ -1273,14 +1287,14 @@ PROCEDURE pAddInk PRIVATE:
     END.
     ELSE 
     DO:
-        IF NOT CAN-DO(gcInkMatTypes, bf-item.mat-type) THEN 
+        IF NOT fIsInkMaterial(bf-item.mat-type) THEN 
         DO: 
-            RUN pAddError("Material Type for Ink RM Code '" + ipcItemCode + "' is not one of '" + gcInkMatTypes + "'", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
+            RUN pAddError("Ink '" + ipcItemCode + "' is valid material but not an ink material type.", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
             RETURN.
         END.
         IF bf-item.yield EQ 0 OR bf-item.yield EQ ? THEN 
         DO: 
-            RUN pAddError("Ink RM Code '" + ipcItemCode + "' has an invalid coverage rate.", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
+            RUN pAddError("Ink '" + ipcItemCode + "' has an invalid coverage rate.", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
             RETURN.
         END.
         FIND FIRST ttInk EXCLUSIVE-LOCK 
@@ -1357,9 +1371,9 @@ PROCEDURE pAddLeaf PRIVATE:
     END.
     ELSE 
     DO:
-        IF NOT CAN-DO(gcLeafMatTypes, bf-item.mat-type) THEN 
+        IF NOT fIsLeafMaterial(bf-item.mat-type) THEN 
         DO: 
-            RUN pAddError("Material Type for Leaf/Film RM Code '" + ipcItemCode + "' is not one of '" + gcLeafMatTypes + "'", gcErrorImportant,ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, ipiBlankNo).
+            RUN pAddError("Leaf/Film '" + ipcItemCode + "' is valid but not a leaf/film material type.", gcErrorImportant,ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, ipiBlankNo).
             RETURN.
         END.
         FIND FIRST ttLeaf EXCLUSIVE-LOCK 
@@ -1391,8 +1405,8 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
                 ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
-                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type) AND bf-item.industry EQ "1"
-                ttLeaf.lIsWax              = CAN-DO(gcWaxMatTypes, bf-item.mat-type) AND bf-item.industry EQ "2"
+                ttLeaf.lIsWindow           = fIsWindowMaterial(bf-item.mat-type) AND bf-item.industry EQ "1"
+                ttLeaf.lIsWax              = fIsWaxMaterial(bf-item.mat-type) AND bf-item.industry EQ "2"
                 .
             IF ttLeaf.lIsWindow THEN 
                 ASSIGN 
@@ -1452,9 +1466,9 @@ PROCEDURE pAddPacking PRIVATE:
     END.
     ELSE 
     DO:
-        IF NOT CAN-DO(gcPackMatTypes, bf-item.mat-type) THEN 
+        IF NOT fIsPackingMaterial(bf-item.mat-type) THEN 
         DO: 
-            RUN pAddError("Material Type for Packing RM Code '" + ipcItemCode + "' is not one of '" + gcPackMatTypes + "'", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
+            RUN pAddError("Packing '" + ipcItemCode + "' is valid but not a packing material type.", gcErrorImportant,ipbf-estCostBlank.estCostHeaderID, ipbf-estCostBlank.formNo, ipbf-estCostBlank.blankNo).
             RETURN.
         END.
         FIND FIRST opbf-ttPack EXCLUSIVE-LOCK 
@@ -1595,7 +1609,7 @@ PROCEDURE pBuildCostDetailForMaterial PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostMaterial FOR estCostMaterial.
 
-    IF CAN-DO(gcBoardMatTypes,ipbf-estCostMaterial.materialType) THEN 
+    IF fIsBoardMaterial(ipbf-estCostMaterial.materialType) THEN 
     DO:
         RUN pAddCostDetailForMaterial(BUFFER ipbf-estCostMaterial, "boardNoWaste","Board Cost - No Waste",
             ipbf-estCostMaterial.costTotalNoWaste,0).
@@ -1844,7 +1858,7 @@ PROCEDURE pBuildProbe PRIVATE:
             bf-probe.probe-time   = INTEGER(MTIME(ipbf-estCostHeader.calcDateTime) / 1000)
             bf-probe.probe-user   = ipbf-estCostHeader.calculatedBy
             bf-probe.freight      = ipbf-estCostHeader.releaseCount             /* Holds Number of Releases */
-            bf-probe.tot-lbs      = ipbf-estCostHeader.weightTotal
+            bf-probe.tot-lbs      = IF glUseGrossWeight THEN ipbf-estCostHeader.weightTotal ELSE ipbf-estCostHeader.weightNet
             .
             
         FOR EACH estCostForm NO-LOCK 
@@ -2172,9 +2186,9 @@ PROCEDURE pCalcHeader PRIVATE:
             bf-estCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-estCostHeader NO-LOCK.
         END.                            
-        RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
+        RUN pCalcWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2662,7 +2676,7 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateWeightsAndSizes PRIVATE:
+PROCEDURE pCalcWeightsAndSizes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an estCostHeaderID, calculate weight for all blanks, items, forms
      and header based on weight of materials flagged for inclusion
@@ -2693,25 +2707,21 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
             //REFACTOR: convert blankarea
         END.
                 
-        FOR EACH bf-estCostMaterial NO-LOCK 
+        FOR EACH bf-estCostMaterial EXCLUSIVE-LOCK 
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostBlank.estCostHeaderID
             AND bf-estCostMaterial.estCostFormID EQ bf-estCostBlank.estCostFormID
             AND (bf-estCostMaterial.addToWeightNet OR bf-estCostMaterial.addToWeightTare)
             AND (bf-estCostMaterial.estCostBlankID EQ bf-estCostBlank.estCostBlankID OR bf-estCostMaterial.estCostBlankID EQ 0):
             
+            IF bf-estCostMaterial.weightTotal = 0 THEN 
+                RUN pConvertQuantityFromUOMToUOM(bf-estCostMaterial.company, bf-estCostMaterial.itemID, "RM", bf-estCostMaterial.quantityUOM, bf-estCostMaterial.weightUOM, 
+                    bf-estCostMaterial.basisWeight, bf-estCostMaterial.dimLength, bf-estCostMaterial.dimWidth, bf-estCostMaterial.dimDepth, 
+                    bf-estCostMaterial.quantityRequiredNoWaste, OUTPUT bf-estCostMaterial.weightTotal).
+               
             dWeightInDefaultUOM = 0.
             
-            IF bf-estCostMaterial.estCostBlankID EQ 0 THEN 
-            DO: /*Form level material - calc based on basis-weight and blank area*/
-                IF bf-estCostMaterial.isPrimarySubstrate THEN 
-                DO:   /*Board and adders*/
-                    /*refactor - basis assumed to be LBs/MSF*/
-                    dWeightInDefaultUOM = bf-estCostMaterial.basisWeight * dBlankAreaTotalInDefaultUOM.
-                    
-                END. /*Primary substrate calculations - board and adders*/
-                ELSE /*non-board/substrate form level material - pro-rate weight*/
-                    dWeightInDefaultUOM = bf-estCostMaterial.weightTotal * bf-estCostBlank.pctOfForm.
-            END.
+            IF bf-estCostMaterial.estCostBlankID EQ 0 THEN /*Pro-rate Weight based on pctOfForm*/
+                dWeightInDefaultUOM = bf-estCostMaterial.weightTotal * bf-estCostBlank.pctOfForm.
             ELSE /*Blank specific material - get all weight*/
                 dWeightInDefaultUOM = bf-estCostMaterial.weightTotal.
 
@@ -2773,6 +2783,7 @@ PROCEDURE pCalculateWeightsAndSizes PRIVATE:
     END.
     RELEASE bfSet-estCostItem.
     RELEASE bf-estCostItem.
+    RELEASE bf-estCostMaterial.
     RELEASE bf-estCostHeader.
     
 END PROCEDURE.
@@ -3082,9 +3093,9 @@ PROCEDURE pProcessAdders PRIVATE:
                 RUN pAddError("Adder '" + cAdder + "' is not valid", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
                 RETURN.
             END.
-            IF NOT CAN-DO(gcAdderMatTypes,bf-item.mat-type) THEN 
+            IF NOT fIsAdderMaterial(bf-item.mat-type) THEN 
             DO:
-                RUN pAddError("Adder '" + cAdder + "' is valid material but not a material type of " + gcAdderMatTypes, gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
+                RUN pAddError("Adder '" + cAdder + "' is valid material but not an adder material type.", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
                 RETURN.
             END.      
             RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, cAdder, 0, BUFFER bf-estCostMaterial).
@@ -3337,7 +3348,8 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             END.            
         END.
         ASSIGN  
-            bf-estCostMaterial.addToWeightNET          = YES 
+            bf-estCostMaterial.addToWeightNET          = NOT fIsPackingMaterial(bf-estMaterial.materialTypeID)
+            bf-estCostMaterial.addToWeightTare         = fIsPackingMaterial(bf-estMaterial.materialTypeID) 
             bf-estCostMaterial.quantityUOM             = bf-estMaterial.quantityUOM
             bf-estCostMaterial.dimDepth                = bf-estMaterial.dimDepth
             bf-estCostMaterial.dimWidth                = bf-estMaterial.dimWidth
@@ -3769,10 +3781,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
             ipbf-estCostMaterial.quantityRequiredMinDiffInCUOM    = ipbf-estCostMaterial.quantityRequiredMinDiff
             ipbf-estCostMaterial.quantityRequiredTotalInCUOM      = ipbf-estCostMaterial.quantityRequiredTotal
             .
-    RUN pConvertQuantityFromUOMToUOM(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.weightUOM, 
-        ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, 
-        ipbf-estCostMaterial.quantityRequiredNoWaste, OUTPUT ipbf-estCostMaterial.weightTotal).
-               
+
     IF NOT ipbf-estCostMaterial.noCharge THEN 
     DO:
         ASSIGN 
@@ -3933,9 +3942,9 @@ PROCEDURE pProcessBoard PRIVATE:
         RUN pAddError("Board '" + ipbf-ef.board + "' is not valid", gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.
-    IF NOT CAN-DO(gcBoardMatTypes,bf-item.mat-type) THEN 
+    IF NOT fIsBoardMaterial(bf-item.mat-type) THEN 
     DO:
-        RUN pAddError("Board '" + ipbf-ef.board + "' is valid material but not a material type of " + gcBoardMatTypes, gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
+        RUN pAddError("Board '" + ipbf-ef.board + "' is valid material but not a board material type.", gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.   
     FOR EACH bf-item-bom NO-LOCK
@@ -4354,7 +4363,7 @@ PROCEDURE pProcessPacking PRIVATE:
         BY lIsPallet DESCENDING:
         
         RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, ttPack.cItemID, bf-estCostBlank.estCostBlankID, BUFFER bf-estCostMaterial).
-        
+        bf-estCostMaterial.basisWeight = 0.  //For Case material, the basis weight is not weight per MSF
         IF ttPack.lIsCase THEN 
         DO:
             IF ttPack.iCountPerSubUnit NE 0 THEN
@@ -4425,7 +4434,7 @@ PROCEDURE pProcessPacking PRIVATE:
                     bf-estCostMaterial.quantityRequiredNoWaste = ttPack.dQtyMultiplier.
                 END CASE.
                 ASSIGN                                                 
-                    bf-estCostMaterial.addToWeightTare    = NO
+                    bf-estCostMaterial.addToWeightTare    = YES
                     bf-estCostMaterial.quantityUOM        = ttPack.cQtyUOM
                     bf-estCostMaterial.costOverridePerUOM = ttPack.dCostPerUOMOverride
                     bf-estCostMaterial.noCharge           = ttPack.lNoCharge
@@ -5175,6 +5184,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glUseBlankVendor = lFound AND cReturn EQ "Blank Vendor".
 
+    RUN sys/ref/nk1look.p (ipcCompany, "CEShipWeight", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    glUseGrossWeight = lFound AND cReturn EQ "Gross".
+
 END PROCEDURE.
 
 
@@ -5236,7 +5248,7 @@ FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
         NO-ERROR.
     IF AVAILABLE bf-estCostOperation THEN
     DO:
-         lFoam = IsFoamStyle (bf-estCostOperation.company, bf-estCostOperation.estimateNo, bf-estCostOperation.formNo).
+         lFoam = fIsFoamStyle (bf-estCostOperation.company, bf-estCostOperation.estimateNo, bf-estCostOperation.formNo).
          
         IF lFoam THEN
         DO:
@@ -5327,6 +5339,28 @@ FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
         
 END FUNCTION.
 
+FUNCTION fIsAdderMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for board
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsAdderMaterial", ipcMaterialTypeID).
+        
+END FUNCTION.
+
+FUNCTION fIsBoardMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for board
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsBoardMaterial", ipcMaterialTypeID).
+		
+END FUNCTION.
+
 FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
     (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
     /*------------------------------------------------------------------------------
@@ -5336,6 +5370,74 @@ FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
 
     RETURN DYNAMIC-FUNCTION("fEstimate_IsDepartment", ipcDepartment, ipcDepartmentList).
         
+END FUNCTION.
+
+FUNCTION fIsGlueMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for Glue
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsGlueMaterial", ipcMaterialTypeID).
+        
+		
+END FUNCTION.
+
+FUNCTION fIsInkMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for ink
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsInkMaterial", ipcMaterialTypeID).
+        
+		
+END FUNCTION.
+
+FUNCTION fIsLeafMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for leaf/film
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsLeafMaterial", ipcMaterialTypeID).
+    
+END FUNCTION.
+
+FUNCTION fIsPackingMaterial RETURNS LOGICAL PRIVATE
+	( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for packing
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsPackingMaterial", ipcMaterialTypeID).
+		
+END FUNCTION.
+
+FUNCTION fIsWaxMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for packing
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsWaxMaterial", ipcMaterialTypeID).
+		
+END FUNCTION.
+
+FUNCTION fIsWindowMaterial RETURNS LOGICAL PRIVATE
+    ( ipcMaterialTypeID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a material type, return if the material type is for packing
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsWindowMaterial", ipcMaterialTypeID).
+		
 END FUNCTION.
 
 FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
@@ -5360,7 +5462,7 @@ FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
     
 END FUNCTION.
 
-FUNCTION IsFoamStyle RETURNS LOGICAL 
+FUNCTION fIsFoamStyle RETURNS LOGICAL PRIVATE 
     (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
     /*------------------------------------------------------------------------------
      Purpose: Returns if any Item is Foam type in the Estimate

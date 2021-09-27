@@ -52,9 +52,11 @@ SESSION:ADD-SUPER-PROCEDURE (ghOutput).
 //RUN pTestExtendedCalc.
 //RUN pTestIsEAFunction.
 //RUN pTestAndCompareAllFGItems.
-RUN pTestAndCompareAllRMItems.
+//RUN pTestAndCompareAllRMItems.
 //RUN pTestAndCompareAllPOLines.
 //RUN pTestConversionWithLot.
+RUN pTestConversionForItemRM.
+
 /* **********************  Internal Procedures  *********************** */
 
 
@@ -411,7 +413,30 @@ PROCEDURE pTestConversionForItem PRIVATE:
         VIEW-AS ALERT-BOX.
     
 END PROCEDURE.
-
+PROCEDURE pTestConversionForItemRM PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dOldValue AS DECIMAL   NO-UNDO INITIAL .34.
+    DEFINE VARIABLE dNewValue AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO INITIAL "001".
+    DEFINE VARIABLE cItemID   AS CHARACTER NO-UNDO INITIAL "BAND".
+         
+    FIND FIRST item NO-LOCK 
+        WHERE item.company EQ cCompany
+        AND item.i-no EQ cItemID
+        NO-ERROR.
+    RUN Conv_ValueFromUOMtoUOM(cCompany, cItemID, "RM", dOldValue, "MLI", "LB", 0,0,0,0,0, OUTPUT dNewValue, OUTPUT lError, OUTPUT cMessage).
+    MESSAGE dNewValue SKIP(2)
+        cMessage
+        VIEW-AS ALERT-BOX.
+    
+    
+    
+END PROCEDURE.
 PROCEDURE pTestExtendedCalc PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
