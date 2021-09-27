@@ -18,6 +18,7 @@
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghOpProcs                             AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -69,6 +70,7 @@ DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
+DEFINE VARIABLE glCalcSourceForMachineStd             AS LOGICAL   NO-UNDO.  /* CEOpStandards */
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -132,6 +134,9 @@ RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
+RUN est/OperationProcs.p PERSISTENT SET ghOpProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOpProcs).
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE CalculateEstimate:
@@ -147,6 +152,7 @@ PROCEDURE CalculateEstimate:
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
 
+    RUN pCleanupObjects.
 END PROCEDURE.
 
 PROCEDURE CalculateEstimateWithPrompts:
@@ -161,6 +167,7 @@ PROCEDURE CalculateEstimateWithPrompts:
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
+    RUN pCleanupObjects.
     
 END PROCEDURE.
 
@@ -178,7 +185,8 @@ PROCEDURE CalculateJob:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, NO, OUTPUT opiEstCostHeaderID).
-
+    RUN pCleanupObjects.
+    
 END PROCEDURE.
 
 PROCEDURE CalculateJobWithPrompts:
@@ -195,7 +203,8 @@ PROCEDURE CalculateJobWithPrompts:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, YES, OUTPUT opiEstCostHeaderID).
-
+    RUN pCleanupObjects.
+    
 END PROCEDURE.
 
 PROCEDURE ChangeSellPrice:
@@ -3053,6 +3062,31 @@ PROCEDURE pGetStrapping PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pImportMachineStandards PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO.
+
+    DEFINE BUFFER bf-est-op FOR est-op.
+    
+    FOR EACH bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ ipcCompany
+        AND bf-est-op.est-no EQ ipcEstimateNo
+        AND bf-est-op.s-num EQ ipiFormNo
+        AND bf-est-op.line LT 500
+        AND bf-est-op.qty EQ ipdQty:
+            
+        RUN Operations_ImportMachineStandards
+            (ipcCompany, ipcEstimateNo, ipiFormNo, bf-est-op.b-num, bf-est-op.op-pass, bf-est-op.m-code).
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pProcessAdders PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: for a given form, build the estCostMaterial for adders
@@ -3497,6 +3531,12 @@ PROCEDURE pProcessOperations PRIVATE:
             IF est-op.qty GE ipbf-estCostHeader.quantityMaster THEN LEAVE.
         END.
     END.
+    
+    /* Import Machine Standards on each operation that isn't flagged as locked. */
+    IF glCalcSourceForMachineStd THEN
+        RUN pImportMachineStandards (ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo, ipbf-estCostForm.formNo, dQtyTarget).
+       
+       
     EMPTY TEMP-TABLE ttEstBlank.
     /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
@@ -5175,8 +5215,21 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEVendorDefault", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glUseBlankVendor = lFound AND cReturn EQ "Blank Vendor".
 
+    RUN sys/ref/nk1look.p (ipcCompany, "CEOpStandards", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    glCalcSourceForMachineStd = lFound AND cReturn EQ "Machine if Not Locked".
+    
 END PROCEDURE.
 
+PROCEDURE pCleanupObjects:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghFreight).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghFormula).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghOpProcs).
+    
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
