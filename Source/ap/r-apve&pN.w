@@ -1336,8 +1336,20 @@ DEF VAR ll-rcpth AS LOG.
                          tran-period,
                          "A",
                          tran-date,
-                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-invl.inv-no) ,
-                         "AP").                    
+                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no) + " Po:" + STRING(ap-invl.po-no) ,
+                         "AP").
+      RUN GL_SpCreateGLHist(cocode,
+                         tt-ap-invl.actnum,
+                         "ACPAY",
+                         vend.name  + "  " + string(ap-inv.inv-date),
+                         tran-date,
+                         tt-ap-invl.amt * -1,
+                         v-trnum,
+                         tran-period,
+                         "A",
+                         tran-date,
+                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-invl.inv-no) + " Po:" + STRING(ap-invl.po-no) ,
+                         "AP").                   
 
       find first po-ordl
           where po-ordl.company eq cocode
@@ -1680,7 +1692,7 @@ DEF VAR ll-rcpth AS LOG.
                          tran-period,
                          "A",
                          tran-date,
-                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-inv.inv-no),
+                         (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no),
                          "AP").    
     END.
   end. /* for each ap-inv */
@@ -1700,8 +1712,20 @@ DEF VAR ll-rcpth AS LOG.
                                tran-period,
                                "A",
                                tran-date,
-                               (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-inv.inv-no),
+                               (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no),
                                "AP").
+         RUN GL_SpCreateGLHist(cocode,
+                               v-frt-acct,
+                               "ACPAY",
+                               "ACCOUNTS PAYABLE FREIGHT",
+                               tran-date,
+                               -(ACCUM TOTAL ap-inv.freight * tt-report.ex-rate),
+                               v-trnum,
+                               tran-period,
+                               "A",
+                               tran-date,
+                               (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no),
+                               "AP").                      
         END.
 
         FOR EACH tt-ap-tax BREAK BY tt-ap-tax.actnum:
@@ -1722,22 +1746,23 @@ DEF VAR ll-rcpth AS LOG.
                                    "A",
                                    tran-date,
                                    tt-ap-tax.cDescription,
-                                   "AP").                
+                                   "AP"). 
+             RUN GL_SpCreateGLHist(cocode,
+                                   tt-ap-tax.actnum,
+                                   "ACPAY",
+                                   "ACCOUNTS PAYABLE TAX",
+                                   tran-date,
+                                   -(ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt),
+                                   v-trnum,
+                                   tran-period,
+                                   "A",
+                                   tran-date,
+                                   tt-ap-tax.cDescription,
+                                   "AP").                        
+                                   
             END.
-        END. 
-        
-        RUN GL_SpCreateGLHist(cocode,
-                           xap-acct,
-                           "ACPAY",
-                           "ACCOUNTS PAYABLE INVOICE",
-                           tran-date,
-                           (- g2),
-                           v-trnum,
-                           tran-period,
-                           "A",
-                           tran-date,
-                           "",
-                           "AP").          
+        END.         
+               
     END.
 END PROCEDURE.
 

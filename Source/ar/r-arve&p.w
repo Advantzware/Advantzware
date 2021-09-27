@@ -1096,7 +1096,7 @@ PROCEDURE post-gl :
                         tran-period,
                         "A",
                         tran-date,
-                        "",
+                        substring(wkdistrib.tr-dscr,INDEX(wkdistrib.tr-dscr,'#') - 3,32),
                         "AR").
 
     end.    /* each wkdistrib */
@@ -1426,6 +1426,7 @@ def var ws_net    like wkdistrib.amount column-label "Net"   no-undo.
 def var num-recs  like wkdistrib.recs no-undo.
 def var tot-debit  like wkdistrib.amount no-undo.
 def var tot-credit like wkdistrib.amount no-undo.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 
 {sys/form/r-top3w.f}
 
@@ -1558,11 +1559,12 @@ IF cust.factored THEN
           AND currency.ex-rate     GT 0
         NO-ERROR.        
     xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
-    {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
+    cDescription = "HEADER".
+    {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES cDescription }
 
     IF AVAIL currency THEN DO:
       ld-gl-amt = (ar-inv.gross * currency.ex-rate) - ar-inv.gross.
-      {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES "HEADER"}
+      {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES cDescription}
     END.
 
     FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ ar-inv.x-no
@@ -1578,8 +1580,8 @@ IF cust.factored THEN
 
       ld-gl-amt = ar-invl.amt * -1 *
                   (IF AVAIL currency THEN currency.ex-rate ELSE 1).
-
-      {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO "LINE"}
+      cDescription = "LINE " + string(ar-invl.LINE).
+      {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO cDescription }
 
       ASSIGN
        ld-tons[1] = IF ar-invl.t-weight NE 0 THEN ar-invl.t-weight
@@ -1617,8 +1619,8 @@ IF cust.factored THEN
 
       ld-gl-amt = ar-inv.freight * -1 *
                   (IF AVAIL currency THEN currency.ex-rate ELSE 1).
-
-      {sys/inc/gldstsum.i xar-freight ld-gl-amt NO "FREIGHT"}
+      cDescription = "FREIGHT".
+      {sys/inc/gldstsum.i xar-freight ld-gl-amt NO cDescription}
     END.
 
     IF ar-inv.tax-amt NE 0 THEN DO:
@@ -1655,8 +1657,8 @@ IF cust.factored THEN
             
             IF AVAILABLE currency THEN 
                 ld-gl-amt = ld-gl-amt * currency.ex-rate.
-
-            {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
+            cDescription = "TAX".
+            {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO cDescription}
         END.
     END.
 
@@ -1798,7 +1800,7 @@ IF cust.factored THEN
          ws_debit = 0
          ws_credit = 0
          ld-tons[2] = 0.
-
+          
       num-recs = num-recs + 1.
 
       IF wkdistrib.debit then

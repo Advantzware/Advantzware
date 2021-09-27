@@ -43,14 +43,11 @@ if v-actnum gt "" and v-cost ne ? then do:
 
   IF tmp-work-job.weight EQ ? THEN tmp-work-job.weight = 0.
 
-  find first work-job where work-job.actnum eq v-actnum no-error.
-  if not available work-job then do:
-    create work-job.
+  create work-job.
     assign
      work-job.actnum = v-actnum
      work-job.fg     = v-fg.
-  end.
-
+  
   assign
    work-job.amt     = work-job.amt + tmp-work-job.amt
    work-job.weight  = work-job.weight + tmp-work-job.weight

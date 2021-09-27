@@ -1155,10 +1155,7 @@ PROCEDURE gl-from-work:
     ------------------------------------------------------------------------------*/
     DEF INPUT PARAM ip-run AS INT NO-UNDO.
     DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
-    DEF VAR credits AS DEC INIT 0 NO-UNDO.
-    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
+        
     FIND FIRST period
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1169,30 +1166,21 @@ PROCEDURE gl-from-work:
         WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
-
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
+         
+        
           RUN GL_SpCreateGLHist(cocode,
                              work-gl.actnum,
                              "FGPOST",
                              (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
                                                       ELSE "FG Receipt from PO"),
                              v-post-date,
-                             (debits - credits),
+                             (work-gl.debits - work-gl.credits),
                              ip-trnum,
                              period.pnum,
                              "A",
                              v-post-date,
                              work-gl.cDesc,
-                             "FG").
-          ASSIGN
-             debits          = 0
-             credits         = 0.
-        END.
+                             "FG").             
     END.
 
 

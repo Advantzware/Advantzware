@@ -978,7 +978,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no),
+                        "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no) + " Line: " + STRING(ap-invl.LINE) ,
                         "AP").
       ASSIGN
        t1 = t1 + ap-invl.amt
@@ -1269,7 +1269,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no) ELSE ""),
                         "AP").
     
     ASSIGN
@@ -1286,7 +1286,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + string(ap-inv.inv-no) ELSE ""),
                         "AP").
   
   FOR EACH work-gl BREAK BY work-gl.actnum:

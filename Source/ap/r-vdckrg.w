@@ -854,7 +854,7 @@ do transaction on error undo, leave:
               w-actnum   = ap-payl.actnum
               w-amt-paid = ap-payl.amt-paid
               w-amt-disc = ap-payl.amt-disc
-              w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no).
+              w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no) + " Check: " + string(ap-payl.check-no).
            end.
            
            RELEASE ap-inv.
@@ -899,7 +899,7 @@ do transaction on error undo, leave:
                              tran-period,
                              "A",
                              udate,
-                             "Vendor:" + string(ap-pay.vend-no),
+                             "Vendor:" + string(ap-pay.vend-no) + " Check:" + STRING(ap-pay.check-no),
                              "AP").
           
           ASSIGN 
@@ -923,7 +923,7 @@ do transaction on error undo, leave:
                         tran-period,
                         "A",
                         udate,
-                        "Vendor" + string(ap-pay.vend-no),
+                        (IF AVAILABLE ap-pay THEN "Vendor" + string(ap-pay.vend-no) ELSE ""),
                         "AP").
    end.
 

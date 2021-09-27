@@ -1634,11 +1634,7 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
-  DEF VAR credits AS DEC INIT 0 NO-UNDO.
-  DEF VAR debits AS DEC INIT 0 NO-UNDO. 
-
-
+    
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1649,30 +1645,21 @@ PROCEDURE gl-from-work :
       WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
          OR (ip-run EQ 2 AND work-gl.job-no EQ "")
       BREAK BY work-gl.actnum:
-
-    ASSIGN
-     debits  = debits  + work-gl.debits
-     credits = credits + work-gl.credits.
-
-    IF LAST-OF(work-gl.actnum) THEN DO:
+                                        
       
       RUN GL_SpCreateGLHist(cocode,
                          work-gl.actnum,
                          "RMPOST",
                          (if work-gl.job-no NE "" then "RM Issue to Job" else "RM Receipt"),
                          v-post-date,
-                         debits - credits,
+                         work-gl.debits - work-gl.credits,
                          ip-trnum,
                          period.pnum,
                          "A",
                          v-post-date,
                          work-gl.cDesc,
-                         "RM").  
-      ASSIGN 
-       debits  = 0
-       credits = 0. 
-      
-    END.
+                         "RM").                
+    
   END.
 
 END PROCEDURE.
@@ -2700,24 +2687,20 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         IF tt-rctd.rita-code EQ "R"  AND  
            costtype.ap-accrued NE "" THEN DO:
 
-          /* Debit RM Asset */
-          FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.inv-asset NO-LOCK NO-ERROR.
-          IF NOT AVAIL work-gl THEN DO:
-            CREATE work-gl.
-            work-gl.actnum = costtype.inv-asset.
-          END.
+          /* Debit RM Asset */          
+          CREATE work-gl.
+          work-gl.actnum = costtype.inv-asset.
+          
           work-gl.debits = work-gl.debits + v-ext-cost.
-          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
-                          tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
-          /* Credit RM AP Accrued */
-          FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
-          IF NOT AVAIL work-gl THEN DO:
-            CREATE work-gl.
-            work-gl.actnum = costtype.ap-accrued.
-          END.
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
+          /* Credit RM AP Accrued */          
+          CREATE work-gl.
+          work-gl.actnum = costtype.ap-accrued.
+         
           work-gl.credits = work-gl.credits + v-ext-cost.
-          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
-                          tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
         END.
 
         ELSE
@@ -2783,7 +2766,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
                work-gl.actnum  = prod.wip-mat.
             END.
             work-gl.debits = work-gl.debits + ld.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
 
             /* Credit RM Asset */
@@ -2802,7 +2785,7 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
                work-gl.actnum  = costtype.inv-asset.
             END.
             work-gl.credits = work-gl.credits + ld.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2) ELSE IF 
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
                             tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line) ELSE "") + " " .
           END.
         END.
