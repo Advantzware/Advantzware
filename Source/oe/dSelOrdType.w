@@ -115,6 +115,12 @@ lblLabel-2
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD quoteForEstimateExists D-Dialog 
+FUNCTION quoteForEstimateExists RETURNS LOGICAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -673,7 +679,8 @@ PROCEDURE pCheckPo :
                     APPLY "entry" TO cCustPo .                    
                     
                 END.  
-                
+                     
+                IF quoteForEstimateExists() THEN
                 RUN oe/d-quotedprices.w("",cCompany,
                           cLoc,
                           eb.est-no,
@@ -883,3 +890,20 @@ END PROCEDURE.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION quoteForEstimateExists D-Dialog 
+FUNCTION quoteForEstimateExists RETURNS LOGICAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Returns logical based on existence of quote for input estimate
+    Notes:  
+------------------------------------------------------------------------------*/
+ 
+  RETURN CAN-FIND(FIRST quotehd WHERE 
+            quotehd.company EQ cCompany            
+            AND quotehd.est-no EQ FILL(" ",8 - LENGTH(TRIM(cOrderSource:SCREEN-VALUE IN FRAME {&FRAME-NAME}))) + TRIM(cOrderSource:SCREEN-VALUE IN FRAME {&FRAME-NAME})).
+    
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

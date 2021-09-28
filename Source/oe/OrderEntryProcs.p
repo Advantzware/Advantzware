@@ -164,7 +164,8 @@ PROCEDURE pGetEstDetail PRIVATE:
                     ttInputOrd.sman[1]   = eb.sman                     
                     ttInputOrd.carrier   = eb.carrier
                     ttInputOrd.frt-pay   = eb.chg-method
-                    ttInputOrd.s-comm[1] = eb.comm                      
+                    ttInputOrd.s-comm[1] = eb.comm   
+                    ttInputOrd.procat    = eb.procat
                     ttInputOrd.s-pct[1]  = 100
                     ttInputOrd.est-type  = est.est-type                      
                     ttInputOrd.cust-name = cust.NAME
@@ -434,6 +435,128 @@ PROCEDURE pCreateJob PRIVATE:
        
 END PROCEDURE.
 
+PROCEDURE pCreateOeOrdm PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the order evaluation parameters
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE PARAMETER BUFFER bf-ttInputOrd FOR ttInputOrd.
+    DEFINE PARAMETER BUFFER bf-ttInputOrdLine FOR ttInputOrdLine.
+    
+    DEFINE VARIABLE li-line  AS INTEGER   NO-UNDO.
+    DEFINE BUFFER bf-ordm FOR oe-ordm.
+    
+    FIND LAST bf-ordm NO-LOCK
+        WHERE bf-ordm.company EQ bf-ttInputOrd.company
+        AND bf-ordm.ord-no  EQ bf-ttInputOrd.ord-no
+        USE-INDEX oe-misc NO-ERROR.
+    li-line = IF AVAILABLE bf-ordm THEN bf-ordm.line ELSE 0.
+  
+    CREATE oe-ordm.    
+    ASSIGN
+        oe-ordm.company   = bf-ttInputOrd.company
+        oe-ordm.ord-no    = bf-ttInputOrd.ord-no
+        oe-ordm.est-no    = bf-ttInputOrd.est-no
+        oe-ordm.line      = li-line + 1
+        oe-ordm.bill      = "Y"
+        oe-ordm.s-man[1]  = bf-ttInputOrd.sman[1]
+        oe-ordm.s-pct[1]  = bf-ttInputOrd.s-pct[1]
+        oe-ordm.s-comm[1] = bf-ttInputOrd.s-comm[1]
+        oe-ordm.s-man[2]  = bf-ttInputOrd.sman[2]
+        oe-ordm.s-pct[2]  = bf-ttInputOrd.s-pct[2]
+        oe-ordm.s-comm[2] = bf-ttInputOrd.s-comm[2]
+        oe-ordm.s-man[3]  = bf-ttInputOrd.sman[3]
+        oe-ordm.s-pct[3]  = bf-ttInputOrd.s-pct[3]
+        oe-ordm.s-comm[3] = bf-ttInputOrd.s-comm[3]
+        
+        .
+
+    FIND FIRST ar-ctrl WHERE ar-ctrl.company = bf-ttInputOrd.company NO-LOCK NO-ERROR.
+    IF AVAILABLE ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ bf-ttInputOrd.company
+         AND cust.cust-no EQ bf-ttInputOrd.cust-no NO-ERROR.
+
+    FIND FIRST prep NO-LOCK 
+            WHERE prep.company EQ bf-ttInputOrd.company 
+            AND prep.code    EQ bf-ttInputOrdLine.i-no
+            NO-ERROR.
+    IF AVAILABLE prep AND NOT prep.commissionable THEN
+        ASSIGN 
+            oe-ordm.s-comm[1] = 0 
+            oe-ordm.s-comm[2] = 0
+            oe-ordm.s-comm[3] = 0
+            .
+    FIND FIRST est-prep NO-LOCK
+         where est-prep.company eq bf-ttInputOrd.company
+          and est-prep.est-no  eq bf-ttInputOrdLine.est-no
+          and est-prep.s-num   eq bf-ttInputOrdLine.form-no
+          and (est-prep.b-num  eq bf-ttInputOrdLine.blank-no or est-prep.b-num eq 0)
+          and est-prep.simon   eq "S" 
+          AND est-prep.orderID EQ ""
+        NO-ERROR.        
+    
+    IF AVAIL est-prep THEN
+    DO:
+       ASSIGN
+          oe-ordm.dscr = est-prep.dscr
+          oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
+          oe-ordm.estPrepLine = est-prep.LINE 
+          oe-ordm.form-no  = est-prep.s-num
+          oe-ordm.blank-no = est-prep.b-num 
+          oe-ordm.estPrepEqty   = est-prep.eqty .
+          
+          /*IF ceprepprice-chr EQ "Profit" THEN
+              oe-ordm.amt  = (est-prep.cost * est-prep.qty) / (1 - (est-prep.mkup / 100)) *
+                             (est-prep.amtz / 100).
+          ELSE
+            oe-ordm.amt  = (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) *
+                           (est-prep.amtz / 100).
+                           
+          IF ceprep-cha EQ "Dollar" THEN DO:
+             {sys/inc/roundup.i oe-ordm.amt}
+          END.
+          
+          IF ceprep-cha EQ "FiveDollar" THEN DO:
+             {sys/inc/roundupfive.i oe-ordm.amt}
+          END.         */        
+    END.
+    ASSIGN oe-ordm.spare-char-1 = bf-ttInputOrd.tax-gr
+           /*oe-ordm.tax          = fGetTaxableMisc(bf-ttInputOrd.company, bf-ttInputOrd.cust-no, bf-ttInputOrd.ship-id, bf-ttInputOrdLine.i-no)*/ .      
+  
+    /*IF i = 1 THEN 
+    DO:
+        IF AVAILABLE oe-ord THEN
+            FIND FIRST bf-ordl OF oe-ord NO-LOCK NO-ERROR.
+        IF AVAILABLE bf-ordl THEN
+            ASSIGN
+                oe-ordm.spare-char-2 = bf-ordl.i-no 
+                oe-ordm.ord-i-no     = bf-ordl.job-no
+                oe-ordm.ord-line     = bf-ordl.job-no2
+                oe-ordm.spare-int-1  = bf-ordl.LINE .
+    END.
+    ELSE 
+    DO:
+        ASSIGN
+            oe-ordm.spare-char-2 = v-fgitem .
+        IF AVAILABLE oe-ord THEN
+            FIND FIRST bf-ordl OF oe-ord 
+                WHERE bf-ordl.i-no EQ v-fgitem NO-LOCK NO-ERROR.
+        IF AVAILABLE bf-ordl THEN
+            ASSIGN
+                oe-ordm.ord-i-no = bf-ordl.job-no
+                oe-ordm.ord-line = bf-ordl.job-no2
+                oe-ordm.spare-int-1 = bf-ordl.LINE  .
+        
+    END.  */
+    
+    //est-prep.orderID = string(oe-ord.ord-no).
+    FIND CURRENT oe-ordm NO-LOCK NO-ERROR.  
+    
+    
+
+END PROCEDURE.    
+
 PROCEDURE pSaveData PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns the order evaluation parameters
@@ -473,23 +596,42 @@ PROCEDURE pSaveData PRIVATE:
      
     BUFFER-COPY ttInputOrd EXCEPT ord-no company loc rec_key job-no TO bf-oe-ord.
          
-    FOR EACH ttInputOrdLine:
+    FOR EACH ttInputOrdLine NO-LOCK
+        WHERE ttInputOrdLine.cItemType EQ "Order Line":
     
         CREATE bf-oe-ordl. 
         ASSIGN
-            bf-oe-ordl.ord-no   = iOrderNo
-            bf-oe-ordl.company  = ttInputOrd.company
-            bf-oe-ordl.job-no  = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE "".
+            bf-oe-ordl.ord-no    = iOrderNo
+            bf-oe-ordl.company   = ttInputOrd.company
+            bf-oe-ordl.job-no    = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
+            bf-oe-ordl.type-code = "O".
             .
-        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no TO bf-oe-ordl.
+        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl.
         
     END.  
+    
+    FOR EACH ttInputOrdLine NO-LOCK
+        WHERE ttInputOrdLine.cItemType EQ "Misc":
+    
+        /*CREATE bf-oe-ordl. 
+        ASSIGN
+            bf-oe-ordl.ord-no    = iOrderNo
+            bf-oe-ordl.company   = ttInputOrd.company
+            bf-oe-ordl.job-no    = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
+            bf-oe-ordl.type-code = "O".
+            .
+        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl. */
+        RUN pCreateOeOrdm( BUFFER ttInputOrd, BUFFER ttInputOrdLine).
+        
+    END.  
+    
+    
     
     IF ttInputOrd.lCreateJob AND bf-oe-ord.job-no NE "" THEN
     DO:
         cJobNo  = FILL(" ",6 - length(TRIM(STRING(iOrderNo)))) + string(iOrderNo).
-        iJobNo2 = bf-oe-ord.job-no2.
-        RUN jc/job-no.p (INPUT-OUTPUT cJobNo, INPUT-OUTPUT iJobNo2,INPUT /*eb.procat*/ "Boxes",
+        iJobNo2 = 0.
+        RUN jc/job-no.p (INPUT-OUTPUT cJobNo, INPUT-OUTPUT iJobNo2,INPUT ttInputOrd.procat,
                                 INPUT ttInputOrd.est-no).
                                         
         IF cJobNo NE "" THEN 
