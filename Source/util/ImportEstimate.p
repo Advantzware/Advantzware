@@ -774,19 +774,6 @@ PROCEDURE pAssignInks:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateEstimate PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Runs the calculation program to build the calculated estimate data
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstNo   AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO INIT NO.
-    
-    RUN CalculateEstimate IN hdEstimateCalcProcs (ipcCompany, ipcEstNo, lPurge).
-    
-END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
@@ -806,6 +793,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdOpProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
         
@@ -1087,8 +1075,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
-    RUN pCalculateEstimate (est.company, est.est-no).
+    RUN est/OperationProcs.p PERSISTENT SET hdOpProcs.
     
+    RUN BuildEstimateRouting IN hdOpProcs (eb.company, eb.est-no, eb.form-no, ipbf-ttImportEstimate.Quantity). 
+    
+    IF VALID-HANDLE(hdOpProcs) THEN
+        DELETE PROCEDURE hdOpProcs.
+    
+
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
