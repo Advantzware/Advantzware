@@ -935,7 +935,7 @@ PROCEDURE run-process :
                 'Calculate Estimate ' STRING(bff-eb.est-no)   SKIP.
             ttEstimate.lCalculateEst = YES. 
             
-            RUN pQuoteAutoCreateFromEst IN hdQuoteProcs (ROWID(bff-eb),bff-eb.company, bff-eb.est-no).
+            RUN Quote_CreateQuoteFromEst IN hdQuoteProcs (ROWID(bff-eb),bff-eb.company, bff-eb.est-no).
         END.         
      
      
