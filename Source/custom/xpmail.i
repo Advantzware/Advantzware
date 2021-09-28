@@ -107,24 +107,23 @@ ASSIGN
     lv-mailattach       = FILE-INFO:FULL-PATHNAME + "," + lv-mailattach
     .
 
-cCheckMailFormat = ENTRY(1,ipType,"|") .
-
+cCheckMailFormat = ENTRY(1,ipType,"|").
 
 /* Customer, Vendor, ShipTo   = DIALOG BOX        */
-IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) ne '1' THEN
-do:
+IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) NE '1' THEN DO:
   /* Workaround for blank recipient list */
-  IF lv-mailto EQ "To:" THEN ASSIGN
-    lv-mailto = "".
-  RUN mail (lv-mailto,        /* Mail Recepients  */
-            lv-mailsubject,   /* Subject          */
-            lv-mailbody,      /* Body             */
-            lv-mailattach,    /* Attachment       */
-            1,                /* Mail Dialog Type */
-            OUTPUT retcode).  /* Return Code      */
+  IF lv-mailto EQ "To:" THEN
+  lv-mailto = "".
+  RUN mail (
+    lv-mailto,      /* Mail Recepients  */
+    lv-mailsubject, /* Subject          */
+    lv-mailbody,    /* Body             */
+    lv-mailattach,  /* Attachment       */
+    1,              /* Mail Dialog Type */
+    OUTPUT retcode  /* Return Code      */
+    ).
   
-end.
-
+END.
 /* Customer1, Vendor1, ShipTo1 = SILENT MODE      */ 
 ELSE
 RUN mail (
