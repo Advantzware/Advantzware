@@ -59,7 +59,7 @@ PROCEDURE pBuildRoutingTest PRIVATE:
             VIEW-AS ALERT-BOX.
         RETURN.
     END.
-    RUN BuildRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    RUN pBuildRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
     
     RUN pGetRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
     

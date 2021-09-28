@@ -812,9 +812,10 @@ PROCEDURE pProcessDCDept:
     DEFINE PARAMETER BUFFER ipbf-ef         FOR ef.
     DEFINE PARAMETER BUFFER ipbf-eb         FOR eb.
     DEFINE INPUT  PARAMETER ipdEstQty       AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplMachineAdded AS LOGICAL NO-UNDO.
     
-    RUN pCheckAndAddMachine (BUFFER ipbf-eb, "DC",NO, ipdEstQty, 1, OUTPUT oplMachineAdded).
+    DEFINE VARIABLE lMachineAdded AS LOGICAL NO-UNDO.
+    
+    RUN pCheckAndAddMachine (BUFFER ipbf-eb, "DC",NO, ipdEstQty, 1, OUTPUT lMachineAdded).
     
 END PROCEDURE.
 
