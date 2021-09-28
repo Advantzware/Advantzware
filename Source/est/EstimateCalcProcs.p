@@ -43,13 +43,6 @@ DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
 
-DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITIAL "Single".
-DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
-DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
-DEFINE VARIABLE gcTypeMisc                            AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
-DEFINE VARIABLE gcTypeWood                            AS CHARACTER NO-UNDO INITIAL "Wood".
-DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
-
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
 DEFINE VARIABLE gcErrorImportant                      AS CHARACTER NO-UNDO INITIAL "Important".
 DEFINE VARIABLE gcErrorCritical                       AS CHARACTER NO-UNDO INITIAL "Critical".
@@ -154,19 +147,6 @@ PROCEDURE CalculateEstimate:
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
 
-PROCEDURE CalculateEstimateWithPrompts:
-    /*------------------------------------------------------------------------------
-    Purpose:  Public Procedure that calculates estimate and may include UI prompts
-    Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
-    
-    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
-    
-    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
-    
 END PROCEDURE.
 
 PROCEDURE CalculateEstimateWithPrompts:
@@ -4164,12 +4144,6 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.special3MarkupPct           = IF bf-ce-ctrl.spec-%[3] < 1 THEN bf-ce-ctrl.spec-%[3] ELSE 0 /*ctrl[4] - already a fraction?*/ 
         ipbf-estCostHeader.special3FlatValue           = IF bf-ce-ctrl.spec-%[3] < 1 THEN 0 ELSE bf-ce-ctrl.spec-%[3] /*REFACTOR - treatment of Special Costs*/
         .
-    CASE bf-est.estimateTypeID:
-        WHEN "Misc" THEN 
-            ipbf-estCostHeader.estType = gcTypeMisc.
-        WHEN "Wood" THEN
-            ipbf-estCostHeader.estType = gcTypeWood.
-    END CASE.
     
 END PROCEDURE.
 
