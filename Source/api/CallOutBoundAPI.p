@@ -108,11 +108,11 @@ END.
 
 /* This is temporary fix to send BASE64 encoded request to AMS, until AMS provides a fix. Has to be deleted once they provide a fix */
 IF gcAPIID EQ "SendJobAMS" THEN DO:
-    /* Copy request data into memory pointer (byte arraty) */
-    COPY-LOB FROM iplcRequestData TO mmptrRequestData.
-    
     /* Strip the first 4 characters of the request data, which contains "XML=" (url form key) */
     iplcRequestData = SUBSTRING (iplcRequestData, 5).
+
+    /* Copy request data into memory pointer (byte arraty) */
+    COPY-LOB FROM iplcRequestData TO mmptrRequestData.
     
     /* Encode the byte data in base64 and copy to longchar  */
     iplcRequestData = BASE64-ENCODE(mmptrRequestData).
