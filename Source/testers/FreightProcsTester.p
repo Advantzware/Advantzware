@@ -193,7 +193,7 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
                 estRelease.monthsAtShipFrom = 3
                 estRelease.stackHeight = 2
                 .
-            RUN GetStorageAndHandlingForLocation IN hFreightProcs (estRelease.company, estRelease.shipFromLocationID, estRelease.stackHeight,
+            RUN GetStorageAndHandlingForLocation IN hFreightProcs (estRelease.company, estRelease.shipFromLocationID, estRelease.stackHeight, eb.tr-wid, eb.tr-len,
                 OUTPUT estRelease.storageCost, OUTPUT estRelease.handlingCost, OUTPUT lError, OUTPUT cMessage). 
         RUN CalcStorageAndHandlingForEstRelease IN hFreightProcs (iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
         IF lError THEN 

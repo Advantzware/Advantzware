@@ -54,7 +54,7 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
-ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Year Open,Type,Current YEAR(1),Current YEAR(2),Current YEAR(3),Current YEAR(4),Current YEAR(5),Current YEAR(6)," +
+ASSIGN cTextListToSelect = "Account No,Acc Description,Current Year Open Balance,Last Year Open Balance,Type,Current YEAR(1),Current YEAR(2),Current YEAR(3),Current YEAR(4),Current YEAR(5),Current YEAR(6)," +
                             "Current YEAR(7),Current YEAR(8),Current YEAR(9),Current YEAR(10),Current YEAR(11),Current YEAR(12),Current YEAR(13),LAST YEAR(1),LAST YEAR(2),LAST YEAR(3),LAST YEAR(4)," +
                             "LAST YEAR(5),LAST YEAR(6),LAST YEAR(7),LAST YEAR(8),LAST YEAR(9),LAST YEAR(10),LAST YEAR(11),LAST YEAR(12),LAST YEAR(13),CURRENT YEAR Budget(1),CURRENT YEAR Budget(2),CURRENT YEAR Budget(3)," +
                             "CURRENT YEAR Budget(4),CURRENT YEAR Budget(5),CURRENT YEAR Budget(6),CURRENT YEAR Budget(7),CURRENT YEAR Budget(8),CURRENT YEAR Budget(9),CURRENT YEAR Budget(10),CURRENT YEAR Budget(11),CURRENT YEAR Budget(12)," +
@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "Account No,Acc Description,Curr Year Open Bal,Last Y
                         "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc,inactive"  .
 {sys/inc/ttRptSel.i}
     ASSIGN 
-    cTextListToDefault = "Account No,Acc Description,Type,Inactive"  .
+    cTextListToDefault = "Account No,Acc Description,Type,Inactive,Current Year Open Balance,Last Year Open Balance"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

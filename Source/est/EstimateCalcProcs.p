@@ -134,10 +134,6 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-ASSIGN 
-    /*Build mapping from estimate type # to descriptive type*/ 
-    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
-    .
 
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
@@ -158,6 +154,19 @@ PROCEDURE CalculateEstimate:
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
 
+PROCEDURE CalculateEstimateWithPrompts:
+    /*------------------------------------------------------------------------------
+    Purpose:  Public Procedure that calculates estimate and may include UI prompts
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
+    
 END PROCEDURE.
 
 PROCEDURE CalculateEstimateWithPrompts:
@@ -1760,6 +1769,8 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
 
     DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     DEFINE VARIABLE iQtyCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
     
@@ -1784,8 +1795,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
-                IF fIsComboType(ENTRY(bf-est.est-type, gcTypeList)) AND iQtyCount GT 1 THEN LEAVE.
-                
+
                 iQty = IF bf-est-qty.qty[iQtyCount] EQ 0 AND iQtyCount EQ 1 THEN bf-est-qty.eqty ELSE bf-est-qty.qty[iQtyCount].
                 IF iQty NE 0 THEN 
                 DO:
@@ -1794,6 +1804,10 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
                     CREATE ttEstCostHeaderToCalc.
                     ASSIGN 
                         ttEstCostHeaderToCalc.iEstCostHeaderID = opiEstCostHeaderID.
+                    FIND FIRST bf-estCostHeader NO-LOCK 
+                        WHERE bf-estCostHeader.estCostHeaderID EQ opiEstCostHeaderID
+                        NO-ERROR.
+                    IF AVAILABLE bf-estCostHeader AND fIsComboType(bf-estCostHeader.estType) THEN LEAVE.
                 END.
             END.
     END.
@@ -4116,7 +4130,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
     ASSIGN 
         ipbf-estCostHeader.industry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
-        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetType", bf-est.est-type, bf-est.estimateTypeID)
+        ipbf-estCostHeader.estType                     = DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-est.est-type, bf-est.estimateTypeID)
         ipbf-estCostHeader.warehouseID                 = bf-est.loc
         ipbf-estCostHeader.marginOn                    = bf-ce-ctrl.sell-by
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup

@@ -20,6 +20,7 @@ CLASS system.Setting:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCompany                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUser                        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iUserSecurityLevel           AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cScopeTypeWithContextList    AS CHARACTER NO-UNDO INITIAL "System,Company,Customer,ShipTo,Vendor".
     DEFINE VARIABLE cScopeTypeWithoutContextList AS CHARACTER NO-UNDO INITIAL "System,Company".
     DEFINE VARIABLE cSearchFieldListSettingType  AS CHARACTER NO-UNDO INITIAL "settingName,settingTypeDesc,defaultValue".
@@ -40,7 +41,8 @@ CLASS system.Setting:
 		SUPER ().
 		
 		DEFINE BUFFER bf-prgrms FOR prgrms.
-
+        DEFINE BUFFER bf-users  FOR users.
+        
 		RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
 		RUN spGetSessionParam (INPUT "UserID", OUTPUT cUser).
 
@@ -57,7 +59,12 @@ CLASS system.Setting:
              NO-ERROR.
         IF AVAILABLE bf-prgrms THEN
             CurrentProgramHotkey = bf-prgrms.mnemonic.
-            
+
+        FIND FIRST bf-users NO-LOCK
+             WHERE bf-users.user_id EQ cUser
+             NO-ERROR.
+        IF AVAILABLE bf-users THEN
+            iUserSecurityLevel = bf-users.securityLevel.            
 	END CONSTRUCTOR.
 
 	/*------------------------------------------------------------------------------
@@ -481,7 +488,11 @@ CLASS system.Setting:
                                 		    
     		IF ipcSettingName NE "" THEN
     		    cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.settingName BEGINS ' + QUOTER(ipcSettingname).
-    
+            
+            cSettingTypeQuery = cSettingTypeQuery 
+                              + (IF INDEX(cSettingTypeQuery, "WHERE") GT 0 THEN ' AND ' ELSE ' WHERE ')
+                              + ' (bf-settingType.securityLevel LE ' + STRING(iUserSecurityLevel) + ' OR bf-settingType.securityLevel EQ 0)'.
+
     		IF ipcCategory NE "" AND ipcCategory NE ? THEN DO:
     		    IF NUM-ENTRIES(ipcCategory) EQ 1 THEN
     		        cSettingTypeQuery = cSettingTypeQuery + ' AND bf-settingType.categoryTags CONTAINS ' + QUOTER(ipcCategory) + ' AND LOOKUP(' + QUOTER(ipcCategory) + ', bf-settingType.categoryTags) GT 0 '. 

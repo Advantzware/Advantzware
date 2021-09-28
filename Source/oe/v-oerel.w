@@ -48,9 +48,11 @@ DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.  
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN oe/ReleaseProcs.p PERSISTENT SET hdReleaseProcs.
 
 RUN methods/prgsecur.p
     (INPUT "OEDateMod",
@@ -1455,8 +1457,21 @@ PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
-------------------------------------------------------------------------------*/
-
+------------------------------------------------------------------------------*/  
+  DEFINE VARIABLE lHasBOLScanned AS LOGICAL NO-UNDO.
+  
+  IF AVAILABLE oe-relh THEN DO:
+      RUN Release_HasBOLScanned IN hdReleaseProcs (
+          INPUT  oe-relh.company,
+          INPUT  oe-relh.release#,
+          OUTPUT lHasBOLScanned
+          ).
+      
+      IF lHasBOLScanned THEN
+          MESSAGE "BOL Scanning started for the release"
+          VIEW-AS ALERT-BOX WARNING.
+  END.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
 ASSIGN adm-new-record = NO   .
   {methods/template/local/delete.i}
@@ -1464,7 +1479,7 @@ ASSIGN adm-new-record = NO   .
 &IF "{&FIRST-ENABLED-TABLE}" EQ "notes" &THEN
     RUN custom/notewtrg.p (ROWID({&FIRST-ENABLED-TABLE})).
   &ENDIF
-
+        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1475,6 +1490,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    IF VALID-HANDLE (hdReleaseProcs) THEN
+        DELETE PROCEDURE hdReleaseProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
