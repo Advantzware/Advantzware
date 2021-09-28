@@ -63,6 +63,8 @@ oSetting = NEW system.Setting().
 
 oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 
+DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -191,14 +193,14 @@ DEFINE FRAME F-Main
      btDelete AT ROW 31.95 COL 17 WIDGET-ID 62
      btJob AT ROW 2.62 COL 3 WIDGET-ID 2 NO-TAB-STOP 
      btPO AT ROW 2.62 COL 27.4 WIDGET-ID 24 NO-TAB-STOP 
-     btRelease AT ROW 2.62 COL 51.4 WIDGET-ID 48 NO-TAB-STOP 
-     btReturn AT ROW 2.62 COL 75.4 WIDGET-ID 50 NO-TAB-STOP 
-     btReprint AT ROW 2.62 COL 99.2 WIDGET-ID 52 NO-TAB-STOP 
-     btSplit AT ROW 2.62 COL 123 WIDGET-ID 54 NO-TAB-STOP 
-     btBOL AT ROW 2.62 COL 146.8 WIDGET-ID 64 NO-TAB-STOP 
+     btRelease AT ROW 2.62 COL 99.2 WIDGET-ID 48 NO-TAB-STOP 
+     btReturn AT ROW 2.62 COL 146.8 WIDGET-ID 50 NO-TAB-STOP 
+     btReprint AT ROW 2.62 COL 75.4 WIDGET-ID 52 NO-TAB-STOP 
+     btSplit AT ROW 2.62 COL 51.4 WIDGET-ID 54 NO-TAB-STOP 
+     btBOL AT ROW 2.62 COL 123 WIDGET-ID 64 NO-TAB-STOP 
      statusMessage AT ROW 32.19 COL 30 COLON-ALIGNED NO-LABEL
      btnExitText AT ROW 1.24 COL 191 COLON-ALIGNED NO-LABEL
-     btnSettingsText AT ROW 2.67 COL 172 COLON-ALIGNED NO-LABEL
+     btnSettingsText AT ROW 32.19 COL 160 COLON-ALIGNED NO-LABEL
      btnDeleteText AT ROW 32.19 COL 2 NO-LABEL
      btnPrintText AT ROW 32.19 COL 187 COLON-ALIGNED NO-LABEL
      rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
@@ -508,14 +510,14 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 200.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_setting ).
-       RUN set-position IN h_setting ( 2.67 , 193.00 ) NO-ERROR.
+       RUN set-position IN h_setting ( 32.14 , 181.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -529,6 +531,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
+
        /* Links to SmartBrowser h_b-loadtags-3. */
        RUN add-link IN adm-broker-hdl ( h_navigatefirst , 'NAV-FIRST':U , h_b-loadtags-3 ).
        RUN add-link IN adm-broker-hdl ( h_navigatelast , 'NAV-LAST':U , h_b-loadtags-3 ).
@@ -536,6 +541,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_navigateprev , 'NAV-PREV':U , h_b-loadtags-3 ).
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
+             h_setting , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -582,6 +590,15 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
+             h_f-job , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
+             h_navigatefirst , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
+             h_navigatelast , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
+             h_navigatenext , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -936,6 +953,13 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
 
+    ASSIGN
+        gcShowSettings = oSetting:GetByName("ShowSettings")
+        btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
+        .  
+        
+    IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+        {methods/run_link.i "Setting-SOURCE" "HideSettings"}        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1153,7 +1177,11 @@ PROCEDURE pWinReSize :
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
+            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                = btnPrintText:COL - btnSettingsText:WIDTH - 10            
             .
+
+        RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.            
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
         RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
