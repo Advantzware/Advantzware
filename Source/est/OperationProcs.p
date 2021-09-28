@@ -348,14 +348,20 @@ PROCEDURE pAddEstOPFromRouting PRIVATE:
     DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
     
     
-    DEFINE VARIABLE iSeq    AS INTEGER NO-UNDO INIT 1.
-    DEFINE VARIABLE riRowid AS ROWID   NO-UNDO.
+    DEFINE VARIABLE iSeq       AS INTEGER NO-UNDO INIT 1.
+    DEFINE VARIABLE riRowid    AS ROWID   NO-UNDO.
+    DEFINE VARIABLE iNumSheets AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dMRWaste   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMRHrs     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpeed     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
     
     DEFINE BUFFER bf-est-op FOR est-op.
     DEFINE BUFFER bf-mach   FOR mach.
     DEFINE BUFFER bf-est    FOR est.
     DEFINE BUFFER bf-ef     FOR ef.
     DEFINE BUFFER bf-eb     FOR eb.
+    DEFINE BUFFER bfExcl-est-op FOR est-op.
     
     
     FIND FIRST bf-est NO-LOCK
@@ -422,7 +428,22 @@ PROCEDURE pAddEstOPFromRouting PRIVATE:
          
         END.
               
-        RUN GetOperationStandardsForEstOp(riRowid).
+        RUN GetOperationStandardsForEstOp(riRowid, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dSpoilPrct, OUTPUT dMRWaste, OUTPUT iNumSheets).
+         
+        DO TRANSACTION:
+            FIND FIRST bfExcl-est-op EXCLUSIVE-LOCK
+                WHERE ROWID(bfExcl-est-op) = riRowid NO-ERROR.
+            
+            IF AVAILABLE bfExcl-est-op THEN
+                ASSIGN 
+                    bfExcl-est-op.op-speed = dSpeed
+                    bfExcl-est-op.op-mr    = dMRHrs
+                    bfExcl-est-op.op-spoil = dSpoilPrct
+                    bfExcl-est-op.op-waste = dMRWaste
+                    bfExcl-est-op.num-sh   = iNumSheets
+                    .
+        END. /* DO TRANSACTION */
+        
          
     END. /* FOR EACH ttRouting */
 
@@ -461,6 +482,42 @@ PROCEDURE pAddMachine PRIVATE:
            
     END.
 
+END PROCEDURE.
+
+PROCEDURE Operations_ImportMachineStandards:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachCode     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdSpeed        AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMRHrs        AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMRWaste      AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdSpoilPrct    AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE iNumSheets AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-est-op FOR est-op.
+
+    FIND FIRST bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ ipcCompany
+        AND bf-est-op.est-no EQ ipcEstimateNo
+        AND bf-est-op.s-num EQ ipiFormNo
+        AND bf-est-op.b-num EQ ipiBlankNo
+        AND bf-est-op.op-pass EQ ipiPass
+        AND bf-est-op.m-code EQ ipcMachCode
+        AND bf-est-op.line LT 500
+        AND bf-est-op.qty EQ ipdQty NO-ERROR.
+        
+    IF AVAILABLE bf-est-op THEN
+        RUN GetOperationStandardsForEstOp(ROWID(bf-est-op), OUTPUT opdSpeed, OUTPUT opdMRHrs, OUTPUT opdSpoilPrct, OUTPUT opdMRWaste, OUTPUT iNumSheets).
+       
 END PROCEDURE.
 
 
@@ -1318,14 +1375,17 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
      Purpose: given ESt-op rowid, gessign the Operations standards
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriRowid      AS ROWID NO-UNDO.
-    
+    DEFINE INPUT  PARAMETER ipriRowid       AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdSpeed        AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMRHrs        AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdSpoilPrct    AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMRWaste      AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiNumSheets    AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-est         FOR est.
     DEFINE BUFFER bf-ef          FOR ef.
     DEFINE BUFFER bf-eb          FOR eb.
     DEFINE BUFFER bf-est-op      FOR est-op.
-    DEFINE BUFFER bf-est-op-Excl FOR est-op.
     
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
@@ -1381,19 +1441,14 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
                 iNumSheets = INTEGER(cEstSheets) NO-ERROR.
         END.
         
-        DO TRANSACTION:
-            FIND FIRST bf-est-op-Excl EXCLUSIVE-LOCK
-                WHERE ROWID(bf-est-op-Excl) = ipriRowid NO-ERROR.
-            
-            IF AVAILABLE bf-est-op-Excl THEN
-                ASSIGN 
-                    bf-est-op-Excl.op-speed = dSpeed
-                    bf-est-op-Excl.op-mr    = dMRHrs
-                    bf-est-op-Excl.op-spoil = dSpoilPrct
-                    bf-est-op-Excl.op-waste = dMRWaste
-                    bf-est-op-Excl.num-sh   = iNumSheets
-                    .
-        END. /* DO TRANSACTION */
+        ASSIGN
+            opdMRHrs     = dMRHrs
+            opdSpoilPrct = dSpoilPrct
+            opdMRWaste   = dMRWaste
+            opdSpeed     = dSpeed
+            opiNumSheets = iNumSheets
+            .
+        
          
     END.
 

@@ -3064,27 +3064,29 @@ END PROCEDURE.
 
 PROCEDURE pImportMachineStandards PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose: Import Machine Standards on each operation that isn't flagged as locked
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstimateNo   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO.
-
-    DEFINE BUFFER bf-est-op FOR est-op.
+    DEFINE PARAMETER BUFFER ipbf-est-op           FOR est-op.
+    DEFINE PARAMETER BUFFER opbf-estCostOperation FOR estCostOperation.
     
-    FOR EACH bf-est-op NO-LOCK 
-        WHERE bf-est-op.company EQ ipcCompany
-        AND bf-est-op.est-no EQ ipcEstimateNo
-        AND bf-est-op.s-num EQ ipiFormNo
-        AND bf-est-op.line LT 500
-        AND bf-est-op.qty EQ ipdQty:
-            
-        RUN Operations_ImportMachineStandards
-            (ipcCompany, ipcEstimateNo, ipiFormNo, bf-est-op.b-num, bf-est-op.op-pass, bf-est-op.m-code).
-    END.
-
+    DEFINE VARIABLE dMRWaste   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMRHrs     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpeed     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
+    
+       
+    RUN Operations_ImportMachineStandards
+        (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+    
+    IF AVAILABLE opbf-estCostOperation THEN
+        ASSIGN
+            opbf-estCostOperation.quantityInSetupWaste      = dMRWaste
+            opbf-estCostOperation.hoursSetup                = dMRHrs
+            opbf-estCostOperation.speed                     = dSpeed
+            opbf-estCostOperation.quantityInRunWastePercent = dSpoilPrct
+            . 
+        
 END PROCEDURE.
 
 PROCEDURE pProcessAdders PRIVATE:
@@ -3532,11 +3534,6 @@ PROCEDURE pProcessOperations PRIVATE:
         END.
     END.
     
-    /* Import Machine Standards on each operation that isn't flagged as locked. */
-    IF glCalcSourceForMachineStd THEN
-        RUN pImportMachineStandards (ipbf-estCostHeader.company, ipbf-estCostHeader.estimateNo, ipbf-estCostForm.formNo, dQtyTarget).
-       
-       
     EMPTY TEMP-TABLE ttEstBlank.
     /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
@@ -3548,8 +3545,13 @@ PROCEDURE pProcessOperations PRIVATE:
         GROUP BY est-op.line DESCENDING:
 
     RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation).                    
+    
     IF AVAILABLE bf-estCostOperation THEN 
     DO:
+        /* Import Machine Standards */
+        IF glCalcSourceForMachineStd AND NOT est-op.isLocked THEN
+            RUN pImportMachineStandards (BUFFER est-op, BUFFER bf-estCostOperation).
+        
         /*REFACTOR to calculate quantities for combos*/        
         IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
         DO:  /*Calculate for Combo*/
