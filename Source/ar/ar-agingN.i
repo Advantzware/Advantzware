@@ -93,6 +93,7 @@ DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -105,7 +106,9 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                INDEX tt-inv sorter inv-no.
 DEFINE TEMP-TABLE ttArClass NO-UNDO
                   FIELD arclass AS INTEGER 
-                  FIELD amount  AS DECIMAL .
+                  FIELD cust-no AS CHARACTER
+                  FIELD amount  AS DECIMAL 
+                  INDEX arclass cust-no.
 
 &SCOPED-DEFINE for-each-arinv                      ~
     FOR EACH ar-inv                                ~
@@ -1295,8 +1298,13 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     end. /* for each ar-cashl record */
 
     c1 = cust-t[1] + cust-t[2] + cust-t[3] + cust-t[4] + cust-t[5].
-
-
+     
+    CREATE ttArClass.
+    ASSIGN
+        ttArClass.cust-no = cust.cust-no
+        ttArClass.arclass = cust.classID 
+        ttArClass.amount  = c1. 
+       
     if (not v-first-cust) or c1 ne 0 then do:
       if det-rpt = 1 then do:
 
@@ -1391,11 +1399,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           end.
       END.
       IF v-sort EQ "ArClass" THEN do:          
-          c1 = arclass-t[1] + arclass-t[2] + arclass-t[3] + arclass-t[4].               
-          CREATE ttArClass.
-          ASSIGN
-               ttArClass.arclass = cust.classID 
-               ttArClass.amount  = decimal(c1).
+          c1 = arclass-t[1] + arclass-t[2] + arclass-t[3] + arclass-t[4].                         
                 
             IF det-rpt <> 3 THEN
                 RUN total-head("****** AR CLASS TOTALS","",c1,arclass-t[1],arclass-t[2],
@@ -1671,55 +1675,72 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     END.
   END.
   
-  IF lIncludeGLTotal AND v-sort EQ "arclass" THEN
-  FOR EACH ttArClass NO-LOCK
-      WHERE ttArClass.arclass NE 0 
+  IF lIncludeGLTotal THEN
+  FOR EACH ttArClass NO-LOCK        
       BREAK BY ttArClass.arclass:
       
       FIND FIRST arclass NO-LOCK
            WHERE arclass.classID EQ ttArClass.arclass
            NO-ERROR.
-      IF not AVAIL arclass THEN NEXT.     
-     
-     FIND FIRST account NO-LOCK
-          WHERE account.company EQ cocode
-          AND account.actnum EQ arclass.receivablesAcct NO-ERROR. 
-     
-     IF FIRST(ttArClass.arclass) THEN
-     PUT SKIP(1) "G/L Total Summary:" SKIP.
       
-     IF AVAIL account THEN
-     RUN GL_GetAccountOpenBal(ROWID(account),v-date, OUTPUT dOpeningBalance).
+     IF FIRST(ttArClass.arclass) THEN
+     DO:
+        PUT SKIP(1) "G/L Total Summary:" SKIP.
+        IF v-export THEN
+        EXPORT STREAM s-temp DELIMITER ","
+             ""
+             "G/L Total Summary:" SKIP.
+     END.
      
-     PUT SPACE(10) "ARClass:" (IF AVAIL arclass THEN arclass.DESCRIPTION ELSE "") FORMAT "x(25)" 
-         ttArClass.amount FORMAT "$->>>,>>>,>>>,>>9.99"   SPACE(2) "G/L Account Balance:" arclass.receivablesAcct FORMAT "x(20)" 
-         (IF AVAILABLE account THEN account.dscr ELSE "") FORMAT "x(25)"  dOpeningBalance  FORMAT "$->>>,>>>,>>>,>>9.99"
-         SPACE(2) "Variance:" (ttArClass.amount - dOpeningBalance) FORMAT "$->>>,>>>,>>>,>>9.99"  SKIP  .
-    IF v-export THEN DO:
-        IF FIRST(ttArClass.arclass) THEN
-        EXPORT STREAM s-temp DELIMITER ","
-        ""
-        "G/L Total Summary:" SKIP.
+     IF FIRST-OF(ttArClass.arclass) THEN
+     ASSIGN
+         dArClassAmount  = 0
+         dOpeningBalance = 0.
+          
+     dArClassAmount = dArClassAmount + ttArClass.amount .
+     
+     IF LAST-OF(ttArClass.arclass) THEN
+     DO:
+         IF AVAIL arclass THEN
+         DO:         
+             FIND FIRST account NO-LOCK
+                  WHERE account.company EQ cocode
+                  AND account.actnum EQ arclass.receivablesAcct NO-ERROR.          
+         END. 
+         ELSE DO:
+            FIND FIRST ar-ctrl NO-LOCK WHERE ar-ctrl.company = cocode NO-ERROR.
+            FIND FIRST account NO-LOCK
+                  WHERE account.company EQ cocode
+                  AND account.actnum EQ ar-ctrl.receivables NO-ERROR.
+         END.
+         
+         IF AVAIL account THEN
+         RUN GL_GetAccountOpenBal(ROWID(account),v-date, OUTPUT dOpeningBalance).
+         
+         PUT SPACE(10) "ARClass:" (IF AVAIL arclass THEN arclass.DESCRIPTION ELSE "") FORMAT "x(25)" 
+             dArClassAmount FORMAT "$->>>,>>>,>>>,>>9.99"   SPACE(2) "G/L Account Balance:" (IF AVAIL account THEN account.actnum ELSE "") FORMAT "x(20)" 
+             (IF AVAILABLE account THEN account.dscr ELSE "") FORMAT "x(25)"  dOpeningBalance  FORMAT "$->>>,>>>,>>>,>>9.99"
+             SPACE(2) "Variance:" (dArClassAmount - dOpeningBalance) FORMAT "$->>>,>>>,>>>,>>9.99"  SKIP  .
         
-        EXPORT STREAM s-temp DELIMITER ","
-        ""
-        ""
-        "ARClass:" 
-        (IF AVAIL arclass THEN arclass.DESCRIPTION ELSE "") FORMAT "x(25)"
-        ""
-        ttArClass.amount FORMAT "$->>>,>>>,>>>,>>9.99"
-        "G/L Account Balance:"
-        arclass.receivablesAcct FORMAT "x(20)"
-        (IF AVAILABLE account THEN account.dscr ELSE "") FORMAT "x(25)"
-        ""
-        dOpeningBalance  FORMAT "$->>>,>>>,>>>,>>9.99"
-        "Variance:"
-        (ttArClass.amount - dOpeningBalance) FORMAT "$->>>,>>>,>>>,>>9.99"
-        .
-        
-    END.          
+        IF v-export THEN DO:                        
+            EXPORT STREAM s-temp DELIMITER ","
+            ""
+            ""
+            "ARClass:" 
+            (IF AVAIL arclass THEN arclass.DESCRIPTION ELSE "") FORMAT "x(25)"
+            ""
+            dArClassAmount FORMAT "$->>>,>>>,>>>,>>9.99"
+            "G/L Account Balance:"
+            (IF AVAIL account THEN account.actnum ELSE "") FORMAT "x(20)"
+            (IF AVAILABLE account THEN account.dscr ELSE "") FORMAT "x(25)"
+            ""
+            dOpeningBalance  FORMAT "$->>>,>>>,>>>,>>9.99"
+            "Variance:"
+            (dArClassAmount - dOpeningBalance) FORMAT "$->>>,>>>,>>>,>>9.99"
+            .
+        END.    
+     END.                 
   END.
-
 
   STATUS DEFAULT "".
 

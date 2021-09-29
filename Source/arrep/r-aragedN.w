@@ -1270,8 +1270,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 DO:
-        ASSIGN {&self-name}.
-        RUN pSetGLTotal.
+        ASSIGN {&self-name}.         
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1538,8 +1537,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     ASSIGN 
         cColumnInit = NO .
-    RUN pChangeDest.
-    RUN pSetGLTotal.
+    RUN pChangeDest.    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1922,31 +1920,6 @@ PROCEDURE pChangeDest :
                 .
         ASSIGN 
             fi_file:SCREEN-VALUE = "c:\tmp\ARAgedReceivables.csv".    
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGLTotal C-Win 
-PROCEDURE pSetGLTotal :
-/*------------------------------------------------------------------------------
-     Purpose:    
-     Parameters:  <none>
-     Notes:      
-    ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-        IF rd_sort:SCREEN-VALUE EQ "ArClass" THEN
-            ASSIGN                 
-                tgIncludeGLTotal:HIDDEN       = NO
-                tgIncludeGLTotal:SENSITIVE    = YES                  
-                .
-        ELSE
-            ASSIGN                 
-                tgIncludeGLTotal:HIDDEN       = YES
-                tgIncludeGLTotal:SENSITIVE    = NO                  
-                .              
     END.
 
 END PROCEDURE.
