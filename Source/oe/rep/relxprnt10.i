@@ -23,11 +23,12 @@ def TEMP-TABLE w-oe-rell NO-UNDO
    FIELD job-no2 AS INT
    FIELD loc AS CHAR
    FIELD loc-bin AS CHAR
-   field seq    as   int
+   FIELD seq    AS   INT
    FIELD relseq AS INT 
    FIELD cases  AS INT
    FIELD qty-case AS INT
-   field set-no like fg-set.set-no
+   FIELD set-no LIKE fg-set.set-no
+   FIELD lot-no LIKE oe-rell.lot-no
    INDEX r-no IS PRIMARY r-no i-no
    INDEX idx set-no seq i-no po-no.
 
@@ -597,9 +598,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
               
-               IF AVAILABLE oe-rell THEN
-               DO:
-                  w-bin.w-par = oe-rell.lot-no.              
+               IF AVAILABLE w-oe-rell AND w-oe-rell.lot-no NE ""  THEN
+               DO: 
+                  w-bin.w-par = "Lot#: " + w-oe-rell.lot-no.              
                END.
           
                leave.
