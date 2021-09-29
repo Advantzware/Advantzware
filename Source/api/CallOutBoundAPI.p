@@ -61,7 +61,8 @@ DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
-DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFTPProcs           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE mmptrRequestData     AS MEMPTR    NO-UNDO.      
 
 DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
 
@@ -103,6 +104,23 @@ FOR FIRST APIOutbound NO-LOCK
         gcHostSSHKey       = APIOutbound.hostSSHKey
         glAPIConfigFound   = YES
         .
+END.
+
+/* This is temporary fix to send BASE64 encoded request to AMS, until AMS provides a fix. Has to be deleted once they provide a fix */
+IF gcAPIID EQ "SendJobAMS" THEN DO:
+    /* Strip the first 4 characters of the request data, which contains "XML=" (url form key) */
+    iplcRequestData = SUBSTRING (iplcRequestData, 5).
+
+    /* Copy request data into memory pointer (byte arraty) */
+    COPY-LOB FROM iplcRequestData TO mmptrRequestData.
+    
+    /* Encode the byte data in base64 and copy to longchar  */
+    iplcRequestData = BASE64-ENCODE(mmptrRequestData).
+    
+    /* Add the url form key back */
+    iplcRequestData = "XML=" + iplcRequestData.
+    
+    glcRequestData  = iplcRequestData.    
 END.
 
 IF NOT glAPIConfigFound THEN DO:
