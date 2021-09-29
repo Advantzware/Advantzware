@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: browsers/APIOutboundDetails.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -306,7 +306,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+{methods/browsers/setCellColumns.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -361,6 +361,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win
+PROCEDURE local-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN setCellColumns.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
