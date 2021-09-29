@@ -154,7 +154,9 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Spec Note 2 Group,Spec Note 2 Title,Spec Note 2 Note [Large]," +
                             "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
                             "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
-                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large],Product Tax Class" .
+                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large],Product Tax Class," +
+                            "Vendor 1,Vendor 1 Item #,Vendor 2,Vendor 2 Item #"
+                            .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
