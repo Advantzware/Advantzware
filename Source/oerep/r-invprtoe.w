@@ -305,7 +305,7 @@ DEFINE VARIABLE fi_broker-bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
 
 DEFINE VARIABLE fi_depts AS CHARACTER FORMAT "X(100)" 
      VIEW-AS FILL-IN 
-     SIZE 41 BY .8.
+     SIZE 41 BY .81.
 
 DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
       VIEW-AS TEXT 
@@ -515,15 +515,15 @@ DEFINE FRAME FRAME-A
      end_bol AT ROW 6.57 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
      tb_reprint AT ROW 7.67 COL 28
-     tb_collate AT ROW 7.67 COL 64
-     tb_posted AT ROW 8.62 COL 28
-     tb_setcomp AT ROW 8.62 COL 64 WIDGET-ID 2
-     tb_prt-dupl AT ROW 9.57 COL 59 RIGHT-ALIGNED
-     tb_prt-inst AT ROW 9.57 COL 84.8 RIGHT-ALIGNED
-     tb_prt-zero-qty AT ROW 10.52 COL 55.8 RIGHT-ALIGNED WIDGET-ID 12
-     tb_open-inv AT ROW 10.52 COL 88 RIGHT-ALIGNED WIDGET-ID 34
+     tb_collate AT ROW 7.67 COL 61
+     tb_setcomp AT ROW 8.62 COL 28 WIDGET-ID 2
+     tb_posted AT ROW 8.62 COL 61
+     tb_prt-inst AT ROW 9.57 COL 48.8 RIGHT-ALIGNED
+     tb_prt-dupl AT ROW 9.57 COL 92 RIGHT-ALIGNED
+     tb_open-inv AT ROW 10.52 COL 52 RIGHT-ALIGNED WIDGET-ID 34
+     tb_prt-zero-qty AT ROW 10.52 COL 88.8 RIGHT-ALIGNED WIDGET-ID 12
      tb_print-dept AT ROW 11.48 COL 48.8 RIGHT-ALIGNED
-     fi_depts AT ROW 11.5 COL 49 COLON-ALIGNED HELP
+     fi_depts AT ROW 11.52 COL 49 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
      rd_sort AT ROW 12.43 COL 39 NO-LABEL
      fi_broker-bol AT ROW 12.43 COL 75 COLON-ALIGNED HELP
