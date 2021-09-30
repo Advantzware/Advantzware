@@ -1,10 +1,10 @@
  
  /*------------------------------------------------------------------------
-    File        : UserColumn
+    File        : system.UserColumn.cls
     Purpose     : 
     Syntax      : 
     Description : 
-    Author(s)   : gshde
+    Author(s)   : DEVA$!
     Created     : Tue Sep 28 20:56:14 IST 2021
     Notes       : 
   ----------------------------------------------------------------------*/
