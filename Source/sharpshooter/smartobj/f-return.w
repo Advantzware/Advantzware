@@ -95,11 +95,11 @@ DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0
 
 DEFINE FRAME F-Main
      fiQuantity AT ROW 3.86 COL 28.2 COLON-ALIGNED WIDGET-ID 2
-     btReturn AT ROW 5.76 COL 32 WIDGET-ID 4
+     btReturn AT ROW 5.76 COL 30.2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 83.8 BY 7.05
+         SIZE 126 BY 7
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -128,7 +128,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
          HEIGHT             = 7
-         WIDTH              = 83.8.
+         WIDTH              = 126.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -195,6 +195,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON ENTRY OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 30.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON LEAVE OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 15.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK F-Frame-Win 
@@ -234,8 +256,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 1.05 , 1.60 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 79.00 ) */
+       RUN set-position IN h_tagfilter ( 1.43 , 19.40 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 78.00 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).

@@ -79,7 +79,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 60.4 BY 11.86
+         SIZE 60.2 BY 2.57
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -107,8 +107,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 11.91
-         WIDTH              = 60.2.
+         HEIGHT             = 5.19
+         WIDTH              = 60.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -185,7 +185,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_releasefilter ).
        RUN set-position IN h_releasefilter ( 1.10 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.67 , 58.00 ) */
+       /* Size in UIB:  ( 2.05 , 56.00 ) */
 
        /* Links to SmartObject h_releasefilter. */
        RUN add-link IN adm-broker-hdl ( h_releasefilter , 'RELEASE':U , THIS-PROCEDURE ).

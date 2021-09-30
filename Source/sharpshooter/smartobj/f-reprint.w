@@ -80,7 +80,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.6 BY 6.48
+         SIZE 81.6 BY 2.71
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -108,7 +108,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 6.48
+         HEIGHT             = 2.86
          WIDTH              = 81.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -186,7 +186,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
        RUN set-position IN h_tagfilter ( 1.05 , 2.60 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 79.00 ) */
+       /* Size in UIB:  ( 2.29 , 78.00 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).
@@ -286,7 +286,6 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
      /* Code placed here will execute AFTER standard behavior.    */
-    {methods/run_link.i "TAG-SOURCE" "EnableAutoScanNextTag"}
 
     {methods/run_link.i "TAG-SOURCE" "SetTagType" "(INPUT 'FG')"}
 END PROCEDURE.
@@ -325,7 +324,8 @@ PROCEDURE state-changed :
         WHEN "tag-valid" THEN DO:
             RUN new-state ("create-tag-reprint").    
 
-            {methods/run_link.i "TAG-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}
+            {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+            {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
         END.
     END CASE.
 END PROCEDURE.

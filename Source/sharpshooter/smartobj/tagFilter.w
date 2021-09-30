@@ -34,11 +34,15 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAutoScanNextTag AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cTagTypeScan     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
+DEFINE VARIABLE oKeyboard AS system.Keyboard   NO-UNDO.
+DEFINE VARIABLE oLoadtag  AS inventory.Loadtag NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -51,11 +55,11 @@ DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-35 fiTag 
+&Scoped-Define ENABLED-OBJECTS fiTag 
 &Scoped-Define DISPLAYED-OBJECTS fiTag 
 
 /* Custom List Definitions                                              */
@@ -76,17 +80,11 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
      SIZE 67 BY 1.38 TOOLTIP "Enter Tag"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE RECTANGLE RECT-35
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 79 BY 2.38
-     BGCOLOR 26 .
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      fiTag AT ROW 1.48 COL 10 COLON-ALIGNED WIDGET-ID 2
-     RECT-35 AT ROW 1 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -142,7 +140,7 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -168,28 +166,43 @@ ASSIGN
 
 &Scoped-define SELF-NAME fiTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
-ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
+ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN DO:
-        IF lAutoScanNextTag AND LASTKEY NE -1 THEN
-            RETURN NO-APPLY.
-        ELSE
-            RETURN. 
-    END.
-    
-    RUN pScanTag (
-        INPUT SELF:SCREEN-VALUE
-        ) NO-ERROR.
-            
-    IF lAutoScanNextTag OR ERROR-STATUS:ERROR THEN DO:
-        SELF:SCREEN-VALUE = "".
+    SELF:BGCOLOR = 30.  
 
-        RETURN NO-APPLY.   
-    END.
+    IF VALID-OBJECT (oKeyboard) THEN DO:
+        oKeyboard:FocusField = SELF.    
+        
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    IF (LASTKEY NE -1 OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
+        RUN pScanTag (
+            INPUT SELF:SCREEN-VALUE
+            ) NO-ERROR.            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON TAB OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    APPLY "LEAVE" TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -239,18 +252,6 @@ PROCEDURE EmptyTag :
     
     fiTag:SCREEN-VALUE = "".
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAutoScanNextTag s-object 
-PROCEDURE EnableAutoScanNextTag :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    lAutoScanNextTag = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,6 +323,8 @@ PROCEDURE pInit :
         ).
     
     oLoadtag = NEW inventory.Loadtag().
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,6 +351,8 @@ PROCEDURE pScanTag :
         MESSAGE "Invalid Tag '" + ipcTag + "'"
             VIEW-AS ALERT-BOX ERROR.
         
+        SELF:SCREEN-VALUE = "".
+        
         RETURN ERROR.    
     END.
             
@@ -355,18 +360,25 @@ PROCEDURE pScanTag :
         MESSAGE "Only finished good item tags are allowed" 
             VIEW-AS ALERT-BOX ERROR.
         
+        SELF:SCREEN-VALUE = "".
+        
         RETURN ERROR.
     END.
     ELSE IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ FALSE AND cTagTypeScan EQ "RM" THEN DO:
         MESSAGE "Only raw material item tags are allowed" 
             VIEW-AS ALERT-BOX ERROR.
         
+        SELF:SCREEN-VALUE = "".
+        
         RETURN ERROR.
     END.
+
+    SELF:BGCOLOR = 15.
 
     RUN new-state (
         INPUT "tag-valid"
         ).        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

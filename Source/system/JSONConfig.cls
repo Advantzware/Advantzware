@@ -41,16 +41,29 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
     END.
     
     CONSTRUCTOR PUBLIC JSONConfig(ipcJSONFile AS CHARACTER):
-        pLoadJSON(INPUT ipcJSONFile).
+        DEFINE VARIABLE lcJSONData AS LONGCHAR NO-UNDO.
+        
+        COPY-LOB FROM FILE ipcJSONFile TO lcJSONData.
+        
+        pLoadJSON(INPUT lcJSONData).
     END CONSTRUCTOR.
 
-    METHOD PRIVATE LOGICAL pLoadJSON (ipcJSONFile AS CHARACTER):
+    CONSTRUCTOR PUBLIC JSONConfig(ipcJSONData AS LONGCHAR):
+        pLoadJSON(INPUT ipcJSONData).
+    END CONSTRUCTOR.
+    
+    METHOD PRIVATE LOGICAL pLoadJSON (iplcJSONData AS LONGCHAR):
         DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
         DEFINE VARIABLE oJSONObject     AS JsonObject        NO-UNDO. 
-                
+        DEFINE VARIABLE lcJSONData      AS LONGCHAR          NO-UNDO.
+        
+        FIX-CODEPAGE(lcJSONData) = "utf-8".
+        
+        lcJSONData = iplcJSONData.
+                 
         oModelParser = NEW ObjectModelParser().
         
-        oJSONObject = CAST(oModelParser:ParseFile(ipcJSONFile), JsonObject).
+        oJSONObject = CAST(oModelParser:Parse(lcJSONData), JsonObject).
         
         EMPTY TEMP-TABLE ttConfig.
         EMPTY TEMP-TABLE ttAttribute.

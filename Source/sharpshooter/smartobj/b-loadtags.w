@@ -195,7 +195,8 @@ DEFINE BROWSE br_table
       ENABLE ttLoadTag.isSelected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH SEPARATORS SIZE 150 BY 6.71 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH SEPARATORS NO-TAB-STOP SIZE 150 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */

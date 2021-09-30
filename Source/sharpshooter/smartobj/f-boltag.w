@@ -77,7 +77,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 61.4 BY 11.86
+         SIZE 61.4 BY 2.29
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -105,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 11.91
+         HEIGHT             = 2.95
          WIDTH              = 61.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -183,7 +183,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_bolfilter ).
        RUN set-position IN h_bolfilter ( 1.00 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 59.00 ) */
+       /* Size in UIB:  ( 2.05 , 41.60 ) */
 
        /* Links to SmartObject h_bolfilter. */
        RUN add-link IN adm-broker-hdl ( h_bolfilter , 'BOL':U , THIS-PROCEDURE ).

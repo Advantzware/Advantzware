@@ -56,7 +56,7 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 &Scoped-define ADM-CONTAINER FRAME
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -92,12 +92,12 @@ DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT "->,>>>,>>>,>>9.99<<<<":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiQuantity AT ROW 4 COL 21.6 COLON-ALIGNED WIDGET-ID 2
-     btSplit AT ROW 5.76 COL 30 WIDGET-ID 4
+     fiQuantity AT ROW 4 COL 21.8 COLON-ALIGNED WIDGET-ID 2
+     btSplit AT ROW 5.76 COL 23.6 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81 BY 6.95
+         SIZE 113.6 BY 6.95
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -127,7 +127,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
          HEIGHT             = 6.95
-         WIDTH              = 82.4.
+         WIDTH              = 113.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -149,7 +149,7 @@ END.
 /* SETTINGS FOR WINDOW F-Frame-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
 /* SETTINGS FOR BUTTON btSplit IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -181,6 +181,28 @@ DO:
 
     {methods/run_link.i "SPLIT-SOURCE" "ScanNextTag"}
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON ENTRY OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 30.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON LEAVE OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 15.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,8 +248,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 79.00 ) */
+       RUN set-position IN h_tagfilter ( 1.48 , 12.80 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 78.00 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'SPLIT':U , THIS-PROCEDURE ).
