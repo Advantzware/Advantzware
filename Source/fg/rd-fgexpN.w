@@ -73,7 +73,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Set Header,Group,Exempt from Disc," +
                             "P/M,Sell Price,Sell Price UOM,Type Code,Currency," +
                             "Warehouse,Bin,Inventory Class,Cycle Count Code,Production Code," +
-                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone,Sub Zone," +
+                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,Pallet#,Zone,Sub Zone," +
                             "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Total Std Cost,Average Cost,Last Cost,Cost UOM,Full Cost," +
