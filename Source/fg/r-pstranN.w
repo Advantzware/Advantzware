@@ -645,7 +645,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&FRAME-NAME}:
         btn_ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
         btn_cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
-   // Btn_Def:LOAD-IMAGE("Graphics/32x32/default.png").
+        Btn_select:LOAD-IMAGE("Graphics/32x32/select.png").
         RUN enable_UI.
 
         {custom/usrprint.i} 
