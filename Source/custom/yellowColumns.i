@@ -411,6 +411,17 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Last Updated by' THEN fg-rctd.updated-by ELSE ~
   STRING(fg-rctd.r-no,'99999999') ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'dOrderType' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Type Id' THEN string(ttOrderType.orderTypeID,'999999') ELSE ~
+  IF sortColumn EQ 'Description' THEN ttOrderType.orderTypeDescription ELSE ~
+  IF sortColumn EQ 'Type Source' THEN ttOrderType.orderTypeSource ELSE ~
+  IF sortColumn EQ 'Color' THEN STRING(ttOrderType.orderTypeColor,'999') ELSE ~
+  IF sortColumn EQ 'Inactive' THEN STRING(ttOrderType.inactive) ELSE ~
+  IF sortColumn EQ 'Sequence' THEN STRING(ttOrderType.numberSequence,'999') ELSE ~
+  IF sortColumn EQ 'Estimate Type' THEN ttOrderType.estimateType ELSE ~
+  string(ttOrderType.orderTypeID,'999999') ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'cust' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Name' THEN cust.name ELSE ~
@@ -1396,6 +1407,24 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Cust Part #' THEN STRING(itemfg.part-no) ELSE ~
   IF sortColumn EQ 'Estimate #' THEN STRING(itemfg.est-no) ELSE ~
      itemfg.est-no ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'setting' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Name' THEN string(setting.settingName) ELSE ~
+  IF sortColumn EQ 'Description' THEN string(setting.description)  ELSE ~
+  IF sortColumn EQ 'Value' THEN string(setting.settingValue) ELSE ~
+  IF sortColumn EQ 'Inactive' THEN STRING(setting.inactive) ELSE ~
+  IF sortColumn EQ 'User' THEN STRING(setting.settingUser) ELSE ~
+     setting.settingName ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'settingType' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Name' THEN string(settingType.settingName) ELSE ~
+  IF sortColumn EQ 'Description' THEN string(settingType.description)  ELSE ~
+  IF sortColumn EQ 'Data Type' THEN string(settingType.dataType) ELSE ~
+  IF sortColumn EQ 'Valid Value' THEN STRING(settingType.validValues) ELSE ~
+  IF sortColumn EQ 'Default Value' THEN STRING(settingType.defaultValue) ELSE ~
+     settingType.settingName ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'd-po-inq#' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~

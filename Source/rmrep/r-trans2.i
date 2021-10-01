@@ -211,7 +211,7 @@
                  cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
          END.
          PUT UNFORMATTED cDisplay SKIP.
-         IF tb_excel THEN DO:
+         IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.
@@ -286,7 +286,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         PO# TOTALS "  substring(cDisplay,21,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/
@@ -367,7 +367,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         ITEM TOTALS"  substring(cDisplay,21,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/
@@ -450,7 +450,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         GRAND TOTALS"  substring(cDisplay,22,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/

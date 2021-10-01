@@ -4,7 +4,7 @@
        put 
          "<FMS Mincho>"
           "<P14><R4><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> "
-          "<C3><R2><#1><C+3><R+8><C+45><IMAGE#1=" ls-full-img1  SKIP    .
+          "<C1><R2><#1><R+8><C+42>" "<IMAGE#1=" ls-full-img1  SKIP    .
       IF lv-print-img THEN
           PUT  "<FMS Mincho>"
           "<P14><R3><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> " SKIP

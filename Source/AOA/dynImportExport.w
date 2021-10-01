@@ -141,10 +141,9 @@ dynLookup.tableName dynLookup.subjectID dynLookup.prgmName
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
-lExportSubject lExportParamSet lExportDynLookup btnExport ~
-lExportDynPageParams lDefaultOnly cImportExportFolder lookupBrowse ~
-btnImport 
+&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse btnExit ~
+lExportSubject lExportParamSet lExportDynLookup lExportDynPageParams ~
+btnExport lDefaultOnly cImportExportFolder lookupBrowse btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
 lExportDynLookup lExportDynPageParams lDefaultOnly cImportExportFolder 
 
@@ -231,10 +230,10 @@ DEFINE QUERY subjectBrowse FOR
 DEFINE BROWSE lookupBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS lookupBrowse C-Win _STRUCTURED
   QUERY lookupBrowse NO-LOCK DISPLAY
-      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 14
-      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 14
-      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 14
-      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 14
+      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 22
+      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 22
+      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 22
+      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 22
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.76
@@ -273,15 +272,15 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
+     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      btnExit AT ROW 1.24 COL 194 HELP
           "Exit Design Layout Window" WIDGET-ID 32
-     paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
      lExportDynLookup AT ROW 1.48 COL 129 WIDGET-ID 36
+     lExportDynPageParams AT ROW 2.43 COL 129 WIDGET-ID 40
      btnExport AT ROW 1.24 COL 178 HELP
           "Export" WIDGET-ID 26
-     lExportDynPageParams AT ROW 2.43 COL 129 WIDGET-ID 40
      lDefaultOnly AT ROW 3.38 COL 129 WIDGET-ID 42
      cImportExportFolder AT ROW 3.38 COL 165 COLON-ALIGNED HELP
           "Enter Import~\Export Folder" WIDGET-ID 4
@@ -349,7 +348,7 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
 /* BROWSE-TAB lookupBrowse cImportExportFolder DEFAULT-FRAME */
 ASSIGN 
        lookupBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
@@ -668,8 +667,8 @@ PROCEDURE enable_UI :
   DISPLAY lExportSubject lExportParamSet lExportDynLookup lExportDynPageParams 
           lDefaultOnly cImportExportFolder 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse btnExit paramSetBrowse lExportSubject lExportParamSet 
-         lExportDynLookup btnExport lExportDynPageParams lDefaultOnly 
+  ENABLE subjectBrowse paramSetBrowse btnExit lExportSubject lExportParamSet 
+         lExportDynLookup lExportDynPageParams btnExport lDefaultOnly 
          cImportExportFolder lookupBrowse btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -688,6 +687,11 @@ PROCEDURE pExport :
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bDynParamSet FOR ttDynParamSet.
     DEFINE BUFFER bDynSubject  FOR ttDynSubject.
+
+    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+
+    RUN pImportExportFolder (OUTPUT lContinue).
+    IF NOT lContinue THEN RETURN.
 
     SESSION:SET-WAIT-STATE("General").
     DO idx = 1 TO NUM-ENTRIES(cDynamicSubject):
@@ -898,7 +902,21 @@ PROCEDURE pImport :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDynamicFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDynamicTable AS CHARACTER NO-UNDO INITIAL "prgrms,dynLookup,dynPrgrmsPage,".
-    
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
+
+    RUN FileSys_ValidateDirectory (
+        cImportExportFolder,
+        OUTPUT lContinue,
+        OUTPUT cMessage
+        ).
+    IF NOT lContinue THEN DO:
+        MESSAGE 
+            cMessage
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END. /* lcontinue */
+
     MESSAGE
         "Import Dynamic Tables from Folder: ~"" + cImportExportFolder + "~"?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
@@ -1199,6 +1217,36 @@ PROCEDURE pImport :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImportExportFolder C-Win
+PROCEDURE pImportExportFolder:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplContinue AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE lCreated AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    RUN FileSys_CreateDirectory (
+        cImportExportFolder,
+        OUTPUT lCreated,
+        OUTPUT cMessage
+        ).
+    IF NOT lCreated AND cMessage NE "" THEN DO:
+        MESSAGE
+            cMessage
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "ENTRY":U TO cImportExportFolder IN FRAME {&FRAME-NAME}.
+        RETURN.
+    END. /* if not created */
+    oplContinue = YES.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

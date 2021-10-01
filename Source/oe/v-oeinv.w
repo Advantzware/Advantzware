@@ -83,7 +83,8 @@ DEFINE QUERY external_tables FOR inv-head.
 &Scoped-Define ENABLED-FIELDS inv-head.inv-date inv-head.cust-no ~
 inv-head.sold-no inv-head.autoApproved inv-head.contact inv-head.tax-gr ~
 inv-head.terms inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
-inv-head.t-inv-weight inv-head.t-comm  inv-head.t-inv-freight 
+inv-head.t-inv-weight inv-head.t-comm  inv-head.t-inv-freight ~
+inv-head.ediInvoice
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
@@ -96,7 +97,7 @@ inv-head.zip inv-head.sold-city inv-head.sold-state inv-head.sold-zip ~
 inv-head.contact inv-head.tax-gr inv-head.terms inv-head.terms-d ~
 inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
 inv-head.t-inv-rev inv-head.t-comm inv-head.t-inv-tax inv-head.f-bill ~
-inv-head.t-inv-freight inv-head.t-inv-cost 
+inv-head.t-inv-freight inv-head.t-inv-cost inv-head.ediInvoice
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 &Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO cBillFreightDscr ~
@@ -346,6 +347,10 @@ DEFINE FRAME F-Main
           LABEL "Total Freight"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     inv-head.ediInvoice AT ROW 15.15 COL 63.8 
+          LABEL "No EDI"
+          VIEW-AS TOGGLE-BOX
+          SIZE 18.8 BY 1       
      dBillableFreight AT ROW 15.1 COL 113.4 COLON-ALIGNED WIDGET-ID 302
      inv-head.t-inv-cost AT ROW 16 COL 39.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -476,7 +481,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-head.t-inv-rev IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.f-bill IN FRAME F-Main
-   NO-ENABLE                                                            */      
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN inv-head.ediInvoice IN FRAME F-Main
+   EXP-LABEL                                                            */   
 /* SETTINGS FOR FILL-IN inv-head.t-inv-tax IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.t-inv-weight IN FRAME F-Main

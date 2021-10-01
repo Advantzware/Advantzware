@@ -230,14 +230,14 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(24)":U
-      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U
+      fg-rctd.loc COLUMN-LABEL "From!Loc" FORMAT "x(5)":U
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
             WIDTH 10
       fg-rctd.tag2 COLUMN-LABEL "To!Tag" FORMAT "x(24)":U
-      fg-rctd.loc2 COLUMN-LABEL "To!Whse" FORMAT "x(5)":U
+      fg-rctd.loc2 COLUMN-LABEL "To!Loc" FORMAT "x(5)":U
       fg-rctd.loc-bin2 COLUMN-LABEL "To!Bin" FORMAT "x(8)":U
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
@@ -353,7 +353,7 @@ fg-rctd.rita-code = ""T"""
      _FldNameList[1]   > asi.fg-rctd.tag
 "fg-rctd.tag" "From!Tag" "x(24)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.fg-rctd.loc
-"fg-rctd.loc" "From!Whse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "From!Loc" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "From!Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.fg-rctd.cases
@@ -365,7 +365,7 @@ fg-rctd.rita-code = ""T"""
      _FldNameList[7]   > asi.fg-rctd.tag2
 "fg-rctd.tag2" "To!Tag" "x(24)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rctd.loc2
-"fg-rctd.loc2" "To!Whse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc2" "To!Loc" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.fg-rctd.loc-bin2
 "fg-rctd.loc-bin2" "To!Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.fg-rctd.cust-no
@@ -655,7 +655,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Whse */
+ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Loc */
 DO:
   IF LASTKEY NE -1 THEN DO:
   
@@ -2498,7 +2498,7 @@ PROCEDURE valid-loc-bin2 :
          fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}     AND
          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  EQ
          fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-        lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
+        lv-msg = "To Loc/Bin may not be the same as From Loc/Bin".
 
     IF lv-msg EQ "" THEN DO:
       FIND FIRST fg-bin

@@ -209,7 +209,7 @@
                  cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
          END.
          PUT UNFORMATTED cDisplay SKIP.
-         IF tb_excel THEN DO:
+         IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.
@@ -285,7 +285,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         TYPE TOTALS"  substring(cDisplay,21,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/
@@ -366,7 +366,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         DATE TOTALS"  substring(cDisplay,21,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/
@@ -449,7 +449,7 @@
          END.
          PUT str-line SKIP.
          PUT UNFORMATTED "         GRAND TOTALS"  substring(cDisplay,22,300) SKIP.
-         /*IF tb_excel THEN DO:
+         /*IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.*/

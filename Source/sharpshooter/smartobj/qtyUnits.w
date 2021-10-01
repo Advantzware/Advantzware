@@ -95,17 +95,20 @@ fiPartialTags fiQuantityOfUnits
 DEFINE VARIABLE fiFullTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Full Tags" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total number of full loadtags" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of full loadtags"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiPartial AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Partail Quantity" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 NO-UNDO.
+     SIZE 32 BY 1.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiPartialTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Partial Tags" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total num ber of partial tags" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total num ber of partial tags"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiQuantitiesRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantities" 
      VIEW-AS FILL-IN 
@@ -115,32 +118,38 @@ DEFINE VARIABLE fiQuantitiesRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIA
 DEFINE VARIABLE fiQuantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Total Quantity" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total Quantity" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total Quantity"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiQuantityInSubUnit AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Per Case" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Quantity in a single case" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Quantity in a single case"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiQuantityOfSubUnits AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Cases" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total number of cases for the quantity" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of cases for the quantity"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiQuantityOfUnits AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Per Pallet" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total number of Pallets" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of Pallets"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiSubUnitsPerUnit AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Cases Per Pallet" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total number of cases in a pallet" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of cases in a pallet"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiTotalTags AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Tags" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1.38 TOOLTIP "Total number of tags including partial tags" NO-UNDO.
+     SIZE 32 BY 1.38 TOOLTIP "Total number of tags including partial tags"
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiUnitCountsRectangleLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Unit Counts" 
      VIEW-AS FILL-IN 
@@ -161,21 +170,21 @@ DEFINE RECTANGLE rUnitCountsRectangle
 DEFINE FRAME F-Main
      fiUnitCountsRectangleLabel AT ROW 1 COL 69.6 COLON-ALIGNED NO-LABEL WIDGET-ID 86
      fiQuantitiesRectangleLabel AT ROW 1.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 84
-     fiQuantity AT ROW 1.86 COL 31.2 COLON-ALIGNED WIDGET-ID 26
-     fiQuantityOfSubUnits AT ROW 1.86 COL 96.2 COLON-ALIGNED WIDGET-ID 32
-     fiQuantityInSubUnit AT ROW 3.33 COL 31.2 COLON-ALIGNED WIDGET-ID 60
-     fiTotalTags AT ROW 3.38 COL 96.2 COLON-ALIGNED WIDGET-ID 52
-     fiSubUnitsPerUnit AT ROW 4.81 COL 31.2 COLON-ALIGNED WIDGET-ID 38
-     fiFullTags AT ROW 4.91 COL 96.2 COLON-ALIGNED WIDGET-ID 68
-     fiPartial AT ROW 6.33 COL 31.2 COLON-ALIGNED WIDGET-ID 48
-     fiPartialTags AT ROW 6.38 COL 96.2 COLON-ALIGNED WIDGET-ID 72
-     fiQuantityOfUnits AT ROW 7.86 COL 31 COLON-ALIGNED WIDGET-ID 64
+     fiQuantity AT ROW 1.95 COL 32.2 COLON-ALIGNED WIDGET-ID 26
+     fiQuantityOfSubUnits AT ROW 1.95 COL 98 COLON-ALIGNED WIDGET-ID 32
+     fiQuantityInSubUnit AT ROW 3.43 COL 32.2 COLON-ALIGNED WIDGET-ID 60
+     fiTotalTags AT ROW 3.48 COL 98 COLON-ALIGNED WIDGET-ID 52
+     fiSubUnitsPerUnit AT ROW 4.91 COL 32.2 COLON-ALIGNED WIDGET-ID 38
+     fiFullTags AT ROW 5 COL 98 COLON-ALIGNED WIDGET-ID 68
+     fiPartial AT ROW 6.43 COL 32.2 COLON-ALIGNED WIDGET-ID 48
+     fiPartialTags AT ROW 6.48 COL 98 COLON-ALIGNED WIDGET-ID 72
+     fiQuantityOfUnits AT ROW 7.95 COL 32 COLON-ALIGNED WIDGET-ID 64
      rQuantitiesRectangle AT ROW 1.48 COL 1.2 WIDGET-ID 74
      rUnitCountsRectangle AT ROW 1.48 COL 69 WIDGET-ID 80
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FONT 36 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

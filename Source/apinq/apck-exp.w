@@ -190,7 +190,7 @@ DEFINE VARIABLE begin_chk AS CHARACTER FORMAT "x(10)"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_date AS CHARACTER FORMAT "x(10)" 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/0001 
      LABEL "From Date" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
@@ -210,7 +210,7 @@ DEFINE VARIABLE end_chk AS INT FORMAT ">>>>>>>9" INITIAL "99999999"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE end_date AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" INITIAL 12/31/9999 
      LABEL "To Date" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -1054,7 +1054,7 @@ RUN create-tempfile.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT VALUE(SEARCH(fi_file)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

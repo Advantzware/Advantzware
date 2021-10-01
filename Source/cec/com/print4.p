@@ -175,15 +175,12 @@ do transaction:
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE sys-ctrl.log-fld.
   end.
-  ll-use-defaults = sys-ctrl.log-fld.
-
-  {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
+  ll-use-defaults = sys-ctrl.log-fld.  
+  
   {sys/inc/cerun.i C}
   ASSIGN
    do-speed  = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc
-   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE (recalc-mr.val[1] EQ 1)
+   do-mr     = IF ll-use-defaults THEN sys-ctrl.log-fld ELSE xest.recalc-mr
    vmclean   = sys-ctrl.char-fld NE ""
    vmclean2  = NO
    vsuthrlnd = LOOKUP(sys-ctrl.char-fld,"Suthrlnd,Clevelnd,Brick") NE 0
@@ -298,15 +295,14 @@ END.
 DO TRANSACTION:
   {est/op-lock.i xest}
   FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
+  
   ASSIGN
    bf-est.recalc    = do-speed
-   recalc-mr.val[1] = INT(do-mr)
+   bf-est.recalc-mr = do-mr
    bf-est.override  = do-gsa
    op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
-  FIND CURRENT bf-est NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
+   op-lock.val[2]   = IF bf-est.recalc-mr THEN 1 ELSE 0.
+  FIND CURRENT bf-est NO-LOCK.  
   FIND CURRENT op-lock NO-LOCK.
   FIND xest WHERE RECID(xest) EQ RECID(bf-est).   
 END.

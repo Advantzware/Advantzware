@@ -550,13 +550,17 @@ PROCEDURE GetStorageAndHandlingForLocation:
                 OUTPUT estRelease.storageCost, OUTPUT estRelease.handlingCost, 
                 OUTPUT lError, OUTPUT cMessage). 
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiStackHeight AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostStorage AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostHandling AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStackHeight  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdUnitWidth    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdUnitLength   AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdCostStorage  AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostHandling AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
     
     ipiStackHeight = MAXIMUM(ipiStackHeight,1).
     FIND FIRST loc NO-LOCK 
@@ -565,11 +569,17 @@ PROCEDURE GetStorageAndHandlingForLocation:
         NO-ERROR.
     IF AVAILABLE loc THEN 
     DO:
-        ASSIGN 
-            opdCostStorage  = loc.storageCost[ipiStackHeight]
-            opdCostHandling = loc.handlingCost
-            opcMessage      = "Storage and Handling Costs returned for Location " + ipcLocationID
-            .
+        RUN pGetStorageAndHandlingForWidthAndHeight (
+            INPUT  ipcCompany,
+            INPUT  ipcLocationID,
+            INPUT  ipiStackHeight,
+            INPUT  ipdUnitWidth,
+            INPUT  ipdUnitLength,
+            OUTPUT opdCostStorage,
+            OUTPUT opdCostHandling
+            ).
+       
+        opcMessage = "Storage and Handling Costs returned for Location " + ipcLocationID.
     END.
     ELSE 
         ASSIGN 
@@ -578,6 +588,67 @@ PROCEDURE GetStorageAndHandlingForLocation:
             .
 
 
+END PROCEDURE.
+
+PROCEDURE pGetStorageAndHandlingForWidthAndHeight PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiStackHeight  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdWidth        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdLength       AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostStorage  AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostHandling AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE iPositions AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-palletSize       FOR palletSize.
+    DEFINE BUFFER bf-palletSizeWidth  FOR palletSize.
+    DEFINE BUFFER bf-palletSizeLength FOR palletSize.
+    DEFINE BUFFER bf-storageCost      FOR storageCost.
+    
+    FIND FIRST bf-palletSize NO-LOCK
+         WHERE bf-palletSize.company    EQ ipcCompany
+           AND bf-palletSize.location   EQ ipcLocation
+           AND bf-palletSize.upToWidth  GE ipdWidth
+           AND bf-palletSize.upToLength GE ipdLength
+         NO-ERROR.
+    IF AVAILABLE bf-palletSize THEN
+        iPositions = bf-palletSize.positions.
+
+    IF iPositions EQ 0 THEN
+        FOR LAST bf-storageCost NO-LOCK
+             WHERE bf-storageCost.company  EQ ipcCompany
+               AND bf-storageCost.location EQ ipcLocation
+             BY bf-storageCost.positions:
+            LEAVE.
+        END.
+    ELSE        
+        FIND FIRST bf-storageCost NO-LOCK
+             WHERE bf-storageCost.company   EQ bf-palletSize.company
+               AND bf-storageCost.location  EQ bf-palletSize.location
+               AND bf-storageCost.positions EQ iPositions
+             NO-ERROR.
+
+    IF AVAILABLE bf-storageCost THEN DO:
+        opdCostHandling = bf-storageCost.handlingFee.
+        
+        CASE ipiStackHeight:
+            WHEN 1 THEN
+                opdCostStorage = bf-storageCost.stack1High. 
+            WHEN 2 THEN
+                opdCostStorage = bf-storageCost.stack2High. 
+            WHEN 3 THEN
+                opdCostStorage = bf-storageCost.stack3High. 
+            WHEN 4 THEN
+                opdCostStorage = bf-storageCost.stack4High.
+            OTHERWISE
+                opdCostStorage = bf-storageCost.stack1High. 
+        END CASE.             
+    END.         
 END PROCEDURE.
 
 PROCEDURE GetShipToCarrierAndZone:
@@ -1269,7 +1340,7 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         ipbf-estRelease.dimEachUOM              = "IN"
         .
 
-    RUN GetStorageAndHandlingForLocation(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.stackHeight, 
+    RUN GetStorageAndHandlingForLocation(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.stackHeight, ipbf-eb.tr-wid, ipbf-eb.tr-len, 
         OUTPUT ipbf-estRelease.storageCost, OUTPUT ipbf-estRelease.handlingCost,
         OUTPUT oplError, OUTPUT opcMessage).
     RUN GetShipToCarrierAndZone(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.cust-no, ipbf-eb.ship-id, 

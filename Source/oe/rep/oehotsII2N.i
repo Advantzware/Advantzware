@@ -3,7 +3,7 @@
 /* -----------------------------------------------------------------*/
 IF v-first THEN 
     PUT UNFORMATTED
-        "<FCourier New><B><C5><P26>Hots <P7>" 
+        "<FCourier New><B><C5><P26>Hots <P8>" 
           SKIP(1)
         STRING(TODAY) AT 3 FORM "x(5)"  
         "Begin Date:" AT 30 
@@ -25,7 +25,8 @@ IF AVAIL itemfg THEN DO:
       lv-board-po-no = 0
       lv-vend-no = ""
       ld-qty-rec = 0
-      lv-routing = "".
+      lv-routing = ""
+      cFullJobNo = "".
    
    FOR EACH tt-fg-set:
       DELETE tt-fg-set.
@@ -215,6 +216,15 @@ IF AVAIL itemfg THEN DO:
       lv-vend-no = po-ord.vend-no.
    END.
 
+   FIND FIRST eb NO-LOCK
+        WHERE eb.company  EQ cocode
+          AND eb.est-no   EQ oe-ordl.est-no
+          AND eb.stock-no EQ oe-ordl.i-no NO-ERROR.
+
+   cFullJobNo = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") + (if avail eb then "-" + string(eb.form-no,"99") + "-" + string(eb.blank-no,"99") ELSE "") ELSE "". 
+
+   RUN getLastActivity in hdJobProcs(INPUT cocode, INPUT w-ord.job-no, INPUT w-ord.job-no2, OUTPUT cLastAction ).   
+
    {custom/statusMsg.i "'Processing Customer # ' + string(w-ord.cust-no)"} 
 
   FIND FIRST rejct-cd NO-LOCK
@@ -250,6 +260,8 @@ IF AVAIL itemfg THEN DO:
 			             WHEN "ord-prom-date"   THEN cVarValue = IF w-ord.ord-prom-date ne ? THEN STRING(w-ord.ord-prom-date,"99/99/9999") ELSE "".
                          WHEN "job-prom-date"   THEN cVarValue = IF w-ord.job-prom-date ne ? THEN STRING(w-ord.job-prom-date,"99/99/9999") ELSE "".
                          WHEN "prom-code"   THEN cVarValue = IF w-ord.prom-code ne ? THEN STRING(w-ord.prom-code,"x(10)") ELSE "".
+                         WHEN "full-job-no"   THEN cVarValue = STRING(cFullJobNo,"x(15)") . 
+                         WHEN "LastActionOnJob" THEN cVarValue = STRING(cLastAction ,"x(15)") . 
 			
                     END CASE.
                       

@@ -339,7 +339,7 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime

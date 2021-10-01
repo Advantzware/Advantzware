@@ -1710,7 +1710,7 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cItemName                  = ipbf-job-mch.i-name
         cJobMchItem                = ipbf-job-mch.i-no
         cJobMchForm                = TRIM(STRING(ipbf-job-mch.frm,">>9"))
-        cRunHours                  = TRIM(STRING(ipbf-job-mch.run-hr,">>9.99"))
+        cRunHours                  = TRIM(STRING(ipbf-job-mch.run-hr,">>>,>>9.99"))
         cRunMinutes                = TRIM(STRING(ROUND(ipbf-job-mch.run-hr * 60, 0)))
         cRunSpeed                  = TRIM(STRING(ipbf-job-mch.speed, ">>>>9"))
         cMRHours                   = TRIM(STRING(ipbf-job-mch.mr-hr,">>9.99"))
@@ -1821,10 +1821,10 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedMR", cMRComplete).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedRun", cRunComplete).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Completed", STRING(lComplete)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedMR", STRING(iQuantityWastedMR)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWastedRun", STRING(iQuantityWastedRun)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityWasted", STRING(iQuantityWasted)).
-    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QauntityRun", STRING(dQuantityRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedMR", STRING(iQuantityWastedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedRun", STRING(iQuantityWastedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWasted", STRING(iQuantityWasted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityRun", STRING(dQuantityRun)).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursMR", STRING(dHoursMR)).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursRun", STRING(dHoursRun)).
     

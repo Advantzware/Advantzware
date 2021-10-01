@@ -371,7 +371,7 @@ PURPOSE:
                 END.
               
                 PUT UNFORMATTED cDisplay SKIP.
-                IF logExcelDump THEN DO:
+                IF inlogExcelDump THEN DO:
                      PUT STREAM excel UNFORMATTED  
                            cExcelDisplay SKIP.
                  END.

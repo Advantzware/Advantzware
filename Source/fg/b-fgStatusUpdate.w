@@ -864,7 +864,7 @@ PROCEDURE export-xl :
                                               INPUT FALSE /* Auto increment File name */,
                                               OUTPUT lSuccess,
                                               OUTPUT cMessage).    
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
       
   DELETE OBJECT hdOutputProcs.
  

@@ -185,7 +185,7 @@ PROCEDURE exportSnapshot:
             "Click OK to view a report."
             VIEW-AS ALERT-BOX.
        
-        OS-COMMAND NO-WAIT START excel.exe VALUE(gcProblemsFile).
+        OS-COMMAND NO-WAIT VALUE(gcProblemsFile).
           
         MESSAGE "Continue with the snapshot anyway?" 
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  UPDATE lChoice AS LOGICAL.
@@ -813,7 +813,7 @@ PROCEDURE pCheckCountDups:
         MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE(cDupOutputFile).
+        OS-COMMAND NO-WAIT VALUE(cDupOutputFile).
     END.
 END PROCEDURE.
 
@@ -845,7 +845,9 @@ PROCEDURE pCheckInvalidItems:
         AND fg-bin.i-no GE ipcFGItemStart
         AND fg-bin.i-no LE ipcFGItemEnd
         AND LOOKUP(fg-bin.loc, ipcWhseList) GT 0         
-        :     
+        : 
+        lNoCost = NO.
+        lNoMSF  = NO.
         FIND FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no EQ fg-bin.i-no
@@ -856,9 +858,9 @@ PROCEDURE pCheckInvalidItems:
                 ttProblems.loc1             = fg-bin.loc + " " + fg-bin.loc-bin
                 ttProblems.i-no             = fg-bin.i-no
                 ttProblems.tag              = fg-bin.tag
-                ttProblems.lInactiveWithBin = (AVAIL(itemfg) AND itemfg.stat EQ "I" AND fg-bin.qty GT 0)
+                ttProblems.lInactiveWithBin = (AVAIL(itemfg) AND itemfg.stat EQ "I" )
                 ttProblems.lNoitem          = NOT AVAIL(itemfg)
-                ttProblems.lOnHandNobin     = (AVAIL(itemfg) AND itemfg.q-onh EQ 0 AND fg-bin.qty GT 0)  
+                ttProblems.lOnHandNobin     = (AVAIL(itemfg) AND itemfg.q-onh EQ 0 )  
                 lInvalidItems                   = TRUE    
                 .
         END.
@@ -1790,11 +1792,11 @@ DEFINE VARIABLE cProblemList AS CHARACTER NO-UNDO.
             IF ttProblems.lNoMSFFound THEN 
                 cProblemList = cProblemList + " No MSF,".
             IF ttProblems.lInactiveWithBin THEN 
-                cProblemList = cProblemList + " Inactive Item with quantity,".
+                cProblemList = cProblemList + " Inactive Item,".
             IF ttProblems.lNoitem THEN 
-                cProblemList = cProblemList + " No item for bin,".
+                cProblemList = cProblemList + " Item not found,".
             IF ttProblems.lOnHandNobin THEN 
-                cProblemList = cProblemList + " On Hand Qty but no bin,".
+                cProblemList = cProblemList + " No On Hand Quantity,".
             IF ttProblems.lDuplicateFound THEN 
                 cProblemList = cProblemList + " Duplicate Tag,".
             IF ttProblems.Tag EQ "" THEN 

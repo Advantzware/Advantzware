@@ -124,7 +124,7 @@ DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE rd-sort AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Warehouse", 1,
+          "Location", 1,
 "Bin", 2
      SIZE 45 BY .95 NO-UNDO.
 
@@ -142,7 +142,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      fg-bin.loc FORMAT "x(5)":U WIDTH 18
+      fg-bin.loc COLUMN-LABEL "Location" FORMAT "x(5)":U WIDTH 18
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(10)":U WIDTH 28
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -165,7 +165,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(81.39) SKIP(1.84)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Warehouse Bin Location Information".
+         TITLE "Location Bin Location Information".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,7 +227,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Bin Location Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Location Bin Location Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.

@@ -34,8 +34,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiry    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -52,7 +52,7 @@ DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btViewFGInquiry 
+&Scoped-Define ENABLED-OBJECTS btViewFGInquiry 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -67,22 +67,19 @@ DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btViewFGInquiry 
+     IMAGE-UP FILE "Graphics/32x32/UDF.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View FG" 
-     SIZE 15 BY 1.14.
-
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 17 BY 1.62.
+     SIZE 8 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btViewFGInquiry AT ROW 1.29 COL 1.8 WIDGET-ID 2 NO-TAB-STOP 
-     RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 4
+     btViewFGInquiry AT ROW 1 COL 1 WIDGET-ID 2 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -111,8 +108,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 6.52
-         WIDTH              = 50.
+         HEIGHT             = 3.1
+         WIDTH              = 24.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -216,6 +213,32 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideFGInquiry s-object 
+PROCEDURE HideFGInquiry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    btViewFGInquiry:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChooseBtViewFGInquiry s-object 
+PROCEDURE pChooseBtViewFGInquiry :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "CHOOSE":U TO btViewFGInquiry IN FRAME {&FRAME-NAME}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -77,7 +77,7 @@ DEFINE VARIABLE begin_bin AS CHARACTER FORMAT "X(8)":U
      SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_loc AS CHARACTER FORMAT "X(5)":U 
-     LABEL "From Warehouse" 
+     LABEL "From Location" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -87,7 +87,7 @@ DEFINE VARIABLE end_bin AS CHARACTER FORMAT "X(8)":U
      SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_loc AS CHARACTER FORMAT "X(5)":U 
-     LABEL "To Warehouse" 
+     LABEL "To Location" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -199,14 +199,14 @@ DO:
                     WHERE loc.company EQ g_company
                       AND loc.loc     EQ begin_loc)
     THEN DO:
-      MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Invalid Location, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO begin_loc.
       RETURN NO-APPLY.
     END.
     IF NOT CAN-FIND(FIRST loc WHERE loc.company EQ g_company
                       AND loc.loc     EQ end_loc)
     THEN DO:
-      MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Invalid Location, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO end_loc.
       RETURN NO-APPLY.
     END.

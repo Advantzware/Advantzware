@@ -195,7 +195,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     FIND FIRST bf-APIOutboundEvent NO-LOCK
          WHERE bf-APIOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.apiOutboundEventID
          NO-ERROR.
-    IF NOT AVAILABLE bf-APIOutboundEvent THEN DO:
+    IF NOT AVAILABLE bf-APIOutboundEvent OR (AVAILABLE bf-APIOutboundEvent AND NOT bf-APIOutboundEvent.success) THEN DO:
         ASSIGN
             opcMessage = "Error while generating access token"
             oplSuccess = FALSE
@@ -206,7 +206,15 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     FIX-CODEPAGE(lcResponse) = "utf-8".
     
     lcResponse = bf-APIOutboundEvent.responseData.
-    
+
+    IF lcResponse EQ "" OR lcResponse EQ ? THEN DO:
+        ASSIGN
+            opcMessage = "Error while generating access token"
+            oplSuccess = FALSE
+            .
+        RETURN.    
+    END.
+        
     ASSIGN
         oObject      = CAST(oModelParser:Parse(INPUT lcResponse),JsonObject).
         cAccessToken = oObject:GetJsonText('access_token')

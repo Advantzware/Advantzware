@@ -187,6 +187,19 @@ FUNCTION sfCommon_IsDateWeekend RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_RoundUp) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_RoundUp Procedure
+FUNCTION sfCommon_RoundUp RETURNS DECIMAL 
+  (ipdValue AS DECIMAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_SetDateOptions Procedure 
@@ -1349,6 +1362,31 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_RoundUp) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_RoundUp Procedure
+FUNCTION sfCommon_RoundUp RETURNS DECIMAL 
+    (ipdValue AS DECIMAL):
+    /*------------------------------------------------------------------------------
+     Purpose: Given a value, rounds up to next integer
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dValueRounded AS DECIMAL NO-UNDO.
+
+    IF (ipdValue - INTEGER(ipdValue)) > 0 THEN 
+        dValueRounded = INTEGER(ipdValue) + 1.
+    ELSE dValueRounded = INTEGER (ipdValue).
+    RETURN dValueRounded.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 

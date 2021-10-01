@@ -22,14 +22,17 @@ DEFINE VARIABLE giTimer             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xpr".
 DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
 DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "    2318".
+DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "  101413".
 DEFINE VARIABLE glDoJob             AS LOGICAL   INITIAL NO.
 DEFINE VARIABLE glDoCalc            AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glPurge             AS LOGICAL   INITIAL YES.
 DEFINE VARIABLE glAlt               AS LOGICAL   INITIAL NO.
+DEFINE VARIABLE glDoPrompts         AS LOGICAL   INITIAL YES.
 
-DEFINE VARIABLE cJobID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobID2 AS INTEGER NO-UNDO.
+DEFINE VARIABLE cJobID              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobID2             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iEstCostHeaderID    AS INT64.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -54,13 +57,23 @@ FIND FIRST job NO-LOCK
 RUN pOnOffProfiler.
 IF AVAILABLE job AND glDoJob THEN 
     ASSIGN 
-        cJobID = job.job-no
+        cJobID  = job.job-no
         iJobID2 = job.job-no2
         .
 IF glDoCalc THEN 
-    RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
+    IF glDoJob THEN 
+        IF glDoPrompts THEN
+            RUN CalculateJobWithPrompts(gcCompany,gcEstimate, cJobID, iJobID2, 0, glPurge, OUTPUT iEstCostHeaderID).
+        ELSE  
+            RUN CalculateJob(gcCompany,gcEstimate, cJobID, iJobID2, 0, glPurge, OUTPUT iEstCostHeaderID).
+    ELSE 
+        IF glDoPrompts THEN
+            RUN CalculateEstimateWithPrompts(gcCompany,gcEstimate, glPurge).
+        ELSE 
+            RUN CalculateEstimate(gcCompany,gcEstimate, glPurge).
 
 RUN pOnOffProfiler.
+
 IF glPurge AND NOT glAlt THEN 
     FIND FIRST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ gcCompany
