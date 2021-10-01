@@ -114,6 +114,12 @@ PROCEDURE setCellColumns:
                 AND userColumn.programName EQ "{&cellColumnDat}" ) THEN DO:       
      FOR EACH userColumn EXCLUSIVE-LOCK
          WHERE userColumn.usrId       EQ USERID('ASI') 
+           AND userColumn.programName EQ cCurrentProgram:
+         DELETE userColumn.   
+     END.
+
+     FOR EACH userColumn EXCLUSIVE-LOCK
+         WHERE userColumn.usrId       EQ USERID('ASI') 
            AND userColumn.programName EQ "{&cellColumnDat}":
          userColumn.programName = cCurrentProgram.    
      END.
