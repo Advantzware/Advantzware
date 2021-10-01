@@ -5372,6 +5372,7 @@ PROCEDURE run-goto :
   DEF VAR lv-changed-to-page-six AS LOG NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
+  DEFINE BUFFER bfSelected-eb FOR eb.
 
   IF AVAIL est THEN DO:
     IF est.est-type EQ 1 THEN DO:
@@ -5432,6 +5433,18 @@ PROCEDURE run-goto :
         END.
       END.
 
+      /* If Blank Record was changed on GOTO screen, refresh related variables to avoid unnecessary checks */
+      IF lv-rowid NE ? AND ROWID(eb) NE lv-rowid THEN
+      DO:
+          FIND FIRST bfSelected-eb NO-LOCK
+              WHERE ROWID(bfSelected-eb) = lv-rowid NO-ERROR.
+              
+          IF AVAILABLE bfSelected-eb THEN  
+              ASSIGN lv-hld-style = bfSelected-eb.style
+                     lv-hld-cust  = bfSelected-eb.cust-no.
+      END.               
+                 
+                       
       RUN redisplay-blanks (lv-rowid).
 
       IF op-changed THEN
