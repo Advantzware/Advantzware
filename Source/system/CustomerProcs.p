@@ -149,6 +149,37 @@ PROCEDURE Customer_GetDefaultShipTo:
         opriShipTo = ROWID(shipto).
 END PROCEDURE.
 
+PROCEDURE Customer_getShiptoDetails:
+    
+    DEFINE INPUT  PARAMETER ip-cCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip-cCustNo  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip-cShipId  AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER op-cShipName  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cShipAddr1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cShipAddr2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cCity      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cState     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cZip       AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-Shipto FOR shipto.
+    
+    FIND FIRST bf-shipto NO-LOCK 
+        WHERE bf-shipto.Company = ip-cCompany
+          AND bf-shipto.Cust-no = ip-cCustNo
+          AND bf-shipto.Ship-Id = ip-cShipId NO-ERROR.
+    
+    IF AVAILABLE bf-shipto THEN
+        ASSIGN 
+            op-cShipName  = bf-shipto.ship-name
+            op-cShipAddr1 = bf-shipto.ship-addr[1]
+            op-cShipAddr2 = bf-shipto.ship-addr[2]
+            op-cCity      = bf-shipto.ship-city
+            op-cState     = bf-shipto.ship-state
+            op-cZip       = bf-shipto.ship-zip.
+            
+END.
+
 PROCEDURE Customer_GetNextShipToNo:
 /*------------------------------------------------------------------------------
  Purpose: Returns the next shipto id for the given company and customer
