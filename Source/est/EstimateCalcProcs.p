@@ -130,12 +130,6 @@ FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE
 
 /* ***************************  Main Block  *************************** */
 
-RUN system\FreightProcs.p PERSISTENT SET ghFreight.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
-RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
-RUN est/OperationProcs.p PERSISTENT SET ghOpProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOpProcs).
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -151,8 +145,7 @@ PROCEDURE CalculateEstimate:
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
-
-    RUN pCleanupObjects.
+    
 END PROCEDURE.
 
 PROCEDURE CalculateEstimateWithPrompts:
@@ -167,7 +160,6 @@ PROCEDURE CalculateEstimateWithPrompts:
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, YES, OUTPUT iEstCostHeaderID).
-    RUN pCleanupObjects.
     
 END PROCEDURE.
 
@@ -185,7 +177,6 @@ PROCEDURE CalculateJob:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, NO, OUTPUT opiEstCostHeaderID).
-    RUN pCleanupObjects.
     
 END PROCEDURE.
 
@@ -203,7 +194,6 @@ PROCEDURE CalculateJobWithPrompts:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
 
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2, ipiQuantity, iplPurge, YES, OUTPUT opiEstCostHeaderID).
-    RUN pCleanupObjects.
     
 END PROCEDURE.
 
@@ -2062,6 +2052,7 @@ PROCEDURE pCalcEstimate PRIVATE:
     DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
     
+    RUN pInitializeObjects.    
     RUN pSetGlobalSettings(ipcCompany).  
     IF iplPurge THEN 
         RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
@@ -2073,7 +2064,7 @@ PROCEDURE pCalcEstimate PRIVATE:
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
     
-
+    RUN pCleanupObjects.
 END PROCEDURE.
 
 PROCEDURE pCalcHeader PRIVATE:
@@ -5224,12 +5215,33 @@ END PROCEDURE.
 
 PROCEDURE pCleanupObjects:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose: Deletes the objetcts handles and context
      Notes:
     ------------------------------------------------------------------------------*/
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghFreight).
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghFormula).
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(ghOpProcs).
+    
+    IF VALID-HANDLE(ghFreight) THEN
+        DELETE PROCEDURE ghFreight.
+    IF VALID-HANDLE(ghFormula) THEN
+        DELETE PROCEDURE ghFormula.
+    IF VALID-HANDLE(ghOpProcs) THEN
+        DELETE PROCEDURE ghOpProcs.
+    
+END PROCEDURE.
+
+PROCEDURE pInitializeObjects:
+    /*------------------------------------------------------------------------------
+     Purpose: Instantiate the Persistent Objects and variables
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN system\FreightProcs.p PERSISTENT SET ghFreight.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
+    RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFormula).
+    RUN est/OperationProcs.p PERSISTENT SET ghOpProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghOpProcs).
     
 END PROCEDURE.
 
