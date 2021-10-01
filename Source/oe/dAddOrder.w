@@ -364,6 +364,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputOrdLine WHERE ttInputOrdLine.Company = c
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Set Estimate */
 DO:             
       EMPTY TEMP-TABLE ttInputOrdLine .
+      EMPTY TEMP-TABLE ttInputOrd .
       DELETE OBJECT hOrderEntryProcs.
       oplBack = NO.
       oplCancel = YES.
@@ -1131,7 +1132,8 @@ PROCEDURE pNewEstimate :
     DO WITH FRAME {&FRAME-NAME}:  
       cEstNo:SCREEN-VALUE = ipcSourceValue.
       cCustPo:SCREEN-VALUE = ipcCustomerPo.
-                             
+      EMPTY TEMP-TABLE ttInputOrdLine.                       
+      EMPTY TEMP-TABLE ttInputOrd.
       RUN OrderEntry_GetEstDetail IN hOrderEntryProcs(INPUT TABLE ttEstItem, INPUT cCompany, INPUT ipcSourceValue, OUTPUT TABLE ttInputOrdLine, OUTPUT TABLE ttInputOrd ).
             
       {&open-query-{&browse-name}}  

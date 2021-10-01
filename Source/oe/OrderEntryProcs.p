@@ -22,6 +22,8 @@ DEFINE VARIABLE gcLastShip  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gdLastShip  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE giLastShip  AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcCePrepPrice AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCePrep    AS CHARACTER NO-UNDO.
+ 
 DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -281,7 +283,9 @@ PROCEDURE pGetEstDetail PRIVATE:
         FOR EACH est-prep WHERE est-prep.company EQ ipcCompany
                       AND est-prep.est-no EQ est.est-no
                       AND est-prep.simon EQ "S" 
-                      AND est-prep.orderID EQ ""  NO-LOCK :
+                      AND est-prep.orderID EQ ""  NO-LOCK ,
+                      FIRST ttEstItem WHERE ttEstItem.isSelected
+                            AND ttEstItem.estRowid EQ ROWID(est-prep) NO-LOCK:
                       
                       FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
                       FIND FIRST prep NO-LOCK
@@ -444,6 +448,8 @@ PROCEDURE pCreateOeOrdm PRIVATE:
     DEFINE PARAMETER BUFFER bf-ttInputOrdLine FOR ttInputOrdLine.
     
     DEFINE VARIABLE li-line  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE v-tmp-int AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ordm FOR oe-ordm.
     
     FIND LAST bf-ordm NO-LOCK
@@ -457,6 +463,7 @@ PROCEDURE pCreateOeOrdm PRIVATE:
         oe-ordm.company   = bf-ttInputOrd.company
         oe-ordm.ord-no    = bf-ttInputOrd.ord-no
         oe-ordm.est-no    = bf-ttInputOrd.est-no
+        oe-ordm.charge    = bf-ttInputOrdLine.i-no
         oe-ordm.line      = li-line + 1
         oe-ordm.bill      = "Y"
         oe-ordm.s-man[1]  = bf-ttInputOrd.sman[1]
@@ -492,6 +499,7 @@ PROCEDURE pCreateOeOrdm PRIVATE:
           and est-prep.est-no  eq bf-ttInputOrdLine.est-no
           and est-prep.s-num   eq bf-ttInputOrdLine.form-no
           and (est-prep.b-num  eq bf-ttInputOrdLine.blank-no or est-prep.b-num eq 0)
+          AND est-prep.CODE    EQ bf-ttInputOrdLine.i-no
           and est-prep.simon   eq "S" 
           AND est-prep.orderID EQ ""
         NO-ERROR.        
@@ -506,23 +514,28 @@ PROCEDURE pCreateOeOrdm PRIVATE:
           oe-ordm.blank-no = est-prep.b-num 
           oe-ordm.estPrepEqty   = est-prep.eqty .
           
-          /*IF ceprepprice-chr EQ "Profit" THEN
+          IF gcCePrepPrice EQ "Profit" THEN
               oe-ordm.amt  = (est-prep.cost * est-prep.qty) / (1 - (est-prep.mkup / 100)) *
                              (est-prep.amtz / 100).
           ELSE
             oe-ordm.amt  = (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) *
                            (est-prep.amtz / 100).
                            
-          IF ceprep-cha EQ "Dollar" THEN DO:
+          IF gcCePrep EQ "Dollar" THEN DO:
              {sys/inc/roundup.i oe-ordm.amt}
           END.
           
-          IF ceprep-cha EQ "FiveDollar" THEN DO:
+          IF gcCePrep EQ "FiveDollar" THEN DO:
              {sys/inc/roundupfive.i oe-ordm.amt}
-          END.         */        
+          END.                 
     END.
+    
+    RUN Tax_GetTaxableMisc  (bf-ttInputOrd.company, bf-ttInputOrd.cust-no, bf-ttInputOrd.ship-id, bf-ttInputOrdLine.i-no, OUTPUT lTaxable).
+    
     ASSIGN oe-ordm.spare-char-1 = bf-ttInputOrd.tax-gr
-           /*oe-ordm.tax          = fGetTaxableMisc(bf-ttInputOrd.company, bf-ttInputOrd.cust-no, bf-ttInputOrd.ship-id, bf-ttInputOrdLine.i-no)*/ .      
+           oe-ordm.tax          = lTaxable . 
+    IF oe-ordm.dscr EQ "" THEN oe-ordm.dscr  = prep.dscr.
+    IF prep.actnum NE "" THEN oe-ordm.actnum = prep.actnum.        
   
     /*IF i = 1 THEN 
     DO:
@@ -592,7 +605,8 @@ PROCEDURE pSaveData PRIVATE:
         bf-oe-ord.company  = ttInputOrd.company
         bf-oe-ord.loc      = ttInputOrd.loc
         bf-oe-ord.job-no   = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
-        oprwRowid          = ROWID(bf-oe-ord).
+        oprwRowid          = ROWID(bf-oe-ord)
+        ttInputOrd.ord-no  = iOrderNo.
      
     BUFFER-COPY ttInputOrd EXCEPT ord-no company loc rec_key job-no TO bf-oe-ord.
          
@@ -611,16 +625,8 @@ PROCEDURE pSaveData PRIVATE:
     END.  
     
     FOR EACH ttInputOrdLine NO-LOCK
-        WHERE ttInputOrdLine.cItemType EQ "Misc":
-    
-        /*CREATE bf-oe-ordl. 
-        ASSIGN
-            bf-oe-ordl.ord-no    = iOrderNo
-            bf-oe-ordl.company   = ttInputOrd.company
-            bf-oe-ordl.job-no    = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
-            bf-oe-ordl.type-code = "O".
-            .
-        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl. */
+        WHERE ttInputOrdLine.cItemType EQ "Misc":      
+        
         RUN pCreateOeOrdm( BUFFER ttInputOrd, BUFFER ttInputOrdLine).
         
     END.  
@@ -722,6 +728,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         OUTPUT cReturnChar, OUTPUT lRecFound).
     IF lRecFound THEN
      gcCePrepPrice = cReturnChar NO-ERROR. 
+     
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEPREP", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     gcCePrep = cReturnChar NO-ERROR. 
           
       
 END PROCEDURE.

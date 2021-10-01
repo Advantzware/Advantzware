@@ -433,7 +433,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /*{src/adm/template/dialogmn.i}*/
     RUN enable_UI.
     {methods/nowait.i}     
-    DO WITH FRAME {&frame-name}:  
+    DO WITH FRAME {&frame-name}:   
         RUN pBuildTable .              
     END. 
     
@@ -629,6 +629,46 @@ PROCEDURE pBuildTable :
                         0,    
                         OUTPUT ttEstItem.estTotal).               
             END.
+            
+            FOR EACH est-prep WHERE est-prep.company EQ est.company
+                      AND est-prep.est-no EQ est.est-no
+                      AND est-prep.simon EQ "S" 
+                      AND est-prep.orderID EQ ""  NO-LOCK :
+                      
+                      FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ est.company NO-LOCK NO-ERROR.
+                      FIND FIRST prep NO-LOCK
+                           WHERE prep.company EQ est.company 
+                           AND prep.code = est-prep.CODE NO-ERROR.
+                           
+                      iLine = iLine + 1. 
+                      
+                      CREATE ttEstItem.
+                ASSIGN
+                    ttEstItem.company     = cCompany
+                    ttEstItem.estLine    = iLine
+                    ttEstItem.estCust    = ""
+                    ttEstItem.estShipId  = ""
+                    ttEstItem.estItem    = est-prep.code
+                    ttEstItem.estPart    = ""
+                    ttEstItem.estDesc    = IF est-prep.dscr <> "" THEN est-prep.dscr ELSE prep.dscr
+                    ttEstItem.estQty     = est-prep.qty 
+                    ttEstItem.estPrice   = est-prep.cost
+                    ttEstItem.estQtyUom  = "EA"
+                    ttEstItem.estTotal   = 0 
+                    ttEstItem.estPrUom   = "EA"
+                    ttEstItem.estRowid   = ROWID(est-prep) 
+                    ttEstItem.estNo      = est.est-no
+                    .
+                    
+                    RUN Conv_CalcTotalPrice(cCompany,            
+                        ttEstItem.estItem,
+                        DECIMAL(ttEstItem.estQty),
+                        DECIMAL(ttEstItem.estPrice),
+                        ttEstItem.estPrUom,
+                        0,
+                        0,    
+                        OUTPUT ttEstItem.estTotal).
+            END.  
           
         END.
         {&open-query-{&browse-name}}     

@@ -2244,6 +2244,8 @@ PROCEDURE add-order :
   IF lNewOrderEntry THEN
   DO:
    EMPTY TEMP-TABLE ttEstItem.
+   EMPTY TEMP-TABLE ttInputOrd.
+   EMPTY TEMP-TABLE ttInputOrdLine.
    DO WHILE TRUE:
        RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, INPUT-OUTPUT dPrice, INPUT-OUTPUT cPrUom, INPUT-OUTPUT iQty, INPUT-OUTPUT iQuoteNumber, OUTPUT lCancel) .
 
