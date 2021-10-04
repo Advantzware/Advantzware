@@ -1267,7 +1267,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "",
         INPUT "Price-Source"
         ).
@@ -1313,7 +1313,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
     RUN ClearTagsForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "Price-Source"
         ).
     RUN ClearTagsForGroup(
@@ -2033,7 +2033,7 @@ DO:
 
     END. /* modified */
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -6655,7 +6655,7 @@ PROCEDURE getTagsToReset :
     EMPTY TEMP-TABLE ttTag.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -6664,7 +6664,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Price-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -8051,18 +8051,18 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     DO:
         
         RUN ClearTagsForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Price-Source"
             ).
         RUN AddTagInfoForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",
             INPUT "Price-Source"
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT "Price-Source",
             OUTPUT lAvailable
