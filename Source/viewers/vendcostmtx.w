@@ -429,6 +429,7 @@ DO:
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {&methods/lValidateError.i YES}
+  IF VALID-HANDLE(FOCUS) THEN
   CASE FOCUS:NAME :
     WHEN "vendorUOM" THEN DO:         
         IF lFGItemUOM AND vendItemCost.itemType:SCREEN-VALUE EQ "FG" THEN
@@ -440,9 +441,8 @@ DO:
            RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE). 
            RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
         END.
-        
         IF char-val NE "" THEN 
-            FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val).
+            vendItemCost.vendorUOM:SCREEN-VALUE = ENTRY(1,char-val).
     END.
     WHEN "customerID" THEN DO:        
          RUN system/openlookup.p (g_company, "cust-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
@@ -726,11 +726,11 @@ DO:
 ON LEAVE OF vendItemCost.vendorUOM IN FRAME F-Main /* Cost and Quantity UOM */
 DO:
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+
     IF LASTKEY <> -1 THEN DO:
         RUN valid-uom( OUTPUT lCheckError) NO-ERROR.
         IF lCheckError THEN RETURN NO-APPLY.
     END.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
