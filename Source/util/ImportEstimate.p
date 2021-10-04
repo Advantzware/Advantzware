@@ -975,7 +975,9 @@ PROCEDURE pProcessRecord PRIVATE:
                                           OUTPUT eb.ship-addr[2],
                                           OUTPUT eb.ship-city,
                                           OUTPUT eb.ship-state,
-                                          OUTPUT eb.ship-zip).
+                                          OUTPUT eb.ship-zip,
+                                          OUTPUT eb.carrier,
+                                          OUTPUT eb.dest-code).
                                           
         IF eb.ship-id = "" THEN 
             eb.ship-id = cust.cust-no. /*maintained existing logic can be assigned to temp*/

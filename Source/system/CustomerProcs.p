@@ -161,6 +161,8 @@ PROCEDURE Customer_getShiptoDetails:
     DEFINE OUTPUT PARAMETER op-cCity      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER op-cState     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER op-cZip       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cCarrier   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cdestCode  AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-Shipto FOR shipto.
     
@@ -176,7 +178,9 @@ PROCEDURE Customer_getShiptoDetails:
             op-cShipAddr2 = bf-shipto.ship-addr[2]
             op-cCity      = bf-shipto.ship-city
             op-cState     = bf-shipto.ship-state
-            op-cZip       = bf-shipto.ship-zip.
+            op-cZip       = bf-shipto.ship-zip
+            op-cCarrier   = bf-shipto.carrier
+            op-cdestCode  = bf-shipto.dest-code.
             
 END.
 
