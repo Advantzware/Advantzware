@@ -148,7 +148,7 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 NO-LOCK DISPLAY
       ttUserColumn.defaultcolLabel COLUMN-LABEL "Name" FORMAT "x(25)":U WIDTH 24.4
       ttUserColumn.colLabel FORMAT "x(30)":U
-      ttUserColumn.colVisible FORMAT "yes/no":U WIDTH 10.2
+      ttUserColumn.colVisible FORMAT "yes/no":U WIDTH 10.2 VIEW-AS TOGGLE-BOX
       ttUserColumn.colWidth COLUMN-LABEL "Width" FORMAT ">>9.99":U
             WIDTH 16.4
   ENABLE
@@ -169,7 +169,7 @@ DEFINE FRAME D-Dialog
      btMoveDown AT ROW 4.33 COL 97 WIDGET-ID 4
      btRestore AT ROW 9.57 COL 97 WIDGET-ID 6
      btSave AT ROW 12.67 COL 97 WIDGET-ID 8
-     SPACE(1.19) SKIP(0.13)
+     SPACE(1.19) SKIP(0.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 FGCOLOR 15 FONT 5
