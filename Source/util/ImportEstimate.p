@@ -795,7 +795,12 @@ PROCEDURE pProcessRecord PRIVATE:
     /*Shipto address*/
     DEFINE VARIABLE riShipto      AS ROWID     NO-UNDO.
     
+    DEFINE VARIABLE hCustProcs AS HANDLE NO-UNDO.
+    
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
+    
+    IF NOT VALID-HANDLE(hCustProcs) THEN
+        RUN system/CustomerProcs.p  PERSISTENT SET hCustProcs.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
@@ -955,9 +960,9 @@ PROCEDURE pProcessRecord PRIVATE:
 
         IF ipbf-ttImportEstimate.ShipToID = "" THEN
         DO: 
-            RUN Customer_GetDefaultShipTo(INPUT cust.company,
-                                          INPUT cust.cust-no,
-                                          OUTPUT riShipto).
+            RUN Customer_GetDefaultShipTo IN hCustProcs(INPUT cust.company,
+                                                        INPUT cust.cust-no,
+                                                        OUTPUT riShipto).
             FIND FIRST shipto WHERE ROWID(shipto) = riShipto NO-LOCK NO-ERROR.
             
             ipbf-ttImportEstimate.ShipToID = shipto.ship-id.
@@ -967,7 +972,8 @@ PROCEDURE pProcessRecord PRIVATE:
         eb.ship-id = ipbf-ttImportEstimate.ShipToID.
         
         IF eb.ship-id <> "" THEN 
-            RUN Customer_getShiptoDetails(INPUT cust.company,
+            RUN Customer_getShiptoDetails IN hCustProcs 
+                                         (INPUT cust.company,
                                           INPUT cust.cust-no,
                                           INPUT eb.ship-id,
                                           OUTPUT eb.ship-name,
@@ -977,7 +983,7 @@ PROCEDURE pProcessRecord PRIVATE:
                                           OUTPUT eb.ship-state,
                                           OUTPUT eb.ship-zip,
                                           OUTPUT eb.carrier,
-                                          OUTPUT eb.dest-code).
+                                          OUTPUT eb.dest-code) .
                                           
         IF eb.ship-id = "" THEN 
             eb.ship-id = cust.cust-no. /*maintained existing logic can be assigned to temp*/
@@ -1096,6 +1102,9 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF VALID-HANDLE(hdFormulaProcs) THEN
         DELETE PROCEDURE hdFormulaProcs.
+        
+    IF VALID-HANDLE(hCustProcs) THEN 
+        DELETE PROCEDURE hCustProcs NO-ERROR.
     
 END PROCEDURE.
 
