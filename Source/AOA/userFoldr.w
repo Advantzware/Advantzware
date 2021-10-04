@@ -141,6 +141,10 @@ DEFINE BUTTON btnSort
      LABEL "Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
+DEFINE BUTTON btnSync 
+     LABEL "Sync Task Results Folder to Database Records" 
+     SIZE 49 BY 1.91.
+
 DEFINE BUTTON btnView 
      IMAGE-UP FILE "Graphics/32x32/media_play.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View" 
@@ -162,12 +166,12 @@ DEFINE BROWSE taskResultBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskResultBrowse C-Win _STRUCTURED
   QUERY taskResultBrowse NO-LOCK DISPLAY
       taskResult.fileDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-            LABEL-BGCOLOR 14
-      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 14
-      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 14
-      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
-      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 14
-      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 22
+      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 22
+      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 22
+      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
+      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 22
+      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 22
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 26.19
@@ -187,6 +191,8 @@ DEFINE FRAME DEFAULT-FRAME
 DEFINE FRAME optionsFrame
      btnExit AT ROW 1.24 COL 152 HELP
           "Exit" WIDGET-ID 288
+     btnSync AT ROW 1.24 COL 100 HELP
+          "Sync Task Results Folder to Database Records" WIDGET-ID 292
      btnSort AT ROW 1.24 COL 34 HELP
           "Sort" WIDGET-ID 48
      btnView AT ROW 1.24 COL 2 HELP
@@ -452,6 +458,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSync
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSync C-Win
+ON CHOOSE OF btnSync IN FRAME optionsFrame /* Sync Task Results Folder to Database Records */
+DO:
+    RUN pSync.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME btnView
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME optionsFrame /* View */
@@ -531,7 +549,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   {&WINDOW-NAME}:TITLE = "~"" + USERID("ASI") + "~" " + {&WINDOW-NAME}:TITLE.
   RUN pGetSettings.
-  RUN pSync.
+  // RUN pSync.
   RUN enable_UI.
   btnRefresh:MOVE-TO-TOP().
   btnDelete:MOVE-TO-TOP().
@@ -586,7 +604,7 @@ PROCEDURE enable_UI :
   ENABLE taskResultBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  ENABLE btnExit RECT-OPTIONS btnView btnArchive btnDelete btnRefresh 
+  ENABLE btnExit RECT-OPTIONS btnSync btnView btnArchive btnDelete btnRefresh 
       WITH FRAME optionsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-optionsFrame}
   VIEW C-Win.
@@ -719,12 +737,14 @@ PROCEDURE pSync :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    SESSION:SET-WAIT-STATE("General").
     DO TRANSACTION:
         FOR EACH taskResult EXCLUSIVE-LOCK:
             IF SEARCH(taskResult.folderFile) EQ ? THEN
             DELETE taskResult.
         END. /* each taskresult */
     END. /* do trans */
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 
