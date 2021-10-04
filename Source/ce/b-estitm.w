@@ -117,6 +117,8 @@ DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-est FOR est.*/
 
 DEFINE VARIABLE cadcamValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+
 
 RUN Get-Company  (OUTPUT gcompany).
 RUN Get-location (OUTPUT gloc).
@@ -197,6 +199,9 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
+
+
+RUN pSetGlobalVars(cocode).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3837,7 +3842,9 @@ PROCEDURE local-assign-record :
      eb.i-ps2   = 0
      eb.i-code2 = ""
      eb.i-dscr2 = ""
-     eb.i-%2    = 0.
+     eb.i-%2    = 0
+     eb.unitno  = 0
+     .
 
     FOR EACH inks BY inks.iv:
       li = li + 1.
@@ -3847,6 +3854,11 @@ PROCEDURE local-assign-record :
          eb.i-code2[li] = inks.cd[1]
          eb.i-dscr2[li] = inks.ds[1]
          eb.i-%2[li]    = inks.pc[1].
+     
+      /* Run logic only if NK1 is set */
+      IF glAssignUnitsForInk = YES AND eb.i-code2[li] NE '' THEN
+          RUN est/GetInksUnitNo.p (BUFFER eb, li, eb.i-code2[li], OUTPUT eb.unitno[li]).
+              
     END.
 
     {ce/updunit#.i eb}
@@ -5089,6 +5101,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalVars B-table-Win
+PROCEDURE pSetGlobalVars PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+    
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
