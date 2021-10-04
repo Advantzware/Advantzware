@@ -1237,12 +1237,12 @@ PROCEDURE pPrintData:
             "<C68><From><R+3><C68><Line><||6><R-2>" .
 
         PUT "<C1><FGCOLOR=GREEN>MACHINE           MR WASTE  MR HRS   RUN SPEED  SPOLL    INPUT  GOOD SHEETS/PCS   OPER INIT/DATE  <FGCOLOR=BLACK>" SKIP(1) .
-        j = 0 .
+        j = 0 .    
         MAIN:
         FOR EACH wrk-op 
-            //WHERE wrk-op.s-num = job-hdr.frm 
+            WHERE wrk-op.s-num EQ bf-xeb.form-no 
             BREAK by wrk-op.d-seq by wrk-op.b-num:
-             v-mat-for-mach = "".
+             v-mat-for-mach = "".   
              IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
                  
                 FOR EACH xjob-mat WHERE xjob-mat.company eq cocode
