@@ -23,8 +23,12 @@ DEFINE VARIABLE gdLastShip  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE giLastShip  AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcCePrepPrice AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCePrep    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcFreightCalculation AS CHARACTER NO-UNDO.
  
-DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
+//DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
+DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
+DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -391,6 +395,7 @@ PROCEDURE pCreateJob PRIVATE:
             ASSIGN 
                 job-hdr.company  = bf-oe-ord.company
                 job-hdr.loc      = bf-oe-ord.loc
+                job-hdr.e-num    = oe-ordl.e-num
                 job-hdr.est-no   = bf-oe-ord.est-no
                 job-hdr.i-no     = oe-ordl.i-no
                 job-hdr.qty      = oe-ordl.qty 
@@ -431,11 +436,15 @@ PROCEDURE pCreateJob PRIVATE:
             oe-ordl.job-no  = job-hdr.job-no
             oe-ordl.job-no2 = job-hdr.job-no2
             oe-ordl.j-no    = job-hdr.j-no.
+            
+        IF oe-ord.stat EQ "H" THEN
+         RUN oe/syncJobHold.p (INPUT bf-oe-ord.company, INPUT bf-oe-ord.ord-no, INPUT "Hold").     
 
         FIND CURRENT job-hdr NO-LOCK.
     END.
     
     FIND CURRENT job NO-LOCK.   
+    FIND CURRENT job-hdr NO-LOCK.
        
 END PROCEDURE.
 
@@ -588,7 +597,11 @@ PROCEDURE pSaveData PRIVATE:
     DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
     
     FIND FIRST ttInputOrd NO-LOCK NO-ERROR.
-            
+    
+    ASSIGN
+    cocode = ttInputOrd.company.
+    locode = ttInputOrd.loc.
+    
     RUN sys/ref/asiseq.p (INPUT ttInputOrd.company, INPUT "order_seq", OUTPUT iOrderNo) NO-ERROR.
     DO WHILE CAN-FIND(FIRST oe-ord
                     WHERE oe-ord.company EQ ttInputOrd.company
@@ -598,17 +611,31 @@ PROCEDURE pSaveData PRIVATE:
                           INPUT "order_seq", 
                           OUTPUT iOrderNo) NO-ERROR.        
     END.
-         
+    
+    IF ttInputOrd.lCreateJob THEN
+    DO:
+        cJobNo  = FILL(" ",6 - length(TRIM(STRING(iOrderNo)))) + string(iOrderNo).
+        iJobNo2 = 0.
+        RUN jc/job-no.p (INPUT-OUTPUT cJobNo, INPUT-OUTPUT iJobNo2,INPUT ttInputOrd.procat,
+                                INPUT ttInputOrd.est-no).
+                                        
+        IF cJobNo NE "" THEN 
+        ASSIGN
+            ttInputOrd.job-no  = cJobNo
+            ttInputOrd.job-no2 = iJobNo2 .
+    END.        
+             
     CREATE bf-oe-ord. 
     ASSIGN
         bf-oe-ord.ord-no   = iOrderNo
         bf-oe-ord.company  = ttInputOrd.company
         bf-oe-ord.loc      = ttInputOrd.loc
-        bf-oe-ord.job-no   = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
+        bf-oe-ord.job-no   = IF ttInputOrd.lCreateJob THEN ttInputOrd.job-no ELSE ""
+        bf-oe-ord.job-no2  = IF ttInputOrd.lCreateJob THEN ttInputOrd.job-no2 ELSE 0
         oprwRowid          = ROWID(bf-oe-ord)
         ttInputOrd.ord-no  = iOrderNo.
      
-    BUFFER-COPY ttInputOrd EXCEPT ord-no company loc rec_key job-no TO bf-oe-ord.
+    BUFFER-COPY ttInputOrd EXCEPT ord-no company loc rec_key job-no job-no2 TO bf-oe-ord.
          
     FOR EACH ttInputOrdLine NO-LOCK
         WHERE ttInputOrdLine.cItemType EQ "Order Line":
@@ -617,10 +644,11 @@ PROCEDURE pSaveData PRIVATE:
         ASSIGN
             bf-oe-ordl.ord-no    = iOrderNo
             bf-oe-ordl.company   = ttInputOrd.company
-            bf-oe-ordl.job-no    = IF ttInputOrd.lCreateJob THEN string(iOrderNo) ELSE ""
+            bf-oe-ordl.job-no    = IF ttInputOrd.lCreateJob THEN ttInputOrd.job-no ELSE ""
+            bf-oe-ordl.job-no2    = IF ttInputOrd.lCreateJob THEN ttInputOrd.job-no2 ELSE 0
             bf-oe-ordl.type-code = "O".
             .
-        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl.
+        BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl.        
         
     END.  
     
@@ -630,21 +658,9 @@ PROCEDURE pSaveData PRIVATE:
         RUN pCreateOeOrdm( BUFFER ttInputOrd, BUFFER ttInputOrdLine).
         
     END.  
-    
-    
-    
+        
     IF ttInputOrd.lCreateJob AND bf-oe-ord.job-no NE "" THEN
-    DO:
-        cJobNo  = FILL(" ",6 - length(TRIM(STRING(iOrderNo)))) + string(iOrderNo).
-        iJobNo2 = 0.
-        RUN jc/job-no.p (INPUT-OUTPUT cJobNo, INPUT-OUTPUT iJobNo2,INPUT ttInputOrd.procat,
-                                INPUT ttInputOrd.est-no).
-                                        
-        IF cJobNo NE "" THEN 
-        ASSIGN
-            bf-oe-ord.job-no  = cJobNo
-            bf-oe-ord.job-no2 = iJobNo2 .                                         
-     
+    DO:            
         FIND FIRST job NO-LOCK
              WHERE job.company EQ bf-oe-ord.company
              AND job.job-no  EQ bf-oe-ord.job-no
@@ -655,7 +671,27 @@ PROCEDURE pSaveData PRIVATE:
            RUN pCreateJob( ROWID(bf-oe-ord)) . 
         END.                
         
+    END. 
+    
+    RELEASE bf-oe-ordl.
+    FOR EACH bf-oe-ordl OF bf-oe-ord  :
+    
+        /*IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN 
+        DO:
+            RUN oe/ordlfrat.p (ROWID(bf-oe-ordl), OUTPUT bf-oe-ordl.t-freight).
+            bf-oe-ord.t-freight = bf-oe-ord.t-freight + bf-oe-ordl.t-freight.
+        END. /* Freight calculation */
+        
+        IF bf-oe-ordl.job-no NE "" THEN
+            RUN oe/palchk.p(ROWID(bf-oe-ord), bf-oe-ordl.i-no).*/
+    
+        fil_id = RECID(bf-oe-ordl).
     END.
+    
+    /*IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN
+    RUN oe/ordfrate.p (ROWID(bf-oe-ord)). /* strange problem with freight */
+     
+    RUN oe/calcordt.p (ROWID(bf-oe-ord)).*/ 
     
     EMPTY TEMP-TABLE ttInputOrd.
     EMPTY TEMP-TABLE ttInputOrdLine.
@@ -735,7 +771,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     IF lRecFound THEN
      gcCePrep = cReturnChar NO-ERROR. 
           
-      
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     gcFreightCalculation = cReturnChar NO-ERROR.
+     
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */

@@ -135,12 +135,12 @@ DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U
 
 DEFINE RECTANGLE RECT-4
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 233 BY 22.33
+    SIZE 240.6 BY 22.33
     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-5
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 229.6 BY 17.57
+    SIZE 237.2 BY 17.57
     BGCOLOR 15 .
 
 /* Query definitions                                                    */
@@ -166,13 +166,13 @@ DEFINE BROWSE BROWSE-1
     ttEstItem.estPo FORMAT "x(15)" WIDTH 18 
     ttEstItem.estTotal FORMAT "->>,>>>,>>>,>>9.99" WIDTH 21 
     ttEstItem.estQuote WIDTH 22 FORMAT "->>>,>>>,>>9.99" 
-    ttEstItem.estPriceMatrix WIDTH 8 FORMAT "Yes/No" 
+    ttEstItem.estPriceMatrix WIDTH 15 FORMAT "Yes/No" 
     ENABLE ttEstItem.isSelected
            ttEstItem.estQty
            ttEstItem.estQtyUom
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 228.4 BY 16.52
+    WITH NO-ASSIGN SEPARATORS SIZE 235.4 BY 16.52
          BGCOLOR 8 FONT 0.
 
 
