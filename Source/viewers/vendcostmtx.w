@@ -435,11 +435,11 @@ DO:
         IF lFGItemUOM AND vendItemCost.itemType:SCREEN-VALUE EQ "FG" THEN
         DO:
            RUN pSetUomTT(cocode,vendItemCost.itemID:SCREEN-VALUE).
-           RUN windows/l-itemuom.w (cocode, FOCUS:SCREEN-VALUE, INPUT TABLE ttUOMEffective, OUTPUT char-val). 
+           RUN windows/l-itemuom.w (cocode, vendItemCost.vendorUOM:SCREEN-VALUE, INPUT TABLE ttUOMEffective, OUTPUT char-val). 
         END.
         ELSE DO:
            RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE). 
-           RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+           RUN windows/l-stduom.w (cocode, uom-list, vendItemCost.vendorUOM:SCREEN-VALUE, OUTPUT char-val).
         END.
         IF char-val NE "" THEN 
             vendItemCost.vendorUOM:SCREEN-VALUE = ENTRY(1,char-val).
