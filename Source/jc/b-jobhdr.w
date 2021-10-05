@@ -52,7 +52,7 @@ IF llRecFound THEN
 &SCOPED-DEFINE sortby-phrase BY job-hdr.frm BY job-hdr.blank-no
 
 /* don't send job-hdr.rec_key to notes. send job.rec_key instead */
-&SCOPED-DEFINE SETVALUE NO
+//&SCOPED-DEFINE SETVALUE NO
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

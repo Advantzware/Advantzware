@@ -304,20 +304,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
 
-
 /* ***************************  Main Block  *************************** */
-run pre-spec NO-ERROR.
-IF ERROR-STATUS:ERROR THEN do:
-   RETURN ERROR.    
-END.
 
+RUN pre-spec NO-ERROR.
+IF ERROR-STATUS:ERROR THEN
+    RETURN ERROR.    
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -556,184 +554,223 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pre-spec W-Win 
 PROCEDURE pre-spec :
-/*------------------------------------------------------------------------------
-  Purpose:  /* can get called from estimate and  order   */
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-def var li-num-item as int no-undo.
-def var ls-item-list as cha no-undo.
-def var ls-item-selected as cha no-undo.
+    /*------------------------------------------------------------------------------
+      Purpose:  /* can get called from estimate and  order   */
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li-num-item      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE ls-item-list     AS cha     NO-UNDO.
+    DEFINE VARIABLE ls-item-selected AS cha     NO-UNDO.
 
-FIND FIRST Prep WHERE prep.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+    FIND FIRST Prep WHERE prep.rec_key = ip-rec_key NO-LOCK NO-ERROR.
 
-FIND FIRST po-ordl WHERE po-ordl.rec_key = ip-rec_key NO-LOCK NO-ERROR.
-IF AVAIL po-ordl THEN DO:
-   IF po-ordl.item-type THEN /* RM*/
-        FIND FIRST ITEM WHERE ITEM.company = po-ordl.company 
-                          AND ITEM.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
-   ELSE FIND FIRST ITEMfg WHERE ITEMfg.company = po-ordl.company 
-                          AND ITEMfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
-END.
-ELSE find FIRST item where item.rec_key eq ip-rec_key no-lock no-error.
-
-IF AVAIL prep THEN DO:
-  ASSIGN
-   lbl_i-no = "    Prep Item#:"
-   fi_i-no  = prep.code
-   ip-rec_key = prep.rec_key .   
-END.
-ELSE IF AVAIL item THEN
-  ASSIGN
-   lbl_i-no = "    RM Item#:"
-   fi_i-no  = item.i-no
-   ip-rec_key = item.rec_key .
-
-ELSE DO:
-
-  IF NOT AVAIL itemfg THEN DO:
-    find first est where est.rec_key = ip-rec_key no-lock no-error.
-
-    if avail est then do:
-       assign li-num-item = 0
-            ls-item-list = "" .
-       for each eb where eb.company = est.company and
-                       eb.est-no = est.est-no no-lock:
-         IF eb.stock-no <> "" THEN
-            assign li-num-item = li-num-item + 1
-                   ls-item-list = ls-item-list + eb.stock-no + ",".               
-       end.     
-       IF ls-item-list = "" THEN DO:
-          MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-          RETURN ERROR.
-       END.
-
-       if li-num-item > 1 then do:
-          run windows/d-specit.w (li-num-item, ls-item-list, output ls-item-selected).
-          ls-item-list = ls-item-selected. 
-       end.    
-       find itemfg where itemfg.company = est.company 
-                      and itemfg.i-no = entry(1,ls-item-list)
-                      no-lock no-error.
-       ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.
-    end.  /* avail est */
-    else  do:
-      find first oe-ord where oe-ord.rec_key = ip-rec_key no-lock no-error.
-
-      if avail oe-ord then do:  /* from order */
-         assign li-num-item = 0
-                ls-item-list = "" .
-         for each oe-ordl of oe-ord no-lock:
-             IF oe-ordl.i-no <> "" then
-                   assign li-num-item = li-num-item + 1
-                          ls-item-list = ls-item-list + oe-ordl.i-no + ",".               
-         end.     
-         IF ls-item-list = "" THEN DO:
-            MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-            RETURN ERROR.
-         END.
-         if li-num-item > 1 then do:
-            run windows/d-specit.w (li-num-item, ls-item-list, output ls-item-selected).
-            ls-item-list = ls-item-selected. 
-         end.
-         find itemfg where itemfg.company = oe-ord.company 
-                       and itemfg.i-no = entry(1,ls-item-list)
-                       no-lock no-error.
-         ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.      
-         
-      end.
-      ELSE IF CAN-FIND(FIRST quotehd WHERE quotehd.rec_key = ip-rec_key)  THEN DO:
-           find first quotehd where quotehd.rec_key = ip-rec_key no-lock no-error.
-           if avail quotehd then do:  /* from quote */
-              assign li-num-item = 0
-                     ls-item-list = "" .
-              for each quoteitm of quotehd no-lock:
-                     IF quoteitm.i-no <> "" then
-                           assign li-num-item = li-num-item + 1
-                                  ls-item-list = ls-item-list + quoteitm.i-no + ",".               
-              end.     
-              IF ls-item-list = "" THEN DO:
-                    MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-                    RETURN ERROR.
-              END.
-              if li-num-item > 1 then do:
-                    run windows/d-specit.w (li-num-item, ls-item-list, output ls-item-selected).
-                    ls-item-list = ls-item-selected. 
-              end.
-              find itemfg where itemfg.company = quotehd.company 
-                            and itemfg.i-no = entry(1,ls-item-list) no-lock no-error.
-              ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.      
-           END.
-      END.
-      ELSE IF CAN-FIND(FIRST oe-relh WHERE oe-relh.rec_key = ip-rec_key)  THEN DO:
-           find first oe-relh where oe-relh.rec_key = ip-rec_key no-lock no-error.
-           if avail oe-relh then do:  /* from quote */
-              assign li-num-item = 0
-                     ls-item-list = "" .
-              for each oe-rell of oe-relh no-lock:
-                     IF oe-rell.i-no <> "" then
-                           assign li-num-item = li-num-item + 1
-                                  ls-item-list = ls-item-list + oe-rell.i-no + ",".
-              end.     
-              IF ls-item-list = "" THEN DO:
-                    MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-                    RETURN ERROR.
-              END.
-              if li-num-item > 1 then do:
-                    run windows/d-specit.w (li-num-item, ls-item-list, output ls-item-selected).
-                    ls-item-list = ls-item-selected. 
-              end.
-              find itemfg where itemfg.company = oe-relh.company 
-                            and itemfg.i-no = entry(1,ls-item-list) no-lock no-error.
-              ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.      
-           END.
-      END.
-      ELSE IF CAN-FIND(FIRST oe-rell WHERE oe-rell.rec_key = ip-rec_key)  THEN DO:
-           find first oe-rell where oe-rell.rec_key = ip-rec_key no-lock no-error.
-           IF AVAIL oe-rell THEN
-           DO:
-              find itemfg where itemfg.company = oe-rell.company 
-                            and itemfg.i-no = oe-rell.i-no no-lock no-error.
-              ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.
-           END.
-      END.
-      else do:  /* line items of est or order */
-          find first oe-ordl where oe-ordl.rec_key = ip-rec_key no-lock no-error.
-          if avail oe-ordl then ls-item-list = oe-ordl.i-no.
-          else do:
-               find first eb where eb.rec_key = ip-rec_key no-lock no-error.
-               if avail eb then ls-item-list = eb.stock-no.
-               ELSE DO:
-                   FIND FIRST itemfg WHERE itemfg.rec_key = ip-rec_key NO-LOCK NO-ERROR.
-                   IF AVAIL itemfg THEN ASSIGN ls-item-list = itemfg.i-no.
-               END.
-          end.
-          IF ls-item-list = "" THEN DO:
-            // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-            // RETURN ERROR.
-          END.
-          if avail oe-ordl or avail eb then do:
-             find itemfg where itemfg.company = g_company 
-                            and itemfg.i-no = entry(1,ls-item-list)
-                            no-lock no-error.
-             ip-rec_key = if avail itemfg then itemfg.rec_key else ip-rec_key.      
-          end.
-      end.
+    FIND FIRST po-ordl WHERE po-ordl.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+    IF AVAILABLE po-ordl THEN 
+    DO:
+        IF po-ordl.item-type THEN /* RM*/
+            FIND FIRST ITEM WHERE ITEM.company = po-ordl.company 
+                AND ITEM.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
+        ELSE FIND FIRST ITEMfg WHERE ITEMfg.company = po-ordl.company 
+                AND ITEMfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
     END.
-  END. /* not avail itemfg */
-  
-  IF AVAIL itemfg THEN
-    ASSIGN
-     lbl_i-no = "     FG Item#"
-     fi_i-no  = itemfg.i-no
-     ip-rec_key = itemfg.rec_key .
+    ELSE FIND FIRST item WHERE item.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
 
-  ELSE DO:
-    /* FIND itemfg WHERE itemfg.rec_key EQ ip-rec_key NO-LOCK NO-ERROR. */
-   // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
-   // RETURN ERROR.        
-  END.
-END.
+    IF AVAILABLE prep THEN 
+    DO:
+        ASSIGN
+            lbl_i-no   = "    Prep Item#:"
+            fi_i-no    = prep.code
+            ip-rec_key = prep.rec_key .   
+    END.
+    ELSE IF AVAILABLE item THEN
+            ASSIGN
+                lbl_i-no   = "    RM Item#:"
+                fi_i-no    = item.i-no
+                ip-rec_key = item.rec_key .
+
+        ELSE 
+        DO:
+
+            IF NOT AVAILABLE itemfg THEN 
+            DO:
+                FIND FIRST est WHERE est.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+
+                IF AVAILABLE est THEN 
+                DO:
+                    ASSIGN 
+                        li-num-item  = 0
+                        ls-item-list = "" .
+                    FOR EACH eb WHERE eb.company = est.company AND
+                        eb.est-no = est.est-no NO-LOCK:
+                        IF eb.stock-no <> "" THEN
+                            ASSIGN li-num-item  = li-num-item + 1
+                                ls-item-list = ls-item-list + eb.stock-no + ",".               
+                    END.     
+                    IF ls-item-list = "" THEN 
+                    DO:
+                        MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                        RETURN ERROR.
+                    END.
+
+                    IF li-num-item > 1 THEN 
+                    DO:
+                        RUN windows/d-specit.w (li-num-item, ls-item-list, OUTPUT ls-item-selected).
+                        ls-item-list = ls-item-selected. 
+                    END.    
+                    FIND itemfg WHERE itemfg.company = est.company 
+                        AND itemfg.i-no = entry(1,ls-item-list)
+                        NO-LOCK NO-ERROR.
+                    ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.
+                END.  /* avail est */
+                ELSE  
+                DO:
+                    FIND FIRST oe-ord WHERE oe-ord.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+
+                    IF AVAILABLE oe-ord THEN 
+                    DO:  /* from order */
+                        ASSIGN 
+                            li-num-item  = 0
+                            ls-item-list = "" .
+                        FOR EACH oe-ordl OF oe-ord NO-LOCK:
+                            IF oe-ordl.i-no <> "" THEN
+                                ASSIGN li-num-item  = li-num-item + 1
+                                    ls-item-list = ls-item-list + oe-ordl.i-no + ",".               
+                        END.     
+                        IF ls-item-list = "" THEN 
+                        DO:
+                            MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                            RETURN ERROR.
+                        END.
+                        IF li-num-item > 1 THEN 
+                        DO:
+                            RUN windows/d-specit.w (li-num-item, ls-item-list, OUTPUT ls-item-selected).
+                            ls-item-list = ls-item-selected. 
+                        END.
+                        FIND itemfg WHERE itemfg.company = oe-ord.company 
+                            AND itemfg.i-no = entry(1,ls-item-list)
+                            NO-LOCK NO-ERROR.
+                        ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.      
+         
+                    END.
+                    ELSE IF CAN-FIND(FIRST quotehd WHERE quotehd.rec_key = ip-rec_key)  THEN 
+                        DO:
+                            FIND FIRST quotehd WHERE quotehd.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                            IF AVAILABLE quotehd THEN 
+                            DO:  /* from quote */
+                                ASSIGN 
+                                    li-num-item  = 0
+                                    ls-item-list = "" .
+                                FOR EACH quoteitm OF quotehd NO-LOCK:
+                                    IF quoteitm.i-no <> "" THEN
+                                        ASSIGN li-num-item  = li-num-item + 1
+                                            ls-item-list = ls-item-list + quoteitm.i-no + ",".               
+                                END.     
+                                IF ls-item-list = "" THEN 
+                                DO:
+                                    MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                                    RETURN ERROR.
+                                END.
+                                IF li-num-item > 1 THEN 
+                                DO:
+                                    RUN windows/d-specit.w (li-num-item, ls-item-list, OUTPUT ls-item-selected).
+                                    ls-item-list = ls-item-selected. 
+                                END.
+                                FIND itemfg WHERE itemfg.company = quotehd.company 
+                                    AND itemfg.i-no = entry(1,ls-item-list) NO-LOCK NO-ERROR.
+                                ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.      
+                            END.
+                        END.
+                        ELSE IF CAN-FIND(FIRST oe-relh WHERE oe-relh.rec_key = ip-rec_key)  THEN 
+                            DO:
+                                FIND FIRST oe-relh WHERE oe-relh.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                                IF AVAILABLE oe-relh THEN 
+                                DO:  /* from quote */
+                                    ASSIGN 
+                                        li-num-item  = 0
+                                        ls-item-list = "" .
+                                    FOR EACH oe-rell OF oe-relh NO-LOCK:
+                                        IF oe-rell.i-no <> "" THEN
+                                            ASSIGN li-num-item  = li-num-item + 1
+                                                ls-item-list = ls-item-list + oe-rell.i-no + ",".
+                                    END.     
+                                    IF ls-item-list = "" THEN 
+                                    DO:
+                                        MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                                        RETURN ERROR.
+                                    END.
+                                    IF li-num-item > 1 THEN 
+                                    DO:
+                                        RUN windows/d-specit.w (li-num-item, ls-item-list, OUTPUT ls-item-selected).
+                                        ls-item-list = ls-item-selected. 
+                                    END.
+                                    FIND itemfg WHERE itemfg.company = oe-relh.company 
+                                        AND itemfg.i-no = entry(1,ls-item-list) NO-LOCK NO-ERROR.
+                                    ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.      
+                                END.
+                            END.
+                            ELSE IF CAN-FIND(FIRST oe-rell WHERE oe-rell.rec_key = ip-rec_key)  THEN 
+                                DO:
+                                    FIND FIRST oe-rell WHERE oe-rell.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                                    IF AVAILABLE oe-rell THEN
+                                    DO:
+                                        FIND itemfg WHERE itemfg.company = oe-rell.company 
+                                            AND itemfg.i-no = oe-rell.i-no NO-LOCK NO-ERROR.
+                                        ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.
+                                    END.
+                                END.
+                                ELSE IF CAN-FIND(FIRST oe-ordl WHERE oe-ordl.rec_key EQ ip-rec_key) THEN
+                                    DO:  /* line items of est or order */
+                                        FIND FIRST oe-ordl WHERE oe-ordl.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                                        IF AVAILABLE oe-ordl THEN ls-item-list = oe-ordl.i-no.
+                                        ELSE 
+                                        DO:
+                                            FIND FIRST eb WHERE eb.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                                            IF AVAILABLE eb THEN ls-item-list = eb.stock-no.
+                                            ELSE 
+                                            DO:
+                                                FIND FIRST itemfg WHERE itemfg.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+                                                IF AVAILABLE itemfg THEN ASSIGN ls-item-list = itemfg.i-no.
+                                            END.
+                                        END.
+                                        IF ls-item-list = "" THEN 
+                                        DO:
+                                            // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                                            // RETURN ERROR.
+                                        END.
+                                        IF AVAILABLE oe-ordl OR AVAILABLE eb THEN 
+                                        DO:
+                                            FIND itemfg WHERE itemfg.company = g_company 
+                                                AND itemfg.i-no = entry(1,ls-item-list)
+                                                NO-LOCK NO-ERROR.
+                                            ip-rec_key = IF AVAILABLE itemfg THEN itemfg.rec_key ELSE ip-rec_key.      
+                                        END.
+                                    END.
+                                    ELSE DO:
+                                        FIND FIRST job-hdr NO-LOCK
+                                             WHERE job-hdr.rec_key EQ ip-rec_key
+                                             NO-ERROR.
+                                        IF AVAILABLE job-hdr THEN DO:
+                                            FIND FIRST itemfg NO-LOCK
+                                                 WHERE itemfg.company EQ g_company
+                                                   AND itemfg.i-no    EQ job-hdr.i-no
+                                                 NO-ERROR.
+                                        END.
+                                    END.
+                END.
+            END. /* not avail itemfg */  
+            IF AVAILABLE itemfg THEN
+                ASSIGN
+                    lbl_i-no   = "     FG Item#"
+                    fi_i-no    = itemfg.i-no
+                    ip-rec_key = itemfg.rec_key .
+            ELSE 
+            DO:
+                /* FIND itemfg WHERE itemfg.rec_key EQ ip-rec_key NO-LOCK NO-ERROR. */
+                // MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
+                // RETURN ERROR.        
+            END.
+        END.
 
 END PROCEDURE.
 
