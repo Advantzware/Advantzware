@@ -248,7 +248,7 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiSellUOM AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 9.8 BY 1.43
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 21 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
@@ -669,11 +669,13 @@ END.
 
 &Scoped-define SELF-NAME fiCustItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
-ON ANY-KEY OF fiCustItem IN FRAME F-Main
+ON RETURN OF fiCustItem IN FRAME F-Main
 DO:
-    /* Apply fg item scan on press enter key */
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
-        APPLY "LEAVE" TO SELF.  
+    APPLY "LEAVE" TO SELF.
+    
+    APPLY "ENTRY" TO fiLocation.
+    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -683,6 +685,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiCustItem W-Win
 ON ENTRY OF fiCustItem IN FRAME F-Main
 DO:
+    SELF:BGCOLOR = 30.
+    
     hFocusField = SELF.
     
     IF lKeyboard THEN
@@ -726,6 +730,8 @@ DO:
                                           "".
         
         APPLY "LEAVE" TO SELF.
+        
+        APPLY "ENTRY" TO fiLocation.
     END.  
 END.
 
@@ -781,6 +787,10 @@ DO:
     END.
     
     RUN pScanItem.
+
+    FINALLY:    
+        SELF:BGCOLOR = 15.   
+    END FINALLY.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -789,11 +799,13 @@ END.
 
 &Scoped-define SELF-NAME fiFGItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
-ON ANY-KEY OF fiFGItem IN FRAME F-Main
+ON RETURN OF fiFGItem IN FRAME F-Main
 DO:
-    /* Apply fg item scan on press enter key */
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
-        APPLY "LEAVE" TO SELF.
+    APPLY "LEAVE" TO SELF.
+    
+    APPLY "ENTRY" TO fiCustItem.
+    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -803,6 +815,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON ENTRY OF fiFGItem IN FRAME F-Main
 DO:
+    SELF:BGCOLOR = 30.
+    
     hFocusField = SELF.
     
     IF lKeyboard THEN
@@ -841,6 +855,8 @@ DO:
                                     "".
         
         APPLY "LEAVE" TO SELF.
+        
+        APPLY "ENTRY" TO fiCustItem.
     END.    
 END.
 
@@ -851,9 +867,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFGItem W-Win
 ON LEAVE OF fiFGItem IN FRAME F-Main
 DO:
-    IF cItemID EQ SELF:SCREEN-VALUE OR LASTKEY EQ -1 THEN
+    IF cItemID EQ SELF:SCREEN-VALUE AND LASTKEY NE -1 THEN
         RETURN.
-        
+
     RUN pClearRecords.
     
     IF SELF:SCREEN-VALUE EQ "" THEN DO:
@@ -866,8 +882,12 @@ DO:
         fiCustItem:SCREEN-VALUE = ""
         cCustItem               = ""
         .
+
+    RUN pScanItem. 
     
-    RUN pScanItem.    
+    FINALLY:    
+        SELF:BGCOLOR = 15.   
+    END FINALLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -876,11 +896,13 @@ END.
 
 &Scoped-define SELF-NAME fiLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
-ON ANY-KEY OF fiLocation IN FRAME F-Main
+ON RETURN OF fiLocation IN FRAME F-Main
 DO:
-    /* Apply location scan on press enter key */
-    IF KEY-LABEL(LASTKEY) EQ "ENTER" THEN
-        APPLY "LEAVE" TO SELF.  
+    APPLY "LEAVE" TO SELF.
+    
+    APPLY "ENTRY" TO fiFGItem.
+    
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -890,6 +912,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main
 DO:
+    SELF:BGCOLOR = 30.
+    
     hFocusField = SELF.
     
     IF lKeyboard THEN
@@ -928,6 +952,8 @@ DO:
                                       "".
         
         APPLY "LEAVE" TO SELF.
+        
+        APPLY "ENTRY" TO fiFGItem.
     END.      
 END.
 
@@ -947,6 +973,10 @@ DO:
         .        
 
     RUN pScanItem.
+
+    FINALLY:    
+        SELF:BGCOLOR = 15.   
+    END FINALLY.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
