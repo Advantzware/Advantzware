@@ -25,14 +25,7 @@ DEFINE INPUT PARAMETER ipcCustShipID AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opReturnValue AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-
-DEFINE TEMP-TABLE ttOePrmtx
-    FIELD i-no   AS CHARACTER FORMAT "x(15)"
-    FIELD cType  AS CHARACTER FORMAT "x(10)"
-    FIELD procat AS CHARACTER FORMAT "x(10)"
-    FIELD qty    AS INTEGER   LABEL "Qty" FORMAT ">>>,>>>,>>9"
-    FIELD price  AS DECIMAL   LABEL "Price" FORMAT "->>,>>>,>>9.99<<"
-    FIELD uom    AS CHARACTER LABEL "Uom" FORMAT "x(3)".
+{system/ttPriceMatrix.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,16 +43,16 @@ DEFINE TEMP-TABLE ttOePrmtx
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttOePrmtx
+&Scoped-define INTERNAL-TABLES ttPriceMatrix
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttOePrmtx.qty  ttOePrmtx.price 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttPriceMatrix.quantity  ttPriceMatrix.price 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttOePrmtx BY qty
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttOePrmtx BY qty.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttOePrmtx
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttOePrmtx
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttPriceMatrix BY quantity
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttPriceMatrix BY quantity.
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 ttPriceMatrix
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttPriceMatrix
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -85,15 +78,15 @@ DEFINE TEMP-TABLE ttOePrmtx
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    ttOePrmtx SCROLLING.
+    ttPriceMatrix SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
     QUERY BROWSE-1 NO-LOCK DISPLAY
-    ttOePrmtx.qty 
-    ttOePrmtx.price
+    ttPriceMatrix.quantity COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9"
+    ttPriceMatrix.price COLUMN-LABEL "Price" FORMAT "->>>,>>>,>>9.99<<"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 53 BY 15
@@ -164,8 +157,8 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
     DO:
-        opReturnValue = STRING(ttOePrmtx.qty) + "," +
-            STRING(ttOePrmtx.price) + "," + ttOePrmtx.uom .
+        opReturnValue = STRING(ttPriceMatrix.quantity) + "," +
+            STRING(ttPriceMatrix.price) + "," + ttPriceMatrix.priceUOM .
         APPLY "window-close" TO FRAME {&FRAME-NAME}.
     END.
 
@@ -192,9 +185,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:  
   
     RUN buildMatrix.
-    FIND FIRST ttOePrmtx NO-LOCK NO-ERROR.
+    FIND FIRST ttPriceMatrix NO-LOCK NO-ERROR.
      
-    IF AVAILABLE ttOePrmtx THEN
+    IF AVAILABLE ttPriceMatrix THEN
     DO:
         RUN enable_UI.  
       
@@ -253,33 +246,17 @@ PROCEDURE buildMatrix :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    FOR EACH oe-prmtx NO-LOCK
-        WHERE oe-prmtx.company EQ ipcCompany 
-        AND oe-prmtx.i-no EQ ipcFGItem
-        AND (oe-prmtx.cust-no EQ ipcCustNo OR oe-prmtx.cust-no EQ "")
-        AND oe-prmtx.custype EQ ipcCustType
-        AND oe-prmtx.procat EQ ipcProCat
-        AND (oe-prmtx.custShipID EQ ipcCustShipID OR oe-prmtx.custShipID EQ "")
-        AND (oe-prmtx.eff-date LE TODAY)           
-        AND (oe-prmtx.exp-date GE TODAY OR oe-prmtx.exp-date EQ ? OR oe-prmtx.exp-date EQ 01/01/0001):
-       
-        DO iCount = 1 TO EXTENT(oe-prmtx.price) :
-            
-            IF oe-prmtx.qty[iCount] EQ 0 THEN NEXT.
-            
-            CREATE ttOePrmtx.
-            ASSIGN 
-                ttOePrmtx.i-no   = oe-prmtx.i-no
-                ttOePrmtx.cType  = oe-prmtx.custype
-                ttOePrmtx.procat = oe-prmtx.procat
-                ttOePrmtx.qty    = oe-prmtx.qty[iCount]
-                ttOePrmtx.price  = oe-prmtx.price[iCount]
-                ttOePrmtx.uom    = oe-prmtx.uom[iCount].  
-        END.
-                    
-    END.
-         
+    DEFINE VARIABLE lMatchFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMatchDetail AS CHARACTER NO-UNDO.
+    
+    RUN Price_GetPriceMatrix(INPUT ipcCompany, 
+                             INPUT ipcFGItem, 
+                             INPUT ipcCustNo, 
+                             INPUT ipcCustShipID,
+                             INPUT-OUTPUT TABLE ttPriceMatrix,
+                             OUTPUT lMatchFound,
+                             OUTPUT cMatchDetail
+                             ).               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
