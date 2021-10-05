@@ -183,7 +183,7 @@ DEFINE VARIABLE end_vend   AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-frmitm.csv" 
+DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportCustomer.csv" 
     LABEL "Name" 
     VIEW-AS FILL-IN NATIVE 
     SIZE 52 BY 1.
@@ -248,7 +248,7 @@ DEFINE FRAME rd-fgnq-exp
     fi_file AT ROW 16.38 COL 18.8 COLON-ALIGNED HELP
     "Enter File Name" WIDGET-ID 22
     tb_OpenCSV AT ROW 16.48 COL 87.8 RIGHT-ALIGNED WIDGET-ID 34
-    tbAutoClose AT ROW 18.29 COL 42 WIDGET-ID 60
+    tbAutoClose AT ROW 18.29 COL 32.8 WIDGET-ID 60
     tb_excel AT ROW 18.38 COL 4 WIDGET-ID 32
     btn-ok AT ROW 19.1 COL 32.6 WIDGET-ID 14
     btn-cancel AT ROW 19.1 COL 52.6 WIDGET-ID 12
@@ -526,8 +526,8 @@ ON LEAVE OF end_vend IN FRAME rd-fgnq-exp /* To Vendor */
 
 
 &Scoped-define SELF-NAME fi_file
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgnq-exp
+ON HELP OF fi_file IN FRAME rd-fgnq-exp /* Name */
     DO:
         DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
@@ -659,6 +659,7 @@ RUN DisplaySelectionList2.
 RUN Set-Sort-Data.
 
 APPLY "entry" TO begin_i-no.
+fi_file:SCREEN-VALUE = "c:\tmp\ExportCustomer.csv".
 END. 
 WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
