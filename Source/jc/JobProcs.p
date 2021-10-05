@@ -193,6 +193,125 @@ PROCEDURE GetSecondaryJobForJob:
         ).
 END PROCEDURE.
 
+PROCEDURE pCreateJob PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: create job base of order 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER iprwRowid      AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER v-ord-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-job FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+    DEFINE VARIABLE iJobJobNo LIKE job.job NO-UNDO.
+    DEFINE VARIABLE cJobNo  LIKE job.job-no NO-UNDO.
+    DEFINE VARIABLE iJobNo LIKE job.job-no2 NO-UNDO.
+        
+    FIND FIRST bf-oe-ord WHERE ROWID(bf-oe-ord) EQ iprwRowid NO-LOCK NO-ERROR.
+              
+    FIND LAST job WHERE job.company EQ bf-oe-ord.company NO-LOCK NO-ERROR.
+    iJobJobNo = IF AVAILABLE job THEN job.job + 1 ELSE 1.
+    ASSIGN
+        cJobNo  = bf-oe-ord.job-no
+        iJobNo = bf-oe-ord.job-no2.
+
+    FOR EACH job
+        WHERE job.company EQ bf-oe-ord.company
+        AND job.job-no  EQ cJobNo
+        AND job.job-no2 EQ iJobNo:
+        DELETE job.
+    END.
+         
+    CREATE bf-job.
+    ASSIGN 
+        bf-job.job       = iJobJobNo
+        bf-job.company   = bf-oe-ord.company
+        bf-job.loc       = bf-oe-ord.loc
+        bf-job.est-no    = bf-oe-ord.est-no
+        bf-job.job-no    = cJobNo
+        bf-job.job-no2   = iJobNo
+        bf-job.stat      = "P"
+        bf-job.ordertype = bf-oe-ord.type         
+        .
+             
+    FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company EQ bf-oe-ord.company
+        AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no exclusive:
+        FIND FIRST bf-job-hdr NO-LOCK
+            WHERE bf-job-hdr.company EQ bf-oe-ord.company
+            AND bf-job-hdr.job-no  EQ bf-oe-ord.job-no
+            AND bf-job-hdr.job-no2 EQ bf-oe-ord.job-no2
+            AND bf-job-hdr.ord-no  EQ bf-oe-ord.ord-no
+            AND bf-job-hdr.i-no    EQ bf-oe-ordl.i-no
+            NO-ERROR.
+
+        IF NOT AVAILABLE bf-job-hdr THEN 
+        DO:
+            FIND FIRST itemfg WHERE itemfg.company EQ bf-oe-ordl.company
+                AND itemfg.i-no    EQ bf-oe-ordl.i-no
+                NO-LOCK NO-ERROR.   
+
+            CREATE bf-job-hdr.
+            ASSIGN 
+                bf-job-hdr.company  = bf-oe-ord.company
+                bf-job-hdr.loc      = bf-oe-ord.loc
+                bf-job-hdr.e-num    = bf-oe-ordl.e-num
+                bf-job-hdr.est-no   = bf-oe-ord.est-no
+                bf-job-hdr.i-no     = bf-oe-ordl.i-no
+                bf-job-hdr.qty      = bf-oe-ordl.qty 
+                bf-job-hdr.cust-no  = bf-oe-ordl.cust-no
+                bf-job-hdr.ord-no   = bf-oe-ordl.ord-no
+                bf-job-hdr.po-no    = bf-oe-ordl.po-no
+                bf-job-hdr.blank-no = bf-oe-ordl.blank-no.
+
+            IF AVAILABLE itemfg THEN
+                ASSIGN bf-job-hdr.std-mat-cost = itemfg.std-mat-cost
+                    bf-job-hdr.std-lab-cost = itemfg.std-lab-cost
+                    bf-job-hdr.std-var-cost = itemfg.std-var-cost
+                    bf-job-hdr.std-fix-cost = itemfg.std-fix-cost.
+
+            ASSIGN 
+                bf-job-hdr.std-tot-cost = (bf-job-hdr.std-mat-cost + bf-job-hdr.std-lab-cost +
+                                        bf-job-hdr.std-var-cost + bf-job-hdr.std-fix-cost).
+        END.
+
+        ELSE
+        DO WHILE TRUE:
+            FIND v-ord-job-hdr WHERE ROWID(v-ord-job-hdr) EQ ROWID(bf-job-hdr)
+            EXCLUSIVE NO-WAIT NO-ERROR.
+            IF AVAILABLE v-ord-job-hdr THEN 
+            DO:
+                FIND CURRENT v-ord-job-hdr NO-LOCK NO-ERROR.
+                FIND CURRENT bf-job-hdr NO-ERROR.
+                LEAVE.
+            END.
+        END.
+
+        ASSIGN 
+            bf-job-hdr.est-no  = bf-oe-ord.est-no
+            bf-job-hdr.job     = bf-job.job
+            bf-job-hdr.job-no  = bf-job.job-no
+            bf-job-hdr.job-no2 = bf-job.job-no2
+            bf-oe-ordl.est-no  = bf-job-hdr.est-no
+            bf-oe-ordl.job-no  = bf-job-hdr.job-no
+            bf-oe-ordl.job-no2 = bf-job-hdr.job-no2
+            bf-oe-ordl.j-no    = bf-job-hdr.j-no.
+                      
+        IF bf-oe-ord.stat EQ "H" THEN
+         RUN oe/syncJobHold.p (INPUT bf-oe-ord.company, INPUT bf-oe-ord.ord-no, INPUT "Hold").     
+
+        FIND CURRENT bf-job-hdr NO-LOCK NO-ERROR.
+    END.
+    
+    FIND CURRENT bf-job NO-LOCK.   
+    FIND CURRENT bf-job-hdr NO-LOCK.
+    
+END PROCEDURE.
+
+
+
 PROCEDURE pGetSecondaryJobForJob PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns all available secondary job list for a given jobID
@@ -415,6 +534,17 @@ PROCEDURE job_CloseJob_DCPost:
       
     RUN CloseJob_DCPost(INPUT ipcCompany,TABLE w-job).
    
+    
+END PROCEDURE.
+
+PROCEDURE job_CreateJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.
+          
+    RUN pCreateJob(INPUT iprwRowid).     
     
 END PROCEDURE.
 

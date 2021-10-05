@@ -30,6 +30,9 @@ DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
 DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 
+DEFINE VARIABLE hdOrderProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobProcs     AS HANDLE    NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -330,254 +333,6 @@ PROCEDURE pGetEstDetail PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pCreateJob PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the order evaluation parameters
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
-    
-    //DEFINE OUTPUT PARAMETER op-recid AS RECID NO-UNDO.
-
-    DEFINE BUFFER v-ord-job-hdr FOR job-hdr.
-    DEFINE BUFFER bf-oe-ord FOR oe-ord.
-
-    DEFINE VARIABLE v-job-job LIKE job.job NO-UNDO.
-    DEFINE VARIABLE v-job-no  LIKE job.job-no NO-UNDO.
-    DEFINE VARIABLE v-job-no2 LIKE job.job-no2 NO-UNDO.
-    DEFINE VARIABLE li-j-no   AS INTEGER NO-UNDO.  
-    
-    FIND FIRST bf-oe-ord WHERE ROWID(bf-oe-ord) EQ iprwRowid NO-LOCK NO-ERROR.
-              
-    FIND LAST job WHERE job.company EQ bf-oe-ord.company NO-LOCK NO-ERROR.
-    v-job-job = IF AVAILABLE job THEN job.job + 1 ELSE 1.
-    ASSIGN
-        v-job-no  = bf-oe-ord.job-no
-        v-job-no2 = bf-oe-ord.job-no2.
-
-    FOR EACH job
-        WHERE job.company EQ bf-oe-ord.company
-        AND job.job-no  EQ v-job-no
-        AND job.job-no2 EQ v-job-no2:
-        DELETE job.
-    END.
-         
-    CREATE job.
-    ASSIGN 
-        job.job       = v-job-job
-        job.company   = bf-oe-ord.company
-        job.loc       = bf-oe-ord.loc
-        job.est-no    = bf-oe-ord.est-no
-        job.job-no    = v-job-no
-        job.job-no2   = v-job-no2
-        job.stat      = "P"
-        job.ordertype = bf-oe-ord.type
-        //op-recid      = RECID(job)
-        .
-
-    FOR EACH oe-ordl WHERE oe-ordl.company EQ bf-oe-ord.company
-        AND oe-ordl.ord-no  EQ bf-oe-ord.ord-no exclusive:
-        FIND FIRST job-hdr NO-LOCK
-            WHERE job-hdr.company EQ bf-oe-ord.company
-            AND job-hdr.job-no  EQ bf-oe-ord.job-no
-            AND job-hdr.job-no2 EQ bf-oe-ord.job-no2
-            AND job-hdr.ord-no  EQ bf-oe-ord.ord-no
-            AND job-hdr.i-no    EQ oe-ordl.i-no
-            NO-ERROR.
-
-        IF NOT AVAILABLE job-hdr THEN 
-        DO:
-            FIND FIRST itemfg WHERE itemfg.company EQ oe-ordl.company
-                AND itemfg.i-no    EQ oe-ordl.i-no
-                NO-LOCK NO-ERROR.   
-
-            CREATE job-hdr.
-            ASSIGN 
-                job-hdr.company  = bf-oe-ord.company
-                job-hdr.loc      = bf-oe-ord.loc
-                job-hdr.e-num    = oe-ordl.e-num
-                job-hdr.est-no   = bf-oe-ord.est-no
-                job-hdr.i-no     = oe-ordl.i-no
-                job-hdr.qty      = oe-ordl.qty 
-                job-hdr.cust-no  = oe-ordl.cust-no
-                job-hdr.ord-no   = oe-ordl.ord-no
-                job-hdr.po-no    = oe-ordl.po-no
-                job-hdr.blank-no = oe-ordl.blank-no.
-
-            IF AVAILABLE itemfg THEN
-                ASSIGN job-hdr.std-mat-cost = itemfg.std-mat-cost
-                    job-hdr.std-lab-cost = itemfg.std-lab-cost
-                    job-hdr.std-var-cost = itemfg.std-var-cost
-                    job-hdr.std-fix-cost = itemfg.std-fix-cost.
-
-            ASSIGN 
-                job-hdr.std-tot-cost = (job-hdr.std-mat-cost + job-hdr.std-lab-cost +
-                                        job-hdr.std-var-cost + job-hdr.std-fix-cost).
-        END.
-
-        ELSE
-        DO WHILE TRUE:
-            FIND v-ord-job-hdr WHERE ROWID(v-ord-job-hdr) EQ ROWID(job-hdr)
-            EXCLUSIVE NO-WAIT NO-ERROR.
-            IF AVAILABLE v-ord-job-hdr THEN 
-            DO:
-                FIND CURRENT v-ord-job-hdr NO-LOCK NO-ERROR.
-                FIND CURRENT job-hdr NO-ERROR.
-                LEAVE.
-            END.
-        END.
-
-        ASSIGN 
-            job-hdr.est-no  = bf-oe-ord.est-no
-            job-hdr.job     = job.job
-            job-hdr.job-no  = job.job-no
-            job-hdr.job-no2 = job.job-no2
-            oe-ordl.est-no  = job-hdr.est-no
-            oe-ordl.job-no  = job-hdr.job-no
-            oe-ordl.job-no2 = job-hdr.job-no2
-            oe-ordl.j-no    = job-hdr.j-no.
-            
-        IF oe-ord.stat EQ "H" THEN
-         RUN oe/syncJobHold.p (INPUT bf-oe-ord.company, INPUT bf-oe-ord.ord-no, INPUT "Hold").     
-
-        FIND CURRENT job-hdr NO-LOCK.
-    END.
-    
-    FIND CURRENT job NO-LOCK.   
-    FIND CURRENT job-hdr NO-LOCK.
-       
-END PROCEDURE.
-
-PROCEDURE pCreateOeOrdm PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the order evaluation parameters
-     Notes:
-    ------------------------------------------------------------------------------*/ 
-    DEFINE PARAMETER BUFFER bf-ttInputOrd FOR ttInputOrd.
-    DEFINE PARAMETER BUFFER bf-ttInputOrdLine FOR ttInputOrdLine.
-    
-    DEFINE VARIABLE li-line  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE v-tmp-int AS INTEGER NO-UNDO.
-    DEFINE BUFFER bf-ordm FOR oe-ordm.
-    
-    FIND LAST bf-ordm NO-LOCK
-        WHERE bf-ordm.company EQ bf-ttInputOrd.company
-        AND bf-ordm.ord-no  EQ bf-ttInputOrd.ord-no
-        USE-INDEX oe-misc NO-ERROR.
-    li-line = IF AVAILABLE bf-ordm THEN bf-ordm.line ELSE 0.
-  
-    CREATE oe-ordm.    
-    ASSIGN
-        oe-ordm.company   = bf-ttInputOrd.company
-        oe-ordm.ord-no    = bf-ttInputOrd.ord-no
-        oe-ordm.est-no    = bf-ttInputOrd.est-no
-        oe-ordm.charge    = bf-ttInputOrdLine.i-no
-        oe-ordm.line      = li-line + 1
-        oe-ordm.bill      = "Y"
-        oe-ordm.s-man[1]  = bf-ttInputOrd.sman[1]
-        oe-ordm.s-pct[1]  = bf-ttInputOrd.s-pct[1]
-        oe-ordm.s-comm[1] = bf-ttInputOrd.s-comm[1]
-        oe-ordm.s-man[2]  = bf-ttInputOrd.sman[2]
-        oe-ordm.s-pct[2]  = bf-ttInputOrd.s-pct[2]
-        oe-ordm.s-comm[2] = bf-ttInputOrd.s-comm[2]
-        oe-ordm.s-man[3]  = bf-ttInputOrd.sman[3]
-        oe-ordm.s-pct[3]  = bf-ttInputOrd.s-pct[3]
-        oe-ordm.s-comm[3] = bf-ttInputOrd.s-comm[3]
-        
-        .
-
-    FIND FIRST ar-ctrl WHERE ar-ctrl.company = bf-ttInputOrd.company NO-LOCK NO-ERROR.
-    IF AVAILABLE ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ bf-ttInputOrd.company
-         AND cust.cust-no EQ bf-ttInputOrd.cust-no NO-ERROR.
-
-    FIND FIRST prep NO-LOCK 
-            WHERE prep.company EQ bf-ttInputOrd.company 
-            AND prep.code    EQ bf-ttInputOrdLine.i-no
-            NO-ERROR.
-    IF AVAILABLE prep AND NOT prep.commissionable THEN
-        ASSIGN 
-            oe-ordm.s-comm[1] = 0 
-            oe-ordm.s-comm[2] = 0
-            oe-ordm.s-comm[3] = 0
-            .
-    FIND FIRST est-prep NO-LOCK
-         where est-prep.company eq bf-ttInputOrd.company
-          and est-prep.est-no  eq bf-ttInputOrdLine.est-no
-          and est-prep.s-num   eq bf-ttInputOrdLine.form-no
-          and (est-prep.b-num  eq bf-ttInputOrdLine.blank-no or est-prep.b-num eq 0)
-          AND est-prep.CODE    EQ bf-ttInputOrdLine.i-no
-          and est-prep.simon   eq "S" 
-          AND est-prep.orderID EQ ""
-        NO-ERROR.        
-    
-    IF AVAIL est-prep THEN
-    DO:
-       ASSIGN
-          oe-ordm.dscr = est-prep.dscr
-          oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
-          oe-ordm.estPrepLine = est-prep.LINE 
-          oe-ordm.form-no  = est-prep.s-num
-          oe-ordm.blank-no = est-prep.b-num 
-          oe-ordm.estPrepEqty   = est-prep.eqty .
-          
-          IF gcCePrepPrice EQ "Profit" THEN
-              oe-ordm.amt  = (est-prep.cost * est-prep.qty) / (1 - (est-prep.mkup / 100)) *
-                             (est-prep.amtz / 100).
-          ELSE
-            oe-ordm.amt  = (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) *
-                           (est-prep.amtz / 100).
-                           
-          IF gcCePrep EQ "Dollar" THEN DO:
-             {sys/inc/roundup.i oe-ordm.amt}
-          END.
-          
-          IF gcCePrep EQ "FiveDollar" THEN DO:
-             {sys/inc/roundupfive.i oe-ordm.amt}
-          END.                 
-    END.
-    
-    RUN Tax_GetTaxableMisc  (bf-ttInputOrd.company, bf-ttInputOrd.cust-no, bf-ttInputOrd.ship-id, bf-ttInputOrdLine.i-no, OUTPUT lTaxable).
-    
-    ASSIGN oe-ordm.spare-char-1 = bf-ttInputOrd.tax-gr
-           oe-ordm.tax          = lTaxable . 
-    IF oe-ordm.dscr EQ "" THEN oe-ordm.dscr  = prep.dscr.
-    IF prep.actnum NE "" THEN oe-ordm.actnum = prep.actnum.        
-  
-    /*IF i = 1 THEN 
-    DO:
-        IF AVAILABLE oe-ord THEN
-            FIND FIRST bf-ordl OF oe-ord NO-LOCK NO-ERROR.
-        IF AVAILABLE bf-ordl THEN
-            ASSIGN
-                oe-ordm.spare-char-2 = bf-ordl.i-no 
-                oe-ordm.ord-i-no     = bf-ordl.job-no
-                oe-ordm.ord-line     = bf-ordl.job-no2
-                oe-ordm.spare-int-1  = bf-ordl.LINE .
-    END.
-    ELSE 
-    DO:
-        ASSIGN
-            oe-ordm.spare-char-2 = v-fgitem .
-        IF AVAILABLE oe-ord THEN
-            FIND FIRST bf-ordl OF oe-ord 
-                WHERE bf-ordl.i-no EQ v-fgitem NO-LOCK NO-ERROR.
-        IF AVAILABLE bf-ordl THEN
-            ASSIGN
-                oe-ordm.ord-i-no = bf-ordl.job-no
-                oe-ordm.ord-line = bf-ordl.job-no2
-                oe-ordm.spare-int-1 = bf-ordl.LINE  .
-        
-    END.  */
-    
-    //est-prep.orderID = string(oe-ord.ord-no).
-    FIND CURRENT oe-ordm NO-LOCK NO-ERROR.  
-    
-    
-
-END PROCEDURE.    
 
 PROCEDURE pSaveData PRIVATE:
     /*------------------------------------------------------------------------------
@@ -595,6 +350,10 @@ PROCEDURE pSaveData PRIVATE:
     DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO.
     DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
+    
+    RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs. 
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs. 
+    
     
     FIND FIRST ttInputOrd NO-LOCK NO-ERROR.
     
@@ -651,12 +410,18 @@ PROCEDURE pSaveData PRIVATE:
         BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl.        
         
     END.  
-    
+           
     FOR EACH ttInputOrdLine NO-LOCK
-        WHERE ttInputOrdLine.cItemType EQ "Misc":      
+        WHERE ttInputOrdLine.cItemType EQ "Misc":       
         
-        RUN pCreateOeOrdm( BUFFER ttInputOrd, BUFFER ttInputOrdLine).
-        
+        RUN Order_CreateMiscSurcharge IN hdOrderProcs ( 
+                                       INPUT bf-oe-ord.company,
+                                       INPUT bf-oe-ord.ord-no,
+                                       INPUT ttInputOrdLine.i-no,
+                                       INPUT 1,
+                                       OUTPUT oplError,
+                                       OUTPUT opcMessage
+                                       ).
     END.  
         
     IF ttInputOrd.lCreateJob AND bf-oe-ord.job-no NE "" THEN
@@ -668,33 +433,37 @@ PROCEDURE pSaveData PRIVATE:
              NO-ERROR.
         IF NOT AVAILABLE job THEN
         DO:
-           RUN pCreateJob( ROWID(bf-oe-ord)) . 
+            RUN job_CreateJob IN hdJobProcs(ROWID(bf-oe-ord)).
+           
         END.                
         
     END. 
-    
+           
     RELEASE bf-oe-ordl.
     FOR EACH bf-oe-ordl OF bf-oe-ord  :
     
-        /*IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN 
+        IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN 
         DO:
             RUN oe/ordlfrat.p (ROWID(bf-oe-ordl), OUTPUT bf-oe-ordl.t-freight).
             bf-oe-ord.t-freight = bf-oe-ord.t-freight + bf-oe-ordl.t-freight.
         END. /* Freight calculation */
-        
+                
         IF bf-oe-ordl.job-no NE "" THEN
-            RUN oe/palchk.p(ROWID(bf-oe-ord), bf-oe-ordl.i-no).*/
-    
+            RUN oe/palchk.p(ROWID(bf-oe-ord), bf-oe-ordl.i-no).
+             
         fil_id = RECID(bf-oe-ordl).
+        //RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
     END.
     
-    /*IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN
+    IF (gcFreightCalculation EQ "ALL" OR gcFreightCalculation EQ "Order processing") THEN
     RUN oe/ordfrate.p (ROWID(bf-oe-ord)). /* strange problem with freight */
-     
-    RUN oe/calcordt.p (ROWID(bf-oe-ord)).*/ 
-    
+               
+    RUN oe/calcordt.p (ROWID(bf-oe-ord)). 
+                 
     EMPTY TEMP-TABLE ttInputOrd.
     EMPTY TEMP-TABLE ttInputOrdLine.
+    DELETE OBJECT hdOrderProcs.
+    DELETE OBJECT hdJobProcs.
     
 END.
 
