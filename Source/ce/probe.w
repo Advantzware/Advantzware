@@ -2636,7 +2636,7 @@ PROCEDURE pRunProductList :
  Notes:
 ------------------------------------------------------------------------------*/
 
-RUN ce\ProductListXls.p (ROWID(eb)).
+RUN est\MRPReport.p (ROWID(eb)).
 
 END PROCEDURE.
 	

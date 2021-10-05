@@ -15,6 +15,17 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb AS ROWID  NO-UNDO.
 
+DEFINE VARIABLE viWorkSheetCount   AS INTEGER          NO-UNDO.   
+DEFINE VARIABLE LvOutputSelection  AS CHARACTER        INIT "on-Screen" NO-UNDO.
+DEFINE VARIABLE CurActivePrinter   AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE AdobePrinter       AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE chExcelApplication AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE WshNetwork         AS COMPONENT-HANDLE.
+DEFINE VARIABLE chFile             AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE chWorkBook         AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE chWorksheet        AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE iRowCount          AS INTEGER          NO-UNDO.
+
 DEFINE TEMP-TABLE ttHeader
     FIELD company        AS CHARACTER 
     FIELD estimateNo     AS CHARACTER
@@ -55,7 +66,7 @@ FUNCTION fIsSet RETURNS LOGICAL PRIVATE
 
 RUN pBuildHeader(ipriEb).
 RUN pBuildData.
-RUN pWriteData.
+RUN pBuildXlt.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -191,21 +202,155 @@ PROCEDURE pBuildHeader PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pWriteData PRIVATE:
+PROCEDURE pBuildXlt PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:  Outputs the data from the temptables to the report
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdOutput AS HANDLE NO-UNDO.
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
+    RUN pInitializeExcel.
+    RUN pMainLoop.
+    RUN pCleanup.    
     
-    RUN system\OutputProcs.p PERSISTENT SET hdOutput.
-    
-    RUN Output_TempTableToCSV IN hdOutput (TEMP-TABLE ttMaterial:HANDLE, "c:\tmp\MRP.csv", YES, YES, OUTPUT lError, OUTPUT cMessage).
-    DELETE OBJECT hdOutput. 
+END PROCEDURE.
+
+PROCEDURE pInitializeExcel PRIVATE:
+
+    /* Capture the current active printer. */
+    IF LvOutputSelection = "email" THEN
+        ASSIGN 
+            CurActivePrinter = SESSION:PRINTER-NAME
+            AdobePrinter     = "PDFcamp Printer".
+  
+    RUN sys/ref/getFileFullPathName.p ("Template\PurchasingList.xlt", OUTPUT chFile).
+    IF chFile = ? THEN  
+        APPLY 'close' TO THIS-PROCEDURE.
+
+    /* Connect to the running Excel session. */
+    CREATE "Excel.Application" chExcelApplication CONNECT NO-ERROR.
+
+    /* If Excel is running close it. */
+    IF VALID-HANDLE (chExcelApplication) THEN
+    DO:
+        chExcelApplication:Quit()         NO-ERROR.
+        RUN pCleanUp.
+    END.
+
+
+    /* Network connection checks. */
+    CREATE "WScript.Network" WshNetwork NO-ERROR.
+    IF NOT(VALID-HANDLE(WshNetwork)) THEN
+    DO :
+        MESSAGE "Unable to Create Wscript.Network" VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END.    
+  
+    /* Start a new session of Excel. */
+    /*if not (valid-handle (chExcelApplication)) THEN*/
+    CREATE "Excel.Application" chExcelApplication NO-ERROR.
+  
+    /* Check if Excel got initialized. */
+    IF NOT (VALID-HANDLE (chExcelApplication)) THEN
+    DO :
+        MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END.
+  
+    /* Make Excel visible. */
+    ASSIGN
+        chExcelApplication:VISIBLE = IF LvOutputSelection = "Email" OR 
+                                     LvOutputSelection = "Printer" THEN  FALSE
+                                  ELSE TRUE.      
 
 END PROCEDURE.
+
+PROCEDURE pMainLoop PRIVATE:
+    
+    /* Open our Excel Template. */  
+    ASSIGN 
+        chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
+  
+    /* Do not display Excel error messages. */
+    chExcelApplication:DisplayAlerts = FALSE  NO-ERROR.
+
+    /* Disable screen updating so it will go faster */
+    chExcelApplication:ScreenUpdating = FALSE.
+
+    /* Go to the Active Sheet. */
+    chWorkbook:WorkSheets(1):Activate NO-ERROR.
+    chWorkSheet      = chExcelApplication:Sheets:item(1).
+
+    /*Fill in Data*/
+    RUN pFillData.
+
+    /* enable screen updating */
+    chExcelApplication:ScreenUpdating = TRUE.
+END PROCEDURE.
+
+PROCEDURE pCleanUp PRIVATE:
+
+    /* RELEASE OBJECTS */
+    RELEASE OBJECT chWorkbook         NO-ERROR.
+    RELEASE OBJECT chWorkSheet        NO-ERROR.
+
+    /* Reset the Active Printer to the Original Printer. */
+    IF CurActivePrinter <> '' THEN
+        WshNetwork:SetDefaultPrinter(CurActivePrinter).
+
+    
+    /* Release created objects. */
+    RELEASE OBJECT WshNetwork         NO-ERROR.
+    RELEASE OBJECT chExcelApplication NO-ERROR.
+END PROCEDURE.
+
+PROCEDURE pFillData PRIVATE:   
+    
+    FIND FIRST ttHeader NO-LOCK NO-ERROR.   
+     
+    ASSIGN
+        viWorkSheetCount = 1.         
+   
+    /* Go to the Active Sheet. */
+    chWorkbook:WorkSheets(viWorkSheetCount):Activate NO-ERROR.   
+    
+    ASSIGN
+        chWorkSheet      = chExcelApplication:Sheets:item(viWorkSheetCount)
+        chWorkSheet:name = "Purchasing List" .
+      
+    ASSIGN
+        chWorkSheet:Range("B2"):value = ttHeader.customerName
+        chWorkSheet:Range("B3"):value = ttHeader.customerPart
+        chWorkSheet:Range("B4"):value = ttHeader.datePrinted
+        chWorkSheet:Range("D3"):value = ttHeader.plateID
+        chWorkSheet:Range("D4"):value = ttHeader.estimateNo
+        .
+    iRowCount = 8.
+    
+    FOR EACH ttMaterial NO-LOCK :           
+       ASSIGN 
+           chWorkSheet:Range("A" + STRING(iRowCount)):value = ttMaterial.itemName
+           chWorkSheet:Range("B" + STRING(iRowCount)):value = ttMaterial.sizeDesc 
+           chWorkSheet:Range("C" + STRING(iRowCount)):value = ""
+           chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(ttMaterial.quantityOnHand) 
+           chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[1]) 
+           chWorkSheet:Range("F" + STRING(iRowCount)):value = ttMaterial.quantityUOM 
+           chWorkSheet:Range("G" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[1] / ttMaterial.quantityRequired[1])
+           chWorkSheet:Range("H" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[2]) 
+           chWorkSheet:Range("I" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[2] / ttMaterial.quantityRequired[2])
+           chWorkSheet:Range("J" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[3]) 
+           chWorkSheet:Range("K" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[3] / ttMaterial.quantityRequired[3])
+           chWorkSheet:Range("L" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[4]) 
+           chWorkSheet:Range("M" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[4] / ttMaterial.quantityRequired[4])
+           chWorkSheet:Range("N" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[5]) 
+           chWorkSheet:Range("O" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[5] / ttMaterial.quantityRequired[5])
+           
+           iRowCount = iRowCount + 1.     
+    END.       
+              
+    chWorkbook:WorkSheets(1):Activate NO-ERROR.
+
+END PROCEDURE. /* FillData*/
+
 
 /* ************************  Function Implementations ***************** */
 
