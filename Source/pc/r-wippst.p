@@ -252,7 +252,7 @@ DEFINE VARIABLE tb_tot-hrs   AS LOGICAL INITIAL YES
     VIEW-AS TOGGLE-BOX
     SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
     LABEL "Show Parameters?" 
     VIEW-AS TOGGLE-BOX
     SIZE 24 BY .81 NO-UNDO.
@@ -610,7 +610,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             tb_OpenCSV   
             fi_file
             .       
-  
+
         IF rd-dest = 3 THEN
         DO:
             ASSIGN 
@@ -697,18 +697,21 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
             ELSE MESSAGE "No WIP available for posting..." VIEW-AS ALERT-BOX ERROR.
         END.  /* IF ip-post THEN */
-        IF NOT tb_OpenCSV THEN 
-        DO:        
-            MESSAGE "CSV file have been created." SKIP(1)
-                "~"OK"~" to open CSV file?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
-                TITLE "" UPDATE lChoice AS LOGICAL.
-     
-            IF lChoice THEN
-            DO:
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-            END.
-        END. /* IF NOT tb_OpenCSV */
+        IF rd-dest = 3 THEN
+        DO:
+            IF NOT tb_OpenCSV THEN 
+            DO:        
+                MESSAGE "CSV file have been created." SKIP(1)
+                    "~"OK"~" to open CSV file?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                    TITLE "" UPDATE lChoice AS LOGICAL.
+         
+                IF lChoice THEN
+                DO:
+                    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                END.
+            END.  /* IF NOT tb_OpenCSV THEN  */
+        END.  /* IF rd-dest = 3 THEN */
         
         IF tbAutoClose:CHECKED THEN 
             APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -999,7 +1002,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
     btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
     RUN enable_UI.
-    {sys/inc/reportsConfigNK1.i "DL3" }
+    {sys/inc/reportsConfigNK1.i "DT" }
     ASSIGN
         td-show-parm:SENSITIVE = lShowParameters
         td-show-parm:HIDDEN    = NOT lShowParameters
@@ -1244,14 +1247,12 @@ PROCEDURE pChangeDest :
                 tb_OpenCSV:SCREEN-VALUE = "Yes"
                 fi_file:SENSITIVE       = YES
                 tb_OpenCSV:SENSITIVE    = YES
-                tb_excel                = YES
                 .
         ELSE
             ASSIGN
                 tb_OpenCSV:SCREEN-VALUE = "NO"
                 fi_file:SENSITIVE       = NO
                 tb_OpenCSV:SENSITIVE    = NO
-                tb_excel                = NO
                 .
         ASSIGN 
             fi_file:SCREEN-VALUE = "c:\tmp\TransferWIPtoJobCost.csv".   
@@ -2687,7 +2688,7 @@ PROCEDURE run-report :
 
     {sys/inc/outprint.i value(lines-per-page)}
 
-    IF tb_excel THEN 
+    IF rd-dest = 3 THEN 
     DO:                                    
         OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
         excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
@@ -2898,7 +2899,7 @@ PROCEDURE run-report :
             DOWN WITH FRAME gldetail.
         END. /* each work-job */
 
-    IF tb_excel THEN 
+    IF rd-dest = 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN

@@ -83,217 +83,215 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_date      AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_dept      AS CHARACTER FORMAT "X(4)" 
-    LABEL "Beginning Department" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_dept AS CHARACTER FORMAT "X(4)" 
+     LABEL "Beginning Department" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_mach      AS CHARACTER FORMAT "X(6)" 
-    LABEL "Beginning Machine" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
+     LABEL "Beginning Machine" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_Shift     AS INTEGER   FORMAT ">9" INITIAL 1 
-    LABEL "Beginning Shift" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_Shift AS INTEGER FORMAT ">9" INITIAL 1 
+     LABEL "Beginning Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_time      AS INTEGER   FORMAT "99":U INITIAL 0 
-    LABEL "Beginning Time (24 HR)" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_time AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "Beginning Time (24 HR)" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_time_mins AS INTEGER   FORMAT "99":U INITIAL 0 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_time_mins AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
 
-DEFINE VARIABLE cEndCodeNo      AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
-    LABEL "Ending Charge Code" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE cEndCodeNo AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Charge Code" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cStartCodeNo    AS CHARACTER FORMAT "X(5)":U 
-    LABEL "Notes - Beginning Charge Code" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE cStartCodeNo AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Notes - Beginning Charge Code" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date        AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_dept        AS CHARACTER FORMAT "X(4)" INITIAL "zzzz" 
-    LABEL "Ending Department" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_dept AS CHARACTER FORMAT "X(4)" INITIAL "zzzz" 
+     LABEL "Ending Department" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_mach        AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
-    LABEL "Ending Machine" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
+     LABEL "Ending Machine" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_shift       AS INTEGER   FORMAT ">9" INITIAL 3 
-    LABEL "Ending shift" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_shift AS INTEGER FORMAT ">9" INITIAL 3 
+     LABEL "Ending shift" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_time        AS INTEGER   FORMAT "99":U INITIAL 23 
-    LABEL "Ending Time (24 HR)" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY .95 NO-UNDO.
+DEFINE VARIABLE end_time AS INTEGER FORMAT "99":U INITIAL 23 
+     LABEL "Ending Time (24 HR)" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
 
-DEFINE VARIABLE end_time_mins   AS INTEGER   FORMAT "99":U INITIAL 59 
-    LABEL "" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY .95 NO-UNDO.
+DEFINE VARIABLE end_time_mins AS INTEGER FORMAT "99":U INITIAL 59 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
 
-DEFINE VARIABLE fi_file         AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MachineEfficiencyReport.csv" 
-    LABEL "Name" 
-    VIEW-AS FILL-IN NATIVE 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MachineEfficiencyReport.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
     SIZE 51 BY 1.
 
-DEFINE VARIABLE lines-per-page  AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name    AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no      AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt         AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest         AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 5,
-    "To CSV", 3
-    SIZE 14 BY 5 NO-UNDO.
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Email", 5,
+"To CSV", 3
+     SIZE 12.8 BY 3.33 NO-UNDO.
 
-DEFINE VARIABLE rd_TonMsfQty    AS CHARACTER INITIAL "QM" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Tons,MSF", "TM",
-    "Qty,MSF", "QM",
-    "Qty,Tons", "QT"
-    SIZE 56.6 BY .95 NO-UNDO.
+DEFINE VARIABLE rd_TonMsfQty AS CHARACTER INITIAL "QM" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Tons,MSF", "TM",
+"Qty,MSF", "QM",
+"Qty,Tons", "QT"
+     SIZE 56.6 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
     SIZE 90 BY 5.43.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 90 BY 10.67.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 90 BY 10.67.
 
 DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel     AS LOGICAL INITIAL YES 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_OpenCSV   AS LOGICAL INITIAL NO 
-    LABEL "Open CSV?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 15.4 BY .81 NO-UNDO.
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_show      AS LOGICAL INITIAL YES 
-    LABEL "Show Job detail For Selected Period?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 40 BY .81 NO-UNDO.
+     LABEL "Show Job detail For Selected Period?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY .81 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_dept AT ROW 2.67 COL 28.8 COLON-ALIGNED HELP
-    "Enter Beginning Department"
-    end_dept AT ROW 2.67 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Department"
-    begin_mach AT ROW 3.62 COL 28.8 COLON-ALIGNED HELP
-    "Enter Beginning Machine"
-    end_mach AT ROW 3.62 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Machine"
-    begin_Shift AT ROW 4.57 COL 28.8 COLON-ALIGNED HELP
-    "Enter Beginning Shift"
-    end_shift AT ROW 4.57 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Shift"
-    begin_date AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
-    "Enter Beginning Date"
-    end_date AT ROW 5.52 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Date"
-    begin_time AT ROW 6.43 COL 28.8 COLON-ALIGNED HELP
-    "Enter Beginning Time (Hour)" WIDGET-ID 14
-    begin_time_mins AT ROW 6.43 COL 35.8 COLON-ALIGNED HELP
-    "Enter Beginning Time (Mins)" WIDGET-ID 18
-    end_time AT ROW 6.48 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Time (Hour)" WIDGET-ID 20
-    end_time_mins AT ROW 6.48 COL 77.4 COLON-ALIGNED HELP
-    "Enter Ending Time (Mins)" WIDGET-ID 22
-    tb_show AT ROW 7.91 COL 30.8
-    rd_TonMsfQty AT ROW 9.33 COL 30.8 NO-LABELS WIDGET-ID 8
-    cStartCodeNo AT ROW 10.76 COL 38.4 COLON-ALIGNED HELP
-    "Enter Beginning Charge Code" WIDGET-ID 24
-    cEndCodeNo AT ROW 10.76 COL 70.4 COLON-ALIGNED HELP
-    "Enter Ending Charge Code" WIDGET-ID 26
-    rd-dest AT ROW 12.91 COL 5.2 NO-LABELS
-    lv-ornt AT ROW 12.91 COL 30 NO-LABELS
-    lines-per-page AT ROW 12.91 COL 83 COLON-ALIGNED
-    lv-font-no AT ROW 13.62 COL 34 COLON-ALIGNED
-    tb_excel AT ROW 13.67 COL 74 RIGHT-ALIGNED
-    lv-font-name AT ROW 14.57 COL 28 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 15.76 COL 26.6
-    fi_file AT ROW 16.71 COL 24.6 COLON-ALIGNED HELP
-    "Enter File Name"
-    tb_OpenCSV AT ROW 16.81 COL 92.4 RIGHT-ALIGNED
-    tbAutoClose AT ROW 18.14 COL 26.6 WIDGET-ID 64
-    btn-ok AT ROW 19.1 COL 26.6
-    btn-cancel AT ROW 19.1 COL 48.8
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.2 BY .71 AT ROW 1.14 COL 5
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19 BY .62 AT ROW 12.29 COL 5
-    RECT-6 AT ROW 12.67 COL 4
-    RECT-7 AT ROW 1.52 COL 4
+     begin_dept AT ROW 2.67 COL 28.8 COLON-ALIGNED HELP
+          "Enter Beginning Department"
+     end_dept AT ROW 2.67 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Department"
+     begin_mach AT ROW 3.62 COL 28.8 COLON-ALIGNED HELP
+          "Enter Beginning Machine"
+     end_mach AT ROW 3.62 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Machine"
+     begin_Shift AT ROW 4.57 COL 28.8 COLON-ALIGNED HELP
+          "Enter Beginning Shift"
+     end_shift AT ROW 4.57 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Shift"
+     begin_date AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
+          "Enter Beginning Date"
+     end_date AT ROW 5.52 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Date"
+     begin_time AT ROW 6.43 COL 28.8 COLON-ALIGNED HELP
+          "Enter Beginning Time (Hour)" WIDGET-ID 14
+     begin_time_mins AT ROW 6.43 COL 35.8 COLON-ALIGNED HELP
+          "Enter Beginning Time (Mins)" WIDGET-ID 18
+     end_time AT ROW 6.48 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Time (Hour)" WIDGET-ID 20
+     end_time_mins AT ROW 6.48 COL 77.4 COLON-ALIGNED HELP
+          "Enter Ending Time (Mins)" WIDGET-ID 22
+     tb_show AT ROW 7.91 COL 30.8
+     rd_TonMsfQty AT ROW 9.33 COL 30.8 NO-LABEL WIDGET-ID 8
+     cStartCodeNo AT ROW 10.76 COL 38.4 COLON-ALIGNED HELP
+          "Enter Beginning Charge Code" WIDGET-ID 24
+     cEndCodeNo AT ROW 10.76 COL 70.4 COLON-ALIGNED HELP
+          "Enter Ending Charge Code" WIDGET-ID 26
+     lv-font-no AT ROW 12.81 COL 34 COLON-ALIGNED
+     lv-ornt AT ROW 12.91 COL 30 NO-LABEL
+     lines-per-page AT ROW 12.91 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 13.33 COL 5.2 NO-LABEL
+     lv-font-name AT ROW 13.33 COL 28 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 13.67 COL 74 RIGHT-ALIGNED
+     td-show-parm AT ROW 14.38 COL 25.6
+     fi_file AT ROW 15.33 COL 23.6 COLON-ALIGNED HELP
+          "Enter File Name"
+     tb_OpenCSV AT ROW 15.43 COL 92.4 RIGHT-ALIGNED
+     tbAutoClose AT ROW 17.33 COL 25.6 WIDGET-ID 64
+     btn-ok AT ROW 18.29 COL 25.6
+     btn-cancel AT ROW 18.29 COL 48.8
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 12.29 COL 5
+     RECT-6 AT ROW 12.67 COL 4
+     RECT-7 AT ROW 1.52 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 96 BY 20
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 96 BY 20
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -310,30 +308,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "New Machine efficiency report(Excel)"
-        HEIGHT             = 20
-        WIDTH              = 96
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "New Machine efficiency report(Excel)"
+         HEIGHT             = 20
+         WIDTH              = 96
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -348,99 +346,119 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_dept:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_mach:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_Shift:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_Shift:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_time:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_time:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_time_mins:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_time_mins:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    cEndCodeNo:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       cEndCodeNo:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    cStartCodeNo:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       cStartCodeNo:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_dept:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_mach:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_shift:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_time:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_time:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_time_mins:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_time_mins:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET rd_TonMsfQty IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    rd_TonMsfQty:HIDDEN IN FRAME FRAME-A = TRUE.
+       rd_TonMsfQty:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
-    tb_excel:HIDDEN IN FRAME FRAME-A       = TRUE
-    tb_excel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_show:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_show:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
     THEN C-Win:HIDDEN = NO.
@@ -457,7 +475,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* New Machine efficiency report(Excel) */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -471,7 +489,7 @@ ON END-ERROR OF C-Win /* New Machine efficiency report(Excel) */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* New Machine efficiency report(Excel) */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -484,7 +502,7 @@ ON WINDOW-CLOSE OF C-Win /* New Machine efficiency report(Excel) */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -495,7 +513,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 &Scoped-define SELF-NAME begin_dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_dept C-Win
 ON LEAVE OF begin_dept IN FRAME FRAME-A /* Beginning Department */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -506,7 +524,7 @@ ON LEAVE OF begin_dept IN FRAME FRAME-A /* Beginning Department */
 &Scoped-define SELF-NAME begin_mach
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mach C-Win
 ON LEAVE OF begin_mach IN FRAME FRAME-A /* Beginning Machine */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -517,7 +535,7 @@ ON LEAVE OF begin_mach IN FRAME FRAME-A /* Beginning Machine */
 &Scoped-define SELF-NAME begin_Shift
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_Shift C-Win
 ON LEAVE OF begin_Shift IN FRAME FRAME-A /* Beginning Shift */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -528,7 +546,7 @@ ON LEAVE OF begin_Shift IN FRAME FRAME-A /* Beginning Shift */
 &Scoped-define SELF-NAME begin_time
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time C-Win
 ON LEAVE OF begin_time IN FRAME FRAME-A /* Beginning Time (24 HR) */
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF begin_time LT 0 OR begin_time GT 24 THEN 
         DO: 
@@ -545,7 +563,7 @@ ON LEAVE OF begin_time IN FRAME FRAME-A /* Beginning Time (24 HR) */
 &Scoped-define SELF-NAME begin_time_mins
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time_mins C-Win
 ON LEAVE OF begin_time_mins IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF begin_time_mins LT 0 OR begin_time_mins GT 60 THEN 
         DO: 
@@ -562,7 +580,7 @@ ON LEAVE OF begin_time_mins IN FRAME FRAME-A
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -573,7 +591,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -641,7 +659,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
-    DO:
+DO:
         ASSIGN {&self-name}. 
     END.
 
@@ -652,7 +670,7 @@ ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 &Scoped-define SELF-NAME end_dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_dept C-Win
 ON LEAVE OF end_dept IN FRAME FRAME-A /* Ending Department */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -663,7 +681,7 @@ ON LEAVE OF end_dept IN FRAME FRAME-A /* Ending Department */
 &Scoped-define SELF-NAME end_mach
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mach C-Win
 ON LEAVE OF end_mach IN FRAME FRAME-A /* Ending Machine */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -674,7 +692,7 @@ ON LEAVE OF end_mach IN FRAME FRAME-A /* Ending Machine */
 &Scoped-define SELF-NAME end_shift
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shift C-Win
 ON LEAVE OF end_shift IN FRAME FRAME-A /* Ending shift */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -685,7 +703,7 @@ ON LEAVE OF end_shift IN FRAME FRAME-A /* Ending shift */
 &Scoped-define SELF-NAME end_time
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time C-Win
 ON LEAVE OF end_time IN FRAME FRAME-A /* Ending Time (24 HR) */
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF end_time LT 0 OR end_time GT 24 THEN 
         DO: 
@@ -702,7 +720,7 @@ ON LEAVE OF end_time IN FRAME FRAME-A /* Ending Time (24 HR) */
 &Scoped-define SELF-NAME end_time_mins
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time_mins C-Win
 ON LEAVE OF end_time_mins IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF end_time_mins LT 0 OR end_time_mins GT 60 THEN 
         DO: 
@@ -719,7 +737,7 @@ ON LEAVE OF end_time_mins IN FRAME FRAME-A
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON HELP OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
 
@@ -741,7 +759,7 @@ ON HELP OF fi_file IN FRAME FRAME-A /* Name */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -752,7 +770,7 @@ ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -763,7 +781,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -778,7 +796,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -789,7 +807,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -799,7 +817,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
     {custom/chgfont.i}
     END.
 
@@ -810,7 +828,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
         RUN pChangeDest.
     END.
@@ -822,7 +840,7 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -833,7 +851,7 @@ ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 &Scoped-define SELF-NAME tb_OpenCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
 ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -844,7 +862,7 @@ ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 &Scoped-define SELF-NAME tb_show
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show C-Win
 ON VALUE-CHANGED OF tb_show IN FRAME FRAME-A /* Show Job detail For Selected Period? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -855,7 +873,7 @@ ON VALUE-CHANGED OF tb_show IN FRAME FRAME-A /* Show Job detail For Selected Per
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -929,18 +947,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -948,26 +966,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_dept end_dept begin_mach end_mach begin_Shift end_shift 
-        begin_date end_date begin_time begin_time_mins end_time end_time_mins 
-        tb_show cStartCodeNo cEndCodeNo rd-dest fi_file tb_OpenCSV tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_Shift 
-        end_shift begin_date end_date begin_time begin_time_mins end_time 
-        end_time_mins tb_show cStartCodeNo cEndCodeNo rd-dest fi_file 
-        tb_OpenCSV tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_dept end_dept begin_mach end_mach begin_Shift end_shift 
+          begin_date end_date begin_time begin_time_mins end_time end_time_mins 
+          tb_show cStartCodeNo cEndCodeNo rd-dest fi_file tb_OpenCSV tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_Shift 
+         end_shift begin_date end_date begin_time begin_time_mins end_time 
+         end_time_mins tb_show cStartCodeNo cEndCodeNo rd-dest fi_file 
+         tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -989,7 +1007,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1003,7 +1021,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1016,7 +1034,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1029,7 +1047,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
 PROCEDURE pChangeDest :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
              Purpose:    
              Parameters:  <none>
              Notes:      
@@ -1060,7 +1078,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pro-rate-mr C-Win 
 PROCEDURE pro-rate-mr :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1261,7 +1279,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

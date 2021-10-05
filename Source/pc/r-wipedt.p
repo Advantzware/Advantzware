@@ -618,18 +618,21 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
             ELSE MESSAGE "No WIP available for posting..." VIEW-AS ALERT-BOX ERROR.
         END.
-        IF NOT tb_OpenCSV THEN 
-        DO:        
-            MESSAGE "CSV file have been created." SKIP(1)
-                "~"OK"~" to open CSV file?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
-                TITLE "" UPDATE lChoice AS LOGICAL.
-     
-            IF lChoice THEN
-            DO:
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-            END.
-        END.
+        IF rd-dest = 3 THEN
+        DO:
+            IF NOT tb_OpenCSV THEN 
+            DO:        
+                MESSAGE "CSV file have been created." SKIP(1)
+                    "~"OK"~" to open CSV file?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                    TITLE "" UPDATE lChoice AS LOGICAL.
+         
+                IF lChoice THEN
+                DO:
+                    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                END.
+            END.  /* IF NOT tb_OpenCSV THEN  */
+        END.  /* IF rd-dest = 3 THEN */
         IF tbAutoClose:CHECKED THEN 
             APPLY 'CLOSE' TO THIS-PROCEDURE.
         
