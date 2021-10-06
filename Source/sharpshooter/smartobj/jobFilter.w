@@ -50,6 +50,8 @@ DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oJobHeader              AS JobHeader NO-UNDO.
 DEFINE VARIABLE lScanNextJob            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE lValidateJobClosed      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAllowEmptyFormAndBlank AS LOGICAL   NO-UNDO.
 
 oJobHeader = NEW JobHeader().
 
@@ -91,25 +93,25 @@ DEFINE BUTTON btJobDetails
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "View Current Job Details".
 
-DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbBlankNo AS CHARACTER FORMAT "XX":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9.8 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbFormNo AS CHARACTER FORMAT "XX":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
-DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1
+     SIZE 11.6 BY 1
      BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE btnJobDetailsText AS CHARACTER FORMAT "X(256)":U INITIAL "DETAIL" 
@@ -126,7 +128,7 @@ DEFINE VARIABLE fiFormNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "FORM:"
 
 DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 31.2 BY 1.48
+     SIZE 36 BY 1.48
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiJobNoLabel AS CHARACTER FORMAT "X(256)":U INITIAL "JOB:" 
@@ -142,16 +144,16 @@ DEFINE IMAGE imJobLookup
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btJobDetails AT ROW 1 COL 122 WIDGET-ID 160
-     cbJobNo2 AT ROW 1.24 COL 41.4 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     cbFormNo AT ROW 1.24 COL 64.8 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     cbBlankNo AT ROW 1.24 COL 89.2 COLON-ALIGNED NO-LABEL WIDGET-ID 166
+     btJobDetails AT ROW 1 COL 129.6 WIDGET-ID 160
+     cbJobNo2 AT ROW 1.24 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 162
+     cbFormNo AT ROW 1.24 COL 72.4 COLON-ALIGNED NO-LABEL WIDGET-ID 164
+     cbBlankNo AT ROW 1.24 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 166
      fiJobNoLabel AT ROW 1.29 COL 2 NO-LABEL WIDGET-ID 2
      fiJobNo AT ROW 1.29 COL 10 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiFormNoLabel AT ROW 1.29 COL 54 NO-LABEL WIDGET-ID 16
-     fiBlankNoLabel AT ROW 1.29 COL 77 NO-LABEL WIDGET-ID 20
-     btnJobDetailsText AT ROW 1.24 COL 109 NO-LABEL
-     imJobLookup AT ROW 1.24 COL 102 WIDGET-ID 182
+     fiFormNoLabel AT ROW 1.29 COL 61.6 NO-LABEL WIDGET-ID 16
+     fiBlankNoLabel AT ROW 1.29 COL 84.6 NO-LABEL WIDGET-ID 20
+     btnJobDetailsText AT ROW 1.24 COL 116.6 NO-LABEL
+     imJobLookup AT ROW 1.24 COL 109.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -185,7 +187,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 2.05
-         WIDTH              = 135.2.
+         WIDTH              = 146.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -290,7 +292,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME cbBlankNo
@@ -654,6 +655,19 @@ RUN pInit.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AllowEmptyFormAndBlank s-object 
+PROCEDURE AllowEmptyFormAndBlank :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lAllowEmptyFormAndBlank = TRUE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object 
 PROCEDURE DisableAll :
 /*------------------------------------------------------------------------------
@@ -704,9 +718,9 @@ PROCEDURE GetJob :
     
     ASSIGN
         opcJobNo   = fiJobNo:SCREEN-VALUE
-        opiJobNo2  = INTEGER(cbJobNo2:SCREEN-VALUE)
-        opiFormNo  = INTEGER(cbFormNo:SCREEN-VALUE)
-        opiBlankNo = INTEGER(cbBlankNo:SCREEN-VALUE)
+        opiJobNo2  = IF cbJobNo2:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbJobNo2:SCREEN-VALUE)
+        opiFormNo  = IF cbFormNo:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbFormNo:SCREEN-VALUE)
+        opiBlankNo = IF cbBlankNo:SCREEN-VALUE EQ " " THEN ? ELSE INTEGER(cbBlankNo:SCREEN-VALUE)
         .
 END PROCEDURE.
 
@@ -771,6 +785,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideFormAndBlank s-object 
+PROCEDURE HideFormAndBlank :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE cbFormNo cbBlankNo fiFormNoLabel fiBlankNoLabel.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE HideJobDetails s-object 
 PROCEDURE HideJobDetails :
 /*------------------------------------------------------------------------------
@@ -778,7 +806,9 @@ PROCEDURE HideJobDetails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btJobDetails:VISIBLE IN FRAME {&FRAME-NAME} = FALSE.
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE btJobDetails btnJobDetailsText.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -885,6 +915,11 @@ PROCEDURE pGetBlankNo PRIVATE :
     ELSE
         opiBlankNo = INTEGER(ENTRY(1, opcBlankNoListItems)) NO-ERROR.
 
+    IF lAllowEmptyFormAndBlank THEN
+        ASSIGN
+            opcBlankNoListItems = " " + "," + opcBlankNoListItems
+            opiBlankNo = INTEGER(ENTRY(1, opcBlankNoListItems))
+            NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -915,6 +950,11 @@ PROCEDURE pGetFormNo PRIVATE :
     ELSE
         opiFormNo = INTEGER(ENTRY(1, opcFormNoListItems)) NO-ERROR.
 
+    IF lAllowEmptyFormAndBlank THEN
+        ASSIGN
+            opcFormNoListItems = " " + "," + opcFormNoListItems
+            opiFormNo = INTEGER(ENTRY(1, opcFormNoListItems))
+            NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -942,6 +982,7 @@ PROCEDURE pGetJobNo2 PRIVATE :
         opcJobno2ListItems = "00".
     ELSE
         opiJobNo2 = INTEGER(ENTRY(1, opcJobno2ListItems)) NO-ERROR.
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1130,6 +1171,9 @@ PROCEDURE pValidateJobClosed PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    IF NOT lValidateJobClosed THEN
+        RETURN.
+        
     RUN IsJobClosed IN hdJobProcs (
         INPUT  cCompany,
         INPUT  fiJobNo:SCREEN-VALUE,
@@ -1139,12 +1183,36 @@ PROCEDURE pValidateJobClosed PRIVATE :
     IF NOT lJobClosed THEN
         RETURN.
         
-    RUN displayMessageQuestion (
+    RUN displayMessageQuestionDialog (
         INPUT  "67",
         OUTPUT lResponse
         ).
         
     oplError = NOT lResponse.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset s-object 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        fiJobNo:SCREEN-VALUE   = ""
+        cbJobNo2:LIST-ITEMS    = " "
+        cbJobNo2:SCREEN-VALUE  = " "
+        cbFormNo:LIST-ITEMS    = " "
+        cbFormNo:SCREEN-VALUE  = " "
+        cbBlankNo:LIST-ITEMS   = " "
+        cbBlankNo:SCREEN-VALUE = " "
+        .            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1225,6 +1293,20 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateJobClosed s-object 
+PROCEDURE ValidateJobClosed :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplValidateJobClosed AS LOGICAL NO-UNDO.
+    
+    lValidateJobClosed = iplValidateJobClosed.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
