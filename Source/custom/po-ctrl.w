@@ -111,12 +111,12 @@ DEFINE FRAME po-ctrl
      po-ctrl.rng-po-no[1] AT ROW 3.43 COL 29 COLON-ALIGNED
           LABEL "Range of PO Numers"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 
-     po-ctrl.rng-po-no[2] AT ROW 3.43 COL 44 COLON-ALIGNED
+     po-ctrl.rng-po-no[2] AT ROW 3.43 COL 48 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 13.4 BY 1
           BGCOLOR 15 
      Btn_Update AT ROW 6 COL 32 HELP
           "Update/Save System Configurations"
@@ -252,7 +252,7 @@ DO:
     IF ERROR-STATUS:ERROR THEN
       MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").    
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>>>").    
   END.
 END.
 
@@ -275,7 +275,7 @@ DO:
     FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
     po-ctrl.next-po-no = giCurrPo + 1.
 
-    fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>").    
+    fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>>>").    
     ASSIGN
       {&SELF-NAME}:LABEL = "&Save"
       Btn_Close:LABEL = "&Cancel".
@@ -298,7 +298,7 @@ DO:
     /* subtract 1 to make it the correct current value */
      liNextPo = liNextPo - 1.
      DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") = liNextpo.
-     fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
+     fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>>>").
      FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
      po-ctrl.next-po-no = INTEGER(fiNextPo:SCREEN-VALUE).    
 
@@ -357,7 +357,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
-  fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").
+  fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>>>").
   fiNextPo:SENSITIVE = NO. 
   DISABLE fiNextPo. 
 
