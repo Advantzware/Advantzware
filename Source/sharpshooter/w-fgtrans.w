@@ -627,6 +627,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* LOCATION */
 DO:
+    SELF:BGCOLOR = 30.
+    fiTag:BGCOLOR = 15.
+    
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
@@ -687,6 +690,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
+    SELF:BGCOLOR = 30.
+    fiLocation:BGCOLOR = 15.
+    
     btTransfer:VISIBLE = FALSE.
 
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
@@ -1346,6 +1352,7 @@ PROCEDURE pTagScan PRIVATE :
         
         IF NOT lSuccess THEN DO:
             oplError = TRUE.
+            RUN pStatusMessage(opcMessage, 1).
             RETURN.
         END.
         
