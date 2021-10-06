@@ -319,7 +319,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF notepad-log THEN DO:
       IF notepad-chr EQ "" THEN DO: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-          open-mime-resource "text/plain" STRING("file:///" + ipcListName) FALSE.
+          open-mime-resource "text/plain" STRING("file:///" + ipcListName) NOT-EMBEDDED.
 &ELSE
           OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
@@ -332,7 +332,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                NO-ERROR.
           IF AVAILABLE usergrps AND CAN-DO(usergrps.users,USERID("ASI")) THEN DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-              open-mime-resource "text/plain" STRING("file:///" + ipcListName) FALSE.
+              open-mime-resource "text/plain" STRING("file:///" + ipcListName) NOT-EMBEDDED.
 &ELSE
               OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
