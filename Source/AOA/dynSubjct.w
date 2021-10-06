@@ -4672,8 +4672,9 @@ PROCEDURE pCRUD :
                     END. /* add */
                     WHEN "Copy" THEN
                     ASSIGN
-                        dynSubject.subjectID:SCREEN-VALUE   = ""
-                        dynSubject.subjectType:SCREEN-VALUE = IF lSuperAdmin THEN "System" ELSE "User"
+                        dynSubject.subjectID:SCREEN-VALUE    = ""
+                        dynSubject.subjectType:SCREEN-VALUE  = IF lSuperAdmin THEN "System" ELSE "User"
+                        dynSubject.altSubjectID:SCREEN-VALUE = ""
                         .
                 END CASE.
                 ASSIGN
