@@ -793,6 +793,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
+    DEFINE BUFFER bf-style            FOR style.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
@@ -974,8 +975,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF ipbf-ttImportEstimate.GlueID NE '' THEN 
         eb.adhesive = ipbf-ttIMportEstimate.GlueID.
-                
-    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN 
+    ELSE 
+        FOR FIRST bf-style NO-LOCK 
+            WHERE bf-style.company = eb.company 
+            AND bf-style.style   = eb.style:
+            eb.adhesive = bf-style.material[7].
+        END.
+         
+    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN
         eb.tab-in = YES.
     ELSE 
         eb.tab-in = ipbf-ttImportEstimate.TabInOut EQ "In".
