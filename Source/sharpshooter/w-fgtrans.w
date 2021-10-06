@@ -1352,7 +1352,6 @@ PROCEDURE pTagScan PRIVATE :
         
         IF NOT lSuccess THEN DO:
             oplError = TRUE.
-            RUN pStatusMessage(opcMessage, 1).
             RETURN.
         END.
         
