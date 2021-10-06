@@ -24,6 +24,7 @@ DEFINE VARIABLE giLastShip  AS INTEGER NO-UNDO.
 DEFINE VARIABLE gcCePrepPrice AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCePrep    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcFreightCalculation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glOeReleas  AS LOGICAL NO-UNDO.
  
 //DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
@@ -218,7 +219,8 @@ PROCEDURE pGetEstDetail PRIVATE:
                 ttInputOrdLine.est-type   = eb.est-type
                 ttInputOrdLine.form-no    = eb.form-no
                 ttInputOrdLine.blank-no   = eb.blank-no
-                ttInputOrdLine.cust-no    = eb.cust-no                
+                ttInputOrdLine.cust-no    = eb.cust-no 
+                ttInputOrdLine.lCreateRel = glOeReleas
                 .
                 
              RUN est/getcscnt.p ( ROWID(eb),
@@ -350,6 +352,7 @@ PROCEDURE pSaveData PRIVATE:
     DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO.
     DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iJobNo2 AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
     RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs. 
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs. 
@@ -408,6 +411,17 @@ PROCEDURE pSaveData PRIVATE:
             bf-oe-ordl.type-code = "O".
             .
         BUFFER-COPY ttInputOrdLine EXCEPT ord-no company rec_key job-no job-no2 type-code TO bf-oe-ordl.        
+        
+        IF ttInputOrdLine.lCreateRel THEN
+        RUN pCreateRelease IN hdOrderProcs (
+                        INPUT  bf-oe-ordl.company,
+                        INPUT  bf-oe-ordl.ord-no,
+                        INPUT  bf-oe-ordl.line,
+                        INPUT  bf-oe-ord.ship-id,  /* ShipTo */
+                        INPUT  "",                 /* ShipFrom */
+                        OUTPUT lSuccess,
+                        OUTPUT opcMessage       
+                        ).
         
     END.  
            
@@ -545,6 +559,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         OUTPUT cReturnChar, OUTPUT lRecFound).
     IF lRecFound THEN
      gcFreightCalculation = cReturnChar NO-ERROR.
+     
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "OERELEAS", "L" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     glOeReleas = LOGICAL(cReturnChar) NO-ERROR. 
      
 END PROCEDURE.
 

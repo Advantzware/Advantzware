@@ -1127,7 +1127,7 @@ PROCEDURE pCreateRelease:
             bf-oe-rel.rel-date = bf-oe-ordl.req-date + 1.
             IF WEEKDAY(bf-oe-rel.rel-date) EQ 7 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 2.
-            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+            ELSE IF WEEKDAY(bf-oe-rel.rel-date) EQ 1 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 1.
         END. /* else */
     END.

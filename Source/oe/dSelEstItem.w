@@ -385,8 +385,14 @@ ON VALUE-CHANGED OF ttEstItem.estQtyUom IN BROWSE BROWSE-1 /* qty-uom */
 ON HELP OF ttEstItem.estQty IN BROWSE BROWSE-1 /* qty */
     DO:
         DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-        RUN windows/l-ordqty.w (cCompany, ttEstItem.estNo, "", OUTPUT cReturnValue).
-                
+        IF ipiQuoteNumber GT 0 THEN
+        DO:
+           RUN windows/l-ordqty.w (cCompany, ttEstItem.estNo, "", OUTPUT cReturnValue).
+        END.
+        ELSE DO:
+           RUN windows/l-estqty.w (cCompany, ttEstItem.estNo, OUTPUT cReturnValue).
+        END.
+        IF cReturnValue NE "" THEN
         ttEstItem.estQty:SCREEN-VALUE IN BROWSE {&browse-name} =   ENTRY(1,cReturnValue).       
     END.
 
@@ -543,6 +549,11 @@ PROCEDURE pBuildTable :
             ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iLevel   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lQtyDistinctMatch AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lQtyWithinRange AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMatrixMatchDetail AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bf-ttEstItem FOR ttEstItem.
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -617,6 +628,11 @@ PROCEDURE pBuildTable :
                     ttEstItem.estQtyUom  = "EA" 
                     ttEstItem.estPrUom   = ipcPrUom
                     ttEstItem.estPrice   = ipdPrice.
+                END.
+                ELSE DO:
+                     RUN Price_GetPriceMatrixPrice (cCompany, ttEstItem.estItem, eb.cust-no, eb.ship-id, ttEstItem.estQty, 0,
+                     OUTPUT lMatrixExists, OUTPUT cMatrixMatchDetail, INPUT-OUTPUT ttEstItem.estPrice, INPUT-OUTPUT ttEstItem.estPrUom,
+                     OUTPUT lQtyDistinctMatch, OUTPUT lQtyWithinRange).
                 END.
              
                 
