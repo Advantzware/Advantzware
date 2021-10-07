@@ -2980,102 +2980,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*&ENDIF                                                                                                    */
-
-/*&IF DEFINED(EXCLUDE-PoOrdlFinal) = 0 &THEN                                                                */
-
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PoOrdlFinal Procedure                                         */
-/*PROCEDURE PoOrdlFinal :                                                                                   */
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-        Requires:
-          po-ordl
-        Needs the UI to be removed
-    
-          
-    ------------------------------------------------------------------------------*/
-/*    DEFINE INPUT  PARAMETER iprPoOrdl     AS ROWID       NO-UNDO.                                         */
-
-
-/*    DEFINE BUFFER bf-po-ordl FOR po-ordl.                                                                 */  
-
-/*    FIND bf-po-ordl EXCLUSIVE-LOCK WHERE ROWID(bf-po-ordl) EQ iprPoOrdl NO-ERROR.                         */
-
-/*    EMPTY TEMP-TABLE tt-ref1.                                                                             */
-
-/*    {po/po-ordls.i bf-}                                                                                   */
-
-/*    IF NOT bf-po-ordl.item-type THEN                                                                      */
-/*        RUN jc/writeFarmFromPO.p (ROWID(bf-po-ordl), bf-po-ordl.job-no, STRING(bf-po-ordl.job-no2),       */
-/*            STRING(bf-po-ordl.ord-no), bf-po-ordl.i-no, STRING(bf-po-ordl.s-num),                         */
-/*            STRING(bf-po-ordl.b-num)).                                                                    */
-
-
-    /********************************************/
-    /* Process Scoring Changes ******************/
-    /* find on b-ref1 is not in the program     */
-    /********************************************/
-/*    IF AVAILABLE b-ref1 THEN                                                                              */
-/*    DO:                                                                                                   */
-/*        CREATE tt-ref1.                                                                                   */
-/*        BUFFER-COPY b-ref1 TO tt-ref1.                                                                    */
-/*        DELETE b-ref1.                                                                                    */
-/*    END.                                                                                                  */
-
-/*    IF AVAILABLE b-ref2 THEN                                                                              */
-/*    DO:                                                                                                   */
-/*        CREATE tt-ref2.                                                                                   */
-/*        BUFFER-COPY b-ref2 TO tt-ref2.                                                                    */
-/*        DELETE b-ref2.                                                                                    */
-/*    END.                                                                                                  */
-
-/*    RUN po/po-ordls.p (RECID(bf-po-ordl)).                                                                */
-
-/*    IF AVAILABLE tt-ref1 OR AVAILABLE tt-ref2 THEN                                                        */
-/*    DO:                                                                                                   */
-/*        {po/po-ordls.i}                                                                                   */
-
-/*        ll = NO.                                                                                          */
-/*        IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN                                                    */
-/*        DO li = 1 TO EXTENT(b-ref1.val):                                                                  */
-/*            IF b-ref1.val[li] NE tt-ref1.val[li] THEN ll = YES.                                           */
-/*            IF ll THEN LEAVE.                                                                             */
-/*        END. /* avail b-ref1 ... */                                                                       */
-/*        IF NOT ll                         AND                                                             */
-/*            AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN                                                   */
-/*        DO li = 1 TO EXTENT(b-ref2.val):                                                                  */
-/*            IF b-ref2.val[li] NE tt-ref2.val[li] THEN ll = YES.                                           */
-/*            IF ll THEN LEAVE.                                                                             */
-/*        END. /* Not ll */                                                                                 */
-
-/*        IF ll THEN                                                                                        */
-/*        DO:                                                                                               */
-/*            ll = NO.                                                                                      */
-/*            MESSAGE "Scoring allowances have changed for PO/RM#: " +                                      */
-/*                TRIM(STRING(bf-po-ordl.po-no,">>>>>>>>"))         +                                       */
-/*                "/" + bf-po-ordl.i-no                             +                                       */
-/*                ", would you like to apply the new scores?"                                               */
-/*                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO                                                  */
-/*                UPDATE ll.                                                                                */
-/*        END. /* If ll */                                                                                  */
-
-/*        IF NOT ll THEN                                                                                    */
-/*        DO:                                                                                               */
-/*            IF AVAILABLE b-ref1 AND AVAILABLE tt-ref1 THEN BUFFER-COPY tt-ref1 TO b-ref1.                 */
-/*            IF AVAILABLE b-ref2 AND AVAILABLE tt-ref2 THEN BUFFER-COPY tt-ref2 TO b-ref2.                 */
-/*        END. /* not ll */                                                                                 */
-
-/*    END. /* AVail tt-ref1 */                                                                              */
-/*    FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.                                                             */
-
-/*END PROCEDURE.                                                                                            */
-
-/* _UIB-CODE-BLOCK-END */                                                                                   
-/*&ANALYZE-RESUME                                                                                           */
-
 &ENDIF
+
 
 &IF DEFINED(EXCLUDE-processAdders) = 0 &THEN
 
@@ -3577,9 +3483,7 @@ PROCEDURE processJobMat :
                 OUTPUT gvrItem) /* needs additional buffers */.
 
         END. /* if avail b-item ... */
-
-        /* Update Farm recs, deal with changes to scoring allowances */
-       /* RUN PoOrdlFinal (INPUT gvrPoOrdl).*/
+                
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
         IF NOT AVAILABLE po-ord THEN 
         DO:
