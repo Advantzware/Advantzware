@@ -1244,7 +1244,7 @@ PROCEDURE pPrintData:
             BREAK by wrk-op.d-seq by wrk-op.b-num:
              v-mat-for-mach = "".   
              IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
-              
+                 
                 FOR EACH xjob-mat WHERE xjob-mat.company eq cocode
                                        and xjob-mat.job     eq job-hdr.job
                                        and xjob-mat.job-no  eq job-hdr.job-no
@@ -1257,7 +1257,7 @@ PROCEDURE pPrintData:
                                       ITEM.mat-type = SUBSTRING(wrk-op.dept,1,1) NO-LOCK :
                      v-mat-for-mach = ITEM.i-name + fill(" ", 33 - LENGTH(ITEM.i-name))  /*"       " */ +
                                       string(xjob-mat.wid) + "x" + STRING(xjob-mat.len) +
-                                      "      " + string(xjob-mat.qty).        
+                                      "      " + string(xjob-mat.qty).                   
                      LEAVE.                 
                 END.                            
              END.     
@@ -1273,37 +1273,34 @@ PROCEDURE pPrintData:
                      first ITEM WHERE ITEM.company = cocode AND
                                       ITEM.i-no = xjob-mat.rm-i-no AND 
                                       ITEM.mat-type = "D" NO-LOCK :
-                     v-mat-for-mach = v-mat-for-mach + "      " + ITEM.i-name. 
+                     v-mat-for-mach = v-mat-for-mach + "      " + ITEM.i-name.
                  END.
-             END.  
-             IF job-hdr.frm NE 0 THEN
-             DO:
-             v-spoil = ROUND( ((wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm])
-                       * wrk-op.spoil[job-hdr.frm] / 100),0).   
-             v-output = wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm] - v-spoil.     
-             END.
-             
+             END.     
+             v-spoil = ROUND( ((wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num])
+                       * wrk-op.spoil[wrk-op.s-num] / 100),0).
+             v-output = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - v-spoil.
+
               PUT "<R+1><C1><FROM><C82><LINE><||6><R-1>"  
                   "<C53><From><R+1><C53><Line><||6><R-1>" 
                   "<C68><From><R+1><C68><Line><||6><R-1><C1>" .
-                
+
              IF s-prt-mstandard AND bf-xeb.form-no NE 0 THEN DO:                
                 /*IF s-run-speed THEN*/
                    PUT wrk-op.m-dscr   SPACE(2)
-                       wrk-op.mr-waste[job-hdr.frm]   SPACE(2)
-                       wrk-op.mr[job-hdr.frm]         SPACE(4)
-                       wrk-op.speed[job-hdr.frm] FORMAT ">>>>>9"     SPACE(1)
+                       wrk-op.mr-waste[wrk-op.s-num]   SPACE(2)
+                       wrk-op.mr[wrk-op.s-num]         SPACE(4)
+                       wrk-op.speed[wrk-op.s-num] FORMAT ">>>>>9"     SPACE(1)
                       v-spoil FORM ">>,>>9"     SPACE(2)
-                       wrk-op.num-sh[job-hdr.frm] SPACE(3)
+                       wrk-op.num-sh[wrk-op.s-num] SPACE(3)
                        
-                     SKIP.     
+                     SKIP. 
              END.
              ELSE IF bf-xeb.form-no NE 0 THEN
                  PUT wrk-op.m-dscr   SPACE(5)   SKIP.
              IF PAGE-SIZE - LINE-COUNTER LE 5 THEN do:
                      PAGE.
                      RUN pPrintHeader(1) .
-             END.     
+             END.
         end. /* each wrk-op*/
 
 END PROCEDURE.
