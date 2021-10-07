@@ -72,8 +72,9 @@ ASSIGN
     ef.cost-uom  = "MSF".
 
 
-IF ipcIndustry EQ 'C' THEN
-    RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
-ELSE
-    RUN ce/newblank.p (ROWID(ef), OUTPUT opriEb).
+/*IF ipcIndustry EQ 'C' THEN                        */
+/*    RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+/*ELSE                                              */
+/*    RUN ce/newblank.p (ROWID(ef), OUTPUT opriEb). */
+RUN cec/NewEstimateBlank.p(ROWID(ef),ipcIndustry, OUTPUT opriEb).
 
