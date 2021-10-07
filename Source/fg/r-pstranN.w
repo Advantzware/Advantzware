@@ -98,7 +98,6 @@ DEFINE VARIABLE ip-run-what   AS CHARACTER NO-UNDO .
 
 v-print-fmt = "xprint" .
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -114,11 +113,11 @@ v-print-fmt = "xprint" .
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 begin_whse end_whse begin_loc-bin ~
-end_loc-bin begins_ship-no rd-dest Btn_OK Btn_select ~
-Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_whse end_whse ~
+begin_loc-bin end_loc-bin begins_ship-no rd-dest tbAutoClose Btn_OK ~
+Btn_select Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_whse end_whse begin_loc-bin ~
-end_loc-bin begins_ship-no rd-dest  
+end_loc-bin begins_ship-no rd-dest tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -173,17 +172,17 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
     LABEL "Ca&ncel" 
-    SIZE 15 BY 1.14
+    SIZE 16 BY 1.29
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
     LABEL "&OK" 
-    SIZE 15 BY 1.14
+    SIZE 16 BY 1.29
     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_select AUTO-GO 
     LABEL "&Select" 
-    SIZE 15 BY 1.14
+    SIZE 16 BY 1.29
     BGCOLOR 8 .
 
 DEFINE VARIABLE begins_ship-no AS CHARACTER FORMAT "X(15)":U 
@@ -217,11 +216,20 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     "To Printer", 1,
     "To Screen", 2,
     "To Email", 3
-    SIZE 20 BY 5.05 NO-UNDO.
+    SIZE 16.2 BY 4.57 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 71 BY 6.43.
+    SIZE 77 BY 5.05.
+
+DEFINE RECTANGLE RECT-7
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 77 BY 5.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -235,22 +243,24 @@ DEFINE FRAME FRAME-A
     "Enter Beginning Bin" WIDGET-ID 40
     end_loc-bin AT ROW 3.24 COL 58.6 COLON-ALIGNED HELP
     "Enter Ending Bin" WIDGET-ID 48
-    begins_ship-no AT ROW 5.1 COL 26.8 COLON-ALIGNED HELP
+    begins_ship-no AT ROW 4.71 COL 26.8 COLON-ALIGNED HELP
     "Enter the From FG Item Number"
-    rd-dest AT ROW 7.95 COL 10.2 NO-LABELS
-    Btn_OK AT ROW 14.76 COL 18.4
-    Btn_select AT ROW 14.76 COL 36.2 WIDGET-ID 44
-    Btn_Cancel AT ROW 14.81 COL 53.4
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.14 COL 4.4 WIDGET-ID 50
-    BGCOLOR 2 
-    "Output Options" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 7.05 COL 10
-    RECT-6 AT ROW 7.24 COL 5
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    rd-dest AT ROW 7.14 COL 4.8 NO-LABELS
+    tbAutoClose AT ROW 12.1 COL 32.8 WIDGET-ID 64
+    Btn_OK AT ROW 13.14 COL 14.8
+    Btn_select AT ROW 13.14 COL 32.6 WIDGET-ID 44
+    Btn_Cancel AT ROW 13.19 COL 49.8
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .71 AT ROW 1.05 COL 4.4 WIDGET-ID 50
+    " Output Options" VIEW-AS TEXT
+    SIZE 18 BY .62 AT ROW 6.48 COL 4
+    RECT-6 AT ROW 6.91 COL 3
+    RECT-7 AT ROW 1.48 COL 3 WIDGET-ID 52
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.6 ROW 1.24
-    SIZE 80.2 BY 16.24.
+    AT COL 1 ROW 1
+    SIZE 80.8 BY 13.62
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -270,8 +280,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
         TITLE              = "On-Hand Transfer BOL"
-        HEIGHT             = 16.76
-        WIDTH              = 81.8
+        HEIGHT             = 13.62
+        WIDTH              = 80.8
         MAX-HEIGHT         = 45.05
         MAX-WIDTH          = 256
         VIRTUAL-HEIGHT     = 45.05
@@ -404,7 +414,7 @@ ON LEAVE OF begin_loc-bin IN FRAME FRAME-A /* From Bin */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_loc-bin
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_loc-bin C-Win
 ON VALUE-CHANGED OF begin_loc-bin IN FRAME FRAME-A /* From Bin */
     DO:
@@ -427,7 +437,7 @@ ON LEAVE OF begin_whse IN FRAME FRAME-A /* From Location */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME begin_whse
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whse C-Win
 ON VALUE-CHANGED OF begin_whse IN FRAME FRAME-A /* From Location */
     DO:             
@@ -484,6 +494,8 @@ ON CHOOSE OF Btn_OK IN FRAME FRAME-A /* OK */
         END.    
   
         RUN pPrintData.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -538,7 +550,7 @@ ON LEAVE OF end_loc-bin IN FRAME FRAME-A /* To Bin */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_loc-bin
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_loc-bin C-Win
 ON VALUE-CHANGED OF end_loc-bin IN FRAME FRAME-A /* To Bin */
     DO:
@@ -561,7 +573,7 @@ ON LEAVE OF end_whse IN FRAME FRAME-A /* To Location */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_whse
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whse C-Win
 ON VALUE-CHANGED OF end_whse IN FRAME FRAME-A /* To Location */
     DO:
@@ -631,6 +643,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
  
     DO WITH FRAME {&FRAME-NAME}:
+        btn_ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+        btn_cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+        Btn_select:LOAD-IMAGE("Graphics/32x32/select.png").
         RUN enable_UI.
 
         {custom/usrprint.i} 
@@ -651,10 +666,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-tables C-Win 
 PROCEDURE build-tables :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/  
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/  
     EMPTY TEMP-TABLE ttTransBin.
         
     FOR EACH fg-bin
@@ -679,7 +694,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -711,10 +725,11 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    DISPLAY begin_whse end_whse begin_loc-bin end_loc-bin begins_ship-no rd-dest            
+    DISPLAY begin_whse end_whse begin_loc-bin end_loc-bin begins_ship-no rd-dest 
+        tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 begin_whse end_whse begin_loc-bin end_loc-bin begins_ship-no 
-        rd-dest Btn_OK Btn_select Btn_Cancel 
+    ENABLE RECT-6 RECT-7 begin_whse end_whse begin_loc-bin end_loc-bin 
+        begins_ship-no rd-dest tbAutoClose Btn_OK Btn_select Btn_Cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -723,14 +738,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
     DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
@@ -768,14 +782,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     {custom\out2file.i}  
 
 END PROCEDURE.
@@ -786,10 +799,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
 
     RUN custom/d-print.w (list-name).
 
@@ -801,10 +814,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
@@ -826,10 +839,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
@@ -850,10 +863,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintData C-Win 
 PROCEDURE pPrintData :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-r-no   LIKE rm-rctd.r-no NO-UNDO.
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
@@ -881,14 +894,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report PRIVATE :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     {sys/form/r-top.i}
 
     {sys/inc/ctrtext.i str-tit 112}.
@@ -996,10 +1008,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-fgemail C-Win 
 PROCEDURE send-fgemail :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-fgemail-file AS cha .
 
     DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
@@ -1090,14 +1102,13 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetBOLForm C-Win 
 PROCEDURE SetBOLForm :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
    
     CASE icFormName:       
@@ -1121,10 +1132,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-frame-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-group-hdl  AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lv-field-hdl  AS HANDLE  NO-UNDO.
@@ -1195,10 +1206,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-report C-Win 
 PROCEDURE show-report :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-int AS INTEGER NO-UNDO.
     DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
 
@@ -1254,10 +1265,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc C-Win 
 PROCEDURE valid-loc :
     /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cNoteMessage AS CHARACTER NO-UNDO.
