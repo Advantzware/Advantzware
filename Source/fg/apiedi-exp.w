@@ -192,7 +192,7 @@ DEFINE VARIABLE end_scope-type   AS CHARACTER FORMAT "X(112)" INITIAL "zzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file          AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportAPI&EDI.csv" 
+DEFINE VARIABLE fi_file          AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportAPI-EDI.csv" 
     LABEL "Name" 
     VIEW-AS FILL-IN NATIVE 
     SIZE 52 BY 1.
@@ -674,7 +674,7 @@ RUN DisplaySelectionList2.
 RUN Set-Sort-Data.
 
 APPLY "entry" TO begin_scope-Id.
-fi_file:SCREEN-VALUE = "c:\tmp\ExportAPI&EDI.csv".
+fi_file:SCREEN-VALUE = "c:\tmp\ExportAPI-EDI.csv".
 END.
 WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
