@@ -25,6 +25,7 @@ DEFINE VARIABLE gcCePrepPrice AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCePrep    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcFreightCalculation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glOeReleas  AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glOecredit AS LOGICAL NO-UNDO.
  
 //DEFINE SHARED VARIABLE nufile         AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
@@ -189,15 +190,23 @@ PROCEDURE pGetEstDetail PRIVATE:
                     ttInputOrd.terms     = cust.terms            
                     ttInputOrd.fob-code  = cust.fob-code
                     //ttInputOrd.f-bill    = (oe-ord.frt-pay EQ "B")
-                    ttInputOrd.tax-gr    = cust.tax-gr 
-                    dFactor             = IF est.est-type GE 1 AND est.est-type LE 4 THEN gdLastShip
+                    ttInputOrd.tax-gr    = cust.tax-gr                    
+                    ttInputOrd.csrUser_id = IF est.csrUser_id NE "" THEN est.csrUser_id ELSE cust.csrUser_id
+                    dFactor               = IF est.est-type GE 1 AND est.est-type LE 4 THEN gdLastShip
                                            ELSE 1
                     .
+                    
+                    RUN pGetShiptoTaxCode(ipcCompany, cust.cust-no, eb.ship-id, INPUT-OUTPUT ttInputOrd.tax-gr).
                     
                     IF gcLastShip EQ "Fibre" THEN
                     ASSIGN
                          ttInputOrd.last-date = ttInputOrd.ord-date + (cust.ship-days * dFactor)
                          ttInputOrd.due-date  = ttInputOrd.ord-date + (giLastShip * dFactor).
+                    IF AVAIL cust AND NOT cust.internal THEN DO:
+                       RUN oe/creditck.p (ROWID(cust), NO).
+                       FIND CURRENT cust NO-LOCK NO-ERROR.
+                       IF AVAIL cust AND cust.cr-hold AND glOecredit THEN ttInputOrd.stat = "H".  
+                    END.     
              
             END.              
               
@@ -481,6 +490,26 @@ PROCEDURE pSaveData PRIVATE:
     
 END.
 
+PROCEDURE pGetShiptoTaxCode PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the order evaluation date
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomer  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipto    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER iopcTaxCode  AS CHARACTER NO-UNDO.
+    
+    FIND FIRST shipto NO-LOCK
+         WHERE shipto.company EQ ipcCompany
+         AND shipto.cust-no EQ ipcCustomer
+         AND shipto.ship-id EQ ipcShipto NO-ERROR. 
+         
+    IF AVAIL shipto AND shipto.tax-code NE "" THEN
+        iopcTaxCode = shipto.tax-code .     
+    
+END PROCEDURE.    
+
 PROCEDURE pGetOverUnderPct PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns the order evaluation date
@@ -565,6 +594,12 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         OUTPUT cReturnChar, OUTPUT lRecFound).
     IF lRecFound THEN
      glOeReleas = LOGICAL(cReturnChar) NO-ERROR. 
+     
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "OERELEAS", "L" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     glOecredit = LOGICAL(cReturnChar) NO-ERROR.
      
 END PROCEDURE.
 

@@ -560,8 +560,11 @@ ON CHOOSE OF Btn_Back IN FRAME D-Dialog /* Back */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Advanced D-Dialog
 ON CHOOSE OF Btn_Advanced IN FRAME D-Dialog /* Advanced */
     DO:
-        
-               
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+        DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
+        DEFINE BUFFER bff-ttInputOrdLine FOR ttInputOrdLine .
+                           
+        RUN oe/dEditOrdHeader.w ( INPUT-OUTPUT TABLE ttInputOrd) .                   
          
     END.
 
