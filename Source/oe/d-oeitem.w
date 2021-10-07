@@ -390,6 +390,7 @@ DEF VAR llOeShipFromLog AS LOG NO-UNDO.
 DEFINE VARIABLE lFGForcedCommission AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dFGForcedCommission AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lShowWarning AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -2521,7 +2522,10 @@ DO:
 
 
     IF SELF:MODIFIED AND oeDateAuto-log THEN DO:
-    
+        
+        RUN pCheckWeekend(1,date(oe-ordl.prom-date:SCREEN-VALUE), OUTPUT lReturnError ) NO-ERROR.
+        IF lReturnError THEN RETURN NO-APPLY.
+                
         IF NOT cDueManualChanged THEN 
         DO:      
             RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -7390,6 +7394,9 @@ PROCEDURE OnSaveButton :
 
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    RUN pCheckWeekend(1,date(oe-ordl.prom-date:SCREEN-VALUE), OUTPUT lReturnError ) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 
     IF lOEPriceWarning AND
      (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
@@ -9663,6 +9670,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckWeekend d-oeitem 
+PROCEDURE pCheckWeekend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiValue AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" AND
+          (WEEKDAY(ipdtDate) EQ 1 OR WEEKDAY(ipdtDate) EQ 7) AND ipiValue EQ 1 THEN
+        DO:
+            MESSAGE "Mfg Date is weekend date, please enter another date" 
+                                VIEW-AS ALERT-BOX ERROR.
+            oplReturn = YES.
+            
+            APPLY "entry" TO oe-ordl.prom-date .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cas-cnt d-oeitem 
 PROCEDURE valid-cas-cnt :
