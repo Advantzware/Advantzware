@@ -216,8 +216,9 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To File", 3
-    SIZE 14 BY 5.19 NO-UNDO.
+    "To File", 3,
+    "To CSV", 4
+    SIZE 14 BY 5.24 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -289,7 +290,7 @@ DEFINE FRAME FRAME-A
     tb_pg-brk AT ROW 9.67 COL 64.8 RIGHT-ALIGNED
     lv-ornt AT ROW 12.1 COL 31 NO-LABELS
     lines-per-page AT ROW 12.1 COL 84 COLON-ALIGNED
-    rd-dest AT ROW 12.43 COL 5.4 NO-LABELS
+    rd-dest AT ROW 12.17 COL 5.4 NO-LABELS
     lv-font-no AT ROW 12.91 COL 35 COLON-ALIGNED
     tb_excel AT ROW 13.14 COL 74 RIGHT-ALIGNED WIDGET-ID 4
     lv-font-name AT ROW 13.86 COL 29 COLON-ALIGNED NO-LABELS
@@ -611,7 +612,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             fi_file
             .       
 
-        IF rd-dest = 3 THEN
+        IF rd-dest = 4 THEN
         DO:
             ASSIGN 
                 fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
@@ -697,7 +698,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
             ELSE MESSAGE "No WIP available for posting..." VIEW-AS ALERT-BOX ERROR.
         END.  /* IF ip-post THEN */
-        IF rd-dest = 3 THEN
+        IF rd-dest = 4 THEN
         DO:
             IF NOT tb_OpenCSV THEN 
             DO:        
@@ -711,7 +712,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                 END.
             END.  /* IF NOT tb_OpenCSV THEN  */
-        END.  /* IF rd-dest = 3 THEN */
+        END.  /* IF rd-dest = 4 THEN */
         
         IF tbAutoClose:CHECKED THEN 
             APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -1242,7 +1243,7 @@ PROCEDURE pChangeDest :
              Notes:      
             ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+        IF rd-dest:SCREEN-VALUE EQ "4" THEN
             ASSIGN
                 tb_OpenCSV:SCREEN-VALUE = "Yes"
                 fi_file:SENSITIVE       = YES
@@ -2688,7 +2689,7 @@ PROCEDURE run-report :
 
     {sys/inc/outprint.i value(lines-per-page)}
 
-    IF rd-dest = 3 THEN 
+    IF rd-dest = 4 THEN 
     DO:                                    
         OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
         excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
@@ -2899,7 +2900,7 @@ PROCEDURE run-report :
             DOWN WITH FRAME gldetail.
         END. /* each work-job */
 
-    IF rd-dest = 3 THEN 
+    IF rd-dest = 4 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_OpenCSV THEN

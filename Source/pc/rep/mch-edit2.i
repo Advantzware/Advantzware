@@ -155,7 +155,7 @@ FOR EACH tt-report NO-LOCK,
           "Y" when pc-prdd.complete @ v-comp.
   down.
 
-    IF rd-dest = 3 THEN 
+    IF rd-dest = 4 THEN 
     DO:    
           PUT STREAM excel UNFORMATTED
             '"' pc-prdd.m-code '",' 
@@ -178,7 +178,7 @@ FOR EACH tt-report NO-LOCK,
             '"' pc-prdd.waste                                    '",' 
             '"' IF pc-prdd.COMPLETE THEN "Y" ELSE "N"            '",' 
             SKIP.
-    END.  /* IF rd-dest = 3 THEN */
+    END.  /* IF rd-dest = 4 THEN */
                                                                         
   assign                                                                
    tothour = tothour + pc-prdd.hours                                    
