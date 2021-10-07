@@ -27,7 +27,7 @@ DEFINE VARIABLE giAttributeIDBoxWid           AS INTEGER NO-UNDO INITIAL 3.    /
 DEFINE VARIABLE giAttributeIDBlankLen         AS INTEGER NO-UNDO INITIAL 4.    //Blank Length
 DEFINE VARIABLE giAttributeIDBlankWid         AS INTEGER NO-UNDO INITIAL 5.    //Blank Width
 DEFINE VARIABLE giAttributeIDGlueLapLen       AS INTEGER NO-UNDO INITIAL 6.    //Glue Lap Length
-DEFINE VARIABLE giAttributeIDBlankSqFt        AS INTEGER NO-UNDO INITIAL 7.    //Blank Sq In/Sq Ft
+DEFINE VARIABLE giAttributeIDBlankSFSI        AS INTEGER NO-UNDO INITIAL 7.    //Blank Sq In/Sq Ft
 DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness
 DEFINE VARIABLE giAttributeIDWeightperMSF     AS INTEGER NO-UNDO INITIAL 9.    //Weight per MSF
 DEFINE VARIABLE giAttributeIDRollWid          AS INTEGER NO-UNDO INITIAL 10.    //Roll Width
@@ -68,6 +68,9 @@ DEFINE VARIABLE gcDeptsForGluers                     AS CHARACTER NO-UNDO INITIA
 DEFINE VARIABLE gcDeptsForLeafers                    AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                   AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
 DEFINE VARIABLE gcDeptsForCoaters                    AS CHARACTER NO-UNDO INITIAL "PR,CT".
+DEFINE VARIABLE gcIndustryFolding                    AS CHARACTER NO-UNDO INITIAL "Folding".
+DEFINE VARIABLE gcIndustryCorrugated                 AS CHARACTER NO-UNDO INITIAL "Corrugated".
+
 DEFINE VARIABLE glOpRatesSeparate                    AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
 DEFINE VARIABLE glApplyOperationMinimumCharge        AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly AS LOGICAL   NO-UNDO.
@@ -86,6 +89,9 @@ FUNCTION fGetAttributeValue RETURNS DECIMAL PRIVATE
 FUNCTION fGetColorsForBlankPass RETURNS INTEGER PRIVATE
     (BUFFER ipbf-eb FOR eb,
     ipiPass AS INTEGER) FORWARD.
+
+FUNCTION fGetEstIndustry RETURNS CHARACTER PRIVATE
+	(INPUT ipcEstimateNo AS CHARACTER) FORWARD.
 
 FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
     (ipdDim AS DECIMAL,
@@ -186,7 +192,7 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
 FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
 
-FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
+FUNCTION fGetBlankSqFTorSqINArea RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb) FORWARD.
     
 FUNCTION fGetQuantityPerSet RETURNS DECIMAL PRIVATE
@@ -897,16 +903,16 @@ PROCEDURE pGetEfficiencyByQty PRIVATE:
     RUN pGetAttribute(giAttributeIDEstQty, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
     ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
     
-    
     /* Extra Sheets Calc */
-    /*DO iExt = 1 TO 9:
-      IF (mach.p-type EQ "S" AND (mstd.run-qty[iExt] * (v-n-out * v-up) GT ipdQty))
-        OR (mach.p-type EQ "B" AND mstd.run-qty[iExt] GT ipdQty) THEN LEAVE.
+    DO iExt = 1 TO 9:
+      IF ipbf-mstd.run-qty[iExt] GT dOperationQty THEN 
+        LEAVE.
         
-      IF mstd.x-sheets[k] NE 0 THEN 
-          opdIncrease = mstd.x-sheets[iExt] /100.
+      IF ipbf-mstd.x-sheets[iExt] NE 0 THEN 
+          opdIncrease = ipbf-mstd.x-sheets[iExt] / 100.
       
-    END.*/
+    END.
+   
 
 END PROCEDURE.
 
@@ -2339,6 +2345,8 @@ PROCEDURE pGetRunSpoil PRIVATE:
         RUN pGetValue(BUFFER bf-mstd, "RunSpoil", OUTPUT opdRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
         
     END.
+     
+    opdRunSpoil = opdRunSpoil + ipbf-mach.run-spoil.
     
 END PROCEDURE.
 
@@ -2777,7 +2785,7 @@ PROCEDURE pSetAttributesBlank PRIVATE:
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankLen, STRING(ipbf-eb.t-len)). //refactor dBlankLen
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankWid, STRING(ipbf-eb.t-wid)). //refactor dBlankWid
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDGlueLapLen, STRING(ipbf-eb.lin-in)).
-    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankSqFt, STRING(fGetBlankSqFtArea(BUFFER ipbf-eb))).  //eb.t-sqFt
+    RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDBlankSFSI, STRING(fGetBlankSqFTorSqINArea(BUFFER ipbf-eb))).  //eb.t-sqFt
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDRoutingNoOut, "0"). //none?
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOnDieLen, STRING(ipbf-eb.num-wid)).
     RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDNoOnDieWid, STRING(ipbf-eb.num-len)).
@@ -3547,6 +3555,27 @@ FUNCTION fGetColorsForBlankPass RETURNS INTEGER PRIVATE
     RETURN iColors.
 END FUNCTION.
 
+FUNCTION fGetEstIndustry RETURNS CHARACTER PRIVATE
+	(INPUT ipcEstimateNo AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-est FOR est.
+    
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.est-no = ipcEstimateNo No-ERROR.
+        
+    IF AVAILABLE bf-est THEN
+        cReturn = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated.
+    
+    RETURN cReturn.
+		
+END FUNCTION.
+
 FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
     (ipdDim AS DECIMAL, ipcUOM AS CHARACTER):
     /*------------------------------------------------------------------------------
@@ -4231,18 +4260,25 @@ FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
 END FUNCTION.
 
 
-FUNCTION fGetBlankSqFtArea RETURNS DECIMAL PRIVATE
+FUNCTION fGetBlankSqFTorSqINArea RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb):
     /*------------------------------------------------------------------------------
      Purpose: It returns the Blank Sq.Ft. of a Blank record
-     Notes: It takes Blank's t-sqin field and converts that into SqFt.
+     Notes: It takes Blank's t-sqin field and converts that into SqFt. 
+     For Folding Industory we need to set an exception to return Sq IN and for Corrugated its SQ FT.
     ------------------------------------------------------------------------------*/    
 
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
     
-    IF AVAILABLE ipbf-eb AND ipbf-eb.t-sqin NE 0 THEN
-        dReturnValue = DYNAMIC-FUNCTION("fConv_GetAreaSqFeet", ipbf-eb.t-sqin,"SQIN").
-        
+    IF fGetEstIndustry (ipbf-eb.est-no) = gcIndustryFolding THEN
+         dReturnValue = ipbf-eb.t-sqin.
+    
+    ELSE
+    DO:
+        IF AVAILABLE ipbf-eb AND ipbf-eb.t-sqin NE 0 THEN
+            dReturnValue = DYNAMIC-FUNCTION("fConv_GetAreaSqFeet", ipbf-eb.t-sqin,"SQIN").
+    END. 
+       
     IF dReturnValue = ? THEN
         dReturnValue = 0.
        
