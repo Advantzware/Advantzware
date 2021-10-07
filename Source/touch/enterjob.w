@@ -839,7 +839,7 @@ DEF VAR cAction AS CHAR NO-UNDO.
    END.
    ELSE IF cAction EQ "" THEN
    DO:
-      {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
+      {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
    END.
        
   
