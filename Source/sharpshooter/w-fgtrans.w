@@ -65,9 +65,9 @@ DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE gcLocationSource AS CHARACTER NO-UNDO INITIAL "LoadTag".
-DEFINE VARIABLE glCloseJob       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glAutoPost       AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE gcSSLocationSource AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glSSCloseJob       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glSSFGPost         AS LOGICAL   NO-UNDO.
 
 ASSIGN
     oLoadTag  = NEW Inventory.LoadTag()
@@ -114,9 +114,9 @@ oSetting:LoadByCategoryAndProgram("SSFGReceiveTransfer").
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation BROWSE-1 btReset ~
-btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast btnNext ~
-btnPrevious btExit btnExitText btnClearText btnSettingsText 
+&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation btPost BROWSE-1 ~
+btReset btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast ~
+btnNext btnPrevious btExit btnExitText btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
 statusMessage btnSettingsText 
 
@@ -370,8 +370,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR BUTTON btPost IN FRAME F-Main
-   NO-ENABLE                                                            */
 ASSIGN 
        btPost:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -604,6 +602,17 @@ ON MOUSE-SELECT-CLICK OF btnSettingsText IN FRAME F-Main
 DO:
     RUN OpenSetting.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btPost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPost W-Win
+ON CHOOSE OF btPost IN FRAME F-Main /* POST */
+DO:
+    RUN pPost.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -849,7 +858,7 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
           btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btClear fiTag fiLocation BROWSE-1 btReset btnKeyboardlOCATION 
+  ENABLE btClear fiTag fiLocation btPost BROWSE-1 btReset btnKeyboardlOCATION 
          btnKeyboardTAG btnNumPad btnFirst btnLast btnNext btnPrevious btExit 
          btnExitText btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
@@ -986,8 +995,13 @@ PROCEDURE pInit PRIVATE :
     ASSIGN
         glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
         gcShowSettings        = oSetting:GetByName("ShowSettings")
+        gcSSLocationSource    = oSetting:GetByName("SSLocationSource")
+        glSSCloseJob          = LOGICAL(oSetting:GetByName("SSCloseJob"))
+        glSSFGPost            = LOGICAL(oSetting:GetByName("SSFGPost"))
         .
-
+    
+    btPost:HIDDEN = glSSFGPost.
+    
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
     oKeyboard:SetProcedure(THIS-PROCEDURE).
     oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
@@ -1151,8 +1165,10 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.
     END.
         
-    IF glAutoPost AND NOT lLocationConfirm THEN
+    IF glSSFGPost AND NOT lLocationConfirm THEN
         RUN pPost.
+    ELSE IF lLocationConfirm THEN
+        RUN pStatusMessage ("Transfer transaction confirmed", 1).
     ELSE
         RUN pStatusMessage ("Receipt Transaction created", 1).
         
@@ -1203,7 +1219,7 @@ PROCEDURE pPost PRIVATE :
         WHERE ttBrowseInventory.inventoryStatus = "Created":
         RUN PostFinishedGoodsForFGRctd IN hdInventoryProcs (
             INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-            INPUT  glCloseJob,
+            INPUT  glSSCloseJob,
             OUTPUT lError,
             OUTPUT cMessage
             ).
@@ -1216,6 +1232,8 @@ PROCEDURE pPost PRIVATE :
             RUN pStatusMessage ("Transaction posted successfully", 1).
         END.
     END.
+
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1287,12 +1305,12 @@ PROCEDURE pTagScan PRIVATE :
         cLocation  = oLoadTag:GetValue("Location")
         .
 
-    IF gcLocationSource EQ "FGItem" THEN
+    IF gcSSLocationSource EQ "FGItem" THEN
         ASSIGN
             cWarehouse = oItemFG:GetValue("Warehouse")
             cLocation  = oItemFG:GetValue("Location")
             .
-    ELSE IF gcLocationSource EQ "UserDefault" THEN DO:
+    ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
         RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
             INPUT  cCompany,
             OUTPUT cWarehouse
@@ -1369,7 +1387,7 @@ PROCEDURE pTagScan PRIVATE :
             .
     END.
     
-    IF glAutoPost THEN
+    IF glSSFGPost THEN
         RUN pPost.
     ELSE
         RUN pStatusMessage("Receipt Transaction created", 1).
