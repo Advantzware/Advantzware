@@ -203,7 +203,7 @@
             put {1} "W: " at 15 v-wid space(2) "L: " v-len
                 space(2) "Flute: " item.flute space(2) item.reg-no.
 
-            run po/po-ordls.p (recid(po-ordl)).
+
             
             {po/poprints.i}
             

@@ -398,7 +398,7 @@ assign
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1.
 
-        run po/po-ordls.p (recid(po-ordl)).            
+                    
         {po/poprints.i}            
             IF AVAIL ITEM AND lookup(ITEM.mat-type,"1,2,3,4") > 0 THEN DO: 
             END.
