@@ -136,7 +136,7 @@ FUNCTION fGetOperationsColor RETURNS INTEGER PRIVATE
 FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
     (BUFFER ipbf-ef FOR ef) FORWARD.
 
-FUNCTION fGetQtyfromEst RETURNS DECIMAL PRIVATE
+FUNCTION fGetOriginalQtyfromEst RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     BUFFER ipbf-job FOR job) FORWARD.
         
@@ -171,7 +171,10 @@ FUNCTION fGetOperationsInkCoverage RETURNS DECIMAL PRIVATE
 FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER) FORWARD.    
 
-FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
+FUNCTION fGetRequiredQtyUsingEstOp RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb, INPUT ipdQty AS DECIMAL, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
+
+FUNCTION fGetRequiredQtyUsingJob RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job FOR job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
@@ -698,6 +701,134 @@ PROCEDURE pCheckAndAddMachineFromRouting PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pCollectDataForEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate and prepare data for source Est-op/Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE INPUT PARAMETER ipriEstop                AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateType         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTargetQty            AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdBlankQty             AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQtyFGOnFormYielded   AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER                         TABLE FOR ttEstOp.
+    DEFINE OUTPUT PARAMETER oplError                AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dQtyYield           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyFGOnFormYielded AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-est-op FOR est-op.
+    DEFINE BUFFER bf-eb     FOR eb.
+   
+    FIND FIRST bf-est-op NO-LOCK
+        WHERE ROWID(bf-est-op) = ipriEstop NO-ERROR.
+            
+    IF NOT AVAILABLE bf-est-op THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Est-op Record not found"
+            .
+        RETURN.
+    END.
+        
+    opdTargetQty = bf-est-op.qty.
+        
+    RUN pGetEstOPDataFromEstimate (BUFFER ipbf-ef, opdTargetQty,OUTPUT TABLE ttEstOp).
+    
+    opdBlankQty = fGetRequiredQtyUsingEstOp (BUFFER ipbf-eb, bf-est-op.qty, ipcEstimateType ,"").
+        
+    FOR EACH bf-eb NO-LOCK
+        OF ipbf-ef:
+            
+        dQtyYield = fGetRequiredQtyUsingEstOp (BUFFER bf-eb, bf-est-op.qty, ipcEstimateType ,"YieldQty").
+        dQtyFGOnFormYielded = dQtyFGOnFormYielded + dQtyYield.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pCollectDataForJobMch PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate and prepare data for source job-mch
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE INPUT PARAMETER ipriJobMch               AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateType         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAction               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOrgMachine           AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTargetQty            AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdBlankQty             AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQtyFGOnFormYielded   AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER                         TABLE FOR ttEstOp.
+    DEFINE OUTPUT PARAMETER oplError                AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dQtyRequired        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyYield           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyFGOnFormYielded AS DECIMAL NO-UNDO.
+    
+    
+    DEFINE BUFFER bf-job-mch FOR Job-mch.
+    DEFINE BUFFER bf-job     FOR Job.
+    DEFINE BUFFER bf-eb      FOR eb.
+    
+    FIND FIRST bf-job-mch NO-LOCK
+        WHERE ROWID(bf-job-mch) = ipriJobMch NO-ERROR.
+        
+    IF NOT AVAILABLE bf-job-mch THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Job-mch Record not found"
+            .
+        RETURN.
+    END.
+        
+    FIND FIRST bf-job NO-LOCK 
+        WHERE bf-job.company EQ bf-job-mch.company
+        AND bf-job.job EQ bf-job-mch.job
+        NO-ERROR.
+    
+    IF NOT AVAILABLE bf-job THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Job Record not found"
+            .
+        RETURN.
+    END.
+        
+    dQtyRequired = fGetRequiredQtyUsingJob (BUFFER ipbf-eb, BUFFER bf-job, INPUT ipcEstimateType, INPUT "").
+        
+    RUN pGetEffectiveEstOpQuantity (ipbf-eb.company, ipbf-eb.est-no, dQtyRequired, OUTPUT opdTargetQty).
+        
+    IF opdTargetQty EQ 0 THEN
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Operation's effective Quantity not found"
+            .
+        RETURN.
+    END.
+        
+    RUN pGetEstOPDataFromJobMch (BUFFER ipbf-ef, BUFFER ipbf-eb, BUFFER bf-job-mch, bf-job.loc, ipcAction, ipcOrgMachine, opdTargetQty,OUTPUT TABLE ttEstOp).
+        
+    FOR EACH bf-eb NO-LOCK
+        OF ipbf-ef:
+            
+        dQtyYield = fGetRequiredQtyUsingJob (BUFFER bf-eb, BUFFER bf-job, ipcEstimateType ,"YieldQty").
+        dQtyFGOnFormYielded = dQtyFGOnFormYielded + dQtyYield.
+    END.
+    
+    opdBlankQty = dQtyRequired.
+
+END PROCEDURE.
+
 PROCEDURE pCreateInkRec PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Process the Ink setup on Estimate and creates Ink TT
@@ -745,6 +876,38 @@ PROCEDURE pCreateInkRec PRIVATE:
         
     END.
     
+END PROCEDURE.
+
+PROCEDURE pGetEfficiencyByQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Check Efficiency By Quantity and determine the increase in the Speed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-mach FOR mach.
+    DEFINE PARAMETER BUFFER ipbf-mstd FOR mstd.
+    DEFINE OUTPUT PARAMETER opdIncrease AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dOperationQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cQtyValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAttrName  AS CHARACTER NO-UNDO.
+    
+    RUN pGetAttribute(giAttributeIDEstQty, OUTPUT cQtyValue, OUTPUT cAttrName, OUTPUT oplError, OUTPUT opcMessage). //Get colors attribute
+    ASSIGN dOperationQty = DECIMAL(cQtyValue) NO-ERROR.
+    
+    
+    /* Extra Sheets Calc */
+    /*DO iExt = 1 TO 9:
+      IF (mach.p-type EQ "S" AND (mstd.run-qty[iExt] * (v-n-out * v-up) GT ipdQty))
+        OR (mach.p-type EQ "B" AND mstd.run-qty[iExt] GT ipdQty) THEN LEAVE.
+        
+      IF mstd.x-sheets[k] NE 0 THEN 
+          opdIncrease = mstd.x-sheets[iExt] /100.
+      
+    END.*/
+
 END PROCEDURE.
 
 PROCEDURE pGetInkTT PRIVATE:
@@ -1398,7 +1561,8 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
     DEFINE VARIABLE dSpeed     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dSpoilPrct AS DECIMAL   NO-UNDO.
     
-    
+     RUN pSetProcessScope(INPUT "MainProcessStart").
+     
     FIND FIRST bf-est-op NO-LOCK
         WHERE ROWID(bf-est-op) = ipriRowid NO-ERROR.
     
@@ -1415,7 +1579,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
             WHERE bf-eb.company  EQ bf-est-op.company
             AND bf-eb.est-no   EQ bf-est-op.est-no
             AND bf-eb.form-no  EQ bf-est-op.s-num
-            AND bf-eb.blank-no EQ bf-est-op.b-num NO-ERROR.
+            AND bf-eb.blank-no EQ MAX(bf-est-op.b-num,1) NO-ERROR.
             
         IF NOT AVAILABLE bf-eb THEN RETURN.
                 
@@ -1433,6 +1597,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
                 OUTPUT lError,
                 OUTPUT cMessage).
                 
+         
             RUN pBuildMessage("", INPUT-OUTPUT cMessage).
             
             RUN pGetAttribute(giAttributeIDEstSheets, OUTPUT cEstSheets, OUTPUT cAttrName, OUTPUT lError, OUTPUT cMessage). //Get colors attribute
@@ -1451,7 +1616,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
         
          
     END.
-
+    RUN pSetProcessScope(INPUT "MainProcessEnd").
 END PROCEDURE.
 
 
@@ -2074,7 +2239,7 @@ PROCEDURE pGetCoordinates PRIVATE:
         WHERE ttAxis.axisType EQ ipcAxisType
         BY ttAxis.axisPage
         BY ttAxis.axisCoordinate:
-        IF ipdLookup LE ttAxis.axisValue THEN LEAVE.
+        IF ttAxis.axisValue GE ipdLookup THEN LEAVE.
     END.
     IF AVAILABLE ttAxis THEN 
         ASSIGN 
@@ -2127,11 +2292,15 @@ PROCEDURE pGetRunSpeed PRIVATE:
     DEFINE VARIABLE cMessageMatrix          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessageItemReduction   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessageMatrixReduction AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dIncreaseInSpeed        AS DECIMAL NO-UNDO.
     
     RUN pGetStandardBuffer(ipbf-mach.company, ipbf-mach.loc, ipbf-mach.m-code, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
     IF AVAILABLE bf-mstd THEN 
     DO:
         RUN pGetValue(BUFFER bf-mstd, "RunSpeed", OUTPUT opdRunSpeed, OUTPUT oplError, OUTPUT cMessageMatrix).
+        RUN pGetEfficiencyByQty(BUFFER ipbf-mach, BUFFER bf-mstd,  OUTPUT dIncreaseInSpeed, OUTPUT oplError, OUTPUT cMessageItemReduction).
+        opdRunSpeed     = opdRunSpeed * (1 + dIncreaseInSpeed).
+        
         RUN pGetItemSpeedReduction(ipbf-mach.company, ipbf-mach.dept[1], OUTPUT dReductionItem, OUTPUT oplError, OUTPUT cMessageItemReduction).
         RUN pGetMatrixSpeedReduction(BUFFER bf-mstd, OUTPUT dReductionMatrix, OUTPUT oplError, OUTPUT cMessageMatrixReduction).
         ASSIGN 
@@ -2698,7 +2867,33 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pGetEstOPData PRIVATE:
+PROCEDURE pGetEstOPDataFromEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Builds applicable Est-OP data into temp-table
+     Notes: No need of recalc, just copy existing est-op into TT
+    ------------------------------------------------------------------------------*/ 
+    
+    DEFINE PARAMETER BUFFER ipbf-ef      FOR ef.
+    DEFINE INPUT  PARAMETER ipdTargetQty        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER                     TABLE FOR ttEstOp.
+    
+    DEFINE BUFFER bf-est-op FOR est-op.
+    
+    /* Create Data into TT */
+    FOR EACH bf-est-op NO-LOCK 
+        WHERE bf-est-op.company EQ ipbf-ef.company
+        AND bf-est-op.est-no EQ ipbf-ef.est-no
+        AND bf-est-op.s-num EQ ipbf-ef.form-no
+        AND bf-est-op.qty   EQ ipdTargetQty :
+    
+        CREATE ttEstOp.
+        BUFFER-COPY bf-est-op TO ttEstOp.
+       
+    END.  //FOR EACH bf-est-op
+    
+END PROCEDURE.    
+
+PROCEDURE pGetEstOPDataFromJobMch PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Builds applicable Est-OP data into temp-table
      Notes: If action is Add/Replace Machine then we'll use Est-op for existing machine
@@ -2719,6 +2914,7 @@ PROCEDURE pGetEstOPData PRIVATE:
     DEFINE BUFFER bf-est-op FOR est-op.
     DEFINE BUFFER bf-mach   FOR mach.
     DEFINE BUFFER bf-est    FOR est.
+    
     
     /* Create Data into TT */
     FOR EACH bf-est-op NO-LOCK 
@@ -2746,7 +2942,7 @@ PROCEDURE pGetEstOPData PRIVATE:
                 .
                 
              
-            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER bf-mach, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
+            RUN pGetEstOpCalcFields (BUFFER bf-mach, BUFFER ttEstOp).
         END.
       
     END.  //FOR EACH bf-est-op
@@ -2781,7 +2977,7 @@ PROCEDURE pGetEstOPData PRIVATE:
                 ttEstOp.op-crew[2] = bf-mach.run-crusiz
                 .
                 
-            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
+            RUN pGetEstOpCalcFields (BUFFER bf-mach, BUFFER ttEstOp).
         END.
     END.
     
@@ -2818,13 +3014,8 @@ PROCEDURE pGetEstOpCalcFields PRIVATE:
      Notes: 
     ------------------------------------------------------------------------------*/
     
-    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
     DEFINE PARAMETER BUFFER ipbf-Mach FOR mach.
     DEFINE PARAMETER BUFFER ipbf-ttEstOP FOR ttEstOp.
-    DEFINE INPUT  PARAMETER ipcLocationID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcOperationID  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcDeptt        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -2840,7 +3031,8 @@ PROCEDURE pRecalcOperations PRIVATE:
     Notes: Firstly get applicable est-ops and then recalculate the Operations TT
    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb      FOR eb.
-    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT PARAMETER ipriJobMch AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipriEstop  AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipcAction AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcOrgMachine AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE   FOR ttOperation.
@@ -2853,14 +3045,12 @@ PROCEDURE pRecalcOperations PRIVATE:
     DEFINE VARIABLE dQtyInOutRunWaste             AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOutSetupWaste           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyTarget                    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQtyRequired                  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQtyYield                     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyFGOnFormYielded           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyRequired                  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE cEstimateType                 AS CHARACTER NO-UNDO.
     
     
     DEFINE BUFFER bf-est         FOR est.
-    DEFINE BUFFER bf-job         FOR job.
     DEFINE BUFFER bf-eb          FOR eb.
     DEFINE BUFFER bf-ef          FOR ef.
     DEFINE BUFFER bf-ttOperation FOR ttOperation.
@@ -2883,20 +3073,6 @@ PROCEDURE pRecalcOperations PRIVATE:
         RETURN.
     END.
     
-    FIND FIRST bf-job NO-LOCK 
-        WHERE bf-job.company EQ ipbf-job-mch.company
-        AND bf-job.job EQ ipbf-job-mch.job
-        NO-ERROR.
-    
-    IF NOT AVAILABLE bf-job THEN
-    DO:
-        ASSIGN 
-            oplError   = YES
-            opcMessage = "Job Record not found"
-            .
-        RETURN.
-    END.
-    
     FIND FIRST bf-est NO-LOCK
         WHERE bf-est.company = bf-ef.company
         AND bf-est.est-no = bf-ef.est-no NO-ERROR.
@@ -2912,27 +3088,12 @@ PROCEDURE pRecalcOperations PRIVATE:
     
     cEstimateType = fGetEstimateType (INPUT bf-est.est-type, INPUT bf-est.estimateTypeID).
     
-    dQtyRequired = fGetRequiredQty (BUFFER ipbf-eb, BUFFER bf-job, INPUT cEstimateType, INPUT "").
+    IF ipriJobMch <> ? THEN
+        RUN pCollectDataForJobMch(BUFFER ipbf-eb, BUFFER bf-ef, ipriJobMch, cEstimateType, ipcAction,ipcOrgMachine, OUTPUT dQtyTarget, OUTPUT dQtyRequired, OUTPUT dQtyFGOnFormYielded, OUTPUT TABLE ttEstOp, OUTPUT oplError, OUTPUT opcMessage).
         
-    RUN pGetEffectiveEstOpQuantity (bf-est.company, bf-est.est-no, dQtyRequired, OUTPUT dQtyTarget).
+    ELSE
+        RUN pCollectDataForEstimate(BUFFER ipbf-eb, BUFFER bf-ef, ipriEstop, cEstimateType, OUTPUT dQtyTarget, OUTPUT dQtyRequired, OUTPUT dQtyFGOnFormYielded, OUTPUT TABLE ttEstOp, OUTPUT oplError, OUTPUT opcMessage).
     
-    IF dQtyTarget EQ 0 THEN
-    DO:
-        ASSIGN 
-            oplError   = YES
-            opcMessage = "Operation's effective Quantity not found"
-            .
-        RETURN.
-    END.
-    
-    RUN pGetEstOPData (BUFFER bf-ef, BUFFER ipbf-eb, BUFFER ipbf-job-mch, bf-job.loc, ipcAction, ipcOrgMachine, dQtyTarget,OUTPUT TABLE ttEstOp).
-    
-    FOR EACH bf-eb NO-LOCK
-        OF bf-ef:
-            
-        dQtyYield = fGetRequiredQty (BUFFER bf-eb, BUFFER bf-job, cEstimateType ,"YieldQty").
-        dQtyFGOnFormYielded = dQtyFGOnFormYielded + dQtyYield.
-    END.
     
     EMPTY TEMP-TABLE ttEstBlank.
     
@@ -2949,7 +3110,7 @@ PROCEDURE pRecalcOperations PRIVATE:
             WHERE bf-eb.company = bf-ef.company
             AND bf-eb.est-no = bf-ef.est-no
             AND bf-eb.form-no = bf-ef.form-no
-            AND bf-eb.blank-no = ttEstop.b-num NO-ERROR.
+            AND bf-eb.blank-no = MAX(ttEstop.b-num,1) NO-ERROR.
         
         IF NOT AVAILABLE bf-eb THEN
             RETURN.
@@ -2972,7 +3133,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                     ASSIGN 
                         ttEstBlank.BlankID = ttEstop.b-num
                         ttEstBlank.FormID  = ttEstop.s-num
-                        ttEstBlank.iOut    = MAX(ipbf-eb.num-wid, 1) * MAX(ipbf-eb.num-len, 1) * MAX(ipbf-eb.num-dep, 1).
+                        ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1).
                 END.
                 IF NOT ttEstBlank.lOutputInitialized THEN 
                     ASSIGN 
@@ -3179,7 +3340,7 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         WHERE bf-eb.company  EQ bf-est-op.company
         AND bf-eb.est-no   EQ bf-est-op.est-no
         AND bf-eb.form-no  EQ bf-est-op.s-num
-        AND bf-eb.blank-no EQ bf-est-op.b-num NO-ERROR.
+        AND bf-eb.blank-no EQ MAX(bf-est-op.b-num,1) NO-ERROR.
         
     IF AVAILABLE bf-eb THEN 
     DO:
@@ -3198,6 +3359,14 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
             RUN pSetAttributesForm(BUFFER bf-ef).
+            
+        /* Re-build the Est-op and Operations Data */ 
+        RUN pRecalcOperations(BUFFER bf-eb,?,ipriRowid, "NoChange", "", OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
+         
+        /* Calculate Attribute from Operations */
+        IF NOT oplError THEN
+            RUN pSetAttributesFromQty (BUFFER bf-eb, bf-est-op.m-code, ipcLocation , bf-est-op.op-pass, INPUT TABLE ttOperation BY-REFERENCE).
+         
     END.
     ELSE 
         ASSIGN 
@@ -3269,7 +3438,7 @@ PROCEDURE SetAttributesFromJobMch:
         RUN pSetAttributesBlank(BUFFER bf-eb).
         RUN pSetAttributeForColors(BUFFER bf-eb, bf-job.loc, bf-job-mch.m-code, bf-job-mch.dept ,bf-job-mch.pass).  //Maxco
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDDieNumberUp, STRING(fGetDieNumberUp(BUFFER bf-eb,bf-job-mch.m-code))). //v-up  
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQty, STRING(fGetOriginalQtyfromEst(BUFFER bf-eb, BUFFER bf-job))).  //qty
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //(qty * v-yld / xeb.num-up / v-n-out)   not found
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDNoOutGShtWid, STRING(fGetOperationsGrsShtWid(BUFFER bf-eb, bf-job-mch.m-code, iPass))). //v-out
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDSetPartsperForm, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,2,""))). //ld-parts[2]
@@ -3283,7 +3452,7 @@ PROCEDURE SetAttributesFromJobMch:
             RUN pSetAttributesForm(BUFFER bf-ef).
         
         /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb, BUFFER bf-job-mch, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
+        RUN pRecalcOperations(BUFFER bf-eb, ROWID(bf-job-mch), ?, ipcAction, ipcExistingOps, OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
          
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
@@ -3580,7 +3749,7 @@ FUNCTION fGetOperationsCalThickness RETURNS INTEGER PRIVATE
 		
 END FUNCTION.
 
-FUNCTION fGetQtyfromEst RETURNS DECIMAL PRIVATE
+FUNCTION fGetOriginalQtyfromEst RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb,
     BUFFER ipbf-job FOR job):
     /*------------------------------------------------------------------------------
@@ -3604,7 +3773,7 @@ FUNCTION fGetQtyfromEst RETURNS DECIMAL PRIVATE
     IF AVAILABLE bf-est THEN
         cEstimateType = fGetEstimateType (INPUT bf-est.est-type, INPUT bf-est.estimateTypeID).
         
-       dQtyRequired = fGetRequiredQty (BUFFER ipbf-eb, BUFFER ipbf-job, INPUT cEstimateType, INPUT "").
+       dQtyRequired = fGetRequiredQtyUsingJob (BUFFER ipbf-eb, BUFFER ipbf-job, INPUT cEstimateType, INPUT "").
         
     RUN pGetEffectiveEstOpQuantity (ipbf-eb.company, ipbf-eb.est-no, dQtyRequired, OUTPUT dQtyTarget).
     
@@ -3649,6 +3818,21 @@ FUNCTION fGetOperationsQty RETURNS DECIMAL PRIVATE
         AND bf-ttOperation.blankNo      EQ MAX(ipbf-eb.blank-no, 1)
         AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR.
             
+    IF NOT AVAILABLE bf-ttOperation THEN
+        FIND FIRST bf-ttOperation
+            WHERE bf-ttOperation.company    EQ ipbf-eb.company
+            AND bf-ttOperation.estimateNo   EQ ipbf-eb.est-no
+            AND bf-ttOperation.operationID  EQ ipcMachine
+            AND bf-ttOperation.formNo       EQ ipbf-eb.form-no
+            AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR. 
+            
+    IF NOT AVAILABLE bf-ttOperation THEN
+        FIND FIRST bf-ttOperation
+            WHERE bf-ttOperation.company    EQ ipbf-eb.company
+            AND bf-ttOperation.estimateNo   EQ ipbf-eb.est-no
+            AND bf-ttOperation.operationID  EQ ipcMachine
+            AND bf-ttOperation.formNo       EQ ipbf-eb.form-no NO-ERROR.
+    
     IF AVAILABLE bf-ttOperation THEN     
         dReturnValue = bf-ttOperation.quantityIn. 
         
@@ -3926,7 +4110,28 @@ FUNCTION fGetPartCount RETURNS DECIMAL PRIVATE
        
 END FUNCTION.
 
-FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
+FUNCTION fGetRequiredQtyUsingEstOp RETURNS DECIMAL PRIVATE
+    (BUFFER ipbf-eb FOR eb, INPUT ipdQty AS DECIMAL, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER):
+        
+    DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyPerSet   AS DECIMAL NO-UNDO.
+    
+    dQtyPerSet = fGetQuantityPerSet(BUFFER ipbf-eb).
+    
+    IF fIsComboType(ipcEstType) THEN
+    DO: 
+        IF ipcQtyType EQ "" THEN
+            dReturnValue  = ipbf-eb.bl-qty * dQtyPerSet.
+        ELSE
+            dReturnValue  = ipbf-eb.yld-qt * dQtyPerSet.
+    END.
+    ELSE
+        dReturnValue = ipdQty * dQtyPerSet.
+    
+    RETURN dReturnValue.
+END.   
+
+FUNCTION fGetRequiredQtyUsingJob RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job FOR job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER):
         
     DEFINE VARIABLE dReturnValue AS DECIMAL NO-UNDO.
