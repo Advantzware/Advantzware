@@ -24,7 +24,6 @@ DEFINE VARIABLE WshNetwork         AS COMPONENT-HANDLE.
 DEFINE VARIABLE chFile             AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE chWorkBook         AS COMPONENT-HANDLE NO-UNDO.
 DEFINE VARIABLE chWorksheet        AS COMPONENT-HANDLE NO-UNDO.
-DEFINE VARIABLE iRowCount          AS INTEGER          NO-UNDO.
 
 DEFINE TEMP-TABLE ttHeader
     FIELD company        AS CHARACTER 
@@ -132,7 +131,7 @@ PROCEDURE pBuildData PRIVATE:
             IF NOT AVAILABLE ttMaterial THEN DO: 
                 CREATE ttMaterial.
                 ASSIGN 
-                    ttMaterial.itemID = estCostMaterial.itemID
+                    ttMaterial.itemID = estCostMaterial.itemID                    
                     ttMaterial.itemName = estCostMaterial.itemName
                     ttMaterial.quantityOnHand = item.q-onh
                     ttMaterial.sizeDesc = cSizeDesc
@@ -222,7 +221,7 @@ PROCEDURE pInitializeExcel PRIVATE:
             CurActivePrinter = SESSION:PRINTER-NAME
             AdobePrinter     = "PDFcamp Printer".
   
-    RUN sys/ref/getFileFullPathName.p ("Template\PurchasingList.xlt", OUTPUT chFile).
+    RUN sys/ref/getFileFullPathName.p ("Template\PurchasingList.xltx", OUTPUT chFile).
     IF chFile = ? THEN  
         APPLY 'close' TO THIS-PROCEDURE.
 
@@ -305,6 +304,9 @@ END PROCEDURE.
 
 PROCEDURE pFillData PRIVATE:   
     
+    DEFINE VARIABLE iRowCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iColCount AS INTEGER NO-UNDO.
+    
     FIND FIRST ttHeader NO-LOCK NO-ERROR.   
      
     ASSIGN
@@ -317,6 +319,7 @@ PROCEDURE pFillData PRIVATE:
         chWorkSheet      = chExcelApplication:Sheets:item(viWorkSheetCount)
         chWorkSheet:name = "Purchasing List" .
       
+     
     ASSIGN
         chWorkSheet:Range("B2"):value = ttHeader.customerName
         chWorkSheet:Range("B3"):value = ttHeader.customerPart
@@ -324,25 +327,37 @@ PROCEDURE pFillData PRIVATE:
         chWorkSheet:Range("D3"):value = ttHeader.plateID
         chWorkSheet:Range("D4"):value = ttHeader.estimateNo
         .
-    iRowCount = 8.
     
+    iColCount = 5.    
+    FOR EACH ttQuantity NO-LOCK
+        BY ttQuantity.quantity:
+        chWorkSheet:Range("A6"):Offset(0,iColCount):value = ttQuantity.quantity.
+        iColCount = iColCount + 3.
+    END.
+        
+    iRowCount = 8.    
     FOR EACH ttMaterial NO-LOCK :           
        ASSIGN 
-           chWorkSheet:Range("A" + STRING(iRowCount)):value = ttMaterial.itemName
-           chWorkSheet:Range("B" + STRING(iRowCount)):value = ttMaterial.sizeDesc 
-           chWorkSheet:Range("C" + STRING(iRowCount)):value = ""
-           chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(ttMaterial.quantityOnHand) 
-           chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[1]) 
-           chWorkSheet:Range("F" + STRING(iRowCount)):value = ttMaterial.quantityUOM 
+           chWorkSheet:Range("A" + STRING(iRowCount)):value = ttMaterial.itemID
+           chWorkSheet:Range("B" + STRING(iRowCount)):value = ttMaterial.sizeDesc
+           chWorkSheet:Range("C" + STRING(iRowCount)):value = ttMaterial.itemID 
+           chWorkSheet:Range("D" + STRING(iRowCount)):value = ttMaterial.quantityUOM 
+           chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(ttMaterial.quantityOnHand) 
+           chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[1]) 
            chWorkSheet:Range("G" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[1] / ttMaterial.quantityRequired[1])
-           chWorkSheet:Range("H" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[2]) 
-           chWorkSheet:Range("I" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[2] / ttMaterial.quantityRequired[2])
-           chWorkSheet:Range("J" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[3]) 
-           chWorkSheet:Range("K" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[3] / ttMaterial.quantityRequired[3])
-           chWorkSheet:Range("L" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[4]) 
-           chWorkSheet:Range("M" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[4] / ttMaterial.quantityRequired[4])
-           chWorkSheet:Range("N" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[5]) 
-           chWorkSheet:Range("O" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[5] / ttMaterial.quantityRequired[5])
+           chWorkSheet:Range("H" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[1] - ttMaterial.quantityOnHand,0))
+           chWorkSheet:Range("I" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[2]) 
+           chWorkSheet:Range("J" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[2] / ttMaterial.quantityRequired[2])
+           chWorkSheet:Range("K" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[2] - ttMaterial.quantityOnHand,0))
+           chWorkSheet:Range("L" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[3]) 
+           chWorkSheet:Range("M" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[3] / ttMaterial.quantityRequired[3])
+           chWorkSheet:Range("N" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[3] - ttMaterial.quantityOnHand,0))
+           chWorkSheet:Range("O" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[4]) 
+           chWorkSheet:Range("P" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[4] / ttMaterial.quantityRequired[4])
+           chWorkSheet:Range("Q" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[4] - ttMaterial.quantityOnHand,0))
+           chWorkSheet:Range("R" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[5]) 
+           chWorkSheet:Range("S" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[5] / ttMaterial.quantityRequired[5])
+           chWorkSheet:Range("T" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[5] - ttMaterial.quantityOnHand,0))
            
            iRowCount = iRowCount + 1.     
     END.       
