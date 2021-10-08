@@ -250,7 +250,10 @@ do with no-box no-labels frame flute  stream-io :
       adh-qty[2] = 1
       med-qty = if v-corr then ((brd-l[2] * brd-w[2]) * tot-qty) * .000007
                        else ((brd-l[2] * brd-w[2]) * tot-qty) / 144000
-      fg-wt = fg-wt + (fg-qty * (if avail(item) then item.basis-w else 1)).
+      fg-wt = fg-wt + (fg-qty * (if avail(item) then item.basis-w else 1))
+      dBoardLength = brd-l[2]
+      dBoardWidth = brd-w[2]
+      .
 
     /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
     IF lNewVendorItemCost THEN
@@ -264,6 +267,10 @@ do with no-box no-labels frame flute  stream-io :
             xeb.blank-no,
             med-qty,
             "MSF",
+            dBoardLength,
+            dBoardWidth,
+            0,
+            item.basis-w,
             OUTPUT dCostQtyUOM,
             OUTPUT dSetupCostQtyUOM,
             OUTPUT mfl$).
