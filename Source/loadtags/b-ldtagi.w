@@ -147,7 +147,7 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE tb_i-name AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
-     SIZE 31 BY 1
+     SIZE 28 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)" 
@@ -180,19 +180,19 @@ DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0
      SIZE 8.8 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 9.3 BY 1
+     SIZE 12 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_tag-no AS CHARACTER FORMAT "X(20)" 
      VIEW-AS FILL-IN 
-     SIZE 31.8 BY 1
+     SIZE 30.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_vend-tag AS CHARACTER FORMAT "X(20)" 
      VIEW-AS FILL-IN 
-     SIZE 31.8 BY 1
+     SIZE 30.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
@@ -269,10 +269,10 @@ DEFINE FRAME F-Main
      tb_job-no2 AT ROW 1.71 COL 67 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
      tb_po-no AT ROW 1.71 COL 71 COLON-ALIGNED NO-LABEL
-     tb_ord-no AT ROW 1.71 COL 80 COLON-ALIGNED NO-LABEL
-     tb_i-no AT ROW 1.71 COL 89 COLON-ALIGNED HELP
+     tb_ord-no AT ROW 1.71 COL 84 COLON-ALIGNED NO-LABEL
+     tb_i-no AT ROW 1.71 COL 93 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
-     tb_i-name AT ROW 1.71 COL 111 COLON-ALIGNED HELP
+     tb_i-name AT ROW 1.71 COL 115 COLON-ALIGNED HELP
           "Enter finished goods item name." NO-LABEL
      tb_vend-tag AT ROW 2.86 COL 2 NO-LABEL WIDGET-ID 2
      Browser-Table AT ROW 4.33 COL 1 HELP
@@ -287,28 +287,28 @@ DEFINE FRAME F-Main
      "Job" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.05 COL 64
           FGCOLOR 9 FONT 6
-     "PO" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.05 COL 75
-          FGCOLOR 9 FONT 6
-     "Order" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.05 COL 83
-          FGCOLOR 9 FONT 6
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     "Warehouse" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.05 COL 34
-          FGCOLOR 9 FONT 6
-     "Tag#/Vendor Tag#" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 1.05 COL 7.2
-          FGCOLOR 9 FONT 6
-     "Bin" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 1.05 COL 52
+     "Name" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.05 COL 126
           FGCOLOR 9 FONT 6
      "Item" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.05 COL 98
           FGCOLOR 9 FONT 6
-     "Name" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.05 COL 126
+     "Bin" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 1.05 COL 52
+          FGCOLOR 9 FONT 6
+     "Tag#/Vendor Tag#" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 1.05 COL 7.2
+          FGCOLOR 9 FONT 6
+     "Warehouse" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.05 COL 34
+          FGCOLOR 9 FONT 6
+     "By:" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     "Order" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.05 COL 86
+          FGCOLOR 9 FONT 6
+     "PO" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 1.05 COL 75
           FGCOLOR 9 FONT 6
      RECT-4 AT ROW 19.1 COL 1
      RECT-5 AT ROW 1 COL 1
@@ -433,34 +433,34 @@ AND loadtag.i-no BEGINS tb_i-no
 AND loadtag.i-name BEGINS tb_i-name
 AND loadtag.misc-char[1] BEGINS tb_vend-tag"
      _FldNameList[1]   > ASI.loadtag.tag-no
-"tag-no" "Tag" "X(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.tag-no" "Tag" "X(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.loadtag.loc
-"loc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.loc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.loadtag.loc-bin
-"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.loadtag.job-no
-"job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.job-no" "Job" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.loadtag.job-no2
-"job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.loadtag.po-no
-"po-no" "PO" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.po-no" "PO" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.loadtag.ord-no
-"ord-no" "Order" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.ord-no" "Order" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.loadtag.i-no
-"i-no" "Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.i-no" "Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.loadtag.i-name
-"i-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.i-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.loadtag.qty-case
-"qty-case" "Unit!Count" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.qty-case" "Unit!Count" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.loadtag.case-bundle
-"case-bundle" "Units/!Pallet" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.case-bundle" "Units/!Pallet" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.loadtag.pallet-count
-"pallet-count" "Qty Per Pallet/Tag#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.pallet-count" "Qty Per Pallet/Tag#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.loadtag.partial
-"partial" "Partial" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.partial" "Partial" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   = ASI.loadtag.tot-cases
      _FldNameList[15]   > ASI.loadtag.misc-char[1]
-"misc-char[1]" "Vendor Tag#" "x(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.misc-char[1]" "Vendor Tag#" "x(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -574,6 +574,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -638,6 +639,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadtag-rm B-table-Win 
+PROCEDURE loadtag-rm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL loadtag THEN
+        RUN rmrep/rmloadtg4.w(INPUT YES,INPUT loadtag.tag-no)  .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -680,17 +696,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadtag-rm B-table-Win 
-PROCEDURE loadtag-rm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF AVAIL loadtag THEN
-        RUN rmrep/rmloadtg4.w(INPUT YES,INPUT loadtag.tag-no)  .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

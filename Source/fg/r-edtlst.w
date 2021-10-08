@@ -728,18 +728,18 @@ with frame f-top PAGE-TOP no-box no-labels STREAM-IO width 135.
            fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
            fg-rctd.job-no space(0) "-" space(0)
            fg-rctd.job-no2 format "99" space(2)
-           fg-rctd.po-no        format "x(6)"  at 55                                                            
-           po-ord.vend-no       at 61
-           fg-rctd.loc-bin      at 70       
-           fg-rctd.cases        to 85
-           fg-rctd.qty-case     to 95
-           fg-rctd.pur-uom     format "x(3)" at 97
-           v-tot-qty            format "->>>,>>>,>>9"  at 101
+           fg-rctd.po-no        format "x(8)"  at 55                                                            
+           po-ord.vend-no       at 63
+           fg-rctd.loc-bin      at 72       
+           fg-rctd.cases        to 87
+           fg-rctd.qty-case     to 97
+           fg-rctd.pur-uom     format "x(3)" at 99
+           v-tot-qty            format "->>>,>>>,>>9"  at 103
        /*
            fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
        */
-           fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
-           v-fg-value           format "->,>>>,>>9.99" to 135
+           fg-rctd.std-cost         AT 116 FORMAT "->>,>>9"
+           v-fg-value           format "->,>>>,>>9.99" to 137
        with frame detail no-box no-labels down STREAM-IO width 135.
 
        form
@@ -749,18 +749,18 @@ with frame f-top PAGE-TOP no-box no-labels STREAM-IO width 135.
            fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
            fg-rctd.job-no space(0) "-" space(0)
            fg-rctd.job-no2 format "99" space(2)
-           fg-rctd.po-no        format "x(6)" at 55                                                            
-           po-ord.vend-no       at 61                                                              
-           fg-rctd.loc-bin      at 70  
-           v-one                to 85
-           fg-rctd.partial      to 95
-           fg-rctd.pur-uom     format "x(3)" at 97                                                                    
-           v-tot-qty            format "->>>,>>>,>>9"  at 101
+           fg-rctd.po-no        format "x(8)" at 55                                                            
+           po-ord.vend-no       at 63                                                              
+           fg-rctd.loc-bin      at 72  
+           v-one                to 87
+           fg-rctd.partial      to 97
+           fg-rctd.pur-uom     format "x(3)" at 99                                                                    
+           v-tot-qty            format "->>>,>>>,>>9"  at 103
        /*
            fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
        */ 
-           fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
-           v-fg-value           format "->,>>>,>>9.99" to 135
+           fg-rctd.std-cost         AT 116 FORMAT "->>,>>9"
+           v-fg-value           format "->,>>>,>>9.99" to 137
        with frame pdetail no-box no-labels down STREAM-IO width 135.
 
 ASSIGN str-tit2 = c-win:title

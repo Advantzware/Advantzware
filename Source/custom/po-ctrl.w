@@ -90,7 +90,7 @@ DEFINE BUTTON Btn_Update
      LABEL "&Update" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(8)":U 
      LABEL "Next Purchase Order Number" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
