@@ -943,7 +943,7 @@ DO:
         IF NOT AVAIL ap-sel THEN DO:
             CREATE ap-sel.
             BUFFER-COPY tt-sel /*EXCEPT tt-recid tt-sel.amt-due*/ TO ap-sel.
-        END.  MESSAGE "tt-sel.spare-char-1 " STRING(tt-sel.spare-char-1) VIEW-AS ALERT-BOX ERROR .
+        END.  
         IF tt-sel.tt-deleted THEN DELETE ap-sel.
         IF AVAIL ap-sel THEN
         ASSIGN
