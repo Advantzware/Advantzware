@@ -95,7 +95,11 @@ DO:
         dCostSetup, OUTPUT opdSetupCostQtyUOM).
         
         
-END. 
+END.
+ELSE
+    ASSIGN
+        opdCostQtyUOM      = dCostPerUOM
+        opdSetupCostQtyUOM = dCostSetup. 
         
 
 

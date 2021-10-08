@@ -51,6 +51,9 @@ DEF VAR tot-qty LIKE w-brd.qty NO-UNDO.
 DEF VAR tot-cst LIKE w-brd.cost NO-UNDO.
 DEF VAR tot-c-m LIKE w-brd.cost-m NO-UNDO.
 DEF VAR ld-rm-rate AS DEC NO-UNDO.
+DEFINE VARIABLE dSetupCostQtyUOM  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
+
 
 {cec/msfcalc.i}
 
@@ -104,28 +107,53 @@ do with no-box no-labels frame med1  stream-io :
 
    fg-wt = fg-wt + ((fg-qty / (1 - (item-bom.shrink / 100))) * item.basis-w).
 
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+    /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
+    IF lNewVendorItemCost THEN
+    DO:
+        RUN est/getVendorCostinQtyUOM.p(Item.company, 
+            item.i-no, 
+            "RM", 
+            v-vend-no,
+            xeb.est-no,
+            xeb.form-no,
+            xeb.blank-no,
+            med-qty,
+            "MSF",
+            OUTPUT dCostQtyUOM,
+            OUTPUT dSetupCostQtyUOM,
+            OUTPUT mfl$).
+            
+        ASSIGN
+            b-msh = dCostQtyUOM
+            b-uom = "MSF".
+            
+    END.
+    ELSE
+    DO:
 
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
+        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
 
-   IF b-uom EQ "LF"  THEN
-     v-qty = (IF v-corr THEN (med-qty / .000007)
-                ELSE (med-qty * 144000)) / brd-w[2] / 12.
-   ELSE
-   IF b-uom EQ "TON" THEN
-     v-qty = med-qty * item.basis-w / 2000.
-   ELSE
-   IF b-uom EQ "MSF" THEN
-     v-qty = med-qty.
-   ELSE
-     v-qty = med-qty * item.basis-w.
+        b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
+        ELSE item.cons-uom.
+
+        IF b-uom EQ "LF"  THEN
+            v-qty = (IF v-corr THEN (med-qty / .000007)
+            ELSE (med-qty * 144000)) / brd-w[2] / 12.
+        ELSE
+            IF b-uom EQ "TON" THEN
+                v-qty = med-qty * item.basis-w / 2000.
+            ELSE
+                IF b-uom EQ "MSF" THEN
+                    v-qty = med-qty.
+                ELSE
+                    v-qty = med-qty * item.basis-w.
      
-   {est/matcost.i v-qty mfl$ medium}
+        {est/matcost.i v-qty mfl$ medium}
    
-   ASSIGN
-    b-msh = mfl$
-    mfl$  = (b-msh * v-qty) + lv-setup-medium.
+        ASSIGN
+            b-msh = mfl$
+            mfl$  = (b-msh * v-qty) + lv-setup-medium.
+    END.
 
    /*find first brd where brd.form-no = xef.form-no and
                         brd.i-no    = item-bom.i-no
@@ -213,29 +241,55 @@ do with no-box no-labels frame flute  stream-io :
                        else ((brd-l[2] * brd-w[2]) * tot-qty) / 144000
       fg-wt = fg-wt + (fg-qty * (if avail(item) then item.basis-w else 1)).
 
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+    /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
+    IF lNewVendorItemCost THEN
+    DO:
+        RUN est/getVendorCostinQtyUOM.p(Item.company, 
+            item.i-no, 
+            "RM", 
+            v-vend-no,
+            xeb.est-no,
+            xeb.form-no,
+            xeb.blank-no,
+            med-qty,
+            "MSF",
+            OUTPUT dCostQtyUOM,
+            OUTPUT dSetupCostQtyUOM,
+            OUTPUT mfl$).
+            
+        ASSIGN
+            b-msh = dCostQtyUOM
+            b-uom = "MSF"
+            .
+                     
+    END.
+    ELSE
+    DO:
+        RELEASE e-item.
+        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
 
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
+        b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
+        ELSE item.cons-uom.
 
-   IF b-uom EQ "LF"  THEN
-     v-qty = (IF v-corr THEN (med-qty / .000007)
-                ELSE (med-qty * 144000)) / brd-w[3] / 12.
-   ELSE
-   IF b-uom EQ "TON" THEN
-     v-qty = med-qty * item.basis-w / 2000.
-   ELSE
-   IF b-uom EQ "MSF" THEN
-     v-qty = med-qty.
-   ELSE
-     v-qty = med-qty * item.basis-w.
+        IF b-uom EQ "LF"  THEN
+            v-qty = (IF v-corr THEN (med-qty / .000007)
+            ELSE (med-qty * 144000)) / brd-w[3] / 12.
+        ELSE
+            IF b-uom EQ "TON" THEN
+                v-qty = med-qty * item.basis-w / 2000.
+            ELSE
+                IF b-uom EQ "MSF" THEN
+                    v-qty = med-qty.
+                ELSE
+                    v-qty = med-qty * item.basis-w.
         
-   {est/matcost.i v-qty mfl$ flute}
+        {est/matcost.i v-qty mfl$ flute}
        
-   ASSIGN
-    b-msh = mfl$
-    mfl$  = (b-msh * v-qty) + lv-setup-flute.
-
+        ASSIGN
+            b-msh = mfl$
+            mfl$  = (b-msh * v-qty) + lv-setup-flute.
+    END.
+    
    create w-brd.
    assign w-brd.form-no  = xef.form-no
           w-brd.blank-no = 1
