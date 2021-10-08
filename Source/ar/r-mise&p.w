@@ -167,8 +167,7 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To File", 3,
-    "To CSV", 4
+    "To CSV", 3
     SIZE 17.2 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -427,7 +426,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
   
-        IF rd-dest = 4 THEN
+        IF rd-dest = 3 THEN
         DO:
             ASSIGN 
                 fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
@@ -461,8 +460,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             CASE rd-dest:
                 WHEN 1 THEN RUN output-to-printer.
                 WHEN 2 THEN RUN output-to-screen.
-                WHEN 3 THEN RUN output-to-file.
-                WHEN 4 THEN  
+                WHEN 3 THEN   
                         DO:
                             IF NOT tb_OpenCSV THEN 
                             DO:        
@@ -1130,13 +1128,13 @@ PROCEDURE run-report :
 
     {sys/inc/outprint.i VALUE(lines-per-page)}
 
-    IF rd-dest = 4 THEN 
+    IF rd-dest = 3 THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
         excelHeader = 'Rec#,NAME,DATE,AMOUNT,G/L DISTRIBUTION,'.
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelHeader,',','","') '"' SKIP.
-    END. /* if rd-dest = 4 */
+    END. /* if rd-dest = 3 */
 
     IF td-show-parm THEN RUN show-param.
 
@@ -1189,7 +1187,7 @@ PROCEDURE run-report :
             IF AVAILABLE bank THEN
             DO:
                 PUT bank.bank-name bank.actnum SKIP.
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                     PUT STREAM excel UNFORMATTED
                         '"' bank.bank-name + " " + bank.actnum '",' SKIP.
             END.
@@ -1197,7 +1195,7 @@ PROCEDURE run-report :
             ELSE 
             DO:
                 MESSAGE "No Bank Record Available." VIEW-AS ALERT-BOX ERROR.       
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                     OUTPUT STREAM excel CLOSE.
                 op-error = YES.
                 RETURN.
@@ -1236,7 +1234,7 @@ PROCEDURE run-report :
             ar-mcash.actnum     AT 85  SPACE(1)
             tt-post.curr-amt    TO 125 SKIP.
 
-        IF rd-dest = 4 THEN
+        IF rd-dest = 3 THEN
             PUT STREAM excel UNFORMATTED
                 '"' STRING(ar-mcash.m-no) + " " + ar-mcash.payer '",'
                 '"' "" '",'
@@ -1250,7 +1248,7 @@ PROCEDURE run-report :
         DO:
             PUT "**  TOTAL  "  AT 85  g1 TO 125 SKIP.
 
-            IF rd-dest = 4 THEN
+            IF rd-dest = 3 THEN
                 PUT STREAM excel UNFORMATTED
                     '"' "" '",'
                     '"' "" '",'
@@ -1273,7 +1271,7 @@ PROCEDURE run-report :
         DISPLAY  "** GRAND TOTAL  "  AT 85  g2 TO 125
             WITH NO-LABELS NO-UNDERLINE WIDTH 132 FRAME gt.
 
-        IF rd-dest = 4 THEN
+        IF rd-dest = 3 THEN
             PUT STREAM excel UNFORMATTED
                 '"' "" '",'
                 '"' "" '",'
@@ -1301,12 +1299,12 @@ PROCEDURE run-report :
 
     DISPLAY "" WITH FRAME f-top2.
 
-    IF rd-dest = 4 THEN 
+    IF rd-dest = 3 THEN 
     DO:
         excelHeader = 'ACCOUNT,DATE,Rec.#,PAID BY,AMOUNT,'.
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelHeader,',','","') '"' SKIP.
-    END. /* if rd-dest = 4 */
+    END. /* if rd-dest = 3 */
 
     FOR EACH tt-post,
         FIRST ar-mcash NO-LOCK WHERE ROWID(ar-mcash) EQ tt-post.row-id
@@ -1323,7 +1321,7 @@ PROCEDURE run-report :
             IF AVAILABLE account THEN
             DO:
                 PUT SKIP ar-mcash.actnum + " - " + account.dscr FORMAT "x(39)".
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                 DO:
                     v-first = YES.
                     PUT STREAM excel UNFORMATTED
@@ -1335,7 +1333,7 @@ PROCEDURE run-report :
                 MESSAGE "No Account Record Available for Account #: " +
                     ar-mcash.actnum + " for Receipt #: " + STRING(ar-mcash.m-no)
                     VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                     OUTPUT STREAM excel CLOSE.
 
                 op-error = YES.
@@ -1348,7 +1346,7 @@ PROCEDURE run-report :
             ar-mcash.payer                SPACE(1)
             ar-mcash.check-amt           .
 
-        IF rd-dest = 4 THEN
+        IF rd-dest = 3 THEN
         DO:
             IF v-first = NO THEN
                 PUT STREAM excel UNFORMATTED
@@ -1380,7 +1378,7 @@ PROCEDURE run-report :
                 (ACCUM TOTAL BY ar-mcash.actnum ar-mcash.check-amt)
                 FORMAT "->>>,>>>,>>9.99" TO 125 SKIP(1).
 
-            IF rd-dest = 4 THEN
+            IF rd-dest = 3 THEN
                 PUT STREAM excel UNFORMATTED
                     '"' "" '",'
                     '"' "" '",'
@@ -1406,7 +1404,7 @@ PROCEDURE run-report :
             IF AVAILABLE account THEN
             DO:
                 PUT SKIP tt-post.actnum + " - " + account.dscr FORMAT "x(39)".
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                 DO:
                     v-first = YES.
                     PUT STREAM excel UNFORMATTED
@@ -1418,7 +1416,7 @@ PROCEDURE run-report :
                 MESSAGE "No Account Record Available for Account #: " +
                     ar-mcash.actnum + " for Receipt #: " + STRING(ar-mcash.m-no)
                     VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-                IF rd-dest = 4 THEN
+                IF rd-dest = 3 THEN
                     OUTPUT STREAM excel CLOSE.
                 op-error = YES.
                 RETURN.
@@ -1431,7 +1429,7 @@ PROCEDURE run-report :
             tt-post.curr-amt - ar-mcash.check-amt
             FORMAT "->>,>>>,>>9.99".
 
-        IF rd-dest = 4 THEN
+        IF rd-dest = 3 THEN
         DO:
             IF v-first = NO THEN
                 PUT STREAM excel UNFORMATTED
@@ -1463,7 +1461,7 @@ PROCEDURE run-report :
                 (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-mcash.check-amt)
                 FORMAT "->>>,>>>,>>9.99" TO 125 SKIP(1).
 
-            IF rd-dest = 4 THEN
+            IF rd-dest = 3 THEN
                 PUT STREAM excel UNFORMATTED
                     '"' "" '",'
                     '"' "" '",'
@@ -1480,7 +1478,7 @@ PROCEDURE run-report :
         (ACCUM TOTAL tt-post.curr-amt - ar-mcash.check-amt)
         FORMAT "->>>,>>>,>>9.99" TO 125 SKIP(1).
 
-    IF rd-dest = 4 THEN
+    IF rd-dest = 3 THEN
     DO:
         PUT STREAM excel UNFORMATTED
             '"' "" '",'
@@ -1618,7 +1616,7 @@ PROCEDURE pChangeDest :
          Notes:      
         ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        IF rd-dest:SCREEN-VALUE EQ "4" THEN
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
             ASSIGN
                 tb_OpenCSV:SCREEN-VALUE = "Yes"
                 fi_file:SENSITIVE       = YES
