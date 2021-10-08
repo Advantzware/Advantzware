@@ -53,6 +53,8 @@ DEF VAR tot-c-m LIKE w-brd.cost-m NO-UNDO.
 DEF VAR ld-rm-rate AS DEC NO-UNDO.
 DEFINE VARIABLE dSetupCostQtyUOM  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dBoardLength      AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dBoardWidth       AS DECIMAL NO-UNDO.
 
 
 {cec/msfcalc.i}
@@ -96,11 +98,15 @@ do with no-box no-labels frame med1  stream-io :
 
    if xef.n-out-l eq 0 then
      assign
+      dBoardLength = brd-l[2]
+      dBoardWidth = brd-w[2] / (1 - (item-bom.shrink / 100))
       med-qty = brd-w[2] / (1 - (item-bom.shrink / 100))
       med-qty = if v-corr then ((med-qty * brd-l[2]) * mqty) * .000007
                           else ((med-qty * brd-l[2]) * mqty) / 144000.
    else
      assign
+      dBoardLength = brd-l[2] / (1 - (item-bom.shrink / 100))
+      dBoardWidth = brd-w[2]
       med-qty = brd-l[2] / (1 - (item-bom.shrink / 100))
       med-qty = if v-corr then ((med-qty * brd-w[2]) * mqty) * .000007
                           else ((med-qty * brd-w[2]) * mqty) / 144000.
@@ -110,6 +116,7 @@ do with no-box no-labels frame med1  stream-io :
     /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
     IF lNewVendorItemCost THEN
     DO:
+        
         RUN est/getVendorCostinQtyUOM.p(Item.company, 
             item.i-no, 
             "RM", 
@@ -119,6 +126,10 @@ do with no-box no-labels frame med1  stream-io :
             xeb.blank-no,
             med-qty,
             "MSF",
+            dBoardLength,
+            dBoardWidth,
+            0,
+            item.basis-w,
             OUTPUT dCostQtyUOM,
             OUTPUT dSetupCostQtyUOM,
             OUTPUT mfl$).
