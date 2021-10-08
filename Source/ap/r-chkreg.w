@@ -2136,22 +2136,22 @@ PROCEDURE run-report :
     FORMAT HEADER
         "Check    Vendor"
         "Invoice                                 Discount" AT 55
-        "   Check   Pre-Issued" AT 110 SKIP
+        "   Check   Pre-Issued  Delivery  " AT 110 SKIP
         "Number   Number   Name       Check Date"
         "Date      Number                  Due      Taken" AT 55
-        "Amt Paid   Date"       AT 110 SKIP
-        FILL("_",132) FORMAT "x(140)"      SKIP
-        WITH FRAME f-top WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+        "Amt Paid   Date        Method"       AT 110 SKIP
+        FILL("_",140) FORMAT "x(140)"      SKIP
+        WITH FRAME f-top WIDTH 152 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
     
     FORMAT HEADER
         "Check    Vendor"
         "Invoice                                           Discount" AT 55
-        "   Check   Pre-Issued" AT 120 SKIP
+        "   Check   Pre-Issued Delivery " AT 120 SKIP
         "Number   Number   Name       Check Date"
         "Date      Number                            Due      Taken" AT 55
-        "Amt Paid   Date"       AT 120 SKIP
-        FILL("_",142) FORMAT "x(140)"      SKIP
-        WITH FRAME f-top3 WIDTH 142 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
+        "Amt Paid   Date       Method"       AT 120 SKIP
+        FILL("_",150) FORMAT "x(150)"      SKIP
+        WITH FRAME f-top3 WIDTH 162 NO-BOX NO-LABELS NO-UNDERLINE STREAM-IO.
 
 
     SESSION:SET-WAIT-STATE("general").
@@ -2183,7 +2183,7 @@ PROCEDURE run-report :
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
         excelheader = "Check Number,Vendor Number,Name,Check Date,Invoice Date,"
-            + "Number,Due,Discount Taken,Check Amt Paid,Pre-Issued Date".
+            + "Number,Due,Discount Taken,Check Amt Paid,Pre-Issued Date,Delivery Method".
         PUT STREAM excel UNFORMATTED 
             excelheader SKIP.
     END.
@@ -2345,7 +2345,7 @@ PROCEDURE run-report :
             tt-post.curr-bal  TO 101
             tt-post.curr-disc TO 112
             tt-post.curr-paid TO 127
-            WITH FRAME a STREAM-IO WIDTH 142 NO-LABELS NO-BOX.
+            WITH FRAME a STREAM-IO WIDTH 152 NO-LABELS NO-BOX.
         ELSE DISPLAY 
             ap-inv.inv-date           FORMAT "99/99/99"
             SPACE(2)
@@ -2353,7 +2353,7 @@ PROCEDURE run-report :
             tt-post.curr-bal  TO 91
             tt-post.curr-disc TO 102
             tt-post.curr-paid TO 117
-            WITH FRAME a1 STREAM-IO WIDTH 132 NO-LABELS NO-BOX.
+            WITH FRAME a1 STREAM-IO WIDTH 142 NO-LABELS NO-BOX.
 
         IF tb_excel THEN PUT STREAM excel UNFORMATTED
             STRING(ap-inv.inv-date,"99/99/9999") + "," +
@@ -2372,6 +2372,14 @@ PROCEDURE run-report :
                 PUT STREAM excel UNFORMATTED
                     STRING(ap-sel.pre-date,"99/99/9999").
         END.
+             
+        IF lAPInvoiceLength THEN DISPLAY 
+           ap-sel.spare-char-1 TO 151 WITH FRAME a.
+        ELSE DISPLAY 
+           ap-sel.spare-char-1 TO 142 WITH FRAME a1.
+        IF tb_excel THEN
+            PUT STREAM excel UNFORMATTED
+              STRING(ap-sel.spare-char-1).
 
         IF tb_excel THEN
             PUT STREAM excel UNFORMATTED SKIP.

@@ -49,7 +49,7 @@ DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
     FIELD tt-rowid   AS ROWID
     FIELD tt-deleted AS LOG
     FIELD dsc-date   LIKE ap-inv.inv-date
-    FIELD vend-name  AS CHARACTER FORMAT "x(30)"
+    FIELD vend-name  AS CHARACTER FORMAT "x(30)"     
     .
 DEFINE VARIABLE lError     AS LOGICAL         NO-UNDO.
 
@@ -101,8 +101,8 @@ IF lRecFound THEN
 &Scoped-define INTERNAL-TABLES tt-sel ap-pay
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.vend-name tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.vend-name tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid tt-sel.spare-char-1   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid tt-sel.spare-char-1   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define SELF-NAME BROWSE-1
@@ -226,7 +226,7 @@ DEFINE VARIABLE lv-proamt AS DECIMAL FORMAT "$->>>,>>>,>>9.99":U INITIAL ?
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 201.2 BY 5.24.
+     SIZE 230.8 BY 5.24.
 
 DEFINE VARIABLE tb_discount AS LOGICAL INITIAL no 
      LABEL "Include Invoices Available for Discount" 
@@ -246,7 +246,7 @@ DEFINE QUERY F-Main FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      tt-sel.vend-no LABEL "Vendor" LABEL-BGCOLOR 14
+      tt-sel.vend-no LABEL "Vendor" LABEL-BGCOLOR 14       
     tt-sel.vend-name LABEL "Vendor Name" LABEL-BGCOLOR 14
     tt-sel.inv-no LABEL "Invoice Num" LABEL-BGCOLOR 14
     tt-sel.inv-date LABEL "Invoice Date" LABEL-BGCOLOR 14
@@ -256,10 +256,22 @@ DEFINE BROWSE BROWSE-1
     tt-sel.amt-due LABEL "Balance Due" LABEL-BGCOLOR 14
     tt-sel.disc-amt LABEL "Discount" LABEL-BGCOLOR 14
     tt-sel.amt-paid LABEL "To Be Paid" LABEL-BGCOLOR 14
-    ENABLE tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid
+    tt-sel.spare-char-1 COLUMN-LABEL "Delivery Method" FORMAT "x(22)":U LABEL-BGCOLOR 14
+    VIEW-AS COMBO-BOX INNER-LINES 4 
+        LIST-ITEM-PAIRS "USPS normal mail","",
+                     "Overnight to payee UPS","01",
+                     "Overnight to payer UPS","02",
+                     "USPS to payer","03" 
+        DROP-DOWN-LIST  
+    ENABLE 
+    tt-sel.vend-no 
+    tt-sel.inv-no 
+    tt-sel.disc-amt
+    tt-sel.amt-paid
+    tt-sel.spare-char-1
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 202 BY 16.67
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 232 BY 16.67
          BGCOLOR 8 FONT 0.
 
 
@@ -289,7 +301,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.2 ROW 1
-         SIZE 203.4 BY 23.71
+         SIZE 232.4 BY 23.71
          FONT 6.
 
 
@@ -311,7 +323,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Payment Selection by Due Date"
          HEIGHT             = 23.71
-         WIDTH              = 203.4
+         WIDTH              = 233.6
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
          VIRTUAL-HEIGHT     = 53.71
@@ -512,7 +524,8 @@ DO:
                   tt-sel.inv-bal:READ-ONLY = YES
                   tt-sel.amt-due:READ-ONLY = YES*/
                   tt-sel.disc-amt:READ-ONLY = YES
-                  tt-sel.amt-paid:READ-ONLY = YES.
+                  tt-sel.amt-paid:READ-ONLY = YES
+                  tt-sel.spare-char-1:READ-ONLY = YES.
 
     IF lAPInvoiceLength THEN
         ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
@@ -606,7 +619,8 @@ DO:
    tt-sel.inv-bal:READ-ONLY = NO 
    tt-sel.amt-due:READ-ONLY = NO*/
    tt-sel.disc-amt:READ-ONLY = NO
-   tt-sel.amt-paid:READ-ONLY = NO.
+   tt-sel.amt-paid:READ-ONLY = NO
+   tt-sel.spare-char-1:READ-ONLY = NO.
  
    BROWSE {&browse-name}:INSERT-ROW("after").
    APPLY "entry" TO tt-sel.vend-no IN BROWSE {&browse-name}.
@@ -632,7 +646,7 @@ DO:
       ASSIGN tt-sel.amt-due = (tt-sel.inv-bal - tt-sel.disc-amt)
              tt-sel.amt-paid = tt-sel.amt-due.
 
-      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid WITH BROWSE {&browse-name}
+      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid tt-sel.spare-char-1 WITH BROWSE {&browse-name}
               .    
       ASSIGN tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
              tt-sel.vend-no:READ-ONLY = YES
@@ -640,7 +654,8 @@ DO:
              tt-sel.inv-bal:READ-ONLY = YES
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
-             tt-sel.amt-paid:READ-ONLY = NO.
+             tt-sel.amt-paid:READ-ONLY = NO
+             tt-sel.spare-char-1:READ-ONLY = NO.
       
   END.
   ELSE DO:  /* add and cancel */
@@ -748,7 +763,8 @@ DO:
                  tt-sel.inv-bal:READ-ONLY = YES
                  tt-sel.amt-due:READ-ONLY = YES*/
                  tt-sel.disc-amt:READ-ONLY = NO                 
-                 tt-sel.amt-paid:READ-ONLY = NO.
+                 tt-sel.amt-paid:READ-ONLY = NO
+                 tt-sel.spare-char-1:READ-ONLY = NO.
           SELF:LABEL = "Update".
           disable btn-cancel WITH FRAME {&FRAME-NAME}.
           ENABLE btn-change btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
@@ -773,7 +789,8 @@ DO:
              tt-sel.inv-bal:READ-ONLY = YES
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
-             tt-sel.amt-paid:READ-ONLY = NO.
+             tt-sel.amt-paid:READ-ONLY = NO
+             tt-sel.spare-char-1:READ-ONLY = NO.
           ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
           DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
           APPLY "entry" TO tt-sel.disc-amt IN BROWSE {&browse-name}.
@@ -926,12 +943,13 @@ DO:
         IF NOT AVAIL ap-sel THEN DO:
             CREATE ap-sel.
             BUFFER-COPY tt-sel /*EXCEPT tt-recid tt-sel.amt-due*/ TO ap-sel.
-        END.
+        END.  MESSAGE "tt-sel.spare-char-1 " STRING(tt-sel.spare-char-1) VIEW-AS ALERT-BOX ERROR .
         IF tt-sel.tt-deleted THEN DELETE ap-sel.
         IF AVAIL ap-sel THEN
         ASSIGN
             ap-sel.amt-paid = tt-sel.amt-paid
-            ap-sel.disc-amt = tt-sel.disc-amt.
+            ap-sel.disc-amt = tt-sel.disc-amt
+            ap-sel.spare-char-1 = tt-sel.spare-char-1.
         FIND CURRENT ap-sel NO-LOCK.
     END.
     /*SET Up AP-CHK*/
@@ -1410,7 +1428,8 @@ PROCEDURE build-table :
    BUFFER-COPY ap-sel TO tt-sel
    ASSIGN
     tt-sel.tt-rowid = ROWID(ap-sel)
-    tt-sel.amt-due  = ap-sel.inv-bal - ap-sel.disc-amt.
+    tt-sel.amt-due  = ap-sel.inv-bal - ap-sel.disc-amt
+    tt-sel.spare-char-1 = ap-sel.spare-char-1.
 
     fi_amt = fi_amt + ap-sel.amt-paid.
 /*     tt-sel.dsc-date = ap-inv.inv-date. */
@@ -1759,6 +1778,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength W-Win 
+PROCEDURE pAPInvoiceLength :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAPInvoiceLength THEN
+        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
+    ELSE 
+        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPaymentAmount W-Win 
 PROCEDURE pCheckPaymentAmount :
 /*------------------------------------------------------------------------------
@@ -1788,6 +1824,30 @@ PROCEDURE pCheckPaymentAmount :
     MESSAGE
         "Over Payment is NOT Allowed!"
     VIEW-AS ALERT-BOX ERROR.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorName W-Win 
+PROCEDURE pGetVendorName :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcVendor AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.  
+  
+  FIND FIRST vend NO-LOCK
+       WHERE vend.company EQ ipcCompany
+       and vend.vend-no EQ ipcVendor 
+       use-index vend  no-error.
+       
+       IF avail vend THEN     
+       opcVendorName = vend.NAME .   
 
 END PROCEDURE.
 
@@ -1860,32 +1920,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorName W-Win 
-PROCEDURE pGetVendorName :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipcVendor AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.  
-  
-  FIND FIRST vend NO-LOCK
-       WHERE vend.company EQ ipcCompany
-       and vend.vend-no EQ ipcVendor 
-       use-index vend  no-error.
-       
-       IF avail vend THEN     
-       opcVendorName = vend.NAME .   
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION CheckForNegative W-Win 
@@ -1925,19 +1959,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAPInvoiceLength W-Win 
-PROCEDURE pAPInvoiceLength :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    IF lAPInvoiceLength THEN
-        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 30.
-    ELSE 
-        ASSIGN tt-sel.inv-no:WIDTH IN BROWSE {&browse-name} = 20.
-        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

@@ -96,10 +96,11 @@ IF lRecFound THEN
 &Scoped-define INTERNAL-TABLES tt-sel
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.inv-no tt-sel.due-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.inv-no tt-sel.due-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid tt-sel.spare-char-1
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.inv-no ~
   tt-sel.disc-amt ~
-  tt-sel.amt-paid   
+  tt-sel.amt-paid ~
+  tt-sel.spare-char-1
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define SELF-NAME BROWSE-1
@@ -214,10 +215,18 @@ DEFINE BROWSE BROWSE-1
     tt-sel.inv-bal  LABEL "Invoice Amt" LABEL-BGCOLOR 14 
     tt-sel.amt-due  LABEL "Balance Due" LABEL-BGCOLOR 14 
     tt-sel.disc-amt LABEL "Discount"    LABEL-BGCOLOR 14 
-    tt-sel.amt-paid LABEL "To Be Paid"  LABEL-BGCOLOR 14 
+    tt-sel.amt-paid LABEL "To Be Paid"  LABEL-BGCOLOR 14
+    tt-sel.spare-char-1 COLUMN-LABEL "Delivery Method" FORMAT "x(22)":U LABEL-BGCOLOR 14
+    VIEW-AS COMBO-BOX INNER-LINES 4 
+        LIST-ITEM-PAIRS "USPS normal mail","",
+                     "Overnight to payee UPS","01",
+                     "Overnight to payer UPS","02",
+                     "USPS to payer","03"
+        DROP-DOWN-LIST
     ENABLE tt-sel.inv-no
            tt-sel.disc-amt
            tt-sel.amt-paid
+           tt-sel.spare-char-1
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 148 BY 17.86
@@ -400,7 +409,8 @@ DO:
                 tt-sel.inv-bal:READ-ONLY = YES
                 tt-sel.amt-due:READ-ONLY = YES*/
                 tt-sel.disc-amt:READ-ONLY = YES
-                tt-sel.amt-paid:READ-ONLY = YES.
+                tt-sel.amt-paid:READ-ONLY = YES
+                tt-sel.spare-char-1:READ-ONLY = YES .
    
     IF lAPInvoiceLength THEN
         ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
@@ -535,7 +545,8 @@ DO:
    tt-sel.inv-bal:READ-ONLY = NO 
    tt-sel.amt-due:READ-ONLY = NO*/
    tt-sel.disc-amt:READ-ONLY = NO
-   tt-sel.amt-paid:READ-ONLY = NO.
+   tt-sel.amt-paid:READ-ONLY = NO
+   tt-sel.spare-char-1:READ-ONLY = NO .
 
    BROWSE {&browse-name}:INSERT-ROW("after").
    APPLY "entry" TO tt-sel.inv-no IN BROWSE {&browse-name}.
@@ -562,7 +573,7 @@ DO:
       ASSIGN tt-sel.amt-due = (tt-sel.inv-bal - tt-sel.disc-amt)
              tt-sel.amt-paid = tt-sel.amt-due.
 
-      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid WITH BROWSE {&browse-name}
+      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid tt-sel.spare-char-1 WITH BROWSE {&browse-name}
               .    
       btn-change:LABEL = "Update".
       ASSIGN tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -570,7 +581,8 @@ DO:
              tt-sel.inv-bal:READ-ONLY = YES
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
-             tt-sel.amt-paid:READ-ONLY = NO.
+             tt-sel.amt-paid:READ-ONLY = NO
+             tt-sel.spare-char-1:READ-ONLY = NO .
       
       ENABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
   END.
@@ -666,10 +678,11 @@ DO:
           ASSIGN ap-inv.paid = ap-inv.paid - lv-pre-paid
                  ap-inv.due = ap-inv.due + lv-pre-paid + lv-pre-disc
                  .
-     */
+     */     
            ASSIGN tt-sel.disc-amt = dec(tt-sel.disc-amt:SCREEN-VALUE IN BROWSE {&browse-name})
                   tt-sel.amt-due = dec(tt-sel.amt-due:SCREEN-VALUE)
-                  tt-sel.amt-paid = dec(tt-sel.amt-paid:SCREEN-VALUE).
+                  tt-sel.amt-paid = dec(tt-sel.amt-paid:SCREEN-VALUE)
+                  tt-sel.spare-char-1 = tt-sel.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} .
 
 /* removed by stacey */
 /*           lv-amount = lv-amount + tt-sel.amt-paid. */
@@ -686,7 +699,8 @@ DO:
                  tt-sel.inv-bal:READ-ONLY = YES
                  tt-sel.amt-due:READ-ONLY = YES*/
                  tt-sel.disc-amt:READ-ONLY = NO                 
-                 tt-sel.amt-paid:READ-ONLY = NO.
+                 tt-sel.amt-paid:READ-ONLY = NO
+                 tt-sel.spare-char-1:READ-ONLY = NO .
 
           SELF:LABEL = "Update".
           disable btn-cancel WITH FRAME {&FRAME-NAME}.
@@ -711,7 +725,8 @@ DO:
              tt-sel.inv-bal:READ-ONLY = YES
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
-             tt-sel.amt-paid:READ-ONLY = NO.
+             tt-sel.amt-paid:READ-ONLY = NO
+             tt-sel.spare-char-1:READ-ONLY = NO .
 
           ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
           DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
@@ -745,7 +760,8 @@ DO:
            tt-sel.inv-bal:READ-ONLY = YES
            tt-sel.amt-due:READ-ONLY = YES*/
            tt-sel.disc-amt:READ-ONLY = NO                 
-           tt-sel.amt-paid:READ-ONLY = NO.
+           tt-sel.amt-paid:READ-ONLY = NO
+           tt-sel.spare-char-1:READ-ONLY = NO .
 
     DISABLE btn-change btn-add btn-cancel btn-delete WITH FRAME {&FRAME-NAME}.
     ll-continue = YES.
@@ -823,7 +839,8 @@ DO:
             BUFFER-COPY tt-sel EXCEPT tt-recid tt-sel.amt-due TO ap-sel.
         END.
         ELSE ASSIGN ap-sel.amt-paid = tt-sel.amt-paid
-                    ap-sel.disc-amt = tt-sel.disc-amt.
+                    ap-sel.disc-amt = tt-sel.disc-amt
+                    ap-sel.spare-char-1 = tt-sel.spare-char-1 .
         FIND CURRENT ap-sel NO-LOCK.
     END.
     
