@@ -358,6 +358,42 @@ FOR EACH prep NO-LOCK
 
 END.
 
+FOR EACH vendItemCost
+        WHERE vendItemCost.company EQ ITEM.company
+        AND vendItemCost.itemID    EQ ITEM.i-no
+        AND vendItemCost.itemType  EQ "RM"
+        NO-LOCK:
+    {rm/updrmitm.i vendItemCost itemID NO}
+END.
+
+FOR EACH estCostMaterial
+        WHERE estCostMaterial.company EQ ITEM.company
+        AND estCostMaterial.itemID    EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i estCostMaterial itemID NO}
+END.
+
+FOR EACH estCostItem
+        WHERE estCostItem.company EQ ITEM.company
+        AND estCostItem.itemID    EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i estCostItem itemID NO}
+END.
+
+FOR EACH estMaterial
+        WHERE estMaterial.company EQ ITEM.company
+        AND estMaterial.itemID    EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i estMaterial itemID NO}
+END.
+
+FOR EACH estPacking
+        WHERE estPacking.company EQ ITEM.company
+        AND estPacking.rmItemID    EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i estPacking rmItemID NO}
+END.
+
 DO TRANSACTION:
   IF AVAIL b-item THEN DELETE item.
   
