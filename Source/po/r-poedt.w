@@ -144,9 +144,8 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     VIEW-AS RADIO-SET VERTICAL
     RADIO-BUTTONS 
     "To Printer", 1,
-    "To Screen", 2,
-    "To File", 3
-    SIZE 16.4 BY 3.81 NO-UNDO.
+    "To Screen", 2
+    SIZE 16.4 BY 3 NO-UNDO.
 
 DEFINE VARIABLE tb_printed     AS CHARACTER 
     VIEW-AS RADIO-SET HORIZONTAL
@@ -158,7 +157,7 @@ DEFINE VARIABLE tb_printed     AS CHARACTER
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 4.33.
+    SIZE 91 BY 3.33.
 
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -207,25 +206,25 @@ DEFINE FRAME FRAME-A
     tb_printed AT ROW 8.19 COL 30.6 NO-LABELS
     lv-ornt AT ROW 10.76 COL 42.4 NO-LABELS
     lines-per-page AT ROW 10.76 COL 86.4 COLON-ALIGNED
-    rd-dest AT ROW 10.81 COL 4.6 NO-LABELS
+    rd-dest AT ROW 10.71 COL 4.6 NO-LABELS
     lv-font-no AT ROW 10.81 COL 32 COLON-ALIGNED
-    lv-font-name AT ROW 11.91 COL 28.4 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 13.71 COL 27.2
-    tbAutoClose AT ROW 14.86 COL 27.2 WIDGET-ID 64
-    btn-ok AT ROW 15.86 COL 27
-    btn-cancel AT ROW 15.86 COL 51.6
+    lv-font-name AT ROW 10.91 COL 28.4 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 11.71 COL 27.2
+    tbAutoClose AT ROW 12.86 COL 27.2 WIDGET-ID 64
+    btn-ok AT ROW 13.86 COL 27
+    btn-cancel AT ROW 13.86 COL 51.6
     "PO for:" VIEW-AS TEXT
     SIZE 7.6 BY .62 AT ROW 8.52 COL 22
     " Selection Parameters" VIEW-AS TEXT
     SIZE 21 BY .71 AT ROW 1.05 COL 4
     " Output Destination" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 10.05 COL 4
+    SIZE 19 BY .62 AT ROW 10.10 COL 4
     RECT-6 AT ROW 10.48 COL 3
     RECT-7 AT ROW 1.48 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1
-    SIZE 95.8 BY 21.71
+    SIZE 95.8 BY 15.11
     BGCOLOR 15 .
 
 
@@ -246,7 +245,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
         TITLE              = "PO Edit List"
-        HEIGHT             = 16.38
+        HEIGHT             = 15.08
         WIDTH              = 95
         MAX-HEIGHT         = 33.29
         MAX-WIDTH          = 204.8
