@@ -275,9 +275,8 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To Email", 5,
-    "To File", 3
-    SIZE 16.4 BY 5.33 NO-UNDO.
+    "To Email", 5
+    SIZE 16.4 BY 4.83 NO-UNDO.
 
 DEFINE VARIABLE rd_ack-ordmst  AS CHARACTER 
     VIEW-AS RADIO-SET HORIZONTAL

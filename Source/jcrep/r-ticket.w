@@ -320,8 +320,7 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To Email", 5,
-    "To File", 3
+    "To Email", 5
     SIZE 16.8 BY 4.29 NO-UNDO.
 
 DEFINE VARIABLE rd_print-Sheet AS CHARACTER 
@@ -565,9 +564,9 @@ DEFINE FRAME FRAME-A
     lines-per-page AT ROW 18.62 COL 91 COLON-ALIGNED
     rd-dest AT ROW 18.86 COL 5 NO-LABELS
     lv-font-name AT ROW 19.81 COL 58 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 21.33 COL 41
+    td-show-parm AT ROW 21.33 COL 31.4
     run_format AT ROW 21.95 COL 69 COLON-ALIGNED WIDGET-ID 12
-    tb_ExportXML AT ROW 22.05 COL 41 WIDGET-ID 20
+    tb_ExportXML AT ROW 22.05 COL 31.4 WIDGET-ID 20
     tbAutoClose AT ROW 23.48 COL 31.4 WIDGET-ID 64
     btn-ok AT ROW 24.33 COL 31.2
     btn-cancel AT ROW 24.33 COL 55.2

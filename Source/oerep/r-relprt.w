@@ -292,8 +292,7 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 1
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To Email", 5,
-    "To File", 3
+    "To Email", 5
     SIZE 17 BY 5.14 NO-UNDO.
 
 DEFINE VARIABLE rd-print-what  AS CHARACTER INITIAL "I" 
