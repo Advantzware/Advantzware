@@ -7602,19 +7602,16 @@ PROCEDURE OnSaveButton :
         FIND CURRENT oe-ord EXCLUSIVE.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
-        DO:      
-            IF NOT cPromManualChanged AND cDueManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date,
-                    INPUT oe-ordl.prom-date,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.prom-date = dCalcPromDate.
-            END.
-            ELSE
+        DO:             
+            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                INPUT oe-ordl.req-date,
+                INPUT oe-ordl.prom-date,
+                INPUT "DueDate",
+                INPUT ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate).
+            oe-ordl.prom-date = dCalcPromDate.
+            
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
