@@ -61,6 +61,7 @@ DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*C
 DEFINE VARIABLE glPromptForMaterialVendor             AS LOGICAL   NO-UNDO.  /*CEVENDOR*/
 DEFINE VARIABLE glUseBlankVendor                      AS LOGICAL   NO-UNDO.  /*CEVendorDefault*/
 DEFINE VARIABLE glUseGrossWeight                      AS LOGICAL   NO-UNDO.  /*CEShipWeight*/
+DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*FOAMCOST*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -2036,6 +2037,40 @@ PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
  
 END PROCEDURE.
 
+PROCEDURE pCalcBoardCostFromBlank PRIVATE:
+    /*------------------------------------------------------------------------------
+      Purpose: Calculate material dimension from blank
+      Notes: If N-K-1 FoamCost = Blank then calculate Total Cost using eb dimenstions
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
+    DEFINE PARAMETER BUFFER opbf-estCostMaterial FOR estCostMaterial.
+    
+    DEFINE VARIABLE lFoam  AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
+    
+    IF NOT glCalcFoamCostFromBlank  THEN
+        RETURN.
+        
+    lFoam = IsFoamStyle (ipbf-estCostForm.company, ipbf-estCostForm.estimateNo, ipbf-estCostForm.formNo).
+        
+    IF lFoam THEN
+    DO:
+        FIND FIRST bf-estCostBlank NO-LOCK 
+            WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
+              AND bf-estCostBlank.estCostFormID   EQ ipbf-estCostForm.estCostFormID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostBlank THEN
+            ASSIGN 
+                opbf-estCostMaterial.dimLength               = bf-estCostBlank.blankLength
+                opbf-estCostMaterial.dimWidth                = bf-estCostBlank.blankWidth
+                opbf-estCostMaterial.dimDepth                = bf-estCostBlank.blankDepth
+                opbf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityRequired
+                .
+    END.  
+
+END PROCEDURE.
+
 PROCEDURE pCalcHeaderCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Calculates all costs for the cost header based on operations and materials
@@ -3982,6 +4017,9 @@ PROCEDURE pProcessBoard PRIVATE:
             bf-estCostMaterial.dimDepth                   = ipbf-estCostForm.grossDepth
             bf-estCostMaterial.noCharge                   = ipbf-estCostForm.noCost
             .
+        
+        RUN pCalcBoardCostFromBlank (BUFFER ipbf-estCostForm, BUFFER bf-estCostMaterial).
+            
         cMaterialTypeCalculation = fGetMatTypeCalc(bf-estCostMaterial.company, bf-estCostMaterial.materialType).
         IF cMaterialTypeCalculation NE gcMaterialTypeCalcDefault THEN
             RUN pProcessMaterialTypeCalc(BUFFER bf-estCostMaterial, cMaterialTypeCalculation).
@@ -5186,7 +5224,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
 
     RUN sys/ref/nk1look.p (ipcCompany, "CEShipWeight", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
     glUseGrossWeight = lFound AND cReturn EQ "Gross".
-
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "FOAMCOST", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    glCalcFoamCostFromBlank = lFound AND cReturn EQ "Blank".
+    
 END PROCEDURE.
 
 

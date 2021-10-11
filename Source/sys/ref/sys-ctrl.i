@@ -319,6 +319,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        .
 END.
 
+&IF DEFINED(sysCtrlIncludeOnly) EQ 0 &THEN
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND
     ASI.item-spec.i-no = '' NO-LOCK  
@@ -348,3 +349,4 @@ FOR EACH DateRules NO-LOCK:
     str-init[186] = str-init[186] + dateRules.dateRuleID + ",".
 END. /* each daterules */
 str-init[186] = TRIM(str-init[186],",").
+&ENDIF

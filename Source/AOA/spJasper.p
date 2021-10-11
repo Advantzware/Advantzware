@@ -208,6 +208,7 @@ PROCEDURE pCreateDir:
 
     /* ensure needed folders exist */
     OS-CREATE-DIR "TaskResults".
+    OS-CREATE-DIR VALUE("TaskResults/" + STRING(YEAR(TODAY),"9999") + "." + STRING(MONTH(TODAY),"99")).
     OS-CREATE-DIR "users".
     opcUserFolder = "users/" + aoaUserID + "/".
     OS-CREATE-DIR VALUE(opcUserFolder).
@@ -1569,28 +1570,28 @@ PROCEDURE pJasperStarter :
             cTemplate[1] = SEARCH(cUserFolder + cFileName + ".jrxml")
             cTemplate[2] = cTemplate[1]
             .
-/*        IF dynParamValue.onePer AND cTemplate[1] NE ? THEN DO:                                                          */
-/*            cTemplate[2] = REPLACE(cTemplate[1],".jrxml",STRING(idx) + ".jrxml").                                       */
-/*            INPUT STREAM sTemplate FROM VALUE(cTemplate[1]) NO-ECHO.                                                    */
-/*            OUTPUT STREAM sJasper TO VALUE(cTemplate[2]).                                                               */
-/*            REPEAT:                                                                                                     */
-/*                IMPORT STREAM sTemplate UNFORMATTED cText.                                                              */
-/*                IF INDEX(cText,"net.sf.jasperreports.data.adapter") NE 0 THEN NEXT.                                     */
-/*                                                                                                                        */
-/*                IF INDEX(cText,"com.jaspersoft.studio.data.defaultdataadapter") NE 0 THEN                               */
-/*                cText = '    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>'.*/
-/*                                                                                                                        */
-/*                IF INDEX(cText,"jsonFormFile") NE 0 THEN                                                                */
-/*                cText = REPLACE(cText,"jsonFormFile",ttTaskFile.taskFile).                                              */
-/*                                                                                                                        */
-/*                IF cText NE "" THEN                                                                                     */
-/*                PUT STREAM sJasper UNFORMATTED cText SKIP.                                                              */
-/*                ELSE                                                                                                    */
-/*                PUT STREAM sJasper UNFORMATTED SKIP(1).                                                                 */
-/*            END. /* repeat */                                                                                           */
-/*            OUTPUT STREAM sJasper CLOSE.                                                                                */
-/*            INPUT STREAM sTemplate CLOSE.                                                                               */
-/*        END. /* if oneper */                                                                                            */
+        IF dynParamValue.onePer AND cTemplate[1] NE ? THEN DO:
+            cTemplate[2] = REPLACE(cTemplate[1],".jrxml",STRING(idx) + ".jrxml").
+            INPUT STREAM sTemplate FROM VALUE(cTemplate[1]) NO-ECHO.
+            OUTPUT STREAM sJasper TO VALUE(cTemplate[2]).
+            REPEAT:
+                IMPORT STREAM sTemplate UNFORMATTED cText.
+                IF INDEX(cText,"net.sf.jasperreports.data.adapter") NE 0 THEN NEXT.
+
+                IF INDEX(cText,"com.jaspersoft.studio.data.defaultdataadapter") NE 0 THEN
+                cText = '    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>'.
+
+                IF INDEX(cText,"jsonFormFile") NE 0 THEN
+                cText = REPLACE(cText,"jsonFormFile",ttTaskFile.taskFile).
+
+                IF cText NE "" THEN
+                PUT STREAM sJasper UNFORMATTED cText SKIP.
+                ELSE
+                PUT STREAM sJasper UNFORMATTED SKIP(1).
+            END. /* repeat */
+            OUTPUT STREAM sJasper CLOSE.
+            INPUT STREAM sTemplate CLOSE.
+        END. /* if oneper */
         ASSIGN
             dtDate         = TODAY
             iTime          = TIME
@@ -1599,9 +1600,9 @@ PROCEDURE pJasperStarter :
             cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
             cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
             cJasperFile[4] = "TaskResults/"
+                           + STRING(YEAR(dtDate),"9999") + "."
+                           + STRING(MONTH(dtDate),"99") + "/"
                            + REPLACE(aoaTitle," ","") + "."
-                           + STRING(YEAR(dtDate),"9999")
-                           + STRING(MONTH(dtDate),"99")
                            + STRING(DAY(dtDate),"99") + "."
                            + STRING(iTime,"99999")
             cJasperFile[5] = IF ipcType EQ "view" THEN REPLACE(cJasperFile[2],".json",".err")

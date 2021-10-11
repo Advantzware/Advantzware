@@ -1,9 +1,17 @@
 /* setCellColumns.i */
 
-DEFINE VARIABLE cellColumn AS WIDGET-HANDLE NO-UNDO EXTENT 200.
-DEFINE VARIABLE columnWidth AS DECIMAL NO-UNDO EXTENT 200.
-DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cellColumn      AS WIDGET-HANDLE NO-UNDO EXTENT 200.
+DEFINE VARIABLE columnWidth     AS DECIMAL       NO-UNDO EXTENT 200.
+DEFINE VARIABLE columnVisible   AS LOGICAL       NO-UNDO EXTENT 200.
+DEFINE VARIABLE columnLabel     AS CHARACTER     NO-UNDO EXTENT 200.
+DEFINE VARIABLE cellColumnDat   AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE lAutoSave       AS LOGICAL       NO-UNDO.
+DEFINE VARIABLE cCharHandle     AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE hdProgram       AS HANDLE        NO-UNDO.  
+DEFINE VARIABLE cWindowProgram  AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE cCurrentProgram AS CHARACTER     NO-UNDO.
+
+DEFINE VARIABLE oUserColumn AS system.UserColumn NO-UNDO.
 
 /* create a &SCOPED-DEFINE cellColumnDat value prior to this include
    if another file name is desired to store user cell column order */
@@ -13,12 +21,27 @@ DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
 
 cellColumnDat = './users/' + USERID('ASI') + '/{&cellColumnDat}.dat'.
 
-
+ON "CTRL-S" OF FRAME {&FRAME-NAME} ANYWHERE
+DO:
+    DEFINE VARIABLE lApplyChanges AS LOGICAL NO-UNDO.
+    
+    IF cellColumnDat NE "" AND "{&BROWSE-NAME}" NE "" THEN DO:
+        /* Fetch the updated changes from browse before displaying, as user still have an option to reposition and resize columns  */
+        oUserColumn:SetUserColumnFromBrowse().
+        
+        RUN windows/dUserColumn.w (oUserColumn, OUTPUT lApplyChanges).
+        
+        IF lApplyChanges THEN
+            oUserColumn:UpdateBrowse().
+    END.
+    
+    RETURN NO-APPLY.
+END.
 
 /* **********************  Internal Procedures  *********************** */
 
 
-PROCEDURE pmoveDatFileToDb PRIVATE:
+PROCEDURE pMoveDatFileToDb PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Move data of .DAT file into database.
  Notes:
@@ -66,70 +89,47 @@ PROCEDURE setCellColumns:
   DEFINE VARIABLE j AS INTEGER NO-UNDO INITIAL 1.
   DEFINE VARIABLE k AS INTEGER NO-UNDO.
   DEFINE VARIABLE v-index AS INT NO-UNDO.
-  
+
+  DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
   lAutoSave = YES.
   
+  {methods/run_link.i "CONTAINER-SOURCE" "GetProgramAndPage" "(OUTPUT cWindowProgram)"}
+  
+  ASSIGN
+      cCurrentProgram = PROGRAM-NAME(1)
+      cCurrentProgram = REPLACE(cCurrentProgram, "\", "/")
+      cCurrentProgram = SUBSTRING(cCurrentProgram,1,INDEX(cCurrentProgram,".") - 1)
+      cCurrentProgram = ENTRY(NUM-ENTRIES(cCurrentProgram," "), cCurrentProgram," ")
+      .
+          
+  cCurrentProgram = cWindowProgram + "/" + cCurrentProgram.
+  
   IF SEARCH(cellColumnDat) NE ? THEN
-      RUN pmoveDatFileToDb.
-      
+      RUN pMoveDatFileToDb.
+  
+  /* Update existing records to new program name */
   IF CAN-FIND(FIRST userColumn WHERE userColumn.usrid EQ USERID('ASI') 
                 AND userColumn.programName EQ "{&cellColumnDat}" ) THEN DO:       
-                    
-     /* change default columns to user order */
-     DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-        cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i).
+     FOR EACH userColumn EXCLUSIVE-LOCK
+         WHERE userColumn.usrId       EQ USERID('ASI') 
+           AND userColumn.programName EQ cCurrentProgram:
+         DELETE userColumn.   
      END.
-     
-     FOR EACH userColumn NO-LOCK
+
+     FOR EACH userColumn EXCLUSIVE-LOCK
          WHERE userColumn.usrId       EQ USERID('ASI') 
            AND userColumn.programName EQ "{&cellColumnDat}":
-         IF userColumn.colPosition = j THEN              
-             ASSIGN 
-                 userColumn[j]  = userColumn.colName        
-                 columnWidth[j] = userColumn.colWidth               
-                 j = j + 1
-                 .  
-      END.
-    
-     j = j - 1.
-     OUTERLOOP:
-     DO i = 1 TO j:
-     
-        DO k = 1 TO j:
-            IF NOT VALID-HANDLE(cellColumn[k]) THEN
-                LEAVE.
-            IF userColumn[i] EQ cellColumn[k]:NAME THEN
-                LEAVE.
-        END.
-
-        /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
-        IF NOT VALID-HANDLE(cellColumn[k]) THEN DO:
-            lAutoSave = YES.
-            LEAVE OUTERLOOP.
-            
-        END.
-        /* 25841 - end */
-        
-        IF columnWidth[i] NE cellColumn[k]:WIDTH-PIXELS THEN
-           cellColumn[k]:WIDTH-PIXELS = columnWidth[i].
-
-        IF userColumn[i] NE cellColumn[i]:NAME THEN DO:
-    
-           {&BROWSE-NAME}:MOVE-COLUMN(k,i) IN FRAME {&FRAME-NAME}.
-          
-           DO v-index = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-              cellColumn[v-index] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(v-index).
-           END.
-        END.
-     END. /* do i */
-
-  END. /* IF CAN-FIND */
-  /* read new order to check for changes when exiting */
-  DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    ASSIGN
-      cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i)
-      columnWidth[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS.
-  END. /* do i */
+         userColumn.programName = cCurrentProgram.    
+     END.
+  END.
+  
+  IF NOT VALID-OBJECT(oUserColumn) THEN
+    oUserColumn = NEW system.UserColumn (BROWSE {&BROWSE-NAME}:HANDLE, cCurrentProgram).
+  
+  oUserColumn:UpdateBrowse().
+  
 END PROCEDURE.
 
 PROCEDURE local-destroy:
@@ -143,42 +143,16 @@ PROCEDURE local-destroy:
   DEFINE VARIABLE j AS INTEGER NO-UNDO.
   DEFINE VARIABLE saveChanges AS LOG INITIAL NO NO-UNDO.
   
-  DEFINE BUFFER bf-userColumn FOR userColumn.
-
   /* check for any columns changes */
-  DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
-       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS 
-       AND NOT lAutoSave THEN NEXT. 
-    IF NOT lAutoSave THEN 
-        MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO UPDATE saveChanges.
-    IF saveChanges OR lAutoSave THEN DO:
-      IF CAN-FIND (FIRST userColumn WHERE userColumn.usrid EQ USERID('ASI') 
-                     AND userColumn.programName EQ "{&cellColumnDat}" ) THEN DO:
-         FOR EACH bf-userColumn EXCLUSIVE-LOCK 
-             WHERE bf-userColumn.usrid       EQ USERID('ASI')
-               AND bf-userColumn.programName EQ "{&cellColumnDat}":
-             DELETE bf-userColumn.
-         END.    
-      END.       
-      
-      DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
+  IF NOT lAutoSave THEN 
+      MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
+      QUESTION BUTTONS YES-NO UPDATE saveChanges.
+  IF saveChanges OR lAutoSave THEN
+      oUserColumn:SetUserColumnFromBrowse().
     
-        CREATE bf-userColumn.
-        ASSIGN 
-            bf-userColumn.colName     = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME
-            bf-userColumn.colWidth    = {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS
-            bf-userColumn.colPosition = j
-            bf-userColumn.usrId       = USERID("ASI")
-            bf-userColumn.programName = "{&cellColumnDat}"
-            .
-        RELEASE bf-userColumn.   
-      END. /* do j */
-    END. /* if savechanges */
-    LEAVE.
-  END. /* do i */
-
+  IF VALID-OBJECT (oUserColumn) THEN
+      DELETE OBJECT oUserColumn.
+      
   &IF DEFINED(xlocal-destroy) &THEN
     RUN xlocal-destroy.
   &ENDIF

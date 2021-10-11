@@ -358,7 +358,7 @@ FOR EACH po-ordl
   IF AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry EQ "2" THEN
     PUT {1} "Flute: " item.flute space(2) item.reg-no format "x(6)".
 
-  run po/po-ordls.p (recid(po-ordl)).
+  
             
   {po/poprints.i}
 

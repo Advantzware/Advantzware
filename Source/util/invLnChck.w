@@ -727,7 +727,7 @@ PROCEDURE run-process :
         UPDATE ll.
     IF ll THEN 
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-        open-mime-resource "text/plain" string("file:///" + fi_file_path) false.
+        open-mime-resource "text/plain" string("file:///" + fi_file_path) NOT-EMBEDDED.
 &ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
 &ENDIF

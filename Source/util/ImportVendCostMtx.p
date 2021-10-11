@@ -376,7 +376,7 @@ PROCEDURE pValidate PRIVATE:
            RUN pIsValidFromList ("Quantity Basis", ipbf-ttImportVendCostMtx.useQuantityFromBase, "From,Up To", OUTPUT oplValid, OUTPUT cValidNote). 
         
         IF oplValid AND ipbf-ttImportVendCostMtx.estimateNo NE "" THEN
-           RUN pIsValidEstimateFormBlank IN hdValidator (ipbf-ttImportVendCostMtx.estimateNo, ipbf-ttImportVendCostMtx.formNo, ipbf-ttImportVendCostMtx.blankNo, NO, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
+           RUN pIsValidEstimateFBWithAllowZeroBlank IN hdValidator (ipbf-ttImportVendCostMtx.estimateNo, ipbf-ttImportVendCostMtx.formNo, ipbf-ttImportVendCostMtx.blankNo, ipbf-ttImportVendCostMtx.Company, OUTPUT oplValid, OUTPUT cValidNote).
          
     END.
     

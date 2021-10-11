@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InvoicePrint" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="InvoicePrintAdapter.xml"/>
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+    <style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false"/>
+    <style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false"/>
+    <style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true"/>
+    <style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+            <style mode="Opaque" backcolor="#F0EFEF"/>
+        </conditionalStyle>
+    </style>
+    <style name="Detail1_CH" mode="Opaque" backcolor="#BFE1FF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Detail1_TD" mode="Opaque" backcolor="#F0F8FF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Summary1_TH" mode="Opaque" backcolor="#BFE1FF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Summary1_CH" mode="Opaque" backcolor="#F0F8FF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <style name="Summary1_TD" mode="Opaque" backcolor="#FFFFFF">
+        <box>
+            <pen lineWidth="0.5" lineColor="#000000"/>
+            <topPen lineWidth="0.5" lineColor="#000000"/>
+            <leftPen lineWidth="0.5" lineColor="#000000"/>
+            <bottomPen lineWidth="0.5" lineColor="#000000"/>
+            <rightPen lineWidth="0.5" lineColor="#000000"/>
+        </box>
+    </style>
+    <subDataset name="Detail1">
+        <property name="net.sf.jasperreports.data.adapter" value="InvoicePrintAdapter.xml"/>
+        <property name="net.sf.jasperreports.json.source" value="jsonFormFile"/>
+        <parameter name="paramRecordID" class="java.lang.String"/>
+        <queryString language="json">
+            <![CDATA[Invoice_Print.Detail1(ttFormDetail__recordID == $P{paramRecordID})]]>
+        </queryString>
+        <field name="ttFormDetail__invoiceID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__invoiceID"/>
+            <fieldDescription><![CDATA[ttFormDetail__invoiceID]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__company" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__company"/>
+            <fieldDescription><![CDATA[ttFormDetail__company]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__lineNo" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__lineNo"/>
+            <fieldDescription><![CDATA[ttFormDetail__lineNo]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantity" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantity"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantity]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantityUOM" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantityUOM"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantityUOM]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantityInvoiced" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantityInvoiced"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantityInvoiced]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantityInvoicedUOM" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantityInvoicedUOM"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantityInvoicedUOM]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantityOrderOriginal" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantityOrderOriginal"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantityOrderOriginal]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__quantityOrderOriginalUOM" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__quantityOrderOriginalUOM"/>
+            <fieldDescription><![CDATA[ttFormDetail__quantityOrderOriginalUOM]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__pricePerUOM" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__pricePerUOM"/>
+            <fieldDescription><![CDATA[ttFormDetail__pricePerUOM]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__pricePerEach" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__pricePerEach"/>
+            <fieldDescription><![CDATA[ttFormDetail__pricePerEach]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__priceUOM" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__priceUOM"/>
+            <fieldDescription><![CDATA[ttFormDetail__priceUOM]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__priceTotal" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__priceTotal"/>
+            <fieldDescription><![CDATA[ttFormDetail__priceTotal]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__customerPartID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__customerPartID"/>
+            <fieldDescription><![CDATA[ttFormDetail__customerPartID]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__itemID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__itemID"/>
+            <fieldDescription><![CDATA[ttFormDetail__itemID]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__itemName" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__itemName"/>
+            <fieldDescription><![CDATA[ttFormDetail__itemName]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__itemDescription" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__itemDescription"/>
+            <fieldDescription><![CDATA[ttFormDetail__itemDescription]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountTax" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountTax"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountTax]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountTaxExFreightTax" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountTaxExFreightTax"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountTaxExFreightTax]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountFreightTax" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountFreightTax"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountFreightTax]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountTaxable" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountTaxable"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountTaxable]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountTaxableExFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountTaxableExFreight"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountTaxableExFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountTaxableFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountTaxableFreight"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountTaxableFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__taxRate" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__taxRate"/>
+            <fieldDescription><![CDATA[ttFormDetail__taxRate]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__amountFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__amountFreight"/>
+            <fieldDescription><![CDATA[ttFormDetail__amountFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__taxable" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__taxable"/>
+            <fieldDescription><![CDATA[ttFormDetail__taxable]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__billable" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__billable"/>
+            <fieldDescription><![CDATA[ttFormDetail__billable]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__taxGroup" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__taxGroup"/>
+            <fieldDescription><![CDATA[ttFormDetail__taxGroup]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__bNo" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__bNo"/>
+            <fieldDescription><![CDATA[ttFormDetail__bNo]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__bolID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__bolID"/>
+            <fieldDescription><![CDATA[ttFormDetail__bolID]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__orderID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__orderID"/>
+            <fieldDescription><![CDATA[ttFormDetail__orderID]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__orderLine" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__orderLine"/>
+            <fieldDescription><![CDATA[ttFormDetail__orderLine]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__orderLineOverride" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__orderLineOverride"/>
+            <fieldDescription><![CDATA[ttFormDetail__orderLineOverride]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__orderLineOverridden" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__orderLineOverridden"/>
+            <fieldDescription><![CDATA[ttFormDetail__orderLineOverridden]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__taxRateFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__taxRateFreight"/>
+            <fieldDescription><![CDATA[ttFormDetail__taxRateFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__customerPONo" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__customerPONo"/>
+            <fieldDescription><![CDATA[ttFormDetail__customerPONo]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__customerPONoNoBlank" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__customerPONoNoBlank"/>
+            <fieldDescription><![CDATA[ttFormDetail__customerPONoNoBlank]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__isMisc" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__isMisc"/>
+            <fieldDescription><![CDATA[ttFormDetail__isMisc]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__charge" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__charge"/>
+            <fieldDescription><![CDATA[ttFormDetail__charge]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__chargeDescription" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__chargeDescription"/>
+            <fieldDescription><![CDATA[ttFormDetail__chargeDescription]]></fieldDescription>
+        </field>
+        <field name="ttFormDetail__recordID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__recordID"/>
+            <fieldDescription><![CDATA[ttFormDetail__recordID]]></fieldDescription>
+        </field>
+    </subDataset>
+    <subDataset name="Summary1">
+        <property name="net.sf.jasperreports.data.adapter" value="InvoicePrintAdapter.xml"/>
+        <property name="net.sf.jasperreports.json.source" value="jsonFormFile"/>
+        <queryString language="json">
+            <![CDATA[Invoice_Print.Summary1]]>
+        </queryString>
+        <field name="ttFormSummary__company" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__company"/>
+            <fieldDescription><![CDATA[ttFormSummary__company]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__invoiceNo" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__invoiceNo"/>
+            <fieldDescription><![CDATA[ttFormSummary__invoiceNo]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__invoiceLineType" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__invoiceLineType"/>
+            <fieldDescription><![CDATA[ttFormSummary__invoiceLineType]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__invoiceLineRecKey" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__invoiceLineRecKey"/>
+            <fieldDescription><![CDATA[ttFormSummary__invoiceLineRecKey]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxLine" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxLine"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxLine]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxGroup" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxGroup"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxGroup]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxGroupLine" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxGroupLine"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxGroupLine]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxGroupTaxAmountLimit" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxGroupTaxAmountLimit"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxGroupTaxAmountLimit]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__isFreight" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__isFreight"/>
+            <fieldDescription><![CDATA[ttFormSummary__isFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__isTaxOnFreight" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__isTaxOnFreight"/>
+            <fieldDescription><![CDATA[ttFormSummary__isTaxOnFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__isTaxOnTax" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__isTaxOnTax"/>
+            <fieldDescription><![CDATA[ttFormSummary__isTaxOnTax]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCode" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCode"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCode]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCodeDescription" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCodeDescription"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCodeDescription]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCodeRate" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCodeRate"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCodeRate]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCodeAccount" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCodeAccount"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCodeAccount]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCodeTaxAmount" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCodeTaxAmount"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCodeTaxAmount]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__taxCodeTaxableAmount" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__taxCodeTaxableAmount"/>
+            <fieldDescription><![CDATA[ttFormSummary__taxCodeTaxableAmount]]></fieldDescription>
+        </field>
+        <field name="ttFormSummary__recordID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__recordID"/>
+            <fieldDescription><![CDATA[ttFormSummary__recordID]]></fieldDescription>
+        </field>
+    </subDataset>
+    <parameter name="paramRecordID" class="java.lang.String" isForPrompting="false"/>
+    <queryString language="json">
+        <![CDATA[Invoice_Print.InvoicePrint]]>
+    </queryString>
+        <field name="ttFormHeader__invoiceID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceID"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceID]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceIDString" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceIDString"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceIDString]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceDate" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceDate"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceDate]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceDueDate" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceDueDate"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceDueDate]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerID"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerID]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerName" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerName"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerName]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerAddress1" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerAddress1"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerAddress1]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerAddress2" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerAddress2"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerAddress2]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerCity" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerCity"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerCity]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerState" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerState"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerState]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerPostalCode" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerPostalCode"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerPostalCode]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerAddressBlock" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerAddressBlock"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerAddressBlock]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerEmail" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerEmail"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerEmail]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__company" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__company"/>
+            <fieldDescription><![CDATA[ttFormHeader__company]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoID"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoID]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoName" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoName"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoName]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoAddress1" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoAddress1"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoAddress1]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoAddress2" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoAddress2"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoAddress2]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoCity" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoCity"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoCity]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoState" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoState"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoState]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoPostalCode" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoPostalCode"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoPostalCode]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__shiptoAddressBlock" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__shiptoAddressBlock"/>
+            <fieldDescription><![CDATA[ttFormHeader__shiptoAddressBlock]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__siteID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__siteID"/>
+            <fieldDescription><![CDATA[ttFormHeader__siteID]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__terms" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__terms"/>
+            <fieldDescription><![CDATA[ttFormHeader__terms]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termNetDays" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termNetDays"/>
+            <fieldDescription><![CDATA[ttFormHeader__termNetDays]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termDiscountDays" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termDiscountDays"/>
+            <fieldDescription><![CDATA[ttFormHeader__termDiscountDays]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termNetDueDate" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termNetDueDate"/>
+            <fieldDescription><![CDATA[ttFormHeader__termNetDueDate]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termDiscountDueDate" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termDiscountDueDate"/>
+            <fieldDescription><![CDATA[ttFormHeader__termDiscountDueDate]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termDiscountPercent" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termDiscountPercent"/>
+            <fieldDescription><![CDATA[ttFormHeader__termDiscountPercent]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__termDiscountAmount" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__termDiscountAmount"/>
+            <fieldDescription><![CDATA[ttFormHeader__termDiscountAmount]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__customerPONo" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__customerPONo"/>
+            <fieldDescription><![CDATA[ttFormHeader__customerPONo]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__payloadID" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__payloadID"/>
+            <fieldDescription><![CDATA[ttFormHeader__payloadID]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalLines" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalLines"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalLines]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTax" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTax"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTax]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTaxable" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTaxable"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTaxable]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTaxableFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTaxableFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTaxableFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTaxFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTaxFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTaxFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTaxExFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTaxExFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTaxExFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotalTaxableExFreight" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotalTaxableExFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotalTaxableExFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__amountTotal" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__amountTotal"/>
+            <fieldDescription><![CDATA[ttFormHeader__amountTotal]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__taxGroup" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__taxGroup"/>
+            <fieldDescription><![CDATA[ttFormHeader__taxGroup]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__billFreight" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__billFreight"/>
+            <fieldDescription><![CDATA[ttFormHeader__billFreight]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__frtTaxRate" class="java.lang.Double">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__frtTaxRate"/>
+            <fieldDescription><![CDATA[ttFormHeader__frtTaxRate]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceRecKey" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceRecKey"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceRecKey]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceNotes" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceNotes"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceNotes]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__invoiceType" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceType"/>
+            <fieldDescription><![CDATA[ttFormHeader__invoiceType]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__fob" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__fob"/>
+            <fieldDescription><![CDATA[ttFormHeader__fob]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__carrier" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__carrier"/>
+            <fieldDescription><![CDATA[ttFormHeader__carrier]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__emailKeyValues" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__emailKeyValues"/>
+            <fieldDescription><![CDATA[ttFormHeader__emailKeyValues]]></fieldDescription>
+        </field>
+        <field name="ttFormHeader__recordID" class="java.lang.Integer">
+            <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__recordID"/>
+            <fieldDescription><![CDATA[ttFormHeader__recordID]]></fieldDescription>
+        </field>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="298" splitType="Stretch">
+            <image scaleImage="FillFrame">
+                <reportElement x="456" y="0" width="99" height="132"/>
+                <imageExpression><![CDATA["C:/Advantzware/v16/Resources/Graphics/advantzware_logo.jpg"]]></imageExpression>
+            </image>
+            <frame>
+                <reportElement mode="Opaque" x="0" y="0" width="451" height="95" backcolor="#4235FC"/>
+                <staticText>
+                    <reportElement style="Title" x="40" y="20" width="370" height="66"/>
+                    <textElement textAlignment="Center">
+                        <font isBold="false"/>
+                    </textElement>
+                    <text><![CDATA[Invoice]]></text>
+                </staticText>
+            </frame>
+            <frame>
+                <reportElement mode="Opaque" x="0" y="100" width="451" height="32" forecolor="#000000" backcolor="#FA9A14"/>
+                <textField pattern="EEEEE dd MMMMM yyyy">
+                    <reportElement x="307" y="12" width="144" height="20" forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Right" markup="html">
+                        <font size="12"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+                </textField>
+                <textField>
+                    <reportElement x="40" y="12" width="141" height="20" forecolor="#FFFFFF"/>
+                    <textFieldExpression><![CDATA[$F{ttFormHeader__invoiceIDString}]]></textFieldExpression>
+                </textField>
+                <staticText>
+                    <reportElement x="2" y="12" width="38" height="20" forecolor="#FFFFFF"/>
+                    <text><![CDATA[Invoice:]]></text>
+                </staticText>
+            </frame>
+        </band>
+    </title>
+    <pageHeader>
+        <band splitType="Stretch"/>
+    </pageHeader>
+    <columnHeader>
+        <band height="24" splitType="Stretch"/>
+    </columnHeader>
+    <detail>
+        <band height="89" splitType="Stretch">
+            <componentElement>
+                <reportElement key="" isPrintRepeatedValues="false" x="0" y="4" width="555" height="40" isRemoveLineWhenBlank="true">
+                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                    <property name="com.jaspersoft.studio.table.style.column_header" value="Detail1_CH"/>
+                    <property name="com.jaspersoft.studio.table.style.detail" value="Detail1_TD"/>
+                    <property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+                </reportElement>
+                <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                    <datasetRun subDataset="Detail1">
+                        <datasetParameter name="paramRecordID">
+                            <datasetParameterExpression><![CDATA[$F{ttFormHeader__recordID}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="JSON_INPUT_STREAM">
+                            <datasetParameterExpression><![CDATA[$P{JSON_INPUT_STREAM}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.source">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.source}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.sources">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.sources}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.date.pattern">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.date.pattern}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.number.pattern">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.number.pattern}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="JSON_LOCALE">
+                            <datasetParameterExpression><![CDATA[$P{JSON_LOCALE}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.locale.code">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.locale.code}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="JSON_TIME_ZONE">
+                            <datasetParameterExpression><![CDATA[$P{JSON_TIME_ZONE}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.timezone.id">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.timezone.id}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+                    </datasetRun>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__customerPONo"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Customer PO No]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__customerPONo}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__orderID"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Order ID]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__orderID}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__customerPartID"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Customer Part ID]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__customerPartID}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__itemID"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Item ID]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__itemID}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__quantityInvoiced"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Quantity Invoiced]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__quantityInvoiced}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__pricePerEach"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Price Per Each]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__pricePerEach}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__pricePerUOM"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Price Per UOM]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__pricePerUOM}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                    <jr:column width="72">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormDetail__priceTotal"/>
+                        <jr:columnHeader style="Detail1_CH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="72" height="14"/>
+                                <textElement>
+                                    <font isBold="true" isUnderline="true"/>
+                                </textElement>
+                                <text><![CDATA[Price Total]]></text>
+                            </staticText>
+                        </jr:columnHeader>
+                        <jr:columnFooter style="Detail1_CH" height="7" rowSpan="1"/>
+                        <jr:detailCell style="Detail1_TD" height="14">
+                            <textField isBlankWhenNull="true">
+                                <reportElement x="0" y="0" width="72" height="14">
+                                    <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                </reportElement>
+                                <textFieldExpression><![CDATA[$F{ttFormDetail__priceTotal}]]></textFieldExpression>
+                            </textField>
+                        </jr:detailCell>
+                    </jr:column>
+                </jr:table>
+            </componentElement>
+        </band>
+    </detail>
+    <columnFooter>
+        <band height="17" splitType="Stretch">
+            <line>
+                <reportElement positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+                <graphicElement>
+                    <pen lineWidth="0.5" lineColor="#999999"/>
+                </graphicElement>
+            </line>
+        </band>
+    </columnFooter>
+    <pageFooter>
+        <band height="75" splitType="Stretch">
+            <frame>
+                <reportElement mode="Opaque" x="0" y="51" width="555" height="24" forecolor="#D0B48E" backcolor="#000000"/>
+                <textField evaluationTime="Report">
+                    <reportElement style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+                </textField>
+                <textField>
+                    <reportElement style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+                </textField>
+                <textField pattern="EEEEE dd MMMMM yyyy">
+                    <reportElement style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+                    <textElement verticalAlignment="Middle">
+                        <font size="10" isBold="false"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </pageFooter>
+    <summary>
+        <band height="92" splitType="Stretch">
+            <componentElement>
+                <reportElement x="0" y="10" width="555" height="72" isRemoveLineWhenBlank="true">
+                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                    <property name="com.jaspersoft.studio.table.style.table_header" value="Summary1_TH"/>
+                    <property name="com.jaspersoft.studio.table.style.column_header" value="Summary1_CH"/>
+                    <property name="com.jaspersoft.studio.table.style.detail" value="Summary1_TD"/>
+                </reportElement>
+                <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+                    <datasetRun subDataset="Summary1">
+                        <datasetParameter name="JSON_INPUT_STREAM">
+                            <datasetParameterExpression><![CDATA[$P{JSON_INPUT_STREAM}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.source">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.source}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.sources">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.sources}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.date.pattern">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.date.pattern}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.number.pattern">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.number.pattern}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="JSON_LOCALE">
+                            <datasetParameterExpression><![CDATA[$P{JSON_LOCALE}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.locale.code">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.locale.code}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="JSON_TIME_ZONE">
+                            <datasetParameterExpression><![CDATA[$P{JSON_TIME_ZONE}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <datasetParameter name="net.sf.jasperreports.json.timezone.id">
+                            <datasetParameterExpression><![CDATA[$P{net.sf.jasperreports.json.timezone.id}]]></datasetParameterExpression>
+                        </datasetParameter>
+                        <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+                    </datasetRun>
+                    <jr:columnGroup width="192">
+                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+                        <jr:tableHeader style="Summary1_TH" height="14" rowSpan="1">
+                            <staticText>
+                                <reportElement x="0" y="0" width="192" height="14"/>
+                                <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <font isBold="true"/>
+                                </textElement>
+                                <text><![CDATA[]]></text>
+                            </staticText>
+                        </jr:tableHeader>
+                        <jr:column width="48">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormSummary__taxCode"/>
+                            <jr:tableHeader style="Summary1_TH" height="0" rowSpan="1"/>
+                            <jr:tableFooter style="Summary1_TH" height="7" rowSpan="1"/>
+                            <jr:columnHeader style="Summary1_CH" height="14" rowSpan="1">
+                                <staticText>
+                                    <reportElement x="0" y="0" width="48" height="14"/>
+                                    <textElement>
+                                        <font isBold="true" isUnderline="true"/>
+                                    </textElement>
+                                    <text><![CDATA[Tax Code]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:columnFooter style="Summary1_CH" height="0" rowSpan="1"/>
+                            <jr:detailCell style="Summary1_TD" height="14">
+                                <textField isBlankWhenNull="true">
+                                    <reportElement x="0" y="0" width="48" height="14">
+                                        <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                    </reportElement>
+                                    <textFieldExpression><![CDATA[$F{ttFormSummary__taxCode}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="48">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormSummary__taxCodeAccount"/>
+                            <jr:tableHeader style="Summary1_TH" height="0" rowSpan="1"/>
+                            <jr:tableFooter style="Summary1_TH" height="7" rowSpan="1"/>
+                            <jr:columnHeader style="Summary1_CH" height="14" rowSpan="1">
+                                <staticText>
+                                    <reportElement x="0" y="0" width="48" height="14"/>
+                                    <textElement>
+                                        <font isBold="true" isUnderline="true"/>
+                                    </textElement>
+                                    <text><![CDATA[Tax Code Account]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:columnFooter style="Summary1_CH" height="0" rowSpan="1"/>
+                            <jr:detailCell style="Summary1_TD" height="14">
+                                <textField isBlankWhenNull="true">
+                                    <reportElement x="0" y="0" width="48" height="14">
+                                        <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                    </reportElement>
+                                    <textFieldExpression><![CDATA[$F{ttFormSummary__taxCodeAccount}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="48">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormSummary__taxCodeDescription"/>
+                            <jr:tableHeader style="Summary1_TH" height="0" rowSpan="1"/>
+                            <jr:tableFooter style="Summary1_TH" height="7" rowSpan="1"/>
+                            <jr:columnHeader style="Summary1_CH" height="14" rowSpan="1">
+                                <staticText>
+                                    <reportElement x="0" y="0" width="48" height="14"/>
+                                    <textElement>
+                                        <font isBold="true" isUnderline="true"/>
+                                    </textElement>
+                                    <text><![CDATA[Tax Code Description]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:columnFooter style="Summary1_CH" height="0" rowSpan="1"/>
+                            <jr:detailCell style="Summary1_TD" height="14">
+                                <textField isBlankWhenNull="true">
+                                    <reportElement x="0" y="0" width="48" height="14">
+                                        <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                    </reportElement>
+                                    <textFieldExpression><![CDATA[$F{ttFormSummary__taxCodeDescription}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                        <jr:column width="48">
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="ttFormSummary__taxLine"/>
+                            <jr:tableHeader style="Summary1_TH" height="0" rowSpan="1"/>
+                            <jr:tableFooter style="Summary1_TH" height="7" rowSpan="1"/>
+                            <jr:columnHeader style="Summary1_CH" height="14" rowSpan="1">
+                                <staticText>
+                                    <reportElement x="0" y="0" width="48" height="14"/>
+                                    <textElement>
+                                        <font isBold="true" isUnderline="true"/>
+                                    </textElement>
+                                    <text><![CDATA[Tax]]></text>
+                                </staticText>
+                            </jr:columnHeader>
+                            <jr:columnFooter style="Summary1_CH" height="0" rowSpan="1"/>
+                            <jr:detailCell style="Summary1_TD" height="14">
+                                <textField isBlankWhenNull="true">
+                                    <reportElement x="0" y="0" width="48" height="14">
+                                        <property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+                                    </reportElement>
+                                    <textFieldExpression><![CDATA[$F{ttFormSummary__taxLine}]]></textFieldExpression>
+                                </textField>
+                            </jr:detailCell>
+                        </jr:column>
+                   </jr:columnGroup>
+                </jr:table>
+            </componentElement>
+        </band>
+    </summary>
+</jasperReport>

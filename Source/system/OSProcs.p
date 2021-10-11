@@ -113,7 +113,7 @@ PROCEDURE OS_RunCommand:
     
     /* If output file path is valid, add output file in command to direct any output from command to file */
     cCommand = ipcCommand
-             + (IF ipcOutputFile NE "" THEN " > " + ipcOutputFile ELSE "").
+             + (IF ipcOutputFile NE "" THEN ' > "' + ipcOutputFile + '"' ELSE "").
 
     /* Temporary file to suppress the output from OS-COMMAND */
     RUN FileSys_GetTempDirectory(
