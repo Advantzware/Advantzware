@@ -509,7 +509,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                 ELSE "Single".
               
         /* No Backlog at time of "as of" */
-        IF (dQtyInv GE dQtyOrd) OR (job.close-date LT ipdtAsOf AND dQtyOnHand EQ 0) THEN NEXT.
+        IF (dQtyInv GE dQtyOrd OR job.close-date LT ipdtAsOf) AND dQtyOnHand EQ 0 THEN NEXT.
         
         RUN pAddJobItem (
             job-hdr.company,
