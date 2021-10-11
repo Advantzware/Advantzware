@@ -212,8 +212,7 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     VIEW-AS RADIO-SET VERTICAL
     RADIO-BUTTONS 
     "To Printer", 1,
-    "To Screen", 2,
-    "To File", 3
+    "To Screen", 2
     SIZE 17.2 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
