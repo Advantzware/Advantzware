@@ -47,9 +47,12 @@ DEFINE TEMP-TABLE ttMaterial
     FIELD itemName AS CHARACTER 
     FIELD sizeDesc AS CHARACTER 
     FIELD quantityOnHand AS DECIMAL 
+    FIELD quantityAvailable AS DECIMAL 
     FIELD quantityRequired AS DECIMAL EXTENT 5
     FIELD quantityUOM AS CHARACTER
     FIELD quantityWasted AS DECIMAL EXTENT 5
+    FIELD quantityWastePct AS DECIMAL EXTENT 5
+    FIELD quantityToBuy AS DECIMAL EXTENT 5
     .
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -141,6 +144,7 @@ PROCEDURE pBuildData PRIVATE:
             ASSIGN 
                 dQtyRequired = estCostMaterial.quantityRequiredTotal
                 dQtyWasted = estCostMaterial.quantityRequiredRunWaste + estCostMaterial.quantityRequiredSetupWaste
+                
                 .
             
             IF ttMaterial.quantityUOM NE estCostMaterial.quantityUOM THEN DO:
@@ -150,6 +154,8 @@ PROCEDURE pBuildData PRIVATE:
             ASSIGN 
                 ttMaterial.quantityRequired[iIndex] = ttMaterial.quantityRequired[iIndex] + dQtyRequired
                 ttMaterial.quantityWasted[iIndex] = ttMaterial.quantityWasted[iIndex] + dQtyWasted
+                ttMaterial.quantityWastePct[iIndex] = ttMaterial.quantityWasted[iIndex] / (ttMaterial.quantityRequired[iIndex] - ttMaterial.quantityWasted[iIndex])  
+                ttMaterial.quantityToBuy[iIndex] = MAX(ttMaterial.quantityRequired[iIndex] - ttMaterial.quantityAvailable, 0)
                 .
                 
         END.
@@ -342,22 +348,23 @@ PROCEDURE pFillData PRIVATE:
            chWorkSheet:Range("B" + STRING(iRowCount)):value = ttMaterial.sizeDesc
            chWorkSheet:Range("C" + STRING(iRowCount)):value = ttMaterial.itemID 
            chWorkSheet:Range("D" + STRING(iRowCount)):value = ttMaterial.quantityUOM 
-           chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(ttMaterial.quantityOnHand) 
-           chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[1]) 
-           chWorkSheet:Range("G" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[1] / ttMaterial.quantityRequired[1])
-           chWorkSheet:Range("H" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[1] - ttMaterial.quantityOnHand,0))
-           chWorkSheet:Range("I" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[2]) 
-           chWorkSheet:Range("J" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[2] / ttMaterial.quantityRequired[2])
-           chWorkSheet:Range("K" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[2] - ttMaterial.quantityOnHand,0))
-           chWorkSheet:Range("L" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[3]) 
-           chWorkSheet:Range("M" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[3] / ttMaterial.quantityRequired[3])
-           chWorkSheet:Range("N" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[3] - ttMaterial.quantityOnHand,0))
-           chWorkSheet:Range("O" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[4]) 
-           chWorkSheet:Range("P" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[4] / ttMaterial.quantityRequired[4])
-           chWorkSheet:Range("Q" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[4] - ttMaterial.quantityOnHand,0))
-           chWorkSheet:Range("R" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[5]) 
-           chWorkSheet:Range("S" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWasted[5] / ttMaterial.quantityRequired[5])
-           chWorkSheet:Range("T" + STRING(iRowCount)):value = STRING(MAX(ttMaterial.quantityRequired[5] - ttMaterial.quantityOnHand,0))
+           chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(ttMaterial.quantityOnHand)
+           chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(ttMaterial.quantityAvailable) 
+           chWorkSheet:Range("G" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[1]) 
+           chWorkSheet:Range("H" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWastePct[1])
+           chWorkSheet:Range("I" + STRING(iRowCount)):value = STRING(ttMaterial.quantityToBuy[1])
+           chWorkSheet:Range("J" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[2]) 
+           chWorkSheet:Range("K" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWastePct[2])
+           chWorkSheet:Range("L" + STRING(iRowCount)):value = STRING(ttMaterial.quantityToBuy[2])
+           chWorkSheet:Range("M" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[3]) 
+           chWorkSheet:Range("N" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWastePct[3])
+           chWorkSheet:Range("O" + STRING(iRowCount)):value = STRING(ttMaterial.quantityToBuy[3])
+           chWorkSheet:Range("P" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[4]) 
+           chWorkSheet:Range("Q" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWastePct[4])
+           chWorkSheet:Range("R" + STRING(iRowCount)):value = STRING(ttMaterial.quantityToBuy[4])
+           chWorkSheet:Range("S" + STRING(iRowCount)):value = STRING(ttMaterial.quantityRequired[5]) 
+           chWorkSheet:Range("T" + STRING(iRowCount)):value = STRING(ttMaterial.quantityWastePct[5])
+           chWorkSheet:Range("U" + STRING(iRowCount)):value = STRING(ttMaterial.quantityToBuy[5])
            
            iRowCount = iRowCount + 1.     
     END.       
