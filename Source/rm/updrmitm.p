@@ -373,13 +373,6 @@ FOR EACH estCostMaterial
     {rm/updrmitm.i estCostMaterial itemID NO}
 END.
 
-FOR EACH estCostItem
-        WHERE estCostItem.company EQ ITEM.company
-        AND estCostItem.itemID    EQ ITEM.i-no         
-        NO-LOCK:
-    {rm/updrmitm.i estCostItem itemID NO}
-END.
-
 FOR EACH estMaterial
         WHERE estMaterial.company EQ ITEM.company
         AND estMaterial.itemID    EQ ITEM.i-no         
@@ -389,9 +382,24 @@ END.
 
 FOR EACH estPacking
         WHERE estPacking.company EQ ITEM.company
-        AND estPacking.rmItemID    EQ ITEM.i-no         
+        AND estPacking.rmItemID  EQ ITEM.i-no         
         NO-LOCK:
     {rm/updrmitm.i estPacking rmItemID NO}
+END.
+
+FOR EACH inventoryStock
+        WHERE inventoryStock.company EQ ITEM.company
+        AND inventoryStock.rmItemID  EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i inventoryStock rmItemID NO}
+END.
+
+FOR EACH inventoryStockSnapshot
+        WHERE inventoryStockSnapshot.company EQ ITEM.company
+        AND inventoryStockSnapshot.itemType  EQ "RM"
+        AND inventoryStockSnapshot.fgItemID  EQ ITEM.i-no         
+        NO-LOCK:
+    {rm/updrmitm.i inventoryStockSnapshot fgItemID  NO}
 END.
 
 DO TRANSACTION:
