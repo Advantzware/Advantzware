@@ -2374,12 +2374,12 @@ PROCEDURE run-report :
         END.
              
         IF lAPInvoiceLength THEN DISPLAY 
-           ap-sel.spare-char-1 TO 151 WITH FRAME a.
+           ap-sel.deliveryMethod TO 151 WITH FRAME a.
         ELSE DISPLAY 
-           ap-sel.spare-char-1 TO 142 WITH FRAME a1.
+           ap-sel.deliveryMethod TO 142 WITH FRAME a1.
         IF tb_excel THEN
             PUT STREAM excel UNFORMATTED
-              STRING(ap-sel.spare-char-1).
+              STRING(ap-sel.deliveryMethod).
 
         IF tb_excel THEN
             PUT STREAM excel UNFORMATTED SKIP.

@@ -162,7 +162,7 @@ FOR EACH ap-sel NO-LOCK
         ttPaymentData.invDate     = ap-inv.inv-date
         ttPaymentData.checkDate   = TODAY
         ttPaymentData.amt         = ap-sel.amt-paid * (ap-sel.amt-paid / (ap-inv.net + ap-inv.freight))
-        ttPaymentData.delMethod   = ap-sel.spare-char-1
+        ttPaymentData.delMethod   = ap-sel.deliveryMethod
         .    
 
     FIND FIRST currency NO-LOCK

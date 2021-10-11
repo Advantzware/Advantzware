@@ -101,8 +101,8 @@ IF lRecFound THEN
 &Scoped-define INTERNAL-TABLES tt-sel ap-pay
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.vend-name tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid tt-sel.spare-char-1   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid tt-sel.spare-char-1   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.vend-name tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid tt-sel.deliveryMethod   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid tt-sel.deliveryMethod   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define SELF-NAME BROWSE-1
@@ -256,19 +256,19 @@ DEFINE BROWSE BROWSE-1
     tt-sel.amt-due LABEL "Balance Due" LABEL-BGCOLOR 14
     tt-sel.disc-amt LABEL "Discount" LABEL-BGCOLOR 14
     tt-sel.amt-paid LABEL "To Be Paid" LABEL-BGCOLOR 14
-    tt-sel.spare-char-1 COLUMN-LABEL "Delivery Method" FORMAT "x(22)":U LABEL-BGCOLOR 14
+    tt-sel.deliveryMethod COLUMN-LABEL "Delivery Method" FORMAT "x(22)":U LABEL-BGCOLOR 14
     VIEW-AS COMBO-BOX INNER-LINES 4 
-        LIST-ITEM-PAIRS "USPS normal mail","",
-                     "Overnight to payee UPS","01",
-                     "Overnight to payer UPS","02",
-                     "USPS to payer","03" 
+        LIST-ITEM-PAIRS "Mail Check Payee","",
+                     "Overnight Delivery Payee","01",
+                     "Overnight To Payor","02",
+                     "Mail to Payor","03" 
         DROP-DOWN-LIST  
     ENABLE 
     tt-sel.vend-no 
     tt-sel.inv-no 
     tt-sel.disc-amt
     tt-sel.amt-paid
-    tt-sel.spare-char-1
+    tt-sel.deliveryMethod
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 232 BY 16.67
@@ -525,7 +525,7 @@ DO:
                   tt-sel.amt-due:READ-ONLY = YES*/
                   tt-sel.disc-amt:READ-ONLY = YES
                   tt-sel.amt-paid:READ-ONLY = YES
-                  tt-sel.spare-char-1:READ-ONLY = YES.
+                  tt-sel.deliveryMethod:READ-ONLY = YES.
 
     IF lAPInvoiceLength THEN
         ASSIGN tt-sel.inv-no:FORMAT IN BROWSE {&browse-name} = "x(20)".
@@ -620,11 +620,12 @@ DO:
    tt-sel.amt-due:READ-ONLY = NO*/
    tt-sel.disc-amt:READ-ONLY = NO
    tt-sel.amt-paid:READ-ONLY = NO
-   tt-sel.spare-char-1:READ-ONLY = NO.
+   tt-sel.deliveryMethod:READ-ONLY = NO.
  
    BROWSE {&browse-name}:INSERT-ROW("after").
    APPLY "entry" TO tt-sel.vend-no IN BROWSE {&browse-name}.
    btn-change:LABEL = "Save".
+   RELEASE tt-sel.
    ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
    DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
    
@@ -646,7 +647,7 @@ DO:
       ASSIGN tt-sel.amt-due = (tt-sel.inv-bal - tt-sel.disc-amt)
              tt-sel.amt-paid = tt-sel.amt-due.
 
-      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid tt-sel.spare-char-1 WITH BROWSE {&browse-name}
+      DISPLAY tt-sel.disc-amt tt-sel.amt-due tt-sel.amt-paid tt-sel.deliveryMethod WITH BROWSE {&browse-name}
               .    
       ASSIGN tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
              tt-sel.vend-no:READ-ONLY = YES
@@ -655,7 +656,7 @@ DO:
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
              tt-sel.amt-paid:READ-ONLY = NO
-             tt-sel.spare-char-1:READ-ONLY = NO.
+             tt-sel.deliveryMethod:READ-ONLY = NO.
       
   END.
   ELSE DO:  /* add and cancel */
@@ -679,7 +680,7 @@ ON CHOOSE OF btn-change IN FRAME F-Main /* Update */
 DO:
 /*     IF AVAIL tt-sel THEN DO: */
        DEF BUFFER bf-tsel FOR tt-sel.
-
+         
        IF SELF:LABEL = "Save" THEN DO:    
           fi_amt = 0.
           FOR EACH bf-tsel:
@@ -726,6 +727,9 @@ DO:
              ASSIGN tt-sel.company = g_company
                     tt-sel.vend-no = tt-sel.vend-no:SCREEN-VALUE IN BROWSE {&browse-name}
                     tt-sel.inv-no = tt-sel.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                    tt-sel.vend-name = tt-sel.vend-name:SCREEN-VALUE IN BROWSE {&browse-name}
+                    tt-sel.dsc-date  = DATE(tt-sel.dsc-date:SCREEN-VALUE IN BROWSE {&browse-name})
+                    tt-sel.inv-date  = DATE(tt-sel.inv-date:SCREEN-VALUE IN BROWSE {&browse-name})
              /* need inv-no lookup and find ap-inv */                    
                     tt-sel.inv-bal = IF AVAIL ap-inv THEN ap-inv.due ELSE 0
                     tt-sel.due-date = IF AVAIL ap-inv THEN ap-inv.due-date ELSE ?
@@ -742,12 +746,13 @@ DO:
           ASSIGN ap-inv.paid = ap-inv.paid - lv-pre-paid
                  ap-inv.due = ap-inv.due + lv-pre-paid + lv-pre-disc
                  .
-*/           
+*/             
           IF AVAIL tt-sel THEN
           ASSIGN tt-sel.disc-amt = dec(tt-sel.disc-amt:SCREEN-VALUE IN BROWSE {&browse-name})
               tt-sel.amt-due = dec(tt-sel.amt-due:SCREEN-VALUE)
               tt-sel.amt-paid = dec(tt-sel.amt-paid:SCREEN-VALUE)
-              fi_amt = fi_amt + tt-sel.amt-paid.
+              tt-sel.deliveryMethod = tt-sel.deliveryMethod:SCREEN-VALUE IN BROWSE {&browse-name} 
+              fi_amt = fi_amt + tt-sel.amt-paid.              
  /*
           ASSIGN ap-inv.paid = ap-inv.paid + tt-sel.amt-paid
                  ap-inv.due = ap-inv.due - tt-sel.amt-paid - tt-sel.disc-amt */
@@ -764,13 +769,15 @@ DO:
                  tt-sel.amt-due:READ-ONLY = YES*/
                  tt-sel.disc-amt:READ-ONLY = NO                 
                  tt-sel.amt-paid:READ-ONLY = NO
-                 tt-sel.spare-char-1:READ-ONLY = NO.
+                 tt-sel.deliveryMethod:READ-ONLY = NO.
           SELF:LABEL = "Update".
           disable btn-cancel WITH FRAME {&FRAME-NAME}.
           ENABLE btn-change btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
+          IF lv-in-add THEN
+          RUN pReOpenQuery(ROWID(tt-sel)) NO-ERROR.  
           ASSIGN
              lv-in-update = NO
-             lv-in-add = NO.
+             lv-in-add = NO.           
        END.
        ELSE DO:
            IF {&browse-name}:NUM-SELECTED-ROWS EQ 0 THEN
@@ -790,7 +797,7 @@ DO:
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
              tt-sel.amt-paid:READ-ONLY = NO
-             tt-sel.spare-char-1:READ-ONLY = NO.
+             tt-sel.deliveryMethod:READ-ONLY = NO.
           ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
           DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
           APPLY "entry" TO tt-sel.disc-amt IN BROWSE {&browse-name}.
@@ -949,7 +956,7 @@ DO:
         ASSIGN
             ap-sel.amt-paid = tt-sel.amt-paid
             ap-sel.disc-amt = tt-sel.disc-amt
-            ap-sel.spare-char-1 = tt-sel.spare-char-1.
+            ap-sel.deliveryMethod = tt-sel.deliveryMethod.
         FIND CURRENT ap-sel NO-LOCK.
     END.
     /*SET Up AP-CHK*/
@@ -1429,7 +1436,7 @@ PROCEDURE build-table :
    ASSIGN
     tt-sel.tt-rowid = ROWID(ap-sel)
     tt-sel.amt-due  = ap-sel.inv-bal - ap-sel.disc-amt
-    tt-sel.spare-char-1 = ap-sel.spare-char-1.
+    tt-sel.deliveryMethod = ap-sel.deliveryMethod.
 
     fi_amt = fi_amt + ap-sel.amt-paid.
 /*     tt-sel.dsc-date = ap-inv.inv-date. */
@@ -1959,3 +1966,20 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery W-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    
+    {&open-query-{&browse-name}} 
+    
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
