@@ -75,6 +75,7 @@ DEFINE VARIABLE lBusinessLogic     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRefresh           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSave              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSaveError         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rRecID             AS RECID     NO-UNDO.
 DEFINE VARIABLE rRowID             AS ROWID     NO-UNDO.
@@ -2368,36 +2369,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dynSubject.altSubjectID C-Win
 ON LEAVE OF dynSubject.altSubjectID IN FRAME viewFrame /* Alternate Subject ID */
 DO:
-    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-
-    IF INTEGER(SELF:SCREEN-VALUE) NE 0 THEN DO:
-        IF NOT CAN-FIND(FIRST bDynSubject
-                        WHERE bDynSubject.subjectID EQ INTEGER(SELF:SCREEN-VALUE)) THEN
-        cErrorMessage = "Invalid Subject ID".
-        ELSE
-        IF CAN-FIND(FIRST bDynSubject
-                    WHERE bDynSubject.altSubjectID EQ INTEGER(SELF:SCREEN-VALUE)) THEN DO:
-            FIND FIRST bDynSubject NO-LOCK
-                 WHERE bDynSubject.altSubjectID EQ INTEGER(SELF:SCREEN-VALUE)
-                 NO-ERROR.
-            cErrorMessage = "Alternate Subject ID Already In Use By Subject:"
-                          + CHR(10) + CHR(10)
-                          + STRING(bDynSubject.subjectID) + " - "
-                          + bDynSubject.subjectTitle
-                          .
-        END. /* not can-find */
-        IF cErrorMessage NE "" THEN DO:
-            MESSAGE
-                cErrorMessage
-            VIEW-AS ALERT-BOX ERROR.
-            ASSIGN
-                SELF:SCREEN-VALUE = ""
-                cErrorMessage     = ""
-                .
-            APPLY "ENTRY":U TO SELF.
-            RETURN NO-APPLY.
-        END. /* if error */
-    END. /* if ne 0 */ 
+    RUN pValidateSave (OUTPUT lSaveError).
+    IF lSaveError THEN
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4684,6 +4658,9 @@ PROCEDURE pCRUD :
             END. /* add copy update */
             WHEN "Cancel" OR WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
+                    RUN pValidateSave (OUTPUT lSaveError).
+                    IF lSaveError THEN
+                    RETURN.
                     IF cMode EQ "Add" OR cMode EQ "Copy" THEN DO TRANSACTION:
                         DO WHILE TRUE:
                             iNextSubjectID = NEXT-VALUE(subjectID).
@@ -6054,6 +6031,54 @@ PROCEDURE pSetSubjectParamSet :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateSave C-Win
+PROCEDURE pValidateSave:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplSaveError AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME viewFrame:
+        IF INTEGER(dynSubject.altSubjectID:SCREEN-VALUE) NE 0 THEN DO:
+            IF NOT CAN-FIND(FIRST bDynSubject
+                            WHERE bDynSubject.subjectID EQ INTEGER(dynSubject.altSubjectID:SCREEN-VALUE)) THEN
+            cErrorMessage = "Invalid Subject ID".
+            ELSE
+            IF CAN-FIND(FIRST bDynSubject
+                        WHERE bDynSubject.altSubjectID EQ INTEGER(dynSubject.altSubjectID:SCREEN-VALUE)
+                          AND ROWID(bDynSubject) NE ROWID(dynSubject)) THEN DO:
+                FIND FIRST bDynSubject NO-LOCK
+                     WHERE bDynSubject.altSubjectID EQ INTEGER(dynSubject.altSubjectID:SCREEN-VALUE)
+                       AND ROWID(bDynSubject) NE ROWID(dynSubject)
+                     NO-ERROR.
+                cErrorMessage = "Alternate Subject ID Already In Use By Subject:"
+                              + CHR(10) + CHR(10)
+                              + STRING(bDynSubject.subjectID) + " - "
+                              + bDynSubject.subjectTitle
+                              .
+            END. /* not can-find */
+            IF cErrorMessage NE "" THEN DO:
+                MESSAGE
+                    cErrorMessage
+                VIEW-AS ALERT-BOX ERROR.
+                ASSIGN
+                    dynSubject.altSubjectID:SCREEN-VALUE = ""
+                    cErrorMessage = ""
+                    .
+                APPLY "ENTRY":U TO dynSubject.altSubjectID.
+                oplSaveError = YES.
+            END. /* if error */
+        END. /* if ne 0 */
+    END. /* with frame */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
