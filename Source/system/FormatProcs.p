@@ -352,6 +352,24 @@ PROCEDURE Format_Time:
         ).        
 END PROCEDURE.
 
+PROCEDURE p3cPackTermsImageName:
+/*------------------------------------------------------------------------------
+ Purpose: 3C Packing terms and Condition Image Name 
+ Notes: 
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcTermsImage1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTermsImage2 AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    opcTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+    ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    opcTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
+            
+END PROCEDURE.
+
 PROCEDURE pUpdateRequestData PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Replaces the given key field with the value in the request data
