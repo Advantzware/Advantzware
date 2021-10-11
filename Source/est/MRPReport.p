@@ -137,6 +137,7 @@ PROCEDURE pBuildData PRIVATE:
                     ttMaterial.itemID = estCostMaterial.itemID                    
                     ttMaterial.itemName = estCostMaterial.itemName
                     ttMaterial.quantityOnHand = item.q-onh
+                    ttMaterial.quantityAvailable = item.q-avail
                     ttMaterial.sizeDesc = cSizeDesc
                     ttMaterial.quantityUOM = estCostMaterial.quantityUOM
                     .
