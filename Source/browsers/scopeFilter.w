@@ -414,7 +414,7 @@ DO:
         WHEN "Vendor" THEN
             iSubjectID = 32.            
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */
@@ -455,7 +455,7 @@ DO:
         WHEN "ShipTo" THEN
             iSubjectID = 122.
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         cCompany,  /* company */ 
         "",  /* lookup field */

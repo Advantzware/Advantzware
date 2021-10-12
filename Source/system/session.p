@@ -218,6 +218,19 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfSubjectID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfSubjectID Procedure
+FUNCTION sfSubjectID RETURNS INTEGER 
+  (ipiSubjectID AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfVersion Procedure
@@ -2717,6 +2730,33 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 END FUNCTION.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfSubjectID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfSubjectID Procedure
+FUNCTION sfSubjectID RETURNS INTEGER 
+  ( ipiSubjectID AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bDynSubject FOR dynSubject.
+
+    IF CAN-FIND(FIRST bDynSubject
+                WHERE bDynSubject.altSubjectID EQ ipiSubjectID
+                  AND bDynSubject.isActive     EQ YES) THEN
+    FIND FIRST bDynSubject NO-LOCK
+         WHERE bDynSubject.altSubjectID EQ ipiSubjectID
+           AND bDynSubject.isActive     EQ YES
+         NO-ERROR.
+    RETURN IF AVAILABLE bDynSubject THEN bDynSubject.subjectID ELSE ipiSubjectID.
+
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
