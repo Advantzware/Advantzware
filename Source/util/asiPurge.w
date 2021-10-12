@@ -421,6 +421,8 @@ DO:
     ASSIGN 
         iParmCt = 1.
 
+    RUN BuildDetailedPurgeParms IN hPurgeProcs (INPUT SELF:SCREEN-VALUE).
+
     FOR EACH ttParmsByPurge WHERE 
         ttParmsByPurge.ttcPurge = SELF:SCREEN-VALUE:
             
@@ -440,6 +442,7 @@ DO:
             FRAME = FRAME fMain:HANDLE  
             NAME = ttParmsByPurge.ttcParm + "BEGINx"
             DATA-TYPE = ttParmsByPurge.ttcDataType
+            FORMAT = ttParmsByPurge.ttcFormat
             ROW = 4.24 + iParmCt
             COLUMN = 88
             HEIGHT = 1
@@ -457,6 +460,7 @@ DO:
             FRAME = FRAME fMain:HANDLE  
             NAME = ttParmsByPurge.ttcParm + "ENDx"
             DATA-TYPE = ttParmsByPurge.ttcDataType
+            FORMAT = ttParmsByPurge.ttcFormat
             ROW = 4.24 + iParmCt
             COLUMN = 120
             HEIGHT = 1

@@ -108,6 +108,19 @@ FUNCTION dynExport RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-fDateString) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateString Procedure
+FUNCTION fDateString RETURNS CHARACTER 
+  (INPUT iYrOffset AS INT) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-fEndPurge) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEndPurge Procedure
@@ -208,6 +221,7 @@ PROCEDURE BuildParmsByPurgeTT:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttParmsByPurge.
     DO ttCtr = 1 TO 10:
         IF cParm[ttCtr] EQ "" THEN LEAVE.
         CREATE ttParmsByPurge.
@@ -513,15 +527,31 @@ PROCEDURE BuildDetailedPurgeParms:
  Notes:
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcPurgeName AS CHAR NO-UNDO.
-    
+
+/*  The format of these parameter records is as follows:*/
+/*      Purge Name (from NS8 or NM)                 */
+/*      key field name                              */
+/*      label                                       */
+/*      data type                                   */
+/*      data format                                 */
+/*      range (YES) or fixed item (NO)              */
+/*      beginning value (not required if fixed item)*/
+/*      ending value                                */
+            
+    ASSIGN 
+        cParm = "".
+
     CASE ipcPurgeName:
         WHEN "Purge Jobs (NF!)" THEN ASSIGN 
-            cParm = "" 
-            cParm[1] = "Purge Jobs (NF!),CloseDate,Job CLOSE date is Less Than,Date,'99/99/9999',NO,''," + STRING(MONTH(TODAY),"99") + "/" +
-                                           STRING(DAY(TODAY),"99") + "/" +
-                                           STRING(YEAR(TODAY) - 1,"9999")
-            cParm[2] = "Purge Jobs (NF!),Job-No,Job Range,Character,'x(8)',YES,0,9999999".
+            cParm[1] = "Purge Jobs (NF!),close-date,Job CLOSE date is Less Than,Date,99/99/9999,NO,''," + fDateString(1)
+            cParm[2] = "Purge Jobs (NF!),job-no,Job Range,Character,x(9),YES,0,9999999".
+        WHEN "Purge POs (NF9)" THEN ASSIGN 
+            cParm[1] = "Purge POs (NF9),po-no,PO Number,Integer,>>>>>>>9,YES,0,99999999"
+            cParm[2] = "Purge POs (NF9),po-date,PO entered date,Date,99/99/9999,YES," + fDateString(40) + "," + fDateString(3)
+            cParm[3] = "Purge POs (NF9),vend-no,Vendor,Character,x(20),YES,,zzzzzzzzzzzz"
+            cParm[4] = "Purge POs (NF9),purgeIfLinked,Purge POs if Linked to Invoices/Receipts,logical,Yes/No,NO,,No".
     END.
+
     RUN BuildParmsByPurgeTT.
 
 END PROCEDURE.
@@ -2273,6 +2303,34 @@ END FUNCTION.
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fDateString) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateString Procedure
+FUNCTION fDateString RETURNS CHARACTER 
+  ( iYrOffset AS INT ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		
+    DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+
+    ASSIGN 
+        RESULT = STRING(MONTH(TODAY),"99") + "/" +
+                 STRING(DAY(TODAY),"99") + "/" +
+                 STRING(YEAR(TODAY) - iYrOffset,"9999").
+		
+    RETURN result.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-fEndPurge) = 0 &THEN
 
