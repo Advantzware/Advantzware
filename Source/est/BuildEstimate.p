@@ -72,7 +72,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
                 /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
-                RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
+                RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
                     
             END.
         END.        
@@ -96,7 +96,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
                 /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
-                RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
+                RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
                     
             END.
         END.        
@@ -121,7 +121,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
                 /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
-                RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
+                RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
                     
             END.
         END.        
@@ -146,7 +146,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
                 /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
-                RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
+                RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT opriEb).
                     
             END.
         END.        

@@ -3359,7 +3359,7 @@ PROCEDURE copy-line :
     RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
 /*    RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
-    RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-rowid).
+    RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -4007,7 +4007,7 @@ PROCEDURE createESTfromArtios :
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
             /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
-            RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-crt-est-rowid).
+            RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-crt-est-rowid).
             
         END.
      END.
@@ -4268,7 +4268,7 @@ PROCEDURE createEstFromImpact :
             FIND FIRST ef OF eb NO-LOCK NO-ERROR.
  
             /*            RUN cec/newblank.p (ROWID(ef), OUTPUT lv-crt-est-rowid).*/
-            RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-crt-est-rowid).        
+            RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-crt-est-rowid).        
         END.
      END.
      
@@ -4559,7 +4559,7 @@ PROCEDURE crt-new-set :
      RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
 /*     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).*/
-    RUN cec/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-rowid).
+    RUN est/NewEstimateBlank.p(ROWID(ef),"C", OUTPUT lv-rowid).
 
   IF ll-add-set-part-2 THEN
   DO:
