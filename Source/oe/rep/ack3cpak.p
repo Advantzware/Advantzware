@@ -30,10 +30,20 @@ def var v-tax-rate     as dec format ">,>>9.99<<<".
 def var v-frt-tax-rate like v-tax-rate.
 DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-image1     AS CHARACTER NO-UNDO.
+DEF VAR ls-image2     AS CHARACTER NO-UNDO.
+DEF VAR ls-full-img1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
 DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
@@ -709,6 +719,13 @@ find first company where company.company eq cocode no-lock no-error.
 
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
 
-  END. /* each oe-ord */
+
+        PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                                PAGE.
+
+        PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                                PAGE. 
+
+    END. /* each oe-ord */
 
 /* end ---------------------------------- copr. 2001  Advanced Software, Inc. */
