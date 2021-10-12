@@ -576,6 +576,21 @@ PROCEDURE pValidate PRIVATE:
                     opcNote  = "Invalid Board ID"
                     .
         END.
+        IF oplValid AND ipbf-ttImportEstimate.BoardID EQ "" 
+            AND ipbf-ttImportEstimate.Flute NE "" AND ipbf-ttImportEstimate.Test NE "" THEN 
+        DO:
+            FIND FIRST ITEM NO-LOCK 
+                WHERE item.company EQ ipbf-ttImportEstimate.Company
+                AND  item.flute EQ ipbf-ttImportEstimate.Flute
+                AND item.reg-no EQ ipbf-ttImportEstimate.Test
+                NO-ERROR.
+                
+            IF NOT AVAILABLE item THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Board not found matching Flute and Test"
+                    .
+        END.
         IF oplValid AND ipbf-ttImportEstimate.GlueID NE "" THEN 
         DO:
             FIND FIRST item NO-LOCK 

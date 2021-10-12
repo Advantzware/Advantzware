@@ -37,9 +37,23 @@ DEFINE TEMP-TABLE w-probeit LIKE probeit
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE pQuoteAutoCreateFromEst:
+PROCEDURE Quote_CreateQuoteFromEst:
     /*------------------------------------------------------------------------------
      Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    
+    RUN pQuoteAutoCreateFromEst(iprwRowid, ipcCompany, ipcEstimateNo).
+    
+END.    
+
+
+PROCEDURE pQuoteAutoCreateFromEst PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Internal Procedure for calculating the estimate
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
@@ -730,7 +744,7 @@ PROCEDURE pUnApprovedDuplicateQuote:
         AND bf-quotehd.cust-no EQ quotehd.cust-no
         AND bf-quotehd.ship-id EQ quotehd.ship-id
         AND bf-quotehd.pricingMethod EQ quotehd.pricingMethod
-        AND bf-quotehd.effectiveDate LE TODAY
+        AND bf-quotehd.effectiveDate LT TODAY
         AND rowid(bf-quotehd) NE iprwRowid ,
         EACH quoteitm NO-LOCK
              WHERE quoteitm.company EQ bf-quotehd.company

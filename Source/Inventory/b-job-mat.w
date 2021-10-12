@@ -37,9 +37,13 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE exclude-brwCustom
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 
@@ -172,9 +176,10 @@ DEFINE BROWSE br_table
       job-mat.len FORMAT ">>9.99<<":U WIDTH 18
       job-mat.n-up COLUMN-LABEL "#  Up" FORMAT ">>9":U WIDTH 18
       job-mat.qty-iss FORMAT "->>,>>9.99<<<<":U
+      cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 178 BY 18.48
          FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
 
 

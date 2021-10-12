@@ -1108,6 +1108,24 @@ DO:
                     APPLY "tab" TO oe-ordl.qty.
                  END.
               END.
+              ELSE DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company = oe-ord.company
+                     AND cust.cust-no = oe-ord.cust-no NO-ERROR. 
+                     
+                FIND FIRST itemfg  NO-LOCK
+                     WHERE itemfg.company EQ g_company
+                     AND itemfg.i-no    EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR.     
+                RUN windows/lOePrmtx.w (g_company, oe-ordl.i-no:screen-value,oe-ord.cust-no,(IF AVAIL cust THEN cust.TYPE ELSE ""),
+                                         (IF AVAIL itemfg THEN itemfg.procat ELSE ""),oe-ord.ship-id, OUTPUT char-val).
+                IF char-val NE "" THEN DO:
+                  ASSIGN        
+                  oe-ordl.qty:screen-value = ENTRY(1,char-val)
+                  oe-ordl.price:screen-value = ENTRY(2,char-val)
+                  oe-ordl.pr-uom:screen-value = ENTRY(3,char-val) .
+                END.  
+                                         
+              END.
          END.
          WHEN "i-no" THEN DO:
               RUN windows/l-itemfa.w (g_company, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
@@ -7602,19 +7620,16 @@ PROCEDURE OnSaveButton :
         FIND CURRENT oe-ord EXCLUSIVE.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
-        DO:      
-            IF NOT cPromManualChanged AND cDueManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date,
-                    INPUT oe-ordl.prom-date,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.prom-date = dCalcPromDate.
-            END.
-            ELSE
+        DO:             
+            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                INPUT oe-ordl.req-date,
+                INPUT oe-ordl.prom-date,
+                INPUT "DueDate",
+                INPUT ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate).
+            oe-ordl.prom-date = dCalcPromDate.
+            
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,

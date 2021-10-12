@@ -232,6 +232,7 @@ DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowResetType   AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -5922,7 +5923,7 @@ PROCEDURE local-copy-record :
   IF lv-copy-what = "" THEN RETURN.
 
   IF lv-copy-what EQ "copy" THEN DO:
-      RUN ce/copyestN.w (lv-copy-what, est.est-no, OUTPUT v-neweb-est ) .
+      RUN ce/copyestN.w (lv-copy-what, (IF AVAIL est THEN est.est-no ELSE ""), OUTPUT v-neweb-est ) .
       IF v-neweb-est NE "" THEN DO:
           FIND FIRST est WHERE est.company EQ cocode
               AND est.est-no EQ FILL(" ",8 - LENGTH(TRIM(v-neweb-est))) + TRIM(v-neweb-est) NO-LOCK NO-ERROR .
@@ -6132,6 +6133,7 @@ PROCEDURE local-delete-record :
   IF AVAIL est THEN DO:
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
     RUN pResetQtySet(ROWID(est)).
+    IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
 
     IF AVAIL eb THEN RUN dispatch ("open-query").
@@ -6141,7 +6143,7 @@ PROCEDURE local-delete-record :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl). 
     DO WHILE TRUE:
       RUN get-num-records IN WIDGET-HANDLE(char-hdl) (lv-rowid, OUTPUT lv-num-rec). /* not to get error 2108 4 times*/
-      IF lv-num-rec NE 0 THEN DO:
+      IF lv-num-rec NE 0 AND lv-eb-recid NE ? THEN DO:
         IF lv-num-rec EQ ? THEN
           RUN dispatch IN WIDGET-HANDLE(char-hdl) ('get-prev').
         ELSE
@@ -6152,6 +6154,7 @@ PROCEDURE local-delete-record :
           /*LEAVE.       */
           RUN pSetFirstRunValue IN WIDGET-HANDLE(char-hdl)(yes).
           RUN local-open-query IN WIDGET-HANDLE(char-hdl).
+          LEAVE.
       END.
     END.
   END.
@@ -6748,10 +6751,12 @@ PROCEDURE mass-delete :
     RUN est/ItemDeleteSelection.w (
         INPUT-OUTPUT TABLE tt-eb
         ).
+    lAllowResetType = NO.    
     FOR EACH tt-eb
         WHERE tt-eb.selected
-        BY tt-eb.form-no DESCENDING 
+        BREAK BY tt-eb.form-no DESCENDING 
         BY tt-eb.blank-no DESCENDING:
+        IF LAST(tt-eb.blank-no) THEN lAllowResetType = YES.
         FIND FIRST bf-ef NO-LOCK
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
@@ -6767,7 +6772,8 @@ PROCEDURE mass-delete :
   FOR EACH tt-eb:
     DELETE tt-eb.
   END.
-
+  lAllowResetType = NO.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

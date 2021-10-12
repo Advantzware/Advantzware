@@ -96,11 +96,16 @@ DEF VAR v-len-score3 AS CHAR FORMAT 'x(30)'          NO-UNDO.
 DEF VAR v-xcnt       AS INT                          NO-UNDO.
 DEF VAR v-ship-id    AS CHAR                         NO-UNDO.
 DEF VAR v-frt-pay-dscr AS CHAR FORMAT "x(14)"        NO-UNDO.
+DEF VAR lv-val         AS CHAR                       NO-UNDO.
+DEF VAR lv-typ         AS CHAR                       NO-UNDO.
 
 DEF BUFFER bf-reftable1 FOR reftable.
 DEF BUFFER bf-reftable2 FOR reftable.
 
 DEF VAR tb_app-unprinted AS LOG NO-UNDO.
+DEFINE        VARIABLE hdPOProcs       AS HANDLE    NO-UNDO.
+
+RUN po/POProcs.p PERSISTENT SET hdPOProcs.
 
 ASSIGN
    ls-image1 = "images\loy2.jpg"
@@ -308,51 +313,23 @@ do v-local-loop = 1 to v-local-copies:
             AND job-mat.job     EQ job.job
             AND job-mat.i-no    EQ po-ordl.i-no
             AND job-mat.frm     EQ job-hdr.frm:
+            
+            RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+            INPUT  po-ordl.company,
+            INPUT  po-ordl.po-no,
+            INPUT  po-ordl.line,
+            OUTPUT lv-val,
+            OUTPUT lv-typ
+            ).
+          
+            DELETE PROCEDURE hdPOProcs.
 
-
-           FIND FIRST bf-reftable1 NO-LOCK
-              WHERE bf-reftable1.reftable EQ "POLSCORE"
-                AND bf-reftable1.company  EQ po-ordl.company
-                AND bf-reftable1.loc      EQ "1"
-                AND bf-reftable1.code     EQ STRING({1}po-ordl.po-no,"9999999999")
-                AND bf-reftable1.code2    EQ STRING({1}po-ordl.line, "9999999999") NO-ERROR.
-           
-            FIND FIRST bf-reftable2 NO-LOCK
-             WHERE bf-reftable2.reftable EQ "POLSCORE"
-               AND bf-reftable2.company  EQ {1}po-ordl.company
-               AND bf-reftable2.loc      EQ "2"
-               AND bf-reftable2.code     EQ STRING({1}po-ordl.po-no,"9999999999")
-               AND bf-reftable2.code2    EQ STRING({1}po-ordl.line, "9999999999") NO-ERROR.
-           
-            IF AVAIL bf-reftable1 OR AVAIL bf-reftable2 THEN DO:
-           
-              DO v-xcnt = 1 TO 12:
-                IF bf-reftable1.val[v-xcnt] NE 0 THEN DO:
-                  v-len-score = "".
-                  LEAVE.
-                END.                        
-              END.
-           
-              DO v-xcnt = 1 TO 12:
-                IF STRING(bf-reftable1.val[v-xcnt]) EQ "0" 
-                  THEN NEXT.
-                ASSIGN v-len-score = v-len-score + 
-                                     STRING(bf-reftable1.val[v-xcnt]) + " " +
-                                     SUBSTR(bf-reftable1.dscr,v-xcnt,1)
-                                     + " ".
-              END.
-           
-              DO v-xcnt = 1 TO 12:
-                IF STRING(bf-reftable2.val[v-xcnt]) EQ "0" THEN NEXT.
-                ASSIGN v-len-score = v-len-score + 
-                                     STRING(bf-reftable2.val[v-xcnt]) + " " +
-                                     SUBSTR(bf-reftable2.dscr,v-xcnt,1)
-                                     + " ".
-              END.            
-            END.               
+            ASSIGN  
+              v-len-score = lv-val.
+            
         END.         
-
-        v-len-score = TRIM(v-len-score).
+        
+       v-len-score = TRIM(v-len-score).
 
         IF LENGTH(v-len-score) GT 25 THEN DO:
 
@@ -641,8 +618,8 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                v-shpnote[4] = ''
                v-whs-ship-id = IF AVAIL xoe-ordl AND
                                   AVAIL oe-rel-whse THEN
-                                  "WHSE" ELSE ""
-               v-ship-id    = IF v-whs-ship-id NE "" THEN "WHSE"
+                                  "LOC" ELSE ""
+               v-ship-id    = IF v-whs-ship-id NE "" THEN "LOC"
                               ELSE IF AVAIL xoe-rel AND TRIM(xoe-rel.ship-id) NE "" THEN
                                  xoe-rel.ship-id
                               ELSE IF AVAIL xoe-ord AND TRIM(xoe-ord.sold-id) NE "" THEN
@@ -677,12 +654,12 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                FIND FIRST b1-shipto NO-LOCK WHERE
                           b1-shipto.company EQ xoe-ordl.company AND
                           b1-shipto.cust-no EQ b1-in-house-cust.cust-no AND
-                          b1-shipto.ship-id EQ "WHSE" NO-ERROR.
+                          b1-shipto.ship-id EQ "LOC" NO-ERROR.
 
             ASSIGN v-whs-ship-id = IF AVAIL xoe-ordl AND
                                    AVAIL b1-shipto THEN
-                                   "WHSE" ELSE ""
-                   v-ship-id     = IF v-whs-ship-id NE "" THEN "WHSE"
+                                   "LOC" ELSE ""
+                   v-ship-id     = IF v-whs-ship-id NE "" THEN "LOC"
                                    ELSE IF AVAIL xoe-rel AND TRIM(xoe-rel.ship-id) NE "" THEN
                                    xoe-rel.ship-id
                                    ELSE IF AVAIL xoe-ord AND TRIM(xoe-ord.sold-id) NE "" THEN
@@ -694,7 +671,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
         END.
                 
         
-        /* this is for in house shipto WHSE */
+        /* this is for in house shipto LOC */
         if AVAIL b1-shipto AND v-whs-ship-id NE ""  then do:
            ASSIGN               
               v-ship = "".              
@@ -743,7 +720,7 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
                            bf-shipto.ship-state + "  " + bf-shipto.ship-zip.
           END.
           
-          IF v-whs-ship-id EQ "WHSE" THEN
+          IF v-whs-ship-id EQ "LOC" THEN
           DO:          
               FIND FIRST bf-shipto WHERE
                           bf-shipto.company EQ cust.company AND

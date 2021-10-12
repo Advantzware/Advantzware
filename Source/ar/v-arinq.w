@@ -73,7 +73,7 @@ ar-inv.gross ar-inv.ship-id ar-inv.freight ar-inv.inv-no ar-invl.cost ~
 ar-invl.dscr[1] ar-inv.tax-amt ar-inv.tax-code ar-inv.terms ar-inv.terms-d ~
 ar-inv.inv-date ar-inv.disc-% ar-inv.disc-taken ar-inv.due-date ~
 ar-inv.disc-days ar-inv.paid ar-invl.ord-no ar-inv.carrier ar-inv.po-no ~
-ar-inv.due 
+ar-inv.due ar-inv.ediInvoice
 &Scoped-define DISPLAYED-TABLES ar-inv ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
 &Scoped-define SECOND-DISPLAYED-TABLE ar-invl
@@ -165,6 +165,10 @@ DEFINE FRAME F-Main
      ar-inv.terms-d AT ROW 5.05 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 65 BY 1
+     ar-inv.ediInvoice AT ROW 5.05 COL 79 COLON-ALIGNED 
+          LABEL "No EDI"
+          VIEW-AS TOGGLE-BOX 
+          SIZE 18 BY 1      
      ar-inv.inv-date AT ROW 6 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -281,6 +285,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.tax-code IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-inv.ediInvoice IN FRAME F-Main
+   EXP-LABEL                                                            */   
 /* SETTINGS FOR FILL-IN ar-inv.terms-d IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */

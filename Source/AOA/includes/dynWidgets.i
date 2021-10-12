@@ -102,6 +102,7 @@ PROCEDURE pComboBox:
     DEFINE INPUT  PARAMETER ipdWidth         AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplListItemPairs AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcListItems     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSort          AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFormat        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcValue         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiLines         AS INTEGER   NO-UNDO.
@@ -121,6 +122,7 @@ PROCEDURE pComboBox:
         ROW = ipdRow
         WIDTH = ipdWidth
         FORMAT = ipcFormat
+        SORT = ipcSort
         INNER-LINES = ipiLines
         SIDE-LABEL-HANDLE = hLabel
         SENSITIVE = iplSensitive
@@ -166,6 +168,7 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE hPickList   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAutoClose  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lOnePer     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRunSync    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSensitive  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
@@ -308,6 +311,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.paramWidth,
                 CAN-DO(dynParamSetDtl.action,"LIST-ITEM-PAIRS"),
                 cInitItems,
+                CAN-DO(dynParamSetDtl.action,"SORT"),
                 dynParam.paramFormat,
                 cParamValue,
                 dynParam.innerLines,
@@ -493,6 +497,8 @@ PROCEDURE pCreateDynParameters :
         DO WHILE VALID-HANDLE(hWidget):
             IF hWidget:NAME EQ "svAutoClose" THEN
             hWidget:SCREEN-VALUE = STRING(dynSubject.autoClose).
+            IF hWidget:NAME EQ "svOnePer" THEN
+            hWidget:SCREEN-VALUE = STRING(dynSubject.onePer).
             IF hWidget:NAME EQ "svRunSync" THEN
             hWidget:SCREEN-VALUE = STRING(dynSubject.runSync).
             FIND FIRST dynValueParam NO-LOCK

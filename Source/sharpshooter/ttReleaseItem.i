@@ -23,6 +23,15 @@ DEFINE TEMP-TABLE ttReleaseItem NO-UNDO
     FIELD quantityOnHand            AS DECIMAL     LABEL "On Hand Quantity"           FORMAT "->>>>>>>>9.99<<<<"
     FIELD quantityOfUnitsRelease    AS INTEGER     LABEL "Total Release Units"        FORMAT ">>>>>>>>9"
     FIELD quantityOfUnitsScanned    AS INTEGER     LABEL "Total Scanned Units"        FORMAT ">>>>>>>>9"
+    FIELD jobID                     AS CHARACTER   LABEL "Job #"                      FORMAT "X(6)"
+    FIELD jobID2                    AS INTEGER     LABEL "Run"                        FORMAT ">>9"
+    FIELD customerPO                AS CHARACTER   LABEL "Customer PO #"              FORMAT "X(15)"
+    FIELD quantityReceivedJob       AS DECIMAL     LABEL "Job Quantity Received"      FORMAT "->>>>>>>>9.99<<<<"
+    FIELD quantityReceivedPO        AS DECIMAL     LABEL "PO Quantity Received"       FORMAT "->>>>>>>>9.99<<<<"
+    FIELD underRunPercent           AS DECIMAL     LABEL "Under Run %"                FORMAT ">>9.99"
+    FIELD overRunPercent            AS DECIMAL     LABEL "Over Run %"                 FORMAT ">>9.99"
+    FIELD emptyColumn               AS CHARACTER   LABEL ""
     INDEX idxRelease company releaseID 
     INDEX idxItem company releaseID itemID
+    INDEX idxOrderPO company releaseID itemID orderID customerPO
     .

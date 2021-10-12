@@ -1,0 +1,11 @@
+{
+    "vendorUniqueId": "$VendorID$",
+    "poNumber": "$PoNo$",
+    "poDate": "$PoDate|yyyy-MM-ddThh:mm:ss.nnn|DATE|$",
+    "poAmount": $TotalCost$,
+    "poCurrencyCode": "USD",
+    "notes": [{
+        "note": "$PONotes$"
+    }],
+    "lines": [$detail$]
+}

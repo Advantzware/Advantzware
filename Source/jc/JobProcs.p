@@ -209,6 +209,7 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job-no  EQ ipcJobno
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
+           BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
                             STRING(bf-job-hdr.job-no2,"99")
@@ -1104,6 +1105,39 @@ PROCEDURE GetJobHdrDetails:
             opcCustno = job-hdr.cust-no
             opcIno    = job-hdr.i-no.
                                 
+END PROCEDURE.
+
+PROCEDURE getLastActivity:
+/*------------------------------------------------------------------------------
+ Purpose:  
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLastActivity AS CHARACTER NO-UNDO.
+
+/*    FIND FIRST mch-act NO-LOCK                    */
+/*         WHERE mch-act.company EQ ipcCompany      */
+/*           AND mch-act.job-no  EQ ipcJobno        */
+/*           AND mch-act.job-no2 EQ ipiJobno2       */
+/*           NO-ERROR.                              */
+/*    IF AVAILABLE mch-act AND mch-act.complete THEN*/
+/*    ASSIGN                                        */
+/*         opcLastActivity  = "Posted".             */
+/*    ELSE IF AVAILABLE mch-act THEN                */
+/*         opcLastActivity = "Unposted".            */
+    FOR EACH mch-act NO-LOCK 
+        WHERE mch-act.company EQ ipcCompany
+          AND mch-act.job-no  EQ ipcJobno
+          AND mch-act.job-no2 EQ ipiJobno2
+        BREAK BY mch-act.op-date
+              BY mch-act.stopp
+        :
+        IF LAST(mch-act.stopp) THEN
+        opcLastActivity = mch-act.m-code.
+    END. /* each mch-act */
+                                         
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */

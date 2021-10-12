@@ -53,3 +53,4 @@
 55 "OnlyShowQOHOlderThanDays" "System" "Only Show QOH Older Than Days" "Integer" ">>9" "Fill-In" "" "0" 1 14 0 "" "" "" ? "" "202107074574107541370"
 56 "InvoiceID" "System" "Invoice ID" "Integer" ">>>>>>>9" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202107163546507787476"
 58 "Company" "System" "Company" "Character" "x(3)" "Combo-Box" "" "" 1 10 5 "dynInitCompanyList" "" "" ? "" "202107285207907825775"
+59 "Selection-List" "System" "Selection List" "Character" "x(30)" "Selection-List" "" "" 1 14 10 "dynInitNK1AutoPDC" "" "" ? "" "202108207471607910289"
