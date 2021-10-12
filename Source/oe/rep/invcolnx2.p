@@ -130,6 +130,17 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 ASSIGN ls-image1 = "images\ccci.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+       
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
@@ -785,6 +796,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     ASSIGN v-printline = v-printline + 6.
 
     IF v-printline <= 66 THEN PAGE. 
+
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                            PAGE.
+
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                            PAGE.
 
 END. /* each xinv-head */
 
