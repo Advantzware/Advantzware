@@ -119,7 +119,7 @@ DEFINE VARIABLE dtTransType AS CHARACTER FORMAT "x(10)":U  INITIAL "Update"
      FGCOLOR 0 FONT 22 NO-UNDO.
   
 DEFINE VARIABLE fiReceiptDate AS DATE FORMAT "99/99/9999":U 
-     LABEL "Receipt Date" 
+     LABEL "New Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -299,7 +299,7 @@ DO:
   END.
   
   IF fiReceiptDate EQ ? AND dtTransType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Update" THEN DO:
-    MESSAGE "Receipt date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
+    MESSAGE "New date must not be blank.  Please re-enter." VIEW-AS ALERT-BOX.
     APPLY "Entry" TO fiReceiptDate.
     RETURN.
   END.
@@ -326,7 +326,7 @@ DO:
   MESSAGE "All Unposted Transactions" 
           VIEW-AS ALERT-BOX INFO.
 
-  MESSAGE "Are you sure you want to" (IF dtTransType:SCREEN-VALUE EQ "Update" THEN "update Receipt Date "
+  MESSAGE "Are you sure you want to" (IF dtTransType:SCREEN-VALUE EQ "Update" THEN "update New Date "
            ELSE "delete FG Transactions")
           "within the selected parameters?"       
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
