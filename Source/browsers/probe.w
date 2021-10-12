@@ -2648,7 +2648,6 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
  
- DEFINE VARIABLE lGrossProfitVisible AS LOGICAL NO-UNDO.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAILABLE est THEN RETURN "adm-error".
@@ -2675,18 +2674,9 @@ PROCEDURE local-open-query :
     RUN est/usemargin.p (ROWID(est), OUTPUT ll-use-margin).
 
   ASSIGN
-     lGrossProfitVisible = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
-     probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = lGrossProfitVisible
+     probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NOT(ll-use-margin AND cerunf = "Fibre" AND cerunc = "Fibre")
      probe.comm:VISIBLE IN BROWSE {&browse-name} = NOT(probe.gross-profit:VISIBLE IN BROWSE {&browse-name}).
   
-  IF AVAIL est and est.estimateTypeID EQ "Misc" THEN 
-    ASSIGN
-       probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = NO
-       probe.net-profit:VISIBLE IN BROWSE {&browse-name} = NO.
-  ELSE 
-    ASSIGN 
-       probe.gross-profit:VISIBLE IN BROWSE {&browse-name} = lGrossProfitVisible
-       probe.net-profit:VISIBLE IN BROWSE {&browse-name}   = YES.
           
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"
@@ -2707,48 +2697,8 @@ PROCEDURE pGetCEVersionCalcSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
-    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
+    RUN Estimate_GetVersionSettings(ipbf-est.company, ipbf-est.estimateTypeID, OUTPUT glEstimateCalcNew, OUTPUT glEstimateCalcNewPrompt).
 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    glEstimateCalcNew = lFound AND cReturn EQ "New".
- 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    IF lRecFound THEN 
-        iCEVersion = INTEGER(cReturn).
-        
-    IF glEstimateCalcNew THEN 
-        CASE iCEVersion:
-            WHEN 1 THEN 
-                ASSIGN 
-                    glEstimateCalcNewPrompt = glEstimateCalcNew.
-            WHEN 2 THEN 
-                DO:
-                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNew = NO.            
-                    ASSIGN 
-                        glEstimateCalcNewPrompt = glEstimateCalcNew.
-                END.
-            WHEN 3 THEN 
-                DO:
-                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNewPrompt = YES.
-                    ELSE 
-                        glEstimateCalcNewPrompt = NO.            
-                END.
-            WHEN 4 THEN 
-                DO:
-                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
-                        ASSIGN 
-                            glEstimateCalcNew       = NO
-                            glEstimateCalcNewPrompt = NO.
-                END.
-        END CASE.
 
 END PROCEDURE.
 

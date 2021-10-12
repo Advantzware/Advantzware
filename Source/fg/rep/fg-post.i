@@ -27,8 +27,8 @@
       
       ELSE DO:
         &IF DEFINED(NOOUTPUT) = 0 &THEN
-        put STREAM before skip(2) "WHSE: " v-whse skip(1).
-        put STREAM after  skip(2) "WHSE: " v-whse skip(1).
+        put STREAM before skip(2) "LOCN: " v-whse skip(1).
+        put STREAM after  skip(2) "LOCN: " v-whse skip(1).
         &ENDIF
       END.
     end.

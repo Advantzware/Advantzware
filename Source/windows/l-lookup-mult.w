@@ -76,6 +76,7 @@ DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
 
 DEFINE VARIABLE cFilterValue    AS CHARACTER NO-UNDO EXTENT 1000.
 DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustListTable  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE h_brbuffer      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_browser       AS HANDLE    NO-UNDO.
@@ -324,34 +325,8 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Help Information */
-DO:     
-    IF VALID-HANDLE(h_query) THEN DO:
-        IF h_query:IS-OPEN THEN
-        h_query:QUERY-CLOSE().
-        DELETE OBJECT h_query.
-    END.    
-    
-    IF VALID-HANDLE(h_brquery) THEN DO:
-        IF h_brquery:IS-OPEN THEN
-        h_brquery:QUERY-CLOSE().
-        DELETE OBJECT h_brquery.
-    END.    
-
-    IF VALID-HANDLE(h_ttquery) THEN DO:
-        IF h_ttquery:IS-OPEN THEN
-        h_ttquery:QUERY-CLOSE().
-        DELETE OBJECT h_ttquery.
-    END.    
-
-    IF VALID-HANDLE(h_tt) THEN
-    DELETE OBJECT h_tt.
-    
-    IF VALID-HANDLE(h_brtt) THEN
-    DELETE OBJECT h_brtt.
-    
-    IF VALID-HANDLE(hDynCalcField) THEN
-    DELETE OBJECT hDynCalcField.
-      
+DO:
+    RUN pClose.
     APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -659,6 +634,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "ENTRY":U TO h_focus.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
+RUN pClose.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
@@ -887,7 +863,7 @@ PROCEDURE attachQuery :
         "FOR EACH" + " " +
         h_brbuffer:NAME + " " +
         "NO-LOCK" + 
-        SUBSTITUTE(cCustListQuery, h_brbuffer:NAME)
+        REPLACE(cCustListQuery, "&1", h_brbuffer:NAME)
         ).
 
     h_brquery:QUERY-OPEN().
@@ -909,8 +885,18 @@ PROCEDURE buildTempTable :
     DEFINE VARIABLE h_field    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE ls-allData AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBuffer    AS INTEGER   NO-UNDO.
-    
-    ls-queryString = ip-queryString. 
+
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+                
+    ls-queryString = ip-queryString
+                   + cLocalCustListQuery.
+                    
     h_query:QUERY-PREPARE (ls-queryString).
     
     h_query:QUERY-OPEN().        
@@ -1192,7 +1178,8 @@ PROCEDURE init :
                     ).
                 IF lUseCustList THEN
                 ASSIGN
-                    cCustListField = ENTRY(2,dynValueColumn.colName,".")
+                    cCustListField = REPLACE(dynValueColumn.colName,".", "&")
+                    cCustListTable = ENTRY(1, dynValueColumn.colName, ".")
                     cCustListQuery = ", FIRST ttCustList WHERE ttCustList.cust-no EQ &1."
                                    + cCustListField
                                    + " AND ttCustList.log-fld EQ YES "
@@ -1433,6 +1420,47 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClose Dialog-Frame
+PROCEDURE pClose:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(h_query) THEN DO:
+        IF h_query:IS-OPEN THEN
+        h_query:QUERY-CLOSE().
+        DELETE OBJECT h_query.
+    END.    
+    
+    IF VALID-HANDLE(h_brquery) THEN DO:
+        IF h_brquery:IS-OPEN THEN
+        h_brquery:QUERY-CLOSE().
+        DELETE OBJECT h_brquery.
+    END.    
+
+    IF VALID-HANDLE(h_ttquery) THEN DO:
+        IF h_ttquery:IS-OPEN THEN
+        h_ttquery:QUERY-CLOSE().
+        DELETE OBJECT h_ttquery.
+    END.    
+
+    IF VALID-HANDLE(h_tt) THEN
+    DELETE OBJECT h_tt.
+    
+    IF VALID-HANDLE(h_brtt) THEN
+    DELETE OBJECT h_brtt.
+    
+    IF VALID-HANDLE(hDynCalcField) THEN
+    DELETE OBJECT hDynCalcField.
+      
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame 
 PROCEDURE prevPage PRIVATE :
@@ -1837,19 +1865,31 @@ PROCEDURE validateRecordLimit :
     DEFINE VARIABLE ls-lqueryString AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBufferCount    AS INTEGER   NO-UNDO.
-    
+
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
+
     IF ip-recLimit LE 0 THEN DO:
         ip-filterFirst = TRUE.
         RETURN.
     END.
 
-    ls-lqueryString = ip-queryString.
-    
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+
+    ls-lqueryString = ip-queryString
+                    + cLocalCustListQuery.
+
     CREATE QUERY h_lquery.
     
     DO iBufferCount = 1 TO EXTENT(h_buffer):
         h_lquery:ADD-BUFFER(h_buffer[iBufferCount]).         
     END.
+
+    IF lUseCustList THEN
+        h_lquery:ADD-BUFFER(BUFFER ttCustList:HANDLE).
            
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
@@ -1891,6 +1931,7 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     DEFINE VARIABLE ld-dateValidation    AS DATE      NO-UNDO.
     DEFINE VARIABLE ls-comboboxValue     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iBuffer              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cLocalCustListQuery  AS CHARACTER NO-UNDO.
     
     h_widget = FRAME {&FRAME-NAME}:FIRST-CHILD:FIRST-CHILD.
 
@@ -1965,7 +2006,15 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     
     ls-returnQueryString = TRIM(ls-returnQueryString, ",").
     
-    ls-returnQueryString = ls-returnQueryString + "BY" + " " + REPLACE(ls-sortBy, "&", ".") + " "
+    ASSIGN
+        cLocalCustListQuery = cCustListQuery
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&1.", "")
+        cLocalCustListQuery = REPLACE(cLocalCustListQuery, "&", ".")
+        .
+    
+    ls-returnQueryString = ls-returnQueryString 
+                         + cLocalCustListQuery 
+                         + " BY" + " " + REPLACE(ls-sortBy, "&", ".") + " "
                          + ls-sortType
                          .
 
@@ -1991,7 +2040,7 @@ FUNCTION generateSearchQuery RETURNS CHARACTER
                                 + (IF ls-searchValue = "" THEN "" ELSE "WHERE" + " "
                                 + h_ttbuffer:NAME + "." + "allData MATCHES" + " "
                                 + ls-searchValue) + " "
-                                + SUBSTITUTE(cCustListQuery, h_ttbuffer:NAME)
+                                + REPLACE(cCustListQuery, "&1", h_ttbuffer:NAME)
                                 + "BY" + " " + h_ttbuffer:NAME + "." + ls-sortBy + " "
                                 + ls-sortType
                                 .

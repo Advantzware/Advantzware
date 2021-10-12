@@ -84,6 +84,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD runSync          LIKE dynParamValue.runSync
     FIELD autoClose        LIKE dynParamValue.autoClose
+    FIELD onePer           LIKE dynParamValue.onePer
+    FIELD formType         LIKE dynParamValue.formType
     FIELD saveLastRun      LIKE dynParamValue.saveLastRun
     FIELD scheduled          AS LOGICAL LABEL "Sched"
     FIELD securityLevel    LIKE dynParamValue.securityLevel
@@ -293,6 +295,8 @@ ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.runSync VIEW-AS TOGGLE-BOX
 ttDynParamValue.autoClose VIEW-AS TOGGLE-BOX
+ttDynParamValue.onePer VIEW-AS TOGGLE-BOX
+ttDynParamValue.formType
 ttDynParamValue.subjectType
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
@@ -1113,9 +1117,11 @@ PROCEDURE pGetParamValue :
                 ttDynParamValue.email            = fEmail()
                 ttDynParamValue.externalForm     = dynParamValue.externalForm
                 ttDynParamValue.favorite         = dynParamValue.favorite
+                ttDynParamValue.formType         = dynParamValue.formType
                 ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
                 ttDynParamValue.mnemonic         = dynParamValue.mnemonic
                 ttDynParamValue.module           = dynParamValue.module
+                ttDynParamValue.onePer           = dynParamValue.onePer
                 ttDynParamValue.outputFormat     = dynParamValue.outputFormat
                 ttDynParamValue.paramDescription = dynParamValue.paramDescription
                 ttDynParamValue.paramTitle       = dynParamValue.paramTitle
@@ -1367,6 +1373,7 @@ PROCEDURE pResultsJasper :
     DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRecipient  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hJasper     AS HANDLE    NO-UNDO.
     
@@ -1392,7 +1399,8 @@ PROCEDURE pResultsJasper :
         ipcUserID,
         hAppSrvBin,
         ipcTaskRecKey,
-        OUTPUT cJasperFile
+        OUTPUT cJasperFile,
+        OUTPUT cRecipient
         ).
     DELETE PROCEDURE hJasper.
     DELETE PROCEDURE hAppSrvBin.

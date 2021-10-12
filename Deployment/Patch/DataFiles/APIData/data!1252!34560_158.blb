@@ -1,0 +1,1 @@
+C$CheckCounter|999999999|Int|$Client NumTestTrn$Amount|9999999999|Int|$$InvoiceDate|YYMMDD|Date|$099999999$BankAccount|x(12)|$$FillZero|x(22)|$$FillZero|x(3)|$$VendorName|x(15)|$$VendorName|x(30)|$$VendorName|x(30)|$Client NumCustomer Number    $FillZero|x(96)|$$SPACE|x(12)|$$AdditionalRemittanceInformation|x(15)|$$SPACE|x(22)|$$SPACE|x(2)|$$SPACE|x(11)|$

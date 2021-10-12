@@ -65,10 +65,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_down2_disabled.ico":U
+     IMAGE-UP FILE "Graphics/32x32/last.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/last_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
-     SIZE 11 BY 2.62 TOOLTIP "Last".
+     SIZE 8 BY 1.9 TOOLTIP "Last".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -77,7 +77,8 @@ DEFINE FRAME F-Main
      btnLast AT ROW 1 COL 1 WIDGET-ID 44 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */

@@ -920,6 +920,7 @@ PROCEDURE ipPostSingleBOL:
         ELSE
             FIND FIRST oe-rel
                 WHERE oe-rel.r-no EQ oe-rell.link-no
+                AND oe-rel.i-no EQ oe-rell.i-no
                 USE-INDEX seq-no NO-ERROR.
 
         IF AVAILABLE oe-rel THEN 

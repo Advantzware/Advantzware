@@ -576,6 +576,21 @@ PROCEDURE pValidate PRIVATE:
                     opcNote  = "Invalid Board ID"
                     .
         END.
+        IF oplValid AND ipbf-ttImportEstimate.BoardID EQ "" 
+            AND ipbf-ttImportEstimate.Flute NE "" AND ipbf-ttImportEstimate.Test NE "" THEN 
+        DO:
+            FIND FIRST ITEM NO-LOCK 
+                WHERE item.company EQ ipbf-ttImportEstimate.Company
+                AND  item.flute EQ ipbf-ttImportEstimate.Flute
+                AND item.reg-no EQ ipbf-ttImportEstimate.Test
+                NO-ERROR.
+                
+            IF NOT AVAILABLE item THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Board not found matching Flute and Test"
+                    .
+        END.
         IF oplValid AND ipbf-ttImportEstimate.GlueID NE "" THEN 
         DO:
             FIND FIRST item NO-LOCK 
@@ -798,9 +813,10 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE hCustProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
-    
     IF NOT VALID-HANDLE(hCustProcs) THEN
         RUN system/CustomerProcs.p  PERSISTENT SET hCustProcs.
+
+    DEFINE BUFFER bf-style            FOR style.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
@@ -995,8 +1011,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF ipbf-ttImportEstimate.GlueID NE '' THEN 
         eb.adhesive = ipbf-ttIMportEstimate.GlueID.
-                
-    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN 
+    ELSE 
+        FOR FIRST bf-style NO-LOCK 
+            WHERE bf-style.company = eb.company 
+            AND bf-style.style   = eb.style:
+            eb.adhesive = bf-style.material[7].
+        END.
+         
+    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN
         eb.tab-in = YES.
     ELSE 
         eb.tab-in = ipbf-ttImportEstimate.TabInOut EQ "In".

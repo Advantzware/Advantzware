@@ -261,7 +261,7 @@ IF ipcItemType EQ cItemTypeFG THEN DO:
             ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
             ttItem.tag                     = IF AVAILABLE loadtag THEN
-                                                  loadtag.misc-char[1]
+                                                  loadtag.tag-no
                                               ELSE
                                                   ""
             ttItem.QuantityUOM             = hdBuffer:BUFFER-FIELD("pur-uom"):BUFFER-VALUE
@@ -344,7 +344,7 @@ ELSE DO:
             ttItem.Quantity                = hdBuffer:BUFFER-FIELD("qty"):BUFFER-VALUE
             ttItem.ItemType                = ipcItemType
             ttItem.tag                     = IF AVAILABLE loadtag THEN
-                                                  loadtag.misc-char[1]
+                                                  loadtag.tag-no
                                               ELSE
                                                   ""
             ttItem.QuantityUOM             = IF AVAILABLE item THEN

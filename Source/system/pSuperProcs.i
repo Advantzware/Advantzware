@@ -25,77 +25,20 @@ PROCEDURE pSuperProcs:
     DEFINE VARIABLE cInternalProcs AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProcFile      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSignature     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSuperProc     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hSuperProc     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
-    /* vv alphabetical list of persistent procedures vv */
-    cSuperProcs = "AOA/spDynCalcField.p,"
-                + "AOA/spDynDescriptionProc.p,"
-                + "AOA/spDynInitializeProc.p,"
-                + "AOA/spDynValidateProc.p,"
-                + "AOA/spJasper.p,"
-                + "api/AdvantzwareMonitorProcs.p,"
-                + "api/inbound/InventoryReceiptProcs.p,"
-                + "api/InboundProcs.p,"
-                + "api/JSONProcs.p,"
-                + "api/OutboundProcs.p,"
-                + "custom/schedule.p,"
-                + "est/ArtiosProcs.p,"
-                + "est/CadImgProcs.p,"
-                + "est/EstimateCalcProcs.p,"
-                + "est/EstimateProcs.p,"
-                + "fg/FgBinBuild.p,"
-                + "fg/FGItemIDProcs.p,"
-                + "fg/ReasonCode.p,"
-                + "inventory/CycleCountCompare.p,"
-                + "inventory/CycleCountCompareRM.p,"
-                + "Inventory/invBin.p,"
-                + "Inventory/InventoryProcs.p,"
-                + "Inventory/invIM.p,"
-                + "Inventory/invMTG.p,"
-                + "Inventory/invMTM.p,"
-                + "Inventory/invRG.p,"
-                + "Inventory/invRM.p,"
-                + "Inventory/invSG.p,"
-                + "jc/JobProcs.p,"
-                + "lstlogic/persist.p,"
-                + "methods/excelrep.p,"
-                + "nosweat/persist.p,"
-                + "oe/OrderProcs.p,"
-                + "oe/PriceProcs.p,"
-                + "oerep/LoadtagProcs.p,"
-                + "oerep/r-invprtARSuper.p,"
-                + "oerep/r-invprtOESuper.p,"
-                + "sys/NotesProcs.p,"
-                + "system/CommonProcs.p,"
-                + "system/ConversionProcs.p,"
-                + "system/CostProcs.p,"
-                + "system/CreditProcs.p,"
-                + "system/FileSysProcs.p,"
-                + "system/FormatProcs.p,"
-                + "system/FreightProcs.p,"
-                + "system/ftpProcs.p,"
-                + "system/GLProcs.p,"     
-                + "system/oeValidate.p,"
-                + "system/OSProcs.p,"
-                + "system/OutputProcs.p,"
-                + "system/PgmMstrSecur.p,"
-                + "system/ProgramMasterSecurity.p,"
-                + "system/PurgeProcs.p,"
-                + "system/Session.p,"
-                + "system/TagProcs.p,"
-                + "system/TaxProcs.p,"
-                + "system/VendorCostProcs.p,"
-                + "UDF/mfPersist.p,"
-                + "util/dev/spRefTable.p,"
-                + "util/dev/VendorCostConvProcs.p,"
-                + "util/ImportProcs.p,"
-                + "util/updQuoteProcs.p,"
-                + "util/Validate.p,"
-                .
-    /* ^^ alphabetical list of persistent procedures ^^ */
+    // add run persistent procedures to Resources/ProcedureList.dat alphabetically
+    INPUT FROM VALUE(SEARCH("ProcedureList.dat")) NO-ECHO.
+    IMPORT ^.
+    IMPORT ^.
+    REPEAT:
+        IMPORT cSuperProc.
+        cSuperProcs = cSuperProcs + cSuperProc + ",".
+    END. /* repeat */
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
         iCount = iCount + 1.

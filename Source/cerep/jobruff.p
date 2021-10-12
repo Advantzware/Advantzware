@@ -1237,12 +1237,12 @@ PROCEDURE pPrintData:
             "<C68><From><R+3><C68><Line><||6><R-2>" .
 
         PUT "<C1><FGCOLOR=GREEN>MACHINE           MR WASTE  MR HRS   RUN SPEED  SPOLL    INPUT  GOOD SHEETS/PCS   OPER INIT/DATE  <FGCOLOR=BLACK>" SKIP(1) .
-        j = 0 .
+        j = 0 .    
         MAIN:
         FOR EACH wrk-op 
-            //WHERE wrk-op.s-num = job-hdr.frm 
+            WHERE wrk-op.s-num EQ bf-xeb.form-no 
             BREAK by wrk-op.d-seq by wrk-op.b-num:
-             v-mat-for-mach = "".
+             v-mat-for-mach = "".   
              IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
                  
                 FOR EACH xjob-mat WHERE xjob-mat.company eq cocode
@@ -1275,10 +1275,10 @@ PROCEDURE pPrintData:
                                       ITEM.mat-type = "D" NO-LOCK :
                      v-mat-for-mach = v-mat-for-mach + "      " + ITEM.i-name.
                  END.
-             END.          
-             v-spoil = ROUND( ((wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm])
-                       * wrk-op.spoil[job-hdr.frm] / 100),0).
-             v-output = wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm] - v-spoil.
+             END.     
+             v-spoil = ROUND( ((wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num])
+                       * wrk-op.spoil[wrk-op.s-num] / 100),0).
+             v-output = wrk-op.num-sh[wrk-op.s-num] - wrk-op.mr-waste[wrk-op.s-num] - v-spoil.
 
               PUT "<R+1><C1><FROM><C82><LINE><||6><R-1>"  
                   "<C53><From><R+1><C53><Line><||6><R-1>" 
@@ -1287,11 +1287,11 @@ PROCEDURE pPrintData:
              IF s-prt-mstandard AND bf-xeb.form-no NE 0 THEN DO:                
                 /*IF s-run-speed THEN*/
                    PUT wrk-op.m-dscr   SPACE(2)
-                       wrk-op.mr-waste[job-hdr.frm]   SPACE(2)
-                       wrk-op.mr[job-hdr.frm]         SPACE(4)
-                       wrk-op.speed[job-hdr.frm] FORMAT ">>>>>9"     SPACE(1)
+                       wrk-op.mr-waste[wrk-op.s-num]   SPACE(2)
+                       wrk-op.mr[wrk-op.s-num]         SPACE(4)
+                       wrk-op.speed[wrk-op.s-num] FORMAT ">>>>>9"     SPACE(1)
                       v-spoil FORM ">>,>>9"     SPACE(2)
-                       wrk-op.num-sh[job-hdr.frm] SPACE(3)
+                       wrk-op.num-sh[wrk-op.s-num] SPACE(3)
                        
                      SKIP. 
              END.

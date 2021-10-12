@@ -602,11 +602,7 @@ IF v-process OR NOT lPurge THEN DO:
     FOR EACH po-ordl 
         WHERE po-ordl.company EQ po-ord.company 
           AND po-ordl.po-no   EQ po-ord.po-no:
-      {po/po-ordls.i}
-      IF AVAIL b-ref1 AND lPurge THEN 
-          DELETE b-ref1.
-      IF AVAIL b-ref2 AND lPurge THEN 
-          DELETE b-ref2.
+      
       
       IF NOT tbPurgeLinkedPO THEN DO:
           IF lPurge THEN DO:

@@ -162,7 +162,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(81.39) SKIP(1.84)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Warehouse Information".
+         TITLE "Location Information".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -213,7 +213,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Location Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.

@@ -38,6 +38,8 @@ CLASS oe.ReleaseHeader:
                 RETURN STRING(bf-oe-relh.printed).
             WHEN "Posted" THEN
                 RETURN STRING(bf-oe-relh.posted).
+            WHEN "Trailer" THEN
+                RETURN STRING(bf-oe-relh.trailer).
             OTHERWISE
                 RETURN "".
         END.

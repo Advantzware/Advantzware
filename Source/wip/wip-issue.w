@@ -69,6 +69,7 @@ DEFINE VARIABLE cValidateJobNo          AS         CHARACTER NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 RUN spGetSessionParam("Location", OUTPUT cLocation).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -90,7 +91,7 @@ RUN spGetSessionParam("Location", OUTPUT cLocation).
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE br-table                                      */
-&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.tag ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
 &Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory WHERE ttBrowseInventory.inventoryStatus NE "Created" BY ttBrowseInventory.lastTransTime DESCENDING
@@ -104,11 +105,12 @@ RUN spGetSessionParam("Location", OUTPUT cLocation).
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnKeyboard RECT-26 RECT-29 bt-exit ~
-bt-change ls-jobno cb-jobno2 btnNumPad cb-formno cb-blankno ls-tag ~
-btnKeyboard-2 br-table btnFirst btnPrevious btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS bt-exit btnFirst btnKeyboard btnLast btnNext ~
+btnPrevious bt-change ls-jobno cb-jobno2 btnNumPad cb-formno cb-blankno ~
+ls-tag btnKeyboard-2 br-table btnExitText 
 &Scoped-Define DISPLAYED-OBJECTS ls-jobno cb-jobno2 ls-order ls-cust ~
-cb-formno cb-blankno ls-item ls-wipitemid ls-tag ls-lastop ls-message 
+cb-formno cb-blankno ls-item ls-wipitemid ls-tag ls-lastop ls-message ~
+btnExitText statusMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,24 +127,24 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-change 
-     LABEL "Change" 
+     LABEL "CHANGE" 
      SIZE 19 BY 2.91
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9.6 BY 2.29.
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON bt-post 
      LABEL "Post" 
-     SIZE 40 BY 2.38
+     SIZE 13 BY 2.38
      FONT 37.
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
+     IMAGE-UP FILE "Graphics/32x32/first.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
-     SIZE 9.6 BY 2.29 TOOLTIP "First".
+     SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnKeyboard 
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS FLAT-BUTTON
@@ -155,14 +157,14 @@ DEFINE BUTTON btnKeyboard-2
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
+     IMAGE-UP FILE "Graphics/32x32/last.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Last".
+     SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U
+     IMAGE-UP FILE "Graphics/32x32/next.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Next".
+     SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnNumPad 
      IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U
@@ -170,9 +172,9 @@ DEFINE BUTTON btnNumPad
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnPrevious 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up.ico":U
-     LABEL "Previous" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Previous".
+     IMAGE-UP FILE "Graphics/32x32/previous.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Prev" 
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE VARIABLE cb-blankno AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -195,25 +197,30 @@ DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 10.2 BY 1
      FONT 37 NO-UNDO.
 
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 9 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE ls-cust AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-item AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-lastop AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-message AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -223,21 +230,21 @@ DEFINE VARIABLE ls-message AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE ls-order AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 80 BY 1.38
-     FONT 37 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-wipitemid AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1
-     FONT 35 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 35 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 202 BY 32.86.
+DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
+      VIEW-AS TEXT 
+     SIZE 116 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -248,17 +255,9 @@ DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.2 BY 3.33.
 
-DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 199 BY .1.
-
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.2 BY 3.62.
-
-DEFINE RECTANGLE RECT-29
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 199 BY .1.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -276,81 +275,77 @@ DEFINE BROWSE br-table
       ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)"
       ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
+      ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 189 BY 20.05
-         FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS NO-SCROLLBAR-VERTICAL SIZE 193 BY 20.05
+         BGCOLOR 15 FGCOLOR 0 FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnKeyboard AT ROW 1.95 COL 22 WIDGET-ID 136
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     bt-change AT ROW 1.95 COL 2 WIDGET-ID 8
-     ls-jobno AT ROW 1.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cb-jobno2 AT ROW 1.95 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
-     ls-order AT ROW 2.67 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 62
-     ls-cust AT ROW 2.67 COL 163.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-     cb-formno AT ROW 3.38 COL 54.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     cb-blankno AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     ls-item AT ROW 3.86 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     ls-wipitemid AT ROW 6.95 COL 133.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     ls-tag AT ROW 7.19 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     btnKeyboard-2 AT ROW 7.19 COL 99 WIDGET-ID 142
-     ls-lastop AT ROW 8.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     bt-exit AT ROW 1 COL 195 WIDGET-ID 84
+     btnFirst AT ROW 11.24 COL 195 WIDGET-ID 44
+     btnKeyboard AT ROW 2.71 COL 21 WIDGET-ID 136
+     btnLast AT ROW 16.95 COL 195 WIDGET-ID 46
+     btnNext AT ROW 15.05 COL 195 WIDGET-ID 42
+     btnPrevious AT ROW 13.14 COL 195 WIDGET-ID 40
+     bt-change AT ROW 2.71 COL 1 WIDGET-ID 8
+     ls-jobno AT ROW 2.71 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cb-jobno2 AT ROW 2.71 COL 79.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     btnNumPad AT ROW 3.43 COL 97 WIDGET-ID 138
+     ls-order AT ROW 3.43 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     ls-cust AT ROW 3.43 COL 162.2 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     cb-formno AT ROW 4.14 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     cb-blankno AT ROW 4.29 COL 79.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     ls-item AT ROW 4.62 COL 122.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     ls-wipitemid AT ROW 7.48 COL 132.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     ls-tag AT ROW 7.71 COL 15.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     btnKeyboard-2 AT ROW 7.71 COL 98 WIDGET-ID 142
+     ls-lastop AT ROW 8.91 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
-     btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
-     btnPrevious AT ROW 14.81 COL 192.2 WIDGET-ID 134
-     btnNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
-     btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
-     bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
-     ls-message AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
-     "Cust #:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
+     ls-message AT ROW 30.76 COL 2 NO-LABEL WIDGET-ID 86
+     bt-post AT ROW 31 COL 190 WIDGET-ID 38
+     btnExitText AT ROW 1.24 COL 186 NO-LABEL WIDGET-ID 144
+     statusMessage AT ROW 32.43 COL 3 NO-LABEL WIDGET-ID 146
+     "LAST OPERATION:" VIEW-AS TEXT
+          SIZE 23.6 BY .81 AT ROW 8.91 COL 111 WIDGET-ID 78
           FONT 34
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 7.29 COL 10 WIDGET-ID 22
-          FONT 36
-     "Last Operation:" VIEW-AS TEXT
-          SIZE 21.6 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 78
+     "BLANK:" VIEW-AS TEXT
+          SIZE 14 BY 1.38 AT ROW 4.43 COL 67 WIDGET-ID 58
+     "TAG:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 7.81 COL 9 WIDGET-ID 22
+     "ORDER:" VIEW-AS TEXT
+          SIZE 11 BY .81 AT ROW 3.48 COL 113 WIDGET-ID 64
           FONT 34
-     "Order #:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
-          FONT 34
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
-          FONT 36
-     "Job Details" VIEW-AS TEXT
-          SIZE 18.4 BY .62 AT ROW 1.67 COL 113.6 WIDGET-ID 16
+     " JOB DETAILS" VIEW-AS TEXT
+          SIZE 18.4 BY .62 AT ROW 2.43 COL 112.6 WIDGET-ID 16
           FONT 35
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 3.67 COL 68 WIDGET-ID 58
-          FONT 36
-     "Item #:" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
+     "ITEM:" VIEW-AS TEXT
+          SIZE 8 BY .81 AT ROW 4.71 COL 116 WIDGET-ID 70
           FONT 34
-     "Tag Details" VIEW-AS TEXT
-          SIZE 19.2 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
+     "FORM:" VIEW-AS TEXT
+          SIZE 12.6 BY 1.29 AT ROW 4.29 COL 43 WIDGET-ID 48
+     " TAG DETAILS" VIEW-AS TEXT
+          SIZE 19.2 BY .76 AT ROW 6.43 COL 112.8 WIDGET-ID 28
           FONT 35
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.52 COL 42 WIDGET-ID 48
-          FONT 36
+     "CUST:" VIEW-AS TEXT
+          SIZE 8.6 BY .81 AT ROW 3.48 COL 155 WIDGET-ID 66
+          FONT 34
      "WIP ID:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
+          SIZE 10 BY .81 AT ROW 7.48 COL 124 WIDGET-ID 74
           FONT 34
-     RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
-     RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
-     RECT-27 AT ROW 6.19 COL 111 WIDGET-ID 26
-     RECT-29 AT ROW 10.14 COL 2.2 WIDGET-ID 60
-     RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
-     RECT-2 AT ROW 2.43 COL 97 WIDGET-ID 140
+     "JOB:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 2.91 COL 32 WIDGET-ID 12
+     RECT-25 AT ROW 2.71 COL 110 WIDGET-ID 14
+     RECT-27 AT ROW 6.71 COL 110 WIDGET-ID 26
+     RECT-2 AT ROW 3.19 COL 96 WIDGET-ID 140
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 202 BY 32.86
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -372,10 +367,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Issue WIP"
          HEIGHT             = 32.86
          WIDTH              = 202
-         MAX-HEIGHT         = 32.86
-         MAX-WIDTH          = 202
-         VIRTUAL-HEIGHT     = 32.86
-         VIRTUAL-WIDTH      = 202
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         SMALL-TITLE        = yes
+         SHOW-IN-TASKBAR    = yes
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -413,6 +412,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
        bt-post:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
+   ALIGN-L                                                              */
 ASSIGN 
        btnKeyboard:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -426,12 +427,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ls-lastop IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-message IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN ls-order IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-wipitemid IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -439,6 +438,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-27 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -497,7 +498,7 @@ END.
 
 &Scoped-define SELF-NAME bt-change
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-change W-Win
-ON CHOOSE OF bt-change IN FRAME F-Main /* Change */
+ON CHOOSE OF bt-change IN FRAME F-Main /* CHANGE */
 DO:
     RUN enableJobEntry. 
     
@@ -520,9 +521,24 @@ DO:
     IF VALID-HANDLE(hdJobProcs) THEN
         DELETE OBJECT hdJobProcs.
     
+    IF VALID-HANDLE(hKeyboard) THEN
+        DELETE OBJECT hKeyboard.
+
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     
     RETURN.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE":U TO bt-exit.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +618,7 @@ END.
 
 &Scoped-define SELF-NAME btnPrevious
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrevious W-Win
-ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
+ON CHOOSE OF btnPrevious IN FRAME F-Main /* Prev */
 DO:
     RUN pNavigate (SELF).
 END.
@@ -758,7 +774,7 @@ DO:
                               ).
 
     IF cMessage NE "" THEN DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage (CAPS(cMessage), 3).
         RETURN.
     END.
             
@@ -812,8 +828,7 @@ DO:
         IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
            (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
            (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
-            MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
-                VIEW-AS ALERT-BOX ERROR.
+            RUN pStatusMessage ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.", 3).
             
             ASSIGN
                 cFormattedJobNo         = ""
@@ -873,9 +888,7 @@ DO:
     END.
     
     IF NOT lValidJob THEN DO:
-        MESSAGE "Invalid Job Number " SELF:SCREEN-VALUE 
-            ", please enter a valid Job Number." 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("INVALID JOB NUMBER " + SELF:SCREEN-VALUE + ", PLEASE ENTER A VALID JOB NUMBER.", 3). 
         
         SELF:SCREEN-VALUE = "".
         
@@ -945,6 +958,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 
+{sharpshooter/pStatusMessage.i}
 {wip/pNavigate.i}
 {wip/pKeyboard.i}
 
@@ -1054,11 +1068,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY ls-jobno cb-jobno2 ls-order ls-cust cb-formno cb-blankno ls-item 
-          ls-wipitemid ls-tag ls-lastop ls-message 
+          ls-wipitemid ls-tag ls-lastop ls-message btnExitText statusMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btnKeyboard RECT-26 RECT-29 bt-exit bt-change ls-jobno cb-jobno2 
-         btnNumPad cb-formno cb-blankno ls-tag btnKeyboard-2 br-table btnFirst 
-         btnPrevious btnNext btnLast 
+  ENABLE bt-exit btnFirst btnKeyboard btnLast btnNext btnPrevious bt-change 
+         ls-jobno cb-jobno2 btnNumPad cb-formno cb-blankno ls-tag btnKeyboard-2 
+         br-table btnExitText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1082,7 +1096,8 @@ PROCEDURE init :
          WHERE company.company EQ cCompany NO-ERROR .
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLocation  .
-                
+    RUN pStatusMessage ("", 0).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1133,8 +1148,8 @@ PROCEDURE jobScan :
         OUTPUT lValidJob
         ).
                       
-    IF NOT lValidJob THEN DO: 
-        MESSAGE "Invalid Job scan" VIEW-AS ALERT-BOX ERROR.
+    IF NOT lValidJob THEN DO:
+        RUN pStatusMessage ("INVALID JOB SCAN", 3).
         APPLY "ENTRY" TO ls-jobno in FRAME {&FRAME-NAME}.
         RETURN ERROR.
     END.    
@@ -1167,6 +1182,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pWinReSize.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
@@ -1234,6 +1250,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&WINDOW-NAME}:ROW                 = 1
+            {&WINDOW-NAME}:COL                 = 1
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            bt-Exit:COL                        = dCol - 1
+            btnFirst:COL                       = dCol - 1
+            btnPrevious:COL                    = dCol - 1
+            btnNext:COL                        = dCol - 1
+            btnLast:COL                        = dCol - 1
+            btnExitText:COL                    = dCol - 9
+            bt-post:COL                        = dCol - 1
+            bt-post:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.24
+            ls-message:ROW                     = statusMessage:ROW - ls-message:HEIGHT - .24
+            BROWSE {&BROWSE-NAME}:HEIGHT       = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - statusMessage:HEIGHT - ls-message:HEIGHT
+            BROWSE {&BROWSE-NAME}:WIDTH        = {&WINDOW-NAME}:WIDTH  - btnFirst:WIDTH - 3
+            .
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rebuildTempTable W-Win 
 PROCEDURE rebuildTempTable :
 /*------------------------------------------------------------------------------
@@ -1294,9 +1353,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1304,11 +1362,9 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO ls-jobno IN FRAME {&FRAME-NAME}.    
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
@@ -1334,12 +1390,14 @@ PROCEDURE tagScan :
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTag     AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMachine    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iJobNo2     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cJobNo        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachine      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lValidInv     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSwitchJob    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMoveToOnhand AS LOGICAL   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -1376,9 +1434,13 @@ PROCEDURE tagScan :
                 cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE STRING(iFormNo,"99") OR
                 cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE STRING(iBlankNo,"99")
             THEN DO:
-            MESSAGE "Tag belongs to different Job context. Do you want to switch Job?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE lSwitchJob AS LOGICAL.
+            RUN sharpshooter/messageDialog.w (
+                "TAG BELONGS TO DIFFERENT JOB CONTECT. DO YOU WANT TO SWITCH JOB?",
+                YES,
+                YES,
+                YES,
+                OUTPUT lSwitchJob
+                ).
             IF lSwitchJob THEN
                 RUN jobScan (
                     INPUT ipcCompany,   
@@ -1404,9 +1466,13 @@ PROCEDURE tagScan :
                 ls-lastop:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = ttBrowseInventory.machineID.
             
             IF ttBrowseInventory.inventoryStatus EQ gcStatusStockConsumed THEN DO:
-                MESSAGE "Tag is already consumed. Do you want to move the tag to On-hand?"
-                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                    TITLE "Continue?" UPDATE lMoveToOnhand AS LOGICAL.
+                RUN sharpshooter/messageDialog.w (
+                    "TAG IS ALREADY CONSUMED. DO YOU WANT TO MOVE THE TAG TO ON-HAND?",
+                    YES,
+                    YES,
+                    YES,
+                    OUTPUT lSwitchJob
+                    ).
                 IF lMoveToOnhand THEN
                     RUN CreateTransactionReceived IN hdInventoryProcs ( 
                         INPUT ipcCompany,
@@ -1432,8 +1498,7 @@ PROCEDURE tagScan :
         END.
     END.
     ELSE DO:
-        MESSAGE "Invalid tag" 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pStatusMessage ("INVALID TAG", 3). 
         RETURN.
     END.
 

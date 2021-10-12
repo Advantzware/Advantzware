@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE BUFFER bf-ttScopes FOR ttScopes.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -414,7 +415,6 @@ PROCEDURE pInit PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
     
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -454,7 +454,7 @@ PROCEDURE pInit PRIVATE :
             END.
         END.        
     END.
-    
+        
     RUN dispatch (
         INPUT "open-query"
         ).
@@ -462,6 +462,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.      
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
