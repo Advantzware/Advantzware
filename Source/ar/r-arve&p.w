@@ -131,9 +131,9 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_inv end_inv ~
-begin_date end_date tb_sort tb_ton tb_export rd-dest btn-ok btn-cancel 
+begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_inv end_inv ~
-begin_date end_date tb_sort tb_ton tb_export rd-dest 
+begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -227,6 +227,11 @@ DEFINE VARIABLE tb_export    AS LOGICAL INITIAL NO
     LABEL "Export/FTP  Invoices?" 
     VIEW-AS TOGGLE-BOX
     SIZE 23 BY 1 NO-UNDO.
+    
+DEFINE VARIABLE tbAutoClose  AS LOGICAL   INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.    
 
 DEFINE VARIABLE tb_sort      AS LOGICAL INITIAL YES 
     LABEL "Sort by Customer Name?" 
@@ -266,8 +271,9 @@ DEFINE FRAME FRAME-A
     rd-dest AT ROW 12.29 COL 4.8 NO-LABELS
     lv-font-name AT ROW 13.24 COL 31.8 COLON-ALIGNED NO-LABELS
     td-show-parm AT ROW 15.1 COL 31.4
-    btn-ok AT ROW 17 COL 31.2
-    btn-cancel AT ROW 17 COL 52.6
+    btn-ok AT ROW 17.3 COL 31.2
+    btn-cancel AT ROW 17.3 COL 52.6
+    tbAutoClose AT ROW 16.4 COL 31.4 WIDGET-ID 64
     " Selection Parameters" VIEW-AS TEXT
     SIZE 21 BY .71 AT ROW 1.05 COL 4
     " Output Destination" VIEW-AS TEXT
@@ -562,8 +568,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
                 INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
                 OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
-            APPLY "close" TO THIS-PROCEDURE.
-        END.  
+        END.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,10 +960,10 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY tran-date tran-period begin_inv end_inv begin_date end_date tb_sort 
-        tb_ton tb_export rd-dest 
+        tb_ton tb_export rd-dest tbAutoClose
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 tran-date begin_inv end_inv begin_date end_date tb_sort 
-        tb_ton tb_export rd-dest btn-ok btn-cancel 
+        tb_ton tb_export rd-dest tbAutoClose btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
