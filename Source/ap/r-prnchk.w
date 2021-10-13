@@ -105,10 +105,10 @@ IF lResult THEN ASSIGN lAsiUser = YES .
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 check-date bank-code ~
 start_check-no tb_ach begin_vend-no end_vend-no rd-dest run_format ~
-td-show-parm tbAutoClose btn-ok btn-cancel 
+tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS check-date bank-code bank-name ~
 start_check-no tb_ach begin_vend-no end_vend-no rd-dest run_format ~
-td-show-parm tbAutoClose 
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -932,10 +932,10 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY check-date bank-code bank-name start_check-no tb_ach begin_vend-no 
-        end_vend-no rd-dest run_format td-show-parm tbAutoClose 
+        end_vend-no rd-dest run_format tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 RECT-9 check-date bank-code start_check-no tb_ach 
-        begin_vend-no end_vend-no rd-dest run_format td-show-parm tbAutoClose 
+        begin_vend-no end_vend-no rd-dest run_format tbAutoClose 
         btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
