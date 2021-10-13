@@ -927,7 +927,7 @@ FOR EACH ef
         IF NOT AVAILABLE tt-keyst THEN CREATE tt-keyst.
 
         /* Number of sheets */
-        RUN oe/rep/ticket1.p (RECID(ef), RECID(job-hdr)).
+        RUN oe/rep/ticket3.p (RECID(ef), RECID(job-hdr)).
         FIND FIRST wrk-sheet WHERE RECID(wrk-sheet) EQ save_id.
         IF AVAILABLE oe-ordl THEN 
             FIND FIRST po-ord WHERE po-ord.company = oe-ordl.company
