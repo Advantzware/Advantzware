@@ -1558,6 +1558,7 @@ PROCEDURE pJasperStarter :
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE kdx            AS INTEGER   NO-UNDO.    
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
     RUN pCreateDir (OUTPUT cUserFolder).
@@ -1623,15 +1624,15 @@ PROCEDURE pJasperStarter :
                            + "1>NUL 2>"
                            + cJasperFile[5]
                            .
-        DO idx = 1 TO EXTENT(cJasperFile) - 1:
-            IF cJasperFile[idx] EQ ? THEN DO:
+        DO kdx = 1 TO EXTENT(cJasperFile) - 1:
+            IF cJasperFile[kdx] EQ ? THEN DO:
                 MESSAGE 
                     "Unable to run" aoaTitle "Jasper Report" SKIP 
                     "Jasper Files .jrxml and/or .json not found!"
                 VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END. /* if ? */
-        END. /* do idx */
+        END. /* do kdx */
         
         IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
             CREATE TaskResult.
@@ -1657,6 +1658,7 @@ PROCEDURE pJasperStarter :
         OS-COMMAND NO-WAIT START VALUE(cJasperStarter).
         ELSE
         OS-COMMAND SILENT CALL VALUE(cJasperStarter).
+        PAUSE 1 NO-MESSAGE.
     END. /* each tttaskfile */
     opcJasperFile = TRIM(opcJasperFile,",").
 
