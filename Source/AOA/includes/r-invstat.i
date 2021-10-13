@@ -659,8 +659,8 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dInvAmt
             ).
         
-        IF dPricePerUOM LT dInvAmt THEN NEXT.  /* already invoiced at time of "as of" */
-        
+        IF dPricePerUOM LT dInvAmt AND dQtyOnHand EQ 0 THEN NEXT.  /* already invoiced at time of "as of" */
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
@@ -733,6 +733,9 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dQtyInv,
             OUTPUT dQtyShip
             ).
+
+        IF dQtyInv GE dQtyOrd AND dQtyOnHand EQ 0 THEN NEXT.
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
