@@ -335,7 +335,7 @@ PROCEDURE pFillData PRIVATE:
         chWorkSheet:Range("D4"):value = ttHeader.estimateNo
         .
     
-    iColCount = 5.    
+    iColCount = 6.    
     FOR EACH ttQuantity NO-LOCK
         BY ttQuantity.quantity:
         chWorkSheet:Range("A6"):Offset(0,iColCount):value = ttQuantity.quantity.
