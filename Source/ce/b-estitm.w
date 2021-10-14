@@ -3570,6 +3570,7 @@ PROCEDURE local-assign-record :
   DEF VAR ld-markup AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL eb THEN FIND eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
@@ -3854,14 +3855,17 @@ PROCEDURE local-assign-record :
          eb.i-code2[li] = inks.cd[1]
          eb.i-dscr2[li] = inks.ds[1]
          eb.i-%2[li]    = inks.pc[1].
-     
-      /* Run logic only if NK1 is set */
-      IF glAssignUnitsForInk = YES AND eb.i-code2[li] NE '' THEN
-          RUN est/GetInksUnitNo.p (BUFFER eb, li, eb.i-code2[li], OUTPUT eb.unitno[li]).
               
     END.
 
     {ce/updunit#.i eb}
+  END.
+
+  /* Run logic only if NK1 is set */
+  IF glAssignUnitsForInk = YES THEN
+  DO iExt = 1 TO EXTENT(eb.i-code2):
+      IF eb.i-code2[iExt] NE '' THEN
+          RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT eb.unitno[iExt]).
   END.
 
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
