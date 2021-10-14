@@ -54,8 +54,8 @@ PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
 v-printline = v-printline + 5.
 
 PUT 
-    "<FArial><=4>     Expédition             FOB                        Expéditeur                          Termes                     Représentant       Pallets        BOL#" SKIP
-    "<FArial><=4><R+1>     Ship Date              FAB                          Ship Via                             Terms                          S.Person         Palettes        BL" SKIP
+    "<FArial><=4>     Expédition             FOB                        Expéditeur                          Termes                     Représentant       Palettes        BL" SKIP
+    "<FArial><=4><R+1>     Ship Date              FAB                          Ship Via                             Terms                          S.Person         Pallets        BOL#" SKIP
      "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
      v-fob FORM "x(12)" 
      "<C22>" v-shipvia FORM "x(20)" SPACE(1)
