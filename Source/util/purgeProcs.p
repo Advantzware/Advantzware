@@ -134,6 +134,22 @@ FUNCTION fEndPurge RETURNS LOGICAL
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-fGetDataDumpDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDataDumpDir Procedure
+FUNCTION fGetDataDumpDir RETURNS CHARACTER 
+  (INPUT ipcInitValue AS CHAR,
+   INPUT ipcTable AS CHAR,
+   OUTPUT oplError AS LOG,
+   OUTPUT opcMessage AS CHAR) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-fGetPurgeDir) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPurgeDir Procedure
@@ -213,10 +229,10 @@ FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
-&IF DEFINED(EXCLUDE-BuildParmsByPurgeTT) = 0 &THEN
+&IF DEFINED(EXCLUDE-pBuildParmsByPurgeTT) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildParmsByPurgeTT Procedure
-PROCEDURE BuildParmsByPurgeTT:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildParmsByPurgeTT Procedure
+PROCEDURE pBuildParmsByPurgeTT:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -248,8 +264,8 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-BuildPurgesByGroup) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildPurgesByGroup Procedure
-PROCEDURE BuildPurgesByGroup:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildPurgesByGroup Procedure
+PROCEDURE pBuildPurgesByGroup:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -482,7 +498,7 @@ PROCEDURE initializeProc:
             "" + "," +
             "" + "," +
             
-            "" + "," +
+            "po" + "," +
             "" + "," +
             
             "" + "," +
@@ -505,7 +521,7 @@ PROCEDURE initializeProc:
         RETURN.
     END. 
     
-    RUN BuildPurgesByGroup.
+    RUN pBuildPurgesByGroup.
     
     RUN BuildDetailedPurgeParms ("Purge Jobs (NF!)").
 
@@ -518,7 +534,7 @@ END PROCEDURE.
 &ENDIF
 
 
-&IF DEFINED(EXCLUDE-JobPurgeParms) = 0 &THEN
+&IF DEFINED(EXCLUDE-BuildDetailedPurgeParms) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildDetailedPurgeParms Procedure
 PROCEDURE BuildDetailedPurgeParms:
@@ -552,7 +568,7 @@ PROCEDURE BuildDetailedPurgeParms:
             cParm[4] = "Purge POs (NF9),purgeIfLinked,Purge POs if Linked to Invoices/Receipts,logical,Yes/No,NO,,No".
     END.
 
-    RUN BuildParmsByPurgeTT.
+    RUN pBuildParmsByPurgeTT.
 
 END PROCEDURE.
 	
@@ -2350,6 +2366,56 @@ FUNCTION fEndPurge RETURNS LOGICAL
 
 END FUNCTION.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetDataDumpDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDataDumpDir Procedure
+FUNCTION fGetDataDumpDir RETURNS CHARACTER 
+  ( INPUT ipcInitValue AS CHAR, INPUT ipcTable AS CHAR, OUTPUT oplError AS LOG, OUTPUT opcMessage AS CHAR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDumpDir AS CHARACTER NO-UNDO.
+    DEF VAR cTestDir AS CHAR NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR lCreateError AS LOG NO-UNDO.
+    DEF VAR cCreateMessage AS CHAR NO-UNDO.
+    
+    IF ipcTable EQ "" THEN DO:
+        ASSIGN 
+            FILE-INFO:FILE-NAME = ipcInitValue
+            cTestDir = FILE-INFO:FULL-PATHNAME.
+        DO iCtr = 1 TO NUM-ENTRIES(cTestDir,"\"):
+            IF ENTRY(iCtr,cTestDir,"\") EQ "Environments"
+            OR ENTRY(iCtr,cTestDir,"\") EQ "Repositories" THEN DO:
+                DO jCtr = 1 TO iCtr - 1:
+                    ASSIGN 
+                        cDumpDir = cDumpDir + ENTRY(jCtr,cTestDir,"\") + "\".
+                END.
+                LEAVE.
+            END.
+        END.    
+        ASSIGN 
+            cDumpDir = cDumpDir + "Backups\Purges\".
+        RUN filesys_createDirectory (INPUT cDumpDir, OUTPUT lCreateError, OUTPUT cCreateMessage).
+        IF lCreateError THEN DO:
+            
+        END.            
+    END.     
+    ELSE DO:
+    END. 
+    
+    RETURN cDumpDir.
+
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
