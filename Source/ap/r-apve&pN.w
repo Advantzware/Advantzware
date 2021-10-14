@@ -777,7 +777,7 @@ DO:
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
-    RUN valid-date NO-ERROR.
+    RUN valid-date(YES) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   end.
 END.
@@ -856,6 +856,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF postdate-log THEN DO:
       tran-date:SCREEN-VALUE = STRING(TODAY).
       RUN check-date.
+      RUN valid-date(NO) NO-ERROR.
     END.
     ELSE
       ASSIGN
@@ -2007,6 +2008,7 @@ PROCEDURE valid-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplCheckDate AS LOGICAL NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEFINE BUFFER bf-period FOR period.
 
@@ -2020,8 +2022,8 @@ PROCEDURE valid-date :
             AND period.pend    GE TODAY
           BY period.pst:
 
-        IF period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
-           period.pend LT DATE(tran-date:SCREEN-VALUE) THEN DO:
+        IF iplCheckDate AND (period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
+           period.pend LT DATE(tran-date:SCREEN-VALUE)) THEN DO:
           ll = YES.
           MESSAGE TRIM(tran-date:LABEL) + " is not in current period, " +
                   "would you like to re-enter..."
