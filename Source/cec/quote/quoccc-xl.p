@@ -437,8 +437,6 @@ IF LvOutputSelection = "email" THEN
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
-IF NOT VALID-HANDLE(gchExcelApplication) THEN
-RETURN.
 
 /* If Excel is running close it. */
 IF NOT VALID-HANDLE (gchExcelApplication) THEN
