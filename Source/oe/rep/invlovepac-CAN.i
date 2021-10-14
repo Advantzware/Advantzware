@@ -25,7 +25,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
     "<R6><C65><FROM><R8><C65><LINE><||3>" SKIP
     "<R8><C65><FROM><R10><C65><LINE><||3>" SKIP.
         
-PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no "</B><P10>                            Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
+PUT "<FArial><P12><=#3><R-2><B><C50>Facturé/Invoice#: " inv-head.inv-no "</B><P10><C74>Page: " string(PAGE-NUM - v-page-num,">>9") SKIP
     "<=#3> Client                      Contact"
     "<=#3><R+2> Téléphone                        Fax" 
     "<=#3><R+4> Bdc PO                           Date <FCourier New>"    
@@ -46,7 +46,7 @@ PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
 v-printline = v-printline + 5.
 
 
-PUT "<FArial><=4>     Ship Date                                               Ship Via                             Terms                          S.Person " SKIP
+PUT "<FArial><=4>     Ship Date               FAB                          Ship Via                             Terms                          S.Person       Palettes          BL" SKIP
     "<FArial><=4><R+1>     Expédition              FOB                        Expéditeur                         Termes                      Représentant     Pallets         BOL#" SKIP
      "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
      v-fob FORM "x(12)" SPACE(1)
