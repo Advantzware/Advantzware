@@ -2052,7 +2052,7 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
     IF NOT glCalcFoamCostFromBlank  THEN
         RETURN.
         
-    lFoam = IsFoamStyle (ipbf-estCostForm.company, ipbf-estCostForm.estimateNo, ipbf-estCostForm.formNo).
+    lFoam = fIsFoamStyle (ipbf-estCostForm.company, ipbf-estCostForm.estimateNo, ipbf-estCostForm.formNo).
         
     IF lFoam THEN
     DO:
