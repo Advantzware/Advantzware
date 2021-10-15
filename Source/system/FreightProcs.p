@@ -1203,8 +1203,7 @@ PROCEDURE pProrateFreightAcrossBOLLines PRIVATE:
     
     FOR EACH bf-oe-boll EXCLUSIVE-LOCK 
         WHERE bf-oe-boll.company EQ ipbf-oe-bolh.company
-        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no
-        AND bf-oe-boll.qty NE 0, 
+        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no, 
         FIRST ttBOLLine
         WHERE ttBOLLine.riBOLLine EQ ROWID(bf-oe-boll)
         BREAK BY bf-oe-boll.b-no: 
@@ -1240,7 +1239,7 @@ PROCEDURE pProrateFreightAcrossBOLLines PRIVATE:
         ELSE
             dFreightTotalSoFar = dFreightTotalSoFar + dNewLineFreight.
         
-        bf-oe-boll.freight = MAX(dNewLineFreight,0).
+        bf-oe-boll.freight = dNewLineFreight.
         
     END. /*Each bf-oe-boll - exclusive*/
                        
