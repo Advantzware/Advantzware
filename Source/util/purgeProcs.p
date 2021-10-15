@@ -39,15 +39,15 @@ DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE locode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lVerbose AS LOG NO-UNDO.
 DEFINE VARIABLE hOutputProcs AS HANDLE NO-UNDO.
-DEF VAR cUserId AS CHAR NO-UNDO.
-DEF VAR iSecurityLevel AS INT NO-UNDO.
-DEF VAR cGroupList AS CHAR NO-UNDO.
-DEF VAR cPurgeList AS CHAR NO-UNDO.
-DEF VAR cProgramList AS CHAR NO-UNDO.
-DEF VAR cUtilName AS CHAR NO-UNDO.
-DEF VAR cHotkey AS CHAR NO-UNDO.
-DEF VAR ttCtr AS INT NO-UNDO.
-DEF VAR cParm AS CHAR EXTENT 10 NO-UNDO.
+DEFINE VARIABLE cUserId AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSecurityLevel AS INTEGER NO-UNDO.
+DEFINE VARIABLE cGroupList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPurgeList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUtilName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cHotkey AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ttCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE cParm AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE cCompanyList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocList AS CHARACTER NO-UNDO.
@@ -77,7 +77,7 @@ DEFINE VARIABLE hXnoField AS HANDLE NO-UNDO.
 DEFINE VARIABLE iErrorCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iProcessedCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iWarningCount AS INTEGER NO-UNDO.
-DEFINE VARIABLE cTableList AS CHAR NO-UNDO.
+DEFINE VARIABLE cTableList AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -112,7 +112,7 @@ FUNCTION dynExport RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateString Procedure
 FUNCTION fDateString RETURNS CHARACTER 
-  (INPUT iYrOffset AS INT) FORWARD.
+  (INPUT iYrOffset AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -138,10 +138,10 @@ FUNCTION fEndPurge RETURNS LOGICAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDataDumpDir Procedure
 FUNCTION fGetDataDumpDir RETURNS CHARACTER 
-  (INPUT ipcInitValue AS CHAR,
-   INPUT ipcTable AS CHAR,
+  (INPUT ipcInitValue AS CHARACTER,
+   INPUT ipcTable AS CHARACTER,
    OUTPUT oplError AS LOG,
-   OUTPUT opcMessage AS CHAR) FORWARD.
+   OUTPUT opcMessage AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -285,7 +285,7 @@ PROCEDURE pBuildPurgesByGroup:
             FIND FIRST prgrms NO-LOCK WHERE 
                 prgrms.mnemonic EQ cHotkey
                 NO-ERROR.
-            IF AVAIL prgrms THEN ASSIGN 
+            IF AVAILABLE prgrms THEN ASSIGN 
                 ttPurgeByGroup.ttcUserList = IF prgrms.can_run NE "" THEN prgrms.can_run ELSE "*"
                 ttPurgeByGroup.ttiSecurityLevel = prgrms.securityLevelUser.
             ELSE DO:
@@ -294,7 +294,7 @@ PROCEDURE pBuildPurgesByGroup:
                     NO-ERROR.
                 ASSIGN 
                     ttPurgeByGroup.ttcUserList = "*"
-                    ttPurgeByGroup.ttiSecurityLevel = IF AVAIL utilities THEN utilities.securityLevel ELSE 900.
+                    ttPurgeByGroup.ttiSecurityLevel = IF AVAILABLE utilities THEN utilities.securityLevel ELSE 900.
             END. 
                     
         END.
@@ -316,13 +316,13 @@ PROCEDURE checkPurgeSecurity:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcPurgeName AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPurgeName AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     
     FIND FIRST ttPurgeByGroup WHERE 
         ttPurgeByGroup.ttcPurge EQ ipcPurgeName
         NO-ERROR.
-    IF AVAIL ttPurgeByGroup THEN DO:
+    IF AVAILABLE ttPurgeByGroup THEN DO:
         IF NOT CAN-DO(ttPurgeByGroup.ttcUserList, cUserID) 
         OR iSecurityLevel LT ttPurgeByGroup.ttiSecurityLevel THEN ASSIGN 
             oplError = TRUE. 
@@ -345,12 +345,12 @@ PROCEDURE getCurrentUser:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     
     FIND FIRST users NO-LOCK WHERE
         users.user_id EQ USERID(LDBNAME(1))
         NO-ERROR.
-    IF NOT AVAIL users 
+    IF NOT AVAILABLE users 
     THEN DO:
         /* Testing only */
         ASSIGN 
@@ -382,9 +382,9 @@ PROCEDURE GetPurgeListByGroup:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcGroupName AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER ipcPurgeList AS CHAR NO-UNDO.
-    DEF VAR lCanPurge AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroupName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipcPurgeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCanPurge AS LOG NO-UNDO.
     
     FOR EACH ttPurgeByGroup WHERE 
         ttPurgeByGroup.ttcGroup EQ ipcGroupName:
@@ -412,7 +412,7 @@ PROCEDURE initializeProc:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR lUserError AS LOG NO-UNDO.
+    DEFINE VARIABLE lUserError AS LOG NO-UNDO.
     
     ASSIGN
         cGroupList = 
@@ -542,7 +542,7 @@ PROCEDURE BuildDetailedPurgeParms:
  Purpose:   Create Parms for additional purges here
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcPurgeName AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPurgeName AS CHARACTER NO-UNDO.
 
 /*  The format of these parameter records is as follows:*/
 /*      Purge Name (from NS8 or NM)                 */
@@ -1885,8 +1885,8 @@ PROCEDURE purgeJobs:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcMode AS CHARACTER NO-UNDO.
     
-    DEF VAR lSuccess AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     RUN Purge_SimulateAndPurgeJobRecords(
         BUFFER job,
@@ -2324,7 +2324,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateString Procedure
 FUNCTION fDateString RETURNS CHARACTER 
-  ( iYrOffset AS INT ):
+  ( iYrOffset AS INTEGER ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2377,16 +2377,16 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDataDumpDir Procedure
 FUNCTION fGetDataDumpDir RETURNS CHARACTER 
-  ( INPUT ipcInitValue AS CHAR, INPUT ipcTable AS CHAR, OUTPUT oplError AS LOG, OUTPUT opcMessage AS CHAR ):
+  ( INPUT ipcInitValue AS CHARACTER, INPUT ipcTable AS CHARACTER, OUTPUT oplError AS LOG, OUTPUT opcMessage AS CHARACTER ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDumpDir AS CHARACTER NO-UNDO.
-    DEF VAR cTestDir AS CHAR NO-UNDO.
-    DEF VAR jCtr AS INT NO-UNDO.
-    DEF VAR lCreateError AS LOG NO-UNDO.
-    DEF VAR cCreateMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE cTestDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE jCtr AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lCreateError AS LOG NO-UNDO.
+    DEFINE VARIABLE cCreateMessage AS CHARACTER NO-UNDO.
     
     IF ipcTable EQ "" THEN DO:
         ASSIGN 

@@ -48,10 +48,11 @@ CREATE WIDGET-POOL.
 */
 {sys/inc/var.i new shared}
 
-DEF VAR iCtr AS INT NO-UNDO.
-DEF VAR cOutDir AS CHAR NO-UNDO.
-DEF VAR lVerbose AS LOG NO-UNDO INITIAL FALSE.
-DEF VAR cBaseOutputDir AS CHAR NO-UNDO.
+DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE cOutDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lVerbose AS LOG NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE lAnalyzed AS LOG NO-UNDO.
+DEFINE VARIABLE cBaseOutputDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hParmBegin AS HANDLE EXTENT 10 NO-UNDO.
 DEFINE VARIABLE hParmEnd AS HANDLE EXTENT 10 NO-UNDO.
@@ -84,10 +85,11 @@ IF cocode EQ "" THEN ASSIGN
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-36 RECT-37 RECT-38 cbGroup btExit ~
-btViewFile slPurges btAnalyze btPurge rsCompany tbOrphan 
+&Scoped-Define ENABLED-OBJECTS RECT-36 RECT-37 RECT-38 cbGroup ~
+bFolderLookup btExit slPurges btAnalyze btPurge rsCompany tbOrphan ~
+tbAutoOpen 
 &Scoped-Define DISPLAYED-OBJECTS cbGroup fiOutputDir fiFileName slPurges ~
-rsCompany tbOrphan fiToPurge fiFilter fiBegin fiEnd fiOptions 
+rsCompany tbOrphan tbAutoOpen fiToPurge fiFilter fiBegin fiEnd fiOptions 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -103,6 +105,11 @@ rsCompany tbOrphan fiToPurge fiFilter fiBegin fiEnd fiOptions
 DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bFolderLookup 
+     IMAGE-UP FILE "Graphics/16x16/folder.png":U
+     LABEL "Lookup Folder" 
+     SIZE 6 BY 1.14 TOOLTIP "Open/Select a File".
+
 DEFINE BUTTON btAnalyze 
      IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U
@@ -122,7 +129,7 @@ DEFINE BUTTON btPurge
      SIZE 11 BY 2.62 TOOLTIP "Purge".
 
 DEFINE BUTTON btViewFile 
-     IMAGE-UP FILE "Graphics/16x16/folder_open.png":U
+     IMAGE-UP FILE "Graphics/16x16/spreadsheet_sum.png":U
      LABEL "Open/Select" 
      SIZE 6 BY 1.14 TOOLTIP "Open/Select a File".
 
@@ -137,7 +144,7 @@ DEFINE VARIABLE cbGroup AS CHARACTER FORMAT "X(256)":U INITIAL "EST"
                      "General Ledger","FIN",
                      "System","SYS"
      DROP-DOWN-LIST
-     SIZE 51 BY 1
+     SIZE 47 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fiBegin AS CHARACTER FORMAT "X(256)":U INITIAL "BEGIN" 
@@ -164,7 +171,7 @@ DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "  Options:"
 DEFINE VARIABLE fiOutputDir AS CHARACTER FORMAT "X(256)":U 
      LABEL "Purge Files Location" 
      VIEW-AS FILL-IN 
-     SIZE 71 BY 1 NO-UNDO.
+     SIZE 66 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToPurge AS CHARACTER FORMAT "X(256)":U INITIAL "  Purge:" 
       VIEW-AS TEXT 
@@ -193,6 +200,11 @@ DEFINE VARIABLE slPurges AS CHARACTER
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
      SIZE 52 BY 16.19 NO-UNDO.
 
+DEFINE VARIABLE tbAutoOpen AS LOGICAL INITIAL yes 
+     LABEL "Auto Open Analysis File" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbOrphan AS LOGICAL INITIAL yes 
      LABEL "Include Orphan Purge" 
      VIEW-AS TOGGLE-BOX
@@ -203,15 +215,17 @@ DEFINE VARIABLE tbOrphan AS LOGICAL INITIAL yes
 
 DEFINE FRAME fMain
      cbGroup AT ROW 1.24 COL 9 COLON-ALIGNED WIDGET-ID 18
-     fiOutputDir AT ROW 1.24 COL 82 COLON-ALIGNED WIDGET-ID 20
-     btExit AT ROW 1.24 COL 157 WIDGET-ID 36 NO-TAB-STOP 
-     fiFileName AT ROW 2.43 COL 82 COLON-ALIGNED WIDGET-ID 22
-     btViewFile AT ROW 2.43 COL 126 WIDGET-ID 54
+     fiOutputDir AT ROW 1.24 COL 79 COLON-ALIGNED WIDGET-ID 20
+     bFolderLookup AT ROW 1.24 COL 148 WIDGET-ID 56
+     btExit AT ROW 1.24 COL 156 WIDGET-ID 36 NO-TAB-STOP 
+     fiFileName AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 22
+     btViewFile AT ROW 2.43 COL 123 WIDGET-ID 54
      slPurges AT ROW 4.33 COL 5 NO-LABEL WIDGET-ID 16
-     btAnalyze AT ROW 4.57 COL 157 WIDGET-ID 50 NO-TAB-STOP 
-     btPurge AT ROW 7.91 COL 157 WIDGET-ID 52 NO-TAB-STOP 
+     btAnalyze AT ROW 4.57 COL 156 WIDGET-ID 50 NO-TAB-STOP 
+     btPurge AT ROW 7.91 COL 156 WIDGET-ID 52 NO-TAB-STOP 
      rsCompany AT ROW 17.19 COL 70 NO-LABEL WIDGET-ID 44
      tbOrphan AT ROW 18.14 COL 70 WIDGET-ID 48
+     tbAutoOpen AT ROW 19.1 COL 70 WIDGET-ID 58
      fiToPurge AT ROW 3.62 COL 6 NO-LABEL WIDGET-ID 14
      fiFilter AT ROW 3.62 COL 65 NO-LABEL WIDGET-ID 30
      fiBegin AT ROW 4.29 COL 97 NO-LABEL WIDGET-ID 24
@@ -247,7 +261,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Purge Utilities"
          HEIGHT             = 20.48
-         WIDTH              = 175.6
+         WIDTH              = 169.4
          MAX-HEIGHT         = 28.57
          MAX-WIDTH          = 200.2
          VIRTUAL-HEIGHT     = 28.57
@@ -282,6 +296,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btViewFile IN FRAME fMain
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiBegin IN FRAME fMain
    NO-ENABLE ALIGN-L                                                    */
 ASSIGN 
@@ -356,13 +372,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME bFolderLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bFolderLookup wWin
+ON CHOOSE OF bFolderLookup IN FRAME fMain /* Lookup Folder */
+DO:
+    DEF VAR cDirName AS CHAR NO-UNDO.
+    
+    SYSTEM-DIALOG GET-DIR cDirName
+        INITIAL-DIR fiOutputDir:SCREEN-VALUE 
+        TITLE "Locate the directory you wish to review".
+        
+    ASSIGN 
+        fiOutputDir:SCREEN-VALUE = cDirName. 
+        
+    IF SEARCH(cDirName + "\" + "PurgeList.csv") NE ? THEN ASSIGN 
+        fiFileName:SCREEN-VALUE = "PurgeList.csv"
+        btViewFile:SENSITIVE = TRUE.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btAnalyze
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAnalyze wWin
 ON CHOOSE OF btAnalyze IN FRAME fMain /* Analyze */
 DO:    
     ASSIGN 
-        fiFileName:SCREEN-VALUE = "PurgeList.csv".
+        fiFileName:SCREEN-VALUE = "PurgeList.csv"
+        btViewFile:SENSITIVE = TRUE.
     RUN ipAnalyze IN THIS-PROCEDURE.
+    IF tbAutoOpen:CHECKED THEN APPLY 'choose' TO btViewFile. 
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,8 +428,12 @@ ON CHOOSE OF btPurge IN FRAME fMain /* Purge */
 DO:    
     ASSIGN 
         fiFileName:SCREEN-VALUE = "PurgeList.csv".
-    RUN ipAnalyze IN THIS-PROCEDURE.
-    RUN ipPurge IN THIS-PROCEDURE.    
+    
+    IF NOT lAnalyzed THEN 
+        RUN ipAnalyze IN THIS-PROCEDURE.
+    
+    RUN ipPurge IN THIS-PROCEDURE.
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,13 +455,12 @@ END.
 &ANALYZE-RESUME
 
 
-
 &Scoped-define SELF-NAME cbGroup
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbGroup wWin
 ON VALUE-CHANGED OF cbGroup IN FRAME fMain /* Group */
 DO:
-    DEF VAR cPurgeSelList AS CHAR NO-UNDO.
-    DEF VAR lCanPurge AS LOG NO-UNDO.
+    DEFINE VARIABLE cPurgeSelList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCanPurge AS LOG NO-UNDO.
     
     RUN GetPurgeListByGroup IN hPurgeProcs (INPUT SELF:SCREEN-VALUE, OUTPUT cPurgeSelList). 
     
@@ -434,9 +479,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slPurges wWin
 ON VALUE-CHANGED OF slPurges IN FRAME fMain
 DO:
-    DEF VAR iParmCt AS INT INITIAL 1 NO-UNDO.
-    DEF VAR cDirName AS CHAR NO-UNDO.
-    DEF VAR iParenPos AS INT NO-UNDO.
+    DEFINE VARIABLE iParmCt AS INTEGER INITIAL 1 NO-UNDO.
+    DEFINE VARIABLE cDirName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iParenPos AS INTEGER NO-UNDO.
     
     DO iParmCt = 1 TO 10:
         IF VALID-HANDLE(hBeginLabel[iParmCt]) THEN DELETE WIDGET hBeginLabel[iParmCt].
@@ -445,7 +490,8 @@ DO:
     END.
     
     ASSIGN 
-        iParmCt = 1.
+        iParmCt = 1
+        lAnalyzed = FALSE.
 
     RUN BuildDetailedPurgeParms IN hPurgeProcs (INPUT SELF:SCREEN-VALUE).
 
@@ -585,11 +631,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbGroup fiOutputDir fiFileName slPurges rsCompany tbOrphan fiToPurge 
-          fiFilter fiBegin fiEnd fiOptions 
+  DISPLAY cbGroup fiOutputDir fiFileName slPurges rsCompany tbOrphan tbAutoOpen 
+          fiToPurge fiFilter fiBegin fiEnd fiOptions 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE RECT-36 RECT-37 RECT-38 cbGroup btExit btViewFile slPurges btAnalyze 
-         btPurge rsCompany tbOrphan 
+  ENABLE RECT-36 RECT-37 RECT-38 cbGroup bFolderLookup btExit slPurges 
+         btAnalyze btPurge rsCompany tbOrphan tbAutoOpen 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -620,10 +666,10 @@ PROCEDURE initializeObject :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cDir AS CHAR NO-UNDO.
-    DEF VAR lCreateError AS LOG NO-UNDO.
-    DEF VAR lCreateOK AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE cDir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCreateError AS LOG NO-UNDO.
+    DEFINE VARIABLE lCreateOK AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     IF NOT VALID-HANDLE(hPurgeProcs) THEN 
         RUN util/PurgeProcs.p PERSISTENT SET hPurgeProcs.
@@ -637,8 +683,7 @@ PROCEDURE initializeObject :
 
     cDir = DYNAMIC-FUNCTION("fGetDataDumpDir" IN hPurgeProcs, THIS-PROCEDURE:FILE-NAME, "", OUTPUT lCreateError, OUTPUT cMessage).
     RUN filesys_createDirectory (cDir, OUTPUT lCreateOK, OUTPUT cMessage).
-    MESSAGE cDir SKIP lCreateOK SKIP cMessage VIEW-AS ALERT-BOX.
-    IF lCreateOK THEN ASSIGN 
+        IF lCreateOK THEN ASSIGN 
         cBaseOutputDir = cDir
         fiOutputDir:SCREEN-VALUE IN FRAME fMain = cDir.
     ELSE DO:
@@ -662,17 +707,40 @@ PROCEDURE ipAnalyze :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR lCreateOK AS LOG NO-UNDO.
-    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEFINE VARIABLE lCreateOK AS LOG NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iParmCt AS INT NO-UNDO.
     
     RUN filesys_createDirectory (fiOutputDir:SCREEN-VALUE IN FRAME fMain, OUTPUT lCreateOK, OUTPUT cMessage).
     IF NOT lCreateOK THEN DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
+    OUTPUT TO VALUE(fiOutputDir:SCREEN-VALUE + "\PurgeParms.csv").
+    PUT UNFORMATTED slPurges:SCREEN-VALUE + CHR(10).
+    put UNFORMATTED "Label,Begin Value,End Value" + CHR(10).
+    DO iParmCt = 1 TO 10:
+        IF VALID-HANDLE(hBeginLabel[iParmCt]) THEN 
+            PUT UNFORMATTED hBeginLabel[iParmCt]:SCREEN-VALUE + ",".
+        ELSE 
+            PUT UNFORMATTED ",".
+        IF VALID-HANDLE(hParmBegin[iParmCt]) THEN 
+            PUT UNFORMATTED hParmBegin[iParmCt]:SCREEN-VALUE + ",".
+        ELSE 
+            PUT UNFORMATTED ",".
+        IF VALID-HANDLE(hParmEnd[iParmCt]) THEN 
+            PUT UNFORMATTED hParmEnd[iParmCt]:SCREEN-VALUE.
+        IF VALID-HANDLE(hBeginLabel[iParmCt]) THEN
+            PUT UNFORMATTED CHR(10).
+    END.
+    OUTPUT CLOSE.
+
     OUTPUT TO VALUE(fiOutputDir:SCREEN-VALUE + "\" + fiFileName:SCREEN-VALUE).
     PUT UNFORMATTED "test,test1".
     OUTPUT CLOSE.
+    
+    ASSIGN 
+        lAnalyzed = TRUE.
 
 END PROCEDURE.
 
@@ -685,10 +753,10 @@ PROCEDURE ipLeaveFieldTrigger :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cParmName AS CHAR NO-UNDO.
-    DEF VAR cStartValue AS CHAR NO-UNDO.
-    DEF VAR cEndValue AS CHAR NO-UNDO.
-    DEF VAR iParmCt AS INT NO-UNDO.
+    DEFINE VARIABLE cParmName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iParmCt AS INTEGER NO-UNDO.
     
     DO iParmCt = 1 TO 10:
         ASSIGN 
@@ -710,7 +778,7 @@ PROCEDURE ipLeaveFieldTrigger :
             ttParmsByPurge.ttcPurge EQ slPurges:SCREEN-VALUE IN FRAME fMain AND 
             ttParmsByPurge.ttcParm EQ cParmName
             NO-ERROR.
-        IF NOT AVAIL ttParmsByPurge THEN DO:
+        IF NOT AVAILABLE ttParmsByPurge THEN DO:
             MESSAGE 
                 "Fatal Error in ipLeaveFieldTrigger." skip
                 iParmCt SKIP 
@@ -735,8 +803,8 @@ PROCEDURE ipLookupFieldTrigger :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFieldName AS CHAR.
-    DEF VAR cReturn AS CHAR.
+    DEFINE INPUT PARAMETER ipcFieldName AS CHARACTER.
+    DEFINE VARIABLE cReturn AS CHARACTER.
     
     CASE ipcFieldName:
         WHEN "job-no" THEN DO:
@@ -745,6 +813,9 @@ PROCEDURE ipLookupFieldTrigger :
                 FOCUS:SCREEN-VALUE = ENTRY(1,cReturn).
         END.
     END CASE.
+    
+    ASSIGN 
+        lAnalyzed = FALSE.
 
 END PROCEDURE.
 
