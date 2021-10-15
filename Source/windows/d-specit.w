@@ -46,8 +46,9 @@ def temp-table tt-item field i-no like itemfg.i-no
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
@@ -57,8 +58,8 @@ def temp-table tt-item field i-no like itemfg.i-no
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-item.i-no tt-item.i-name   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
-&Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-item
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-item.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-item
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-item
@@ -102,20 +103,20 @@ DEFINE BROWSE BROWSE-1
       tt-item.i-no tt-item.i-name
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SIZE 67 BY 9.76
-         BGCOLOR 8 FONT 0.
+    WITH NO-ROW-MARKERS SIZE 69 BY 11.19
+         BGCOLOR 15 FGCOLOR 1 FONT 0.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     BROWSE-1 AT ROW 1 COL 1
-     Btn_OK AT ROW 12.19 COL 24
-     SPACE(29.59) SKIP(0.52)
+     BROWSE-1 AT ROW 1.24 COL 2
+     Btn_OK AT ROW 12.67 COL 31
+     SPACE(24.99) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 0
-         TITLE "Items for Spec Note"
+         BGCOLOR 21 FGCOLOR 15 FONT 0
+         TITLE BGCOLOR 21 FGCOLOR 15 "Items for Spec Note"
          DEFAULT-BUTTON Btn_OK.
 
 
@@ -130,11 +131,12 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 /* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
@@ -159,7 +161,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-item
 
 
 
-
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Dialog-Frame
@@ -176,7 +177,7 @@ END.
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
-ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame /* Browse 1 */
+ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
     op-item-no = tt-item.i-no.
 END.
@@ -186,7 +187,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
-ON MOUSE-SELECT-DBLCLICK OF BROWSE-1 IN FRAME Dialog-Frame /* Browse 1 */
+ON MOUSE-SELECT-DBLCLICK OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
    op-item-no = tt-item.i-no.
    apply "go" to frame {&frame-name}.
@@ -269,8 +270,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -287,8 +287,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -307,5 +306,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
