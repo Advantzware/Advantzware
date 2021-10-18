@@ -599,9 +599,9 @@ DO:
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
               RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
               ASSIGN
-                rfqitem.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no",   char-val)
-                rfqitem.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "cal",    char-val)
-                rfqitem.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                rfqitem.board:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no",   char-val)
+                rfqitem.cal:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.cal",    char-val)
+                rfqitem.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                 .
               APPLY "ENTRY":U TO rfqitem.board.
            END. /* if foam */
