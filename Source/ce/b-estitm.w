@@ -3815,8 +3815,8 @@ PROCEDURE local-assign-record :
        lv-hld-fctp NE ef.f-coat-p THEN DO:
       {sys/inc/flm-prep.i}
     END.
-      
-  IF NOT ll-new-record          AND
+  
+  IF (NOT ll-new-record  OR ll-copied-from-eb)   AND
      (lv-hld-icol NE eb.i-col OR
       lv-hld-icot NE eb.i-coat) THEN DO:
 
