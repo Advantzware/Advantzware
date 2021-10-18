@@ -108,7 +108,12 @@ DEFINE TEMP-TABLE w-ord
     FIELD xls-status     AS CHARACTER
     FIELD iPro-qty       AS INTEGER
     FIELD cDueDate       AS CHARACTER FORMAT "x(10)" 
-    FIELD lot-no         AS CHARACTER .
+    FIELD lot-no         AS CHARACTER 
+    FIELD cTrailer       AS CHARACTER 
+    FIELD dtDockDate     AS DATE      FORMAT "99/99/9999"
+    FIELD cDockTime      AS CHARACTER FORMAT "99:99"
+    FIELD cShipNotes     AS CHARACTER
+    .
 
 DEFINE BUFFER b-w-ord FOR w-ord.
 
@@ -150,11 +155,13 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN 
     cTextListToSelect  = "Customer#,Rel Date,Rel Num,Ship To,Carrier,Order #,Cust Part#,Descrption,Fg Item#," +
-                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty,Due Date,Customer Lot #"
+                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty,Due Date,Customer Lot #," +
+                           "Trailer#,Dock Appointment,Time,Ship Notes"
     cFieldListToSelect = "cust,rel-date,rel-num,ship,carr,ord,cust-part,desc,fg-item," +
-                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date,lot-no"
-    cFieldLength       = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8,15"
-    cFieldType         = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c,c" 
+                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty,due-date,lot-no," +
+                            "cTrailer,dtDockDate,cDockTime,cShipNotes"
+    cFieldLength       = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13,8,15," + "20,16,5,256"
+    cFieldType         = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i,c,c," + "c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1827,8 +1834,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE cExcelVarValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedList    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFieldName       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE str-tit4         AS cha       FORM "x(220)" NO-UNDO.
-    DEFINE VARIABLE str-tit5         AS cha       FORM "x(220)" NO-UNDO.
+    DEFINE VARIABLE str-tit4         AS cha       FORM "x(276)" NO-UNDO.
+    DEFINE VARIABLE str-tit5         AS cha       FORM "x(276)" NO-UNDO.
     DEFINE VARIABLE str-line         AS cha       FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE iProjQty         AS INTEGER   NO-UNDO .
     DEFINE VARIABLE iRelqty          AS INTEGER   NO-UNDO .
@@ -1850,7 +1857,7 @@ PROCEDURE run-report :
         str-tit4 SKIP
         str-tit5 SKIP 
 
-        WITH FRAME r-top ROW 1 COLUMN 1 STREAM-IO WIDTH 220
+        WITH FRAME r-top ROW 1 COLUMN 1 STREAM-IO WIDTH 276
         NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
     FORM HEADER
@@ -1858,7 +1865,7 @@ PROCEDURE run-report :
         lv-cr-rating
         SKIP(1)
 
-        WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 220 STREAM-IO.
+        WITH FRAME r-top2 PAGE-TOP NO-ATTR-SPACE NO-BOX WIDTH 276 STREAM-IO.
 
 
 
@@ -2229,7 +2236,12 @@ PROCEDURE run-report :
                        ((IF oe-ordl.cas-cnt    EQ 0 THEN 1 ELSE oe-ordl.cas-cnt) *
                         (IF oe-ordl.cases-unit EQ 0 THEN 1 ELSE oe-ordl.cases-unit))
             w-ord.cDueDate       = IF oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date) ELSE ""
-            w-ord.lot-no         = oe-rell.lot-no.
+            w-ord.lot-no         = oe-rell.lot-no
+            w-ord.cTrailer       = oe-relh.trailer
+            w-ord.dtDockDate     = DATE(oe-relh.releaseDockTime)
+            w-ord.cDockTime      = TRIM(REPLACE(SUBSTRING(STRING(oe-relh.releaseDockTime),11,6), ":",""))
+            w-ord.cShipNotes     = TRIM(oe-relh.ship-i[1]) + " " + TRIM(oe-relh.ship-i[2]) + " " + TRIM(oe-relh.ship-i[3]) + " " + TRIM(oe-relh.ship-i[4])
+            .
 
         {sys/inc/roundup.i ld-palls}
 
@@ -2336,6 +2348,14 @@ PROCEDURE run-report :
                             cVarValue = STRING(w-ord.cDueDate,"x(8)") .
                         WHEN "lot-no"     THEN 
                             cVarValue = STRING(w-ord.lot-no,"x(15)").
+                        WHEN "cTrailer"     THEN 
+                            cVarValue = STRING(w-ord.cTrailer,"x(20)").
+                        WHEN "dtDockDate"     THEN 
+                            cVarValue = IF w-ord.dtDockDate NE ? THEN STRING(w-ord.dtDockDate,"99/99/9999") ELSE "".
+                        WHEN "cDockTime"     THEN 
+                            cVarValue = IF w-ord.cDockTime NE ? THEN STRING(w-ord.cDockTime,"99:99") ELSE "".
+                        WHEN "cShipNotes"     THEN 
+                            cVarValue = STRING(w-ord.cShipNotes,"x(256)").
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2426,6 +2446,14 @@ PROCEDURE run-report :
                             cVarValue = "" .
                         WHEN "lot-no"     THEN 
                             cVarValue = "".
+                        WHEN "cTrailer"   THEN 
+                            cVarValue = "".
+                        WHEN "dtDockDate" THEN 
+                            cVarValue = "".
+                        WHEN "cDockTime"  THEN 
+                            cVarValue = "".
+                        WHEN "cShipNotes" THEN 
+                            cVarValue = "".
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2510,6 +2538,14 @@ PROCEDURE run-report :
                         WHEN "due-date"   THEN 
                             cVarValue = "" .
                         WHEN "lot-no"     THEN 
+                            cVarValue = "".
+                        WHEN "cTrailer"   THEN 
+                            cVarValue = "".
+                        WHEN "dtDockDate" THEN 
+                            cVarValue = "".
+                        WHEN "cDockTime"  THEN 
+                            cVarValue = "".
+                        WHEN "cShipNotes" THEN 
                             cVarValue = "".
                     END CASE.
 
