@@ -121,9 +121,20 @@ IF lRecFound AND cRtnChar NE "" THEN DO:
 END.
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
-DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
+
+DEF VAR v-tel        AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-fax        AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-contact    AS CHARACTER FORM "x(20)" NO-UNDO.
 
 def var v-billto-name as char format "x(30)" NO-UNDO.
 def var v-billto-id as char format "x(10)" NO-UNDO.
@@ -566,7 +577,13 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
        FIND FIRST xar-inv WHERE RECID(xar-inv) = RECID(ar-inv).
        ASSIGN xar-inv.printed = yes.
               xar-inv.stat = "X".
-    END. /* DO TRANSACTION avail ar-inv */ 
+    END. /* DO TRANSACTION avail ar-inv */
+    
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                            PAGE.
+
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                            PAGE.
  
     end. /* each ar-inv */
     
