@@ -636,7 +636,7 @@ ELSE lv-comp-color = "BLACK".
                         else fill(" ",5))*/ 
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
+                       fill(" ",7) + ":" +
                        string(v-t-tax[i],"->>>>>9.99")) else "".
     end.
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
@@ -652,24 +652,24 @@ ELSE
 
 IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C60><#8><FROM><R+9<C+20><RECT> " 
-        "<=8> S.Total.   :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8> S.Total.    :" v-subtot-lines FORM "->>,>>9.99"
+        "<=8><R+1> Fret/Freight:" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" 
-        "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+7> Grand Total :" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" 
+        "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" "<FGCOLOR=BLACK>".
 ELSE
     PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
-        "<=8> S.Total.   :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8> S.Total.    :" v-subtot-lines FORM "->>,>>9.99"
+        "<=8><R+1> Fret/Freight:" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" 
-        "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+5> Grand Total :" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" 
+        "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" "<FGCOLOR=BLACK>".
 
     ASSIGN
        v-printline = v-printline + 7

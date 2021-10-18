@@ -422,7 +422,7 @@ DO:
         OTHERWISE
             RETURN.            
     END CASE.
-    
+    iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
         INPUT  "", 
         INPUT  "", /* lookup field */

@@ -25,6 +25,9 @@ DEFINE INPUT PARAMETER ipiBlank LIKE eb.blank-no NO-UNDO.
 DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
 RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
+
+DEFINE BUFFER bf-eb FOR eb.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -120,6 +123,17 @@ FOR EACH bf-prep
         iCount = iCount + 1.
         RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)).
 END.
+
+
+FIND FIRST bf-eb NO-LOCK
+    WHERE bf-eb.company  EQ ipbf-est.company
+    AND bf-eb.est-no   EQ ipbf-est.est-no
+    AND bf-eb.form-no  EQ MAX(ipiForm,1)
+    AND bf-eb.blank-no EQ MAX(ipiBlank,1) NO-ERROR.
+          
+IF AVAILABLE bf-eb THEN
+    RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(bf-eb)).      
+
 
 IF VALID-HANDLE(hPrepProcs) THEN 
  DELETE OBJECT hPrepProcs.

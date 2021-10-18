@@ -6,7 +6,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
 
   for each job
       where job.company eq cocode
-        AND job.opened  EQ YES
+        AND (job.opened  EQ YES OR tb_include-job )
         and job.job-no  ge substr(v-job-no[1],1,6)
         and job.job-no  le substr(v-job-no[2],1,6)
         AND job.due-date GE begin_job-date

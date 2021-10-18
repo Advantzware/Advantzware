@@ -1108,6 +1108,24 @@ DO:
                     APPLY "tab" TO oe-ordl.qty.
                  END.
               END.
+              ELSE DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company = oe-ord.company
+                     AND cust.cust-no = oe-ord.cust-no NO-ERROR. 
+                     
+                FIND FIRST itemfg  NO-LOCK
+                     WHERE itemfg.company EQ g_company
+                     AND itemfg.i-no    EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR.     
+                RUN windows/lOePrmtx.w (g_company, oe-ordl.i-no:screen-value,oe-ord.cust-no,(IF AVAIL cust THEN cust.TYPE ELSE ""),
+                                         (IF AVAIL itemfg THEN itemfg.procat ELSE ""),oe-ord.ship-id, OUTPUT char-val).
+                IF char-val NE "" THEN DO:
+                  ASSIGN        
+                  oe-ordl.qty:screen-value = ENTRY(1,char-val)
+                  oe-ordl.price:screen-value = ENTRY(2,char-val)
+                  oe-ordl.pr-uom:screen-value = ENTRY(3,char-val) .
+                END.  
+                                         
+              END.
          END.
          WHEN "i-no" THEN DO:
               RUN windows/l-itemfa.w (g_company, oe-ord.cust-no, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
@@ -1267,7 +1285,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "",
         INPUT "Price-Source"
         ).
@@ -1313,7 +1331,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
     RUN ClearTagsForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "Price-Source"
         ).
     RUN ClearTagsForGroup(
@@ -2033,7 +2051,7 @@ DO:
 
     END. /* modified */
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -6655,7 +6673,7 @@ PROCEDURE getTagsToReset :
     EMPTY TEMP-TABLE ttTag.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -6664,7 +6682,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Price-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -8048,18 +8066,18 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     DO:
         
         RUN ClearTagsForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Price-Source"
             ).
         RUN AddTagInfoForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",
             INPUT "Price-Source"
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT "Price-Source",
             OUTPUT lAvailable

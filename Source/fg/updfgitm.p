@@ -382,6 +382,113 @@ FOR EACH vendItemCost
         NO-LOCK:
 {fg/updfgitm.i vendItemCost itemID NO}
 END.
+
+FOR EACH estCostItem
+        WHERE estCostItem.company EQ itemfg.company
+        AND estCostItem.itemID    EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i estCostItem itemID NO}
+END.
+
+FOR EACH Attach
+        WHERE Attach.company EQ itemfg.company
+        AND Attach.i-no      EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i Attach i-no NO}
+END.
+
+FOR EACH costHeader
+        WHERE costHeader.company EQ itemfg.company
+        AND costHeader.fgItemID  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i costHeader fgItemID NO}
+END.
+
+FOR EACH cust-itm
+        WHERE cust-itm.company EQ itemfg.company
+        AND cust-itm.i-no      EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i cust-itm i-no NO}
+END.
+
+FOR EACH itemfg-bom
+        WHERE itemfg-bom.company EQ itemfg.company
+        AND itemfg-bom.parent-i  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i itemfg-bom parent-i NO}
+END.
+
+FOR EACH itemfg-ink
+        WHERE itemfg-ink.company EQ itemfg.company
+        AND itemfg-ink.i-no    EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i itemfg-ink i-no NO}
+END.
+
+FOR EACH itemUom
+        WHERE itemUom.company EQ itemfg.company
+        AND itemUom.itemID    EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i itemUom itemID NO}
+END.
+
+FOR EACH oe-ordm
+        WHERE oe-ordm.company EQ itemfg.company
+        AND oe-ordm.ord-i-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i oe-ordm ord-i-no NO}
+END.
+
+FOR EACH prep
+        WHERE prep.company EQ itemfg.company
+        AND prep.i-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i prep i-no NO}
+END.
+
+FOR EACH quoteitm
+        WHERE quoteitm.company EQ itemfg.company
+        AND quoteitm.i-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i quoteitm i-no NO}
+END.
+
+FOR EACH rfqitem
+        WHERE rfqitem.company EQ itemfg.company
+        AND rfqitem.stock-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i rfqitem stock-no NO}
+END.
+
+FOR EACH vend-whse-trans
+        WHERE vend-whse-trans.company EQ itemfg.company
+        AND vend-whse-trans.fg-item-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i vend-whse-trans fg-item-no NO}
+END.
+
+FOR EACH vend-whse-trans-hist
+        WHERE vend-whse-trans-hist.company EQ itemfg.company
+        AND vend-whse-trans-hist.fg-item-no  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i vend-whse-trans-hist fg-item-no NO}
+END.
+
+FOR EACH inventoryStock
+        WHERE inventoryStock.company EQ itemfg.company
+        AND inventoryStock.fgItemID  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i inventoryStock fgItemID NO}
+END.
+
+FOR EACH inventoryStockSnapshot
+        WHERE inventoryStockSnapshot.company EQ itemfg.company
+         AND inventoryStockSnapshot.itemType  EQ "FG"
+        AND inventoryStockSnapshot.fgItemID  EQ itemfg.i-no         
+        NO-LOCK:
+    {fg/updfgitm.i inventoryStockSnapshot fgItemID NO}
+END.
+
 /*FOR EACH reftable                            */
 /*    WHERE reftable.reftable EQ "FGSTATUS"    */
 /*      AND reftable.company  EQ itemfg.company*/
