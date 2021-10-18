@@ -106,10 +106,10 @@ DEFINE VARIABLE td-Detail AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_Detail AT ROW 1.95 COL 12
-     Btn_Summary AT ROW 1.95 COL 34
+     Btn_Detail AT ROW 1.95 COL 4
+     Btn_Summary AT ROW 1.95 COL 22
      td-Detail AT ROW 1.95 COL 12
-     SPACE(16.19) SKIP(1.95)
+     SPACE(17.19) SKIP(1.95)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Invoice Lookup"

@@ -356,6 +356,7 @@ DO:
       RUN post-gl.
       RUN copy-report-to-audit-dir.
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
+      APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
     ELSE RUN undo-trnum.
   END.
@@ -843,7 +844,7 @@ PROCEDURE post-gl :
                              tran-period,
                              "A",
                              tran-date,
-                             "",
+                             "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date),
                              "AR").
 
            ASSIGN
@@ -862,7 +863,7 @@ PROCEDURE post-gl :
                                   tran-period,
                                   "A",
                                   tran-date,
-                                  "",
+                                  "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date),
                                   "AR").
              
 
@@ -908,6 +909,7 @@ PROCEDURE post-gl :
              glhist.module  = "AR"
              glhist.posted  = NO
              glhist.entryType = "A"
+             glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
              lv-rowid       = ROWID(glhist).
           END.
           glhist.tr-amt = glhist.tr-amt + t1.
@@ -941,7 +943,7 @@ PROCEDURE post-gl :
                    TO xar-cashl 
              assign
               xar-cashl.line       = x + 1
-              xar-cashl.amt-due    = ar-cashl.amt-due
+              xar-cashl.amt-due    = -(ar-cashl.amt-due)
               xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
 
               xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
