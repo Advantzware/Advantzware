@@ -4182,7 +4182,17 @@ PROCEDURE local-destroy :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF VALID-HANDLE(hPrepProcs) THEN
         DELETE PROCEDURE hPrepProcs.
-
+        
+  IF VALID-HANDLE(hdCustomerProcs) THEN
+      DELETE PROCEDURE hdCustomerProcs.
+  
+  IF VALID-HANDLE(hdSalesManProcs) THEN
+      DELETE PROCEDURE hdSalesManProcs.
+        
+  IF VALID-HANDLE(hdQuoteProcs) THEN
+      DELETE PROCEDURE hdQuoteProcs.  
+  
+      
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
