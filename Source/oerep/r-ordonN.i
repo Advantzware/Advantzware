@@ -462,6 +462,7 @@
                    WHEN "prntd"       THEN cVarValue =  STRING(tt-report.prntd).
                    WHEN "die-cut"     THEN cVarValue =  STRING(tt-report.die-cut).
                    WHEN "glue"        THEN cVarValue =  STRING(tt-report.glue).
+                   WHEN "last-date"   THEN cVarValue = IF oe-ord.last-date NE ? THEN STRING(oe-ord.last-date) ELSE "".
                END CASE.                                                                 
                 
               cExcelVarValue = cVarValue.
