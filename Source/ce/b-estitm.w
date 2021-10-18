@@ -182,10 +182,13 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
+
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -3861,6 +3864,8 @@ PROCEDURE local-assign-record :
             INPUT ROWID(eb)
             ).
 
+  RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(eb)).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4162,6 +4167,37 @@ PROCEDURE local-delete-record :
       END.
     END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.
+        
+  IF VALID-HANDLE(hdCustomerProcs) THEN
+      DELETE PROCEDURE hdCustomerProcs.
+  
+  IF VALID-HANDLE(hdSalesManProcs) THEN
+      DELETE PROCEDURE hdSalesManProcs.
+        
+  IF VALID-HANDLE(hdQuoteProcs) THEN
+      DELETE PROCEDURE hdQuoteProcs.  
+  
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
