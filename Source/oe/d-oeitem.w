@@ -1092,7 +1092,7 @@ DO:
         END.
 
          WHEN "qty" THEN DO:
-              IF oe-ordl.est-no:SCREEN-VALUE <> "" THEN DO:
+              IF oe-ordl.est-no:SCREEN-VALUE <> "" AND NOT lQuotePriceMatrix THEN DO:
                  RUN windows/l-ordqty.w (g_company, oe-ordl.est-no:screen-value, lw-focus:screen-valu, OUTPUT char-val).
                  IF char-val NE "" THEN DO:
                     ASSIGN
