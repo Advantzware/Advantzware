@@ -707,142 +707,134 @@ PROCEDURE Verify_Entries :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-job-mch FOR job-mch.
-DEF VAR cAction AS CHAR NO-UNDO.
-    IF NOT CAN-FIND(FIRST job-mch WHERE
-     job-mch.company = company_code AND
-     job-mch.job = job.job AND
-     job-mch.job-no = job_number AND
-     job-mch.job-no2 = INTEGER(job_sub) AND
-     job-mch.frm = INTEGER(form_#)) THEN
-     DO:
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    IF NOT CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company EQ company_code
+                      AND job-mch.job     EQ job.job
+                      AND job-mch.job-no  EQ job_number
+                      AND job-mch.job-no2 EQ INTEGER(job_sub)
+                      AND job-mch.frm     EQ INTEGER(form_#)) THEN DO:
         MESSAGE 'FORM DOES NOT EXIST FOR JOB - TRY AGAIN' VIEW-AS ALERT-BOX.
         RETURN.
-     END.
+    END.
 
-  IF NOT CAN-FIND(FIRST job-mch WHERE
-     job-mch.company = company_code AND
-     job-mch.job = job.job AND
-     job-mch.job-no = job_number AND
-     job-mch.job-no2 = INTEGER(job_sub) AND
-     job-mch.frm = INTEGER(form_#) AND
-     job-mch.blank-no = INTEGER(blank_#)) THEN
-     DO:
+    IF NOT CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company  EQ company_code
+                      AND job-mch.job      EQ job.job
+                      AND job-mch.job-no   EQ job_number
+                      AND job-mch.job-no2  EQ INTEGER(job_sub)
+                      AND job-mch.frm      EQ INTEGER(form_#)
+                      AND job-mch.blank-no EQ INTEGER(blank_#)) THEN DO:
         MESSAGE 'BLANK NOT VALID FOR JOB/FORM - TRY AGAIN' VIEW-AS ALERT-BOX.
         RETURN.
-     END.
+    END.
   
-  FIND FIRST job-hdr WHERE
-       job-hdr.company = company_code AND
-       job-hdr.job = job.job AND
-       job-hdr.frm = INTEGER(form_#) AND
-       job-hdr.blank-no = INTEGER(blank_#)
-       NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL job-hdr AND blank_# EQ '0' THEN
-     FIND FIRST job-hdr WHERE
-          job-hdr.company = company_code AND
-          job-hdr.job = job.job AND
-          job-hdr.frm = INTEGER(form_#)
-          NO-LOCK NO-ERROR.
-
-  IF AVAILABLE job-hdr THEN DO:
-     ASSIGN item_# = job-hdr.i-no.
-     FIND FIRST itemfg WHERE itemfg.company = company_code
-                         AND ITEMfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
-     ITEM_name = IF AVAIL itemfg THEN itemfg.i-name ELSE "".
-     DISPLAY ITEM_# ITEM_name WITH FRAME {&FRAME-NAME}.
-  END.
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ company_code
+           AND job-hdr.job      EQ job.job
+           AND job-hdr.frm      EQ INTEGER(form_#)
+           AND job-hdr.blank-no EQ INTEGER(blank_#)
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr AND blank_# EQ '0' THEN
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ company_code
+           AND job-hdr.job     EQ job.job
+           AND job-hdr.frm     EQ INTEGER(form_#)
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN DO:
+        item_# = job-hdr.i-no.
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ company_code
+               AND ITEMfg.i-no    EQ job-hdr.i-no
+             NO-ERROR.
+        item_name = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
+        DISPLAY item_# item_name WITH FRAME {&FRAME-NAME}.
+    END.
   
-  IF AVAIL job THEN
-  RUN ProcessOperationChange IN hdOpProcs ( INPUT company_code,
-                                            INPUT machine_code,
-                                            INPUT job.job, 
-                                            INPUT INTEGER(form_#),
-                                            INPUT INTEGER(blank_#),
-                                            INPUT INTEGER(pass_#),
-                                            INPUT mach.dept[1],
-                                            OUTPUT cAction) .                                              
-    
-   FIND FIRST job-mch WHERE job-mch.company = company_code
-                        AND job-mch.job = job.job
-                        AND job-mch.job-no = job_number
-                        AND job-mch.job-no2 = INTEGER(job_sub)
-                        AND job-mch.frm = INTEGER(form_#)
-                        AND (job-mch.blank-no = INTEGER(blank_#)
-                         OR mach.p-type NE 'B')
-                        AND job-mch.m-code = machine_code
-                        AND job-mch.dept = mach.dept[1]
-                      NO-LOCK NO-ERROR.
-   IF NOT AVAILABLE job-mch THEN
-   FIND FIRST job-mch WHERE job-mch.company = company_code
-                        AND job-mch.job = job.job
-                        AND job-mch.job-no = job_number
-                        AND job-mch.job-no2 = INTEGER(job_sub)
-                        AND job-mch.frm = INTEGER(form_#)
-                        AND (job-mch.blank-no = INTEGER(blank_#)
-                         OR mach.p-type NE 'B')
-                        AND job-mch.dept = mach.dept[1]
-                      NO-LOCK NO-ERROR. 
-   IF AVAILABLE job-mch AND (cAction EQ "Add" OR cAction EQ "AddDept") THEN 
-   do:           
+    IF AVAILABLE job THEN
+        RUN ProcessOperationChange IN hdOpProcs (
+            company_code,
+            machine_code,
+            job.job, 
+            INTEGER(form_#),
+            INTEGER(blank_#),
+            INTEGER(pass_#),
+            mach.dept[1],
+            OUTPUT cAction
+            ).                                              
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company   EQ company_code
+           AND job-mch.job       EQ job.job
+           AND job-mch.job-no    EQ job_number
+           AND job-mch.job-no2   EQ INTEGER(job_sub)
+           AND job-mch.frm       EQ INTEGER(form_#)
+           AND (job-mch.blank-no EQ INTEGER(blank_#)
+            OR mach.p-type       NE 'B')
+           AND job-mch.m-code    EQ machine_code
+           AND job-mch.dept      EQ mach.dept[1]
+         NO-ERROR.
+    IF NOT AVAILABLE job-mch THEN
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company   EQ company_code
+           AND job-mch.job       EQ job.job
+           AND job-mch.job-no    EQ job_number
+           AND job-mch.job-no2   EQ INTEGER(job_sub)
+           AND job-mch.frm       EQ INTEGER(form_#)
+           AND (job-mch.blank-no EQ INTEGER(blank_#)
+            OR mach.p-type       NE 'B')
+           AND job-mch.dept      EQ mach.dept[1]
+         NO-ERROR. 
+    IF AVAILABLE job-mch AND (cAction EQ "Add" OR cAction EQ "AddDept") THEN DO:           
         FIND CURRENT job-mch EXCLUSIVE-LOCK NO-ERROR. 
-           IF job-mch.n-out EQ 0 THEN job-mch.n-out = 1.
-           IF cAction EQ "Add" THEN
-              job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS').
-           IF job-mch.n-on  EQ 0 THEN RUN get-num-on.
+        IF job-mch.n-out EQ 0 THEN
+        job-mch.n-out = 1.
+        IF cAction EQ "Add" THEN
+        job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS').
+        IF job-mch.n-on EQ 0 THEN
+        RUN get-num-on.
         FIND CURRENT job-mch NO-LOCK NO-ERROR.         
-   END. 
-   IF iJobRecalc EQ 1 AND cAction EQ "Replace" AND AVAIL job THEN
-     DO:
-         RUN fg/GetProductionQty.p (INPUT job.company,
-                INPUT job.job-no,
-                INPUT job.job-no2,
-                INPUT ITEM_#,
-                INPUT NO,
-                OUTPUT iQtyProduced).
-         IF iQtyProduced EQ 0 THEN
-         RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)). 
-        
-     END.
+    END. 
+    IF iJobRecalc EQ 1 AND cAction EQ "Replace" AND AVAILABLE job THEN DO:
+        RUN fg/GetProductionQty.p (
+            job.company,
+            job.job-no,
+            job.job-no2,
+            ITEM_#,
+            NO,
+            OUTPUT iQtyProduced
+            ).
+        IF iQtyProduced EQ 0 THEN
+        RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)).        
+    END.
   
-   IF cAction EQ "Cancel" THEN
-   DO:
-       RETURN .
-   END.
-   ELSE IF cAction EQ "Add"  THEN
-   DO:
-      {methods/run_link.i "CONTAINER" "Set_Value" "('job_number',job_number)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', machine_code)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job.job-no2)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}     
-        
-      {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
-       
-   END.
-   ELSE IF (cAction EQ "Replace" OR cAction EQ "AddDept")  THEN
-   DO:
-       {methods/run_link.i "CONTAINER" "Set_Value" "('job_number',job_number)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', machine_code)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job.job-no2)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
-      {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}     
-        
-      {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}       
-   END.
-   ELSE IF cAction EQ "" THEN
-   DO:
-      {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
-   END.
-       
-  
+    IF cAction EQ "Cancel" THEN
+    RETURN.
+    ELSE DO:
+        {methods/run_link.i "CONTAINER" "Set_Value" "('job_number',job_number)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', machine_code)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job.job-no2)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}     
+        IF cAction EQ "Add" THEN DO:                    
+            {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}           
+        END.
+        ELSE
+        IF (cAction EQ "Replace" OR cAction EQ "AddDept") THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}       
+        END.
+        ELSE
+        IF cAction EQ "" THEN DO:
+            {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job_sub)"}
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
+        END.
+    END. /* else */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
