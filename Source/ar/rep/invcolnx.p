@@ -132,22 +132,31 @@ DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
     FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
     cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
-DEF VAR v-tel        AS CHARACTER FORM "x(30)" NO-UNDO.
-DEF VAR v-fax        AS CHARACTER FORM "x(30)" NO-UNDO.
-DEF VAR v-contact    AS CHARACTER FORM "x(20)" NO-UNDO.
+DEF VAR v-tel           AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-fax           AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-contact       AS CHARACTER FORM "x(20)" NO-UNDO.
 
-def var v-billto-name as char format "x(30)" NO-UNDO.
-def var v-billto-id as char format "x(10)" NO-UNDO.
-def var v-billto-addr as char format "x(30)" extent 2 NO-UNDO.
-def var v-billto-addr3 as char format "x(30)" NO-UNDO.
-def var v-billto-city as char format "x(15)" NO-UNDO.
-def var v-billto-state as char format "x(2)" NO-UNDO.
-def var v-billto-zip as char format "x(10)" NO-UNDO.
+DEF VAR v-billto-name   AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-billto-id     AS CHARACTER FORM "x(10)" NO-UNDO.
+DEF VAR v-billto-addr   AS CHARACTER FORM "x(30)" extent 2 NO-UNDO.
+DEF VAR v-billto-addr3  AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-billto-city   AS CHARACTER FORM "x(15)" NO-UNDO.
+DEF VAR v-billto-state  AS CHARACTER FORM "x(2)" NO-UNDO.
+DEF VAR v-billto-zip    AS CHARACTER FORM "x(10)" NO-UNDO.
 
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add1     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add2     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add3     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add4     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add5     AS CHARACTER FORM "x(40)" NO-UNDO.
+
+ASSIGN
+    v-comp-add1 = cInvMessage[1]
+    v-comp-add2 = cInvMessage[2]
+    v-comp-add3 = cInvMessage[3]
+    v-comp-add4 = cInvMessage[4]
+    v-comp-add5 = cInvMessage[5]
+    .
     
     find first company where company.company = cocode no-lock no-error.
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
@@ -528,14 +537,32 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
            END.
         end.      
 
-    do i = 1 to 3:
-       v-bot-lab[i] = if v-t-tax[i] ne 0 then
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code[i]),"x(5)") 
+    IF ltb_print-message THEN
+    DO:
+        IF v-printline > 50 THEN do:           
+           PAGE.
+           {ar/rep/invcolnx.i}  /* xprint form */
+           v-printline = 21.
+        END.
+    
+        PUT "<R51.5><C1><P12> Remit To: <C11.5>" v-comp-add1 SKIP
+             "<C11.5>" v-comp-add2 SKIP
+             "<C11.5>" v-comp-add3 SKIP  
+             "<C11.5>" v-comp-add4 SKIP  
+             "<C11.5>" v-comp-add5 "<P10>" SKIP
+             .
+        v-printline = v-printline + 5.
+    END. /* IF ltb_print-message THEN */
+        
+        
+    DO i = 1 TO 3:
+       v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN
+                        ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
-    end.
-                        
+                       FILL(" ",6) + ":" +
+                       STRING(v-t-tax[i],"->>>>>9.99")) ELSE "".
+    END.
+    
     ASSIGN
        v-inv-total = v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight
        tmp1 = 0 

@@ -37,10 +37,11 @@ DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)" NO-UNDO.
-DEF VAR v-comp-add1    AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-comp-add2    AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-comp-add3    AS CHAR FORMAT "x(30)" NO-UNDO.
-DEF VAR v-comp-add4    AS CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-comp-add1    AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR v-comp-add2    AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR v-comp-add3    AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR v-comp-add4    AS CHAR FORMAT "x(40)" NO-UNDO.
+DEF VAR v-comp-add5    AS CHAR FORMAT "x(40)" NO-UNDO.
 
 DEF VAR v-shipvia     LIKE carrier.dscr     NO-UNDO.
 DEF VAR v-t-weight    LIKE ar-invl.t-weight NO-UNDO.
@@ -142,6 +143,14 @@ DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
  ASSIGN
     FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
     cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ASSIGN
+    v-comp-add1 = cInvMessage[1]
+    v-comp-add2 = cInvMessage[2]
+    v-comp-add3 = cInvMessage[3]
+    v-comp-add4 = cInvMessage[4]
+    v-comp-add5 = cInvMessage[5]
+    .
 
 FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
 
@@ -647,6 +656,23 @@ FOR EACH report
       END.
   END.
 
+  IF ltb_print-message THEN
+  DO:
+      IF v-printline > 50 THEN do:           
+         PAGE.
+         {ar/rep/invcolnx2.i}  /* xprint form */
+         v-printline = 21.
+      END.
+
+      PUT "<R51.5><C1><P12> Remit To: <C11.5>" v-comp-add1 SKIP
+         "<C11.5>" v-comp-add2 SKIP
+         "<C11.5>" v-comp-add3 SKIP  
+         "<C11.5>" v-comp-add4 SKIP  
+         "<C11.5>" v-comp-add5 "<P10>" SKIP
+         .
+      v-printline = v-printline + 5.
+  END. /* IF ltb_print-message THEN */ 
+  
   DO i = 1 TO 3:
 
     ASSIGN v-bot-lab[i] = IF v-t-tax[i] NE 0 
