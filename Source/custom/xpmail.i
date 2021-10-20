@@ -24,12 +24,12 @@ DEFINE VARIABLE lv-mailattach    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE vlSilentMode     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-to-list2      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCheckMailFormat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hMailProcs       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hEmailProcs      AS HANDLE    NO-UNDO.
 
-RUN system/MailProcs.p PERSISTENT SET hMailProcs.
+RUN system/EmailProcs.p PERSISTENT SET hEmailProcs.
 
 IF ipType EQ "ALL" THEN
-    RUN pBuildToList IN hMailProcs (
+    RUN pBuildToList IN hEmailProcs (
         ipType,           /* Rec_Key        */
         "",               /* Email Address  */
         ipGroupTitle,     /* Title          */
@@ -37,7 +37,7 @@ IF ipType EQ "ALL" THEN
         ).
 ELSE
 IF ipType BEGINS "CUSTOMER" THEN
-    RUN pCustomer IN hMailProcs (
+    RUN pCustomer IN hEmailProcs (
         ipType,
         g_company,
         ipIdxKey,
@@ -46,14 +46,14 @@ IF ipType BEGINS "CUSTOMER" THEN
         ).
 ELSE
 IF ipType BEGINS "LOC" THEN   
-    RUN pLoc IN hMailProcs (
+    RUN pLoc IN hEmailProcs (
         g_company,
         ipIdxKey,
         OUTPUT ls-to-list
         ).
 ELSE
 IF ipType BEGINS "SALESREP" THEN
-    RUN pSalesRep IN hMailProcs (
+    RUN pSalesRep IN hEmailProcs (
         ipType,
         g_company,
         ipIdxKey,
@@ -62,7 +62,7 @@ IF ipType BEGINS "SALESREP" THEN
         ).
 ELSE
 IF ipType BEGINS "SHIPTO" THEN
-    RUN pShipTo IN hMailProcs (
+    RUN pShipTo IN hEmailProcs (
         ipType,
         g_company,
         ipIdxKey,
@@ -71,7 +71,7 @@ IF ipType BEGINS "SHIPTO" THEN
         ).
 ELSE
 IF ipType BEGINS "SOLDTO" THEN  
-    RUN pSoldTo IN hMailProcs (
+    RUN pSoldTo IN hEmailProcs (
         ipType,
         g_company,
         ipIdxKey,
@@ -80,7 +80,7 @@ IF ipType BEGINS "SOLDTO" THEN
         ).
 ELSE
 IF ipType BEGINS "VENDOR" THEN
-    RUN pVendor IN hMailProcs (
+    RUN pVendor IN hEmailProcs (
         ipType,
         g_company,
         ipIdxKey,

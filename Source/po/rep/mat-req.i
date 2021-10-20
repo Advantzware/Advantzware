@@ -172,7 +172,7 @@ DEF VAR ll-no-po AS LOG NO-UNDO.
 
            len-score        = "".
                              
-           run po/po-ordls.p (recid(po-ordl)). 
+            
             
            {po/poprints.i}                     
           

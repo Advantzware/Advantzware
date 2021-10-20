@@ -963,12 +963,12 @@ SESSION:SET-WAIT-STATE("general").
         put alf-check to 53
             ar-cash.check-date  at 60
             ck-onac at 72
-            ar-cashl.inv-no at 95.
+            ar-cashl.inv-no format ">>>>>>9" at 94.
             
         v2 = v2 + ck-onac.
       end.
 
-      else put ar-cashl.inv-no at 95.
+      else put ar-cashl.inv-no format ">>>>>>9" at 94.
 
       if ar-cashl.amt-paid ne 0 then put space(3) ar-cashl.amt-paid.
       else put space(17).
@@ -1083,7 +1083,7 @@ SESSION:SET-WAIT-STATE("general").
            ar-cash.cust-no          space(1)
            cust.name                space(1)
            alf-check space(1)
-           ar-cashl.inv-no format ">>>>>9"  space(1)
+           ar-cashl.inv-no format ">>>>>>9"  space(1)
            tmp-amt-paid      format "->>,>>>,>>9.99"
            skip.
 
