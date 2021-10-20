@@ -74,8 +74,7 @@ CLASS entities.EstCostMaterial INHERITS entities.Entity:
 
 	METHOD PRIVATE VOID pInit(  ):
 		
-        IF SEARCH ("entities\estCostMaterial.json") NE ? THEN
-            LoadAttributes ("entities\estCostMaterial.json").
+        LoadAttributes ().
 
 	END METHOD.
 

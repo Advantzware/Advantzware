@@ -100,8 +100,7 @@ CLASS entities.EstCostForm INHERITS entities.Entity:
 	METHOD PRIVATE VOID pInit(  ):
 		oEstCostBlank = NEW entities.EstCostBlank().
 		
-        IF SEARCH ("entities\estCostForm.json") NE ? THEN
-            LoadAttributes ("entities\estCostForm.json").
+        LoadAttributes ().
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

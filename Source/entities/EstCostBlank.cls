@@ -101,8 +101,7 @@ CLASS entities.EstCostBlank INHERITS entities.Entity:
 		
 		oEstCostMaterial = NEW entities.EstCostMaterial().
 
-        IF SEARCH ("entities\estCostBlank.json") NE ? THEN
-            LoadAttributes ("entities\estCostBlank.json").
+        LoadAttributes ().
 
 	END METHOD.
 

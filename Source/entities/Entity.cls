@@ -15,15 +15,8 @@ USING OpenEdge.BusinessLogic.BusinessEntity.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity: 
-    
-    DEFINE TEMP-TABLE ttAttribute NO-UNDO
-        FIELD dbFieldName   AS CHARACTER
-        FIELD attributeName AS CHARACTER
-        .
-	
-	DEFINE VARIABLE RequestData     AS LONGCHAR  NO-UNDO.
-	DEFINE VARIABLE RequestDataType AS CHARACTER NO-UNDO.
-	
+    	
+	DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
@@ -41,13 +34,15 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
         /* Data Source for each table in dataset. Should be in table order as defined 
            in DataSet */     
         hDataSourceArray[1] = srcEntity.
-                
+        
         /* Skip-list entry for each table in dataset. Should be in temp-table order 
            as defined in DataSet */
         /* Each skip-list entry is a comma-separated list of field names, to be
            ignored in create stmt */
             
         cSkipListArray[1] = "".
+        
+        oAttribute = NEW system.Attribute(srcEntity:GET-SOURCE-BUFFER:NAME).
         
         THIS-OBJECT:ProDataSource = hDataSourceArray.
         THIS-OBJECT:SkipList = cSkipListArray.
@@ -84,12 +79,8 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 	 Purpose:
 	 Notes:
 	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID LoadAttributes( ipcFileName AS CHARACTER ):
-		
-		IF SEARCH (ipcFileName) EQ ? THEN
-		    RETURN.
-
-        TEMP-TABLE ttAttribute:READ-JSON ("FILE", SEARCH (ipcFileName)) NO-ERROR.
+	METHOD PUBLIC VOID LoadAttributes( ):
+		oAttribute:LoadAttributes().
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -124,54 +115,8 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC LONGCHAR ReplaceEntityAttributes( ipBufferHandle AS HANDLE ):
-		DEFINE VARIABLE hdField       AS HANDLE   NO-UNDO.
-		DEFINE VARIABLE lcRequestData AS LONGCHAR NO-UNDO.
-		
-		lcRequestData = THIS-OBJECT:RequestData.
-		
-		IF NOT VALID-HANDLE(ipBufferHandle) THEN
-		    RETURN lcRequestData.
-		
-		IF NOT ipBufferHandle:AVAILABLE THEN
-		    RETURN lcRequestData.
-		
-		FOR EACH ttAttribute
-		    WHERE ttAttribute.attributeName NE ?:
-		    hdField = ipBufferHandle:BUFFER-FIELD(ttAttribute.dbFieldName) NO-ERROR.
-		    IF VALID-HANDLE (hdField) THEN
-                RUN Format_UpdateRequestData (
-                    INPUT-OUTPUT lcRequestData,
-                    INPUT        ttAttribute.attributeName,
-                    INPUT        STRING(hdField:BUFFER-VALUE),
-                    INPUT        RequestDataType
-                    ).  		        
-		END.
-		
-		RETURN lcRequestData.
+		oAttribute:ReplaceAttributes(ipBufferHandle).
 	END METHOD.
-
-    METHOD PRIVATE VOID pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData AS LONGCHAR):
-    /*------------------------------------------------------------------------------
-     Purpose: Replaces and trims the delimiters of the request data for a given data type
-     Notes:
-    ------------------------------------------------------------------------------*/
-        IF RequestDataType EQ "JSON" THEN
-            ASSIGN
-                ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
-                ioplcRequestData = TRIM(ioplcRequestData, ",")
-                .
-        ELSE
-            ASSIGN
-                ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")
-                ioplcRequestData = TRIM(ioplcRequestData, "~n")
-                .
-                
-        /* Replaces $page$ with Form Feed character (PAGE keyword) */
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12))
-            ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
-            .    
-    END METHOD.
 
 	/*------------------------------------------------------------------------------
 	 Purpose:
@@ -179,10 +124,8 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC VOID SetRequestDataAndType( INPUT iplcRequestData AS LONGCHAR, ipcRequestDataType AS CHARACTER ):
-		ASSIGN
-		    RequestData     = iplcRequestData
-		    RequestDataType = ipcRequestDataType
-		    .
+		oAttribute:RequestData     = iplcRequestData.
+		oAttribute:RequestDataType = ipcRequestDataType.
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -216,7 +159,7 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 		
 		hdBuffer = THIS-OBJECT:ProDataset:GET-TOP-BUFFER().
         IF NOT VALID-HANDLE (hdBuffer) THEN
-            RETURN THIS-OBJECT:RequestData.
+            RETURN oAttribute:RequestData.
             
         CREATE QUERY hdQuery.
         
@@ -224,7 +167,7 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
         hdQuery:QUERY-PREPARE ("FOR EACH " + hdBuffer:NAME).
         hdQuery:QUERY-OPEN().
         
-        lcRequestData = THIS-OBJECT:RequestData.
+        lcRequestData = oAttribute:RequestData.
         
         REPEAT:
             hdQuery:GET-NEXT ().
@@ -235,7 +178,7 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
             lcConcatRequestData = lcConcatRequestData + ReplaceEntityAttributes( hdBuffer ).
         END.
 
-        pUpdateDelimiter (INPUT-OUTPUT lcConcatRequestData).
+        oAttribute:UpdateDelimiter (INPUT-OUTPUT lcConcatRequestData).
         
         RETURN lcConcatRequestData.
         

@@ -117,8 +117,7 @@ CLASS entities.EstCostHeader  INHERITS entities.Entity:
 		
         oEstCostForm = NEW entities.EstCostForm().
         
-        IF SEARCH ("entities\estCostHeader.json") NE ? THEN
-            LoadAttributes ("entities\estCostHeader.json").
+        LoadAttributes ().
 
 	END METHOD.
 
