@@ -20,6 +20,9 @@ DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcAutoIssueTypes AS CHARACTER  NO-UNDO INITIAL "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@".
 
+DEFINE VARIABLE glUseNetSheets AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glSetHeaderOnly AS LOGICAL NO-UNDO.
+
 DEFINE TEMP-TABLE ttQtyRestore NO-UNDO
     FIELD qtyYld AS DECIMAL 
     FIELD qtyReq AS DECIMAL 
@@ -31,9 +34,6 @@ DEFINE TEMP-TABLE ttQtyRestore NO-UNDO
 
 /* ************************  Function Prototypes ********************** */
 
-
-FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
-	(ipcCompany AS CHARACTER ) FORWARD.
 
 DEFINE TEMP-TABLE ttJobHdrToKeep
     FIELD riJobHdr AS ROWID.
@@ -133,6 +133,7 @@ PROCEDURE pBuildJob PRIVATE:
         NO-ERROR.
     IF AVAILABLE bf-job THEN 
     DO:
+        RUN pSetGlobalSettings(bf-job.company).
         RUN pCalcEstimateForJob(BUFFER bf-job, 0, OUTPUT iEstCostHeaderID).
         RUN pBuildHeaders(iEstCostHeaderID, ipiOrderID, BUFFER bf-job).
         RUN pBuildMaterials(iEstCostHeaderID, BUFFER bf-job).
@@ -164,12 +165,10 @@ PROCEDURE pBuildHeaders PRIVATE:
     DEFINE           BUFFER bf-reftable FOR reftable.
     
     DEFINE VARIABLE dQtyInM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lSetHeaderOnly AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsSet AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIsSetHeader AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lMakeJobHeader AS LOGICAL NO-UNDO.
     
-    lSetHeaderOnly = fSetHeaderOnly(ipbf-job.company).  /*NK1 JobBuildVersion Logical Value = YES*/
     FOR EACH bf-reftable
         WHERE bf-reftable.reftable EQ "jc/jc-calc.p"
         AND bf-reftable.company  EQ ipbf-job.company
@@ -188,7 +187,7 @@ PROCEDURE pBuildHeaders PRIVATE:
         ASSIGN 
             lIsSet = estCostHeader.estType EQ "Set"
             lIsSetHeader = estCostBlank.formNo EQ 0 
-            lMakeJobHeader = NOT lSetHeaderOnly OR lIsSetHeader OR NOT lIsSet
+            lMakeJobHeader = NOT glSetHeaderOnly OR lIsSetHeader OR NOT lIsSet
             .
         
         IF lMakeJobHeader THEN 
@@ -361,7 +360,7 @@ PROCEDURE pBuildMaterials PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job   FOR job.
     
     DEFINE BUFFER bf-job-mat FOR job-mat.
-    
+        
     FOR EACH estCostMaterial NO-LOCK
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID
         AND NOT estCostMaterial.isPurchasedFG
@@ -406,6 +405,9 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.n-up         = estCostForm.numOut
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
+        
+        IF estCostMaterial.isPrimarySubstrate AND glUseNetSheets THEN 
+            bf-job-mat.qty = estCostMaterial.quantityRequiredNoWaste.
 
         bf-job-mat.post = CAN-FIND(FIRST materialType 
                                    WHERE materialType.company      EQ bf-job-mat.company 
@@ -689,29 +691,23 @@ PROCEDURE pCleanJob PRIVATE:
 
 END PROCEDURE.
 
-
-/* ************************  Function Implementations ***************** */
-
-FUNCTION fSetHeaderOnly RETURNS LOGICAL PRIVATE
-	(ipcCompany AS CHARACTER ):
+PROCEDURE pSetGlobalSettings PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: NK1 JobBuildVersion Logical Value = YES.  When yes, set componenents will
-     not be created as job-hdrs.  This is for any job tickets that expect legacy Job builds
-     and requires extra functionality to get components for some reason.
-     This could be deprecated if all customers tickets are changed to handle set components
-     their own job-hdrs.
+     Purpose: Sets the NK1 setting global variables that are pertinent to th
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSetHeaderOnly AS LOGICAL NO-UNDO.
-    
+
     RUN sys/ref/nk1look.p (ipcCompany, "JobBuildVersion", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    lSetHeaderOnly = lFound AND cReturn EQ "YES".
+    glSetHeaderOnly = lFound AND cReturn EQ "YES".
 
-    RETURN lSetHeaderOnly.
+    RUN sys/ref/nk1look.p (ipcCompany, "Job Qty", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    glUseNetSheets = lFound AND cReturn EQ "Net Shts".
+    
 
+END PROCEDURE.
 
-		
-END FUNCTION.
+/* ************************  Function Implementations ***************** */
 

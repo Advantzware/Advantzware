@@ -2310,7 +2310,7 @@ PROCEDURE pHistory :
         cEndAuditKey    = IF lAuditKeyFilter THEN ipcAuditKey ELSE CHR(254)
         .
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-    open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" FALSE.
+    open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" NOT-EMBEDDED.
 &ELSE
     OS-COMMAND NO-WAIT notepad.exe c:\tmp\AuditHistory.txt.
 &ENDIF

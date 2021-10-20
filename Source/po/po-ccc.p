@@ -44,15 +44,25 @@ def var v-hdr as char format "x(15)" initial "" no-undo.
 def var v-ino-job as char format "x(15)" initial "" no-undo.
 def var v-change-ord as char format "x(35)" initial "" no-undo.
 DEF VAR v-sig-image AS CHAR NO-UNDO.
-DEF var v-dept-note AS cha FORM "x(80)" EXTENT 50 NO-UNDO.
+DEF var v-dept-note   AS CHARACTER FORM "x(80)" EXTENT 50 NO-UNDO.
 
-DEF VAR v-inst-lines AS INT NO-UNDO.
-DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
+DEF VAR v-inst-lines  AS INTEGER   NO-UNDO.
+DEF VAR v-inst        AS CHARACTER FORM "x(80)" EXTENT 4 NO-UNDO.
 
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR v-signature AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-image1     AS CHARACTER NO-UNDO.
+DEF VAR ls-full-img1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR v-signature   AS CHARACTER FORM "x(100)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
 DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
@@ -439,7 +449,7 @@ assign
                    v-printline = v-printline + 1.
         END.
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
             
         {po/poprints.i}
             
@@ -605,6 +615,12 @@ assign
 
 v-printline = v-printline + 6.
 IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
+
+PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                        PAGE.
+
+PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                        PAGE. 
 
 end. /* for each po-ord record */.
 

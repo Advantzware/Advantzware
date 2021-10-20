@@ -209,6 +209,7 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
         WHERE bf-job-hdr.company EQ ipcCompany
           AND bf-job-hdr.job-no  EQ ipcJobno
           AND (bf-job-hdr.opened EQ iplJobStatus OR iplJobStatus EQ ?)
+           BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
                             STRING(bf-job-hdr.job-no2,"99")

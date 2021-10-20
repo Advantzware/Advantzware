@@ -449,7 +449,7 @@ v-printline = 0.
                    v-printline = v-printline + 1.
         END.
         len-score = "".   
-        run po/po-ordls.p (recid(po-ordl)).
+        
         {po/poprints.i}       
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
             END.
