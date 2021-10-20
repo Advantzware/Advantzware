@@ -3211,19 +3211,7 @@ PROCEDURE display-item :
   
             IF AVAILABLE itemfg THEN
                 fiCount:SCREEN-VALUE = STRING(itemfg.case-count).
-            IF po-ordl.spare-int-1 EQ 1 THEN 
-            DO:
-                pr-qty-uom:SCREEN-VALUE = "CS".            
-                po-ordl.ord-qty:SCREEN-VALUE = 
-                    STRING(DEC(po-ordl.ord-qty) / DEC(fiCount:SCREEN-VALUE)).
-            END. /* If spare-int-1 eq 1 */
-            IF po-ordl.spare-int-2 EQ 1 THEN 
-            DO:
-                /* Cost is stored as 'ea' for 'CS', so multiply to get it back */
-                po-ordl.pr-uom:SCREEN-VALUE = "CS".            
-                po-ordl.cost:SCREEN-VALUE = 
-                    STRING(DEC(po-ordl.cost) * DEC(fiCount:SCREEN-VALUE)).
-            END. /* If spare-int-1 eq 1 */
+                
         END. /* If a FG */
     END. /* If avail po-ordl */
 
@@ -3232,7 +3220,11 @@ PROCEDURE display-item :
         DO:
             FIND item WHERE item.company = g_company AND
                 item.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
-            IF AVAILABLE item THEN RUN rm-qtys (ROWID(item)).
+            IF AVAILABLE item THEN 
+            DO: 
+              RUN rm-qtys (ROWID(item)).
+              fiCount:SCREEN-VALUE = STRING(ITEM.caseCOUNT).
+            END. 
         END. /* item-type eq yes (RM) */
         ELSE 
         DO:
@@ -3240,6 +3232,20 @@ PROCEDURE display-item :
                 itemfg.i-no = po-ordl.i-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg THEN RUN fg-qtys (ROWID(itemfg)).
         END.
+        
+        IF AVAILABLE po-ordl AND po-ordl.spare-int-1 EQ 1 THEN 
+        DO:
+            pr-qty-uom:SCREEN-VALUE = "CS".            
+            po-ordl.ord-qty:SCREEN-VALUE = 
+                STRING(DEC(po-ordl.ord-qty) / DEC(fiCount:SCREEN-VALUE)).
+        END. /* If spare-int-1 eq 1 */
+        IF AVAILABLE po-ordl AND po-ordl.spare-int-2 EQ 1 THEN 
+        DO:
+            /* Cost is stored as 'ea' for 'CS', so multiply to get it back */
+            po-ordl.pr-uom:SCREEN-VALUE = "CS".            
+            po-ordl.cost:SCREEN-VALUE = 
+                STRING(DEC(po-ordl.cost) * DEC(fiCount:SCREEN-VALUE)).
+        END. /* If spare-int-1 eq 1 */
 
         cFirstMach = "" .
         RUN GetFirstMach(OUTPUT cFirstMach) .
@@ -3715,7 +3721,8 @@ PROCEDURE display-rmitem :
             po-ordl.pr-uom:SCREEN-VALUE     = item.pur-uom
             po-ordl.cons-cost:SCREEN-VALUE  = STRING(item.last-cost)
             po-ordl.item-type:SCREEN-VALUE  = "RM"
-            scr-cons-uom:SCREEN-VALUE       = po-ordl.cons-uom:SCREEN-VALUE.
+            scr-cons-uom:SCREEN-VALUE       = po-ordl.cons-uom:SCREEN-VALUE
+            fiCount:SCREEN-VALUE            = STRING(ITEM.caseCOUNT).
 
         IF item.tax-rcpt AND aptax-chr EQ "Item" THEN
             po-ordl.tax:SCREEN-VALUE = "yes".
@@ -3973,6 +3980,12 @@ PROCEDURE enable-disable-size :
                 /*IF ITEM.r-wid > 0 AND ITEM.s-len = 0 THEN DISABLE po-ordl.s-wid.
                 ELSE*/ 
                 DISABLE po-ordl.s-wid po-ordl.s-len.
+                IF ITEM.caseCount NE 0 THEN
+                ASSIGN
+                    fiCount:HIDDEN = FALSE
+                    fiCount:SCREEN-VALUE = STRING(ITEM.caseCount)
+                    .
+                ELSE
                 fiCount:HIDDEN = TRUE.
             END.
         END.

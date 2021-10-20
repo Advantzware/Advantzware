@@ -69,7 +69,9 @@
         v-tot-msf = 0.
         IF po-ordl.pr-qty-uom{2} EQ "CS" THEN DO:
            IF AVAIL(itemfg) THEN
-              v-out-qty = v-ord-qty * itemfg.case-count.           
+              v-out-qty = v-ord-qty * itemfg.case-count. 
+           ELSE IF AVAIL ITEM THEN
+              v-out-qty = v-ord-qty * item.caseCount.
         END.
         ELSE DO:
         
@@ -101,10 +103,10 @@
       NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom{2}))       THEN DO:
     
     IF (po-ordl.pr-qty-uom{2} EQ "CS" 
-        /* OR po-ordl.spare-int-1 EQ 1 */) AND AVAIL(itemfg) THEN DO:
+        /* OR po-ordl.spare-int-1 EQ 1 */) /*AND AVAIL(itemfg)*/ THEN DO:
 
         /* for CS, convert to EA first */      
-        lv-cons-qty = lv-cons-qty * itemfg.case-count.
+        lv-cons-qty = lv-cons-qty * (IF AVAIL itemfg THEN itemfg.case-count ELSE IF AVAIL ITEM THEN item.caseCount ELSE 1).
 
         RUN sys/ref/convquom.p (INPUT "EA", 
                            INPUT ({3} po-ordl.cons-uom),
@@ -148,15 +150,21 @@
         NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ord.company, po-ordl.i-no{2}, {3} po-ordl.pr-qty-uom) OR
         NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ord.company, po-ordl.i-no{2}, {3} po-ordl.pr-uom))  THEN DO:
        
-      IF po-ordl.pr-qty-uom{2} EQ "CS" AND AVAIL(itemfg) THEN DO:
+      IF po-ordl.pr-qty-uom{2} EQ "CS" /*AND AVAIL(itemfg)*/ THEN DO:
         /* Convert quantity to EA */
-        v-ord-qty = v-ord-qty * itemfg.case-count.
-       
+        v-ord-qty = v-ord-qty * ( IF AVAIL itemfg THEN itemfg.case-count ELSE IF AVAIL ITEM THEN item.caseCount ELSE 1).
+        IF AVAIL itemfg THEN
         RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
                 itemfg.i-no, "FG", 
                 v-ord-qty, "EA", po-ordl.pr-uom{2}, 
                 v-basis-w, v-len, v-wid, v-dep, 0, 
                 OUTPUT  v-ord-qty, OUTPUT lError, OUTPUT cMessage).
+        IF AVAIL ITEM THEN
+        RUN Conv_QuantityFromUOMtoUOM(ITEM.company, 
+                ITEM.i-no, "RM", 
+                v-ord-qty, "EA", po-ordl.pr-uom{2}, 
+                v-basis-w, v-len, v-wid, v-dep, 0, 
+                OUTPUT  v-ord-qty, OUTPUT lError, OUTPUT cMessage).        
 /*                RUN sys/ref/convquom.p("EA",                  */
 /*                               po-ordl.pr-uom{2},             */
 /*                               v-basis-w, v-len, v-wid, v-dep,*/
@@ -172,7 +180,7 @@
                        v-basis-w, v-len, v-wid, v-dep,
                        v-ord-qty, OUTPUT v-ord-qty).
           /* Convert to Cases */
-          v-ord-qty = v-ord-qty / itemfg.case-count.
+          v-ord-qty = v-ord-qty / (IF AVAIL itemfg THEN itemfg.case-count ELSE IF AVAIL ITEM THEN item.caseCount ELSE 1) .
         END.
         ELSE DO:
           IF AVAILABLE itemfg THEN 

@@ -600,7 +600,7 @@ PROCEDURE Conv_QuantityFromUOMtoUOM:
         END.
     
     RUN pGetMultiplier(ipcFromUOM, ipcToUOM, OUTPUT dMultiplier, OUTPUT oplError, OUTPUT opcMessage).
-    
+         
     IF NOT oplError THEN 
     DO:
         IF dMultiplier NE 0 THEN 
@@ -960,7 +960,10 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
                 dLbsPerEA = ipbf-item.weight-100 / 100.
             END CASE.
         END.
-        RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster, 3).    
+        RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster, 3).   
+        
+        /* Add Case Uom */
+        RUN pAddUOM("CS", YES, "EA","Case", ipbf-item.caseCount , "RM", "Price,POQty,Cost", 3).
         
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-item.company, ipbf-item.i-no, "RM", YES).

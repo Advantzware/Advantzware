@@ -4,11 +4,11 @@ def output parameter v-uom-list as   char.
 
 
 v-uom-list = if v-mat-type ge "1" and
-                v-mat-type le "4" then "BF,EA"                  else
+                v-mat-type le "4" then "BF,EA,CS"             else
                 
              if v-mat-type eq "P" then "TON,LB,MSF,LF,EA,ROLL"  else
              
-             if v-mat-type eq "J" then "MLI"                    else
+             if v-mat-type eq "J" then "MLI"                    ELSE
              
              if INDEX("DTOXY789",v-mat-type) GT 0 then "EA"  else
 

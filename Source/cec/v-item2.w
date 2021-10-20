@@ -43,6 +43,7 @@ DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 def var uom-list as cha init ["M,EA,L,CS,C"] no-undo.
 def var uom-list-con as cha init ["M,EA,L,CS,C"] no-undo.
 def NEW SHARED var cocode as   char  format "x(3)"  no-undo.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,7 +73,7 @@ DEFINE QUERY external_tables FOR item.
 item.alloc item.stocked item.pur-man item.cons-uom item.pur-uom ~
 item.cc-code item.pic-code item.pur-rcode item.ord-policy item.vend-no ~
 item.vend-item item.vend2-no item.vend2-item item.lead-days item.ord-level ~
-item.ord-min item.ord-max 
+item.ord-min item.ord-max item.caseCount
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS btnOnHand btnOnOrder btnCommitted RECT-21 ~
@@ -83,7 +84,7 @@ item.pur-uom item.cc-code item.pic-code item.pur-rcode item.ord-policy ~
 item.vend-no item.vend-item item.vend2-no item.vend2-item item.lead-days ~
 item.ord-level item.ord-min item.ord-max item.i-dscr item.beg-bal ~
 item.beg-date item.last-count item.last-date item.last-cost item.avg-cost ~
-item.q-onh item.q-ono item.q-comm item.q-back item.q-avail 
+item.q-onh item.q-ono item.q-comm item.q-back item.q-avail item.caseCount 
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS lv-rolls-on-hand roll-label loc-dscr ~
@@ -234,14 +235,18 @@ DEFINE FRAME F-Main
                     "Purchased", yes,
 "Manufactured", no
           SIZE 39 BY .95
-     item.cons-uom AT ROW 3.86 COL 78 COLON-ALIGNED
+     item.cons-uom AT ROW 3.66 COL 78 COLON-ALIGNED
           LABEL "Consumption UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     item.pur-uom AT ROW 5.29 COL 78 COLON-ALIGNED
+     item.pur-uom AT ROW 4.80 COL 78 COLON-ALIGNED
           LABEL "Qty Purchased UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     item.caseCount AT ROW 5.79 COL 78 COLON-ALIGNED 
+          LABEL "Case Count" FORMAT ">>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1    
      item.cc-code AT ROW 3.86 COL 113.4 COLON-ALIGNED
           LABEL "Cycle Code"
           VIEW-AS FILL-IN 
@@ -463,6 +468,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN item.ord-max IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN item.caseCount IN FRAME F-Main
+   EXP-LABEL                                                            */   
 /* SETTINGS FOR FILL-IN item.ord-min IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN item.pic-code IN FRAME F-Main
@@ -530,7 +537,7 @@ DO:
                        .
         end.
         when  "pur-uom" then do:
-             run sys/ref/uom-rm.p  (item.mat-type, output uom-list).
+             run sys/ref/uom-rm.p  (item.mat-type, output uom-list). 
              run windows/l-stduom.w (gcompany,uom-list, ITEM.pur-uom:SCREEN-VALUE in frame {&frame-name}, output char-val).
          /*    run windows/l-uom.w (focus:screen-value, output char-val).     display all Uom */
              if char-val <> "" then 
@@ -1179,7 +1186,10 @@ PROCEDURE local-update-record :
     {&methods/lValidateError.i NO}
     end.
   end.  /* do with frame  */
-
+  
+  RUN valid-case (OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
   IF item.q-onh:SENSITIVE AND
      ITEM.mat-type EQ "P" AND ITEM.r-wid > 0 THEN
      RUN update-rolls-proc.
@@ -1509,6 +1519,36 @@ PROCEDURE valid-loc-bin :
       APPLY "entry" TO item.loc-bin.
       RETURN ERROR.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-case V-table-Win 
+PROCEDURE valid-case :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER iplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+      IF item.cons-uom:SCREEN-VALUE EQ "CS" OR item.pur-uom:SCREEN-VALUE EQ "CS" THEN
+      DO:      
+         IF INTEGER(item.caseCount:SCREEN-VALUE) EQ 0 THEN
+         DO:
+            message "Case count can't zero, Please enter Case Count" view-as alert-box error.       
+            
+            IF item.cons-uom:SCREEN-VALUE EQ "CS" THEN
+            APPLY "entry" TO ITEM.cons-uom.
+            ELSE APPLY "entry" TO ITEM.pur-uom.
+            iplReturnError = YES.
+         END.
+      END.     
   END.
 
   {methods/lValidateError.i NO}
