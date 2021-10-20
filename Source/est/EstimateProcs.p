@@ -55,6 +55,10 @@ FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
 FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION flsAssignUnitsForInk RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER) FORWARD.
+	   
+
 /* ***************************  Main Block  *************************** */
 
 ASSIGN 
@@ -63,6 +67,57 @@ ASSIGN
     .
     
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Estimate_CalcFormInksAndCoats:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate the Ink, Coat etc for a Form.
+     Notes: It checks NK1 settings to switch between logic
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkPerForm         AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkPassPerForm     AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatPerForm        AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatPassPerForm    AS INTEGER NO-UNDO.
+    
+    
+    DEFINE VARIABLE lUnitsForInkSetup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iNumCol           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumVarn          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lUnitSetup        AS LOGICAL NO-UNDO.
+    
+    
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-Item FOR item.
+        
+    lUnitsForInkSetup = flsAssignUnitsForInk (ipcCompany).
+    
+    
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no  = ipcEstimteNo
+        AND bf-eb.form-no = ipiFormNo:
+            
+        ASSIGN
+            opiInkPerForm      = opiInkPerForm + bf-eb.i-col
+            opiInkPassPerForm  = opiInkPassPerForm  + bf-eb.i-pass
+            opiCoatPerForm     = opiCoatPerForm + bf-eb.i-coat
+            opiCoatPassPerForm = opiCoatPassPerForm + bf-eb.i-coat-p. 
+    END.
+        
+    /* If NK1 is setup then calculate Form colors based upon Units */
+    IF lUnitsForInkSetup = YES THEN
+    DO:
+        RUN Estimate_CalcInkUsingUnitNo (ipcCompany, ipcEstimteNo, ipiFormNo, 0, 0, OUTPUT iNumCol, OUTPUT iNumVarn, OUTPUT lUnitSetup).
+        
+        IF lUnitSetup = YES THEN
+            ASSIGN
+                opiInkPerForm  = iNumCol.
+    END.    
+
+END PROCEDURE.
+
 PROCEDURE Estimate_GetVersionSettings:
     /*------------------------------------------------------------------------------
      Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
@@ -120,8 +175,8 @@ END PROCEDURE.
 
 PROCEDURE Estimate_CalcInkUsingUnitNo:
     /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
+     Purpose: Calculate the Ink count for a Form/Blank/Pass combination.
+     Notes: It calculates the colos using Units defined 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcEstimteNo    AS CHARACTER NO-UNDO.
@@ -1038,3 +1093,20 @@ FUNCTION fEstimate_UseNew RETURNS LOGICAL
     RETURN lFound AND cReturn EQ "New".
         
 END FUNCTION.
+
+FUNCTION flsAssignUnitsForInk RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+         Purpose: Returns the Setting to use new estimate calculation
+         Notes:
+        ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lReturnVal AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN lReturnVal = cReturn EQ "YES".
+    
+    RETURN lReturnVal.
+        
+END FUNCTION. 
