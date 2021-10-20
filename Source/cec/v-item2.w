@@ -1543,9 +1543,7 @@ PROCEDURE valid-case :
          DO:
             message "Case count can't zero, Please enter Case Count" view-as alert-box error.       
             
-            IF item.cons-uom:SCREEN-VALUE EQ "CS" THEN
-            APPLY "entry" TO ITEM.cons-uom.
-            ELSE APPLY "entry" TO ITEM.pur-uom.
+            APPLY "entry" TO ITEM.caseCount.             
             iplReturnError = YES.
          END.
       END.     
