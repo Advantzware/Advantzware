@@ -570,7 +570,15 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
         END.
         IF tbAutoClose:CHECKED THEN 
-            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        DO:
+            RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
+                OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).   
+                                            
+            IF VALID-HANDLE(hdOutboundProcs) THEN
+                DELETE PROCEDURE hdOutboundProcs.
+            APPLY "close" TO THIS-PROCEDURE.
+        END. /* IF tbAutoClose:CHECKED THEN */
     END.
 
 /* _UIB-CODE-BLOCK-END */
