@@ -329,13 +329,13 @@ PROCEDURE pBusinessLogic:
                     END. /* if cType */
                     lFirstCust = NO.
                 END. /* if lFirstCust */    
-                IF iDays GE iPeriodDays7 THEN iInt = 8.
-                ELSE IF iDays GE iPeriodDays6 THEN iInt = 7.
-                ELSE IF iDays GE iPeriodDays5 THEN iInt = 6.
-                ELSE IF iDays GE iPeriodDays4 THEN iInt = 5.
-                ELSE IF iDays GE iPeriodDays3 THEN iInt = 4.
-                ELSE IF iDays GE iPeriodDays2 THEN iInt = 3.
-                ELSE IF iDays GE iPeriodDays1 THEN iInt = 2.
+                IF iPeriodDays7 NE 0 AND iDays GE iPeriodDays7 THEN iInt = 8.
+                ELSE IF iPeriodDays6 NE 0 AND iDays GE iPeriodDays6 THEN iInt = 7.
+                ELSE IF iPeriodDays5 NE 0 AND iDays GE iPeriodDays5 THEN iInt = 6.
+                ELSE IF iPeriodDays4 NE 0 AND iDays GE iPeriodDays4 THEN iInt = 5.
+                ELSE IF iPeriodDays3 NE 0 AND iDays GE iPeriodDays3 THEN iInt = 4.
+                ELSE IF iPeriodDays2 NE 0 AND iDays GE iPeriodDays2 THEN iInt = 3.
+                ELSE IF iPeriodDays1 NE 0 AND iDays GE iPeriodDays1 THEN iInt = 2.
                 ELSE iInt = 1.    
                 ASSIGN
                     dCustT[iInt] = dCustT[iInt] + dAg
@@ -677,22 +677,16 @@ PROCEDURE pBusinessLogic:
                 .
             iDays = dtAsofDate - ar-cash.check-date.
         
-            IF iDays GE iPeriodDays7 THEN
-            dUnapp[8] = dUnapp[8] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays6 AND iDays LT iPeriodDays7 THEN
-                 dUnapp[7] = dUnapp[7] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays5 AND iDays LT iPeriodDays6 THEN
-                 dUnapp[6] = dUnapp[6] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays4 AND iDays LT iPeriodDays5 THEN
-                 dUnapp[5] = dUnapp[5] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays3 AND iDays LT iPeriodDays4 THEN
-                 dUnapp[4] = dUnapp[4] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays2 AND iDays LT iPeriodDays3 THEN 
-                 dUnapp[3] = dUnapp[3] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iDays GE iPeriodDays1 AND iDays LT iPeriodDays2 THEN 
-                 dUnapp[2] = dUnapp[2] + dCreditDebitAmt - dDiscAmt.         
-            ELSE IF iDays LT iPeriodDays1 THEN 
-                 dUnapp[1] = dUnapp[1] + dCreditDebitAmt - dDiscAmt.
+            IF iPeriodDays7 NE 0 AND iDays GE iPeriodDays7 THEN iInt = 8.
+            ELSE IF iPeriodDays6 NE 0 AND iDays GE iPeriodDays6 THEN iInt = 7.
+            ELSE IF iPeriodDays5 NE 0 AND iDays GE iPeriodDays5 THEN iInt = 6.
+            ELSE IF iPeriodDays4 NE 0 AND iDays GE iPeriodDays4 THEN iInt = 5.
+            ELSE IF iPeriodDays3 NE 0 AND iDays GE iPeriodDays3 THEN iInt = 4.
+            ELSE IF iPeriodDays2 NE 0 AND iDays GE iPeriodDays2 THEN iInt = 3.
+            ELSE IF iPeriodDays1 NE 0 AND iDays GE iPeriodDays1 THEN iInt = 2.
+            ELSE iInt = 1.    
+
+            dUnapp[iInt] = dUnapp[iInt] + dCreditDebitAmt - dDiscAmt.
         END. /* for each ar-cashl record */
     
         lFirstUnapp = YES.
