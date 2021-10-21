@@ -3875,7 +3875,9 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
-
+  
+  RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5106,6 +5108,55 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors B-table-Win
+PROCEDURE pSetFormColors PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Set Form level colors and Coats etc
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ef   FOR ef. 
+    DEFINE BUFFER bfEx-ef FOR ef. 
+
+    RUN Estimate_CalcFormInksAndCoats (ipcCompany, ipcEstimate, ipiFormNo, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
+    
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.Company = ipcCompany
+          AND bf-ef.Est-no  = ipcEstimate
+          AND bf-ef.form-no = ipiFormNo NO-ERROR.
+          
+    IF AVAIL bf-ef 
+    AND (bf-ef.f-col NE iInkPerForm OR bf-ef.f-pass NE iInkPassPerForm 
+    OR bf-ef.f-coat NE iCoatPerForm OR bf-ef.f-coat-p NE iCoatPassPerForm) THEN 
+    DO TRANSACTION:
+         
+        FIND FIRST bfEx-ef EXCLUSIVE-LOCK 
+            WHERE ROWID(bfEx-ef) = ROWID(bf-ef) NO-ERROR.
+            
+        IF AVAILABLE bfEx-ef THEN
+            ASSIGN
+                bfEx-ef.f-col    = iInkPerForm
+                bfEx-ef.f-pass   = iInkPassPerForm
+                bfEx-ef.f-coat   = iCoatPerForm
+                bfEx-ef.f-coat-p = iCoatPassPerForm.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
