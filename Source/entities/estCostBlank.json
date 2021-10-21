@@ -1,111 +1,182 @@
-{
-	"ttAttribute": [{
-		"dbFieldName": "areaUOM",
-		"attributeName": "AreaUOM"
-	}, {
-		"dbFieldName": "blankArea",
-		"attributeName": "BlankArea"
-	}, {
-		"dbFieldName": "blankAreaNetWindow",
-		"attributeName": "BlankAreaNetWindow"
-	}, {
-		"dbFieldName": "blankAreaWindow",
-		"attributeName": "BlankAreaWindow"
-	}, {
-		"dbFieldName": "blankDepth",
-		"attributeName": "BlankDepth"
-	}, {
-		"dbFieldName": "blankLength",
-		"attributeName": "BlankLength"
-	}, {
-		"dbFieldName": "blankNo",
-		"attributeName": "Blank"
-	}, {
-		"dbFieldName": "blankWidth",
-		"attributeName": "BlankWidth"
-	}, {
-		"dbFieldName": "company",
-		"attributeName": "Company"
-	}, {
-		"dbFieldName": "dimDepth",
-		"attributeName": "ItemDepth"
-	}, {
-		"dbFieldName": "dimLength",
-		"attributeName": "ItemLength"
-	}, {
-		"dbFieldName": "dimUOM",
-		"attributeName": "SizeUOM"
-	}, {
-		"dbFieldName": "dimWidth",
-		"attributeName": "ItemWidth"
-	}, {
-		"dbFieldName": "estCostBlankID",
-		"attributeName": "BlankID"
-	}, {
-		"dbFieldName": "estCostFormID",
-		"attributeName": "FormID"
-	}, {
-		"dbFieldName": "estCostHeaderID",
-		"attributeName": "HeaderID"
-	}, {
-		"dbFieldName": "estCostItemID",
-		"attributeName": "ItemID"
-	}, {
-		"dbFieldName": "estimateNo",
-		"attributeName": "Estimate"
-	}, {
-		"dbFieldName": "formNo",
-		"attributeName": "Form"
-	}, {
-		"dbFieldName": "isPurchased",
-		"attributeName": "Purchased"
-	}, {
-		"dbFieldName": "numOut",
-		"attributeName": "Numout"
-	}, {
-		"dbFieldName": "numOutDepth",
-		"attributeName": "NumoutDepth"
-	}, {
-		"dbFieldName": "numOutLength",
-		"attributeName": "NumoutLength"
-	}, {
-		"dbFieldName": "numOutWidth",
-		"attributeName": "NumoutWidth"
-	}, {
-		"dbFieldName": "pctOfForm",
-		"attributeName": null
-	}, {
-		"dbFieldName": "priceBasedOnYield",
-		"attributeName": "PriceBasedonYield"
-	}, {
-		"dbFieldName": "quantityOfSubUnits",
-		"attributeName": "QtyofSubUnits"
-	}, {
-		"dbFieldName": "quantityOfUnits",
-		"attributeName": "QtyofUnits"
-	}, {
-		"dbFieldName": "quantityPerSet",
-		"attributeName": "QtyPerSet"
-	}, {
-		"dbFieldName": "quantityPerSubUnit",
-		"attributeName": "QtyPerSubUnit"
-	}, {
-		"dbFieldName": "quantityRequired",
-		"attributeName": "QtyRequired"
-	}, {
-		"dbFieldName": "quantitySubUnitsPerUnit",
-		"attributeName": "QtySubUnitsPerUnit"
-	}, {
-		"dbFieldName": "quantityYielded",
-		"attributeName": "QtyYielded"
-	}, {
-		"dbFieldName": "rec_key",
-		"attributeName": "RecordKey"
-	}, {
-		"dbFieldName": "weightPerBlank",
-		"attributeName": "Weight"
-	}, {
-		"dbFieldName": "weightUOM",
-		"attributeName": "WeightUOM"
-	}]
-}
+{"ttAttribute": [
+  {
+    "dbFieldName": "areaUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "AreaUOM"
+  },
+  {
+    "dbFieldName": "blankArea",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankArea"
+  },
+  {
+    "dbFieldName": "blankAreaNetWindow",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankAreaNetWindow"
+  },
+  {
+    "dbFieldName": "blankAreaWindow",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankAreaWindow"
+  },
+  {
+    "dbFieldName": "blankDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankDepth"
+  },
+  {
+    "dbFieldName": "blankLength",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankLength"
+  },
+  {
+    "dbFieldName": "blankNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Blank"
+  },
+  {
+    "dbFieldName": "blankWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankWidth"
+  },
+  {
+    "dbFieldName": "company",
+    "dbFieldExtent": 0,
+    "attributeName": "Company"
+  },
+  {
+    "dbFieldName": "dimDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDepth"
+  },
+  {
+    "dbFieldName": "dimLength",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemLength"
+  },
+  {
+    "dbFieldName": "dimUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "SizeUOM"
+  },
+  {
+    "dbFieldName": "dimWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemWidth"
+  },
+  {
+    "dbFieldName": "estCostBlankID",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankID"
+  },
+  {
+    "dbFieldName": "estCostFormID",
+    "dbFieldExtent": 0,
+    "attributeName": "FormID"
+  },
+  {
+    "dbFieldName": "estCostHeaderID",
+    "dbFieldExtent": 0,
+    "attributeName": "HeaderID"
+  },
+  {
+    "dbFieldName": "estCostItemID",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID"
+  },
+  {
+    "dbFieldName": "estimateNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Estimate"
+  },
+  {
+    "dbFieldName": "formNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Form"
+  },
+  {
+    "dbFieldName": "isPurchased",
+    "dbFieldExtent": 0,
+    "attributeName": "Purchased"
+  },
+  {
+    "dbFieldName": "numOut",
+    "dbFieldExtent": 0,
+    "attributeName": "Numout"
+  },
+  {
+    "dbFieldName": "numOutDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutDepth"
+  },
+  {
+    "dbFieldName": "numOutLength",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutLength"
+  },
+  {
+    "dbFieldName": "numOutWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutWidth"
+  },
+  {
+    "dbFieldName": "pctOfForm",
+    "dbFieldExtent": 0,
+    "attributeName": "pctOfForm"
+  },
+  {
+    "dbFieldName": "priceBasedOnYield",
+    "dbFieldExtent": 0,
+    "attributeName": "PriceBasedonYield"
+  },
+  {
+    "dbFieldName": "quantityOfSubUnits",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyofSubUnits"
+  },
+  {
+    "dbFieldName": "quantityOfUnits",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyofUnits"
+  },
+  {
+    "dbFieldName": "quantityPerSet",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyPerSet"
+  },
+  {
+    "dbFieldName": "quantityPerSubUnit",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyPerSubUnit"
+  },
+  {
+    "dbFieldName": "quantityRequired",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyRequired"
+  },
+  {
+    "dbFieldName": "quantitySubUnitsPerUnit",
+    "dbFieldExtent": 0,
+    "attributeName": "QtySubUnitsPerUnit"
+  },
+  {
+    "dbFieldName": "quantityYielded",
+    "dbFieldExtent": 0,
+    "attributeName": "QtyYielded"
+  },
+  {
+    "dbFieldName": "rec_key",
+    "dbFieldExtent": 0,
+    "attributeName": "RecordKey"
+  },
+  {
+    "dbFieldName": "weightPerBlank",
+    "dbFieldExtent": 0,
+    "attributeName": "Weight"
+  },
+  {
+    "dbFieldName": "weightUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightUOM"
+  }
+]}

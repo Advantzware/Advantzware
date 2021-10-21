@@ -64,33 +64,46 @@ CLASS system.Attribute:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LONGCHAR ReplaceAttributes( iplcRequestData AS LONGCHAR, ipBufferHandle AS HANDLE ):
+        RETURN pReplaceAttributes(iplcRequestData, ipBufferHandle).
+    END METHOD.
+    
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     METHOD PUBLIC LONGCHAR ReplaceAttributes( ipBufferHandle AS HANDLE ):
+        RETURN pReplaceAttributes(THIS-OBJECT:RequestData, ipBufferHandle).
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE LONGCHAR pReplaceAttributes( iplcRequestData AS LONGCHAR, ipBufferHandle AS HANDLE ):
         DEFINE VARIABLE hdField       AS HANDLE   NO-UNDO.
-        DEFINE VARIABLE lcRequestData AS LONGCHAR NO-UNDO.
-        
-        lcRequestData = THIS-OBJECT:RequestData.
         
         IF NOT VALID-HANDLE(ipBufferHandle) THEN
-            RETURN lcRequestData.
+            RETURN iplcRequestData.
         
         IF NOT ipBufferHandle:AVAILABLE THEN
-            RETURN lcRequestData.
+            RETURN iplcRequestData.
 
         FOR EACH ttAttribute
             WHERE ttAttribute.attributeName NE ?:
             hdField = ipBufferHandle:BUFFER-FIELD(ttAttribute.dbFieldName) NO-ERROR.
             IF VALID-HANDLE (hdField) THEN
                 RUN Format_UpdateRequestData (
-                    INPUT-OUTPUT lcRequestData,
+                    INPUT-OUTPUT iplcRequestData,
                     INPUT        ttAttribute.attributeName,
                     INPUT        STRING(hdField:BUFFER-VALUE(ttAttribute.dbFieldExtent)),
                     INPUT        RequestDataType
                     ).                  
         END.
         
-        RETURN lcRequestData.
+        RETURN iplcRequestData.
     END METHOD.
-    
+        
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
