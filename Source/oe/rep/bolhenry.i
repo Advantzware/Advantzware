@@ -32,8 +32,7 @@ for each report where report.term-id eq v-term-id,
     END.
 
   ASSIGN
-   v-tot-pkgs = v-tot-pkgs + oe-boll.cases +
-                if oe-boll.partial gt 0 then 1 else 0
+   v-tot-pkgs = v-tot-pkgs + oe-boll.tot-pallets 
    v-pal-cnt  = oe-boll.qty-case.
 
   FIND FIRST fg-bin
@@ -61,7 +60,8 @@ for each report where report.term-id eq v-term-id,
     if not avail w2 then create w2.
     assign
      w2.cas-cnt = oe-boll.qty-case
-     w2.cases   = w2.cases + oe-boll.cases.
+     w2.cases   = w2.cases + oe-boll.cases
+     w2.pallets = w2.pallets + (oe-boll.tot-pallets - (IF oe-boll.partial NE 0 THEN 1 ELSE 0)).
   end.
 
   if oe-boll.partial ne 0 then do:
@@ -69,7 +69,8 @@ for each report where report.term-id eq v-term-id,
     if not avail w2 then create w2.
     assign
      w2.cas-cnt = oe-boll.partial
-     w2.cases   = w2.cases + 1.
+     w2.cases   = w2.cases + 1
+     w2.pallets = w2.pallets + 1.
   end.
     
   find first oe-ordl where oe-ordl.company eq cocode
@@ -129,14 +130,14 @@ for each report where report.term-id eq v-term-id,
                   v-job-po  AT 17 FORM "x(15)" 
                   oe-boll.i-no AT 33 
                   oe-ordl.i-name FORM "x(22)"
-                  w2.cases    AT 71 FORM "->>>9" " @"
-                  w2.cas-cnt    FORM "->>>>>9"
+                  w2.pallets       AT 71 FORM "->>>9" " @"
+                  (w2.cas-cnt * w2.cases)    FORM "->>>>>9"
                   SKIP.
         ELSE PUT {1} 
                  oe-ordl.ord-no
                  oe-ordl.part-dscr1 FORM "x(30)" AT 33 
-                 w2.cases  AT 71 FORM "->>>9" " @"
-                 w2.cas-cnt FORM "->>>>>9" SKIP
+                 w2.pallets AT 71 FORM "->>>9" " @"
+                 (w2.cases * w2.cas-cnt) FORM "->>>>>9" SKIP
                  oe-ordl.part-dscr2 FORM "x(30)" AT 33 SKIP
                  oe-ordl.part-dscr3 FORM "x(30)" AT 33 SKIP
                  .
@@ -204,8 +205,8 @@ for each report where report.term-id eq v-term-id,
           oe-boll.po-no 
           oe-boll.i-no 
           oe-ordl.i-name  FORM "x(19)"
-          oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
-          oe-boll.qty-case FORM "->>>>>Z" SKIP          
+          oe-boll.tot-pallets FORM "->>,>>>" "@" SPACE(0)
+          (oe-boll.cases * oe-boll.qty-case) FORM "->>>>>Z" SKIP          
           oe-ordl.part-dscr1 AT 33 FORM "x(25)" SPACE(11)
           v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 "@" SPACE(0)
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP

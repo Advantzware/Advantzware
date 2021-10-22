@@ -58,7 +58,8 @@ def var v-zone like carr-mtx.del-zone no-undo.
 
 def workfile w2 no-undo
     field cases            as   int format ">9"
-    field cas-cnt          as   int format ">>>>9".
+    field cas-cnt          as   int format ">>>>9"
+    field pallets          as   int format ">>>>9".
 
 def workfile w3 no-undo
     field ship-i           as   char format "x(60)".
@@ -393,8 +394,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
     "<R59><C1>" "<B>  Signature of Receipt </B>" 
-    "<R60><C7>" "Customer ________________________________________                       Carrier _______________________________________" 
-    "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
+    "<R60><C7>" "HMP Shipper__________________________________________                       <C50>Date _______________________________________"
+    "<R61.5><C7>" "Carrier ______________________________________________                      <C50>Date _______________________________________" 
+    "<R63><C7>" "Customer ____________________________________________                       <C50>Date _______________________________________"     
     .
 
   v-printline = v-printline + 14.
