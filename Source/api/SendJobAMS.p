@@ -1013,6 +1013,7 @@ PROCEDURE pProcessAMSData PRIVATE:
 
     RUN pCreateParts(
         BUFFER ipbf-job,
+        INPUT  lIsSet,
         INPUT  lIsNewCalculationMethod
         ).
         
@@ -1053,9 +1054,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
     
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-        
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If there is a Combo Form (multiple blanks out of one sheet/form), we need to add a “Combo Form” 
@@ -1088,9 +1089,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
 
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If the job is for a Set, we need to make the assumption that the last operation on the 
@@ -1255,7 +1256,8 @@ PROCEDURE pCreateParts PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-job FOR job.    
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.  
+    DEFINE INPUT  PARAMETER iplIsSet                  AS LOGICAL NO-UNDO.  
     DEFINE INPUT  PARAMETER iplIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
@@ -1290,7 +1292,7 @@ PROCEDURE pCreateParts PRIVATE:
            AND bf-combo-APIOutboundDetail.parentID      EQ "JobHeader"
          NO-ERROR.
                                    
-    IF NOT iplIsNewCalculationMethod THEN DO:                    
+    IF NOT iplIsNewCalculationMethod AND iplIsSet THEN DO:                    
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company  EQ ipbf-job.company
                AND job-hdr.job      EQ ipbf-job.job
