@@ -13,6 +13,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{est/ttEstProcInk.i}
 
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
@@ -84,7 +85,7 @@ PROCEDURE Estimate_CalcFormInksAndCoats:
     
     DEFINE VARIABLE lUnitsForInkSetup AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iNumCol           AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNumVarn          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumCoat          AS INTEGER NO-UNDO.
     DEFINE VARIABLE lUnitSetup        AS LOGICAL NO-UNDO.
     
     
@@ -109,11 +110,12 @@ PROCEDURE Estimate_CalcFormInksAndCoats:
     /* If NK1 is setup then calculate Form colors based upon Units */
     IF lUnitsForInkSetup = YES THEN
     DO:
-        RUN Estimate_CalcInkUsingUnitNo (ipcCompany, ipcEstimteNo, ipiFormNo, 0, 0, OUTPUT iNumCol, OUTPUT iNumVarn, OUTPUT lUnitSetup).
+        RUN Estimate_CalcInkUsingUnitNo (ipcCompany, ipcEstimteNo, ipiFormNo, 0, 0, OUTPUT iNumCol, OUTPUT iNumCoat, OUTPUT lUnitSetup).
         
         IF lUnitSetup = YES THEN
             ASSIGN
-                opiInkPerForm  = iNumCol.
+                opiInkPerForm  = iNumCol
+                opiCoatPerForm = iNumCoat.
     END.    
 
 END PROCEDURE.
@@ -178,14 +180,38 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
      Purpose: Calculate the Ink count for a Form/Blank/Pass combination.
      Notes: It calculates the colos using Units defined 
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstimteNo    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiInkCount     AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiVarnCount    AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplUnitConfigured  AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo               AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo              AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass                 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkCount             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatCount            AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUnitConfigured       AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iMaxInkCnt  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMaxVarnCnt AS INTEGER NO-UNDO.
+    
+    RUN Estimate_CalcInkAndVarnishUsingUnitNo (ipcCompany, ipcEstimteNo, ipiFormNo, ipiBlankNo, ipiPass, OUTPUT iMaxInkCnt, OUTPUT iMaxVarnCnt, OUTPUT opiCoatCount, OUTPUT oplUnitConfigured).
+     
+    opiInkCount  = iMaxInkCnt + iMaxVarnCnt.
+     
+END PROCEDURE.
+
+PROCEDURE Estimate_CalcInkAndVarnishUsingUnitNo:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate the Ink count for a Form/Blank/Pass combination.
+     Notes: It calculates the colos using Units defined 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo               AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo              AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass                 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkCount             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVarnCount            AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatCount            AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUnitConfigured       AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE iMaxInkCnt  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMaxVarnCnt AS INTEGER NO-UNDO.
@@ -194,6 +220,8 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
     
     DEFINE BUFFER bf-eb   FOR eb.
     DEFINE BUFFER bf-Item FOR item.
+    
+    EMPTY TEMP-TABLE ttUniqueInk.
 
     FOR EACH bf-eb NO-LOCK 
         WHERE bf-eb.company = ipcCompany
@@ -203,7 +231,6 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
         IF ipiBlankNo NE 0 AND ipiBlankNo NE bf-eb.blank-no THEN
             NEXT. 
         
-        IF AVAILABLE bf-eb THEN
         DO iCnt = 1 TO 17:
         
             IF ipiPass NE 0 AND bf-eb.i-ps2[iCnt] NE ipiPass THEN
@@ -211,29 +238,62 @@ PROCEDURE Estimate_CalcInkUsingUnitNo:
                 
             IF bf-eb.unitno[iCnt] NE 0 THEN
                 oplUnitConfigured = YES.
-             
-            lsInkColor = NO.
-        
+            
             FIND FIRST bf-Item NO-LOCK
                 WHERE bf-Item.company EQ bf-eb.company
                 AND bf-Item.i-no    EQ bf-eb.i-code2[iCnt]
                 AND INDEX("IV",bf-Item.mat-type) GT 0 NO-ERROR. 
                 
             /* Coating */
-            IF NOT AVAILABLE bf-Item OR bf-Item.ink-type EQ "A" THEN
+            IF NOT AVAILABLE bf-Item THEN
                 NEXT.
-        
-            IF AVAILABLE bf-Item AND bf-Item.mat-type EQ "I" THEN
-                iMaxInkCnt = MAX(iMaxInkCnt,bf-eb.unitno[iCnt]).
+                
+            IF bf-Item.ink-type EQ "A" THEN
+            DO:    
+                opiCoatCount = opiCoatCount + 1.
+                NEXT.
+            END.
             
-            ELSE 
-                iMaxVarnCnt = MAX(iMaxVarnCnt,bf-eb.unitno[iCnt]).
-        END. 
-    END.  
+            FIND FIRST ttUniqueInk 
+                WHERE ttUniqueInk.Company   = ipcCompany
+                AND ttUniqueInk.EstNo       = ipcEstimteNo
+                AND ttUniqueInk.FormNo      = ipiFormNo
+                AND ttUniqueInk.BlankNo     = ipiBlankNo
+                AND ttUniqueInk.Pass        = ipiPass
+                AND ttUniqueInk.ItemCode    = bf-eb.i-code2[iCnt]
+                AND ttUniqueInk.UnitNo      = bf-eb.unitno[iCnt] NO-ERROR.
+                 
+            IF NOT AVAILABLE ttUniqueInk THEN
+            DO:
+                CREATE ttUniqueInk.
+                ASSIGN
+                    ttUniqueInk.Company  = ipcCompany
+                    ttUniqueInk.EstNo    = ipcEstimteNo
+                    ttUniqueInk.FormNo   = ipiFormNo
+                    ttUniqueInk.BlankNo  = ipiBlankNo
+                    ttUniqueInk.Pass     = ipiPass
+                    ttUniqueInk.ItemCode = bf-eb.i-code2[iCnt]
+                    ttUniqueInk.UnitNo   = bf-eb.unitno[iCnt].
+            END.
+            
+        END.
+    END. 
+    
+    FOR EACH ttUniqueInk,
+        FIRST bf-Item NO-LOCK
+            WHERE bf-Item.company EQ ttUniqueInk.Company
+            AND bf-Item.i-no      EQ ttUniqueInk.ItemCode:
+                    
+        IF bf-Item.mat-type EQ "I" THEN
+            iMaxInkCnt = iMaxInkCnt + 1.
+        ELSE 
+            iMaxVarnCnt = iMaxVarnCnt + 1.
+    END.
+    
     ASSIGN
-        opiInkCount  = iMaxInkCnt
+        opiInkCount  = iMaxInkCnt 
         opiVarnCount = iMaxVarnCnt.
-       
+     
 END PROCEDURE.
 
 PROCEDURE Estimate_GetQuantities:

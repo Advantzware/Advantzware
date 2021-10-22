@@ -20,7 +20,10 @@ DO:
     
     /* In case of NK1 settings Color count wil be determined by Unit#*/
     IF glAssignUnitsForInk THEN
+    DO:
         RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat, OUTPUT lUnitSetup).
+        maxco = est-op.num-col + est-op.num-coat.
+    END.
     
     IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
     DO:
@@ -75,10 +78,10 @@ DO:
     /* In case of NK1 settings Color count wil be determined by Unit#*/
     IF glAssignUnitsForInk THEN
     DO:
-        RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, 0, OUTPUT maxco, OUTPUT iVarn, OUTPUT lUnitSetup).
+        RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, 0, OUTPUT maxco, OUTPUT iCoat, OUTPUT lUnitSetup).
         
         IF lUnitSetup THEN
-            maxco = maxco + iVarn.
+            maxco = maxco + iCoat.
     END.
     
     IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
