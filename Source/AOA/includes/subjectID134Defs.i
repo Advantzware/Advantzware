@@ -1,4 +1,4 @@
-/* subjectID134Defs.i - auto generated 07.06.2021 @  7:18:10 pm */
+/* subjectID134Defs.i - auto generated 10.19.2021 @ 11:10:29 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
@@ -36,10 +36,13 @@ DEFINE VARIABLE iPeriodDays1 AS INTEGER NO-UNDO.
 DEFINE VARIABLE iPeriodDays2 AS INTEGER NO-UNDO.
 DEFINE VARIABLE iPeriodDays3 AS INTEGER NO-UNDO.
 DEFINE VARIABLE iPeriodDays4 AS INTEGER NO-UNDO.
+DEFINE VARIABLE iPeriodDays5 AS INTEGER NO-UNDO.
+DEFINE VARIABLE iPeriodDays6 AS INTEGER NO-UNDO.
+DEFINE VARIABLE iPeriodDays7 AS INTEGER NO-UNDO.
 DEFINE VARIABLE lIncludePaidInvoices AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lIncludeFuelSurcharges AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lIncludeFactoredFGItems AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lSeparateFinanceCharges AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lIncludeFactoredFGItems AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lInactiveCustomers AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAllCurrency AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cStartCurrency AS CHARACTER NO-UNDO.
@@ -89,10 +92,13 @@ PROCEDURE pAssignParamVariables:
         iPeriodDays2 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays2")
         iPeriodDays3 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays3")
         iPeriodDays4 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays4")
+        iPeriodDays5 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays5")
+        iPeriodDays6 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays6")
+        iPeriodDays7 = DYNAMIC-FUNCTION("fGetDynParamValue","PeriodDays7")
         lIncludePaidInvoices = DYNAMIC-FUNCTION("fGetDynParamValue","IncludePaidInvoices") EQ "YES"
         lIncludeFuelSurcharges = DYNAMIC-FUNCTION("fGetDynParamValue","IncludeFuelSurcharges") EQ "YES"
-        lIncludeFactoredFGItems = DYNAMIC-FUNCTION("fGetDynParamValue","IncludeFactoredFGItems") EQ "YES"
         lSeparateFinanceCharges = DYNAMIC-FUNCTION("fGetDynParamValue","SeparateFinanceCharges") EQ "YES"
+        lIncludeFactoredFGItems = DYNAMIC-FUNCTION("fGetDynParamValue","IncludeFactoredFGItems") EQ "YES"
         lInactiveCustomers = DYNAMIC-FUNCTION("fGetDynParamValue","InactiveCustomers") EQ "YES"
         lAllCurrency = DYNAMIC-FUNCTION("fGetDynParamValue","AllCurrency") EQ "YES"
         cStartCurrency = DYNAMIC-FUNCTION("fGetDynParamValue","startCurrency")
