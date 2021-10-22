@@ -716,9 +716,14 @@ FOR EACH report
 
   PUT "<FArial><R61><C63><#9><P12><B> THANK YOU. </B> <P9> " SKIP .
      
-     
-
   ASSIGN v-printline = v-printline + 6.
+  
+  PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+    "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
+    "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+    "<P9>".
+    
 
   IF v-printline <= 66 THEN page. /*PUT SKIP(74 - v-printline). */
      

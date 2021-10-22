@@ -612,6 +612,12 @@ assign
        "<R60><C1>AUTHORIZED BY: ________________________________"
        v-signature
        SKIP.
+       
+   PUT "<FArial><R63.2><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions"").  Essentra Packaging disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Supplier and the same shall not be binding upon Essentra Packaging, regardless of when submitted.  Supplier’s acceptance of the sales/purchases described herein" SKIP
+    "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Supplier's delivery of goods or" SKIP
+    "<C2.5><R-0.3>" "acceptance of payment made by Essentra Packaging for the sales or purchases described herein."
+    "<P9>".
 
 v-printline = v-printline + 6.
 IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
