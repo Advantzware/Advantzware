@@ -30,6 +30,8 @@
     DEFINE VARIABLE cJobID            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID2           AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iProductionQuantity AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
@@ -133,7 +135,16 @@
                 cPOLineNumber     = STRING(bf-fg-rcpth.po-line)
                 cJobID            = bf-fg-rcpth.job-no
                 cJobID2           = STRING (bf-fg-rcpth.job-no2)
-                . 
+                .
+
+            RUN fg/GetProductionQty.p (
+                INPUT  bf-fg-rdtlh.company,
+                INPUT  bf-fg-rcpth.job-no,
+                INPUT  bf-fg-rcpth.job-no2,
+                INPUT  bf-fg-rdtlh.i-no,
+                INPUT  NO,
+                OUTPUT iProductionQuantity
+                ).                 
         END.
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ReceiverNumber", cReceiverNumber).
@@ -148,6 +159,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "POLineNumber", cPOLineNumber).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID", cJobID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID2", cJobID2).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ProductionQuantity", STRING(iProductionQuantity)).
             
         ASSIGN
             opcMessage = ""
