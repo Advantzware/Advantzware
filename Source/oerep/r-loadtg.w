@@ -5180,9 +5180,9 @@ PROCEDURE from-job :
 
     FIND FIRST job NO-LOCK
         WHERE ROWID(job) EQ ip-rowid
-        AND (v-stat EQ "A"                      OR
-        (v-stat EQ "C" AND NOT job.opened) OR
-        (v-stat EQ "O" AND job.opened))
+        AND (v-stat EQ "A" OR
+        (v-stat EQ "C" AND job.opened EQ NO) OR
+        (v-stat EQ "O" AND job.opened EQ YES))
         NO-ERROR.
 
     IF NOT AVAILABLE job THEN RETURN.
@@ -8548,9 +8548,9 @@ PROCEDURE temp-job :
         WHERE job.company EQ cocode
         AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
         AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
-        AND (v-stat EQ "A"                      OR
-        (v-stat EQ "C" AND NOT job.opened) OR
-        (v-stat EQ "O" AND job.opened))
+        AND (v-stat EQ "A" OR
+        (v-stat EQ "C" AND job.opened EQ NO) OR
+        (v-stat EQ "O" AND job.opened EQ YES))
         NO-LOCK:
 
         RUN temp-create (ROWID(job)).
@@ -8573,9 +8573,9 @@ PROCEDURE temp-ord :
     FOR EACH oe-ord
         WHERE oe-ord.company EQ cocode
         AND oe-ord.ord-no  EQ ip-ord-no
-        AND (v-stat EQ "A"                         OR
-        (v-stat EQ "C" AND NOT oe-ord.opened) OR
-        (v-stat EQ "O" AND oe-ord.opened))
+        AND (v-stat EQ "A" OR
+        (v-stat EQ "C" AND oe-ord.opened EQ NO) OR
+        (v-stat EQ "O" AND oe-ord.opened EQ YES))
         NO-LOCK:
         RUN temp-create (ROWID(oe-ord)).
     END.
@@ -8597,9 +8597,9 @@ PROCEDURE temp-po :
     FOR EACH po-ord NO-LOCK
         WHERE po-ord.company EQ cocode
         AND po-ord.po-no   EQ ip-po-no
-        AND (v-stat EQ "A"                         OR
-        (v-stat EQ "C" AND NOT po-ord.opened) OR
-        (v-stat EQ "O" AND po-ord.opened)):
+        AND (v-stat EQ "A" OR
+        (v-stat EQ "C" AND po-ord.opened EQ NO) OR
+        (v-stat EQ "O" AND po-ord.opened EQ YES)):
         RUN temp-create (ROWID(po-ord)).
     END.
 

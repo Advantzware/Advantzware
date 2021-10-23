@@ -1790,10 +1790,10 @@ FUNCTION fIsScheduled RETURNS LOGICAL
  Notes:
 ------------------------------------------------------------------------------*/
     RETURN CAN-FIND(FIRST Task
-                    WHERE Task.subjectID    EQ ttDynParamValue.subjectID
-                      AND Task.user-id      EQ ttDynParamValue.user-id
-                      AND Task.prgmName     EQ ttDynParamValue.prgmName
-                      AND Task.paramValueID EQ ttDynParamValue.paramValueID
+                    WHERE Task.subjectID    EQ dynParamValue.subjectID
+                      AND Task.user-id      EQ dynParamValue.user-id
+                      AND Task.prgmName     EQ dynParamValue.prgmName
+                      AND Task.paramValueID EQ dynParamValue.paramValueID
                       AND Task.scheduled    EQ YES).
 
 END FUNCTION.

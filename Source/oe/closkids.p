@@ -12,7 +12,11 @@ DISABLE TRIGGERS FOR LOAD OF oe-rell.
 DISABLE TRIGGERS FOR LOAD OF oe-boll.
 
 IF AVAIL oe-ord THEN DO:
-  oe-ord.opened = LOOKUP(oe-ord.stat,"C,D,Z") EQ 0.
+    ASSIGN
+        oe-ord.opened    = LOOKUP(oe-ord.stat,"C,D,Z") EQ 0
+        oe-ord.closeDate = IF oe-ord.opened THEN ?  ELSE TODAY
+        oe-ord.closeTime = IF oe-ord.opened THEN "" ELSE STRING(TIME,"hh:mm:ss")        
+        .
       
   FOR EACH b-oe-ordl NO-LOCK
       WHERE b-oe-ordl.company EQ oe-ord.company
