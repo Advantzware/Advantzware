@@ -23,7 +23,7 @@ FOR EACH ar-cash ~
       AND ar-cash.posted      EQ YES ~
     USE-INDEX ar-cash, ~
     EACH ar-cashl ~
-    FIELDS(check-no c-no posted inv-no company voided ~
+    FIELDS(check-no c-no posted inv-no company voided voidDate ~
            cust-no memo amt-disc amt-paid on-account rec_key) ~
     NO-LOCK ~
     WHERE ar-cashl.c-no   EQ ar-cash.c-no ~
