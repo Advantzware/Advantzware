@@ -78,6 +78,8 @@ DEFINE VARIABLE iErrorCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iProcessedCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iWarningCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTableList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -228,6 +230,188 @@ FUNCTION pfWriteLine RETURNS LOGICAL PRIVATE
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-analyzePurge) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE analyzePurge Procedure
+PROCEDURE analyzePurge:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHAR.
+    DEFINE INPUT PARAMETER ipcAnalysisFile AS CHAR.
+    DEFINE INPUT PARAMETER TABLE FOR ttParmsByPurge.
+    DEFINE INPUT PARAMETER ipcCompanyList AS CHAR.
+    DEFINE INPUT PARAMETER iplOrphanPurge AS LOG.
+    DEFINE VARIABLE cKeyList AS CHAR.    
+    DEFINE VARIABLE lCreateOK AS LOG NO-UNDO.
+    /* Make sure the target directory is created */
+    RUN filesys_createDirectory (ipcOutputDir, OUTPUT lCreateOK, OUTPUT cMessage).
+    IF NOT lCreateOK THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    /* Write a file containing the parameters selected for this run */
+    OUTPUT TO VALUE(ipcOutputDir + "\PurgeParms.csv").
+    FIND FIRST ttParmsByPurge.
+    PUT UNFORMATTED ttParmsByPurge.ttcPurge + CHR(10).
+    PUT UNFORMATTED "Label,Begin Value,End Value" + CHR(10).
+    FOR EACH ttParmsByPurge:
+        PUT UNFORMATTED 
+            ttParmsByPurge.ttcLabel + "," +
+            ttParmsByPurge.ttcStartValue + "," +
+            ttParmsByPurge.ttcEndValue + CHR(10).
+        IF ttParmsByPurge.ttlRange EQ TRUE THEN ASSIGN 
+            cKeyList = cKeyList + ttParmsByPurge.ttcLabel + ",".
+        ELSE ASSIGN 
+            cKeyList = cKeyList + ",".
+    END.
+    PUT UNFORMATTED "This/All Companies" + "," + ipcCompanyList + CHR(10).
+    PUT UNFORMATTED "Include Orphan Purge" + "," + STRING(iplOrphanPurge) + CHR(10).
+    OUTPUT CLOSE.
+    
+    /* Use the temp-table to determine which analysis to run and run it */
+    FIND FIRST ttParmsByPurge.
+    CASE ttParmsByPurge.ttcPurge:
+        WHEN "Purge Jobs (NF!)" THEN RUN pAnalyzeJobs (INPUT ipcCompanyList, INPUT iplOrphanPurge).
+        WHEN "Purge POs (NF9)" THEN RUN pAnalyzePOs (INPUT ipcCompanyList, INPUT iplOrphanPurge).
+    END CASE.
+
+    OUTPUT TO VALUE(ipcOutputDir + "\PurgeList.csv").
+    PUT UNFORMATTED "Table,Company," + cKeyList + "Rowid" + CHR(10). 
+    FOR EACH ttPurgeList:
+        PUT UNFORMATTED 
+            ttPurgeList.cTable + "," +
+            ttPurgeList.cCompany + "," +
+            ttPurgeList.cKey1 + "," +
+            ttPurgeList.cKey2 + "," +
+            ttPurgeList.cKey3 + "," +
+            ttPurgeList.cKey4 + "," +
+            ttPurgeList.cKey5 + "," +
+            STRING(ttPurgeList.rRowid) + CHR(10).
+    END.
+    OUTPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-pAnalyzePOs) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAnalyzePOs Procedure
+PROCEDURE pAnalyzePOs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompanies AS CHAR.
+    DEFINE INPUT PARAMETER iplOrphans AS LOG.
+    
+    DEFINE VARIABLE iBeginPoNo AS INT NO-UNDO.
+    DEFINE VARIABLE iEndPoNo AS INT NO-UNDO.
+    DEFINE VARIABLE daBeginPoEnterDate AS DATE NO-UNDO.
+    DEFINE VARIABLE daEndPoEnterDate AS DATE NO-UNDO.
+    DEFINE VARIABLE cBeginVendNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE cEndVendNo AS CHAR NO-UNDO.
+    DEFINE VARIABLE lLinked AS LOG NO-UNDO.
+    DEFINE VARIABLE lOnlyClosed AS LOG NO-UNDO.
+    
+    FOR EACH ttParmsByPurge:
+        IF ttParmsByPurge.ttcParm EQ "po-no" THEN ASSIGN
+            iBeginPoNo = INTEGER(ttParmsByPurge.ttcStartValue)
+            iEndPoNo = INTEGER(ttParmsByPurge.ttcEndValue).
+        IF ttParmsByPurge.ttcParm EQ "po-date" THEN ASSIGN
+            daBeginPoEnterDate = DATE(ttParmsByPurge.ttcStartValue)
+            daEndPoEnterDate = DATE(ttParmsByPurge.ttcEndValue).
+        IF ttParmsByPurge.ttcParm EQ "vend-no" THEN ASSIGN
+            cBeginVendNo = ttParmsByPurge.ttcStartValue
+            cEndVendNo = ttParmsByPurge.ttcEndValue.
+    END. 
+              
+    EMPTY TEMP-TABLE ttPurgeList.
+    
+    FOR EACH company WHERE 
+        company.company EQ (IF ipcCompanies EQ "*" THEN company.company ELSE ipcCompanies):
+        FOR EACH po-ord WHERE 
+            po-ord.company EQ company.company AND
+            po-ord.po-no GE iBeginPoNo AND po-ord.po-no LE iEndPoNo AND 
+            po-ord.po-date GE daBeginPoEnterDate AND po-ord.po-date LE daEndPoEnterDate AND 
+            po-ord.vend-no GE cBeginVendNo AND po-ord.vend-no LE cEndVendNo
+            NO-LOCK:
+            CREATE ttPurgeList.
+            ASSIGN 
+                ttPurgeList.cTable = "po-ord"
+                ttPurgeList.cCompany = po-ord.company
+                ttPurgeList.rRowid = ROWID(po-ord)
+                ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                ttPurgeList.cKey4 = ""
+                ttPurgeList.cKey5 = ""
+                .
+            FOR EACH po-ordl WHERE
+                po-ordl.company EQ po-ord.company AND 
+                po-ordl.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-ordl"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-ordl)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+            FOR EACH po-all WHERE
+                po-all.company EQ po-ord.company AND 
+                po-all.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-all"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-all)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+            FOR EACH po-ordl-add WHERE
+                po-ordl-add.company EQ po-ord.company AND 
+                po-ordl-add.po-no EQ po-ord.po-no: 
+                CREATE ttPurgeList.
+                ASSIGN 
+                    ttPurgeList.cTable = "po-ordl-add"
+                    ttPurgeList.cCompany = po-ord.company
+                    ttPurgeList.rRowid = ROWID(po-ordl-add)
+                    ttPurgeList.cKey1 = STRING(po-ord.po-no)
+                    ttPurgeList.cKey2 = STRING(po-ord.po-date)
+                    ttPurgeList.cKey3 = STRING(po-ord.vend-no,"x(24)")
+                    ttPurgeList.cKey4 = ""
+                    ttPurgeList.cKey5 = ""
+                    .
+            END.
+        END. 
+    END.       
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pBuildParmsByPurgeTT) = 0 &THEN
 
@@ -565,7 +749,9 @@ PROCEDURE BuildDetailedPurgeParms:
             cParm[1] = "Purge POs (NF9),po-no,PO Number,Integer,>>>>>>>9,YES,0,99999999"
             cParm[2] = "Purge POs (NF9),po-date,PO entered date,Date,99/99/9999,YES," + fDateString(40) + "," + fDateString(3)
             cParm[3] = "Purge POs (NF9),vend-no,Vendor,Character,x(20),YES,,zzzzzzzzzzzz"
-            cParm[4] = "Purge POs (NF9),purgeIfLinked,Purge POs if Linked to Invoices/Receipts,logical,Yes/No,NO,,No".
+            cParm[4] = "Purge POs (NF9),purgeIfLinked,Purge POs if Linked to Invoices/Receipts,logical,Yes/No,NO,,No"
+            cParm[5] = "Purge POs (NF9),purgeClosedOnly,Purge ONLY Closed POs,logical,Yes/No,NO,,Yes"
+            .
     END.
 
     RUN pBuildParmsByPurgeTT.
@@ -2106,6 +2292,46 @@ END PROCEDURE.
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-purgeProcess) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeProcess Procedure
+PROCEDURE purgeProcess:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcOutputDir AS CHAR.
+    
+    DEFINE VARIABLE cFileList AS CHAR.
+
+    FOR EACH ttPurgeList:
+        IF cFileList EQ "" THEN ASSIGN 
+            cFileList = ttPurgeList.cTable.
+        ELSE IF LOOKUP(ttPurgeList.cTable,cFileList) EQ 0 THEN ASSIGN 
+            cFileList = cFileList + "," + ttPurgeList.cTable.
+    END.
+    ASSIGN 
+        cFileList = TRIM(cFileList,",")
+        cOutputDir = ipcOutputDir.
+    
+    MESSAGE cFileList VIEW-AS ALERT-BOX.
+    
+    DO iCtr = 1 TO NUM-ENTRIES(cFileList):
+        RUN pDeleteRecordsByRowid (
+            ENTRY(iCtr,cFileList),
+            OUTPUT lError,
+            OUTPUT cMessage).
+    END.            
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-testAccounts) = 0 &THEN
 

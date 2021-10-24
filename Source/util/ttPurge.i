@@ -26,8 +26,14 @@ DEFINE {1} SHARED TEMP-TABLE ttFileList
     
 DEFINE {1} SHARED TEMP-TABLE ttPurgeList
     FIELD cTable AS CHARACTER 
+    FIELD cCompany AS CHAR 
+    FIELD cKey1 AS CHAR 
+    FIELD cKey2 AS CHAR 
+    FIELD cKey3 AS CHAR 
+    FIELD cKey4 AS CHAR 
+    FIELD cKey5 AS CHAR 
     FIELD rRowid AS ROWID 
-    FIELD lPurge AS LOG
+    INDEX iTableRow cTable
     .     
     
 DEFINE {1} SHARED TEMP-TABLE ttGLHistList

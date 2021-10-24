@@ -433,6 +433,7 @@ DO:
         RUN ipAnalyze IN THIS-PROCEDURE.
     
     RUN ipPurge IN THIS-PROCEDURE.
+    IF tbAutoOpen:CHECKED THEN APPLY 'choose' TO btViewFile. 
         
 END.
 
@@ -711,34 +712,14 @@ PROCEDURE ipAnalyze :
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iParmCt AS INT NO-UNDO.
     
-    RUN filesys_createDirectory (fiOutputDir:SCREEN-VALUE IN FRAME fMain, OUTPUT lCreateOK, OUTPUT cMessage).
-    IF NOT lCreateOK THEN DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-    OUTPUT TO VALUE(fiOutputDir:SCREEN-VALUE + "\PurgeParms.csv").
-    PUT UNFORMATTED slPurges:SCREEN-VALUE + CHR(10).
-    put UNFORMATTED "Label,Begin Value,End Value" + CHR(10).
-    DO iParmCt = 1 TO 10:
-        IF VALID-HANDLE(hBeginLabel[iParmCt]) THEN 
-            PUT UNFORMATTED hBeginLabel[iParmCt]:SCREEN-VALUE + ",".
-        ELSE 
-            PUT UNFORMATTED ",".
-        IF VALID-HANDLE(hParmBegin[iParmCt]) THEN 
-            PUT UNFORMATTED hParmBegin[iParmCt]:SCREEN-VALUE + ",".
-        ELSE 
-            PUT UNFORMATTED ",".
-        IF VALID-HANDLE(hParmEnd[iParmCt]) THEN 
-            PUT UNFORMATTED hParmEnd[iParmCt]:SCREEN-VALUE.
-        IF VALID-HANDLE(hBeginLabel[iParmCt]) THEN
-            PUT UNFORMATTED CHR(10).
-    END.
-    OUTPUT CLOSE.
-
-    OUTPUT TO VALUE(fiOutputDir:SCREEN-VALUE + "\" + fiFileName:SCREEN-VALUE).
-    PUT UNFORMATTED "test,test1".
-    OUTPUT CLOSE.
-    
+    RUN analyzePurge IN hPurgeProcs (
+        INPUT fiOutputDir:SCREEN-VALUE IN FRAME fMain,
+        INPUT fiFileName:SCREEN-VALUE,
+        INPUT TABLE ttParmsByPurge,
+        INPUT IF rsCompany:SCREEN-VALUE EQ "This" THEN cocode ELSE "*",
+        INPUT tbOrphan:CHECKED 
+        ).
+        
     ASSIGN 
         lAnalyzed = TRUE.
 
@@ -828,8 +809,18 @@ PROCEDURE ipPurge :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
-
+    IF NOT lAnalyzed THEN DO:
+        MESSAGE 
+            "The purge must be analyzed prior to running the purge."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    RUN purgeProcess IN hPurgeProcs (
+        INPUT fiOutputDir:SCREEN-VALUE IN FRAME fMain
+        ).
+    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
