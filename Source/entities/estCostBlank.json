@@ -32,7 +32,7 @@
   {
     "dbFieldName": "blankNo",
     "dbFieldExtent": 0,
-    "attributeName": "Blank"
+    "attributeName": "BlankNo"
   },
   {
     "dbFieldName": "blankWidth",
@@ -82,7 +82,7 @@
   {
     "dbFieldName": "estCostItemID",
     "dbFieldExtent": 0,
-    "attributeName": "ItemID"
+    "attributeName": "estCostItemID"
   },
   {
     "dbFieldName": "estimateNo",
@@ -92,7 +92,7 @@
   {
     "dbFieldName": "formNo",
     "dbFieldExtent": 0,
-    "attributeName": "Form"
+    "attributeName": "FormNo"
   },
   {
     "dbFieldName": "isPurchased",

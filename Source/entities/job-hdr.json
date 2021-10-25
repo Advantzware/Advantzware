@@ -1,0 +1,12 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "job-no",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID"
+  },
+  {
+    "dbFieldName": "job-no2",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID2"
+  }
+]}

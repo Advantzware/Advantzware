@@ -1,0 +1,412 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "areaUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "AreaUOM"
+  },
+  {
+    "dbFieldName": "blankArea",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankArea"
+  },
+  {
+    "dbFieldName": "blankAreaNetWindow",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankAreaNetWindow"
+  },
+  {
+    "dbFieldName": "blankAreaWindow",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankAreaWindow"
+  },
+  {
+    "dbFieldName": "blankDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankDepth"
+  },
+  {
+    "dbFieldName": "blankLength",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankLength"
+  },
+  {
+    "dbFieldName": "blankNo",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankNo"
+  },
+  {
+    "dbFieldName": "blankWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "BlankWidth"
+  },
+  {
+    "dbFieldName": "carrierID",
+    "dbFieldExtent": 0,
+    "attributeName": "Carrier"
+  },
+  {
+    "dbFieldName": "carrierZone",
+    "dbFieldExtent": 0,
+    "attributeName": "Zone"
+  },
+  {
+    "dbFieldName": "colorDesc",
+    "dbFieldExtent": 0,
+    "attributeName": "Color"
+  },
+  {
+    "dbFieldName": "commissionBasis",
+    "dbFieldExtent": 0,
+    "attributeName": "CommBasis"
+  },
+  {
+    "dbFieldName": "commissionPct",
+    "dbFieldExtent": 0,
+    "attributeName": "CommPct"
+  },
+  {
+    "dbFieldName": "company",
+    "dbFieldExtent": 0,
+    "attributeName": "Company"
+  },
+  {
+    "dbFieldName": "costTotalBoard",
+    "dbFieldExtent": 0,
+    "attributeName": "CostBoard"
+  },
+  {
+    "dbFieldName": "costTotalFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFactory"
+  },
+  {
+    "dbFieldName": "costTotalFixedOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFO"
+  },
+  {
+    "dbFieldName": "costTotalFull",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFull"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 1,
+    "attributeName": "CostGroupLevel1"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 2,
+    "attributeName": "CostGroupLevel2"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 3,
+    "attributeName": "CostGroupLevel3"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 4,
+    "attributeName": "CostGroupLevel4"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 5,
+    "attributeName": "CostGroupLevel5"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 6,
+    "attributeName": "CostGroupLevel6"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 7,
+    "attributeName": "CostGroupLevel7"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 8,
+    "attributeName": "CostGroupLevel8"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 9,
+    "attributeName": "CostGroupLevel9"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 10,
+    "attributeName": "CostGroupLevel10"
+  },
+  {
+    "dbFieldName": "costTotalLabor",
+    "dbFieldExtent": 0,
+    "attributeName": "CostLabor"
+  },
+  {
+    "dbFieldName": "costTotalMaterial",
+    "dbFieldExtent": 0,
+    "attributeName": "CostMaterial"
+  },
+  {
+    "dbFieldName": "costTotalNonFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostNonFactory"
+  },
+  {
+    "dbFieldName": "costTotalVariableOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostVO"
+  },
+  {
+    "dbFieldName": "customerAddress1",
+    "dbFieldExtent": 0,
+    "attributeName": "CustAdd1"
+  },
+  {
+    "dbFieldName": "customerAddress2",
+    "dbFieldExtent": 0,
+    "attributeName": "CustAdd2"
+  },
+  {
+    "dbFieldName": "customerAddress3",
+    "dbFieldExtent": 0,
+    "attributeName": "CustAdd3"
+  },
+  {
+    "dbFieldName": "customerID",
+    "dbFieldExtent": 0,
+    "attributeName": "Customer"
+  },
+  {
+    "dbFieldName": "customerName",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerName"
+  },
+  {
+    "dbFieldName": "customerPart",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerPart"
+  },
+  {
+    "dbFieldName": "dimDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDepth"
+  },
+  {
+    "dbFieldName": "dimLength",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemLength"
+  },
+  {
+    "dbFieldName": "dimUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "SizeUOM"
+  },
+  {
+    "dbFieldName": "dimWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemWidth"
+  },
+  {
+    "dbFieldName": "estCostHeaderID",
+    "dbFieldExtent": 0,
+    "attributeName": "HeaderID"
+  },
+  {
+    "dbFieldName": "estCostItemID",
+    "dbFieldExtent": 0,
+    "attributeName": "estCostItemID"
+  },
+  {
+    "dbFieldName": "estCostItemIDParent",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemIDParent"
+  },
+  {
+    "dbFieldName": "estimateNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Estimate"
+  },
+  {
+    "dbFieldName": "formNo",
+    "dbFieldExtent": 0,
+    "attributeName": "FormNo"
+  },
+  {
+    "dbFieldName": "freightChargeMethod",
+    "dbFieldExtent": 0,
+    "attributeName": "FrtChgMethod"
+  },
+  {
+    "dbFieldName": "freightCostOverridePerCWT",
+    "dbFieldExtent": 0,
+    "attributeName": "FreightOut\/CWT"
+  },
+  {
+    "dbFieldName": "freightCostOverridePerM",
+    "dbFieldExtent": 0,
+    "attributeName": "FreightOut\/M"
+  },
+  {
+    "dbFieldName": "freightWeightPerMOverride",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightperM"
+  },
+  {
+    "dbFieldName": "isPurchased",
+    "dbFieldExtent": 0,
+    "attributeName": "Purchased"
+  },
+  {
+    "dbFieldName": "isSet",
+    "dbFieldExtent": 0,
+    "attributeName": "Set"
+  },
+  {
+    "dbFieldName": "itemDescription1",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDesc1"
+  },
+  {
+    "dbFieldName": "itemDescription2",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDesc2"
+  },
+  {
+    "dbFieldName": "itemID",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID"
+  },
+  {
+    "dbFieldName": "itemName",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemName"
+  },
+  {
+    "dbFieldName": "netProfit",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfit"
+  },
+  {
+    "dbFieldName": "productCategory",
+    "dbFieldExtent": 0,
+    "attributeName": "ProdCat"
+  },
+  {
+    "dbFieldName": "profitPctGross",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossProfitPercent"
+  },
+  {
+    "dbFieldName": "profitPctNet",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfitPercent"
+  },
+  {
+    "dbFieldName": "quantityPerSet",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityPerSet"
+  },
+  {
+    "dbFieldName": "quantityPerSubUnit",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityPerSubUnit"
+  },
+  {
+    "dbFieldName": "quantityRequired",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityRequired"
+  },
+  {
+    "dbFieldName": "quantitySubUnitsPerUnit",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantitySubUnitsPerUnit"
+  },
+  {
+    "dbFieldName": "quantityYielded",
+    "dbFieldExtent": 0,
+    "attributeName": "QuantityYielded"
+  },
+  {
+    "dbFieldName": "rec_key",
+    "dbFieldExtent": 0,
+    "attributeName": "RecordKey"
+  },
+  {
+    "dbFieldName": "salesgroupID",
+    "dbFieldExtent": 0,
+    "attributeName": "Salesgroup"
+  },
+  {
+    "dbFieldName": "salesgroupName",
+    "dbFieldExtent": 0,
+    "attributeName": "SalesgroupName"
+  },
+  {
+    "dbFieldName": "sellPrice",
+    "dbFieldExtent": 0,
+    "attributeName": "Price"
+  },
+  {
+    "dbFieldName": "shipToAddress1",
+    "dbFieldExtent": 0,
+    "attributeName": "ShiptoAdd1"
+  },
+  {
+    "dbFieldName": "shipToAddress2",
+    "dbFieldExtent": 0,
+    "attributeName": "ShiptoAdd2"
+  },
+  {
+    "dbFieldName": "shipToAddress3",
+    "dbFieldExtent": 0,
+    "attributeName": "ShiptoAdd3"
+  },
+  {
+    "dbFieldName": "shipToID",
+    "dbFieldExtent": 0,
+    "attributeName": "Shipto"
+  },
+  {
+    "dbFieldName": "shipToName",
+    "dbFieldExtent": 0,
+    "attributeName": "ShiptoName"
+  },
+  {
+    "dbFieldName": "sizeDesc",
+    "dbFieldExtent": 0,
+    "attributeName": "Size"
+  },
+  {
+    "dbFieldName": "styleDesc",
+    "dbFieldExtent": 0,
+    "attributeName": "StyleDesc"
+  },
+  {
+    "dbFieldName": "styleID",
+    "dbFieldExtent": 0,
+    "attributeName": "Style"
+  },
+  {
+    "dbFieldName": "weightNet",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightNet"
+  },
+  {
+    "dbFieldName": "weightTare",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightTare"
+  },
+  {
+    "dbFieldName": "weightTotal",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightTotal"
+  },
+  {
+    "dbFieldName": "weightUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightUOM"
+  }
+]}

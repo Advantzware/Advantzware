@@ -162,7 +162,7 @@
   {
     "dbFieldName": "formNo",
     "dbFieldExtent": 0,
-    "attributeName": "Form"
+    "attributeName": "FormNo"
   },
   {
     "dbFieldName": "grossArea",
