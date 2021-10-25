@@ -71,6 +71,7 @@ DO TRANSACTION:
 END.
 
 DEF STREAM excel.
+DEFINE BUFFER bf-period FOR period.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -376,8 +377,7 @@ END.
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Receipt Date */
 DO:
   assign {&self-name}.
-  RUN pCheckReceiptDatePeriod(begin_date:SCREEN-VALUE, OUTPUT v-invalid).
-  if v-invalid then return no-apply.
+  {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,16 +406,12 @@ DO:
   if v-invalid then
      return no-apply.
   
-  RUN pCheckReceiptDatePeriod(begin_date:SCREEN-VALUE, OUTPUT v-invalid).
-  if v-invalid then return no-apply.
-  
-  RUN pCheckReceiptDatePeriod(end_date:SCREEN-VALUE, OUTPUT v-invalid).
-  if v-invalid then return no-apply.
-     
-
   DO WITH FRAME {&FRAME-NAME}:
+     {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
+  
+     {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
      ASSIGN {&DISPLAYED-OBJECTS}.
-  END.
+  END.     
 
   DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
     /* gdm - 11050906 */
@@ -475,8 +471,7 @@ END.
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Receipt Date */
 DO:
   assign {&self-name}.
-  RUN pCheckReceiptDatePeriod(end_date:SCREEN-VALUE, OUTPUT v-invalid).
-  if v-invalid then return no-apply.
+  {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 2}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1517,37 +1512,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckReceiptDatePeriod C-Win 
-PROCEDURE pCheckReceiptDatePeriod :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEFINE INPUT PARAMETER ip-date AS CHAR. 
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  
-  DEFINE BUFFER bf-period FOR period. 
-
-  
-      FIND FIRST bf-period                   
-         WHERE bf-period.company EQ cocode
-         AND bf-period.pst     LE date(ip-date)
-         AND bf-period.pend    GE date(ip-date)
-          AND bf-period.pnum   EQ MONTH(DATE(tran-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
-       NO-LOCK NO-ERROR.
-
-       IF NOT AVAIL bf-period THEN
-       DO:
-           oplReturnError = YES .
-           MESSAGE "Receipt date must be in posted date period." VIEW-AS ALERT-BOX ERROR.
-           RETURN.
-       END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
