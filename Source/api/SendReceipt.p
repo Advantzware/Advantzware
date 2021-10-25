@@ -106,18 +106,19 @@
         
         IF AVAILABLE bf-rm-rcpth THEN DO:
             ASSIGN
-                cReceiverNumber   = STRING(bf-rm-rdtlh.r-no)
-                cLocation         = bf-rm-rcpth.loc
-                cReceiptDate      = STRING(bf-rm-rdtlh.upd-date)
-                cReceiptTime      = STRING(bf-rm-rdtlh.upd-time)
-                cItemID           = bf-rm-rdtlh.i-no
-                cItemDescription  = bf-rm-rcpth.i-name
-                cQuantityUOM      = bf-rm-rcpth.pur-uom
-                cQuantityReceived = STRING(bf-rm-rdtlh.qty)
-                cPOID             = STRING(bf-rm-rcpth.po-no)
-                cPOLineNumber     = STRING(bf-rm-rcpth.po-line)
-                cJobID            = bf-rm-rcpth.job-no
-                cJobID2           = STRING (bf-rm-rcpth.job-no2)
+                cReceiverNumber           = STRING(bf-rm-rdtlh.r-no)
+                cLocation                 = bf-rm-rcpth.loc
+                cReceiptDate              = STRING(bf-rm-rdtlh.upd-date)
+                cReceiptTime              = STRING(bf-rm-rdtlh.upd-time)
+                cItemID                   = bf-rm-rdtlh.i-no
+                cItemDescription          = bf-rm-rcpth.i-name
+                cQuantityUOM              = bf-rm-rcpth.pur-uom
+                cQuantityReceived         = STRING(bf-rm-rdtlh.qty)
+                cPOID                     = STRING(bf-rm-rcpth.po-no)
+                cPOLineNumber             = STRING(bf-rm-rcpth.po-line)
+                cJobID                    = bf-rm-rcpth.job-no
+                cJobID2                   = STRING (bf-rm-rcpth.job-no2)
+                iQuantityReceivedJobTotal = bf-rm-rdtlh.qty
                 . 
         END.
 
