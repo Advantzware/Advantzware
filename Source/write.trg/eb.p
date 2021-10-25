@@ -163,22 +163,7 @@ END.
 
 IF {&TABLENAME}.est-type NE 4 AND
    {&TABLENAME}.est-type NE 8 THEN DO:
-  IF {&TABLENAME}.i-col + {&TABLENAME}.i-coat EQ 0 THEN
-  FOR EACH est-prep
-      WHERE est-prep.company  EQ {&TABLENAME}.company
-        AND est-prep.est-no   EQ {&TABLENAME}.est-no
-        AND est-prep.s-num    EQ {&TABLENAME}.form-no
-        AND est-prep.mat-type EQ "P",
-      
-      FIRST prep
-      WHERE prep.company EQ est-prep.company
-        AND prep.code    EQ est-prep.code
-        AND prep.dfault  EQ YES
-      NO-LOCK:
-    
-    DELETE est-prep.  
-  END.
-
+  
   IF {&TABLENAME}.i-col    NE old-{&TABLENAME}.i-col    OR
      {&TABLENAME}.i-coat   NE old-{&TABLENAME}.i-coat   OR
      {&TABLENAME}.i-pass   NE old-{&TABLENAME}.i-pass   OR

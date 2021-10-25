@@ -941,11 +941,11 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            if avail style and style.type = "f" then DO: /* foam */
-             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).  
              IF char-val NE "" THEN DO:
                ASSIGN
-                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
-                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val)
+                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                     .       
                APPLY "ENTRY":U TO lw-focus.
              END.

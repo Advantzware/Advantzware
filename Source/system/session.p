@@ -2746,6 +2746,9 @@ FUNCTION sfSubjectID RETURNS INTEGER
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bDynSubject FOR dynSubject.
 
+    IF ipiSubjectID EQ 0 THEN
+    RETURN ipiSubjectID.
+
     IF CAN-FIND(FIRST bDynSubject
                 WHERE bDynSubject.altSubjectID EQ ipiSubjectID
                   AND bDynSubject.isActive     EQ YES) THEN

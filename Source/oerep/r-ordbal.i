@@ -11,8 +11,8 @@
                (oe-ord.po-no  GE v-po[1] AND
                 oe-ord.po-no  LE v-po[2]))
           AND (v-ostat EQ "A"                           OR
-               (oe-ord.opened AND v-ostat EQ "O")       OR
-               (NOT oe-ord.opened AND v-ostat EQ "C"))
+               (oe-ord.opened EQ YES AND v-ostat EQ "O")       OR
+               (oe-ord.opened EQ NO  AND v-ostat EQ "C"))
         use-index ordate no-lock,
 
         each oe-ordl of oe-ord

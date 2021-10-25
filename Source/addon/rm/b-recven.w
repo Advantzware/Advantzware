@@ -349,7 +349,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-no FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       rm-rctd.po-line FORMAT ">>9":U
       rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
@@ -3709,12 +3709,12 @@ PROCEDURE tag-sequence :
 
       for each xrm-rctd where xrm-rctd.company eq rm-rctd.company
             and xrm-rctd.loc     eq v-locode
-            and xrm-rctd.tag     begins string(int(rm-rctd.po-no:screen-value in browse {&BROWSE-NAME}),"999999")
+            and xrm-rctd.tag     begins string(int(rm-rctd.po-no:screen-value in browse {&BROWSE-NAME}),"99999999")
             use-index tag no-lock
             by xrm-rctd.tag desc:
 
-           if int(substr(xrm-rctd.tag,7,2)) gt v-tag-seq then
-           v-tag-seq = int(substr(xrm-rctd.tag,7,2)).
+           if int(substr(xrm-rctd.tag,9,2)) gt v-tag-seq then
+           v-tag-seq = int(substr(xrm-rctd.tag,9,2)).
             leave.
       end.
     end.

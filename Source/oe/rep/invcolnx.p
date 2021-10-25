@@ -133,38 +133,42 @@ END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
-DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
+DEF VAR v-tel           AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-fax           AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-contact       AS CHARACTER FORM "x(20)" NO-UNDO .
 
-DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
-DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEF VAR v-comp-add1     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add2     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add3     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add4     AS CHARACTER FORM "x(40)" NO-UNDO.
+DEF VAR v-comp-add5     AS CHARACTER FORM "x(40)" NO-UNDO.
 
-def var v-billto-name as char format "x(30)" NO-UNDO.
-def var v-billto-id as char format "x(10)" NO-UNDO.
-def var v-billto-addr as char format "x(30)" extent 2 NO-UNDO.
-def var v-billto-addr3 as char format "x(30)" NO-UNDO.
-def var v-billto-city as char format "x(15)" NO-UNDO.
-def var v-billto-state as char format "x(2)" NO-UNDO.
-def var v-billto-zip as char format "x(10)" NO-UNDO.
-DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
+DEF VAR v-billto-name   AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-billto-id     AS CHARACTER FORM "x(10)" NO-UNDO.
+DEF VAR v-billto-addr   AS CHARACTER FORM "x(30)" EXTENT 2 NO-UNDO.
+DEF VAR v-billto-addr3  AS CHARACTER FORM "x(30)" NO-UNDO.
+DEF VAR v-billto-city   AS CHARACTER FORM "x(15)" NO-UNDO.
+DEF VAR v-billto-state  AS CHARACTER FORM "x(2)"  NO-UNDO.
+DEF VAR v-billto-zip    AS CHARACTER FORM "x(10)" NO-UNDO.
+DEFINE VARIABLE cNotes  AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
 DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
-    find first company where company.company = cocode no-lock no-error.
+    FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
-    ASSIGN v-comp-add1 = ""
-           v-comp-add2 = ""
-           v-comp-add3 = " "
-           v-comp-add4 = "".
+    ASSIGN
+        v-comp-add1 = cInvMessage[1]
+        v-comp-add2 = cInvMessage[2]
+        v-comp-add3 = cInvMessage[3]
+        v-comp-add4 = cInvMessage[4]
+        v-comp-add5 = cInvMessage[5]
+        .
 
-    find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
+    FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK NO-ERROR.
 
-    for each report where report.term-id eq v-term-id no-lock,
-        first xinv-head where recid(xinv-head) eq report.rec-id no-lock
-        break by report.key-01
-              by report.key-02:
+    FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
+        FIRST xinv-head WHERE RECID(xinv-head) eq report.rec-id NO-LOCK
+        BREAK BY report.key-01
+              BY report.key-02:
       
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
@@ -642,17 +646,34 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
            END.
         end.
       end. /* DO TRANSACTION */
-
-    do i = 1 to 3:
-       v-bot-lab[i] = if v-t-tax[i] ne 0 then
+    
+    IF ltb_print-message THEN
+    DO:
+        IF v-printline > 50 THEN do:           
+            PAGE.
+            {oe/rep/invcolnx.i}
+            v-printline = 21.
+        END.
+    
+        PUT "<R51.5><C1><P12> Remit To: <C11.5>" v-comp-add1 SKIP
+             "<C11.5>" v-comp-add2 SKIP
+             "<C11.5>" v-comp-add3 SKIP  
+             "<C11.5>" v-comp-add4 SKIP  
+             "<C11.5>" v-comp-add5 "<P10>" SKIP
+             .
+        v-printline = v-printline + 5.
+    END. /* IF ltb_print-message THEN */
+    
+    DO i = 1 TO 3:
+       v-bot-lab[i] = IF v-t-tax[i] NE 0 THEN
                     /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
                         else fill(" ",5))*/ 
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code[i]),"x(5)") 
+                        ((IF AVAIL stax THEN STRING(CAPS(stax.tax-code[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
-    end.
-    v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
+                       FILL(" ",6) + ":" +
+                       STRING(v-t-tax[i],"->>>>>9.99")) ELSE "".
+    END.
+    v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
                     /*inv-head.t-inv-freight*/.
 
     PUT "<R57><C1><#7><FROM><C+80><LINE>"
@@ -676,6 +697,12 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
     PUT "<FArial><R61><C63><P12><B> THANK YOU. </B> <P9> " SKIP.
     v-printline = v-printline + 6.
 
+    PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+    "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
+    "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+    "<P9>".
+    
    
     IF v-printline <= 66 THEN page. /*PUT SKIP(74 - v-printline). */
 

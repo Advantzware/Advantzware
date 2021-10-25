@@ -670,7 +670,13 @@ PROCEDURE addBrowseCols :
            INDEX(ip-filterList, h_colHandle:NAME) GT 0 AND 
            (h_colHandle:WIDTH-CHARS LT 20 OR
             h_colHandle:WIDTH-CHARS EQ ?) THEN
-        h_colHandle:WIDTH-CHARS = 20.           
+        h_colHandle:WIDTH-CHARS = 20.
+        IF h_colHandle:DATA-TYPE EQ "CHARACTER" THEN
+        ASSIGN
+            h_colHandle:WIDTH-CHARS = FONT-TABLE:GET-TEXT-WIDTH-CHARS(STRING(FILL("X",256),h_colHandle:FORMAT))
+            h_colHandle:WIDTH-CHARS = MAX(h_colHandle:WIDTH-CHARS,LENGTH(h_colHandle:LABEL)) + 2
+            .
+            .
         IF ip-SubjectID NE 0 THEN DO:
             hColumn[li-count] = h_colHandle.
             FIND FIRST dynValueColumn NO-LOCK

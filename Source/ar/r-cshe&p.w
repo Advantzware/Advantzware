@@ -137,9 +137,10 @@ END.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_cust end_cust ~
 begin_date end_date begin_check-no end_check-no rd_sort rd-dest ~
-btn-ok btn-cancel 
+tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_cust end_cust ~
-begin_date end_date begin_check-no end_check-no lbl_sort rd_sort rd-dest  
+begin_date end_date begin_check-no end_check-no lbl_sort rd_sort rd-dest ~
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -250,6 +251,11 @@ DEFINE RECTANGLE RECT-6
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
     SIZE 92 BY 7.62.
+     
+DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.     
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
     LABEL "Show Parameters?" 
@@ -282,8 +288,9 @@ DEFINE FRAME FRAME-A
     lv-font-no AT ROW 9.86 COL 33 COLON-ALIGNED
     lv-font-name AT ROW 11 COL 29 COLON-ALIGNED NO-LABELS
     td-show-parm AT ROW 14 COL 29
-    btn-ok AT ROW 15.6 COL 28.8
-    btn-cancel AT ROW 15.6 COL 50    
+    btn-ok AT ROW 16 COL 28.8
+    btn-cancel AT ROW 16 COL 50
+    tbAutoClose AT ROW 15.1 COL 29 WIDGET-ID 64
     " Selection Parameters" VIEW-AS TEXT
     SIZE 21 BY .71 AT ROW 1.2 COL 4 
     " Output Destination" VIEW-AS TEXT
@@ -603,8 +610,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             MESSAGE "No Cash Receipts available for posting..." VIEW-AS ALERT-BOX ERROR.
             RUN undo-trnum.
         END.
-         
-        APPLY 'CLOSE' TO THIS-PROCEDURE.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -935,10 +942,11 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY tran-date tran-period begin_cust end_cust begin_date end_date 
-        begin_check-no end_check-no lbl_sort rd_sort rd-dest  
+        begin_check-no end_check-no lbl_sort rd_sort rd-dest tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_date end_date 
-        begin_check-no end_check-no rd_sort rd-dest btn-ok btn-cancel 
+        begin_check-no end_check-no rd_sort rd-dest tbAutoClose 
+        btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.

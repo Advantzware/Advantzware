@@ -53,6 +53,10 @@ DEFINE VARIABLE vqty         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-liner-qty  LIKE w-brd.qty NO-UNDO.
 DEFINE VARIABLE v-medium-qty LIKE w-brd.qty NO-UNDO.
 DEFINE VARIABLE v-n-out      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dSetupCostQtyUOM  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dBoardLength      AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dBoardWidth       AS DECIMAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
     FIELD run-qty  AS DECIMAL DECIMALS 3 EXTENT 20
@@ -103,8 +107,7 @@ REPEAT:
             item.i-no = item-bom.i-no 
             NO-ERROR.
         IF AVAILABLE item THEN
-            FIND FIRST e-item OF item 
-            NO-LOCK NO-ERROR.
+            
         IF NOT AVAIL item THEN LEAVE.
 
         ASSIGN
@@ -119,32 +122,68 @@ REPEAT:
             v-medium-qty = hld-qty / (xeb.num-up * v-n-out).
         {sys/inc/roundup.i v-medium-qty}
         
-        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
+        
         ASSIGN
             deShrinkPct = IF item-bom.shrink NE 100 THEN item-bom.shrink ELSE 0
             med-qty = IF v-corr THEN ((brd-l[3] * brd-w[3]) * v-medium-qty / (1 - (deShrinkPct / 100))) * .000007
                       ELSE ((brd-l[3] * brd-w[3]) * v-medium-qty / (1 - (deShrinkPct / 100))) / 144000
             fg-wt   = fg-wt + ((fg-qty / (1 - (deShrinkPct / 100))) * item.basis-w)
+            dBoardLength = brd-l[3] / (1 - (deShrinkPct / 100))
+            dBoardWidth = brd-w[3] 
+            .
+            
+        /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
+        IF lNewVendorItemCost THEN
+        DO:
+            
+            RUN est/getVendorCostinQtyUOM.p(Item.company, 
+                item.i-no, 
+                "RM", 
+                v-vend-no,
+                xeb.est-no,
+                xeb.form-no,
+                xeb.blank-no,
+                med-qty,
+                "MSF",
+                dBoardLength,
+                dBoardWidth,
+                0,
+                item.basis-w,
+                OUTPUT dCostQtyUOM,
+                OUTPUT dSetupCostQtyUOM,
+                OUTPUT mfl$).
+                
+            ASSIGN
+                b-msh = dCostQtyUOM
+                b-uom = "MSF".
+                
+        END.
+        ELSE
+        DO:
+            FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+                
             b-uom = IF AVAILABLE e-item AND e-item.std-uom NE "" THEN e-item.std-uom
                     ELSE item.cons-uom.
 
-        IF b-uom EQ "LF" THEN ASSIGN
-            v-qty = (IF v-corr THEN (med-qty / .000007) ELSE (med-qty * 144000)) / brd-w[3] / 12.
-        ELSE
-            IF b-uom EQ "TON" THEN
-                v-qty = med-qty * item.basis-w / 2000.
+            IF b-uom EQ "LF" THEN ASSIGN
+                v-qty = (IF v-corr THEN (med-qty / .000007) ELSE (med-qty * 144000)) / brd-w[3] / 12.
             ELSE
-                IF b-uom EQ "MSF" THEN
-                    v-qty = med-qty.
+                IF b-uom EQ "TON" THEN
+                    v-qty = med-qty * item.basis-w / 2000.
                 ELSE
-                    v-qty = med-qty * item.basis-w.
-                    
-        {est/matcost.i v-qty mfl$ medium}     
+                    IF b-uom EQ "MSF" THEN
+                        v-qty = med-qty.
+                    ELSE
+                        v-qty = med-qty * item.basis-w.
+                        
+            {est/matcost.i v-qty mfl$ medium}
+            ASSIGN
+                b-msh = mfl$            
+                mfl$  = (b-msh * v-qty) + lv-setup-medium.
+        END.     
+                 
         CREATE w-brd.
         ASSIGN 
-            b-msh = mfl$            
-            mfl$  = (b-msh * v-qty) + lv-setup-medium
             w-brd.form-no  = xef.form-no
             w-brd.blank-no = 1
             w-brd.i-no     = item-bom.i-no
@@ -218,42 +257,77 @@ REPEAT:
         FIND FIRST item {sys/look/itemW.i} AND
                      item.i-no = item-bom.i-no NO-LOCK NO-ERROR.
         IF AVAILABLE item THEN
-            FIND FIRST e-item OF item NO-LOCK NO-ERROR.
+            
         IF NOT(avail(item)) THEN LEAVE.
 
         RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
 
         IF xeb.num-up * v-n-out NE 0 THEN
             v-liner-qty = hld-qty / (xeb.num-up * v-n-out).
-
-        FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
+        
         ASSIGN
             adh-qty[2]  = 1
             deShrinkPct = IF item-bom.shrink NE 100 THEN item-bom.shrink ELSE 0
             med-qty     = IF v-corr THEN ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) * .000007
                 ELSE ((brd-l[3] * brd-w[3]) * v-liner-qty / (1 - (deShrinkPct / 100))) / 144000                    
             fg-wt   = fg-wt + ((fg-qty / (1 - (deShrinkPct / 100))) * item.basis-w)
+            dBoardLength = brd-l[3] / (1 - (deShrinkPct / 100))
+            dBoardWidth = brd-w[3] 
+            .
+            
+
+        /* If Old vendor logic then apply the conversion. For new, conversion logic is in Vendor Cost proc */
+        IF lNewVendorItemCost THEN
+        DO:
+            
+            RUN est/getVendorCostinQtyUOM.p(Item.company, 
+                item.i-no, 
+                "RM", 
+                v-vend-no,
+                xeb.est-no,
+                xeb.form-no,
+                xeb.blank-no,
+                med-qty,
+                "MSF",
+                dBoardLength,
+                dBoardWidth,
+                0,
+                item.basis-w,
+                OUTPUT dCostQtyUOM,
+                OUTPUT dSetupCostQtyUOM,
+                OUTPUT mfl$).
+                
+            ASSIGN
+                b-msh = dCostQtyUOM
+                b-uom = "MSF".
+                
+        END.
+        ELSE
+        DO:
+        
+            FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+            
             b-uom = IF AVAILABLE e-item AND e-item.std-uom NE "" THEN e-item.std-uom
                     ELSE item.cons-uom.
-
-        IF b-uom EQ "LF"  THEN
-            v-qty = (IF v-corr THEN (med-qty / .000007)
-            ELSE (med-qty * 144000)) / brd-w[3] / 12.
-        ELSE
-            IF b-uom EQ "TON" THEN
-                v-qty = med-qty * item.basis-w / 2000.
-            ELSE
-                IF b-uom EQ "MSF" THEN
-                    v-qty = med-qty.
-                ELSE
-                    v-qty = med-qty * item.basis-w.
                     
-        {est/matcost.i v-qty mfl$ flute}
-        ASSIGN
-            b-msh = mfl$            
-            mfl$  = (b-msh * v-qty) + lv-setup-flute
-            .
+            IF b-uom EQ "LF"  THEN
+                v-qty = (IF v-corr THEN (med-qty / .000007)
+                ELSE (med-qty * 144000)) / brd-w[3] / 12.
+            ELSE
+                IF b-uom EQ "TON" THEN
+                    v-qty = med-qty * item.basis-w / 2000.
+                ELSE
+                    IF b-uom EQ "MSF" THEN
+                        v-qty = med-qty.
+                    ELSE
+                        v-qty = med-qty * item.basis-w.
+                        
+            {est/matcost.i v-qty mfl$ flute}
+            ASSIGN
+                b-msh = mfl$            
+                mfl$  = (b-msh * v-qty) + lv-setup-flute
+                .
+        END.
 
         CREATE w-brd.
         ASSIGN 
@@ -338,7 +412,7 @@ DO WITH NO-BOX NO-LABELS FRAME adh-frame STREAM-IO:
 
         FIND FIRST e-item OF item NO-LOCK NO-ERROR.
 
-        IF AVAILABLE e-item THEN
+        IF NOT lNewVendorItemCost AND AVAILABLE e-item THEN
         DO:
             EMPTY TEMP-TABLE tt-ei.
             CREATE tt-ei.
@@ -416,7 +490,7 @@ DO WITH NO-BOX NO-LABELS FRAME lam-frame STREAM-IO:
 
         FIND FIRST e-item OF item NO-LOCK NO-ERROR.
 
-        IF AVAILABLE e-item THEN
+        IF NOT lNewVendorItemCost AND AVAILABLE e-item THEN
         DO:
       
             EMPTY TEMP-TABLE tt-ei.

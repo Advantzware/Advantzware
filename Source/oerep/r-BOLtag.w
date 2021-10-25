@@ -3707,8 +3707,8 @@ PROCEDURE temp-ord :
         WHERE oe-ord.company EQ cocode
         AND oe-ord.ord-no  EQ ip-ord-no
         AND (v-stat EQ "A"                         OR
-        (v-stat EQ "C" AND NOT oe-ord.opened) OR
-        (v-stat EQ "O" AND oe-ord.opened))
+        (v-stat EQ "C" AND oe-ord.opened EQ NO) OR
+        (v-stat EQ "O" AND oe-ord.opened EQ YES))
         NO-LOCK:
 
         RUN temp-create (ROWID(oe-ord),
