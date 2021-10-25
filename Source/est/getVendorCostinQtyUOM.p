@@ -45,6 +45,10 @@ DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cScope         AS CHARACTER NO-UNDO.
+
 
 DEFINE BUFFER bf-Item FOR Item.
 
@@ -54,29 +58,65 @@ FIND FIRST bf-Item NO-LOCK
     AND bf-Item.i-no    = ipcItemCode NO-ERROR.
       
 IF AVAILABLE bf-Item THEN
-    RUN GetVendorCost(bf-Item.company, 
-        bf-Item.i-no, 
-        ipcItemType, 
-        ipcVendorNo, 
-        "",
-        ipcEstNo, 
-        ipiFormNo, 
-        ipiBlankNo,
-        ipdQty, 
-        ipcQtyUOM,
-        ipdLength,
-        ipdWidth,
-        ipdDepth,
-        "IN", 
-        ipdBasisWeight,
-        "LB/EA", 
-        NO,
-        OUTPUT dCostPerUOM, 
-        OUTPUT dCostSetup, 
-        OUTPUT cCostUOM,
-        OUTPUT dCostTotal, 
-        OUTPUT lError, 
-        OUTPUT cMessage).
+DO:
+     RUN GetVendorCost(bf-Item.company, 
+            bf-Item.i-no, 
+            ipcItemType, 
+            ipcVendorNo, 
+            "",
+            ipcEstNo, 
+            ipiFormNo, 
+            ipiBlankNo,
+            ipdQty, 
+            ipcQtyUOM,
+            ipdLength,
+            ipdWidth,
+            ipdDepth,
+            "IN", 
+            ipdBasisWeight,
+            "LB/EA", 
+            NO,
+            OUTPUT dCostPerUOM, 
+            OUTPUT dCostSetup, 
+            OUTPUT cCostUOM,
+            OUTPUT dCostTotal, 
+            OUTPUT lError, 
+            OUTPUT cMessage).
+            
+    /* IF Any error or No cost available for Vendor or if Blank Vendor record is not there,
+        fall back to this logic */
+        
+    IF lError OR dCostTotal = 0 THEN
+    DO:
+        cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over").
+        
+        RUN VendCost_GetBestCost(bf-Item.company, 
+            bf-Item.i-no, 
+            ipcItemType, 
+            cScope, 
+            YES, 
+            ipcEstNo,
+            ipiFormNo, 
+            ipiBlankNo,
+            ipdQty, 
+            ipcQtyUOM, 
+            ipdLength, 
+            ipdWidth, 
+            ipdDepth, 
+            "IN", 
+            ipdBasisWeight, 
+            "LBS/MSF",
+            OUTPUT dCostPerUOM, 
+            OUTPUT cCostUOM, 
+            OUTPUT dCostSetup, 
+            OUTPUT cVendorID, 
+            OUTPUT dCostDeviation,
+            OUTPUT dCostTotal,
+            OUTPUT lError, 
+            OUTPUT cMessage).
+    END.
+          
+END.                            
         
 IF lError THEN
     RETURN.
