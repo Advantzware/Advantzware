@@ -689,7 +689,7 @@ PROCEDURE ipRunPurge :
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
                     IF NOT AVAIL b-ar-cashl THEN DO:
-                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,"99999999") + "A/R").
+                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,">>>>99999999") + "A/R").
                         EXPORT STREAM out3 ar-cash.
                         DELETE ar-cash.
                         ASSIGN

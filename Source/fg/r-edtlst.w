@@ -35,8 +35,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -47,10 +47,10 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-def var v-types as char format "x(10)" NO-UNDO.
-assign
- cocode = gcompany
- locode = gloc.
+DEFINE VARIABLE v-types AS CHARACTER FORMAT "x(10)" NO-UNDO.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,10 +69,9 @@ assign
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 RECT-6 begin_date end_date begin_loc ~
 end_loc tb_sort t-receipt t-issue t-trans t-adj t-phy tb_total rd-dest ~
-lv-ornt lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
+tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_loc end_loc ~
-tb_sort t-receipt t-issue t-trans t-adj t-phy tb_total rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm 
+tb_sort t-receipt t-issue t-trans t-adj t-phy tb_total rd-dest tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -85,156 +84,162 @@ lines-per-page lv-font-no lv-font-name td-show-parm
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-     LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+    LABEL "&Cancel" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-     LABEL "&OK" 
-     SIZE 15 BY 1.14.
+    LABEL "&OK" 
+    SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U 
-     LABEL "Begining Date" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U 
+    LABEL "Begining Date" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_loc AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Begining Location" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_loc      AS CHARACTER FORMAT "X(8)":U 
+    LABEL "Begining Location" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U 
-     LABEL "Ending Date" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U 
+    LABEL "Ending Date" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_loc AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Ending Location" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_loc        AS CHARACTER FORMAT "X(8)":U 
+    LABEL "Ending Location" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
+    LABEL "Lines Per Page" 
+    VIEW-AS FILL-IN 
+    SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+    VIEW-AS FILL-IN 
+    SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+    LABEL "Font" 
+    VIEW-AS FILL-IN 
+    SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
+    VIEW-AS RADIO-SET HORIZONTAL
+    RADIO-BUTTONS 
+    "Portrait", "P",
+    "Landscape", "L"
+    SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3
-     SIZE 23 BY 3.81 NO-UNDO.
+DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
+    VIEW-AS RADIO-SET VERTICAL
+    RADIO-BUTTONS 
+    "To Printer", 1,
+    "To Screen", 2,
+    "To File", 3
+    SIZE 15 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 12.86.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 91 BY 11.14.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 6.19.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 91 BY 4.33.
 
-DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
-     LABEL "Adjustments" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE t-adj        AS LOGICAL INITIAL NO 
+    LABEL "Adjustments" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 23 BY 1
+    FONT 6 NO-UNDO.
 
-DEFINE VARIABLE t-issue AS LOGICAL INITIAL no 
-     LABEL "Shipments" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 18 BY 1
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE t-issue      AS LOGICAL INITIAL NO 
+    LABEL "Shipments" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 18 BY 1
+    FONT 6 NO-UNDO.
 
-DEFINE VARIABLE t-phy AS LOGICAL INITIAL no 
-     LABEL "Credit Returns" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 39 BY 1
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE t-phy        AS LOGICAL INITIAL NO 
+    LABEL "Credit Returns" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 39 BY 1
+    FONT 6 NO-UNDO.
 
-DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
-     LABEL "Receipts" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 36 BY 1
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE t-receipt    AS LOGICAL INITIAL NO 
+    LABEL "Receipts" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 36 BY 1
+    FONT 6 NO-UNDO.
 
-DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
-     LABEL "Transfers" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 17 BY .81
-     FONT 6 NO-UNDO.
+DEFINE VARIABLE t-trans      AS LOGICAL INITIAL NO 
+    LABEL "Transfers" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 17 BY .81
+    FONT 6 NO-UNDO.
 
-DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
-     LABEL "Sort By Job?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 22 BY 1 NO-UNDO.
+DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_total AS LOGICAL INITIAL no 
-     LABEL "Show Totals?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_sort      AS LOGICAL INITIAL NO 
+    LABEL "Sort By Job?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_total     AS LOGICAL INITIAL NO 
+    LABEL "Show Totals?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 22 BY .81 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+    LABEL "Show Parameters?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_date AT ROW 3.14 COL 22 COLON-ALIGNED
-     end_date AT ROW 3.14 COL 63 COLON-ALIGNED
-     begin_loc AT ROW 4.33 COL 22 COLON-ALIGNED
-     end_loc AT ROW 4.33 COL 63 COLON-ALIGNED
-     tb_sort AT ROW 5.76 COL 38
-     t-receipt AT ROW 7.43 COL 37
-     t-issue AT ROW 8.38 COL 37
-     t-trans AT ROW 9.33 COL 37
-     t-adj AT ROW 10.05 COL 37
-     t-phy AT ROW 11 COL 37
-     tb_total AT ROW 12.19 COL 38
-     rd-dest AT ROW 15.29 COL 5 NO-LABEL
-     lv-ornt AT ROW 15.52 COL 32 NO-LABEL
-     lines-per-page AT ROW 15.52 COL 85 COLON-ALIGNED
-     lv-font-no AT ROW 16.95 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 17.91 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 19.33 COL 5
-     btn-ok AT ROW 21 COL 19
-     btn-cancel AT ROW 21 COL 57
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.57 COL 3
-     "Transaction Types" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 6.71 COL 24
-          FONT 6
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     RECT-17 AT ROW 1 COL 1
-     RECT-6 AT ROW 14.33 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 22.76.
+    begin_date AT ROW 2.38 COL 25.6 COLON-ALIGNED
+    end_date AT ROW 2.38 COL 66.6 COLON-ALIGNED
+    begin_loc AT ROW 3.57 COL 25.6 COLON-ALIGNED
+    end_loc AT ROW 3.57 COL 66.6 COLON-ALIGNED
+    tb_sort AT ROW 5 COL 37
+    t-receipt AT ROW 6.67 COL 37
+    t-issue AT ROW 7.62 COL 37
+    t-trans AT ROW 8.57 COL 37
+    t-adj AT ROW 9.29 COL 37
+    t-phy AT ROW 10.24 COL 37
+    tb_total AT ROW 11.43 COL 37
+    lv-font-no AT ROW 13.29 COL 33 COLON-ALIGNED
+    lines-per-page AT ROW 13.38 COL 86.8 COLON-ALIGNED
+    lv-ornt AT ROW 13.43 COL 42.4 NO-LABELS
+    rd-dest AT ROW 13.48 COL 5 NO-LABELS
+    lv-font-name AT ROW 14.52 COL 29 COLON-ALIGNED NO-LABELS
+    td-show-parm AT ROW 16.24 COL 29.4
+    tbAutoClose AT ROW 17.52 COL 29.2 WIDGET-ID 64
+    btn-ok AT ROW 18.48 COL 29
+    btn-cancel AT ROW 18.48 COL 51.2
+    " Output Destination" VIEW-AS TEXT
+    SIZE 19 BY .62 AT ROW 12.67 COL 4
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .71 AT ROW 1.05 COL 4
+    "Transaction Types" VIEW-AS TEXT
+    SIZE 22 BY .62 AT ROW 5.95 COL 24
+    FONT 6
+    RECT-17 AT ROW 1.52 COL 3
+    RECT-6 AT ROW 13.1 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 95.8 BY 23
+    BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -251,30 +256,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Finished Goods Edit List"
-         HEIGHT             = 23.05
-         WIDTH              = 96.2
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Finished Goods Edit List"
+        HEIGHT             = 19.05
+        WIDTH              = 95
+        MAX-HEIGHT         = 33.29
+        MAX-WIDTH          = 204.8
+        VIRTUAL-HEIGHT     = 33.29
+        VIRTUAL-WIDTH      = 204.8
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -288,29 +293,47 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
+ASSIGN 
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
+ASSIGN 
+    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       tb_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+
+ASSIGN 
+    tb_sort:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -319,12 +342,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Finished Goods Edit List */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -332,11 +356,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Finished Goods Edit List */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -345,9 +369,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-   apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -356,20 +380,21 @@ END.
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+    DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
 
-  run run-report. 
+        RUN run-report. 
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-  end case. 
-
-END.
+        CASE rd-dest:
+            WHEN 1 THEN RUN output-to-printer.
+            WHEN 2 THEN RUN output-to-screen.
+            WHEN 3 THEN RUN output-to-file.
+        END CASE. 
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -378,9 +403,9 @@ END.
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -389,14 +414,14 @@ END.
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
+    DO:
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
+        RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
+                LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -404,9 +429,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
+    DO:
+        ASSIGN lv-font-no.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -415,9 +440,9 @@ END.
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
+    DO:
+        ASSIGN lv-ornt.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -425,9 +450,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
-END.
+    DO:
+        {custom/chgfont.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -436,9 +461,9 @@ END.
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -447,9 +472,9 @@ END.
 &Scoped-define SELF-NAME t-adj
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-adj C-Win
 ON VALUE-CHANGED OF t-adj IN FRAME FRAME-A /* Adjustments */
-DO:
-      assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -458,9 +483,9 @@ END.
 &Scoped-define SELF-NAME t-issue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-issue C-Win
 ON VALUE-CHANGED OF t-issue IN FRAME FRAME-A /* Shipments */
-DO:
-      assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -469,9 +494,9 @@ END.
 &Scoped-define SELF-NAME t-receipt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-receipt C-Win
 ON VALUE-CHANGED OF t-receipt IN FRAME FRAME-A /* Receipts */
-DO:
-    assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -480,9 +505,9 @@ END.
 &Scoped-define SELF-NAME t-trans
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-trans C-Win
 ON VALUE-CHANGED OF t-trans IN FRAME FRAME-A /* Transfers */
-DO:
-      assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -491,9 +516,9 @@ END.
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -513,7 +538,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -522,43 +547,50 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-/* security check need {methods/prgsecur.i} in definition section */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    /* security check need {methods/prgsecur.i} in definition section */
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  ASSIGN
-      begin_date  = TODAY
-      END_date    = TODAY
-      END_loc = "zzzzzzzz".
+    ASSIGN
+        begin_date = TODAY
+        END_date   = TODAY
+        END_loc    = "zzzzzzzz".
 
-  /*for each fg-rctd where fg-rctd.company                  eq cocode
-                     and fg-rctd.rita-code                ne "C"
-                      no-lock
-                      break by fg-rctd.rita-code:
-      if first-of(fg-rctd.rita-code) then v-types = v-types + fg-rctd.rita-code.
-  end.
-  IF INDEX(v-types,"R") > 0 THEN t-receipt = YES.
-  IF index(v-types,"S") > 0 THEN t-issue  = YES.
-  IF INDEX(v-types,"T") > 0 THEN t-trans  = YES.
-  IF index(v-types,"A") > 0 THEN t-adj = YES.
-  IF index(v-types,"E") > 0 THEN t-phy    = YES.*/
+    /*for each fg-rctd where fg-rctd.company                  eq cocode
+                       and fg-rctd.rita-code                ne "C"
+                        no-lock
+                        break by fg-rctd.rita-code:
+        if first-of(fg-rctd.rita-code) then v-types = v-types + fg-rctd.rita-code.
+    end.
+    IF INDEX(v-types,"R") > 0 THEN t-receipt = YES.
+    IF index(v-types,"S") > 0 THEN t-issue  = YES.
+    IF INDEX(v-types,"T") > 0 THEN t-trans  = YES.
+    IF index(v-types,"A") > 0 THEN t-adj = YES.
+    IF index(v-types,"E") > 0 THEN t-phy    = YES.*/
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    RUN enable_UI.
+    {sys/inc/reportsConfigNK1.i "IU4" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
+    {methods/nowait.i}
 
-  RUN enable_UI.
-
-  {methods/nowait.i}
-
-  DO WITH FRAME {&FRAME-NAME}:
-    {custom/usrprint.i}
-    APPLY "entry" TO begin_date.
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        {custom/usrprint.i}
+        APPLY "entry" TO begin_date.
+    END.
 
 
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -569,18 +601,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,25 +620,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY begin_date end_date begin_loc end_loc tb_sort t-receipt t-issue 
-          t-trans t-adj t-phy tb_total rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 RECT-6 begin_date end_date begin_loc end_loc tb_sort t-receipt 
-         t-issue t-trans t-adj t-phy tb_total rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm btn-ok btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY begin_date end_date begin_loc end_loc tb_sort t-receipt t-issue 
+        t-trans t-adj t-phy tb_total rd-dest tbAutoClose 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    ENABLE RECT-17 RECT-6 begin_date end_date begin_loc end_loc tb_sort t-receipt 
+        t-issue t-trans t-adj t-phy tb_total rd-dest tbAutoClose btn-ok 
+        btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -614,29 +645,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/*      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.       */
-/*                                                          */
-/*      if init-dir = "" then init-dir = "c:\temp" .        */
-/*      SYSTEM-DIALOG GET-FILE list-name                    */
-/*          TITLE      "Enter Listing Name to SAVE AS ..."  */
-/*          FILTERS    "Listing Files (*.rpt)" "*.rpt",     */
-/*                     "All Files (*.*)" "*.*"              */
-/*          INITIAL-DIR init-dir                            */
-/*          ASK-OVERWRITE                                   */
-/*     /*     CREATE-TEST-FILE*/                            */
-/*          SAVE-AS                                         */
-/*          USE-FILENAME                                    */
-/*                                                          */
-/*          UPDATE OKpressed.                               */
-/*                                                          */
-/*      IF NOT OKpressed THEN  RETURN NO-APPLY.             */
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /*      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.       */
+    /*                                                          */
+    /*      if init-dir = "" then init-dir = "c:\temp" .        */
+    /*      SYSTEM-DIALOG GET-FILE list-name                    */
+    /*          TITLE      "Enter Listing Name to SAVE AS ..."  */
+    /*          FILTERS    "Listing Files (*.rpt)" "*.rpt",     */
+    /*                     "All Files (*.*)" "*.*"              */
+    /*          INITIAL-DIR init-dir                            */
+    /*          ASK-OVERWRITE                                   */
+    /*     /*     CREATE-TEST-FILE*/                            */
+    /*          SAVE-AS                                         */
+    /*          USE-FILENAME                                    */
+    /*                                                          */
+    /*          UPDATE OKpressed.                               */
+    /*                                                          */
+    /*      IF NOT OKpressed THEN  RETURN NO-APPLY.             */
 
-     {custom/out2file.i}
+    {custom/out2file.i}
 
 END PROCEDURE.
 
@@ -645,26 +676,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-     DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-
-/*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-     IF NOT printok THEN
-     RETURN NO-APPLY.
-*/
-
-  /* Use Progress Print. Always use Font#9 in Registry (set above) */
-     RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
-                                    /* use-dialog(1) and landscape(2) */
- */
- RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
+         DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
+         DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    
+    /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
+         IF NOT printok THEN
+         RETURN NO-APPLY.
+    */
+    
+      /* Use Progress Print. Always use Font#9 in Registry (set above) */
+         RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
+                                INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
+                                        /* use-dialog(1) and landscape(2) */
+     */
+    RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,12 +703,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -685,369 +716,388 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-/* ------------------------------------------------ fg/rep/fg-edlst.p 9/91 cd */
-/* finish goods transactions edit list                                        */
-/* -------------------------------------------------------------------------- */
-{sys/form/r-topw.f}
+    /* ------------------------------------------------ fg/rep/fg-edlst.p 9/91 cd */
+    /* finish goods transactions edit list                                        */
+    /* -------------------------------------------------------------------------- */
+    {sys/form/r-topw.f}
 
-def var fdate like fg-rctd.rct-date format "99/99/9999" init TODAY NO-UNDO.
-def var tdate like fdate init today NO-UNDO.
-def var floc as char init "" NO-UNDO.
-def var tloc like floc init "zzzzzzzzz" NO-UNDO.
-def var v-sort as log init no NO-UNDO.
-DEF VAR v-trans-time AS CHAR NO-UNDO.
+    DEFINE VARIABLE fdate        LIKE fg-rctd.rct-date FORMAT "99/99/9999" INIT TODAY NO-UNDO.
+    DEFINE VARIABLE tdate        LIKE fdate INIT TODAY NO-UNDO.
+    DEFINE VARIABLE floc         AS CHARACTER INIT "" NO-UNDO.
+    DEFINE VARIABLE tloc         LIKE floc INIT "zzzzzzzzz" NO-UNDO.
+    DEFINE VARIABLE v-sort       AS LOG       INIT NO NO-UNDO.
+    DEFINE VARIABLE v-trans-time AS CHARACTER NO-UNDO.
 
-def var v-fg-qty as dec format "->>,>>>,>>9.99<" NO-UNDO.
-def var v-fg-value as dec format "->,>>>,>>9.99" NO-UNDO.
-def var v-tran-type as char format "x(1)" NO-UNDO. 
-def var v-totadj as dec format "->>>,>>>,>>9" NO-UNDO.
-def var v-grd-totadj as dec format "->>>,>>>,>>9" NO-UNDO. 
-def var v-price as dec format "->>>>>>>9.9999999" NO-UNDO.
-def var v-cum-tot as de format "->>,>>>,>>9.99" NO-UNDO.
-def var v-one as char format "x(1)" init "1" NO-UNDO.
-def var v-tot-qty like fg-rctd.t-qty NO-UNDO.
+    DEFINE VARIABLE v-fg-qty     AS DECIMAL   FORMAT "->>,>>>,>>9.99<" NO-UNDO.
+    DEFINE VARIABLE v-fg-value   AS DECIMAL   FORMAT "->,>>>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE v-tran-type  AS CHARACTER FORMAT "x(1)" NO-UNDO. 
+    DEFINE VARIABLE v-totadj     AS DECIMAL   FORMAT "->>>,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE v-grd-totadj AS DECIMAL   FORMAT "->>>,>>>,>>9" NO-UNDO. 
+    DEFINE VARIABLE v-price      AS DECIMAL   FORMAT "->>>>>>>9.9999999" NO-UNDO.
+    DEFINE VARIABLE v-cum-tot    AS de        FORMAT "->>,>>>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE v-one        AS CHARACTER FORMAT "x(1)" INIT "1" NO-UNDO.
+    DEFINE VARIABLE v-tot-qty    LIKE fg-rctd.t-qty NO-UNDO.
 
-def var v-whse like fg-rctd.loc NO-UNDO.                                        
-def var v-pr-tots as log format "Y/N" init false no-undo. 
+    DEFINE VARIABLE v-whse       LIKE fg-rctd.loc NO-UNDO.                                        
+    DEFINE VARIABLE v-pr-tots    AS LOG       FORMAT "Y/N" INIT FALSE NO-UNDO. 
 
 
-form header                                                                                           
-  "ITEM" at 2 "DESCRIPTION" at 17 "FROM" at 70 "QTY" at 108 "SALES" at 131
-   skip
-  "DATE" at 4 "TIME" AT 15   "TY" at 20 "TAG #" at 23 "JOB #" at 45 
-  "P.O. #" at 54 "VENDOR" at 61                                   
-    "BIN" at 70  "CASES" at 81
-  "QTY/CASE" at 88  "UOM" at 97 "TOTAL" at 108 "COST" AT 117 "VALUE" at 131
- fill("=",135) format "x(135)"  
-with frame f-top PAGE-TOP no-box no-labels STREAM-IO width 135.
+    FORM HEADER                                                                                           
+        "ITEM" AT 2 "DESCRIPTION" AT 17 "FROM" AT 70 "QTY" AT 108 "SALES" AT 131
+        SKIP
+        "DATE" AT 4 "TIME" AT 15   "TY" AT 20 "TAG #" AT 23 "JOB #" AT 45 
+        "P.O. #" AT 54 "VENDOR" AT 61                                   
+        "BIN" AT 70  "CASES" AT 81
+        "QTY/CASE" AT 88  "UOM" AT 97 "TOTAL" AT 108 "COST" AT 117 "VALUE" AT 131
+        FILL("=",135) FORMAT "x(135)"  
+        WITH FRAME f-top PAGE-TOP NO-BOX NO-LABELS STREAM-IO WIDTH 135.
 
-       form
-           fg-rctd.rct-date at 4 space(1)
-           v-trans-time      FORMAT "x(5)"
-           v-tran-type
-           fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
-           fg-rctd.job-no space(0) "-" space(0)
-           fg-rctd.job-no2 format "99" space(2)
-           fg-rctd.po-no        format "x(8)"  at 55                                                            
-           po-ord.vend-no       at 63
-           fg-rctd.loc-bin      at 72       
-           fg-rctd.cases        to 87
-           fg-rctd.qty-case     to 97
-           fg-rctd.pur-uom     format "x(3)" at 99
-           v-tot-qty            format "->>>,>>>,>>9"  at 103
-       /*
-           fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
-       */
-           fg-rctd.std-cost         AT 116 FORMAT "->>,>>9"
-           v-fg-value           format "->,>>>,>>9.99" to 137
-       with frame detail no-box no-labels down STREAM-IO width 135.
+    FORM
+        fg-rctd.rct-date AT 4 SPACE(1)
+        v-trans-time      FORMAT "x(5)"
+        v-tran-type
+        fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
+        fg-rctd.job-no SPACE(0) "-" SPACE(0)
+        fg-rctd.job-no2 FORMAT "99" SPACE(2)
+        fg-rctd.po-no        FORMAT "x(8)"  AT 55                                                            
+        po-ord.vend-no       AT 61
+        fg-rctd.loc-bin      AT 70       
+        fg-rctd.cases        TO 85
+        fg-rctd.qty-case     TO 95
+        fg-rctd.pur-uom     FORMAT "x(3)" AT 97
+        v-tot-qty            FORMAT "->>>,>>>,>>9"  AT 101
+        /*
+            fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
+        */
+        fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
+        v-fg-value           FORMAT "->,>>>,>>9.99" TO 135
+        WITH FRAME detail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 135.
 
-       form
-           fg-rctd.rct-date at 4 space(1)
-           v-trans-time      FORMAT "x(5)"
-           v-tran-type
-           fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
-           fg-rctd.job-no space(0) "-" space(0)
-           fg-rctd.job-no2 format "99" space(2)
-           fg-rctd.po-no        format "x(8)" at 55                                                            
-           po-ord.vend-no       at 63                                                              
-           fg-rctd.loc-bin      at 72  
-           v-one                to 87
-           fg-rctd.partial      to 97
-           fg-rctd.pur-uom     format "x(3)" at 99                                                                    
-           v-tot-qty            format "->>>,>>>,>>9"  at 103
-       /*
-           fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
-       */ 
-           fg-rctd.std-cost         AT 116 FORMAT "->>,>>9"
-           v-fg-value           format "->,>>>,>>9.99" to 137
-       with frame pdetail no-box no-labels down STREAM-IO width 135.
+    FORM
+        fg-rctd.rct-date AT 4 SPACE(1)
+        v-trans-time      FORMAT "x(5)"
+        v-tran-type
+        fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
+        fg-rctd.job-no SPACE(0) "-" SPACE(0)
+        fg-rctd.job-no2 FORMAT "99" SPACE(2)
+        fg-rctd.po-no        FORMAT "x(6)" AT 55                                                            
+        po-ord.vend-no       AT 61                                                              
+        fg-rctd.loc-bin      AT 70  
+        v-one                TO 85
+        fg-rctd.partial      TO 95
+        fg-rctd.pur-uom     FORMAT "x(3)" AT 97                                                                    
+        v-tot-qty            FORMAT "->>>,>>>,>>9"  AT 101
+        /*
+            fg-rctd.t-qty        format "->>>,>>>,>>9"  at 99
+        */ 
+        fg-rctd.std-cost         AT 114 FORMAT "->>,>>9"
+        v-fg-value           FORMAT "->,>>>,>>9.99" TO 135
+        WITH FRAME pdetail NO-BOX NO-LABELS DOWN STREAM-IO WIDTH 135.
 
-ASSIGN str-tit2 = c-win:title
-       {sys/inc/ctrtext.i str-tit2 112} 
-       fdate     = begin_date
-       tdate     = end_date
-       floc      = begin_loc
-       tloc      = end_loc
-       v-types   = (if t-receipt then "R" else "") +
-                    (if t-issue then "S" else "") +
-                    (if t-trans then "T" else "") +
-                    (if t-adj then "A" else "") +
-                    (if t-phy then "E" else "")                                 
-       v-sort    = tb_sort              
-       v-pr-tots = tb_total.
+    ASSIGN 
+        str-tit2  = c-win:TITLE
+        {sys/inc/ctrtext.i str-tit2 112} 
+        fdate     = begin_date
+        tdate     = end_date
+        floc      = begin_loc
+        tloc      = end_loc
+        v-types   = (IF t-receipt THEN "R" ELSE "") +
+                    (IF t-issue THEN "S" ELSE "") +
+                    (IF t-trans THEN "T" ELSE "") +
+                    (IF t-adj THEN "A" ELSE "") +
+                    (IF t-phy THEN "E" ELSE "")                                 
+        v-sort    = tb_sort              
+        v-pr-tots = tb_total.
 
-{sa/sa-sls01.i}
+    {sa/sa-sls01.i}
 
-{sys/inc/print1.i}
+    {sys/inc/print1.i}
 
-SESSION:SET-WAIT-STATE ("general").
+    SESSION:SET-WAIT-STATE ("general").
 
-{sys/inc/outprint.i value(lines-per-page)}
+    {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+    IF td-show-parm THEN RUN show-param.
 
-display "" with frame r-top.
+    DISPLAY "" WITH FRAME r-top.
 
-    for each fg-rctd
-        where fg-rctd.company                  eq cocode
-          and fg-rctd.rct-date               ge fdate
-          and fg-rctd.rct-date               le tdate
-          and index(v-types,fg-rctd.rita-code) gt 0
-          and fg-rctd.rita-code                ne "C"
-          AND fg-rctd.loc GE floc 
-          AND fg-rctd.loc LE tloc  NO-LOCK :
-      create report.
-      assign
-       report.term-id = v-term
-       report.key-01  = if v-sort then
-                          fill(" ",6 - length(trim(fg-rctd.job-no))) +
+    FOR EACH fg-rctd
+        WHERE fg-rctd.company                  EQ cocode
+        AND fg-rctd.rct-date               GE fdate
+        AND fg-rctd.rct-date               LE tdate
+        AND index(v-types,fg-rctd.rita-code) GT 0
+        AND fg-rctd.rita-code                NE "C"
+        AND fg-rctd.loc GE floc 
+        AND fg-rctd.loc LE tloc  NO-LOCK :
+        CREATE report.
+        ASSIGN
+            report.term-id = v-term
+            report.key-01  = IF v-sort THEN
+                          FILL(" ",6 - length(TRIM(fg-rctd.job-no))) +
                           trim(fg-rctd.job-no) + string(fg-rctd.job-no2,"99")
-                        else fg-rctd.loc                                                               
-       report.key-02  = fg-rctd.i-no
-       report.key-03  = string( year(fg-rctd.rct-date),"9999") +
-                        string(month(fg-rctd.rct-date),"99")   +
-                        string(  day(fg-rctd.rct-date),"99")
-       /*report.key-04  = string(recid(fg-rctd))*/
-       report.rec-id  = recid(fg-rctd).
-    end.
+                        ELSE fg-rctd.loc                                                               
+            report.key-02  = fg-rctd.i-no
+            report.key-03  = STRING( YEAR(fg-rctd.rct-date),"9999") +
+                        string(MONTH(fg-rctd.rct-date),"99")   +
+                        string(  DAY(fg-rctd.rct-date),"99")
+            /*report.key-04  = string(recid(fg-rctd))*/
+            report.rec-id  = RECID(fg-rctd).
+    END.
 
-    for each report    where report.term-id  eq v-term,
-        first fg-rctd where recid(fg-rctd) eq report.rec-id no-lock
-        break by report.key-01
-              by report.key-02
-              by report.key-03
-              by fg-rctd.r-no:
+    FOR EACH report    WHERE report.term-id  EQ v-term,
+        FIRST fg-rctd WHERE RECID(fg-rctd) EQ report.rec-id NO-LOCK
+        BREAK BY report.key-01
+        BY report.key-02
+        BY report.key-03
+        BY fg-rctd.r-no:
 
-      /* if v-sort and first-of(report.key-01) then page. */                                /* begin ekwtest */
-      if first-of(report.key-01) then do:
-         assign v-whse = fg-rctd.loc.
-        /* if first(report.key-01) then do:
-            hide frame r-top.
-            view frame r-top.
-            page.
-         end. /* if first(report.key-01) */
+        /* if v-sort and first-of(report.key-01) then page. */                                /* begin ekwtest */
+        IF FIRST-OF(report.key-01) THEN 
+        DO:
+            ASSIGN 
+                v-whse = fg-rctd.loc.
+            /* if first(report.key-01) then do:
+                hide frame r-top.
+                view frame r-top.
+                page.
+             end. /* if first(report.key-01) */
+    
+             else 
+             */
+            PUT SKIP(3) "WHSE:" v-whse SKIP.
+            IF FIRST(report.key-01) THEN DISPLAY WITH FRAME f-top.
+        END.   /* if first-of(report.key-01) */                                                     /* end ekwtest */
 
-         else 
-         */
-            put skip(3) "WHSE:" v-whse skip.
-            IF FIRST(report.key-01) THEN DISP WITH FRAME f-top.
-       end.   /* if first-of(report.key-01) */                                                     /* end ekwtest */
 
+        IF FIRST-OF(report.key-02) THEN 
+        DO:
+            FIND FIRST itemfg
+                WHERE itemfg.company EQ fg-rctd.company
+                AND itemfg.i-no    EQ fg-rctd.i-no
+                NO-LOCK NO-ERROR.
+            IF AVAILABLE itemfg THEN 
+            DO:
+                FIND FIRST uom
+                    WHERE uom.uom  EQ itemfg.sell-uom
+                    AND uom.mult NE 0
+                    NO-LOCK NO-ERROR.
+                v-price = IF itemfg.sell-uom EQ "L" THEN itemfg.sell-price
+                ELSE (itemfg.sell-price /
+                    IF AVAILABLE uom THEN uom.mult ELSE 1000).
+                IF v-price LT 0 THEN v-price = 0.
+            END.
 
-      if first-of(report.key-02) then do:
-        find first itemfg
-            where itemfg.company eq fg-rctd.company
-              and itemfg.i-no    eq fg-rctd.i-no
-            no-lock no-error.
-        if avail itemfg then do:
-          find first uom
-              where uom.uom  eq itemfg.sell-uom
-                and uom.mult ne 0
-              no-lock no-error.
-            v-price = if itemfg.sell-uom eq "L" then itemfg.sell-price
-                      else (itemfg.sell-price /
-                            if avail uom then uom.mult else 1000).
-            if v-price lt 0 then v-price = 0.
-        end.
+            /*djk*/
+            PUT fg-rctd.i-no FORMAT "x(16)" 
+                fg-rctd.i-name SPACE(21)
+                /*
+                            fg-rctd.cases          format "->>>>9" to 75 /*space(2)*/
+                           fg-rctd.qty-case       format "->>>>9" to 85 /*space(4)*/
+                */          
 
-        /*djk*/
-        put fg-rctd.i-no FORMAT "x(16)" 
-            fg-rctd.i-name space(21)
-/*
-            fg-rctd.cases          format "->>>>9" to 75 /*space(2)*/
-           fg-rctd.qty-case       format "->>>>9" to 85 /*space(4)*/
-*/          
+                /*"SELLING PRICE:"*/  "" AT 122
+                itemfg.sell-price itemfg.sell-uom SKIP.
+        END.
 
-            /*"SELLING PRICE:"*/  "" at 122
-            itemfg.sell-price itemfg.sell-uom skip.
-      end.
+        ASSIGN 
+            v-fg-value = fg-rctd.t-qty * v-price.
 
-      assign v-fg-value = fg-rctd.t-qty * v-price.
+        IF fg-rctd.rita-code EQ "R" THEN
+            ASSIGN
+                v-totadj    = v-totadj + fg-rctd.t-qty
+                v-cum-tot   = v-cum-tot + v-fg-value
+                v-tran-type = "REC".
 
-      if fg-rctd.rita-code eq "R" then
-        assign
-         v-totadj    = v-totadj + fg-rctd.t-qty
-         v-cum-tot   = v-cum-tot + v-fg-value
-         v-tran-type = "REC".
+        ELSE
+            IF fg-rctd.rita-code EQ "T" THEN v-tran-type = "TRAN".
 
-      else
-      if fg-rctd.rita-code eq "T" then v-tran-type = "TRAN".
+            ELSE
+                IF fg-rctd.rita-code EQ "A" THEN
+                    ASSIGN
+                        v-totadj    = v-totadj + fg-rctd.t-qty
+                        v-cum-tot   = v-cum-tot + v-fg-value
+                        v-tran-type = "ADJ".
 
-      else
-      if fg-rctd.rita-code eq "A" then
-        assign
-         v-totadj    = v-totadj + fg-rctd.t-qty
-         v-cum-tot   = v-cum-tot + v-fg-value
-         v-tran-type = "ADJ".
+                ELSE
+                    IF fg-rctd.rita-code EQ "S" THEN
+                        ASSIGN
+                            v-totadj    = v-totadj - fg-rctd.t-qty
+                            v-cum-tot   = v-cum-tot - v-fg-value
+                            v-tran-type = "SHIP".
 
-      else
-      if fg-rctd.rita-code eq "S" then
-        assign
-         v-totadj    = v-totadj - fg-rctd.t-qty
-         v-cum-tot   = v-cum-tot - v-fg-value
-         v-tran-type = "SHIP".
+                    ELSE
+                        IF fg-rctd.rita-code EQ "E" THEN
+                            ASSIGN
+                                v-totadj    = v-totadj + fg-rctd.t-qty
+                                v-cum-tot   = v-cum-tot + v-fg-value
+                                v-tran-type = "CRED".
 
-      else
-      if fg-rctd.rita-code eq "E" then
-        assign
-         v-totadj    = v-totadj + fg-rctd.t-qty
-         v-cum-tot   = v-cum-tot + v-fg-value
-         v-tran-type = "CRED".
+                        ELSE
+                            ASSIGN
+                                v-totadj    = v-totadj + fg-rctd.t-qty
+                                v-tran-type = "UNKN".
 
-      else
-        assign
-         v-totadj    = v-totadj + fg-rctd.t-qty
-         v-tran-type = "UNKN".
+        IF LINE-COUNTER GT 56 THEN PAGE.
 
-      if line-counter gt 56 then page.
-
-      if fg-rctd.po-no <> " " then
-        find po-ord where po-ord.po-no = int(fg-rctd.po-no) NO-LOCK NO-ERROR.
-      ASSIGN
-         v-tot-qty  = fg-rctd.cases * fg-rctd.qty-case
-         v-fg-value = v-tot-qty * v-price
-         v-trans-time = STRING(fg-rctd.trans-time, "HH:MM").
-
-      display fg-rctd.rct-date when first-of(report.key-03)  
-              v-trans-time     when first-of(report.key-03) 
-              v-tran-type 
-              fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
-              fg-rctd.job-no
-              fg-rctd.job-no2
-              fg-rctd.po-no
-              po-ord.vend-no                     when avail po-ord
-              fg-rctd.loc-bin 
-
-              fg-rctd.cases        format "->>,>>9"
-
-              fg-rctd.qty-case
-              fg-rctd.pur-uom 
-                      v-tot-qty  
-              fg-rctd.std-cost    FORMAT ">>>,>>9"
-              v-fg-value 
-
-              with frame detail.                                                       
-      down 2 with frame detail.
-
-      if fg-rctd.partial <> 0 then do:
-         ASSIGN
-            v-tot-qty  = fg-rctd.partial
-            v-fg-value = v-tot-qty * v-price
+        IF fg-rctd.po-no <> " " THEN
+            FIND po-ord WHERE po-ord.po-no = int(fg-rctd.po-no) NO-LOCK NO-ERROR.
+        ASSIGN
+            v-tot-qty    = fg-rctd.cases * fg-rctd.qty-case
+            v-fg-value   = v-tot-qty * v-price
             v-trans-time = STRING(fg-rctd.trans-time, "HH:MM").
 
-        display fg-rctd.rct-date when first-of(report.key-03) 
-               v-trans-time       when first-of(report.key-03) 
-              v-tran-type 
-              fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
-              fg-rctd.job-no
-              fg-rctd.job-no2
-              fg-rctd.po-no
-              po-ord.vend-no                     when avail po-ord
-              fg-rctd.loc-bin  
-             v-one
-             fg-rctd.partial FORM "->>,>>9"
-              fg-rctd.pur-uom 
-/*            
-              fg-rctd.t-qty 
-*/
-              v-tot-qty   
-              fg-rctd.std-cost    FORMAT ">>>,>>9"
-              v-fg-value
+        DISPLAY fg-rctd.rct-date 
+            WHEN FIRST-OF(report.key-03)  
+            v-trans-time     
+            WHEN FIRST-OF(report.key-03) 
+            v-tran-type 
+            fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
+            fg-rctd.job-no
+            fg-rctd.job-no2
+            fg-rctd.po-no
+            po-ord.vend-no                     
+            WHEN AVAILABLE po-ord
+            fg-rctd.loc-bin 
 
-              with frame pdetail.                                                       
-        down with frame pdetail.
-      end.
+            fg-rctd.cases        FORMAT "->>,>>9"
 
-      if v-tran-type begins "T" then
-         put "TO: " at 66 fg-rctd.loc2 fg-rctd.loc-bin2 skip(1).
+            fg-rctd.qty-case
+            fg-rctd.pur-uom 
+            v-tot-qty  
+            fg-rctd.std-cost    FORMAT ">>>,>>9"
+            v-fg-value 
 
-      if last-of(report.key-02) and v-pr-tots then do:                                             
-        put "Total Adjustment: " at 83 v-totadj skip.                         
-        v-grd-totadj = v-grd-totadj + v-totadj.                                   
-        v-totadj = 0.
-      end.
+            WITH FRAME detail.                                                       
+        DOWN 2 WITH FRAME detail.
 
-      if last(fg-rctd.r-no) then delete report.
-    end. /* each fg-rctd */
+        IF fg-rctd.partial <> 0 THEN 
+        DO:
+            ASSIGN
+                v-tot-qty    = fg-rctd.partial
+                v-fg-value   = v-tot-qty * v-price
+                v-trans-time = STRING(fg-rctd.trans-time, "HH:MM").
 
-    if v-pr-tots then                                                                         
-    put skip "--------------" to 115 skip "Grand Total Adjustment: " to 100 v-grd-totadj  skip. 
+            DISPLAY fg-rctd.rct-date 
+                WHEN FIRST-OF(report.key-03) 
+                v-trans-time       
+                WHEN FIRST-OF(report.key-03) 
+                v-tran-type 
+                fg-rctd.tag       FORMAT "x(20)" /* gdm - 12090821 */
+                fg-rctd.job-no
+                fg-rctd.job-no2
+                fg-rctd.po-no
+                po-ord.vend-no                     
+                WHEN AVAILABLE po-ord
+                fg-rctd.loc-bin  
+                v-one
+                fg-rctd.partial FORM "->>,>>9"
+                fg-rctd.pur-uom 
+                /*            
+                              fg-rctd.t-qty 
+                */
+                v-tot-qty   
+                fg-rctd.std-cost    FORMAT ">>>,>>9"
+                v-fg-value
 
-   OUTPUT CLOSE.
+                WITH FRAME pdetail.                                                       
+            DOWN WITH FRAME pdetail.
+        END.
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+        IF v-tran-type BEGINS "T" THEN
+            PUT "TO: " AT 66 fg-rctd.loc2 fg-rctd.loc-bin2 SKIP(1).
 
-SESSION:SET-WAIT-STATE ("").
+        IF LAST-OF(report.key-02) AND v-pr-tots THEN 
+        DO:                                             
+            PUT "Total Adjustment: " AT 83 v-totadj SKIP.                         
+            v-grd-totadj = v-grd-totadj + v-totadj.                                   
+            v-totadj = 0.
+        END.
 
-end procedure.
+        IF LAST(fg-rctd.r-no) THEN DELETE report.
+    END. /* each fg-rctd */
+
+    IF v-pr-tots THEN                                                                         
+        PUT SKIP "--------------" TO 115 SKIP "Grand Total Adjustment: " TO 100 v-grd-totadj  SKIP. 
+
+    OUTPUT CLOSE.
+
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
+    SESSION:SET-WAIT-STATE ("").
+
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-frame-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-group-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field2-hdl AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-label      AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+    lv-frame-hdl = FRAME {&frame-name}:handle.
+    lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+    lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
-                     .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+    DO WHILE TRUE:
+        IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+        IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+            THEN 
+        DO:
+            IF lv-field-hdl:LABEL <> ? THEN 
+                ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+                    .
+            ELSE 
+            DO:  /* radio set */
+                ASSIGN 
+                    parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    .
+                lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+                REPEAT:
+                    IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                    IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN 
+                    DO:
+                        parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                    END.
+                    lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+                END.       
+            END.                 
+        END.            
+        lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+    END.
 
-  put space(28)
-      "< Selection Parameters >"
-      skip(1).
+    PUT SPACE(28)
+        "< Selection Parameters >"
+        SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+    DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+        IF ENTRY(i,parm-fld-list) NE "" OR
+            entry(i,parm-lbl-list) NE "" THEN 
+        DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+            lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+            PUT lv-label FORMAT "x(35)" AT 5
+                SPACE(1)
+                TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+                SKIP.              
+        END.
+    END.
 
-  put fill("-",80) format "x(80)" skip.
+    PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 

@@ -24,4 +24,5 @@ DEFINE TEMP-TABLE ttBrowseInventory NO-UNDO
     FIELD quantityAllocated       AS DECIMAL
     FIELD quantityBackOrder       AS DECIMAL
     FIELD quantityAvailable       AS DECIMAL
+    FIELD emptyColumn             AS CHARACTER
     .

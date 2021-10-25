@@ -122,6 +122,8 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrintPOLot    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrintLot      AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -621,35 +623,41 @@ find first company where company.company eq cocode NO-LOCK.
 
             v-printline = v-printline + 1.
       
-
+            cPrintPOLot = IF inv-line.po-no NE "" THEN inv-line.po-no ELSE  inv-line.lot-no .
+            cPrintLot = IF inv-line.po-no NE "" THEN inv-line.lot-no ELSE "". 
             do v = 1 to 3:
               v-part-info = if v eq 1 then inv-line.part-dscr1
                             else
                             if v eq 2 then inv-line.part-dscr2
                             else           trim(lv-inv-list).
-              if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") then do:
+              if v-part-info ne "" OR  (v = 1 AND inv-line.part-no <> "") OR (v = 2 AND cPrintLot NE "" ) then do:
                  IF v = 1 THEN DO:
                    IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
-                     IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                     IF LENGTH(cPrintPOLot) LE 8 THEN DO:
+                         PUT  SPACE(11) cPrintPOLot FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(2) cPrintPOLot FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
-                        IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                        IF LENGTH(cPrintPOLot) LE 8 THEN DO:
+                         PUT  SPACE(19) cPrintPOLot FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(10) cPrintPOLot FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
                      END.
                    END. /* else do*/
 
                  END.
                  ELSE
-                 IF v = 2 THEN  PUT /*SPACE(10)  v-po-no FORMAT "x(15)"*/ SPACE(47) v-part-info SKIP.
+                 IF v = 2 THEN 
+                 DO: 
+                   IF cPrintLot NE "" THEN
+                   PUT SPACE(10)  cPrintLot FORMAT "x(15)" SPACE(20) v-part-info SKIP.
+                   ELSE PUT SPACE(47) v-part-info SKIP.
+                 END.
                  ELSE          PUT SPACE(26) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

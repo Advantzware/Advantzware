@@ -117,6 +117,8 @@ DEFINE SHARED VARIABLE lPrintQtyAll  as LOGICAL no-undo .
 DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrintPOLot    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrintLot      AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -513,38 +515,43 @@ ELSE lv-comp-color = "BLACK".
 
           END.    /* else do */
              v-printline = v-printline + 1.
-      
+             
+            cPrintPOLot = IF ar-invl.po-no NE "" THEN ar-invl.po-no ELSE  ar-invl.lot-no .
+            cPrintLot = IF ar-invl.po-no NE "" THEN ar-invl.lot-no ELSE "". 
             do v = 1 to 3:
               v-part-info = if v eq 1 then (IF ar-invl.part-dscr1 <> "" THEN ar-invl.part-dscr1 ELSE ar-invl.i-dscr)
                             else
                             if v eq 2 then ar-invl.part-dscr2
                             else           trim(lv-inv-list).
 
-              if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
+              if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") OR (v = 2 AND cPrintLot NE "" ) then do:
                  IF v = 1 THEN DO:
 
                      IF lPrintQtyAll THEN do:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
 
-                         IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                             PUT SPACE(9) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                         IF LENGTH(cPrintPOLot) LE 8 THEN DO:
+                             PUT SPACE(9) cPrintPOLot FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
                          END.
                          ELSE DO: 
-                             PUT  SPACE(1) ar-invl.po-no FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT  SPACE(1) cPrintPOLot FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(3) v-part-info SKIP.
                          END.
                      END. /* lPrintQtyAll*/
                      ELSE DO:
-                         IF LENGTH(ar-invl.po-no) LE 8 THEN DO:
-                             PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                         IF LENGTH(cPrintPOLot) LE 8 THEN DO:
+                             PUT  SPACE(18) cPrintPOLot FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
                          END.
                          ELSE DO: 
-                             PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                             PUT SPACE(11) cPrintPOLot FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
                          END.
 
                      END.    /* else do */
                  END.
                  ELSE 
-                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
+                 IF v = 2 THEN do:
+                   IF cPrintLot NE "" THEN
+                      PUT SPACE(10) cPrintLot FORMAT "x(15)" SPACE(20) v-part-info SKIP.
+                 END.
                  ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

@@ -22,8 +22,7 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
       OUTPUT iWarehouseLength
       ).
   
-  IF NOT (ipcSVName = "VendXfer" OR
-     ipcSVName = "CustXfer" OR  ipcSVName = "ORDERXFER")
+  IF NOT (ipcSVName = "ORDERXFER")
   THEN DO: 
       /* valid-char-fld.i */
 
@@ -44,8 +43,12 @@ DEFINE OUTPUT PARAMETER oplResult AS LOGICAL     NO-UNDO.
             RUN pValidateFormatMask IN hdFGItemIDProcs (ipcSVCharFld, OUTPUT oplResult, OUTPUT lv-msg).
         END.
         ELSE
-        IF NOT CAN-DO(ls-name-value,ipcSVCharFld) THEN
+        IF NOT CAN-DO(ls-name-value,ipcSVCharFld) THEN DO:
+          IF (ipcSVName = "VendXfer" OR ipcSVName = "CustXfer") AND NOT LOGICAL(ipcSVLogFld) THEN 
+          lv-msg = "".
+          ELSE
           lv-msg = TRIM(ipcSVCharFld) + " is not on lookup".
+        END.
       END.
       
       IF lv-msg NE "" AND ls-name EQ "FGWHSBIN" THEN DO:

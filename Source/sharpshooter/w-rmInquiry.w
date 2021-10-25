@@ -45,9 +45,6 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-// {system/sysconst.i}
-{wip/keyboardDefs.i}
-
 DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemName  AS CHARACTER NO-UNDO.
@@ -69,6 +66,10 @@ DEFINE VARIABLE lBinsQueryRan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
+oKeyboard = NEW system.Keyboard().
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -86,11 +87,11 @@ DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-33 RECT-34 btItemHelp btnKeyboardItem ~
-btLocHelp btnKeyboardLoc fiRMItem fiLocation btnNumPad btNameHelp ~
-btnKeyboardName fiRMName tgSummary 
+&Scoped-Define ENABLED-OBJECTS btItemHelp btLocHelp btNameHelp ~
+btnKeyboardItem btnKeyboardLoc fiRMItem fiLocation btnNumPad ~
+btnKeyboardName fiRMName btnViewSummary btnExitText btnAdjustQtyText 
 &Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName fiConsUOM ~
-tgSummary 
+btnExitText statusMessage btnAdjustQtyText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -117,17 +118,17 @@ DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btItemHelp 
-     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btLocHelp 
-     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btNameHelp 
-     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
@@ -151,83 +152,82 @@ DEFINE BUTTON btnNumPad
      LABEL "NumPad" 
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
+DEFINE BUTTON btnViewSummary 
+     LABEL "VIEW SUMMARY" 
+     SIZE 31 BY 1.43.
+
+DEFINE VARIABLE btnAdjustQtyText AS CHARACTER FORMAT "X(256)":U INITIAL "ADJUST QTY" 
+      VIEW-AS TEXT 
+     SIZE 23 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
+      VIEW-AS TEXT 
+     SIZE 9 BY 1.43
+     BGCOLOR 21  NO-UNDO.
+
 DEFINE VARIABLE fiConsUOM AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 15.2 BY 1.43
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 32.2 BY 1.43
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 69.8 BY 1.43
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiRMName AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 69.8 BY 1.43
-     FONT 36 NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0 FONT 36 NO-UNDO.
+
+DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
+      VIEW-AS TEXT 
+     SIZE 116 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
      BGCOLOR 12 .
 
-DEFINE RECTANGLE RECT-33
-     EDGE-PIXELS 2 GRAPHIC-EDGE    
-     SIZE 186.2 BY 4.52
-     BGCOLOR 23 FGCOLOR 24 .
-
-DEFINE RECTANGLE RECT-34
-     EDGE-PIXELS 2 GRAPHIC-EDGE    
-     SIZE 13 BY 32.8
-     BGCOLOR 21 FGCOLOR 21 .
-
-DEFINE VARIABLE tgSummary AS LOGICAL INITIAL no 
-     LABEL "View Summary" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY .95
-     BGCOLOR 23 FGCOLOR 0 FONT 36 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btItemHelp AT ROW 1.81 COL 91.2 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.81 COL 98.8 WIDGET-ID 136 NO-TAB-STOP 
-     btLocHelp AT ROW 1.81 COL 156 WIDGET-ID 146 NO-TAB-STOP 
-     btnKeyboardLoc AT ROW 1.81 COL 163.2 WIDGET-ID 144 NO-TAB-STOP 
-     fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
-     btnNumPad AT ROW 1.86 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
-     btNameHelp AT ROW 3.43 COL 91.2 WIDGET-ID 152 NO-TAB-STOP 
-     btnKeyboardName AT ROW 3.43 COL 98.8 WIDGET-ID 154 NO-TAB-STOP 
-     fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiConsUOM AT ROW 3.52 COL 120.8 COLON-ALIGNED NO-LABEL WIDGET-ID 148
-     tgSummary AT ROW 3.76 COL 145 WIDGET-ID 150
+     btItemHelp AT ROW 2.43 COL 92.6 WIDGET-ID 138 NO-TAB-STOP 
+     btLocHelp AT ROW 2.43 COL 162 WIDGET-ID 146 NO-TAB-STOP 
+     btNameHelp AT ROW 4.05 COL 92.6 WIDGET-ID 152 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 2.43 COL 100.2 WIDGET-ID 136 NO-TAB-STOP 
+     btnKeyboardLoc AT ROW 2.43 COL 169.2 WIDGET-ID 144 NO-TAB-STOP 
+     fiRMItem AT ROW 2.48 COL 19.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     fiLocation AT ROW 2.48 COL 126.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
+     btnNumPad AT ROW 3.19 COL 184.6 WIDGET-ID 120 NO-TAB-STOP 
+     btnKeyboardName AT ROW 4.05 COL 100.2 WIDGET-ID 154 NO-TAB-STOP 
+     fiRMName AT ROW 4.14 COL 19.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiConsUOM AT ROW 4.14 COL 126.8 COLON-ALIGNED NO-LABEL WIDGET-ID 148
+     btnViewSummary AT ROW 4.19 COL 144.6 WIDGET-ID 166
+     btnExitText AT ROW 1.24 COL 185 NO-LABEL WIDGET-ID 24
+     statusMessage AT ROW 31.95 COL 3 NO-LABEL WIDGET-ID 28
+     btnAdjustQtyText AT ROW 31.95 COL 170 COLON-ALIGNED NO-LABEL WIDGET-ID 134
+     "LOCATION:" VIEW-AS TEXT
+          SIZE 19.8 BY 1.1 AT ROW 2.67 COL 109 WIDGET-ID 160
+     "RM NAME:" VIEW-AS TEXT
+          SIZE 18 BY 1.1 AT ROW 4.29 COL 3 WIDGET-ID 158
+     "RM ITEM:" VIEW-AS TEXT
+          SIZE 16 BY 1.1 AT ROW 2.67 COL 5 WIDGET-ID 156
      "UOM:" VIEW-AS TEXT
-          SIZE 10.4 BY 1.1 AT ROW 3.62 COL 112 WIDGET-ID 162
-          BGCOLOR 23 FGCOLOR 24 FONT 36
-     "Location:" VIEW-AS TEXT
-          SIZE 15 BY 1.1 AT ROW 2.1 COL 107.4 WIDGET-ID 160
-          BGCOLOR 23 FGCOLOR 24 FONT 36
-     "RM Name:" VIEW-AS TEXT
-          SIZE 16 BY 1.1 AT ROW 3.67 COL 3.6 WIDGET-ID 158
-          BGCOLOR 23 FGCOLOR 24 FONT 36
-     "RM Item#:" VIEW-AS TEXT
-          SIZE 16 BY 1.1 AT ROW 2.05 COL 3.6 WIDGET-ID 156
-          BGCOLOR 23 FGCOLOR 24 FONT 36
-     RECT-33 AT ROW 1 COL 2.8 WIDGET-ID 6
-     RECT-2 AT ROW 1.67 COL 177.6 WIDGET-ID 130
-     RECT-34 AT ROW 1 COL 189.2 WIDGET-ID 164
+          SIZE 10.4 BY 1.1 AT ROW 4.24 COL 118 WIDGET-ID 162
+     RECT-2 AT ROW 3 COL 183.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 202 BY 32.81
-         BGCOLOR 15 FGCOLOR 1 FONT 36 WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -249,10 +249,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "RM Inquiry"
          HEIGHT             = 32.81
          WIDTH              = 202
-         MAX-HEIGHT         = 32.81
-         MAX-WIDTH          = 202
-         VIRTUAL-HEIGHT     = 32.81
-         VIRTUAL-WIDTH      = 202
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -283,6 +283,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
+   ALIGN-L                                                              */
 ASSIGN 
        btnKeyboardItem:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -296,6 +298,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -357,6 +361,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnAdjustQtyText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdjustQtyText W-Win
+ON MOUSE-SELECT-CLICK OF btnAdjustQtyText IN FRAME F-Main
+DO:
+    RUN AdjustQuantity IN h_b-rminqbins.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btNameHelp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btNameHelp W-Win
 ON CHOOSE OF btNameHelp IN FRAME F-Main
@@ -368,16 +383,24 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnExitText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExitText W-Win
+ON MOUSE-SELECT-CLICK OF btnExitText IN FRAME F-Main
+DO:
+    RUN dispatch ("exit").
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnKeyboardItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardItem W-Win
 ON CHOOSE OF btnKeyboardItem IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiRMItem.
-    
-    RUN pKeyboard (
-        INPUT fiRMItem:HANDLE,
-        INPUT "Qwerty"
-        ).
+    oKeyboard:OpenKeyboardOverride (fiRMItem:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,11 +412,7 @@ END.
 ON CHOOSE OF btnKeyboardLoc IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiLocation.
-    
-    RUN pKeyboard (
-        INPUT fiLocation:HANDLE,
-        INPUT "Qwerty"
-        ).
+    oKeyboard:OpenKeyboardOverride (fiLocation:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,11 +424,7 @@ END.
 ON CHOOSE OF btnKeyboardName IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY":U TO fiRMName.
-    
-    RUN pKeyboard (
-        INPUT fiRMName:HANDLE,
-        INPUT "Qwerty"
-        ).
+    oKeyboard:OpenKeyboardOverride (fiRMName:HANDLE, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,9 +436,26 @@ END.
 ON CHOOSE OF btnNumPad IN FRAME F-Main /* NumPad */
 DO:
     ASSIGN
-        lKeyboard = NOT lKeyboard
-        RECT-2:BGCOLOR = IF lKeyboard THEN 10 ELSE 12
+        oKeyboard:DisplayKeyboard = NOT oKeyboard:DisplayKeyboard
+        RECT-2:BGCOLOR = IF oKeyboard:DisplayKeyboard THEN 10 ELSE 12
         .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnViewSummary
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewSummary W-Win
+ON CHOOSE OF btnViewSummary IN FRAME F-Main /* VIEW SUMMARY */
+DO:
+    IF SELF:LABEL EQ "VIEW SUMMARY" THEN DO:
+        RUN select-page(2).
+        IF NOT lSummQueryRan THEN
+            RUN pScanItem.
+    END.
+    ELSE
+        RUN select-page(1).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,15 +464,10 @@ END.
 
 &Scoped-define SELF-NAME fiLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
-ON ENTRY OF fiLocation IN FRAME F-Main /* Location */
+ON ENTRY OF fiLocation IN FRAME F-Main
 DO:
-    hFocusField = SELF.
-    
-    IF lKeyboard THEN
-        RUN pKeyboard (
-            INPUT SELF, 
-            INPUT "Qwerty"
-            ).  
+    SELF:SET-SELECTION (1, -1).
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,7 +475,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
-ON HELP OF fiLocation IN FRAME F-Main /* Location */
+ON HELP OF fiLocation IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -480,7 +507,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
-ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
+ON LEAVE OF fiLocation IN FRAME F-Main
 DO:        
     IF cWarehouse EQ SUBSTRING(fiLocation:SCREEN-VALUE, 1, iWarehouseLength) AND cLocation EQ SUBSTRING(fiLocation:SCREEN-VALUE, iWarehouseLength + 1) THEN
         RETURN.
@@ -499,15 +526,10 @@ END.
 
 &Scoped-define SELF-NAME fiRMItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMItem W-Win
-ON ENTRY OF fiRMItem IN FRAME F-Main /* RM Item# */
+ON ENTRY OF fiRMItem IN FRAME F-Main
 DO:
-    hFocusField = SELF.
-    
-    IF lKeyboard THEN
-        RUN pKeyboard (
-            INPUT SELF, 
-            INPUT "Qwerty"
-            ).  
+    SELF:SET-SELECTION (1, -1).
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -515,7 +537,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMItem W-Win
-ON HELP OF fiRMItem IN FRAME F-Main /* RM Item# */
+ON HELP OF fiRMItem IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -552,7 +574,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMItem W-Win
-ON LEAVE OF fiRMItem IN FRAME F-Main /* RM Item# */
+ON LEAVE OF fiRMItem IN FRAME F-Main
 DO:
     IF cItemID EQ SELF:SCREEN-VALUE AND cItemID NE "" THEN
         RETURN.
@@ -575,15 +597,10 @@ END.
 
 &Scoped-define SELF-NAME fiRMName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMName W-Win
-ON ENTRY OF fiRMName IN FRAME F-Main /* RM Name */
+ON ENTRY OF fiRMName IN FRAME F-Main
 DO:
-    hFocusField = SELF.
-    
-    IF lKeyboard THEN
-        RUN pKeyboard (
-            INPUT SELF, 
-            INPUT "Qwerty"
-            ).    
+    SELF:SET-SELECTION (1, -1).
+    oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,7 +608,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMName W-Win
-ON HELP OF fiRMName IN FRAME F-Main /* RM Name */
+ON HELP OF fiRMName IN FRAME F-Main
 DO:
     DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
@@ -628,7 +645,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRMName W-Win
-ON LEAVE OF fiRMName IN FRAME F-Main /* RM Name */
+ON LEAVE OF fiRMName IN FRAME F-Main
 DO:
     IF cItemName EQ SELF:SCREEN-VALUE AND cItemName NE "" THEN
         RETURN.
@@ -649,23 +666,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tgSummary
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgSummary W-Win
-ON VALUE-CHANGED OF tgSummary IN FRAME F-Main /* View Summary */
-DO:
-    IF SELF:CHECKED THEN DO:    
-        RUN select-page(2).
-        IF NOT lSummQueryRan THEN
-            RUN pScanItem.
-    END.
-    ELSE
-        RUN select-page(1).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -676,7 +676,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {sharpshooter/smartobj/windowExit.i}
-{wip/pKeyboard.i}
+{sharpshooter/pStatusMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -704,8 +704,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.57 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
+       RUN set-position IN h_exit ( 1.00 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
     END. /* Page 0 */
     WHEN 1 THEN DO:
@@ -715,47 +715,47 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-rminqbins ).
        RUN set-position IN h_b-rminqbins ( 5.91 , 2.60 ) NO-ERROR.
-       RUN set-size IN h_b-rminqbins ( 27.86 , 186.00 ) NO-ERROR.
+       RUN set-size IN h_b-rminqbins ( 25.57 , 192.40 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatefirst ).
-       RUN set-position IN h_navigatefirst ( 5.91 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
+       RUN set-position IN h_navigatefirst ( 6.71 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 10.43 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_adjustqty ).
-       RUN set-position IN h_adjustqty ( 19.24 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
+       RUN set-position IN h_navigateprev ( 8.62 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 27.38 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
+       RUN set-position IN h_navigatenext ( 10.52 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatelast.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_navigatelast ).
-       RUN set-position IN h_navigatelast ( 31.14 , 190.20 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 11.00 ) */
+       RUN set-position IN h_navigatelast ( 12.43 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty ).
+       RUN set-position IN h_adjustqty ( 31.71 , 195.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartBrowser h_b-rminqbins. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Bins':U , h_b-rminqbins ).
@@ -766,28 +766,28 @@ PROCEDURE adm-create-objects :
        /* Links to SmartObject h_navigateprev. */
        RUN add-link IN adm-broker-hdl ( h_b-rminqbins , 'NAV-PREV':U , h_navigateprev ).
 
-       /* Links to SmartObject h_adjustqty. */
-       RUN add-link IN adm-broker-hdl ( h_b-rminqbins , 'ADJUST':U , h_adjustqty ).
-
        /* Links to SmartObject h_navigatenext. */
        RUN add-link IN adm-broker-hdl ( h_b-rminqbins , 'NAV-NEXT':U , h_navigatenext ).
 
        /* Links to SmartObject h_navigatelast. */
        RUN add-link IN adm-broker-hdl ( h_b-rminqbins , 'NAV-LAST':U , h_navigatelast ).
 
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-rminqbins , 'ADJUST':U , h_adjustqty ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rminqbins ,
-             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             btnViewSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-rminqbins , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
              h_navigatefirst , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
-             h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
-             h_adjustqty , 'AFTER':U ).
+             h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatenext , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
+             h_navigatelast , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -796,14 +796,14 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-rminqsumm ).
        RUN set-position IN h_b-rminqsumm ( 5.91 , 2.60 ) NO-ERROR.
-       RUN set-size IN h_b-rminqsumm ( 27.86 , 186.00 ) NO-ERROR.
+       RUN set-size IN h_b-rminqsumm ( 25.57 , 199.40 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-rminqsumm. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Summ':U , h_b-rminqsumm ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rminqsumm ,
-             tgSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
+             btnViewSummary:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -868,16 +868,121 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiRMItem fiLocation fiRMName fiConsUOM tgSummary 
+  DISPLAY fiRMItem fiLocation fiRMName fiConsUOM btnExitText statusMessage 
+          btnAdjustQtyText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-33 RECT-34 btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc 
-         fiRMItem fiLocation btnNumPad btNameHelp btnKeyboardName fiRMName 
-         tgSummary 
+  ENABLE btItemHelp btLocHelp btNameHelp btnKeyboardItem btnKeyboardLoc 
+         fiRMItem fiLocation btnNumPad btnKeyboardName fiRMName btnViewSummary 
+         btnExitText btnAdjustQtyText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win 
+PROCEDURE GetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoKeyboard AS system.Keyboard NO-UNDO.
+
+    opoKeyboard = oKeyboard.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win 
+PROCEDURE Key_Stroke :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcKeyStroke AS CHARACTER NO-UNDO.
+    
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:KeyStroke(ipcKeyStroke).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
+PROCEDURE local-change-page :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE adm-current-page AS INTEGER NO-UNDO.
+  DEFINE VARIABLE dCol             AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dColTmp          AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dRow             AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dHeight          AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dWidth           AS DECIMAL NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
+
+  DO WITH FRAME {&FRAME-NAME}:
+      CASE adm-current-page:
+          WHEN 1 THEN
+          ASSIGN
+              btnViewSummary:LABEL    = "VIEW SUMMARY"
+              btnAdjustQtyText:HIDDEN = NO
+              .
+          WHEN 2 THEN DO:
+            RUN get-position IN h_b-rminqsumm ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+            RUN get-size IN h_b-rminqsumm ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
+            ASSIGN
+                btnViewSummary:LABEL    = "VIEW DETAIL"
+                btnAdjustQtyText:HIDDEN = YES
+                dCol    = {&WINDOW-NAME}:WIDTH  - 1
+                dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
+                dWidth  = dCol - 3
+                .
+            RUN set-size IN h_b-rminqsumm ( dHeight , dWidth ) NO-ERROR.
+          END.
+      END CASE.
+  END. /* with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+  DELETE PROCEDURE hdInventoryProcs.
+
+  IF VALID-OBJECT(oKeyboard) THEN
+  DELETE OBJECT oKeyboard.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -889,12 +994,14 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pWinReSize.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -931,12 +1038,16 @@ PROCEDURE pInit :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + locode.
-
+    oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
+    oKeyboard:SetProcedure(THIS-PROCEDURE).
+    oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
     cCompany = cocode.
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
         INPUT  cCompany,
         OUTPUT iWarehouseLength
         ).
+    RUN pStatusMessage ("", 0).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1007,6 +1118,63 @@ PROCEDURE pScanItem :
         fiRMName:SCREEN-VALUE  = cItemName
         fiConsUOM:SCREEN-VALUE = cConsUOM
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dCol    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dColTmp AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            {&WINDOW-NAME}:ROW                 = 1
+            {&WINDOW-NAME}:COL                 = 1
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                    = dCol - 9
+            btnAdjustQtyText:COL               = dCol - btnAdjustQtyText:WIDTH - 1
+            btnAdjustQtyText:ROW               = {&WINDOW-NAME}:HEIGHT - .86
+            .
+        RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
+        RUN get-position IN h_navigatefirst ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN set-position IN h_navigatefirst ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigateprev ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatenext ( dRow , dCol ) NO-ERROR.
+        dRow = dRow + 1.9.
+        RUN set-position IN h_navigatelast ( dRow , dCol ) NO-ERROR.
+        dRow = {&WINDOW-NAME}:HEIGHT - 1.62.
+        RUN set-position IN h_adjustqty ( dRow , dCol ) NO-ERROR.
+        RUN get-position IN h_b-rminqbins ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
+        RUN get-size IN h_b-rminqbins ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
+        ASSIGN
+            dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
+            dWidth  = dCol - 3
+            .
+        RUN set-size IN h_b-rminqbins ( dHeight , dWidth ) NO-ERROR.
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 

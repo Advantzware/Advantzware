@@ -2075,11 +2075,11 @@ FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
      Purpose: Returns if Given Type supports Multiple
      Notes:
     ------------------------------------------------------------------------------*/	
-    RETURN DYNAMIC-FUNCTION("IsSetType",ipcEstType) 
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsSetType", ipcEstType) 
         OR 
-        DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
+        DYNAMIC-FUNCTION("fEstimate_IsSingleType", ipcEstType)
         OR
-        DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+        DYNAMIC-FUNCTION("fEstimate_IsMiscType", ipcEstType).
 		
 END FUNCTION.
 
@@ -2089,7 +2089,7 @@ FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
      Purpose: Returns if given type should print Layout
      Notes:
     ------------------------------------------------------------------------------*/	
-    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+    RETURN NOT DYNAMIC-FUNCTION("fEstimate_IsMiscType", ipcEstType).
 		
 END FUNCTION.
 
@@ -2099,7 +2099,7 @@ FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
      Purpose: Returns if given type should print board details
      Notes:
     ------------------------------------------------------------------------------*/    
-    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+    RETURN NOT DYNAMIC-FUNCTION("fEstimate_IsMiscType", ipcEstType).
         
 END FUNCTION.
 
@@ -2110,7 +2110,7 @@ FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/    
     
-    RETURN DYNAMIC-FUNCTION("IsWoodType",ipcEstType). 
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsWoodType", ipcEstType).
     
 END FUNCTION.
 

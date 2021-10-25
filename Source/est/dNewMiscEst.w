@@ -667,7 +667,7 @@ DO:
         RUN valid-cust-no(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY .
 
-        RUN valid-fgitem(OUTPUT lError) NO-ERROR.
+        RUN valid-fgitem(INPUT NO, OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY.
 
         RUN valid-part-no(OUTPUT lError) NO-ERROR.
@@ -734,8 +734,7 @@ DO:
             ASSIGN
                 SELF:screen-value      = ENTRY(1,char-val)
                 cust-name:screen-value = ENTRY(2,char-val)
-                .     
-         APPLY "value-changed" TO cCustNo IN FRAME {&FRAME-NAME}.
+                .           
          APPLY "entry" TO cCustNo IN FRAME {&FRAME-NAME}.
     END.
 
@@ -761,25 +760,16 @@ DO:
             IF AVAILABLE cust THEN
                 ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
         END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
-ON VALUE-CHANGED OF cCustNo IN FRAME D-Dialog /* Cust# */
-DO:     
-        IF SELF:SCREEN-VALUE NE "" THEN 
+        IF cCustNo:MODIFIED THEN 
         DO:
             FIND FIRST shipto NO-LOCK
-                WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
-                AND shipto.ship-id EQ cCustNo:SCREEN-VALUE  NO-ERROR.
+                 WHERE shipto.company EQ cocode
+                 AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
+                 AND shipto.ship-id EQ cCustNo:SCREEN-VALUE  NO-ERROR.
              
             IF AVAILABLE shipto THEN
-                ASSIGN ship-to:SCREEN-VALUE = shipto.ship-id
-                       ship-name:SCREEN-VALUE = shipto.ship-name .
+            ASSIGN ship-to:SCREEN-VALUE = shipto.ship-id
+                   ship-name:SCREEN-VALUE = shipto.ship-name .
         END.
     END.
 
@@ -1057,7 +1047,7 @@ DO:
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
-            RUN valid-fgitem (OUTPUT lError) NO-ERROR.
+            RUN valid-fgitem (INPUT YES, OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
         END.
     END.
@@ -1068,15 +1058,7 @@ DO:
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
-DO:
-        FIND FIRST itemfg NO-LOCK
-            WHERE itemfg.company = cocode
-            AND itemfg.i-no EQ fg-no:SCREEN-VALUE NO-ERROR.
-        IF AVAILABLE itemfg THEN
-            ASSIGN
-                cCustPart:SCREEN-VALUE = itemfg.part-no
-                item-name:SCREEN-VALUE = itemfg.i-name
-                item-dscr:SCREEN-VALUE = itemfg.part-dscr1 .
+DO:             
          ASSIGN lCreateNewFG = FALSE .
     END.
 
@@ -1536,31 +1518,15 @@ DO:
         DO:
             FIND FIRST style WHERE style.company = cocode
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
-
-            IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
-ON VALUE-CHANGED OF style-cod IN FRAME D-Dialog /* Style Code */
-DO:     
-        IF SELF:SCREEN-VALUE NE "" THEN 
-        DO:
-            FIND FIRST style NO-LOCK WHERE style.company = cocode
-                AND style.style EQ SELF:SCREEN-VALUE  NO-ERROR .
-                         
-            IF AVAILABLE style THEN do:
+                                        
+            IF AVAILABLE style AND style-cod:MODIFIED THEN do:
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
                        sub-unit:SCREEN-VALUE   = style.spare-char-5 .
                 RUN pGetBoardFromStyle(style.style).                          
                 RUN pDefaultPackInfo .
-            END.
+            END.    
         END.
+        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2574,6 +2540,7 @@ PROCEDURE valid-fgitem :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplAssignValue AS LOGICAL NO-UNDO .
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
      
@@ -2594,6 +2561,12 @@ PROCEDURE valid-fgitem :
                     oplOutError = YES .
                 END.
             END.
+            ELSE IF AVAIL itemfg AND iplAssignValue THEN do:            
+                ASSIGN
+                    cCustPart:SCREEN-VALUE = itemfg.part-no
+                    item-name:SCREEN-VALUE = itemfg.i-name
+                    item-dscr:SCREEN-VALUE = itemfg.part-dscr1 .
+            END.    
         END.
     END.
 

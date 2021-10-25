@@ -30,6 +30,15 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE lVerifyJob AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iJobRecalc AS INTEGER NO-UNDO.
+DEFINE VARIABLE iQtyProduced AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdOpProcs    AS HANDLE.
+DEFINE VARIABLE hdJobProcs   AS HANDLE    NO-UNDO.
+
+RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 
 &SCOPED-DEFINE PageNo 16
 {touch/touchdef.i}
@@ -38,6 +47,9 @@ DEFINE VARIABLE lVerifyJob AS LOGICAL NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
+
+RUN sys/ref/nk1look.p (g_company, "JobRecalc", "I", NO, NO, "", "", OUTPUT cRtnChar, OUTPUT lRecFound).
+    iJobRecalc = IF lRecFound THEN integer(cRtnChar) ELSE 0. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -695,209 +707,133 @@ PROCEDURE Verify_Entries :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-job-mch FOR job-mch.
-DEF VAR cAction AS CHAR NO-UNDO.
-    IF NOT CAN-FIND(FIRST job-mch WHERE
-     job-mch.company = company_code AND
-     job-mch.job = job.job AND
-     job-mch.job-no = job_number AND
-     job-mch.job-no2 = INTEGER(job_sub) AND
-     job-mch.frm = INTEGER(form_#)) THEN
-     DO:
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    IF NOT CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company EQ company_code
+                      AND job-mch.job     EQ job.job
+                      AND job-mch.job-no  EQ job_number
+                      AND job-mch.job-no2 EQ INTEGER(job_sub)
+                      AND job-mch.frm     EQ INTEGER(form_#)) THEN DO:
         MESSAGE 'FORM DOES NOT EXIST FOR JOB - TRY AGAIN' VIEW-AS ALERT-BOX.
         RETURN.
-     END.
+    END.
 
-  IF NOT CAN-FIND(FIRST job-mch WHERE
-     job-mch.company = company_code AND
-     job-mch.job = job.job AND
-     job-mch.job-no = job_number AND
-     job-mch.job-no2 = INTEGER(job_sub) AND
-     job-mch.frm = INTEGER(form_#) AND
-     job-mch.blank-no = INTEGER(blank_#)) THEN
-     DO:
+    IF NOT CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company  EQ company_code
+                      AND job-mch.job      EQ job.job
+                      AND job-mch.job-no   EQ job_number
+                      AND job-mch.job-no2  EQ INTEGER(job_sub)
+                      AND job-mch.frm      EQ INTEGER(form_#)
+                      AND job-mch.blank-no EQ INTEGER(blank_#)) THEN DO:
         MESSAGE 'BLANK NOT VALID FOR JOB/FORM - TRY AGAIN' VIEW-AS ALERT-BOX.
         RETURN.
-     END.
+    END.
   
-  FIND FIRST job-hdr WHERE
-       job-hdr.company = company_code AND
-       job-hdr.job = job.job AND
-       job-hdr.frm = INTEGER(form_#) AND
-       job-hdr.blank-no = INTEGER(blank_#)
-       NO-LOCK NO-ERROR.
-
-  IF NOT AVAIL job-hdr AND blank_# EQ '0' THEN
-     FIND FIRST job-hdr WHERE
-          job-hdr.company = company_code AND
-          job-hdr.job = job.job AND
-          job-hdr.frm = INTEGER(form_#)
-          NO-LOCK NO-ERROR.
-
-  IF AVAILABLE job-hdr THEN DO:
-     ASSIGN item_# = job-hdr.i-no.
-     FIND FIRST itemfg WHERE itemfg.company = company_code
-                         AND ITEMfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
-     ITEM_name = IF AVAIL itemfg THEN itemfg.i-name ELSE "".
-     DISPLAY ITEM_# ITEM_name WITH FRAME {&FRAME-NAME}.
-  END.
-
-  FIND FIRST job-mch WHERE job-mch.company = company_code
-                       AND job-mch.job = job.job
-                       AND job-mch.job-no = job_number
-                       AND job-mch.job-no2 = INTEGER(job_sub)
-                       AND job-mch.frm = INTEGER(form_#)
-                       AND (job-mch.blank-no = INTEGER(blank_#)
-                        OR mach.p-type NE 'B')
-                       AND job-mch.m-code = machine_code
-                       AND job-mch.dept = mach.dept[1]
-                     NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch WHERE job-mch.company = company_code
-                       AND job-mch.job = job.job
-                       AND job-mch.job-no = job_number
-                       AND job-mch.job-no2 = INTEGER(job_sub)
-                       AND job-mch.frm = INTEGER(form_#)
-                       AND (job-mch.blank-no = INTEGER(blank_#)
-                        OR mach.p-type NE 'B')
-                       AND job-mch.dept = mach.dept[1]
-                     NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  DO:
-    MESSAGE 'DEPARTMENT NOT VALID FOR JOB/FORM/BLANK' SKIP(1)
-            'ADD THIS DEPARTMENT TO JOB STANDARDS?'
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE add-dept AS LOGICAL.
-    IF NOT add-dept THEN
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ company_code
+           AND job-hdr.job      EQ job.job
+           AND job-hdr.frm      EQ INTEGER(form_#)
+           AND job-hdr.blank-no EQ INTEGER(blank_#)
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr AND blank_# EQ '0' THEN
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ company_code
+           AND job-hdr.job     EQ job.job
+           AND job-hdr.frm     EQ INTEGER(form_#)
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN DO:
+        item_# = job-hdr.i-no.
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ company_code
+               AND ITEMfg.i-no    EQ job-hdr.i-no
+             NO-ERROR.
+        item_name = IF AVAILABLE itemfg THEN itemfg.i-name ELSE "".
+        DISPLAY item_# item_name WITH FRAME {&FRAME-NAME}.
+    END.
+  
+    IF AVAILABLE job THEN
+        RUN ProcessOperationChange IN hdOpProcs (
+            company_code,
+            machine_code,
+            job.job, 
+            INTEGER(form_#),
+            INTEGER(blank_#),
+            INTEGER(pass_#),
+            mach.dept[1],
+            OUTPUT cAction
+            ).                                              
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company   EQ company_code
+           AND job-mch.job       EQ job.job
+           AND job-mch.job-no    EQ job_number
+           AND job-mch.job-no2   EQ INTEGER(job_sub)
+           AND job-mch.frm       EQ INTEGER(form_#)
+           AND (job-mch.blank-no EQ INTEGER(blank_#)
+            OR mach.p-type       NE 'B')
+           AND job-mch.m-code    EQ machine_code
+           AND job-mch.dept      EQ mach.dept[1]
+         NO-ERROR.
+    IF NOT AVAILABLE job-mch THEN
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company   EQ company_code
+           AND job-mch.job       EQ job.job
+           AND job-mch.job-no    EQ job_number
+           AND job-mch.job-no2   EQ INTEGER(job_sub)
+           AND job-mch.frm       EQ INTEGER(form_#)
+           AND (job-mch.blank-no EQ INTEGER(blank_#)
+            OR mach.p-type       NE 'B')
+           AND job-mch.dept      EQ mach.dept[1]
+         NO-ERROR. 
+    IF AVAILABLE job-mch AND (cAction EQ "Add" OR cAction EQ "AddDept") THEN DO:           
+        FIND CURRENT job-mch EXCLUSIVE-LOCK NO-ERROR. 
+        IF job-mch.n-out EQ 0 THEN
+        job-mch.n-out = 1.
+        IF cAction EQ "Add" THEN
+        job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS').
+        IF job-mch.n-on EQ 0 THEN
+        RUN get-num-on.
+        FIND CURRENT job-mch NO-LOCK NO-ERROR.         
+    END. 
+    IF iJobRecalc EQ 1 AND cAction EQ "Replace" AND AVAILABLE job THEN DO:
+        RUN fg/GetProductionQty.p (
+            job.company,
+            job.job-no,
+            job.job-no2,
+            ITEM_#,
+            NO,
+            OUTPUT iQtyProduced
+            ).
+        IF iQtyProduced EQ 0 THEN
+        RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)).        
+    END.
+  
+    IF cAction EQ "Cancel" THEN
     RETURN.
-    CREATE job-mch.
-    ASSIGN
-      job-mch.company = company_code
-      job-mch.job = job.job
-      job-mch.job-no = job.job-no
-      job-mch.job-no2 = job.job-no2
-      job-mch.mr-rate  = mach.mr-rate
-      job-mch.mr-varoh = mach.mr-varoh
-      job-mch.mr-fixoh = mach.mr-fixoh
-      job-mch.frm = INTEGER(form_#)
-      job-mch.blank-no = INTEGER(blank_#)
-      job-mch.pass = INTEGER(pass_#)
-      job-mch.m-code = machine_code
-      job-mch.i-name = itemfg.i-name WHEN AVAILABLE itemfg
-      job-mch.dept = mach.dept[1]
-      job-mch.wst-prct = mach.run-spoil
-      /* this let's SB know touch screen data collection made changes */
-      job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
-      .
-     
-    FIND CURRENT job-mch NO-LOCK.
-
-    {methods/run_link.i "CONTAINER" "Set_Value" "('job_number',job.job-no)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', job-mch.m-code)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job.job-no2)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}
-
-  END.
-  ELSE
-  DO:
-    /* added if condition          ysk */
-    IF machine_code <> job-mch.m-code THEN DO:
-
-       IF actual-entered(job-mch.m-code, job-mch.job) = NO THEN DO: 
-           RUN promptToReplace (INPUT machine_code, INPUT job-mch.m-code, OUTPUT cAction).
-/*            MESSAGE 'MACHINE' machine_code 'NOT DEFINED IN JOB STANDARDS' SKIP(1)   */
-/*                 'REPLACE MACHINE' job-mch.m-code 'WITH MACHINE' machine_code + '?' */
-/*             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE repl-mach AS LOGICAL. */
-           CASE cAction:
-             WHEN "Cancel" THEN
-               RETURN.
-             WHEN "Add" THEN DO:
-               CREATE bf-job-mch.
-               BUFFER-COPY job-mch EXCEPT job-mchID m-code frm blank-no pass TO bf-job-mch.
-               ASSIGN
-               bf-job-mch.m-code   = machine_code
-               bf-job-mch.mr-rate  = mach.mr-rate
-               bf-job-mch.mr-varoh = mach.mr-varoh
-               bf-job-mch.mr-fixoh = mach.mr-fixoh
-               bf-job-mch.frm      = INTEGER(form_#)
-               bf-job-mch.blank-no = INTEGER(blank_#)
-               bf-job-mch.pass     = INTEGER(pass_#)
-               bf-job-mch.i-name = itemfg.i-name WHEN AVAILABLE itemfg
-               bf-job-mch.dept = mach.dept[1]
-               bf-job-mch.wst-prct = mach.run-spoil.
-
-              IF bf-job-mch.n-out EQ 0 THEN bf-job-mch.n-out = 1.
-              FIND job-mch WHERE ROWID(job-mch) = ROWID(bf-job-mch) EXCLUSIVE-LOCK.
-              RELEASE bf-job-mch.
-              IF job-mch.n-on  EQ 0 THEN RUN get-num-on.
-              FIND CURRENT job-mch NO-LOCK.
-             END.
-             WHEN "Replace" THEN DO:
-               FIND CURRENT job-mch EXCLUSIVE-LOCK.
-               job-mch.m-code = machine_code.
-               FIND CURRENT job-mch NO-LOCK.
-
-             END.
-           END CASE.
-           IF cAction EQ "Cancel" THEN     RETURN.
-           
-       END.
-       ELSE DO:
-           MESSAGE 'MACHINE' machine_code 'NOT DEFINED IN JOB STANDARDS' SKIP(1)
-                'COPY MACHINE' job-mch.m-code 'TO MACHINE' machine_code + '?'
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE copy-mach AS LOGICAL.
-           IF NOT copy-mach THEN     RETURN.
-
-           CREATE bf-job-mch.
-           BUFFER-COPY job-mch EXCEPT m-code frm blank-no pass TO bf-job-mch.
-           ASSIGN
-           bf-job-mch.m-code   = machine_code
-           bf-job-mch.mr-rate  = mach.mr-rate
-           bf-job-mch.mr-varoh = mach.mr-varoh
-           bf-job-mch.mr-fixoh = mach.mr-fixoh
-           bf-job-mch.frm      = INTEGER(form_#)
-           bf-job-mch.blank-no = INTEGER(blank_#)
-           bf-job-mch.pass     = INTEGER(pass_#)
-           bf-job-mch.i-name = itemfg.i-name WHEN AVAILABLE itemfg
-           bf-job-mch.dept = mach.dept[1]
-           bf-job-mch.wst-prct = mach.run-spoil.
-
-          IF bf-job-mch.n-out EQ 0 THEN bf-job-mch.n-out = 1.
-          FIND job-mch WHERE ROWID(job-mch) = ROWID(bf-job-mch) EXCLUSIVE-LOCK.
-          RELEASE bf-job-mch.
-          IF job-mch.n-on  EQ 0 THEN RUN get-num-on.
-          FIND CURRENT job-mch NO-LOCK.
-
-/*           IF CAN-DO("CR,RC,GU",pc-prdd.dept) THEN DO:    */
-/*             job-mch.n-on = job-mch.n-on / job-mch.n-out. */
-        
-/*            MESSAGE "Please enter #out for this pass?"
-                UPDATE tt-job-mch.n-out. */            
-/*                                                          */
-/*             job-mch.n-on = job-mch.n-on * job-mch.n-out. */
-/*                                                          */
-/*           END.                                           */
-
-       END.
-    END.  /* 07/09/01  YSK */   
-    /* ========= 07/09/01  ysk mods ======= */
-    {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', machine_code)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('job_number', job_number)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job_sub)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
-    {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}
-    {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
-    RETURN.
-    /* ========= 07/09/01  ysk  end of mods ======= */
-  END.
- 
-  {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
+    ELSE DO:
+        {methods/run_link.i "CONTAINER" "Set_Value" "('job_number',job_number)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('company_code', company_code)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code', machine_code)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job.job-no2)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('form_number', form_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number', blank_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('pass_sequence',pass_#)"}
+        {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_#)"}     
+        IF cAction EQ "Add" THEN DO:                    
+            {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}           
+        END.
+        ELSE
+        IF (cAction EQ "Replace" OR cAction EQ "AddDept") THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}       
+        END.
+        ELSE
+        IF cAction EQ "" THEN DO:
+            {methods/run_link.i "CONTAINER" "Set_Value" "('job_sub', job_sub)"}
+            {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
+        END.
+    END. /* else */
 
 END PROCEDURE.
 

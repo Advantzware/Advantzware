@@ -157,7 +157,7 @@ DEFINE BROWSE BROWSE-1
       loadtag.ord-no FORMAT ">>>>>9":U
       loadtag.job-no FORMAT "x(6)":U
       loadtag.job-no2 FORMAT ">9":U
-      loadtag.loc FORMAT "x(5)":U
+      loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       loadtag.loc-bin FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

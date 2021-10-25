@@ -216,15 +216,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 156.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 151.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
-        
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 164.40 ) NO-ERROR.
+       RUN set-position IN h_movecol ( 1.00 , 159.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -232,8 +232,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 172.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-position IN h_exit ( 1.00 , 170.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'fg/b-fgStatusupdate.w':U ,
@@ -242,7 +242,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-fgStatusupdate ).
        RUN set-position IN h_b-fgStatusupdate ( 3.48 , 1.60 ) NO-ERROR.
        RUN set-size IN h_b-fgStatusupdate ( 23.71 , 177.00 ) NO-ERROR.
-       
+
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-fgStatusupdate , 'export-xl':U , h_export ).
 
@@ -250,6 +250,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-fgStatusupdate , 'move-columns':U , h_movecol ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
+             h_export , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_movecol , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-fgStatusupdate ,

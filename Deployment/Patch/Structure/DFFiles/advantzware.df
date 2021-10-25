@@ -2493,6 +2493,11 @@ ADD SEQUENCE "invoiceLineTaxID_seq"
   INCREMENT 1
   CYCLE-ON-LIMIT no
 
+ADD SEQUENCE "orderTypeID_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+
 ADD TABLE "acclrtrs"
   AREA "Data"
   LABEL "Accelerators"
@@ -4314,7 +4319,7 @@ ADD FIELD "inv-no" OF "ap-inv" AS character
   ORDER 50
 
 ADD FIELD "po-no" OF "ap-inv" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "PO Number"
   POSITION 4
@@ -5048,7 +5053,7 @@ ADD FIELD "item-type" OF "ap-invl" AS logical
   ORDER 190
 
 ADD FIELD "po-no" OF "ap-invl" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "PO Number"
   POSITION 22
@@ -25901,6 +25906,24 @@ ADD FIELD "udfGroup" OF "dynParamValue" AS character
   HELP "Enter UDF Group"
   ORDER 540
 
+ADD FIELD "onePer" OF "dynParamValue" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "One Record Per"
+  POSITION 63
+  MAX-WIDTH 1
+  HELP "Toggle One Record Per"
+  ORDER 550
+
+ADD FIELD "formType" OF "dynParamValue" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 64
+  MAX-WIDTH 20
+  HELP "Enter Form Type"
+  ORDER 560
+
 ADD INDEX "pi-subjectID" ON "dynParamValue" 
   AREA "Index"
   UNIQUE
@@ -26325,6 +26348,24 @@ ADD FIELD "udfGroup" OF "dynSubject" AS character
   HELP "Enter UDF Group"
   ORDER 290
 
+ADD FIELD "onePer" OF "dynSubject" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "One Record Per"
+  POSITION 34
+  MAX-WIDTH 1
+  HELP "Toggle One Record Per"
+  ORDER 300
+
+ADD FIELD "formType" OF "dynSubject" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 35
+  MAX-WIDTH 20
+  HELP "Enter Form Type"
+  ORDER 310
+
 ADD INDEX "pi-subjectID" ON "dynSubject" 
   AREA "Index"
   UNIQUE
@@ -26676,6 +26717,15 @@ ADD FIELD "udfID" OF "dynSubjectColumn" AS character
   MAX-WIDTH 10
   HELP "Enter UDF ID"
   ORDER 330
+
+ADD FIELD "isFormField" OF "dynSubjectColumn" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Form Field"
+  POSITION 36
+  MAX-WIDTH 1
+  HELP "Toggle if Form Field"
+  ORDER 340
 
 ADD INDEX "pi-subjectID" ON "dynSubjectColumn" 
   AREA "Index"
@@ -27336,6 +27386,15 @@ ADD FIELD "udfID" OF "dynValueColumn" AS character
   MAX-WIDTH 10
   HELP "Enter UDF ID"
   ORDER 340
+
+ADD FIELD "isFormField" OF "dynValueColumn" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Form Field"
+  POSITION 36
+  MAX-WIDTH 1
+  HELP "Toggle if Form Field"
+  ORDER 350
 
 ADD INDEX "pi-DynValueColumn" ON "dynValueColumn" 
   AREA "Index"
@@ -63244,6 +63303,17 @@ ADD FIELD "stat" OF "item" AS character
   HELP "(A)ctive or (I)nactive"
   ORDER 1040
 
+ADD FIELD "wastePercent" OF "item" AS decimal 
+  DESCRIPTION "This value will be used to calculate additional waste on top of the calculated required quantity in estimating.  This applies to material added as an additional miscellaneous material."
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Est. Waste %"
+  POSITION 106
+  MAX-WIDTH 17
+  HELP "Applies to material added as an add'l miscellaneous material."
+  DECIMALS 2
+  ORDER 1050
+
 ADD INDEX "i-no" ON "item" 
   AREA "Index"
   UNIQUE
@@ -71178,7 +71248,7 @@ ADD FIELD "spare-int-5" OF "job-mat" AS integer
   ORDER 430
 
 ADD FIELD "po-no" OF "job-mat" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "PO Number"
   POSITION 47
@@ -74136,7 +74206,7 @@ ADD FIELD "company" OF "loadtag" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "loadtag" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order#"
   POSITION 3
@@ -85917,6 +85987,14 @@ ADD FIELD "promiseDate" OF "oe-ord" AS date
   COLUMN-LABEL "Promise Date"
   ORDER 1370
 
+ADD FIELD "orderTypeID" OF "oe-ord" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Order Type ID"
+  POSITION 141
+  MAX-WIDTH 4
+  ORDER 1380
+
 ADD INDEX "ord-no" ON "oe-ord" 
   AREA "Index"
   UNIQUE
@@ -91165,6 +91243,179 @@ ADD INDEX "si-rec_key" ON "optconfg"
   DESCRIPTION "Option Configurations Secondary Index by rec_key"
   INDEX-FIELD "rec_key" ASCENDING 
 
+ADD TABLE "orderType"
+  AREA "Data"
+  LABEL "Order Type"
+  DUMP-NAME "ordertype"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\orderType.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\orderType.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\orderType.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "orderType" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "company" OF "orderType" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "orderTypeID" OF "orderType" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Order Type ID"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "orderTypeDescription" OF "orderType" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 5
+  MAX-WIDTH 64
+  ORDER 40
+
+ADD FIELD "orderTypeSource" OF "orderType" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Order Type Source"
+  POSITION 6
+  MAX-WIDTH 20
+  ORDER 50
+
+ADD FIELD "orderTypeColor" OF "orderType" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Color"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "inactive" OF "orderType" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "numberSequence" OF "orderType" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 9
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "estimateType" OF "orderType" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "Estimate Type"
+  POSITION 12
+  MAX-WIDTH 2
+  ORDER 110
+
+ADD INDEX "orderTypeID" ON "orderType" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "orderTypeID" ASCENDING 
+
+ADD INDEX "orderTypeSource" ON "orderType" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "orderTypeSource" ASCENDING 
+
+ADD INDEX "rec_key" ON "orderType" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "palletSize"
+  AREA "Data"
+  LABEL "Pallet Size"
+  DUMP-NAME "palletsize"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\palletSize.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\palletSize.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\palletSize.p" CRC "?" 
+
+ADD FIELD "location" OF "palletSize" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Location"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "company" OF "palletSize" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "rec_key" OF "palletSize" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 4
+  MAX-WIDTH 42
+  ORDER 30
+
+ADD FIELD "upToWidth" OF "palletSize" AS decimal 
+  FORMAT ">>>>9.99"
+  INITIAL "0"
+  LABEL "UpTo Width"
+  POSITION 5
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 40
+
+ADD FIELD "positions" OF "palletSize" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Positions"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "upToLength" OF "palletSize" AS decimal 
+  FORMAT ">>>>9.99"
+  INITIAL "0"
+  LABEL "UpTo Length"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD INDEX "companyLoc" ON "palletSize" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "location" ASCENDING 
+
+ADD INDEX "rec_key" ON "palletSize" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "widthLength" ON "palletSize" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "location" ASCENDING 
+  INDEX-FIELD "upToWidth" ASCENDING 
+  INDEX-FIELD "positions" ASCENDING 
+  INDEX-FIELD "upToLength" ASCENDING 
+
 ADD TABLE "panelDetail"
   AREA "Data"
   LABEL "Panel Detail"
@@ -91344,7 +91595,7 @@ ADD FIELD "linkType" OF "panelHeader" AS character
 
 ADD FIELD "poID" OF "panelHeader" AS integer 
   DESCRIPTION "Purchase Order Number"
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order Number"
   POSITION 6
@@ -94238,7 +94489,7 @@ ADD FIELD "company" OF "po-all" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "po-all" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order#"
   POSITION 3
@@ -94612,7 +94863,7 @@ ADD FIELD "loc" OF "po-ord" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "po-ord" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "PO Number"
   POSITION 4
@@ -95329,7 +95580,7 @@ ADD FIELD "company" OF "po-ordl" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "po-ordl" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order#"
   POSITION 3
@@ -96104,7 +96355,7 @@ ADD FIELD "company" OF "po-ordl-add" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "po-ordl-add" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order#"
   POSITION 3
@@ -106663,7 +106914,7 @@ ADD FIELD "prep-code" OF "rm-bin" AS character
   MANDATORY
 
 ADD FIELD "po-no" OF "rm-bin" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "PO Number"
   POSITION 21
@@ -115486,6 +115737,108 @@ ADD INDEX "wi-dscr" ON "std-code"
   AREA "Index"
   WORD
   INDEX-FIELD "dscr" ASCENDING 
+
+ADD TABLE "storageCost"
+  AREA "Data"
+  LABEL "Storage Cost"
+  DUMP-NAME "storageCost"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\storageCost.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\storageCost.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\storageCost.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "storageCost" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "company" OF "storageCost" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "location" OF "storageCost" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Location"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "positions" OF "storageCost" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Positions"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "handlingFee" OF "storageCost" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Handling Fee"
+  POSITION 6
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "stack1High" OF "storageCost" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Stack 1 High"
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 60
+
+ADD FIELD "stack2High" OF "storageCost" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Stack 2 High"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "stack3High" OF "storageCost" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Stack 3 High"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "stack4High" OF "storageCost" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Stack 4 High"
+  POSITION 10
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 90
+
+ADD INDEX "positions" ON "storageCost" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "location" ASCENDING 
+  INDEX-FIELD "positions" ASCENDING 
+
+ADD INDEX "companyLoc" ON "storageCost" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "location" ASCENDING 
+
+ADD INDEX "rec_key" ON "storageCost" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
 
 ADD TABLE "style"
   AREA "Data"
@@ -127027,7 +127380,7 @@ ADD FIELD "company" OF "wiptag" AS character
   ORDER 10
 
 ADD FIELD "po-no" OF "wiptag" AS integer 
-  FORMAT ">>>>>9"
+  FORMAT ">>>>>>>9"
   INITIAL "0"
   LABEL "Purchase Order#"
   POSITION 3
@@ -128829,4 +129182,4 @@ ADD INDEX "si-rec_key" ON "zMessage"
 PSC
 cpstream=ISO8859-1
 .
-0002781751
+0002789601

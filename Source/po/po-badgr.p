@@ -459,7 +459,7 @@ v-printline = 0.
                           AND ef.form-no = po-ordl.s-num NO-LOCK NO-ERROR.
 
         len-score = "".   
-        run po/po-ordls.p (recid(po-ordl)).
+        
         {po/poprints.i}       
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
             END.

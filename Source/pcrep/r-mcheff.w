@@ -21,8 +21,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
-DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
+DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -34,14 +35,14 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
- cocode = gcompany
- locode = gloc.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
 {pcrep/tt-srt.i}
 
-DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF STREAM excel.
+DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
+DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,13 +62,11 @@ DEF STREAM excel.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_dept end_dept begin_mach ~
 end_mach begin_Shift end_shift begin_date end_date begin_time ~
 begin_time_mins end_time end_time_mins tb_show cStartCodeNo cEndCodeNo ~
-lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
-fi_file btn-ok btn-cancel 
+rd-dest fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_dept end_dept begin_mach end_mach ~
 begin_Shift end_shift begin_date end_date begin_time begin_time_mins ~
-end_time end_time_mins tb_show cStartCodeNo cEndCodeNo lv-ornt ~
-lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+end_time end_time_mins tb_show cStartCodeNo cEndCodeNo rd-dest fi_file ~
+tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -80,16 +79,16 @@ tb_runExcel fi_file
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
@@ -161,10 +160,10 @@ DEFINE VARIABLE end_time_mins AS INTEGER FORMAT "99":U INITIAL 59
      VIEW-AS FILL-IN 
      SIZE 5 BY .95 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mcheff.csv" 
-     LABEL "If Yes, Detail File Name" 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\MachineEfficiencyReport.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+    SIZE 51 BY 1.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -190,13 +189,9 @@ DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P"
 DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+          "To Email", 5,
+"To CSV", 3
+     SIZE 12.8 BY 3.33 NO-UNDO.
 
 DEFINE VARIABLE rd_TonMsfQty AS CHARACTER INITIAL "QM" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -204,34 +199,37 @@ DEFINE VARIABLE rd_TonMsfQty AS CHARACTER INITIAL "QM"
           "Tons,MSF", "TM",
 "Qty,MSF", "QM",
 "Qty,Tons", "QT"
-     SIZE 61 BY .95 NO-UNDO.
+     SIZE 56.6 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.52.
+    SIZE 90 BY 5.43.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 11.19.
+     SIZE 90 BY 10.67.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_excel     AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3 FGCOLOR 15  NO-UNDO.
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
-     LABEL "Auto Run Excel?" 
+DEFINE VARIABLE tb_OpenCSV   AS LOGICAL INITIAL NO 
+     LABEL "Open CSV?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     BGCOLOR 3 FGCOLOR 15  NO-UNDO.
+     SIZE 15.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_show AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_show      AS LOGICAL INITIAL YES 
      LABEL "Show Job detail For Selected Period?" 
      VIEW-AS TOGGLE-BOX
      SIZE 40 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -240,59 +238,60 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_dept AT ROW 2.67 COL 26 COLON-ALIGNED HELP
+     begin_dept AT ROW 2.67 COL 28.8 COLON-ALIGNED HELP
           "Enter Beginning Department"
-     end_dept AT ROW 2.67 COL 69 COLON-ALIGNED HELP
+     end_dept AT ROW 2.67 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Department"
-     begin_mach AT ROW 3.62 COL 26 COLON-ALIGNED HELP
+     begin_mach AT ROW 3.62 COL 28.8 COLON-ALIGNED HELP
           "Enter Beginning Machine"
-     end_mach AT ROW 3.62 COL 69 COLON-ALIGNED HELP
+     end_mach AT ROW 3.62 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Machine"
-     begin_Shift AT ROW 4.57 COL 26 COLON-ALIGNED HELP
+     begin_Shift AT ROW 4.57 COL 28.8 COLON-ALIGNED HELP
           "Enter Beginning Shift"
-     end_shift AT ROW 4.57 COL 69 COLON-ALIGNED HELP
+     end_shift AT ROW 4.57 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Shift"
-     begin_date AT ROW 5.52 COL 26 COLON-ALIGNED HELP
+     begin_date AT ROW 5.52 COL 28.8 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 5.52 COL 69 COLON-ALIGNED HELP
+     end_date AT ROW 5.52 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_time AT ROW 6.43 COL 26 COLON-ALIGNED HELP
+     begin_time AT ROW 6.43 COL 28.8 COLON-ALIGNED HELP
           "Enter Beginning Time (Hour)" WIDGET-ID 14
-     begin_time_mins AT ROW 6.43 COL 33 COLON-ALIGNED HELP
+     begin_time_mins AT ROW 6.43 COL 35.8 COLON-ALIGNED HELP
           "Enter Beginning Time (Mins)" WIDGET-ID 18
-     end_time AT ROW 6.48 COL 69 COLON-ALIGNED HELP
+     end_time AT ROW 6.48 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Time (Hour)" WIDGET-ID 20
-     end_time_mins AT ROW 6.48 COL 76 COLON-ALIGNED HELP
+     end_time_mins AT ROW 6.48 COL 77.4 COLON-ALIGNED HELP
           "Enter Ending Time (Mins)" WIDGET-ID 22
-     tb_show AT ROW 7.91 COL 28
-     rd_TonMsfQty AT ROW 9.33 COL 28 NO-LABEL WIDGET-ID 8
-     cStartCodeNo AT ROW 10.76 COL 37 COLON-ALIGNED HELP
+     tb_show AT ROW 7.91 COL 30.8
+     rd_TonMsfQty AT ROW 9.33 COL 30.8 NO-LABEL WIDGET-ID 8
+     cStartCodeNo AT ROW 10.76 COL 38.4 COLON-ALIGNED HELP
           "Enter Beginning Charge Code" WIDGET-ID 24
-     cEndCodeNo AT ROW 10.76 COL 69 COLON-ALIGNED HELP
+     cEndCodeNo AT ROW 10.76 COL 70.4 COLON-ALIGNED HELP
           "Enter Ending Charge Code" WIDGET-ID 26
-     lv-ornt AT ROW 13.62 COL 30 NO-LABEL
-     lines-per-page AT ROW 13.62 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 13.67 COL 5 NO-LABEL
-     lv-font-no AT ROW 15.05 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.76 COL 30
-     tb_excel AT ROW 19.33 COL 66 RIGHT-ALIGNED
-     tb_runExcel AT ROW 19.33 COL 90 RIGHT-ALIGNED
-     fi_file AT ROW 20.33 COL 44 COLON-ALIGNED HELP
+     lv-font-no AT ROW 12.81 COL 34 COLON-ALIGNED
+     lv-ornt AT ROW 12.91 COL 30 NO-LABEL
+     lines-per-page AT ROW 12.91 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 13.33 COL 5.2 NO-LABEL
+     lv-font-name AT ROW 13.33 COL 28 COLON-ALIGNED NO-LABEL
+     tb_excel AT ROW 13.67 COL 74 RIGHT-ALIGNED
+     td-show-parm AT ROW 14.38 COL 25.6
+     fi_file AT ROW 15.33 COL 23.6 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 22.43 COL 21
-     btn-cancel AT ROW 22.43 COL 57
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.67 COL 2
-     RECT-6 AT ROW 12.43 COL 1
-     RECT-7 AT ROW 1 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     tb_OpenCSV AT ROW 15.43 COL 92.4 RIGHT-ALIGNED
+     tbAutoClose AT ROW 17.33 COL 25.6 WIDGET-ID 64
+     btn-ok AT ROW 18.29 COL 25.6
+     btn-cancel AT ROW 18.29 COL 48.8
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 12.29 COL 5
+     RECT-6 AT ROW 12.67 COL 4
+     RECT-7 AT ROW 1.52 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 22.95.
+         AT COL 1 ROW 1
+         SIZE 96 BY 20
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -312,8 +311,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "New Machine efficiency report(Excel)"
-         HEIGHT             = 23.24
-         WIDTH              = 95.8
+         HEIGHT             = 20
+         WIDTH              = 96
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -414,31 +413,55 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR RADIO-SET rd_TonMsfQty IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        rd_TonMsfQty:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
-   ALIGN-R                                                              */
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
 ASSIGN 
+       tb_excel:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        tb_show:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -452,12 +475,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* New Machine efficiency report(Excel) */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -466,10 +490,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* New Machine efficiency report(Excel) */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -479,8 +503,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 DO:
-   assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -490,8 +514,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_dept C-Win
 ON LEAVE OF begin_dept IN FRAME FRAME-A /* Beginning Department */
 DO:
-   assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -501,8 +525,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mach C-Win
 ON LEAVE OF begin_mach IN FRAME FRAME-A /* Beginning Machine */
 DO:
-     assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -512,8 +536,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_Shift C-Win
 ON LEAVE OF begin_Shift IN FRAME FRAME-A /* Beginning Shift */
 DO:
-   assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -523,13 +547,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time C-Win
 ON LEAVE OF begin_time IN FRAME FRAME-A /* Beginning Time (24 HR) */
 DO:
-   assign {&self-name}.
-   IF begin_time LT 0 OR begin_time GT 24 THEN DO: 
-        MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
-        SELF:SET-SELECTION (1,3).    
-        RETURN NO-APPLY.
+        ASSIGN {&self-name}.
+        IF begin_time LT 0 OR begin_time GT 24 THEN 
+        DO: 
+            MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
+            SELF:SET-SELECTION (1,3).    
+            RETURN NO-APPLY.
+        END.
     END.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -539,13 +564,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time_mins C-Win
 ON LEAVE OF begin_time_mins IN FRAME FRAME-A
 DO:
-   assign {&self-name}.
-   IF begin_time_mins LT 0 OR begin_time_mins GT 60 THEN DO: 
-        MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
-        SELF:SET-SELECTION (1,3).    
-        RETURN NO-APPLY.
-    END.   
-END.
+        ASSIGN {&self-name}.
+        IF begin_time_mins LT 0 OR begin_time_mins GT 60 THEN 
+        DO: 
+            MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
+            SELF:SET-SELECTION (1,3).    
+            RETURN NO-APPLY.
+        END.   
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -555,8 +581,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
-END.
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -566,39 +592,65 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
 
-  run run-report.
+        IF rd-dest = 3 THEN
+        DO:
+            ASSIGN 
+                fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+            RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+            fi_file:SCREEN-VALUE =  cFileName.
+        END.
+  
+        RUN run-report.
 
-  case rd-dest:
-      /* when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-      */ 
-       when 4 then do:
+        CASE rd-dest:
+            /*when 1 then run output-to-printer.
+            when 2 then run output-to-screen.
+            */
+            WHEN 3 THEN 
+                DO:
+                    IF NOT tb_OpenCSV THEN 
+                    DO:        
+                        MESSAGE "CSV file have been created." SKIP(1)
+                            "~"OK"~" to open CSV file?"
+                            VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                            TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                        IF lChoice THEN
+                        DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                        END.
+                    END.
+                END. /* WHEN 3 THEN DO: */
+            WHEN 4 THEN 
+                DO:
 
-           {custom/asifax.i &type= ''
+                    {custom/asifax.i &type= ''
                             &begin_cust=begin_mach
                             &END_cust= begin_mach
                             &fax-subject=c-win:title
                             &fax-body=c-win:title
                             &fax-file=list-name }
-       END. 
-       when 5 then do:
-          {custom/asimailr.i &TYPE = ''
+                END. 
+            WHEN 5 THEN 
+                DO:
+                    {custom/asimailr.i &TYPE = ''
                              &begin_cust= begin_mach
                              &END_cust=begin_mach
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
                              &mail-file=list-name }
-       END.
-       WHEN 6 THEN RUN OUTPUT-to-port.
+                END.
+            WHEN 6 THEN RUN OUTPUT-to-port.
 
-  end case.
-  SESSION:SET-WAIT-STATE (""). 
- END.
+        END CASE.
+        IF tbAutoClose:CHECKED THEN 
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        SESSION:SET-WAIT-STATE (""). 
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -608,8 +660,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 DO:
-  assign {&self-name}. 
-END.
+        ASSIGN {&self-name}. 
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -619,8 +671,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_dept C-Win
 ON LEAVE OF end_dept IN FRAME FRAME-A /* Ending Department */
 DO:
-     assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -630,8 +682,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mach C-Win
 ON LEAVE OF end_mach IN FRAME FRAME-A /* Ending Machine */
 DO:
-     assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -641,8 +693,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shift C-Win
 ON LEAVE OF end_shift IN FRAME FRAME-A /* Ending shift */
 DO:
-     assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -652,13 +704,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time C-Win
 ON LEAVE OF end_time IN FRAME FRAME-A /* Ending Time (24 HR) */
 DO:
-   assign {&self-name}.
-   IF end_time LT 0 OR end_time GT 24 THEN DO: 
-        MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
-        SELF:SET-SELECTION (1,3).    
-        RETURN NO-APPLY.
+        ASSIGN {&self-name}.
+        IF end_time LT 0 OR end_time GT 24 THEN 
+        DO: 
+            MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
+            SELF:SET-SELECTION (1,3).    
+            RETURN NO-APPLY.
+        END.
     END.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -668,13 +721,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time_mins C-Win
 ON LEAVE OF end_time_mins IN FRAME FRAME-A
 DO:
-   assign {&self-name}.
-    IF end_time_mins LT 0 OR end_time_mins GT 60 THEN DO: 
-        MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
-        SELF:SET-SELECTION (1,3).    
-        RETURN NO-APPLY.
-    END.    
-END.
+        ASSIGN {&self-name}.
+        IF end_time_mins LT 0 OR end_time_mins GT 60 THEN 
+        DO: 
+            MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
+            SELF:SET-SELECTION (1,3).    
+            RETURN NO-APPLY.
+        END.    
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -682,10 +736,32 @@ END.
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, Detail File Name */
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
 DO:
-     assign {&self-name}.
-END.
+        DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
+
+        SYSTEM-DIALOG GET-FILE ls-filename 
+            TITLE "Select File to Save "
+            FILTERS "Excel Files    (*.csv)" "*.csv",
+            "All Files    (*.*) " "*.*"
+            INITIAL-DIR "c:\tmp"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -695,8 +771,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -706,13 +782,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
+        RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
+                LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -721,8 +797,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-   ASSIGN lv-font-no.
-END.
+        ASSIGN lv-font-no.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -732,8 +808,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
-  ASSIGN lv-ornt.
-END.
+        ASSIGN lv-ornt.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -742,8 +818,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 DO:
-  {custom/chgfont.i}
-END.
+    {custom/chgfont.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -753,8 +829,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+        RUN pChangeDest.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -764,19 +841,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
 DO:
-  assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -786,8 +863,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_show C-Win
 ON VALUE-CHANGED OF tb_show IN FRAME FRAME-A /* Show Job detail For Selected Period? */
 DO:
-  assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -797,8 +874,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
-END.
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -818,7 +895,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -827,29 +904,38 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
- /* security check need {methods/prgsecur.i} in definition section */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    /* security check need {methods/prgsecur.i} in definition section */
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
 
-  assign
-   begin_date = date(month(TODAY), 1, year(TODAY))
-   end_date   = today.
+    ASSIGN
+        begin_date = DATE(MONTH(TODAY), 1, YEAR(TODAY))
+        end_date   = TODAY.
 
-  RUN enable_UI.
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    RUN enable_UI.
+    {sys/inc/reportsConfigNK1.i "DE1" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
 
-  {methods/nowait.i}
+    {methods/nowait.i}
 
-  DO WITH FRAME {&FRAME-NAME}:
-    {custom/usrprint.i}
-    APPLY "entry" TO Begin_dept.
-  END.
-
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
+    DO WITH FRAME {&FRAME-NAME}:
+        {custom/usrprint.i}
+APPLY "entry" TO Begin_dept.
+END.
+RUN pChangeDest.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
@@ -891,14 +977,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_dept end_dept begin_mach end_mach begin_Shift end_shift 
           begin_date end_date begin_time begin_time_mins end_time end_time_mins 
-          tb_show cStartCodeNo cEndCodeNo lv-ornt lines-per-page rd-dest 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          tb_show cStartCodeNo cEndCodeNo rd-dest fi_file tb_OpenCSV tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_Shift 
          end_shift begin_date end_date begin_time begin_time_mins end_time 
-         end_time_mins tb_show cStartCodeNo cEndCodeNo lv-ornt lines-per-page 
-         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         end_time_mins tb_show cStartCodeNo cEndCodeNo rd-dest fi_file 
+         tb_OpenCSV tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -914,7 +998,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-{custom/out2file.i}
+    {custom/out2file.i}
 
 END PROCEDURE.
 
@@ -924,11 +1008,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-RUN custom/d-print.w (list-name).
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN custom/d-print.w (list-name).
 
 END PROCEDURE.
 
@@ -938,11 +1022,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -951,11 +1035,42 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+/*------------------------------------------------------------------------------
+             Purpose:    
+             Parameters:  <none>
+             Notes:      
+            ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "Yes"
+                fi_file:SENSITIVE       = YES
+                tb_OpenCSV:SENSITIVE    = YES
+                tb_excel                = YES
+                .
+        ELSE
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "NO"
+                fi_file:SENSITIVE       = NO
+                tb_OpenCSV:SENSITIVE    = NO
+                tb_excel                = NO
+                .
+        ASSIGN 
+            fi_file:SCREEN-VALUE = "c:\tmp\MachineEfficiencyReport.csv".   
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -964,16 +1079,16 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pro-rate-mr C-Win 
 PROCEDURE pro-rate-mr :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF BUFFER b-mch-act FOR mch-act.
-  DEF BUFFER b-job-cod FOR job-code.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-mch-act FOR mch-act.
+    DEFINE BUFFER b-job-cod FOR job-code.
 
 
-  FOR EACH b-mch-act NO-LOCK
-      WHERE b-mch-act.company  EQ mch-act.company
+    FOR EACH b-mch-act NO-LOCK
+        WHERE b-mch-act.company  EQ mch-act.company
         AND b-mch-act.job      EQ mch-act.job
         AND b-mch-act.job-no   EQ mch-act.job-no
         AND b-mch-act.job-no2  EQ mch-act.job-no2
@@ -982,15 +1097,15 @@ PROCEDURE pro-rate-mr :
         AND b-mch-act.pass     EQ mch-act.pass
         AND b-mch-act.frm      EQ mch-act.frm
         AND b-mch-act.blank-no EQ mch-act.blank-no,
-      FIRST b-job-cod NO-LOCK
-      WHERE b-job-cod.code EQ b-mch-act.code:
+        FIRST b-job-cod NO-LOCK
+        WHERE b-job-cod.code EQ b-mch-act.code:
 
-    IF b-job-cod.cat EQ "RUN" THEN
-      tt-srt.tot-run-hours = tt-srt.tot-run-hours + b-mch-act.hours.
-    ELSE
-    IF b-job-cod.cat EQ "MR" THEN
-      tt-srt.tot-mr-hours  = tt-srt.tot-mr-hours + b-mch-act.hours.
-  END.
+        IF b-job-cod.cat EQ "RUN" THEN
+            tt-srt.tot-run-hours = tt-srt.tot-run-hours + b-mch-act.hours.
+        ELSE
+            IF b-job-cod.cat EQ "MR" THEN
+                tt-srt.tot-mr-hours  = tt-srt.tot-mr-hours + b-mch-act.hours.
+    END.
 
 END PROCEDURE.
 
@@ -1002,161 +1117,162 @@ PROCEDURE run-report :
 /* ------------------------------------------------  pc/rep/mch-dpt.p 8/94 gb */
 /* Production by Department Report                                            */
 /* -------------------------------------------------------------------------- */
-{sys/form/r-topw.f}
+    {sys/form/r-topw.f}
 
-DEF BUFFER b-mch-act FOR mch-act.
+    DEFINE BUFFER b-mch-act FOR mch-act.
 
-def var v-date as date extent 2 format "99/99/9999" no-undo.
-def var v-time as int extent 2 no-undo.
-def var v-dept as ch format "x(4)" extent 2 initial ["","zzzz"].
-def var v-mach as ch format "x(6)" extent 2 initial ["","zzzzzz"].
-def var v-shift like mch-act.shift format ">>" extent 2 initial ["1", "99"].
-def var v-show as logical format "Y/N" init yes no-undo.
-def var v-show1 as logical format "Y/N" init yes no-undo.
-def var mch-mr-std as dec format ">>>>9.9" no-undo.
-def var mch-run-std as dec format ">>>>9.9" no-undo.
-def var mch-mr-act as dec format ">>>>9.9" no-undo.
-def var mch-run-act as dec format ">>>>9.9" no-undo.
-def var mch-dt-act as dec format ">>>>9.9" no-undo.
-def var mch-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var mch-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var dpt-mr-std as dec format ">>>>9.9" no-undo.
-def var dpt-run-std as dec format ">>>>9.9" no-undo.
-def var dpt-mr-act as dec format ">>>>9.9" no-undo.
-def var dpt-run-act as dec format ">>>>9.9" no-undo.
-def var dpt-dt-act as dec format ">>>>9.9" no-undo.
-def var dpt-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var dpt-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var shf-mr-std as dec format ">>>>9.9" no-undo.
-def var shf-run-std as dec format ">>>>9.9" no-undo.
-def var shf-mr-act as dec format ">>>>9.9" no-undo.
-def var shf-run-act as dec format ">>>>9.9" no-undo.
-def var shf-dt-act as dec format ">>>>9.9" no-undo.
-def var shf-qty-prod as dec format ">,>>>,>>9" no-undo.
-def var shf-qty-expect as dec format ">,>>>,>>9" no-undo.
-def var shf-jobs as int format ">,>>>,>>9" no-undo.
-DEF VAR tot-jobs AS INT format ">,>>>,>>9" no-undo.
-def var tot-eff as dec format ">>>9.9-" no-undo.
-def var dt-eff as dec format ">>>9.9-" no-undo.
-def var tot-std-hrs as dec format ">>>>9.9" no-undo.
-def var tot-act-hrs as dec format ">>>>9.9" no-undo.
-def var a as char no-undo.
-DEF VAR v-tot-uni-jobs AS LOG NO-UNDO.
-def var hdr-tit as char no-undo.
-def var hdr-tit2 as char no-undo.
-def var hdr-tit3 as char no-undo.
+    DEFINE VARIABLE v-date         AS DATE      EXTENT 2 FORMAT "99/99/9999" NO-UNDO.
+    DEFINE VARIABLE v-time         AS INTEGER   EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE v-dept         AS ch        FORMAT "x(4)" EXTENT 2 INITIAL ["","zzzz"].
+    DEFINE VARIABLE v-mach         AS ch        FORMAT "x(6)" EXTENT 2 INITIAL ["","zzzzzz"].
+    DEFINE VARIABLE v-shift        LIKE mch-act.shift FORMAT ">>" EXTENT 2 INITIAL ["1", "99"].
+    DEFINE VARIABLE v-show         AS LOGICAL   FORMAT "Y/N" INIT YES NO-UNDO.
+    DEFINE VARIABLE v-show1        AS LOGICAL   FORMAT "Y/N" INIT YES NO-UNDO.
+    DEFINE VARIABLE mch-mr-std     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE mch-run-std    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE mch-mr-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE mch-run-act    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE mch-dt-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE mch-qty-prod   AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE mch-qty-expect AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE dpt-mr-std     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE dpt-run-std    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE dpt-mr-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE dpt-run-act    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE dpt-dt-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE dpt-qty-prod   AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE dpt-qty-expect AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE shf-mr-std     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE shf-run-std    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE shf-mr-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE shf-run-act    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE shf-dt-act     AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE shf-qty-prod   AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE shf-qty-expect AS DECIMAL   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE shf-jobs       AS INTEGER   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE tot-jobs       AS INTEGER   FORMAT ">,>>>,>>9" NO-UNDO.
+    DEFINE VARIABLE tot-eff        AS DECIMAL   FORMAT ">>>9.9-" NO-UNDO.
+    DEFINE VARIABLE dt-eff         AS DECIMAL   FORMAT ">>>9.9-" NO-UNDO.
+    DEFINE VARIABLE tot-std-hrs    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE tot-act-hrs    AS DECIMAL   FORMAT ">>>>9.9" NO-UNDO.
+    DEFINE VARIABLE a              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-tot-uni-jobs AS LOG       NO-UNDO.
+    DEFINE VARIABLE hdr-tit        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdr-tit2       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdr-tit3       AS CHARACTER NO-UNDO.
 
-DEF VAR excelheader1 AS CHAR NO-UNDO.
-DEF VAR excelheader2 AS CHAR NO-UNDO.
-DEF VAR excelheader3 AS CHAR NO-UNDO.
+    DEFINE VARIABLE excelheader1   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE excelheader2   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE excelheader3   AS CHARACTER NO-UNDO.
 
-def var mch-qty-ton as dec format ">>,>>9.99" no-undo.
-def var shf-qty-ton as dec format ">>,>>9.99" no-undo.
-def var dpt-qty-ton as dec format ">>,>>9.99" no-undo.
-def var mch-qty-msf as dec format ">>,>>9.99" no-undo.
-def var shf-qty-msf as dec format ">>,>>9.99" no-undo.
-def var dpt-qty-msf as dec format ">>,>>9.99" no-undo.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+    DEFINE VARIABLE mch-qty-ton    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE shf-qty-ton    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE dpt-qty-ton    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE mch-qty-msf    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE shf-qty-msf    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
+    DEFINE VARIABLE dpt-qty-msf    AS DECIMAL   FORMAT ">>,>>9.99" NO-UNDO.
 
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    FORM HEADER
+        hdr-tit FORMAT "x(145)" SKIP
+        hdr-tit2 FORMAT "x(145)" SKIP
+        hdr-tit3 FORMAT "x(145)"
 
-FORM HEADER
-     hdr-tit format "x(145)" skip
-     hdr-tit2 format "x(145)" skip
-     hdr-tit3 format "x(145)"
-
-    WITH FRAME r-top.
+        WITH FRAME r-top.
 
 
-SESSION:SET-WAIT-STATE ("general").
+    SESSION:SET-WAIT-STATE ("general").
 
-assign
- str-tit2 = c-win:title
- {sys/inc/ctrtext.i str-tit2 112}
+    ASSIGN
+        str-tit2   = c-win:TITLE
+        {sys/inc/ctrtext.i str-tit2 112}
 
- v-dept[1]   = begin_dept
- v-dept[2]   = end_dept
- v-mach[1]   = begin_mach
- v-mach[2]   = end_mach
- v-shift[1]  = begin_shift
- v-shift[2]  = end_shift
- v-date[1]   = begin_date
- v-date[2]   = end_date
- v-show      = tb_show
- v-time[1] = begin_time * 3600 + begin_time_mins * 60
- v-time[2] = end_time * 3600 + end_time_mins * 60 + 59
- /*v-show1     = tb_show1
- v-tot-uni-jobs = tb_tot-job*/
+        v-dept[1]  = begin_dept
+        v-dept[2]  = end_dept
+        v-mach[1]  = begin_mach
+        v-mach[2]  = end_mach
+        v-shift[1] = begin_shift
+        v-shift[2] = end_shift
+        v-date[1]  = begin_date
+        v-date[2]  = end_date
+        v-show     = tb_show
+        v-time[1]  = begin_time * 3600 + begin_time_mins * 60
+        v-time[2]  = end_time * 3600 + end_time_mins * 60 + 59
+        /*v-show1     = tb_show1
+        v-tot-uni-jobs = tb_tot-job*/
 
- /*
- hdr-tit =  "MACH                  <---MAKE READY HOURS-->  " +
-            "<------RUN HOURS------>  <----MR & RUN HOURS--->  " +
-            "<--D/T HOURS->   ACTUAL" +
-            /*IF tb_tonmsf THEN "    ACTUAL"
-            ELSE */ "    EXPECTED"             
+        /*
+        hdr-tit =  "MACH                  <---MAKE READY HOURS-->  " +
+                   "<------RUN HOURS------>  <----MR & RUN HOURS--->  " +
+                   "<--D/T HOURS->   ACTUAL" +
+                   /*IF tb_tonmsf THEN "    ACTUAL"
+                   ELSE */ "    EXPECTED"             
+       
+        hdr-tit2 = "CODE     JOB #  SHIFT  STNDRD  ACTUAL  EFF %   " +
+                   " STNDRD  ACTUAL  EFF %    STNDRD  ACTUAL  EFF %   " +
+                   " ACTUAL  EFF %   " + 
+                   IF tb_tonmsf AND rd_tonmsfQty = "tm" THEN "  TONS    MSF"
+                   ELSE IF tb_tonmsf AND rd_tonmsfqty = "qm" THEN "QUANTITY  MSF"
+                   ELSE IF tb_tonmsf AND rd_tonmsfqty = "qt" THEN "QUANTITY  TONS"
+                   ELSE "QUANTITY  QUANTITY" 
+       */
+        hdr-tit3   = FILL("-", 132).
 
- hdr-tit2 = "CODE     JOB #  SHIFT  STNDRD  ACTUAL  EFF %   " +
-            " STNDRD  ACTUAL  EFF %    STNDRD  ACTUAL  EFF %   " +
-            " ACTUAL  EFF %   " + 
-            IF tb_tonmsf AND rd_tonmsfQty = "tm" THEN "  TONS    MSF"
-            ELSE IF tb_tonmsf AND rd_tonmsfqty = "qm" THEN "QUANTITY  MSF"
-            ELSE IF tb_tonmsf AND rd_tonmsfqty = "qt" THEN "QUANTITY  TONS"
-            ELSE "QUANTITY  QUANTITY" 
-*/
- hdr-tit3 = fill("-", 132).
 
+    {sys/inc/print1.i}
 
-{sys/inc/print1.i}
+    {sys/inc/outprint.i value(lines-per-page)}
 
-{sys/inc/outprint.i value(lines-per-page)}
+    /*if td-show-parm then run show-param. */
 
-/*if td-show-parm then run show-param. */
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel TO VALUE(cFileName).
+        excelheader1 = "Machine Efficiency,,,,Date," + STRING(begin_date) + "," + STRING(END_date) +
+            ",Shift," + STRING(v-shift[1]) + "," + STRING(v-shift[2]).
+        PUT STREAM excel UNFORMATTED 
+            '"' REPLACE(excelheader1,',','","') '"' SKIP(1).
 
-IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(cFileName).
-   excelheader1 = "Machine Efficiency,,,,Date," + STRING(begin_date) + "," + STRING(END_date) +
-                 ",Shift," + STRING(v-shift[1]) + "," + STRING(v-shift[2]).
-   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader1,',','","') '"' skip(1).
+        /*excelheader2 = "Date,Sq Feet,,,,,Sq Feet,Sheets,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Set up,Total,Avg Pcs,,Setup ,Run".
+        excelheader3 = "Job#,Blank,Start SE,End SE,Start Run,End Run,Received,Received,Quantity,Received,Deviation,Produced,Waste,per line,Time,Run time,Per Hr,,Efficiency,Efficiency".   
+        */
+        excelheader2 = ",,MR Start,MR End,Run Start,Run End,,Sq Feet,Setup,Run,Sq Feet,Sheets,Produced,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Avg Pcs,Setup,Run".
+        excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency,Shift#,Item Code,Item Name,Linear Ft/Hr,Notes,Entry Note".
+        PUT STREAM excel UNFORMATTED 
+            '"' REPLACE(excelheader2,',','","') '"' SKIP
+            '"' REPLACE(excelheader3,',','","') '"' SKIP.
+        .
+    /*
+    excelheader2 = 
+    excelheader3 = "Mach Code,Job#,-,Shift,MR STND,MR ACT,MR EFF%," + 
+                  "Run Hrs Stnd,Run Hrs ACT,Run Hrs EFF%," +
+                  "MR/Run Hrs Stnd,MR/Run Hrs ACT,MR/Run Hrs EFF%," +
+                  "D/T HRS ACT,D/T HRS EFF%," +                 
+                  IF tb_tonmsf AND rd_tonmsfqty = "tm" THEN "ACT QTY,ACT TONS," 
+                  ELSE IF tb_tonmsf AND rd_tonmsfqty = "qm" THEN "ACT QTY,ACT MSF,"
+                  ELSE IF tb_tonmsf AND rd_tonmsfqty = "qt" THEN "ACT QTY,ACT TONS,"
+                  ELSE "ACT QTY,EXPECTED QTY,".
+    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
+    */
+    END. 
 
-   /*excelheader2 = "Date,Sq Feet,,,,,Sq Feet,Sheets,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Set up,Total,Avg Pcs,,Setup ,Run".
-   excelheader3 = "Job#,Blank,Start SE,End SE,Start Run,End Run,Received,Received,Quantity,Received,Deviation,Produced,Waste,per line,Time,Run time,Per Hr,,Efficiency,Efficiency".   
-   */
-   excelheader2 = ",,MR Start,MR End,Run Start,Run End,,Sq Feet,Setup,Run,Sq Feet,Sheets,Produced,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Avg Pcs,Setup,Run".
-   excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency,Shift#,Item Code,Item Name,Linear Ft/Hr,Notes,Entry Note".
-   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader2,',','","') '"' SKIP
-       '"' REPLACE(excelheader3,',','","') '"' SKIP.
-       .
-   /*
-   excelheader2 = 
-   excelheader3 = "Mach Code,Job#,-,Shift,MR STND,MR ACT,MR EFF%," + 
-                 "Run Hrs Stnd,Run Hrs ACT,Run Hrs EFF%," +
-                 "MR/Run Hrs Stnd,MR/Run Hrs ACT,MR/Run Hrs EFF%," +
-                 "D/T HRS ACT,D/T HRS EFF%," +                 
-                 IF tb_tonmsf AND rd_tonmsfqty = "tm" THEN "ACT QTY,ACT TONS," 
-                 ELSE IF tb_tonmsf AND rd_tonmsfqty = "qm" THEN "ACT QTY,ACT MSF,"
-                 ELSE IF tb_tonmsf AND rd_tonmsfqty = "qt" THEN "ACT QTY,ACT TONS,"
-                 ELSE "ACT QTY,EXPECTED QTY,".
-   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
-   */
-END. 
+    DISPLAY "" WITH FRAME r-top.
 
-display "" with frame r-top.
+    {pcrep/r-mcheff.i}
 
-{pcrep/r-mcheff.i}
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_OpenCSV THEN
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+    END.
 
-IF tb_excel THEN DO:
-   OUTPUT STREAM excel CLOSE.
-   IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-END.
-
-SESSION:SET-WAIT-STATE ("").
+    SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1164,68 +1280,74 @@ end procedure.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-frame-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-group-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field-hdl  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-field2-hdl AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE parm-fld-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE i             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-label      AS CHARACTER NO-UNDO.
 
-  ASSIGN
-  lv-frame-hdl = frame {&frame-name}:HANDLE
-  lv-group-hdl = lv-frame-hdl:first-child
-  lv-field-hdl = lv-group-hdl:first-child.
+    ASSIGN
+        lv-frame-hdl = FRAME {&frame-name}:HANDLE
+        lv-group-hdl = lv-frame-hdl:FIRST-CHILD
+        lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
-                     .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+    DO WHILE TRUE:
+        IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+        IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+            THEN 
+        DO:
+            IF lv-field-hdl:LABEL <> ? THEN 
+                ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
+                    .
+            ELSE 
+            DO:  /* radio set */
+                ASSIGN 
+                    parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                    lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+                REPEAT:
+                    IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                    IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN 
+                    DO:
+                        parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                    END.
+                    lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+                END.       
+            END.                 
+        END.            
+        lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+    END.
 
-  put space(28)
-      "< Selection Parameters >"
-      skip(1).
+    PUT SPACE(28)
+        "< Selection Parameters >"
+        SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+    DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+        IF ENTRY(i,parm-fld-list) NE "" OR
+            entry(i,parm-lbl-list) NE "" THEN 
+        DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+            lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+            PUT lv-label FORMAT "x(35)" AT 5
+                SPACE(1)
+                TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+                SKIP.              
+        END.
+    END.
 
-  put fill("-",80) format "x(80)" skip.
+    PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

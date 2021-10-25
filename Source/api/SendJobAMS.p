@@ -54,6 +54,7 @@ DEFINE TEMP-TABLE ttPart NO-UNDO
     FIELD comboPart    AS LOGICAL
     FIELD setAssembly  AS LOGICAL
     FIELD dieInches    AS DECIMAL
+    FIELD caliper      AS DECIMAL
     FIELD requestData  AS CLOB
     . 
 
@@ -113,6 +114,8 @@ DEFINE VARIABLE cLocation                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstimate                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCSRName                      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesPersonID                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesPersonName              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStatus                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
@@ -266,9 +269,8 @@ DEFINE VARIABLE iAssemblyBlankCount           AS INTEGER   NO-UNDO.
                     
 DEFINE BUFFER bf-APIOutboundDetail        FOR APIOutboundDetail.
 DEFINE BUFFER bf-job-mat                  FOR job-mat.
-DEFINE BUFFER bf-users                    FOR users.
 DEFINE BUFFER bf-notes                    FOR notes.
-
+DEFINE BUFFER bf-oe-ord                   FOR oe-ord.
 /**********************  Preprocessor Definitions  ******************** */
 
 
@@ -347,17 +349,22 @@ DO:
                         ELSE
                             "ProductionReady"
         cEnteredBy    = job.user-id
-        cJobDueDate   = STRING(job.due-date)
+        cJobDueDate   = IF job.due-date NE ? THEN STRING(job.due-date) ELSE "12/31/2049"
         cJobDueTime   = STRING(job.due-time)
         cJobStartDate = STRING(job.start-date)
         .
-    
-    FIND FIRST bf-users NO-LOCK
-         WHERE bf-users.user_id EQ cCSRID
-         NO-ERROR.
-    IF AVAILABLE bf-users THEN
-        cCSRName = bf-users.user_name.    
 
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ job.company
+           AND bf-oe-ord.job-no  EQ job.job-no
+           AND bf-oe-ord.job-no2 EQ job.job-no2 
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ord THEN
+        ASSIGN
+            cSalesPersonID   = bf-oe-ord.sman[1]
+            cSalesPersonName = bf-oe-ord.sname[1]
+            . 
+    
     FOR EACH bf-notes NO-LOCK
         WHERE bf-notes.rec_key   EQ job.rec_key
           AND bf-notes.note_code EQ "SC":
@@ -477,6 +484,8 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Estimate",cEstimate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRID",cCSRID).              
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "CSRName",cCSRName).  
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "SalesPersonName",cSalesPersonName).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "SalesPersonID",cSalesPersonID).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "EnteredBy",cEnteredBy).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueDate",cJobDueDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobDueTime",cJobDueTime).
@@ -923,6 +932,10 @@ PROCEDURE pUpdateItemInfo PRIVATE:
     DEFINE VARIABLE cItem        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProductCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIsASet      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth   AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cItemLength  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-itemfg FOR itemfg.
     
@@ -932,14 +945,22 @@ PROCEDURE pUpdateItemInfo PRIVATE:
          NO-ERROR.
     IF AVAILABLE bf-itemfg THEN
         ASSIGN
-            cItem     = bf-itemfg.i-no
-            cItemName = bf-itemfg.i-name
+            cItem        = bf-itemfg.i-no
+            cItemName    = bf-itemfg.i-name
             cProductCode = bf-itemfg.procat
+            cIsASet      = STRING(bf-itemfg.isaset, "TRUE/FALSE")
+            cItemWidth   = STRING(bf-itemfg.t-wid) 
+            cItemLength  = STRING(bf-itemfg.t-len)
+            cItemWidth   = STRING(bf-itemfg.t-wid)
             .
             
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Item", cItem).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FGItemName", cItemName).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ProductCode", cProductCode).    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsASet", cIsASet).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ItemLength", cItemLength).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ItemWidth", cItemWidth).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ItemDepth", cItemDepth).
 END PROCEDURE.
 
 PROCEDURE pIsACombottPart PRIVATE:
@@ -992,6 +1013,7 @@ PROCEDURE pProcessAMSData PRIVATE:
 
     RUN pCreateParts(
         BUFFER ipbf-job,
+        INPUT  lIsSet,
         INPUT  lIsNewCalculationMethod
         ).
         
@@ -1032,9 +1054,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
     
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-        
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If there is a Combo Form (multiple blanks out of one sheet/form), we need to add a “Combo Form” 
@@ -1067,9 +1089,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
 
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If the job is for a Set, we need to make the assumption that the last operation on the 
@@ -1125,7 +1147,9 @@ PROCEDURE pProcessAMSData PRIVATE:
                     ttTask.runQuantity = ttTask.runQuantity * ttPart.dieInches.
 
                 RUN updateRequestData(INPUT-OUTPUT lcTaskData, "RunQuantityWithCountMultiplier", STRING(ttTask.runQuantity)).
-
+                RUN updateRequestData(INPUT-OUTPUT lcTaskData, "Caliper", STRING(ttPart.caliper)).
+                RUN updateRequestData(INPUT-OUTPUT lcTaskData, "DieInches", STRING(ttPart.dieInches)).
+                
                 lcConcatTaskData = lcConcatTaskData + lcTaskData.                    
             END.
         END.
@@ -1232,7 +1256,8 @@ PROCEDURE pCreateParts PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-job FOR job.    
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.  
+    DEFINE INPUT  PARAMETER iplIsSet                  AS LOGICAL NO-UNDO.  
     DEFINE INPUT  PARAMETER iplIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
@@ -1247,6 +1272,9 @@ PROCEDURE pCreateParts PRIVATE:
     DEFINE VARIABLE cQuantity               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cKeyItem                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNumberOn               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLock                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityReceived       AS DECIMAL   NO-UNDO.
+    
     DEFINE VARIABLE lcJobHeaderData         AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcComboFormData         AS LONGCHAR  NO-UNDO.
                                             
@@ -1264,7 +1292,7 @@ PROCEDURE pCreateParts PRIVATE:
            AND bf-combo-APIOutboundDetail.parentID      EQ "JobHeader"
          NO-ERROR.
                                    
-    IF NOT iplIsNewCalculationMethod THEN DO:                    
+    IF NOT iplIsNewCalculationMethod AND iplIsSet THEN DO:                    
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company  EQ ipbf-job.company
                AND job-hdr.job      EQ ipbf-job.job
@@ -1304,8 +1332,18 @@ PROCEDURE pCreateParts PRIVATE:
                 cBlank    = TRIM(STRING(eb.blank-no,">9"))
                 cQuantity = STRING(job-hdr.qty * (IF eb.quantityperSet EQ 0 THEN 1 ELSE eb.quantityperSet))
                 cNumberOn = STRING(eb.num-up)
+                cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .
             
+            RUN fg/GetProductionQty.p (
+                INPUT  job-hdr.company,
+                INPUT  job-hdr.job-no,
+                INPUT  job-hdr.job-no2,
+                INPUT  job-hdr.i-no,
+                INPUT  NO,
+                OUTPUT dQuantityReceived
+                ).
+                                
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
             
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
@@ -1318,6 +1356,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
             
             CREATE ttPart.
             ASSIGN
@@ -1326,6 +1366,7 @@ PROCEDURE pCreateParts PRIVATE:
                 ttPart.partID      = eb.stock-no
                 ttPart.location    = eb.loc
                 ttPart.dieInches   = ef.die-in
+                ttPart.caliper     = ef.cal
                 ttPart.requestData = lcJobHeaderData
                 ttPart.comboPart   = lIsACombo
                 .
@@ -1359,8 +1400,18 @@ PROCEDURE pCreateParts PRIVATE:
             cQuantity = STRING(job-hdr.qty)
             cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
             cNumberOn = STRING(job-hdr.n-on)
+            cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
             .
-        
+
+        RUN fg/GetProductionQty.p (
+            INPUT  job-hdr.company,
+            INPUT  job-hdr.job-no,
+            INPUT  job-hdr.job-no2,
+            INPUT  job-hdr.i-no,
+            INPUT  NO,
+            OUTPUT dQuantityReceived
+            ).
+                    
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
         
         RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
@@ -1372,7 +1423,9 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                         
         CREATE ttPart.
         ASSIGN
@@ -1413,8 +1466,18 @@ PROCEDURE pCreateParts PRIVATE:
                 cBlank    = TRIM(STRING(job-hdr.blank-no,">9"))
                 cQuantity = STRING(job-hdr.qty)
                 cNumberOn = STRING(job-hdr.n-on)
+                cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
                 .
-            
+
+            RUN fg/GetProductionQty.p (
+                INPUT  job-hdr.company,
+                INPUT  job-hdr.job-no,
+                INPUT  job-hdr.job-no2,
+                INPUT  job-hdr.i-no,
+                INPUT  NO,
+                OUTPUT dQuantityReceived
+                ).
+                            
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
             
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
@@ -1426,7 +1489,9 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).                    
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                 
             CREATE ttPart.
             ASSIGN
@@ -1439,7 +1504,10 @@ PROCEDURE pCreateParts PRIVATE:
                 .
             
             IF AVAILABLE bf-ef THEN
-                ttPart.dieInches = bf-ef.die-in.
+                ASSIGN
+                    ttPart.dieInches = bf-ef.die-in
+                    ttPart.caliper   = bf-ef.cal
+                    .
                 
             IF LAST-OF(job-hdr.frm) THEN DO:
                 IF lIsACombo AND AVAILABLE bf-combo-APIOutboundDetail THEN DO:
@@ -1481,8 +1549,18 @@ PROCEDURE pCreateParts PRIVATE:
             cQuantity = STRING(job-hdr.qty)
             cKeyItem  = STRING(INTEGER(job-hdr.keyItem))
             cNumberOn = STRING(job-hdr.n-on)
+            cLock     = STRING(job-hdr.lock, "TRUE/FALSE")
             .
-        
+
+        RUN fg/GetProductionQty.p (
+            INPUT  job-hdr.company,
+            INPUT  job-hdr.job-no,
+            INPUT  job-hdr.job-no2,
+            INPUT  job-hdr.i-no,
+            INPUT  NO,
+            OUTPUT dQuantityReceived
+            ).
+                        
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
 
         RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
@@ -1494,7 +1572,9 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "KeyItem", cKeyItem). 
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "NumberOn", cNumberOn).   
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
-        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQuantity",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
                     
         CREATE ttPart.
         ASSIGN
@@ -1602,9 +1682,20 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     DEFINE INPUT  PARAMETER iplcJobMachineData             AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplcConcatJobMachineDataByItem AS LONGCHAR  NO-UNDO.
 
-    DEFINE VARIABLE lcJobMachineDataByItem        AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcJobMachineDataByItem AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iQuantityWastedMR      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantityWastedRun     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQuantityWasted        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantityRun           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHoursMR               AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHoursRun              AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lComplete              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStartedMR             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStartedRun            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lStarted               AS LOGICAL   NO-UNDO.
     
-    DEFINE BUFFER bf-mach FOR mach.
+    DEFINE BUFFER bf-mach    FOR mach.
+    DEFINE BUFFER bf-mch-act FOR mch-act.
     
     IF NOT AVAILABLE ipbf-job-mch THEN
         RETURN.
@@ -1641,6 +1732,7 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cSetupEndTime              = TRIM(STRING(ipbf-job-mch.end-time-su,"->,>>>,>>9"))
         cMRComplete                = STRING(ipbf-job-mch.mr-complete)
         cRunComplete               = STRING(ipbf-job-mch.run-complete)
+        lComplete                  = ipbf-job-mch.mr-complete AND ipbf-job-mch.run-complete
         cJobMchDueDate             = STRING(ipbf-job-mch.due-date,"99/99/9999")
         cJobMchDueTime             = TRIM(STRING(ipbf-job-mch.due-time,">>>>9"))
         cMRTotalRate               = TRIM(STRING(ipbf-job-mch.mr-trate,">>9.99"))
@@ -1655,7 +1747,35 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         cJobMachineID              = TRIM(STRING(ipbf-job-mch.job-mchID,">>>>>>9"))
         cJobMchWastePct            = TRIM(STRING(ipbf-job-mch.wst-prct,">>9.99"))
         . 
+    
+    FOR EACH bf-mch-act NO-LOCK
+        WHERE bf-mch-act.company  EQ ipbf-job-mch.company
+          AND bf-mch-act.job      EQ ipbf-job-mch.job
+          AND bf-mch-act.job-no   EQ ipbf-job-mch.job-no
+          AND bf-mch-act.job-no2  EQ ipbf-job-mch.job-no2
+          AND bf-mch-act.frm      EQ ipbf-job-mch.frm
+          AND bf-mch-act.blank-no EQ ipbf-job-mch.blank-no
+          AND bf-mch-act.m-code   EQ ipbf-job-mch.m-code:
+        IF bf-mch-act.code EQ "MR" THEN
+            ASSIGN
+                lStartedMR        = TRUE
+                iQuantityWastedMR = iQuantityWastedMR + bf-mch-act.waste
+                dQuantityRun      = dQuantityRun + bf-mch-act.qty
+                dHoursMR          = dHoursMR + bf-mch-act.hours
+                .
+        IF bf-mch-act.code EQ "Run" THEN
+            ASSIGN
+                lStartedRun        = TRUE
+                iQuantityWastedRun = iQuantityWastedRun + bf-mch-act.waste
+                dHoursRun          = dHoursRun + bf-mch-act.hours
+                .
+    END.
 
+    ASSIGN
+        lStarted        = lStartedMR OR lStartedRun
+        iQuantityWasted = iQuantityWastedMR + iQuantityWastedRun
+        .
+                 
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Anchored",cAnchored).   
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Blank",cJobMchBlank).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Department",cDepartment).
@@ -1697,6 +1817,18 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "RunProfitPercentage",cRunProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MRProfitPercentage",cMRProfitPct).
     RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "WastePercentage",cJobMchWastePct).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedMR",STRING(lStartedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "StartedRun",STRING(lStartedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Started", STRING(lStarted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedMR", cMRComplete).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "CompletedRun", cRunComplete).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "Completed", STRING(lComplete)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedMR", STRING(iQuantityWastedMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWastedRun", STRING(iQuantityWastedRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityWasted", STRING(iQuantityWasted)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "QuantityRun", STRING(dQuantityRun)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursMR", STRING(dHoursMR)).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "HoursRun", STRING(dHoursRun)).
     
     FIND FIRST bf-mach NO-LOCK
          WHERE bf-mach.company EQ ipbf-job-mch.company

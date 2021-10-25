@@ -60,7 +60,7 @@ DEFINE TEMP-TABLE ttImportEstimate
     FIELD WidthDie        AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die W" HELP "Optional - Decimal"
     FIELD LengthDie       AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Die L" HELP "Optional - Decimal"
     FIELD InkDescription  AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ink Description" HELP "Optional - Size:30"
-    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors" HELP "Optional - If not provided, derived from provided Ink Codes or 0"
+    FIELD InkColors       AS INTEGER   FORMAT ">>" COLUMN-LABEL "Colors" HELP "Optional - If not provided derived from provided Ink Codes or 0"
     FIELD Ink1Code        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Ink 1 Code" HELP "Optional - Field Validated - Size:10"
     FIELD Ink1Coverage    AS DECIMAL   FORMAT ">>.99" COLUMN-LABEL "Ink 1 Coverage" HELP "Optional - Decimal"
     FIELD Ink1Unit        AS INTEGER   FORMAT ">>" COLUMN-LABEL "Ink 1 Unit" HELP "Optional - Integer"
@@ -123,7 +123,8 @@ DEFINE TEMP-TABLE ttImportEstimate
 
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -133,6 +134,9 @@ DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 4. /*Set to 1 if there is 
 /* **********************  Internal Procedures  *********************** */
  /*This Include Initializes the ttImportMap based on the temp-table definition - Procedure pInitialize*/
 {util/ImportProcs.i &ImportTempTable = "ttImportEstimate"}
+
+IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+    RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
 
 PROCEDURE pAddBoxDesign:
     /*------------------------------------------------------------------------------
@@ -145,71 +149,30 @@ PROCEDURE pAddBoxDesign:
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
     
-    FIND FIRST box-design-hdr EXCLUSIVE-LOCK 
-        WHERE box-design-hdr.company EQ ipbf-eb.company
-        AND box-design-hdr.design-no EQ 0 
-        AND box-design-hdr.est-no EQ  ipbf-eb.est-no
-        AND box-design-hdr.form-no   EQ ipbf-eb.form-no
-        AND box-design-hdr.blank-no  EQ ipbf-eb.blank-no
-        NO-ERROR.
-    IF NOT AVAILABLE box-design-hdr THEN 
+    
+    IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+        RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildBoxDesignForEstimate IN hdFormulaProcs (
+        INPUT ROWID(ipbf-eb)
+        ).
+    
+    /* Builds the Box design */
+    RUN est/BuildBoxDesign.p ("B", ROWID(ipbf-eb)). 
+    
+    IF ipcImageFile NE "" THEN
     DO:
-        FIND FIRST style NO-LOCK  
-            WHERE style.company EQ ipbf-eb.company
-            AND style.style   EQ ipbf-eb.style
+        FIND FIRST bf-box-design-hdr EXCLUSIVE-LOCK 
+            WHERE bf-box-design-hdr.company EQ ipbf-eb.company
+            AND bf-box-design-hdr.design-no EQ 0 
+            AND bf-box-design-hdr.est-no EQ  ipbf-eb.est-no
+            AND bf-box-design-hdr.form-no   EQ ipbf-eb.form-no
+            AND bf-box-design-hdr.blank-no  EQ ipbf-eb.blank-no
             NO-ERROR.
-        IF AVAILABLE style THEN
-            FIND FIRST bf-box-design-hdr NO-LOCK  
-                WHERE bf-box-design-hdr.design-no EQ style.design-no
-                AND bf-box-design-hdr.company   EQ style.company   
-                AND bf-box-design-hdr.est-no    EQ ""
-                NO-ERROR.
         IF AVAILABLE bf-box-design-hdr THEN 
-        DO:
-            /*            RUN cec/descalc.p (RECID(xest), RECID(ipbf-eb)).*/
-     
-            CREATE box-design-hdr.
-            ASSIGN  
-                box-design-hdr.design-no    = 0
-                box-design-hdr.company      = ipbf-eb.company
-                box-design-hdr.est-no       = ipbf-eb.est-no
-                box-design-hdr.form-no      = ipbf-eb.form-no
-                box-design-hdr.blank-no     = ipbf-eb.blank-no
-                box-design-hdr.description  = IF AVAILABLE bf-box-design-hdr THEN
-                                             bf-box-design-hdr.description ELSE ""
-                /*                    box-design-hdr.lscore       = v-lscore-c    */
-                /*                    box-design-hdr.lcum-score   = v-lcum-score-c*/
-                box-design-hdr.wscore       = bf-box-design-hdr.wscore
-                box-design-hdr.wcum-score   = bf-box-design-hdr.wcum-score
-                box-design-hdr.box-text     = bf-box-design-hdr.box-text
-                box-design-hdr.box-image    = bf-box-design-hdr.box-image
-                box-design-hdr.box-3d-image = bf-box-design-hdr.box-3d-image
-                .
-           
-            FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
-                CREATE box-design-line.
-                ASSIGN 
-                    box-design-line.design-no = box-design-hdr.design-no
-                    box-design-line.company   = box-design-hdr.company
-                    box-design-line.est-no    = box-design-hdr.est-no
-                    box-design-line.form-no   = box-design-hdr.form-no
-                    box-design-line.blank-no  = box-design-hdr.blank-no
-                    box-design-line.line-no   = bf-box-design-line.line-no
-                    box-design-line.line-text = bf-box-design-line.line-text.
-     
-                /*                FIND FIRST w-box-design-line                                              */
-                /*                    WHERE w-box-design-line.line-no EQ box-design-line.line-no   NO-ERROR.*/
-                /*                                                                                          */
-                /*                IF AVAILABLE w-box-design-line THEN                                       */
-                /*                    ASSIGN  box-design-line.wscore     = w-box-design-line.wscore-c       */
-                /*                        box-design-line.wcum-score = w-box-design-line.wcum-score-c.      */
-
-                RELEASE box-design-line.
-            END.
-        END.
+            bf-box-design-hdr.box-image = ipcImageFile.
     END.
-    IF ipcImageFile NE "" THEN 
-        box-design-hdr.box-image = ipcImageFile.
     
 END PROCEDURE.
 
@@ -613,6 +576,21 @@ PROCEDURE pValidate PRIVATE:
                     opcNote  = "Invalid Board ID"
                     .
         END.
+        IF oplValid AND ipbf-ttImportEstimate.BoardID EQ "" 
+            AND ipbf-ttImportEstimate.Flute NE "" AND ipbf-ttImportEstimate.Test NE "" THEN 
+        DO:
+            FIND FIRST ITEM NO-LOCK 
+                WHERE item.company EQ ipbf-ttImportEstimate.Company
+                AND  item.flute EQ ipbf-ttImportEstimate.Flute
+                AND item.reg-no EQ ipbf-ttImportEstimate.Test
+                NO-ERROR.
+                
+            IF NOT AVAILABLE item THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote  = "Board not found matching Flute and Test"
+                    .
+        END.
         IF oplValid AND ipbf-ttImportEstimate.GlueID NE "" THEN 
         DO:
             FIND FIRST item NO-LOCK 
@@ -796,6 +774,19 @@ PROCEDURE pAssignInks:
 
 END PROCEDURE.
 
+PROCEDURE pCalculateEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Runs the calculation program to build the calculated estimate data
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstNo   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO INIT NO.
+    
+    RUN CalculateEstimate IN hdEstimateCalcProcs (ipcCompany, ipcEstNo, lPurge).
+    
+END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
@@ -807,16 +798,25 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
 
-    DEFINE VARIABLE riEb      AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEstType  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE riItemfg  AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE riEb        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cIndustry   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEstType    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE riItemfg    AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cEstNumber  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstGroup   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNewGroup   AS LOGICAL   NO-UNDO.
+    
+    /*Shipto address*/
+    DEFINE VARIABLE riShipto      AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE hCustProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
+    IF NOT VALID-HANDLE(hCustProcs) THEN
+        RUN system/CustomerProcs.p  PERSISTENT SET hCustProcs.
+
+    DEFINE BUFFER bf-style            FOR style.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
@@ -973,24 +973,37 @@ PROCEDURE pProcessRecord PRIVATE:
     IF AVAILABLE cust THEN 
     DO: 
         eb.cust-no = cust.cust-no.
-        IF ipbf-ttImportEstimate.ShipToID NE '' THEN 
-            FIND FIRST shipto NO-LOCK 
-                WHERE shipto.company EQ cust.company
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ ipbf-ttImportEstimate.ShipToID
-                NO-ERROR .
-        IF NOT AVAILABLE shipto THEN 
-            FIND FIRST shipto NO-LOCK 
-                WHERE shipto.company EQ cust.company
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAILABLE shipto THEN 
-            FIND FIRST shipto OF cust NO-LOCK NO-ERROR.
-        IF AVAILABLE shipto THEN
-            eb.ship-id = shipto.ship-id.
-        ELSE 
-            eb.ship-id = cust.cust-no.
+
+        IF ipbf-ttImportEstimate.ShipToID = "" THEN
+        DO: 
+            RUN Customer_GetDefaultShipTo IN hCustProcs(INPUT cust.company,
+                                                        INPUT cust.cust-no,
+                                                        OUTPUT riShipto).
+            FIND FIRST shipto WHERE ROWID(shipto) = riShipto NO-LOCK NO-ERROR.
+            
+            ipbf-ttImportEstimate.ShipToID = shipto.ship-id.
+            RELEASE shipto.
+        END.
+        
+        eb.ship-id = ipbf-ttImportEstimate.ShipToID.
+        
+        IF eb.ship-id <> "" THEN 
+            RUN Customer_getShiptoDetails IN hCustProcs 
+                                         (INPUT cust.company,
+                                          INPUT cust.cust-no,
+                                          INPUT eb.ship-id,
+                                          OUTPUT eb.ship-name,
+                                          OUTPUT eb.ship-addr[1],
+                                          OUTPUT eb.ship-addr[2],
+                                          OUTPUT eb.ship-city,
+                                          OUTPUT eb.ship-state,
+                                          OUTPUT eb.ship-zip,
+                                          OUTPUT eb.carrier,
+                                          OUTPUT eb.dest-code) .
+                                          
+        IF eb.ship-id = "" THEN 
+            eb.ship-id = cust.cust-no. /*maintained existing logic can be assigned to temp*/
+ 
         eb.sman = cust.sman.
     END.
     IF ipbf-ttImportEstimate.SalesManID NE '' THEN 
@@ -998,8 +1011,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF ipbf-ttImportEstimate.GlueID NE '' THEN 
         eb.adhesive = ipbf-ttIMportEstimate.GlueID.
-                
-    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN 
+    ELSE 
+        FOR FIRST bf-style NO-LOCK 
+            WHERE bf-style.company = eb.company 
+            AND bf-style.style   = eb.style:
+            eb.adhesive = bf-style.material[7].
+        END.
+         
+    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN
         eb.tab-in = YES.
     ELSE 
         eb.tab-in = ipbf-ttImportEstimate.TabInOut EQ "In".
@@ -1090,14 +1109,24 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAddNotes(BUFFER ipbf-ttImportEstimate, "Spec", itemfg.rec_key).
         RUN pAddFarm(BUFFER ipbf-ttImportEstimate, BUFFER eb, itemfg.i-no).
             
-    END. 
-    IF ipbf-ttImportEstimate.ImageBoxDesign NE "" THEN 
-        RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
+    END.
+    
+    FIND CURRENT eb NO-LOCK NO-ERROR.
+    
+    RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
+    RUN pCalculateEstimate (est.company, est.est-no).
+    
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.
     RELEASE eb.
+    
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+        
+    IF VALID-HANDLE(hCustProcs) THEN 
+        DELETE PROCEDURE hCustProcs NO-ERROR.
     
 END PROCEDURE.
 

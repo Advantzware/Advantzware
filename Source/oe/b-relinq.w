@@ -65,6 +65,8 @@ DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE v-col-move AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE lc-rs AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lc-mi AS CHARACTER NO-UNDO.
+DEFINE VARIABLE li-qoh AS INTEGER NO-UNDO.
+DEFINE VARIABLE li-bal AS INTEGER NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -161,7 +163,7 @@ END.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
-oe-rell.ord-no getRS() @ lc-rs getMI() @ lc-mi oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
+oe-rell.ord-no getRS() @ lc-rs getMI() @ lc-mi get-bal(li-qoh) @ li-bal oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
 oe-relh.ship-id oe-rell.i-no oe-relh.rel-date oe-rell.job-no ~
 oe-rell.job-no2 oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty ~
 get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
@@ -255,6 +257,13 @@ FUNCTION getMI RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getRS B-table-Win 
 FUNCTION getRS RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-bal B-table-Win 
+FUNCTION get-bal RETURNS INTEGER
+  (OUTPUT op-qoh AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -377,6 +386,7 @@ DEFINE BROWSE Browser-Table
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>>":U
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(8)":U
             WIDTH 10
+      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U      
   ENABLE
       oe-relh.release#
       oe-rell.ord-no
@@ -1930,6 +1940,44 @@ FUNCTION getRS RETURNS CHARACTER
     IF oe-ordl.whsed THEN lc-result = "X".
 
     RETURN lc-result.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-bal B-table-Win 
+FUNCTION get-bal RETURNS INTEGER
+  (OUTPUT op-qoh AS INTEGER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE iTotalJobOnHandQty AS INTEGER     NO-UNDO.
+
+/*   IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN */
+
+    FOR EACH job-hdr FIELDS(company job-no job-no2 i-no)
+        WHERE job-hdr.company EQ cocode
+        AND job-hdr.ord-no EQ oe-ordl.ord-no 
+        AND job-hdr.i-no EQ oe-ordl.i-no
+        USE-INDEX ord-no
+        NO-LOCK
+        BREAK BY job-hdr.job-no BY job-hdr.job-no2 BY job-hdr.i-no:
+        IF LAST-OF(job-hdr.i-no) THEN 
+        DO:    
+            FOR EACH fg-bin FIELDS (qty)
+                WHERE fg-bin.company EQ job-hdr.company
+                AND fg-bin.job-no  EQ job-hdr.job-no
+                AND fg-bin.job-no2 EQ job-hdr.job-no2
+                AND fg-bin.i-no    EQ job-hdr.i-no
+                NO-LOCK:
+                iTotalJobOnHandQty = iTotalJobOnHandQty + fg-bin.qty.
+            END.
+        END.
+    END.
+    op-qoh = iTotalJobOnHandQty.
+RETURN iTotalJobOnHandQty.    /* Function return value. */
 
 END FUNCTION.
 

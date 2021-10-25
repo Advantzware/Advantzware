@@ -184,7 +184,7 @@
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "Depth", STRING(hdTTBuffer:BUFFER-FIELD("boxDep"):BUFFER-VALUE)).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "Flute", hdTTBuffer:BUFFER-FIELD("flute"):BUFFER-VALUE).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "Test", hdTTBuffer:BUFFER-FIELD("test"):BUFFER-VALUE).
-                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "Vendor", hdTTBuffer:BUFFER-FIELD("vendor"):BUFFER-VALUE).
+                    RUN updateRequestData(INPUT-OUTPUT lcTagData, "Vendor", hdTTBuffer:BUFFER-FIELD("vendorName"):BUFFER-VALUE).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "GrossWeight", STRING(hdTTBuffer:BUFFER-FIELD("grossWeight"):BUFFER-VALUE)).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "TareWeight", STRING(hdTTBuffer:BUFFER-FIELD("tareWeight"):BUFFER-VALUE)).
                     RUN updateRequestData(INPUT-OUTPUT lcTagData, "NetWeight", STRING(hdTTBuffer:BUFFER-FIELD("netWeight"):BUFFER-VALUE)).
