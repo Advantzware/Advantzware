@@ -79,6 +79,8 @@ PROCEDURE pCalcNextRun:
                 Task.lastTime  = TIME
                 Task.cLastTime = fTimeConvert(Task.lastTime)
                 Task.isRunning = NO
+                Task.taskStart = ?
+                Task.expired   = NO
                 .
             PAUSE 2 NO-MESSAGE.
         END. /* if ipllastdate */

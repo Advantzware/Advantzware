@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InvoicePrint" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
-    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="InvoicePrintAdapter.xml"/>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InvoiceForm" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="InvoiceFormAdapter.xml"/>
     <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
     <style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false"/>
     <style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false"/>
@@ -58,11 +58,11 @@
         </box>
     </style>
     <subDataset name="Detail1">
-        <property name="net.sf.jasperreports.data.adapter" value="InvoicePrintAdapter.xml"/>
+        <property name="net.sf.jasperreports.data.adapter" value="InvoiceFormAdapter.xml"/>
         <property name="net.sf.jasperreports.json.source" value="jsonFormFile"/>
         <parameter name="paramRecordID" class="java.lang.String"/>
         <queryString language="json">
-            <![CDATA[Invoice_Print.Detail1(ttFormDetail__recordID == $P{paramRecordID})]]>
+            <![CDATA[Invoice_Form.Detail1(ttFormDetail__recordID == $P{paramRecordID})]]>
         </queryString>
         <field name="ttFormDetail__invoiceID" class="java.lang.Integer">
             <property name="net.sf.jasperreports.json.field.expression" value="ttFormDetail__invoiceID"/>
@@ -230,10 +230,10 @@
         </field>
     </subDataset>
     <subDataset name="Summary1">
-        <property name="net.sf.jasperreports.data.adapter" value="InvoicePrintAdapter.xml"/>
+        <property name="net.sf.jasperreports.data.adapter" value="InvoiceFormAdapter.xml"/>
         <property name="net.sf.jasperreports.json.source" value="jsonFormFile"/>
         <queryString language="json">
-            <![CDATA[Invoice_Print.Summary1]]>
+            <![CDATA[Invoice_Form.Summary1]]>
         </queryString>
         <field name="ttFormSummary__company" class="java.lang.String">
             <property name="net.sf.jasperreports.json.field.expression" value="ttFormSummary__company"/>
@@ -310,7 +310,7 @@
     </subDataset>
     <parameter name="paramRecordID" class="java.lang.String" isForPrompting="false"/>
     <queryString language="json">
-        <![CDATA[Invoice_Print.InvoicePrint]]>
+        <![CDATA[Invoice_Form.InvoiceForm]]>
     </queryString>
         <field name="ttFormHeader__invoiceID" class="java.lang.Integer">
             <property name="net.sf.jasperreports.json.field.expression" value="ttFormHeader__invoiceID"/>
@@ -523,7 +523,7 @@
         <band height="298" splitType="Stretch">
             <image scaleImage="FillFrame">
                 <reportElement x="456" y="0" width="99" height="132"/>
-                <imageExpression><![CDATA["C:/Advantzware/v16/Resources/Graphics/advantzware_logo.jpg"]]></imageExpression>
+                <imageExpression><![CDATA["N:/Environments/Devel/Resources/Graphics/advantzware_logo.jpg"]]></imageExpression>
             </image>
             <frame>
                 <reportElement mode="Opaque" x="0" y="0" width="451" height="95" backcolor="#4235FC"/>

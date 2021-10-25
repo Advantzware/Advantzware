@@ -8217,14 +8217,16 @@ PROCEDURE update-set :
   IF lv-type = ? THEN
       RETURN NO-APPLY.
   lv-old-type = est.est-type.
-
+     
   IF lv-type NE lv-old-type THEN DO:
+    IF lv-old-type EQ 6 AND lv-type EQ 5 THEN
+    RUN pResetQtySet(ROWID(est)).
     FIND CURRENT est.
     est.est-type = lv-type.
     RUN reset-est-type (OUTPUT lv-type).
     FIND CURRENT est NO-LOCK.
   END.
-  
+     
   IF est.est-type EQ 6 THEN DO:
      IF lv-old-type GE 7 THEN DO:
         FOR EACH bf-eb FIELDS(yld-qty)

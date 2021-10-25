@@ -5,6 +5,7 @@ DEF BUFFER xef-nsh     FOR ef-nsh.
 DEF BUFFER bf-notes    FOR notes.
 DEF BUFFER blankcp2-eb FOR eb.
 DEF BUFFER xest-prep FOR est-prep.
+DEFINE BUFFER bfDefault-prep FOR prep.
 
 DEF VAR j AS INT NO-UNDO.
 DEF VAR ll-copied-from-eb AS LOG INIT NO NO-UNDO.
@@ -207,6 +208,12 @@ IF lv-copied NE ? THEN DO:
         est-prep.est-no EQ bf-eb.est-no AND
         est-prep.s-num EQ bf-eb.form-no
         NO-LOCK:
+            
+        /* Don't copy the Default Preps. Those will be added later through BuildDefaultPreps.p */
+        IF CAN-FIND (FIRST bfDefault-prep WHERE bfDefault-prep.company EQ est-prep.company
+            AND bfDefault-prep.code    EQ est-prep.code
+            AND bfDefault-prep.dfault  EQ YES) THEN
+            NEXT.
 
         IF est-prep.b-num EQ bf-eb.blank-no OR
            est-prep.b-num EQ 0 THEN
