@@ -72,7 +72,8 @@ DO TRANSACTION:
     {sys/inc/postdate.i}
 END.
 
-DEFINE STREAM excel.
+DEF STREAM excel.
+DEFINE BUFFER bf-period FOR period.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -392,9 +393,10 @@ ON WINDOW-CLOSE OF C-Win /* Miscellaneous Cash Receipts Register */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Receipt Date */
-    DO:
-        ASSIGN {&self-name}.
-    END.
+DO:
+  assign {&self-name}.
+  {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 2}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -414,13 +416,20 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
-        DEFINE VARIABLE lv-post  AS LOG NO-UNDO.
-        DEFINE VARIABLE op-error AS LOG NO-UNDO.
+DO:
+  DEF VAR lv-post AS LOG NO-UNDO.
+  DEF VAR op-error AS LOG NO-UNDO.
 
-        RUN check-date.
-        IF v-invalid THEN
-            RETURN NO-APPLY.
+  run check-date.
+  if v-invalid then
+     return no-apply.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+     {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
+  
+     {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
+     ASSIGN {&DISPLAYED-OBJECTS}.
+  END.     
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
@@ -513,6 +522,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Receipt Date */
     DO:
         ASSIGN {&self-name}.
+        {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 2}
     END.
 
 /* _UIB-CODE-BLOCK-END */

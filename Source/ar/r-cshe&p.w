@@ -3,9 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: ar\r-cshe&p.w
-
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -76,7 +74,8 @@ DEFINE TEMP-TABLE ttGLTrans NO-UNDO
     FIELD tr-date AS DATE 
     FIELD period  AS INTEGER 
     FIELD tr-num  AS INTEGER
-    FIELD tr-amt  AS DECIMAL.  
+    FIELD tr-amt  AS DECIMAL
+    FIELD doDscr  AS CHARACTER.  
     
 DEFINE TEMP-TABLE ttARLedger NO-UNDO
     FIELD company  AS CHARACTER 
@@ -85,7 +84,9 @@ DEFINE TEMP-TABLE ttARLedger NO-UNDO
     FIELD ref-num  AS CHARACTER 
     FIELD ref-date AS DATE 
     FIELD tr-date  AS DATE 
-    FIELD tr-num   AS INTEGER.     
+    FIELD tr-num   AS INTEGER.  
+    
+DEFINE BUFFER bf-period FOR period.    
    
 DO TRANSACTION:
     {sys/inc/oecredit.i}
@@ -496,6 +497,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Receipt Date */
     DO:
         ASSIGN {&self-name}.
+        {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 2}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,9 +523,13 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
 
         RUN check-date.
-        IF v-invalid THEN RETURN NO-APPLY. 
+        IF v-invalid THEN RETURN NO-APPLY.
 
         DO WITH FRAME {&FRAME-NAME}:
+            {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
+        
+            {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 2}
+            
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
 
@@ -639,6 +645,7 @@ ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Receipt Date */
     DO:
         ASSIGN {&self-name}.
+       {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 2}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1113,7 +1120,7 @@ PROCEDURE pCreateGLTrans PRIVATE :
             ttGLTrans.period,
             "A",
             ttGLTrans.tr-date,
-            "",
+            ttGLTrans.doDscr,
             "AR").
         
         DELETE ttGLTrans.        
@@ -1248,7 +1255,9 @@ PROCEDURE post-gl :
                         ttGLTrans.tr-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
                         ttGLTrans.period  = tran-period
                         ttGLTrans.tr-num  = xtrnum
-                        ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc
+                        ttGLTrans.doDscr  = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                             " Date: " + STRING(tran-date)
+                        ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc                        
                         .
     
                     IF ar-cashl.amt-disc NE 0 THEN 
@@ -1264,7 +1273,9 @@ PROCEDURE post-gl :
                             ttGLTrans.tr-date = tran-date
                             ttGLTrans.tr-amt  = ar-cashl.amt-disc
                             ttGLTrans.period  = tran-period
-                            ttGLTrans.tr-num  = xtrnum.
+                            ttGLTrans.tr-num  = xtrnum
+                            ttGLTrans.doDscr  = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                                " Date: " + STRING(tran-date).
                     
                         CREATE ttArLedger.
                         ASSIGN
@@ -1276,7 +1287,9 @@ PROCEDURE post-gl :
                                                  "-" + STRING(ar-cashl.line,"9999999999")
                             ttARLedger.ref-date = ar-cash.check-date
                             ttARLedger.tr-date  = tran-date
-                            ttARLedger.tr-num   = xtrnum.
+                            ttARLedger.tr-num   = xtrnum
+                            ttGLTrans.doDscr    = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                                  " Date: " + STRING(tran-date).
                     END.
                 END.
             END.  /* each line */
@@ -1315,6 +1328,8 @@ PROCEDURE post-gl :
                         ttGlTrans.period  = tran-period
                         ttGlTrans.tr-num  = xtrnum
                         lv-rowid          = ROWID(ttGLTrans)
+                        ttGLTrans.doDscr  = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                            " Date: " + STRING(tran-date)
                         .
                 END.
                 ttGLTrans.tr-amt = ttGLTrans.tr-amt - t1.
@@ -1329,6 +1344,8 @@ PROCEDURE post-gl :
                 ttARLedger.ref-date = ar-cash.check-date
                 ttARLedger.tr-date  = tran-date
                 ttARLedger.tr-num   = xtrnum
+                ttGLTrans.doDscr    = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                      " Date: " + STRING(tran-date)
                 ar-cash.posted      = YES.
             
             RELEASE cust.    
@@ -1348,6 +1365,8 @@ PROCEDURE post-gl :
                     ttGLTrans.period  = tran-period
                     ttGLTrans.tr-num  = xtrnum
                     ttGLTrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
+                    ttGLTrans.doDscr  = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                        " Date: " + STRING(tran-date)
                     .
         
                 CREATE ttGLTrans.
@@ -1359,7 +1378,9 @@ PROCEDURE post-gl :
                     ttGLTrans.tr-date = tran-date
                     ttGLTrans.period  = tran-period
                     ttGLTrans.tr-num  = xtrnum
-                    ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
+                    ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
+                    ttGLTrans.doDscr  = "Check: " + STRING(ar-cash.check-no,"999999999999") +
+                                        " Date: " + STRING(tran-date).
             END.
 
             RUN pCreateARLedger.
