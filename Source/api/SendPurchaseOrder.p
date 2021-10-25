@@ -715,7 +715,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 dCostInMSF                  = po-ordl.cost
                 dQuantityInSF               = po-ordl.ord-qty
                 cTotalLineCost              = STRING(po-ordl.t-cost)
-                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"999999")
+                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 

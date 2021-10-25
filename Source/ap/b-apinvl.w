@@ -294,7 +294,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ap-invl.po-no FORMAT ">>>>>9":U WIDTH 13.4 LABEL-BGCOLOR 14
+      ap-invl.po-no FORMAT ">>>>>>>9":U WIDTH 13.4 LABEL-BGCOLOR 14
       display-line() @ ap-invl.line COLUMN-LABEL "Line" FORMAT "999":U
       ap-invl.actnum COLUMN-LABEL "Account Number" FORMAT "x(25)":U
             LABEL-BGCOLOR 14

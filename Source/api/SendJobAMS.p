@@ -851,7 +851,7 @@ PROCEDURE pCreateMaterials PRIVATE:
             cMRQuantity             = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
             cWasteQuantity          = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
             cDepth                  = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
-            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>9"))
+            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>>>9"))
             cCrossGrain             = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
                                                 ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
             .
