@@ -31,7 +31,7 @@
     DEFINE VARIABLE cJobID2           AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE iProductionQuantity AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityReceivedJobTotal AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
     DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
@@ -143,7 +143,7 @@
                 INPUT  bf-fg-rcpth.job-no2,
                 INPUT  bf-fg-rdtlh.i-no,
                 INPUT  NO,
-                OUTPUT iProductionQuantity
+                OUTPUT iQuantityReceivedJobTotal
                 ).                 
         END.
         
@@ -159,7 +159,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "POLineNumber", cPOLineNumber).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID", cJobID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID2", cJobID2).        
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ProductionQuantity", STRING(iProductionQuantity)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "QuantityReceivedJobTotal", STRING(iQuantityReceivedJobTotal)).
             
         ASSIGN
             opcMessage = ""
