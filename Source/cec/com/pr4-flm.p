@@ -83,7 +83,10 @@ for each est-flm
 
   RUN est/ef-#out.p (ROWID(bf-ef), OUTPUT v-n-out).
 
-  find first e-item of item no-lock no-error.
+  
+  RELEASE e-item.
+  IF NOT lNewVendorItemCost THEN
+    find first e-item of item no-lock no-error.
   fuom = if avail e-item then e-item.std-uom else item.cons-uom.
 
   find first bf-eb
