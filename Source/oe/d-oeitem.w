@@ -192,7 +192,12 @@ DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dRemainingQty   AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
-  
+DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
+ 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -596,7 +601,7 @@ oe-ordl.spare-char-2
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
-Btn_hist fi_jobStartDate btn-quotes btnTagsUnder btnViewDetail 
+Btn_hist fi_jobStartDate btn-quotes btnTagsUnder 
 &Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -1324,6 +1329,11 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnViewDetail IN FRAME d-oeitem
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnViewDetail:HIDDEN IN FRAME d-oeitem           = TRUE.
+
 ASSIGN 
        Btn_Done:HIDDEN IN FRAME d-oeitem           = TRUE.
 
@@ -3625,22 +3635,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-margin        = oe-ordl.q-qty.
 
   DO WITH FRAME {&FRAME-NAME}:
-      RUN sys/ref/nk1look.p (
-          oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
-          OUTPUT cFGBinInquiry, OUTPUT lFound
-          ).
-      RUN pViewDetail ("").
-      ASSIGN
+    ASSIGN
         deAutoOver  = oe-ordl.over-pct:INPUT-VALUE  IN FRAME {&frame-name}
         deAutoUnder = oe-ordl.under-pct:INPUT-VALUE IN FRAME {&frame-name}
         .
-/*     IF runship-log EQ YES THEN          */
-/*     DO:                                 */
-/*        ASSIGN                           */
-/*           oe-ordl.whse:HIDDEN = NO      */
-/*           oe-ordl.whse:SENSITIVE = YES. */
-/*        DISPLAY oe-ordl.whse.            */
-/*     END.                                */
 
     IF oeround-int LT 6 THEN
       oe-ordl.price:FORMAT =
@@ -3773,6 +3771,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ENABLE oe-ordl.qty.
       END. /* webupdate */
 
+      cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
+      IF cDisplayFGLocationDetails NE "NO" THEN DO:
+          RUN sys/ref/nk1look.p (
+              oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
+              OUTPUT cFGBinInquiry, OUTPUT lFound
+              ).
+          ASSIGN
+              btnViewDetail:SENSITIVE = YES
+              btnViewDetail:HIDDEN    = NO
+              .
+          IF cDisplayFGLocationDetails EQ "YES" THEN
+          RUN pViewDetail ("Locations").
+          ELSE
+          RUN pViewDetail ("").
+      END.
+
     END.
  
  IF ip-type NE "view" THEN DO:
@@ -3821,7 +3835,7 @@ END.
 RUN disable_UI.
 
 &Scoped-define Source OU1
-{methods/build-table.i}
+{methods/build-table.i "b"}
 {methods/pCheckRelease.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -6312,7 +6326,7 @@ PROCEDURE enable_UI :
          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
          oe-ordl.req-date oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-         fi_jobStartDate btn-quotes btnTagsUnder btnViewDetail 
+         fi_jobStartDate btn-quotes btnTagsUnder 
       WITH FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
 END PROCEDURE.

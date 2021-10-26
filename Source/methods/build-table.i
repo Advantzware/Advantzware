@@ -17,30 +17,42 @@ PROCEDURE build-table:
     EMPTY TEMP-TABLE w-job.
     
     lUnspecified = NO.
+    IF NOT AVAILABLE itemfg THEN
+    RETURN.
+
+    &IF "{1}" NE "" &THEN
+    DEFINE BUFFER {1}itemfg FOR itemfg.
+
+    FIND FIRST {1}itemfg NO-LOCK
+         WHERE {1}itemfg.company EQ itemfg.company
+           AND {1}itemfg.i-no    EQ cFGItem
+         NO-ERROR.
     IF NOT AVAILABLE {1}itemfg THEN
     RETURN.
+    &ENDIF
+
     FIND FIRST oe-ctrl NO-LOCK
          WHERE oe-ctrl.company EQ {1}itemfg.company
          NO-ERROR.
-    FOR EACH {1}itemfg-loc NO-LOCK
-        WHERE {1}itemfg-loc.company EQ {1}itemfg.company
-          AND {1}itemfg-loc.i-no    EQ {1}itemfg.i-no,
+    FOR EACH itemfg-loc NO-LOCK
+        WHERE itemfg-loc.company EQ {1}itemfg.company
+          AND itemfg-loc.i-no    EQ {1}itemfg.i-no,
         FIRST loc NO-LOCK
-        WHERE loc.company EQ {1}itemfg-loc.company
-          AND loc.loc     EQ {1}itemfg-loc.loc
+        WHERE loc.company EQ itemfg-loc.company
+          AND loc.loc     EQ itemfg-loc.loc
         :
         CREATE w-jobs.
         ASSIGN 
             w-jobs.i-no         = {1}itemfg.i-no
-            w-jobs.loc          = {1}itemfg-loc.loc    
-            w-jobs.lead-days    = {1}itemfg-loc.lead-days
-            w-jobs.ord-level    = {1}itemfg-loc.ord-level
-            w-jobs.ord-max      = {1}itemfg-loc.ord-max
-            w-jobs.ord-min      = {1}itemfg-loc.ord-min
-            w-jobs.onHand       = {1}itemfg-loc.q-onh
-            w-jobs.onOrder      = {1}itemfg-loc.q-ono
-            w-jobs.allocated    = {1}itemfg-loc.q-alloc
-            w-jobs.backOrder    = {1}itemfg-loc.q-back
+            w-jobs.loc          = itemfg-loc.loc    
+            w-jobs.lead-days    = itemfg-loc.lead-days
+            w-jobs.ord-level    = itemfg-loc.ord-level
+            w-jobs.ord-max      = itemfg-loc.ord-max
+            w-jobs.ord-min      = itemfg-loc.ord-min
+            w-jobs.onHand       = itemfg-loc.q-onh
+            w-jobs.onOrder      = itemfg-loc.q-ono
+            w-jobs.allocated    = itemfg-loc.q-alloc
+            w-jobs.backOrder    = itemfg-loc.q-back
             w-jobs.qtyAvailable = w-jobs.onHand
                                 + w-jobs.onOrder
                                 - w-jobs.allocated
@@ -54,7 +66,7 @@ PROCEDURE build-table:
         IF AVAILABLE loc THEN
         w-jobs.loc-desc = loc.dscr.    
         RELEASE w-jobs.
-    END. /* each {1}itemfg-loc */
+    END. /* each itemfg-loc */
     CREATE w-jobs.
     ASSIGN 
         w-jobs.i-no         = {1}itemfg.i-no
