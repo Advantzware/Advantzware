@@ -135,7 +135,7 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      po-ord.po-no FORMAT ">>>>>9":U
+      po-ord.po-no FORMAT ">>>>>>>9":U
       po-ord.po-date FORMAT "99/99/9999":U
       po-ord.vend-no FORMAT "x(8)":U
       po-ordl.i-no FORMAT "x(15)":U

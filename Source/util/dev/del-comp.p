@@ -4866,10 +4866,6 @@ CASE ipcTable:
                   DELETE notes. 
               END. 
          
-             {po/po-ordls.i}
-              if avail b-ref1 then delete b-ref1.
-              if avail b-ref2 then delete b-ref2.
-
               EXPORT STREAM sSave {&deltable}. 
               DELETE {&deltable}. 
          

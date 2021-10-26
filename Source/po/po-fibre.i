@@ -241,7 +241,7 @@ for each po-ordl WHERE
     put {1} "W: " at 8 v-wid space(2) "L: " v-len
             space(2) "Flute: " item.flute space(2) item.reg-no format "x(6)".
             
-  run po/po-ordls.p (recid(po-ordl)).
+
             
   {po/poprints.i}
             

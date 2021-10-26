@@ -125,7 +125,7 @@ IF v-print-mode NE "ALIGN" THEN DO:
                 tt-chk.line-amt = cgrossl
                 .
             PUT "<C1>" tt-chk.inv-no    FORMAT "x(12)"
-                "<C14>" TRIM(STRING(tt-chk.po-no,">>>>>>"))
+                "<C14>" TRIM(STRING(tt-chk.po-no,">>>>>>>>"))
                                         FORMAT "x(12)"
                 "<C27>" tt-chk.inv-date FORMAT "99/99/99"
                 "<C36>" tt-chk.inv-amt  FORMAT "->,>>>,>>9.99"

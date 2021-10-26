@@ -181,7 +181,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 /*         wrk-chk.disc-amt              to 67 format "->>,>>9.99"   */
 /*         wrk-chk.line-amt              to 79 format "->>>,>>9.99". */
     put wrk-chk.inv-no                AT 1 format "x(12)"
-        trim(string(wrk-chk.po-no,">>>>>>"))
+        trim(string(wrk-chk.po-no,">>>>>>>>"))
                                       AT 14 format "x(10)"
         wrk-chk.inv-date              AT 25 format "99/99/99"
         wrk-chk.inv-amt               AT 34 format "->>>,>>9.99"
@@ -257,7 +257,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       lv-line-cnt = 0.
       for each wrk-chk:
         put wrk-chk.inv-no                AT 1 format "x(12)"
-        trim(string(wrk-chk.po-no,">>>>>>"))
+        trim(string(wrk-chk.po-no,">>>>>>>>"))
                                       AT 14 format "x(10)"
         wrk-chk.inv-date              AT 25 format "99/99/99"
         wrk-chk.inv-amt               AT 34 format "->>>,>>9.99"

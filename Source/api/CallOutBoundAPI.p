@@ -61,7 +61,8 @@ DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
-DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFTPProcs           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE mmptrRequestData     AS MEMPTR    NO-UNDO.      
 
 DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
 

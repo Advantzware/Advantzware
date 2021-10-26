@@ -18,8 +18,8 @@ name-fld-list =
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187       188       189            190 */
 "CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource," +
-/*  191          192                193             194       195               196                  197        198          199                 200                        201             202   */
-"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod,CEVendorDefault,CEOpStandards" 
+/*  191          192                193             194       195               196                  197        198          199                 200                        201             202             203*/
+"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod,CEVendorDefault,ARCashEntry,CEOpStandards" 
 .
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 250 NO-UNDO.
@@ -295,7 +295,8 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[199] = "Manual,AutoSetOnAdd"
        str-init[200] = "Up To,From"
        str-init[201] = "Best Vendor,Blank Vendor"
-       str-init[202] = "Estimate,Machine if Not Locked"
+       str-init[202] = "Auto,Detail,Ask"
+       str-init[203] = "Estimate,Machine if Not Locked"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
@@ -319,6 +320,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        .
 END.
 
+&IF DEFINED(sysCtrlIncludeOnly) EQ 0 &THEN
 FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND
     ASI.item-spec.i-no = '' NO-LOCK  
@@ -348,3 +350,4 @@ FOR EACH DateRules NO-LOCK:
     str-init[186] = str-init[186] + dateRules.dateRuleID + ",".
 END. /* each daterules */
 str-init[186] = TRIM(str-init[186],",").
+&ENDIF

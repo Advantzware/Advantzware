@@ -107,7 +107,7 @@ DEFINE QUERY external_tables FOR oe-relh.
 oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
 oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases ~
 oe-rell.qty-case oe-rell.partial oe-rell.rel-no oe-rell.b-ord-no ~
-oe-rell.s-code oe-ordl.part-no oe-rell.link-no 
+oe-rell.s-code oe-ordl.part-no oe-rell.link-no oe-rell.lot-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rell.ord-no oe-rell.i-no ~
 oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
 oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases ~
@@ -252,6 +252,7 @@ DEFINE BROWSE br_table
       oe-ordl.part-no FORMAT "x(15)":U WIDTH 22
       oe-rell.link-no COLUMN-LABEL "Rel. Seq. #" FORMAT ">>>>>>>>9":U
             WIDTH 15
+      oe-rell.lot-no FORMAT "x(15)":U WIDTH 22
   ENABLE
       oe-rell.ord-no
       oe-rell.i-no
@@ -405,6 +406,8 @@ oe-ordl.line eq oe-rell.line"
 "oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.oe-rell.link-no
 "oe-rell.link-no" "Rel. Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.oe-rell.lot-no
+"oe-rell.lot-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

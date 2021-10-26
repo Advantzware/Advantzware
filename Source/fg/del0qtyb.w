@@ -46,9 +46,9 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i new shared}
 
-assign
- cocode = gcompany
- locode = gloc.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,12 +61,12 @@ assign
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_i-no end_i-no tb_neg-bin btn-process ~
-btn-cancel RECT-17 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_neg-bin ~
+btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_neg-bin 
 
 /* Custom List Definitions                                              */
@@ -80,70 +80,71 @@ btn-cancel RECT-17
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-     LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+    LABEL "Ca&ncel" 
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
-     SIZE 18 BY 1.14.
+    LABEL "&Start Process" 
+    SIZE 16 BY 1.29.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
-     LABEL "Beginning Item#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+    LABEL "Beginning Item#" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
-     LABEL "Ending Item#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_i-no   AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
+    LABEL "Ending Item#" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 89 BY 6.67.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 87 BY 4.05.
 
-DEFINE VARIABLE tb_neg-bin AS LOGICAL INITIAL no 
-     LABEL "Would you like to Delete Negative Quantities?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 49 BY .95 NO-UNDO.
+DEFINE VARIABLE tb_neg-bin AS LOGICAL INITIAL NO 
+    LABEL "Would you like to Delete Negative Quantities?" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 49 BY .95 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_i-no AT ROW 6.95 COL 22 COLON-ALIGNED HELP
-          "Enter Beginning FG Item Number"
-     end_i-no AT ROW 6.95 COL 64 COLON-ALIGNED HELP
-          "Enter Ending FG Item Number"
-     tb_neg-bin AT ROW 8.62 COL 24
-     btn-process AT ROW 14.33 COL 21
-     btn-cancel AT ROW 14.33 COL 53
-     RECT-17 AT ROW 4.81 COL 1
-     "" VIEW-AS TEXT
-          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
-          BGCOLOR 11 
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.6 BY 18.
+    begin_i-no AT ROW 6.24 COL 22.4 COLON-ALIGNED HELP
+    "Enter Beginning FG Item Number"
+    end_i-no AT ROW 6.24 COL 64.4 COLON-ALIGNED HELP
+    "Enter Ending FG Item Number"
+    tb_neg-bin AT ROW 7.57 COL 24.4
+    btn-process AT ROW 9.71 COL 27.4
+    btn-cancel AT ROW 9.71 COL 48.4
+    "" VIEW-AS TEXT
+    SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+    BGCOLOR 8 
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .62 AT ROW 4.86 COL 4
+    RECT-17 AT ROW 5.29 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 91.4 BY 11.62
+    BGCOLOR 15 .
 
 DEFINE FRAME FRAME-B
-     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 76 BY .95 AT ROW 2.91 COL 8
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-          SIZE 84 BY .95 AT ROW 1.95 COL 4
-          BGCOLOR 11 FGCOLOR 12 FONT 5
+    "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
+    SIZE 76 BY .95 AT ROW 2.91 COL 8
+    BGCOLOR 8 FONT 5
+    "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
+    SIZE 84 BY .95 AT ROW 1.95 COL 3.6
+    BGCOLOR 8 FONT 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.2 BY 3.81
-         BGCOLOR 11 .
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 3 ROW 1
+    SIZE 87 BY 3.81
+    BGCOLOR 8 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -160,30 +161,30 @@ DEFINE FRAME FRAME-B
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Delete Zero Quantity Bins"
-         HEIGHT             = 18
-         WIDTH              = 90.2
-         MAX-HEIGHT         = 33.29
-         MAX-WIDTH          = 204.8
-         VIRTUAL-HEIGHT     = 33.29
-         VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Delete Zero Quantity Bins"
+        HEIGHT             = 10.33
+        WIDTH              = 91.2
+        MAX-HEIGHT         = 33.29
+        MAX-WIDTH          = 204.8
+        VIRTUAL-HEIGHT     = 33.29
+        VIRTUAL-WIDTH      = 204.8
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -196,33 +197,29 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
+ASSIGN 
+    FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+   FRAME-NAME                                                           */
+ASSIGN 
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
 
 ASSIGN 
-       tb_neg-bin:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+
+ASSIGN 
+    tb_neg-bin:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -231,12 +228,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Delete Zero Quantity Bins */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -244,11 +242,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Delete Zero Quantity Bins */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -257,9 +255,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-    apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -268,22 +266,23 @@ END.
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-DO:
-  DEF VAR ll-process AS LOG NO-UNDO.
+    DO:
+        DEFINE VARIABLE ll-process AS LOG NO-UNDO.
 
 
-  ll-process = NO.
-  MESSAGE "Are you sure you wish to delete selected FG bins?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
-          UPDATE ll-process.
+        ll-process = NO.
+        MESSAGE "Are you sure you wish to delete selected FG bins?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE ll-process.
 
-  IF ll-process THEN DO:
-    RUN run-process.
+        IF ll-process THEN 
+        DO:
+            RUN run-process.
 
-    MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-    APPLY "close" TO THIS-PROCEDURE.
-  END.
-END.
+            MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
+            APPLY "close" TO THIS-PROCEDURE.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -292,9 +291,9 @@ END.
 &Scoped-define SELF-NAME tb_neg-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_neg-bin C-Win
 ON VALUE-CHANGED OF tb_neg-bin IN FRAME FRAME-A /* Would you like to Delete Negative Quantities? */
-DO:
-  assign {&self-name}.
-END.
+    DO:
+        ASSIGN {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -314,7 +313,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -323,17 +322,20 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
-  RUN enable_UI.
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
+    btn-process:LOAD-IMAGE("Graphics/32x32/startprocess.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    RUN enable_UI.
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,18 +346,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -363,23 +365,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no tb_neg-bin 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_i-no end_i-no tb_neg-bin btn-process btn-cancel RECT-17 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW FRAME FRAME-B IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY begin_i-no end_i-no tb_neg-bin 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    ENABLE RECT-17 begin_i-no end_i-no tb_neg-bin btn-process btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW FRAME FRAME-B IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -387,29 +389,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-SESSION:SET-WAIT-STATE ("general").
+    SESSION:SET-WAIT-STATE ("general").
 
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN 
-   begin_i-no
-   end_i-no
-   tb_neg-bin.
-END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            begin_i-no
+            end_i-no
+            tb_neg-bin.
+    END.
 
-FOR EACH fg-bin
-    WHERE fg-bin.company EQ cocode
-      AND fg-bin.i-no    GE begin_i-no
-      AND fg-bin.i-no    LE end_i-no
-      AND fg-bin.i-no    NE ""
-      AND fg-bin.qty     LE 0
-      AND (fg-bin.qty    EQ 0 OR tb_neg-bin):
+    FOR EACH fg-bin
+        WHERE fg-bin.company EQ cocode
+        AND fg-bin.i-no    GE begin_i-no
+        AND fg-bin.i-no    LE end_i-no
+        AND fg-bin.i-no    NE ""
+        AND fg-bin.qty     LE 0
+        AND (fg-bin.qty    EQ 0 OR tb_neg-bin):
 
-  IF fg-bin.qty LT 0 THEN RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
+        IF fg-bin.qty LT 0 THEN RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
-  DELETE fg-bin.
-END.
+        DELETE fg-bin.
+    END.
 
-SESSION:SET-WAIT-STATE ("").
+    SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
 

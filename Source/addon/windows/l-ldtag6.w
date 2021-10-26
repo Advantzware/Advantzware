@@ -183,7 +183,7 @@ DEFINE BROWSE BROWSE-1
       loadtag.i-name FORMAT "x(30)":U
       loadtag.loc FORMAT "x(5)":U
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
+      loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       loadtag.pallet-count COLUMN-LABEL "Qty/Tag" FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
