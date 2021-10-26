@@ -58,11 +58,12 @@ for each report where report.term-id eq v-term-id,
   v-tot-palls = v-tot-palls + v-pal-cnt.
   lPartialExist = NO.
   if oe-boll.qty-case ne 0 and oe-boll.cases ne 0 then do:
-    find first w2 where w2.cas-cnt eq oe-boll.qty-case no-error.
+    find first w2 where w2.cas-cnt eq oe-boll.qty-case
+                  AND w2.cases EQ oe-boll.cases no-error.
     if not avail w2 then create w2.
     assign
      w2.cas-cnt = oe-boll.qty-case
-     w2.cases   = w2.cases + oe-boll.cases.
+     w2.cases   = oe-boll.cases.
       RUN Inventory_GetQuantityOfUnitsForOEBoll IN hdInventoryProcs (rowid(oe-boll), OUTPUT iPallet).      
      w2.pallets = w2.pallets + iPallet .   
      
