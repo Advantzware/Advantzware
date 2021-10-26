@@ -69,7 +69,7 @@ DEFINE VARIABLE cMode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalledProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lProgramEdit     AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lIsUserSuperAdmin AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
@@ -849,10 +849,10 @@ PROCEDURE pCRUD :
                     IF lError THEN
                         RETURN NO-APPLY.
                     
-                    IF iUserSecurityLevel GE 1000 THEN    
+                    IF lIsUserSuperAdmin THEN    
                         ENABLE tbCurrentUser.
                         
-                    IF lProgramEdit AND iUserSecurityLevel GE 1000 THEN
+                    IF lProgramEdit AND lIsUserSuperAdmin THEN
                         ENABLE tbCurrentProgram.
                         
                     DISABLE btnReset-2.
@@ -866,10 +866,10 @@ PROCEDURE pCRUD :
                     IF lError THEN
                         RETURN NO-APPLY.
                     
-                    IF iUserSecurityLevel GE 1000 THEN    
+                    IF lIsUserSuperAdmin THEN    
                         ENABLE tbCurrentUser.
                         
-                    IF lProgramEdit AND iUserSecurityLevel GE 1000 THEN
+                    IF lProgramEdit AND lIsUserSuperAdmin THEN
                         ENABLE tbCurrentProgram.
                     
                     DISABLE btnReset-2.
@@ -998,8 +998,8 @@ PROCEDURE pInit :
         oSetting = NEW system.Setting().     
     
     ASSIGN
-        cCalledProgram     = oSetting:CurrentProgramHotkey
-        iUserSecurityLevel = oSetting:GetSecurityLevel()
+        cCalledProgram    = oSetting:CurrentProgramHotkey
+        lIsUserSuperAdmin = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
         .
     
     RUN pUpdateFields.
