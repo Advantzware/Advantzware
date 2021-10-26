@@ -405,7 +405,7 @@ if v-add-to-est AND
 
 
 
-      IF AVAIL e-item THEN
+      IF NOT lNewVendorItemCost AND AVAIL e-item THEN
       DO:
          EMPTY TEMP-TABLE tt-ei.
          CREATE tt-ei.
@@ -499,7 +499,7 @@ if v-add-to-est AND
 
       find first e-item of item no-lock no-error.
 
-      IF AVAIL e-item THEN
+      IF NOT lNewVendorItemCost AND AVAIL e-item THEN
       DO:
          EMPTY TEMP-TABLE tt-ei.
          CREATE tt-ei.
