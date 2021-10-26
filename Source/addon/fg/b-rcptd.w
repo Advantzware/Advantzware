@@ -96,7 +96,7 @@ DO TRANSACTION:
       CREATE sys-ctrl.
       ASSIGN sys-ctrl.company = cocode
              sys-ctrl.NAME = "SSFGSCAN"
-             sys-ctrl.descrip = "Prompt for the Warehouse/Bin?"
+             sys-ctrl.descrip = "Prompt for the Location/Bin?"
              sys-ctrl.log-fld = YES.
    END.
    v-ssfgscan = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE YES.
@@ -361,7 +361,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 29
-      fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 8
+      fg-rctd.loc COLUMN-LABEL "Loc" FORMAT "x(13)":U WIDTH 8
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
@@ -500,7 +500,7 @@ use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
-"fg-rctd.loc" "Whs" "x(13)" "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "Loc" "x(13)" "character" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fg-rctd.cases
@@ -955,7 +955,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whs */
+ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Loc */
 DO:
     IF LASTKEY = -1 THEN RETURN.
        
@@ -3683,7 +3683,7 @@ PROCEDURE validate-record :
   END.
   RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
     IF NOT lActiveBin THEN DO:
-     MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
+     MESSAGE "Invalid Location. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc.
      op-error = YES.
      LEAVE.

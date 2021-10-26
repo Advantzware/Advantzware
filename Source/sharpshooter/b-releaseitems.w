@@ -35,12 +35,19 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{sharpshooter/ttReleaseItem.i}
+
+&SCOPED-DEFINE exclude-brwCustom
+&SCOPED-DEFINE exclude-row-display
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdReleaseProcs    AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdScannedQtyCol   AS HANDLE NO-UNDO.
+DEFINE VARIABLE iJobPOQuantityReceived AS DECIMAL NO-UNDO.
+
+DEFINE VARIABLE hdReleaseProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdScannedQtyCol AS HANDLE NO-UNDO.
+
+{sharpshooter/ttReleaseItem.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,7 +62,7 @@ DEFINE VARIABLE hdScannedQtyCol   AS HANDLE NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -66,7 +73,7 @@ DEFINE VARIABLE hdScannedQtyCol   AS HANDLE NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table itemID quantityOnHand quantityRelease quantityScanned quantityOfUnitsRelease quantityOfUnitsScanned   
+&Scoped-define FIELDS-IN-QUERY-br_table ttReleaseItem.itemID ttReleaseItem.orderID ttReleaseItem.customerPO fGetJobPOQuantityReceived() @ iJobPOQuantityReceived ttReleaseItem.quantityOnHand ttReleaseItem.quantityRelease ttReleaseItem.quantityScanned ttReleaseItem.quantityOfUnitsRelease ttReleaseItem.quantityOfUnitsScanned ttReleaseItem.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttReleaseItem
@@ -129,6 +136,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetJobPOQuantityReceived B-table-Win 
+FUNCTION fGetJobPOQuantityReceived RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -144,15 +160,20 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      itemID WIDTH 40
-quantityOnHand COLUMN-LABEL "On Hand!Quantity" WIDTH 32
-quantityRelease COLUMN-LABEL "Release!Quantity" WIDTH 32
-quantityScanned COLUMN-LABEL "Scanned!Quantity" WIDTH 32
-quantityOfUnitsRelease COLUMN-LABEL "Released!Units" WIDTH 32
-quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units"
+      ttReleaseItem.itemID WIDTH 40
+      ttReleaseItem.orderID WIDTH 15
+      ttReleaseItem.customerPO WIDTH 22 COLUMN-LABEL "Customer!PO #"
+      fGetJobPOQuantityReceived() @ iJobPOQuantityReceived COLUMN-LABEL "Job/PO" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityOnHand COLUMN-LABEL "On Hand" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityRelease COLUMN-LABEL "Released" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityScanned COLUMN-LABEL "Scanned" FORMAT "->>>>>>>9" WIDTH 19
+      ttReleaseItem.quantityOfUnitsRelease COLUMN-LABEL "Released!Units" FORMAT "->>>>>>>9" WIDTH 15
+      ttReleaseItem.quantityOfUnitsScanned COLUMN-LABEL "Scanned!Units" FORMAT "->>>>>>>9"
+      ttReleaseItem.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS NO-TAB-STOP SIZE 66 BY 6.71.
+    WITH NO-ASSIGN SEPARATORS NO-SCROLLBAR-VERTICAL NO-TAB-STOP SIZE 66 BY 6.71
+         FONT 36 ROW-HEIGHT-CHARS 1 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -161,7 +182,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 36 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -213,17 +235,14 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
-       br_table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE
-       br_table:COLUMN-MOVABLE IN FRAME F-Main         = TRUE
-       br_table:ROW-RESIZABLE IN FRAME F-Main          = TRUE.
+       br_table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -259,16 +278,32 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttReleaseItem.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
-    IF ttReleaseItem.quantityScanned GT ttReleaseItem.quantityRelease THEN
+    DEFINE VARIABLE iOverRunQuantity  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iUnderRunQuantity AS INTEGER NO-UNDO.
+    
+    ASSIGN
+        iOverRunQuantity  = ttReleaseItem.quantityRelease + ttReleaseItem.quantityRelease * (ttReleaseItem.overRunPercent / 100)
+        iUnderRunQuantity = ttReleaseItem.quantityRelease + ttReleaseItem.quantityRelease * (ttReleaseItem.underRunPercent / 100)
+        .
+    
+    /* Scanned Quantity greater than release quantity + over run percent */
+    IF ttReleaseItem.quantityScanned GT iOverRunQuantity THEN
         ASSIGN
             hdScannedQtyCol:BGCOLOR = 12
             hdScannedQtyCol:FGCOLOR = 15
             .
-    ELSE IF ttReleaseItem.quantityScanned EQ ttReleaseItem.quantityRelease THEN
+    /* Scanned Quantity equals release quantity or between over run and under run quantity */        
+    ELSE IF (ttReleaseItem.quantityScanned EQ ttReleaseItem.quantityRelease) OR
+            ((ttReleaseItem.quantityScanned GE iUnderRunQuantity) AND (ttReleaseItem.quantityScanned LE iOverRunQuantity)) THEN
         ASSIGN
             hdScannedQtyCol:BGCOLOR = 10
             hdScannedQtyCol:FGCOLOR = ?
             .
+    ELSE
+        ASSIGN
+            hdScannedQtyCol:BGCOLOR = 26
+            hdScannedQtyCol:FGCOLOR = ?
+            .        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,10 +351,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustomSharpShooter.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{sharpshooter/smartobj/browseNavigate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -410,9 +448,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win
-PROCEDURE GetItem:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
+PROCEDURE GetItem :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -429,11 +466,9 @@ PROCEDURE GetItem:
             .
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
 PROCEDURE local-destroy :
@@ -538,6 +573,29 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetJobPOQuantityReceived B-table-Win 
+FUNCTION fGetJobPOQuantityReceived RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+    IF AVAILABLE ttReleaseItem THEN
+        RETURN IF ttReleaseItem.quantityReceivedJob GT 0 THEN
+                   ttReleaseItem.quantityReceivedJob
+               ELSE
+                   ttReleaseItem.quantityReceivedPO.
+    ELSE
+        RETURN 0.00.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

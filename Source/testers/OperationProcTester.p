@@ -20,6 +20,9 @@ DEFINE VARIABLE gcCompany    AS CHARACTER NO-UNDO INITIAL "001".
 DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "   14227".
 
 
+{est\ttOperationAttribute.i}
+{est\OperationProcsTT.i }
+{est\ttMachineRoutings.i}
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -28,12 +31,103 @@ RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
-RUN pChangeOperation.
+// RUN pChangeOperation.
 //RUN ClearAttributes IN hdOpProcs.
 //RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
-
+//RUN pBuildRoutingTest.
+RUN pBuildEstOPTest.
 
 /* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE pBuildRoutingTest PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cEstNo AS CHARACTER NO-UNDO INIT "  101547".
+    
+    
+    
+    
+    FIND FIRST est no-lock
+        WHERE est.est-no = cEstNo NO-ERROR.
+        
+    IF NOT AVAIL est then
+    DO:
+        MESSAGE "No Estimate"
+            VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
+    RUN pBuildRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    
+    RUN pGetRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
+    
+    FOR EACH ttRouting:
+        
+        MESSAGE 
+        "Company" ttRouting.Company SKIP
+        "EstimateNo" ttRouting.EstimateNo SKIP
+        "F " ttRouting.FormId " B " ttRouting.BlankId  " P " ttRouting.Pass Skip
+        "Machine" ttRouting.OperationId skip
+        "Dept" ttRouting.departmentID
+        
+        VIEW-AS ALERT-BOX.
+        
+    END. 
+
+
+END PROCEDURE.
+
+PROCEDURE pBuildEstOPTest PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INIT "001".
+    DEFINE VARIABLE cEstNo   AS CHARACTER NO-UNDO INIT "  101547".
+    
+    cEstNo = "  101496".
+    
+    
+    FIND FIRST est no-lock
+        WHERE est.company = cCompany
+          AND est.est-no = cEstNo NO-ERROR.
+        
+    IF NOT AVAIL est then
+    DO:
+        MESSAGE "No Estimate"
+            VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
+    
+    FOR EACH Est-op exclusive-lock
+        WHERE est-op.company = est.company
+        AND est-op.est-no  = est.est-no:
+        DELETE est-op.
+    END.
+    
+    RUN BuildEstimateRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    
+    FOR EACH Est-op NO-LOCK
+        WHERE est-op.company = est.company
+        AND est-op.est-no  = est.est-no:
+        
+        MESSAGE 
+        "F " est-op.s-num " B " est-op.b-num  " P " est-op.op-pass Skip
+        "Machine" est-op.m-code " :: " est-op.dept skip
+        "Speed" est-op.op-speed skip
+        "MR Hrs" est-op.op-mr skip
+        "Spoil" est-op.op-spoil skip
+        "MR waste" est-op.op-waste skip
+        "Num Sheet" est-op.num-sh skip
+        
+        VIEW-AS ALERT-BOX.
+        
+    END. 
+
+
+END PROCEDURE.
 
 
 PROCEDURE pChangeOperation PRIVATE:
@@ -41,14 +135,14 @@ PROCEDURE pChangeOperation PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-
+     DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
     
     FIND FIRST job NO-LOCK 
         WHERE job.company EQ '001'
-        AND job.job-no EQ 'W00854'
+        AND job.job-no EQ 'W01356'
         AND job.job-no2 EQ 0
         NO-ERROR.
-    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRBV", job.job, 1,1,1,"PR").
+    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRESS", job.job, 1,0,1,"PR", OUTPUT cAction).
 
 END PROCEDURE.
 
@@ -126,7 +220,7 @@ PROCEDURE pGetOperationStandardsSingle PRIVATE:
                 AND est-op.est-no EQ eb.est-no
                 AND est-op.s-num EQ eb.form-no
                 AND est-op.m-code EQ cMachineTarget:
-            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
+            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb),est-op.m-code, est-op.op-pass, OUTPUT lError, OUTPUT cMessage).
             
             RUN GetOperationStandards IN hdOpProcs (est.company, est.loc, cMachineTarget, 
                 OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).

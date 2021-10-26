@@ -30,15 +30,54 @@ def var v-tax-rate     as dec format ">,>>9.99<<<".
 def var v-frt-tax-rate like v-tax-rate.
 DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-image1     AS CHARACTER NO-UNDO.
+DEF VAR ls-image2     AS CHARACTER NO-UNDO.
+DEF VAR ls-full-img1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
 
-ASSIGN ls-image1 = "images\cccack.jpg".
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN 
+DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+        "fFormatFilePath",
+        cRtnChar
+        ).
+
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN 
+    DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN 
+    ls-full-img1 = cRtnChar + ">" .
+
 FILE-INFO:FILE-NAME = ls-image2.
 ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -65,7 +104,7 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
-DEF VAR lv-line-print AS INT INIT 48 NO-UNDO.
+DEF VAR lv-line-print AS INT INIT 47 NO-UNDO.
 DEF VAR v-ext-price AS DEC NO-UNDO.
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT INIT 1 NO-UNDO.
@@ -646,29 +685,36 @@ find first company where company.company eq cocode no-lock no-error.
       DO i = 1 TO 4:
           v-billinst[i] = oe-ord.bill-i[i].
       END.      
- /*     
-      if v-printline ge lv-line-print then
-      do:
-            PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+     
+      IF v-printline GE lv-line-print THEN
+        DO:
+            PUT "<R59><c4>Printed on: " STRING(TODAY)  
+                "<R59><C65>Page " STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" .
             PAGE .
-            {oe/rep/ackcentx.i}
-            assign v-printline = 20.          
-      end.
-*/
-      
-      PUT "<R55><C1><#10><P12><B> Comments </B> <P10> " 
-        "<R56><C1>" v-billinst[1] 
-        "<R57><C1>" v-billinst[2] 
-        "<R58><C1>" v-billinst[3] 
-        "<R59><C1>" v-billinst[4]   "<P10>Order Total:" AT 71 "<U>"  v-totord FORM "$->>>>,>>9.99"  "</U><P9>".
+            {oe/rep/ack3cpaksd.i}
+            ASSIGN v-printline = 20.          
+        END.
 
       
-      PUT "<R61><C1>" " ______________________________________(Please sign and fax back) ".
+      PUT "<R52><C1><#10><P12><B> Comments </B> <P10> " 
+        "<R53><C1>" v-billinst[1] 
+        "<R54><C1>" v-billinst[2] 
+        "<R55><C1>" v-billinst[3] 
+        "<R56><C1>" v-billinst[4]   "<P10>Order Total:" AT 71 "<U>"  v-totord FORM "$->>>>,>>9.99"  "</U><P9>".
+
+      
+      PUT "<R58><C1>" " ______________________________________(Please sign and fax back) ".
 
       PUT 
-        "<R62><C1>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.       <P16>Thank You! <P10></B>" 
-        "<R64><c4>Printed on: " string(TODAY) 
-        "<R64><C65>Page "  string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" 
+        "<R59><C1>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.       <P16>Thank You! </B>" .
+      
+      PUT "<FArial><R60.7><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
+        "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+        "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
+        "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+        "<P10>"
+        "<R64><c4>Printed on: " STRING(TODAY) 
+        "<R64><C65>Page "  STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" 
         .
 
       assign
@@ -679,6 +725,13 @@ find first company where company.company eq cocode no-lock no-error.
       lv-pg-num = PAGE-NUM .
 
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
+
+
+        PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                                PAGE.
+
+        PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                                PAGE. 
 
   END. /* each oe-ord */
 

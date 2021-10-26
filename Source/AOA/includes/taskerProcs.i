@@ -21,6 +21,38 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pGetTaskTimeLimit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH company NO-LOCK:
+        RUN sys/ref/nk1look.p (
+            company.company,"TaskerNotRunning","L",NO,NO,"","",
+            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+            ).
+        IF lTaskerNotRunning AND cTaskerNotRunning EQ "YES" THEN DO:
+            RUN sys/ref/nk1look.p (
+                company.company,"TaskerNotRunning","I",NO,NO,"","",
+                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+                ).
+            iEmailConfigID = INTEGER(cTaskerNotRunning).
+            IF NOT CAN-FIND(FIRST emailConfig
+                            WHERE emailConfig.configID EQ iEmailConfigID
+                              AND emailConfig.isActive EQ YES) THEN
+            NEXT.
+            RUN sys/ref/nk1look.p (
+                company.company,"TaskerNotRunning","D",NO,NO,"","",
+                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
+                ).
+            dTaskTimeLimit = DECIMAL(cTaskerNotRunning).
+            IF dTaskTimeLimit NE 0 THEN
+            LEAVE.
+        END. /* if true */
+    END. /* each company */
+
+END PROCEDURE.
+
 PROCEDURE pHTMLFooter :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -156,7 +188,9 @@ PROCEDURE pHTMLTask:
         '      <td ' cBGColor '><b><u>Task ID</u></b></td>' SKIP
         '      <td ' cBGColor '><b><u>Prgm Name</u></b></td>' SKIP
         '      <td ' cBGColor '><b><u>User ID</u></b></td>' SKIP
-        '      <td ' cBGColor '><b><u>Run Syncronous</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Run Sync/u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Start Date/Time</u></b></td>' SKIP
+        '      <td ' cBGColor '><b><u>Expired</u></b></td>' SKIP
         '    </tr>' SKIP
         .
     FOR EACH bTask NO-LOCK
@@ -186,6 +220,8 @@ PROCEDURE pHTMLTask:
             '      <td ' cBGColor '> ' bTask.prgmName '</td>' SKIP
             '      <td ' cBGColor '> ' bTask.user-id '</td>' SKIP
             '      <td ' cBGColor '> ' bTask.runSync '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.taskStart '</td>' SKIP
+            '      <td ' cBGColor '> ' bTask.expired '</td>' SKIP
             '    </tr>' SKIP
             .
     END. /* each bTask */
@@ -278,31 +314,20 @@ PROCEDURE pLastExecuted:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
-
     DEFINE BUFFER emailConfig FOR emailConfig.
 
     IF DATE(dttOpenDateTime) NE DATE(NOW) THEN
     dttOpenDateTime = NOW.
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    RUN sys/ref/nk1look.p (
-        cCompany,"TaskerNotRunning","I",NO,NO,"","",
-        OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-        ).
-    iConfigID = INTEGER(cTaskerNotRunning).
     DO TRANSACTION:
         FIND FIRST config EXCLUSIVE-LOCK.
         config.taskerLastExecuted = NOW.
         FIND FIRST config NO-LOCK.
         IF CAN-FIND(FIRST emailConfig
-                    WHERE emailConfig.configID EQ iConfigID
+                    WHERE emailConfig.configID EQ iEmailConfigID
                       AND emailConfig.isActive EQ YES
                       AND emailConfig.notified EQ YES) THEN DO:
             FIND FIRST emailConfig EXCLUSIVE-LOCK
-                 WHERE emailConfig.configID EQ iConfigID
+                 WHERE emailConfig.configID EQ iEmailConfigID
                  NO-ERROR.
             IF AVAILABLE emailConfig THEN
             emailConfig.notified = NO.
@@ -376,6 +401,7 @@ PROCEDURE pTaskEmails :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAttachment AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEmailBody  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorText  AS CHARACTER NO-UNDO.
@@ -443,22 +469,18 @@ PROCEDURE pTaskEmails :
                            + CHR(10) + CHR(10)
                            + "The dAOA Report "
                            + bTaskEmail.attachment
-                           + " failed to run because of the following error:"
-                           + CHR(10) + CHR(10)
+                           + " failed to run because of the following attached error(s)."
                            .
-                INPUT FROM VALUE(SEARCH(cErrorFile)) NO-ECHO.
-                REPEAT:
-                    IMPORT UNFORMATTED cErrorText.
-                    cEmailBody = CHR(10) + cEmailBody + cErrorText.
-                END. /* repeat */
-                INPUT CLOSE.
+                cAttachment = REPLACE(SEARCH(cErrorFile),".err",".txt").
+                OS-RENAME VALUE(SEARCH(cErrorFile)) VALUE(cAttachment).
                 RUN VALUE(cRunProgram) (
                     bTaskEmail.subject,
                     cEmailBody,
-                    "",
+                    cAttachment,
                     bTaskEmail.recipients,
                     bTaskEmail.rec_key
                     ).                
+                OS-DELETE VALUE(cAttachment).
             END. /* error else */
             OS-DELETE VALUE(SEARCH(cErrorFile)).
             DELETE bTaskEmail.
@@ -476,7 +498,9 @@ PROCEDURE pTasks :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRunProgram AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
     DEFINE BUFFER bTask FOR Task.
@@ -515,7 +539,11 @@ PROCEDURE pTasks :
                 DO TRANSACTION:
                     FIND FIRST bTask EXCLUSIVE-LOCK
                          WHERE ROWID(bTask) EQ ROWID(Task).
-                    bTask.isRunning = YES.
+                    ASSIGN
+                        bTask.isRunning = YES
+                        bTask.taskStart = NOW
+                        bTask.expired   = NO                        
+                        .
                     RELEASE bTask.
                 END. /* do trans */
                 IF Task.runSync THEN
@@ -532,6 +560,31 @@ PROCEDURE pTasks :
                 END. /* else */
             END. /* if ne ? */
         END.
+        /* check if running is beyond task time limit */
+        IF Task.isRunning EQ YES AND
+           Task.taskStart NE ?   AND
+           Task.expired   EQ NO  AND
+           DATETIME(DATE(Task.taskStart), MTIME(Task.taskStart) + INTEGER(dTaskTimeLimit) * 60000) LT NOW AND
+           iEmailConfigID GT 0   AND
+           dTaskTimeLimit GT 0  THEN
+        DO TRANSACTION:
+            RUN spSendEmail (
+                iEmailConfigID,  /* emailConfig.ConfigID */
+                "",              /* Override for Email RecipientsinTo */
+                "",              /* Override for Email RecipientsinReplyTo */
+                "",              /* Override for Email RecipientsinCC */
+                "",              /* Override for Email RecipientsinBCC */
+                "",              /* Override for Email Subject */
+                "",              /* Override for Email Body */
+                "",              /* Email Attachment */
+                OUTPUT lSuccess, /* Email success or not */
+                OUTPUT cMessage  /* Reason for failure in case email is not sent */
+                ).
+            FIND FIRST bTask EXCLUSIVE-LOCK
+                 WHERE ROWID(bTask) EQ ROWID(Task).
+            bTask.expired = YES.
+            RELEASE bTask.
+        END. /* do trans */
         GET NEXT TaskBrowse.
     END. /* do while */
     {&OPEN-QUERY-EmailBrowse}

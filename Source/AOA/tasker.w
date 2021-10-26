@@ -42,8 +42,6 @@ CREATE WIDGET-POOL.
 
 {AOA/includes/taskerDefs.i}
 
-DEFINE VARIABLE lJasperStarter AS LOGICAL NO-UNDO.
-
 lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 IF lJasperStarter EQ NO THEN DO:
     MESSAGE 
@@ -100,7 +98,8 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.taskID Task.prgmName Task.user-id Task.runSync 
+Task.subjectID Task.taskID Task.user-id Task.runSync Task.taskStart ~
+Task.expired 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -136,18 +135,12 @@ EmailBrowse btnClearPendingEmails AuditBrowse
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTaskLog C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTaskLog C-Win 
 FUNCTION fTaskLog RETURNS CHARACTER
   (ipiAuditID AS INTEGER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -196,7 +189,7 @@ DEFINE BROWSE AuditBrowse
       fTaskLog(AuditHdr.AuditID) @ cTaskLog COLUMN-LABEL "Values" FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 192 BY 14.29
          TITLE "Task Logging".
 
 DEFINE BROWSE EmailBrowse
@@ -206,7 +199,7 @@ DEFINE BROWSE EmailBrowse
       taskEmail.recipients FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 43 BY 14.29
          TITLE "Pending Emails".
 
 DEFINE BROWSE TaskBrowse
@@ -219,13 +212,15 @@ DEFINE BROWSE TaskBrowse
       Task.lastDate FORMAT "99/99/9999":U
       Task.cLastTime FORMAT "99:99":U
       Task.isRunning FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      Task.subjectID FORMAT ">,>>>,>>9":U
       Task.taskID FORMAT "->,>>>,>>9":U
-      Task.prgmName FORMAT "x(10)":U
       Task.user-id FORMAT "x(10)":U
       Task.runSync FORMAT "yes/no":U
+      Task.taskStart FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      Task.expired FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 120 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 149.2 BY 14.29
          TITLE "Tasks".
 
 
@@ -237,14 +232,14 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      btnClearIsRunning AT ROW 1 COL 98 HELP
           "Click to Clear Is Running" WIDGET-ID 8
-     EmailBrowse AT ROW 1 COL 121 WIDGET-ID 300
+     EmailBrowse AT ROW 1 COL 150 WIDGET-ID 300
      btnClearPendingEmails AT ROW 1 COL 153 HELP
           "Click to Clear Pending Emails" WIDGET-ID 10
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 160 BY 28.57
+         SIZE 192.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -266,7 +261,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Task Monitor"
          HEIGHT             = 28.57
-         WIDTH              = 160
+         WIDTH              = 192.2
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -345,18 +340,20 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[8]   = ASI.Task.taskID
-     _FldNameList[9]   = ASI.Task.prgmName
+"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[8]   = ASI.Task.subjectID
+     _FldNameList[9]   = ASI.Task.taskID
      _FldNameList[10]   = ASI.Task.user-id
      _FldNameList[11]   = ASI.Task.runSync
+     _FldNameList[12]   = ASI.Task.taskStart
+     _FldNameList[13]   = ASI.Task.expired
      _Query            is OPENED
 */  /* BROWSE TaskBrowse */
 &ANALYZE-RESUME
@@ -514,6 +511,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN pGetTaskTimeLimit.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
   RUN enable_UI.
@@ -639,7 +637,11 @@ PROCEDURE pClearRunNow :
     DEFINE BUFFER bTask FOR Task.
     
     FOR EACH bTask EXCLUSIVE-LOCK:
-        bTask.isRunning = NO.
+        ASSIGN
+            bTask.isRunning = NO
+            bTask.taskStart = ?
+            bTask.expired   = NO
+            .
     END. /* each btask */
 
 END PROCEDURE.
@@ -691,7 +693,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
 PROCEDURE pSaveSettings :
@@ -765,8 +766,8 @@ PROCEDURE pWinReSize :
         HIDE FRAME {&FRAME-NAME}.
         IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
         {&WINDOW-NAME}:HEIGHT = 28.57.
-        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
-        {&WINDOW-NAME}:WIDTH  = 160.
+        IF {&WINDOW-NAME}:WIDTH  LT 192.2 THEN
+        {&WINDOW-NAME}:WIDTH  = 192.2.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
@@ -810,7 +811,7 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTaskLog C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTaskLog C-Win 
 FUNCTION fTaskLog RETURNS CHARACTER
   (ipiAuditID AS INTEGER) :
 /*------------------------------------------------------------------------------
@@ -829,6 +830,7 @@ FUNCTION fTaskLog RETURNS CHARACTER
     RETURN cAuditLog.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

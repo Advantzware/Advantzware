@@ -49,6 +49,9 @@ DEFINE VARIABLE iPaymentID                       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lPostManual                      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cCompany                         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dCheckAmount                     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iLineCount                       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFillZero                        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProcessingCentre                AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD paymentID   AS INTEGER
@@ -65,6 +68,7 @@ DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD Amt         AS DECIMAL
     FIELD checkDate   AS DATE
     FIELD invDate     AS DATE
+    FIELD delMethod   AS CHARACTER
     .
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
@@ -158,6 +162,7 @@ FOR EACH ap-sel NO-LOCK
         ttPaymentData.invDate     = ap-inv.inv-date
         ttPaymentData.checkDate   = TODAY
         ttPaymentData.amt         = ap-sel.amt-paid * (ap-sel.amt-paid / (ap-inv.net + ap-inv.freight))
+        ttPaymentData.delMethod   = ap-sel.deliveryMethod
         .    
 
     FIND FIRST currency NO-LOCK
@@ -192,13 +197,14 @@ FOR EACH ttPaymentData
         dTotalSum = dTotalSum +  ttPaymentData.amt .
         
 END.  
-        
+iLineCount = 0.        
 FOR EACH ttPaymentData
     BREAK BY ttPaymentData.checkNo:
         
     IF FIRST-OF(ttPaymentData.checkNo) THEN
     dCheckAmount = 0.
     dCheckAmount = dCheckAmount + ttPaymentData.amt.
+    cFillZero = FILL("0",1500).
     
     IF LAST-OF(ttPaymentData.checkNo) THEN DO:
         FIND FIRST vend NO-LOCK
@@ -219,7 +225,22 @@ FOR EACH ttPaymentData
                 cCreditDebitIndicator              = vend.tax-gr
                 cCountry                           = vend.country
                 .
-            
+        cProcessingCentre = "".        
+        IF cVendorRemitToCity EQ "Halifax" THEN
+        cProcessingCentre = "00330".
+        ELSE IF cVendorRemitToCity EQ "Montreal" THEN
+        cProcessingCentre = "00310".
+        ELSE IF cVendorRemitToCity EQ "Toronto" THEN
+        cProcessingCentre = "00320".
+        ELSE IF cVendorRemitToCity EQ "Regina" THEN
+        cProcessingCentre = "00278".
+        ELSE IF cVendorRemitToCity EQ "Winnipeg" THEN
+        cProcessingCentre = "00370".
+        ELSE IF cVendorRemitToCity EQ "Calgary" THEN
+        cProcessingCentre = "00390".
+        ELSE IF cVendorRemitToCity EQ "Vancouver" THEN
+        cProcessingCentre = "00300".
+                    
         FIND FIRST bank NO-LOCK
              WHERE bank.company   EQ ttPaymentData.company
                AND bank.bank-code EQ ttPaymentData.bankCode
@@ -229,7 +250,7 @@ FOR EACH ttPaymentData
                 cCurrencyType  = bank.curr-code[1]
                 .
         lcLineItemsData = STRING(bf-line-APIOutboundDetail.data).         
-                
+        iLineCount = iLineCount + 1.        
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TransactionAmount", STRING(dCheckAmount)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ChequeNumber", STRING(ttPaymentData.checkNo)).         
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "VendorName", cVendorName).
@@ -246,7 +267,12 @@ FOR EACH ttPaymentData
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CreditDebitIndicator", cCreditDebitIndicator).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "RemittedAmount", STRING(dCheckAmount)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "AdditionalRemittanceInformation", cAdditionalRemittanceInformation).
-        
+                                             
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CheckCounter", STRING(iLineCount)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BankAccount",cBankAccount).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "SPACE", " ").          
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FillZero", cFillZero).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DeliveryMethod", ttPaymentData.delMethod). 
         lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.        
         
     END.
@@ -262,6 +288,11 @@ FOR EACH ttPaymentData
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrencyType",cCurrencyType).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BankIdentifierCode",cBankIdentifierCode).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorCountry",cVendorCountry).
+        
+       RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ProcessingCentre",cProcessingCentre). 
+       RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SPACE", " ").
+       RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FillZero", cFillZero).
+       RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CheckCounter","1").
     END.
 END. /* FOR EACH ttPaymentData */     
 

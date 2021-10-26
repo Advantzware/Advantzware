@@ -175,7 +175,7 @@ for each ap-chk
     ll = 0.
     for each wrk-chk:
       put wrk-chk.inv-no                to 12 format "x(12)"
-          trim(string(ap-inv.po-no,">>>>>>"))
+          trim(string(ap-inv.po-no,">>>>>>>>"))
                                         to 25 format "x(12)"
           wrk-chk.inv-date              to 34 format "99/99/99"
           wrk-chk.inv-amt               to 45 format "->>,>>9.99"
@@ -238,7 +238,7 @@ for each ap-chk
     ll = 0.
     for each wrk-chk:
       put wrk-chk.inv-no                to 12 format "x(12)"
-          trim(string(ap-inv.po-no,">>>>>>"))
+          trim(string(ap-inv.po-no,">>>>>>>>"))
                                         to 25 format "x(12)"
           wrk-chk.inv-date              to 34 format "99/99/99"
           wrk-chk.inv-amt               to 45 format "->>,>>9.99"

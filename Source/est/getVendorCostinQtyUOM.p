@@ -29,6 +29,10 @@ DEFINE INPUT  PARAMETER ipiFormNo           AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiBlankNo          AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipdQty              AS DECIMAL NO-UNDO.
 DEFINE INPUT  PARAMETER ipcQtyUOM           AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipdLength           AS DECIMAL NO-UNDO.
+DEFINE INPUT  PARAMETER ipdWidth            AS DECIMAL NO-UNDO.
+DEFINE INPUT  PARAMETER ipdDepth            AS DECIMAL NO-UNDO.
+DEFINE INPUT  PARAMETER ipdBasisWeight      AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostQtyUOM       AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdSetupCostQtyUOM  AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostTotal        AS DECIMAL NO-UNDO.
@@ -60,11 +64,11 @@ IF AVAILABLE bf-Item THEN
         ipiBlankNo,
         ipdQty, 
         ipcQtyUOM,
-        bf-Item.s-len, 
-        bf-Item.s-wid, 
-        bf-Item.s-dep, 
+        ipdLength,
+        ipdWidth,
+        ipdDepth,
         "IN", 
-        bf-Item.basis-w, 
+        ipdBasisWeight,
         "LB/EA", 
         NO,
         OUTPUT dCostPerUOM, 
@@ -87,15 +91,19 @@ IF cCostUOM NE ipcQtyUOM THEN
 DO:
         
     RUN pConvertCostFromUOMToUOM(ipcCompanyCode, ipcItemCode, ipcItemType, cCostUOM, ipcQtyUOM, 
-        bf-Item.basis-w, bf-Item.s-len, bf-Item.s-wid, bf-Item.s-dep, 
+        ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 
         dCostPerUOM, OUTPUT opdCostQtyUOM).
         
     RUN pConvertCostFromUOMToUOM(ipcCompanyCode, ipcItemCode, ipcItemType, cCostUOM, ipcQtyUOM, 
-        bf-Item.basis-w, bf-Item.s-len, bf-Item.s-wid, bf-Item.s-dep, 
+        ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 
         dCostSetup, OUTPUT opdSetupCostQtyUOM).
         
         
-END. 
+END.
+ELSE
+    ASSIGN
+        opdCostQtyUOM      = dCostPerUOM
+        opdSetupCostQtyUOM = dCostSetup. 
         
 
 

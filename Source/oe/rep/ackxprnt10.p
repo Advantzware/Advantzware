@@ -73,6 +73,7 @@ DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTotalQty      AS INTEGER   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -334,6 +335,16 @@ find first company where company.company eq cocode no-lock no-error.
             {oe/rep/ackxprnt10.i}
             assign v-printline = 20.          
         end.
+        if oe-ordl.po-no ne "" AND oe-ordl.po-no NE oe-ord.po-no  then do:
+          PUT "Item Po#: " + oe-ordl.po-no FORMAT "x(25)" at 25  skip.
+          v-printline = v-printline + 1.
+        end.
+        if v-printline ge lv-line-print then
+        do:
+            PAGE .
+            {oe/rep/ackxprnt10.i}
+            assign v-printline = 20.          
+        end.
 
         IF v-schrel THEN
         for each oe-rel
@@ -557,11 +568,11 @@ PROCEDURE print-rels:
           if ip-first then do:
             lcnt = 1.
             if oe-rel.link-no eq 0 then do:
-              put "Scheduled Releases:" at 10  skip.
+              PUT SKIP(1) "Scheduled Releases:" at 10  skip.
               v-printline = v-printline + 1.
             end.
             ELSE do:
-              put "Actual Releases:" at 10 skip.
+              PUT SKIP(1) "Actual Releases:" at 10 skip.
               v-printline = v-printline + 1.
             end.
           end.
@@ -575,11 +586,15 @@ PROCEDURE print-rels:
           IF AVAIL oe-rell THEN
           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
           ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
-          if oe-rel.link-no eq 0 then 
-              put lcnt AT 10 oe-rel.tot-qty space(5) ld-date  SKIP.
-          ELSE
-              put lcnt AT 10 oe-rel.qty space(5) ld-date  SKIP.
-
+          iTotalQty = if oe-rel.link-no eq 0 THEN oe-rel.tot-qty ELSE oe-rel.qty.
+          
+              put lcnt AT 7 iTotalQty space(3) ld-date SPACE(1).
+              IF oe-rel.po-no NE "" AND oe-rel.po-no NE oe-ordl.po-no THEN
+              PUT "Release PO#:" oe-rel.po-no FORMAT "x(15)" .
+              IF oe-rel.lot-no NE "" THEN
+              PUT space(1) "Customer Lot#: " oe-rel.lot-no FORMAT "x(15)".
+              PUT SKIP.
+           
 
           ASSIGN 
               v-printline = v-printline + 1
@@ -602,39 +617,14 @@ PROCEDURE print-rels:
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put shipto.ship-name AT 10 SKIP .
+                PUT "Deliver to: " + trim(shipto.ship-name) + " " + trim(shipto.ship-addr[1]) + " " + trim(shipto.ship-addr[2]) + " " + v-addr4 FORMAT "x(150)" AT 10  SKIP .
                 v-printline = v-printline + 1.
                 if v-printline GT lv-line-print then
                 do:
                     PAGE .
                     {oe/rep/ackxprnt10.i}
                     assign v-printline = 20.          
-                end.
-                IF shipto.ship-addr[1] <> "" THEN DO:
-                   PUT shipto.ship-addr[1] AT 10  SKIP.
-                   v-printline = v-printline + 1.
-                   if v-printline GT lv-line-print then
-                   do:
-                      PAGE .
-                      {oe/rep/ackxprnt10.i}
-                      assign v-printline = 20.          
-                   end.
-                END.
-                IF shipto.ship-addr[2] <> "" THEN DO:
-                    PUT shipto.ship-addr[2] AT 10  SKIP.
-                    v-printline = v-printline + 1.
-                    if v-printline GT lv-line-print then
-                    do:
-                        PAGE .
-                        {oe/rep/ackxprnt10.i}
-                        assign v-printline = 20.          
-                    end.
-                END.
-                IF v-addr4 <> "" THEN DO:
-                   PUT v-addr4 AT 10 SKIP.
-                   v-printline = v-printline + 1.
-                END.
-                
+                end.                 
             END.
           end.
     END.

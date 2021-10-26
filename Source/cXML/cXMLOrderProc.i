@@ -309,6 +309,12 @@ PROCEDURE assignOrderHeader:
             shipToID = shipto.ship-id.
             /*10061401*/
         END. /* can find shipto */
+
+        FIND FIRST bf-shipto NO-LOCK
+             WHERE bf-shipto.company EQ oe-ord.company
+               AND bf-shipto.cust-no EQ oe-ord.cust-no
+               AND bf-shipto.ship-id EQ shipToID NO-ERROR.
+        oe-ord.carrier = IF AVAILABLE bf-shipto AND bf-shipto.carrier NE "" THEN bf-shipto.carrier ELSE oe-ord.carrier. 
         opcShipToID = shipToID.
     
         RELEASE oe-ord.  
@@ -739,7 +745,7 @@ PROCEDURE gencXMLOrder:
   
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
-        WHERE ttNodes.nodeName BEGINS "ISA" 
+        WHERE ttNodes.nodeName BEGINS "ISA" AND ttNodes.nodeName NE "isAdhoc"
         NO-ERROR. 
 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).

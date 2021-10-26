@@ -231,6 +231,67 @@ PROCEDURE Formula_GetFormulaFromttPanel:
         .        
 END PROCEDURE.
 
+PROCEDURE Formula_ReBuildBoxDesignForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb  FOR eb.
+        
+    EMPTY TEMP-TABLE ttPanel.
+    
+    RUN pBuildPanelDetailsForEstimate (
+        INPUT  ipriEb,
+        INPUT  TRUE,  /* Re-build */
+        INPUT  TRUE,  /* Save */
+        INPUT  "L,W", /* Panel Types to build */
+        OUTPUT TABLE ttPanel
+        ).
+    
+    DO TRANSACTION:
+        FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE ROWID(bf-eb) = ipriEb NO-ERROR.
+        
+        IF AVAILABLE bf-eb THEN
+        DO:     
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-len-array2): 
+            
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "L"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-len-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-len-scr-type2[iExt] = ttPanel.cScoreType
+                        .
+             
+            END.  
+        
+            IF CAN-FIND(FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                AND ttPanel.dPanelSize NE 0) THEN 
+            DO iExt = 1 TO EXTENT(bf-eb.k-wid-array2): 
+            
+                FIND FIRST ttPanel WHERE ttPanel.cPanelType EQ "W"
+                    AND ttPanel.iPanelNum  EQ iExt NO-ERROR.
+    
+                IF AVAILABLE ttPanel THEN
+                    ASSIGN
+                        bf-eb.k-wid-array2[iExt]    = ttPanel.dPanelSize
+                        bf-eb.k-wid-scr-type2[iExt] = ttPanel.cScoreType
+                        .
+             
+            END.
+        END. // IF AVAILABLE bf-eb THEN
+        
+    END.
+END PROCEDURE.
+
 PROCEDURE GetSizeFactor:
 /*------------------------------------------------------------------------------
  Purpose: Fetch the decimal factor from NK1 CECSCRN
@@ -1151,9 +1212,10 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
         EMPTY TEMP-TABLE ttPanel.
 
         FIND FIRST bf-style NO-LOCK
-             WHERE bf-style.company EQ bf-eb.company
-               AND bf-style.style   EQ bf-eb.style
-               AND bf-style.type    EQ "B"
+             WHERE bf-style.company  EQ bf-eb.company
+               AND bf-style.style    EQ bf-eb.style
+               AND bf-style.type     EQ "B"
+               AND bf-style.industry EQ "2"
              NO-ERROR.
         IF AVAILABLE bf-style THEN        
             RUN pBuildPanelDetailsForEstimate (
@@ -1407,7 +1469,7 @@ PROCEDURE pUpdatePanelDetail PRIVATE:
         ASSIGN
             bf-panelDetail.panelFormula         = ipcPanelFormula
             bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-            bf-panelDetail.scoreType            = ipcScoreType
+            bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType 
             bf-panelDetail.panelSize            = ipdPanelSize
             bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
             .        
@@ -1694,7 +1756,7 @@ PROCEDURE pCreatePanelDetail PRIVATE:
         bf-panelDetail.panelNo              = ipiPanelNo
         bf-panelDetail.panelFormula         = ipcPanelFormula
         bf-panelDetail.scoringAllowance     = ipdScoringAllowance
-        bf-panelDetail.scoreType            = ipcScoreType
+        bf-panelDetail.scoreType            = IF ipcScoreType EQ ? THEN "" ELSE ipcScoreType
         bf-panelDetail.panelSize            = ipdPanelSize
         bf-panelDetail.panelSizeFromFormula = ipdPanelSizeFromFormula
         .
@@ -1765,9 +1827,9 @@ PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
         AND bf-po-ordl.line EQ ipiPoLine 
         NO-ERROR.
     IF AVAILABLE bf-po-ordl AND bf-po-ordl.spare-char-1 EQ "LENGTH" THEN
-        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "2", "L", TABLE ttPanel BY-REFERENCE). 
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "L", TABLE ttPanel BY-REFERENCE). 
     ELSE 
-        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "1", "W", TABLE ttPanel BY-REFERENCE).
+        RUN pUpdatePanelDetailsPOLegacyDetail(ipcCompany, ipiPOID, ipiPOLine, "W", TABLE ttPanel BY-REFERENCE).
         
 END PROCEDURE.
 
@@ -1777,49 +1839,66 @@ PROCEDURE pUpdatePanelDetailsPOLegacyDetail PRIVATE:
          Notes: Once we deprecate the use of POLSCORE reftable, this procedure and all
          callers should be removed
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPoID    AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiPoLine  AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcReftableLoc AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPanelType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPanelType   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER TABLE      FOR ttPanel.
     
-    DEFINE BUFFER bf-scoreReftable FOR reftable.
+    DEFINE BUFFER bf-scoreReftable1 FOR reftable.
+    DEFINE BUFFER bf-scoreReftable2 FOR reftable.
     
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     DEFINE VARIABLE dScore AS DECIMAL NO-UNDO.
     
-    FIND FIRST bf-scoreReftable EXCLUSIVE-LOCK
-        WHERE bf-scoreReftable.reftable EQ "POLSCORE"
-        AND bf-scoreReftable.company  EQ ipcCompany
-        AND bf-scoreReftable.loc      EQ  ipcReftableLoc  //1 for Width 2 for Length
-        AND bf-scoreReftable.code     EQ STRING(ipiPoID,"9999999999")
-        AND bf-scoreReftable.code2    EQ STRING(ipiPoLine, "9999999999")
+    FIND FIRST bf-scoreReftable1 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable1.reftable EQ "POLSCORE"
+          AND bf-scoreReftable1.company  EQ ipcCompany
+          AND bf-scoreReftable1.loc      EQ "1"
+          AND bf-scoreReftable1.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable1.code2    EQ STRING(ipiPoLine, "9999999999")
         NO-ERROR.
-    IF AVAILABLE bf-scoreReftable THEN 
-    DO:
+
+    FIND FIRST bf-scoreReftable2 EXCLUSIVE-LOCK
+        WHERE bf-scoreReftable2.reftable EQ "POLSCORE"
+          AND bf-scoreReftable2.company  EQ ipcCompany
+          AND bf-scoreReftable2.loc      EQ "2"
+          AND bf-scoreReftable2.code     EQ STRING(ipiPoID,"9999999999")
+          AND bf-scoreReftable2.code2    EQ STRING(ipiPoLine, "9999999999")
+        NO-ERROR.
+
+    IF AVAILABLE bf-scoreReftable1 THEN
         ASSIGN  //Clear out data arrays 
-            bf-scoreReftable.val  = 0
-            bf-scoreReftable.dscr = ""
+            bf-scoreReftable1.val  = 0
+            bf-scoreReftable1.dscr = ""
             . 
-        FOR EACH ttPanel
-            WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
-            BY ttPanel.iPanelNum:
-            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
-                NEXT.
+
+    IF AVAILABLE bf-scoreReftable2 THEN
+        ASSIGN  //Clear out data arrays 
+            bf-scoreReftable2.val  = 0
+            bf-scoreReftable2.dscr = ""
+            . 
+
+    FOR EACH ttPanel
+        WHERE ttPanel.cPanelType EQ ipcPanelType  //W or L
+        BY ttPanel.iPanelNum:
+        dScore = ttPanel.dPanelSize.
+
+        RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
+
+        IF AVAILABLE bf-scoreReftable1 AND ttPanel.iPanelNum LE 12 THEN                                
             ASSIGN 
-                iIndex = iIndex + 1
-                dScore = ttPanel.dPanelSize
-                .
-            RUN ConvertDecimalTo16ths(INPUT-OUTPUT dScore).
-                                    
-            ASSIGN 
-                bf-scoreReftable.val[iIndex] = dScore
-                bf-scoreReftable.dscr        = bf-scoreReftable.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE ttPanel.cScoreType)
+                bf-scoreReftable1.val[ttPanel.iPanelNum] = dScore
+                bf-scoreReftable1.dscr                   = bf-scoreReftable1.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
                 .                                    
-        END.
-    END.  
-    RELEASE bf-scoreReftable.
+        ELSE IF AVAILABLE bf-scoreReftable2 AND ttPanel.iPanelNum LE 20  THEN                                
+            ASSIGN 
+                bf-scoreReftable2.val[ttPanel.iPanelNum - 12] = dScore
+                bf-scoreReftable2.dscr                        = bf-scoreReftable2.dscr + (IF ttPanel.cScoreType EQ "" THEN " " ELSE IF ttPanel.cScoreType EQ ? THEN " " ELSE ttPanel.cScoreType)
+                .                                            
+    END.
+
+    RELEASE bf-scoreReftable1.
+    RELEASE bf-scoreReftable2.
 
 END PROCEDURE.
 
@@ -2067,7 +2146,7 @@ PROCEDURE pUpdatePanelDetails PRIVATE:
             ).        
         FOR EACH ttPanel
             BY ttPanel.iPanelNum:
-            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND ttPanel.cScoreType = "" AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
+            IF ttPanel.cPanelFormula EQ "" AND ttPanel.dScoringAllowance EQ 0 AND (ttPanel.cScoreType EQ "" OR ttPanel.cScoreType EQ ?) AND ttPanel.dPanelSize EQ 0 AND ttPanel.dPanelSizeFromFormula EQ 0 THEN
                 NEXT.
                 
             RUN pUpdatePanelDetail (

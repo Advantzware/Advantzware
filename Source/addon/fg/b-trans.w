@@ -225,9 +225,9 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      iLineCnt COLUMN-LABEL "#" FORMAT "99":U LABEL-BGCOLOR 14
+      iLineCnt COLUMN-LABEL "#" FORMAT "999":U LABEL-BGCOLOR 14
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(23)":U LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.loc COLUMN-LABEL "From!Loc" FORMAT "x(13)":U WIDTH 7
             LABEL-BGCOLOR 14
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>>>9":U WIDTH 9
@@ -237,7 +237,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
             WIDTH 10
       fg-rctd.tag2 COLUMN-LABEL "To!Tag" FORMAT "x(23)":U LABEL-BGCOLOR 14
-      fg-rctd.loc2 COLUMN-LABEL "To!Whse" FORMAT "x(13)":U WIDTH 7
+      fg-rctd.loc2 COLUMN-LABEL "To!Loc" FORMAT "x(13)":U WIDTH 7
             LABEL-BGCOLOR 14
       fg-rctd.loc-bin2 COLUMN-LABEL "To!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
@@ -366,11 +366,11 @@ ASSIGN
 fg-rctd.rita-code = ""T"" and
 fg-rctd.created-by = USERID(""ASI"")"
      _FldNameList[1]   > "_<CALC>"
-"iLineCnt" "#" "99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"iLineCnt" "#" "999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.fg-rctd.tag
 "fg-rctd.tag" "From!Tag" "x(23)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.fg-rctd.loc
-"fg-rctd.loc" "From!Whse" "x(13)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc" "From!Loc" "x(13)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.fg-rctd.loc-bin
 "fg-rctd.loc-bin" "From!Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.fg-rctd.cases
@@ -382,7 +382,7 @@ fg-rctd.created-by = USERID(""ASI"")"
      _FldNameList[8]   > asi.fg-rctd.tag2
 "fg-rctd.tag2" "To!Tag" "x(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.fg-rctd.loc2
-"fg-rctd.loc2" "To!Whse" "x(13)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.loc2" "To!Loc" "x(13)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.fg-rctd.loc-bin2
 "fg-rctd.loc-bin2" "To!Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.fg-rctd.cust-no
@@ -595,7 +595,7 @@ DO:
         iHoldCnt = integer(iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name}) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN DO:    
           iLineCnt = iLineCnt + 1.        
-          iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "99").
+          iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "999").
           CREATE tt-line-cnt.
           ASSIGN tt-line-cnt.line-rowid = ROWID(fg-rctd)
                  tt-line-cnt.line-number = iLineCnt.
@@ -693,7 +693,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Whse */
+ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* From!Loc */
 DO:
   IF LASTKEY NE -1 THEN DO:
   
@@ -816,7 +816,7 @@ END.
 
 &Scoped-define SELF-NAME fg-rctd.loc2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc2 Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.loc2 IN BROWSE Browser-Table /* To!Whse */
+ON LEAVE OF fg-rctd.loc2 IN BROWSE Browser-Table /* To!Loc */
 DO:
   DEF VAR lv-scanned-loc AS cha NO-UNDO.
 
@@ -1713,7 +1713,7 @@ DEFINE VARIABLE iHoldCnt AS INTEGER     NO-UNDO.
       iHoldCnt = integer(iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name}) NO-ERROR.
       IF NOT ERROR-STATUS:ERROR THEN DO:    
         iLineCnt = iLineCnt + 1.        
-        iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "99").
+        iLineCnt:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(iLineCnt, "999").
         CREATE tt-line-cnt.
         ASSIGN tt-line-cnt.line-rowid = ROWID(fg-rctd)
                tt-line-cnt.line-number = iLineCnt.
@@ -2397,7 +2397,7 @@ PROCEDURE valid-loc-bin2 :
          fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}     AND
          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  EQ
          fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name} THEN
-        lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
+        lv-msg = "To Loc/Bin may not be the same as From Loc/Bin".
 
     IF lv-msg EQ "" THEN DO:
         RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 

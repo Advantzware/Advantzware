@@ -303,7 +303,14 @@ PROCEDURE ipRunReport :
 
     
     RUN pInitializeExcel.
-    
+    IF NOT VALID-HANDLE(gchExcelApplication) THEN DO:
+        MESSAGE 
+          "Microsoft Excel is required.  This report is unable to be executed."
+        VIEW-AS ALERT-BOX ERROR.
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN.
+    END.
+
     iRow = 3.
     FOR EACH costHeader NO-LOCK 
         WHERE costHeader.company EQ gcompany
@@ -437,7 +444,9 @@ PROCEDURE pInitializeExcel :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
-    CREATE "Excel.Application" gchExcelApplication.
+    CREATE "Excel.Application" gchExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(gchExcelApplication) THEN
+    RETURN.
     RUN sys/ref/getFileFullPathName.p ("Template\PTJobProfitability.xlt", OUTPUT cFile).
 
     IF SEARCH (cFile) = ? THEN 

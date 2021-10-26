@@ -1963,10 +1963,12 @@ IF CAN-FIND(FIRST xprobe
                   v-tot-lab = (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000))) *
                               (1 + (quotechg.mkup / 100)).
              
-            quotechg.amt = v-tot-mat + v-tot-lab.
-            
-            IF quotechg.prep-qty NE 0 THEN
-               quotechg.cost = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
+             quotechg.amt = v-tot-mat + v-tot-lab.
+                
+              IF quotechg.prep-qty NE 0 THEN
+                  ASSIGN 
+                    quotechg.spare-dec-1 = quotechg.amt / quotechg.prep-qty 
+                    quotechg.cost        = ((quotechg.matf + (quotechg.matm * (quotechg.prep-qty / 1000)))
                              + (quotechg.labf + (quotechg.labm * (quotechg.prep-qty / 1000)))) / quotechg.prep-qty.
 
              IF ceprep-cha EQ "FiveDollar" THEN DO:
@@ -2591,48 +2593,7 @@ PROCEDURE pGetCEVersionCalcSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est FOR est.
 
-    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iCEVersion AS INTEGER   NO-UNDO.
-
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "C" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    glEstimateCalcNew = lFound AND cReturn EQ "New".
- 
-    RUN sys/ref/nk1look.p (ipbf-est.company, "CEVersion", "I" /* Character */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cReturn, OUTPUT lFound).
-    IF lRecFound THEN 
-        iCEVersion = INTEGER(cReturn).
-        
-    IF glEstimateCalcNew THEN 
-        CASE iCEVersion:
-            WHEN 1 THEN 
-                ASSIGN 
-                    glEstimateCalcNewPrompt = glEstimateCalcNew.
-            WHEN 2 THEN 
-                DO:
-                    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNew = NO.            
-                    ASSIGN 
-                        glEstimateCalcNewPrompt = glEstimateCalcNew.
-                END.
-            WHEN 3 THEN 
-                DO:
-                    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN 
-                        glEstimateCalcNewPrompt = YES.
-                    ELSE 
-                        glEstimateCalcNewPrompt = NO.            
-                END.
-            WHEN 4 THEN 
-                DO:
-                    IF NOT ipbf-est.estimateTypeID EQ "MISC" THEN 
-                        ASSIGN 
-                            glEstimateCalcNew       = NO
-                            glEstimateCalcNewPrompt = NO.
-                END.
-        END CASE.
+    RUN Estimate_GetVersionSettings(ipbf-est.company, ipbf-est.estimateTypeID, OUTPUT glEstimateCalcNew, OUTPUT glEstimateCalcNewPrompt).
 
 END PROCEDURE.
 	
@@ -2667,6 +2628,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProductList B-table-Win
+PROCEDURE pRunProductList :
+/*------------------------------------------------------------------------------
+ Purpose: Estimate Print from DB Tables, not text files
+ Notes:
+------------------------------------------------------------------------------*/
+
+RUN est\MRPReport.p (ROWID(eb)).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 

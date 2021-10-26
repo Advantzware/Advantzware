@@ -1705,7 +1705,10 @@ PROCEDURE pGetParamValue:
             OUTPUT cNK1Value,OUTPUT lFound
             ).
         IF lFound THEN
-            iSubjectID = INTEGER(cNK1Value).
+        ASSIGN
+            iSubjectID = INTEGER(cNK1Value)
+            iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID)
+            .
         /* get paramvalueid of dynParamValue */
         RUN sys/ref/nk1look.p (
             cocode,"AuditJobCalc","D",NO,NO,"","",

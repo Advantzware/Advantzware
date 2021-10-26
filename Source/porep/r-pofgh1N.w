@@ -40,7 +40,7 @@ ASSIGN
     cocode = gcompany
     locode = gloc.
 
-DEFINE VARIABLE v-s-pono    LIKE po-ord.po-no FORMAT ">>>>>>".
+DEFINE VARIABLE v-s-pono    LIKE po-ord.po-no FORMAT ">>>>>>>>".
 DEFINE VARIABLE v-e-pono    LIKE v-s-pono INIT 999999.
 DEFINE VARIABLE v-s-date    LIKE po-ord.po-date FORMAT "99/99/9999" INIT "01/01/0001".
 DEFINE VARIABLE v-e-date    LIKE v-s-date INIT TODAY.
@@ -752,7 +752,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
                             IF lChoice THEN
                             DO:
-                                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+                                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                             END.
                         END.
                     END. /* WHEN 3 THEN DO: */

@@ -99,6 +99,12 @@ ELSE
    gcTempDir = "c:\tmp\".
 
 RUN InitializeExcel.
+IF NOT VALID-HANDLE(gchExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 RUN MainLoop.
 RUN Cleanup.
 
@@ -436,6 +442,8 @@ CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
 IF NOT VALID-HANDLE (gchExcelApplication) THEN
     /* Start a new session of Excel. */
     CREATE "Excel.Application" gchExcelApplication NO-ERROR.
+    IF NOT VALID-HANDLE(gchExcelApplication) THEN
+    RETURN.
 
 /* Network connection checks. */
 CREATE "WScript.Network" gchWshNetwork NO-ERROR.

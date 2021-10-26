@@ -638,7 +638,8 @@ DO:
                RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
                IF lMsgResponse THEN
                DO:
-                  RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode). 
+                  RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
+                  RUN fg/fg-reset.p (recid(itemfg)).
                   RUN pCreateGLTrans(ROWID(fg-bin), INPUT lv-qty).
                END.
                ELSE do:

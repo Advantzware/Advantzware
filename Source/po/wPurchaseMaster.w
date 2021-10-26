@@ -1010,8 +1010,16 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS cha NO-UNDO.
+  DEFINE VARIABLE lAllowCreate AS LOGICAL NO-UNDO.
   
   RUN select-page(2).
+  
+  IF VALID-HANDLE(h_p-poh) THEN 
+  DO:
+      RUN pAllowCreate IN h_p-poh (OUTPUT lAllowCreate).
+      IF NOT lAllowCreate THEN RETURN.
+  END.  
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-target", OUTPUT char-hdl).
   RUN add-po IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.

@@ -203,6 +203,12 @@ FOR EACH gbf-report WHERE gbf-report.term-id EQ v-term-id:
 
     /*initialize Excel*/
     RUN CreateExcelSheet.
+    IF NOT VALID-HANDLE(ghExcel) THEN DO:
+        MESSAGE 
+          "Microsoft Excel is required.  This report is unable to be executed."
+        VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
 
     /*write data to Excel "Data" sheet*/
     RUN BuildExcelDataSheet(1,2, gxCustNo).
@@ -347,8 +353,11 @@ PROCEDURE CreateExcelSheet:
       APPLY 'close' TO THIS-PROCEDURE.
 
    /* Create excel object*/
-    IF NOT VALID-HANDLE(ghExcel) THEN
-        CREATE "excel.application" ghExcel.
+    IF NOT VALID-HANDLE(ghExcel) THEN DO:
+        CREATE "excel.application" ghExcel NO-ERROR.
+        IF NOT VALID-HANDLE(ghExcel) THEN
+        RETURN.
+    END.
 
     /* Open an Excel    */
     ghExcel:Workbooks:OPEN(cFileName).

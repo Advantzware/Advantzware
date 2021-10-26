@@ -223,7 +223,7 @@ ELSE
       AND v-this-loc-printed = NO THEN DO:
       
       PUT UNFORMATTED skip(1) "For Warehouse: " itemfg-loc.loc SKIP(1).
-      /*IF tb_excel THEN
+      /*IF rd-dest EQ 3 THEN
         PUT STREAM excel UNFORMATTED
         skip(1) "For Warehouse: " itemfg-loc.loc SKIP(1).*/
 
@@ -446,7 +446,7 @@ ELSE
       
       IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
       
-      IF tb_excel THEN
+      IF rd-dest EQ 3 THEN
       PUT STREAM excel UNFORMATTED
       cExcelDisplay SKIP.
     END. /* last of item */
@@ -566,7 +566,7 @@ ELSE
       END.
     END.
     PUT UNFORMATTED     cDisplay SKIP.
-    IF tb_excel THEN
+    IF rd-dest EQ 3 THEN
     PUT STREAM excel UNFORMATTED
     cExcelDisplay SKIP.
     IF LAST-OF(itemfg-loc.loc) THEN

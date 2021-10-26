@@ -64,7 +64,7 @@ DEFINE BUTTON Select_Exit
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/exit_white_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Exit"
+     SIZE 8 BY 1.9 TOOLTIP "Exit"
      BGCOLOR 21 .
 
 
@@ -104,7 +104,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 2.67
          WIDTH              = 39.
 /* END WINDOW DEFINITION */
                                                                         */

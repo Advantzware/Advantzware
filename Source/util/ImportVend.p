@@ -81,7 +81,7 @@ PROCEDURE pValidate PRIVATE:
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     oplValid = YES.
-    
+                    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportVend.Company EQ '' THEN 
@@ -95,6 +95,13 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Vendor".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF length(ipbf-ttImportVend.VendNo) GT 8 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Maximum Vendor character Length is 8".
     END.
     IF oplValid THEN 
     DO:

@@ -77,10 +77,10 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnReset btnSave btnAddEmail svRecipients ~
-svRunSync svAutoClose defaultOutputFormat svShowAll svShowReportHeader ~
-svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
-svShowGroupFooter svShowParameters 
+&Scoped-define outputObjects btnReset btnSave btnAddEmail svRunSync ~
+svRecipients svAutoClose defaultOutputFormat svOnePer svShowAll ~
+svShowReportHeader svShowReportFooter svShowPageHeader svShowPageFooter ~
+svShowGroupHeader svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -150,6 +150,11 @@ DEFINE VARIABLE svAutoClose AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 15 BY .81 NO-UNDO.
 
+DEFINE VARIABLE svOnePer AS LOGICAL INITIAL no 
+     LABEL "One Record Per" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY .81 NO-UNDO.
+
 DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
      LABEL "Run Synchronous" 
      VIEW-AS TOGGLE-BOX
@@ -212,12 +217,13 @@ DEFINE FRAME outputFrame
           "Update/Save Columns" WIDGET-ID 24
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svRunSync AT ROW 1.48 COL 96 HELP
+     svRunSync AT ROW 1 COL 96 HELP
           "Toggle to Run Synchronous" WIDGET-ID 662
-     svAutoClose AT ROW 2.43 COL 96 HELP
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svAutoClose AT ROW 1.95 COL 96 HELP
           "Toggle to Auto Close" WIDGET-ID 658
      defaultOutputFormat AT ROW 2.43 COL 118 NO-LABEL WIDGET-ID 644
+     svOnePer AT ROW 2.9 COL 96 WIDGET-ID 666
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
@@ -305,6 +311,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX svAutoClose IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svOnePer IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
    1                                                                    */
@@ -394,6 +402,22 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svRecipients
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svRecipients s-object
+ON LEAVE OF svRecipients IN FRAME outputFrame
+DO:
+    ASSIGN
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,";",",")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE," ","")
+        svRecipients:SCREEN-VALUE = REPLACE(svRecipients:SCREEN-VALUE,CHR(10),"")
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME svShowAll
@@ -540,6 +564,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hDynDescripProc) THEN
+    DELETE PROCEDURE hDynDescripProc.
+    IF VALID-HANDLE(hDynInitProc) THEN
+    DELETE PROCEDURE hDynInitProc.
+    IF VALID-HANDLE(hDynValProc) THEN
+    DELETE PROCEDURE hDynValProc.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -589,6 +644,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIfModified s-object 
+PROCEDURE pCheckIfModified :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
+
+    IF lModified THEN DO:
+        RUN pSave (OUTPUT oplRunTask).
+        IF oplRunTask AND lModified EQ NO THEN
+        MESSAGE 
+            "Auto Saved Parameter Value Changes"
+        VIEW-AS ALERT-BOX WARNING.
+    END. /* if lmodified */
+    ELSE
+    oplRunTask = YES.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDynParamValue s-object 
 PROCEDURE pGetDynParamValue :
 /*------------------------------------------------------------------------------
@@ -625,29 +703,6 @@ PROCEDURE pGetSettings :
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pModified s-object
-PROCEDURE pCheckIfModified:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplRunTask AS LOGICAL NO-UNDO.
-
-    IF lModified THEN DO:
-        RUN pSave (OUTPUT oplRunTask).
-        IF oplRunTask AND lModified EQ NO THEN
-        MESSAGE 
-            "Auto Saved Parameter Value Changes"
-        VIEW-AS ALERT-BOX WARNING.
-    END. /* if lmodified */
-    ELSE
-    oplRunTask = YES.
-
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -73,17 +73,17 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN 
     cTextListToSelect  = "ITEM,DESCRIPTION,CAT,UOM,COST,ON HAND,ON ORDER,QTY ALLOCATED," +
-                           "REORDER LEVEL,QTY AVAILABLE,VALUE,TON,Item Name" 
+                           "REORDER LEVEL,QTY AVAILABLE,VALUE,TON,Item Name,Available On Hand" 
     cFieldListToSelect = "item,desc,cat,uom,cost,on-hand,on-order,qty-all," +
-                            "reord-l,qty-avail,value,ton,itemName"
-    cFieldLength       = "10,20,5,3,9,14,14,14," + "13,14,11,11,30"
-    cFieldType         = "c,c,c,c,i,i,i,i," + "i,i,i,i,c" 
+                            "reord-l,qty-avail,value,ton,itemName,avail-on-hand"
+    cFieldLength       = "10,20,5,3,9,14,14,14," + "13,14,11,11,30,17"
+    cFieldType         = "c,c,c,c,i,i,i,i," + "i,i,i,i,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "ITEM,DESCRIPTION,CAT,UOM,COST,ON HAND,ON ORDER,QTY ALLOCATED," +
-                           "REORDER LEVEL,QTY AVAILABLE,VALUE,Item Name"  .
+                           "REORDER LEVEL,QTY AVAILABLE,VALUE,Item Name,Available On Hand"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -649,7 +649,7 @@ DO:
                
                         IF lChoice THEN
                         DO:
-                            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)). 
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                         END.
                     END.
                 END. /* WHEN 3 THEN DO: */
@@ -1532,6 +1532,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-av           AS LOG       FORMAT "Avail/OnHand" NO-UNDO INIT YES.
     DEFINE VARIABLE lv-q-onh       AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lv-cost        AS DECIMAL   NO-UNDO FORMAT "->>>>9.99".
+    DEFINE VARIABLE lv-q-onh-avail AS DECIMAL   NO-UNDO.
 
     DEFINE VARIABLE cDisplay       AS cha       NO-UNDO.
     DEFINE VARIABLE cExcelDisplay  AS cha       NO-UNDO.
@@ -1705,6 +1706,8 @@ PROCEDURE run-report :
             v-wid = IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid
             v-len = IF item.r-wid EQ 0 THEN item.s-len ELSE 12 .
 
+        ASSIGN lv-q-onh-avail = (lv-q-onh - item.q-comm).
+            
         IF ITEM.cons-uom EQ "TON" THEN
             v-tons = lv-q-onh .
         ELSE
@@ -1749,6 +1752,8 @@ PROCEDURE run-report :
                     cVarValue = /*IF item.i-code ne "E" THEN*/ STRING(v-tons,"->>>>>>9.99") /*ELSE ""*/ .
                 WHEN "itemName"   THEN 
                     cVarValue = STRING(item.i-name,"x(30)").
+                WHEN "avail-on-hand"  THEN 
+                    cVarValue = STRING(lv-q-onh-avail,"->,>>>,>>9.999") .
 
             END CASE.
 

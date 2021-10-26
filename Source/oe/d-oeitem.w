@@ -202,6 +202,8 @@ DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCreateJobFromFG AS LOGICAL NO-UNDO.
+
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -283,6 +285,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF v-rec-found THEN
     lQuotePriceMatrix = logical(v-rtn-char) NO-ERROR.    
 
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCreateFromFG", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
+lCreateJobFromFG = LOGICAL(v-rtn-char) NO-ERROR.
+    
 DO TRANSACTION:
  {sys/inc/oeship.i}
  {sys/inc/oereleas.i}
@@ -1085,7 +1092,7 @@ DO:
         END.
 
          WHEN "qty" THEN DO:
-              IF oe-ordl.est-no:SCREEN-VALUE <> "" THEN DO:
+              IF oe-ordl.est-no:SCREEN-VALUE <> "" AND NOT lQuotePriceMatrix THEN DO:
                  RUN windows/l-ordqty.w (g_company, oe-ordl.est-no:screen-value, lw-focus:screen-valu, OUTPUT char-val).
                  IF char-val NE "" THEN DO:
                     ASSIGN
@@ -1100,6 +1107,24 @@ DO:
 
                     APPLY "tab" TO oe-ordl.qty.
                  END.
+              END.
+              ELSE DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company = oe-ord.company
+                     AND cust.cust-no = oe-ord.cust-no NO-ERROR. 
+                     
+                FIND FIRST itemfg  NO-LOCK
+                     WHERE itemfg.company EQ g_company
+                     AND itemfg.i-no    EQ oe-ordl.i-no:SCREEN-VALUE NO-ERROR.     
+                RUN windows/lOePrmtx.w (g_company, oe-ordl.i-no:screen-value,oe-ord.cust-no,(IF AVAIL cust THEN cust.TYPE ELSE ""),
+                                         (IF AVAIL itemfg THEN itemfg.procat ELSE ""),oe-ord.ship-id, OUTPUT char-val).
+                IF char-val NE "" THEN DO:
+                  ASSIGN        
+                  oe-ordl.qty:screen-value = ENTRY(1,char-val)
+                  oe-ordl.price:screen-value = ENTRY(2,char-val)
+                  oe-ordl.pr-uom:screen-value = ENTRY(3,char-val) .
+                END.  
+                                         
               END.
          END.
          WHEN "i-no" THEN DO:
@@ -1260,7 +1285,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "",
         INPUT "Price-Source"
         ).
@@ -1306,7 +1331,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
   lv-add-mode = NO.
     RUN ClearTagsForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "Price-Source"
         ).
     RUN ClearTagsForGroup(
@@ -2026,7 +2051,7 @@ DO:
 
     END. /* modified */
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -2930,6 +2955,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE sys-ctrl.log-fld.
   END.
+  
   v-create-job = sys-ctrl.log-fld.
       
   FIND FIRST sys-ctrl
@@ -3840,6 +3866,7 @@ PROCEDURE create-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ipEstNo AS CHARACTER NO-UNDO.
   DEF OUTPUT PARAM op-recid AS RECID NO-UNDO.
   DEF VAR v-job-job LIKE job.job NO-UNDO.
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
@@ -3877,11 +3904,11 @@ PROCEDURE create-job :
   ELSE  IF oe-ordl.job-no EQ "" THEN DO:
     FIND FIRST est
       WHERE est.company EQ cocode
-        AND est.est-no  EQ oe-ordl.est-no NO-LOCK NO-ERROR.
+        AND est.est-no  EQ ipEstNo NO-LOCK NO-ERROR.
     IF AVAIL est THEN  
        FIND FIRST eb
              WHERE eb.company  EQ oe-ordl.company
-               AND eb.est-no   EQ oe-ordl.est-no
+               AND eb.est-no   EQ ipEstNo
                AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
     IF AVAIL eb THEN 
         v-prod-cat = eb.procat.
@@ -3895,7 +3922,12 @@ PROCEDURE create-job :
        ASSIGN
         oe-ordl.job-no  = v-job-no
         oe-ordl.job-no2 = v-job-no2.
-       DISPLAY oe-ordl.job-no oe-ordl.job-no2 WITH FRAME {&frame-name}.
+        
+     IF oe-ordl.est-no EQ "" THEN 
+        ASSIGN 
+            oe-ordl.est-no = ipEstNo.
+            
+       DISPLAY oe-ordl.job-no oe-ordl.job-no2 oe-ordl.est-no WITH FRAME {&frame-name}.
     END.
   END.
   ELSE
@@ -3915,7 +3947,7 @@ PROCEDURE create-job :
   ASSIGN job.job        = v-job-job
          job.company    = cocode
          job.loc        = locode
-         job.est-no     = oe-ordl.est-no
+         job.est-no     = ipEstNo
          job.job-no     = oe-ordl.job-no
          job.job-no2    = oe-ordl.job-no2
          job.stat       = "P"
@@ -3938,7 +3970,7 @@ PROCEDURE create-job :
          ASSIGN job-hdr.company      = cocode
                 job-hdr.loc          = locode
                 job-hdr.e-num        = oe-ordl.e-num
-                job-hdr.est-no       = oe-ordl.est-no
+                job-hdr.est-no       = ipEstNo
                 job-hdr.i-no         = oe-ordl.i-no
             /*     job-hdr.qty          = oe-ordl.qty */
                 job-hdr.cust-no      = oe-ordl.cust-no
@@ -3958,7 +3990,7 @@ PROCEDURE create-job :
          ASSIGN job-hdr.std-tot-cost = (job-hdr.std-mat-cost + job-hdr.std-lab-cost +
                                         job-hdr.std-var-cost + job-hdr.std-fix-cost).
    END.
-   ASSIGN job-hdr.est-no  = oe-ordl.est-no
+   ASSIGN job-hdr.est-no  = ipEstNo
           job-hdr.job     = job.job
           job-hdr.job-no  = job.job-no
           job-hdr.job-no2 = job.job-no2
@@ -5753,7 +5785,7 @@ PROCEDURE final-steps :
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF VAR v-pallet-cnt AS DEC NO-UNDO.
   DEF BUFFER temp-itemfg FOR itemfg.
-  DEF VAR lv-job-recid AS RECID NO-UNDO.
+  DEF VAR lv-job-recid AS RECID NO-UNDO.    
 
   IF NOT AVAIL oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -5791,26 +5823,41 @@ PROCEDURE final-steps :
      IF v-qty-mod AND xest.est-type GE 3 AND xest.est-type LE 4 THEN RUN oe/tancomup.p.*/
   END.
 
-  IF AVAIL oe-ordl AND (oe-ordl.est-no NE "" AND oe-ordl.job-no EQ "") THEN
-    /*message "Since job number is blank, a job will not be created "
-            view-as alert-box*/. 
-
+  IF AVAIL oe-ordl AND (oe-ordl.est-no EQ "" AND oe-ordl.job-no EQ "") AND lCreateJobFromFG THEN
+  DO:
+     FIND FIRST temp-itemfg NO-LOCK
+          WHERE temp-itemfg.company EQ cocode
+          AND temp-itemfg.i-no EQ oe-ordl.i-no
+          NO-ERROR.
+          
+      IF AVAIL temp-itemfg AND temp-itemfg.stat EQ "A" AND temp-itemfg.pur-man EQ NO 
+         AND temp-itemfg.i-code EQ "C" AND temp-itemfg.est-no NE "" THEN
+      DO:
+            MESSAGE "Create a job using the estimate number from the FG item: " 
+                VIEW-AS ALERT-BOX  QUESTION BUTTONS YES-NO
+               UPDATE lCreateJob AS LOGICAL.
+            IF lCreateJob THEN
+            DO:                   
+               RUN create-job (INPUT temp-itemfg.est-no, OUTPUT lv-job-recid).
+               FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.                
+            END.
+      END.      
+  END.
   ELSE DO:
     IF AVAIL oe-ordl AND oe-ordl.est-no NE "" AND v-create-job THEN DO:
       FIND FIRST job WHERE job.company EQ cocode
                        AND job.job-no  EQ oe-ordl.job-no
                        AND job.job-no2 EQ oe-ordl.job-no2 NO-LOCK NO-ERROR.
       IF NOT AVAIL job THEN DO:
-        RUN create-job (OUTPUT lv-job-recid).
+        RUN create-job (INPUT oe-ordl.est-no, OUTPUT lv-job-recid).
         FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.
       END.
     END.    
-    
-    RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
-
+      
   END.
   
-
+  RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
+   
   /*                      Moved to final-steps2 JLF 10/25/04
   IF oe-ordl.est-no NE "" THEN DO:
     fil_id = RECID(oe-ordl).
@@ -6626,7 +6673,7 @@ PROCEDURE getTagsToReset :
     EMPTY TEMP-TABLE ttTag.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -6635,7 +6682,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Price-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -7573,19 +7620,16 @@ PROCEDURE OnSaveButton :
         FIND CURRENT oe-ord EXCLUSIVE.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
-        DO:      
-            IF NOT cPromManualChanged AND cDueManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date,
-                    INPUT oe-ordl.prom-date,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.prom-date = dCalcPromDate.
-            END.
-            ELSE
+        DO:             
+            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                INPUT oe-ordl.req-date,
+                INPUT oe-ordl.prom-date,
+                INPUT "DueDate",
+                INPUT ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate).
+            oe-ordl.prom-date = dCalcPromDate.
+            
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
                 RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -8022,18 +8066,18 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     DO:
         
         RUN ClearTagsForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Price-Source"
             ).
         RUN AddTagInfoForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",
             INPUT "Price-Source"
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT bf-oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT "Price-Source",
             OUTPUT lAvailable

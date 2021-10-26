@@ -40,12 +40,12 @@ CREATE WIDGET-POOL.
 &ENDIF
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipcInvoiceType AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER ipcPrgmnameOverride AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER ipcInvoiceType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcPrgmnameOverride AS CHARACTER NO-UNDO.
 
 
 /* Local Variable Definitions ---                                       */
-DEF    VAR      list-name  AS cha       NO-UNDO.
+DEFINE VARIABLE list-name  AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cActualPdf AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hSuperProc AS HANDLE.
@@ -66,46 +66,46 @@ ASSIGN
 
 {oe/rep/invoice.i "new"}
 {sys/ref/CustList.i NEW}
-DEF VAR v-program      AS CHAR NO-UNDO.
-DEF VAR is-xprint-form AS LOG  NO-UNDO.
-DEF VAR ls-fax-file    AS cha  NO-UNDO.
+DEFINE VARIABLE v-program      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
+DEFINE VARIABLE ls-fax-file    AS cha       NO-UNDO.
 {custom/xprint.i}
 
-DEF VAR lv-multi-faxout AS LOG  NO-UNDO.  /*for faxing to multiple receipents */
-DEF VAR lv-fax-image    AS cha  NO-UNDO.  /* fax imge file */
-DEF VAR lv-prt-bypass   AS LOG  NO-UNDO.  /* bypass window's printer driver */
+DEFINE VARIABLE lv-multi-faxout AS LOG       NO-UNDO.  /*for faxing to multiple receipents */
+DEFINE VARIABLE lv-fax-image    AS cha       NO-UNDO.  /* fax imge file */
+DEFINE VARIABLE lv-prt-bypass   AS LOG       NO-UNDO.  /* bypass window's printer driver */
 
-DEF VAR v-ftp-done      AS LOG  NO-UNDO.
-DEF VAR vcInvNums       AS CHAR NO-UNDO.
-DEF VAR lv-pdf-file     AS CHAR NO-UNDO.
-DEF VAR vcDefaultForm   AS CHAR NO-UNDO.
-DEF VAR vcBOLFiles      AS CHAR NO-UNDO.
-DEF VAR vcBOLSignDir    AS CHAR NO-UNDO.
-DEF VAR v-rec-found     AS LOG  NO-UNDO.
+DEFINE VARIABLE v-ftp-done      AS LOG       NO-UNDO.
+DEFINE VARIABLE vcInvNums       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lv-pdf-file     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vcDefaultForm   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vcBOLFiles      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vcBOLSignDir    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-rec-found     AS LOG       NO-UNDO.
 
-DEF BUFFER save-line    FOR reftable.
-DEF BUFFER b1-cust      FOR cust.
-DEF BUFFER b-ar-inv     FOR ar-inv.
+DEFINE BUFFER save-line    FOR reftable.
+DEFINE BUFFER b1-cust      FOR cust.
+DEFINE BUFFER b-ar-inv     FOR ar-inv.
 
-DEF BUFFER b-cust       FOR cust.
-DEF BUFFER b-broker-bol FOR reftable.
+DEFINE BUFFER b-cust       FOR cust.
+DEFINE BUFFER b-broker-bol FOR reftable.
 
-DEFINE VARIABLE begin_cust-screen-value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE end_cust-screen-value   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE tb_reprint-screen-value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE tb_posted-screen-value  AS CHARACTER NO-UNDO. 
-DEFINE VARIABLE begin_bol-screen-value  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE end_bol-screen-value    AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE begin_cust-screen-value AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE end_cust-screen-value   AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE tb_reprint-screen-value AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE tb_posted-screen-value  AS CHARACTER NO-UNDO. 
+DEFINE            VARIABLE begin_bol-screen-value  AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE end_bol-screen-value    AS CHARACTER NO-UNDO.
 /* bol date */  
-DEFINE VARIABLE begin_date-screen-value AS CHARACTER NO-UNDO. 
-DEFINE VARIABLE end_date-screen-value   AS CHARACTER NO-UNDO. 
+DEFINE            VARIABLE begin_date-screen-value AS CHARACTER NO-UNDO. 
+DEFINE            VARIABLE end_date-screen-value   AS CHARACTER NO-UNDO. 
 
 /* gdm - 12080817 */
-DEF NEW SHARED    VAR      nsv_setcomp      AS LOGICAL NO-UNDO.
-DEF NEW SHARED    VAR      s-print-zero-qty AS LOG     NO-UNDO.
+DEFINE NEW SHARED VARIABLE nsv_setcomp             AS LOGICAL   NO-UNDO.
+DEFINE NEW SHARED VARIABLE s-print-zero-qty        AS LOG       NO-UNDO.
 
 /* br Task 12081002 - to pass which item to print on invoice */
-DEFINE NEW SHARED VARIABLE svi-print-item   AS INTEGER INITIAL 1 NO-UNDO.
+DEFINE NEW SHARED VARIABLE svi-print-item          AS INTEGER   INITIAL 1 NO-UNDO.
 
 {ar/rep/invoice2.i "new"}
 
@@ -120,11 +120,11 @@ DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCopyPDFFile   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCopyPDFFile   AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
-DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
-DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAsiUser       AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE hPgmSecurity   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lResult        AS LOGICAL   NO-UNDO.
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("oerep/r-invprtoe.w","", OUTPUT lResult).
 DELETE OBJECT hPgmSecurity.
@@ -139,33 +139,33 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
+    lCopyPdfFile = LOGICAL(cRtnChar) NO-ERROR .
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
-    FIELD tt-FileCtr  AS INT
-    FIELD tt-FileName AS CHAR
+    FIELD tt-FileCtr  AS INTEGER
+    FIELD tt-FileName AS CHARACTER
     INDEX filelist IS PRIMARY TT-FILECTR.
 
 /* Output selection for the report */
-DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHAR      NO-UNDO.
-DEFINE NEW SHARED VARIABLE CallingParameter  AS CHAR      NO-UNDO.
+DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE CallingParameter  AS CHARACTER NO-UNDO.
 
 DEFINE            VARIABLE vcBegCustNo       AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE vcEndCustNo       AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE vlSkipRec         AS LOGICAL   NO-UNDO.
-DEFINE            VARIABLE vcHoldStats       AS CHAR      INIT "H,W" NO-UNDO.
+DEFINE            VARIABLE vcHoldStats       AS CHARACTER INIT "H,W" NO-UNDO.
 
 DEFINE            VARIABLE glPaperless       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
-DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
-DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE            VARIABLE ou-log            LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE            VARIABLE ou-cust-int       LIKE sys-ctrl.int-fld NO-UNDO.
+DEFINE            VARIABLE glCustListActive  AS LOGICAL   NO-UNDO.
 
 {XMLOutput/XMLOutput.i &NEW=NEW &XMLSysCtrl=XMLInvoice &Company=cocode} /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c} /* rstark 05291402 */
 
-DEF VAR vSoldToNo AS CHAR NO-UNDO.  /* to hold soldto# for email */
-DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
-DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
+DEFINE VARIABLE vSoldToNo     AS CHARACTER NO-UNDO.  /* to hold soldto# for email */
+DEFINE VARIABLE vShipToNo     AS CHARACTER NO-UNDO.  /* to hold shipto# for email */
+DEFINE VARIABLE hPostInvoices AS HANDLE    NO-UNDO.
 RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
 
 /* Allows for other names besides r-invprt. */
@@ -196,14 +196,12 @@ DEFINE VARIABLE cInvMessage5 AS CHARACTER NO-UNDO.
 begin_cust end_cust begin_inv end_inv begin_date end_date begin_Inv-id ~
 end_inv-id tb_reprint tb_setcomp tb_prt-inst tb_open-inv rd_sort tb_qty-all ~
 btnInvoiceMessage tb_BatchMail tb_HideDialog tb_attachBOL rd-dest ~
-lines-per-page lv-ornt lv-font-no tb_email-orig tb_override-email ~
-td-show-parm run_format btn-ok btn-cancel 
+tb_email-orig tb_override-email run_format tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date begin_Inv-id end_inv-id tb_reprint tb_setcomp ~
-tb_prt-inst tb_open-inv lbl_sort rd_sort tb_qty-all tb_BatchMail ~
-tb_HideDialog tb_attachBOL rd-dest lines-per-page lv-ornt lv-font-no ~
-lv-font-name tb_email-orig tb_override-email td-show-parm run_format ~
-tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+tb_prt-inst tb_open-inv rd_sort tb_qty-all tb_BatchMail tb_HideDialog ~
+tb_attachBOL rd-dest tb_email-orig tb_override-email tb_splitPDF run_format ~
+tbAutoClose fiBeginDateLabel fiEndDateLabel lbl_sort 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -230,11 +228,11 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
      LABEL "&Cancel" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
-     SIZE 15 BY 1.14.
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
@@ -242,7 +240,7 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON btnInvoiceMessage 
      LABEL "Invoice Message" 
-     SIZE 18.6 BY .91.
+     SIZE 18.6 BY 1.29.
 
 DEFINE VARIABLE begin_bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
@@ -294,11 +292,11 @@ DEFINE VARIABLE end_inv-id AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999
 
 DEFINE VARIABLE fiBeginDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Beginning Bol Date:" 
       VIEW-AS TEXT 
-     SIZE 19 BY .62 NO-UNDO.
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiEndDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Ending Bol Date:" 
       VIEW-AS TEXT 
-     SIZE 17 BY .62 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_broker-bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Broker BOL#" 
@@ -307,10 +305,10 @@ DEFINE VARIABLE fi_broker-bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0
 
 DEFINE VARIABLE fi_depts AS CHARACTER FORMAT "X(100)" 
      VIEW-AS FILL-IN 
-     SIZE 41 BY 1.
+     SIZE 41 BY .81.
 
 DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
-     VIEW-AS FILL-IN 
+      VIEW-AS TEXT 
      SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
@@ -342,18 +340,16 @@ DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P"
      RADIO-BUTTONS 
           "Portrait", "P",
 "Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
+     SIZE 28 BY .95 NO-UNDO.
 
 DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "To Printer", 1,
 "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
 "To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.67 NO-UNDO.
+"To File", 3
+     SIZE 16.4 BY 5.76 NO-UNDO.
 
 DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "BOL" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -367,25 +363,30 @@ DEFINE VARIABLE rs_no_PN AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "Item #", 1,
 "Customer PN", 2
-     SIZE 32.8 BY .86 NO-UNDO.
+     SIZE 34 BY .86 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 8.33.
+     SIZE 92 BY 6.91.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 14.76.
+     SIZE 92 BY 16.43.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
      LABEL "Attach Signed BOL" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY .81 NO-UNDO.
+     SIZE 23 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
      LABEL "&Batch E-Mail" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19.4 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_collate AS LOGICAL INITIAL no 
      LABEL "Collate?" 
@@ -415,12 +416,12 @@ DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL no 
      LABEL "Office Copy?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .81 NO-UNDO.
+     SIZE 18 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_open-inv AS LOGICAL INITIAL no 
      LABEL "Only Open Invoices" 
      VIEW-AS TOGGLE-BOX
-     SIZE 28.8 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL yes 
      LABEL "Ignore Paperless Setting?" 
@@ -437,10 +438,10 @@ DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-message AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-message AS LOGICAL INITIAL no 
      LABEL "Print Message" 
      VIEW-AS TOGGLE-BOX
-     SIZE 17.5 BY .81 NO-UNDO.
+     SIZE 17.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_prt-dupl AS LOGICAL INITIAL no 
      LABEL "Print Duplicate $0.00 Invoice?" 
@@ -470,12 +471,12 @@ DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_setcomp AS LOGICAL INITIAL no 
      LABEL "Print Set Component?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25.4 BY .81 NO-UNDO.
+     SIZE 25.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL no 
      LABEL "SalesRep Copy?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 22 BY .81 NO-UNDO.
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL no 
      LABEL "PDF Per Invoice" 
@@ -491,86 +492,88 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     tb_cust-list AT ROW 1.43 COL 29.4 WIDGET-ID 32
-     btnCustList AT ROW 1.52 COL 63 WIDGET-ID 30
-     begin_cust AT ROW 2.52 COL 26 COLON-ALIGNED HELP
+     tb_cust-list AT ROW 1.76 COL 28 WIDGET-ID 32
+     btnCustList AT ROW 1.86 COL 70.8 WIDGET-ID 30
+     begin_cust AT ROW 2.76 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust AT ROW 2.52 COL 69 COLON-ALIGNED HELP
+     end_cust AT ROW 2.76 COL 69 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_inv AT ROW 3.48 COL 26 COLON-ALIGNED HELP
+     begin_inv AT ROW 3.71 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number"
-     end_inv AT ROW 3.48 COL 69 COLON-ALIGNED HELP
+     end_inv AT ROW 3.71 COL 69 COLON-ALIGNED HELP
           "Enter Ending Invoice Number"
-     begin_date AT ROW 4.43 COL 26 COLON-ALIGNED HELP
+     begin_date AT ROW 4.67 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Date" NO-LABEL
-     end_date AT ROW 4.43 COL 69 COLON-ALIGNED HELP
+     end_date AT ROW 4.67 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Date" NO-LABEL
-     begin_Inv-id AT ROW 5.33 COL 26 COLON-ALIGNED HELP
+     begin_Inv-id AT ROW 5.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Number" WIDGET-ID 36
-     end_inv-id AT ROW 5.38 COL 69 COLON-ALIGNED HELP
+     end_inv-id AT ROW 5.62 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number" WIDGET-ID 38
-     begin_bol AT ROW 6.29 COL 26 COLON-ALIGNED HELP
+     begin_bol AT ROW 6.52 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Number"
-     end_bol AT ROW 6.33 COL 69 COLON-ALIGNED HELP
+     end_bol AT ROW 6.57 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
-     tb_reprint AT ROW 7.67 COL 28.2
-     lv-scr-num-copies AT ROW 7.67 COL 69.8 COLON-ALIGNED
-     tb_posted AT ROW 8.52 COL 28.2
-     tb_collate AT ROW 8.52 COL 59.4
-     tb_setcomp AT ROW 9.48 COL 59.2 WIDGET-ID 2
-     tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
-     tb_print-dept AT ROW 11 COL 49 RIGHT-ALIGNED
-     fi_depts AT ROW 11 COL 48.4 COLON-ALIGNED HELP
+     tb_reprint AT ROW 7.67 COL 28
+     tb_collate AT ROW 7.67 COL 61
+     tb_setcomp AT ROW 8.62 COL 28 WIDGET-ID 2
+     tb_posted AT ROW 8.62 COL 61
+     tb_prt-inst AT ROW 9.57 COL 48.8 RIGHT-ALIGNED
+     tb_prt-dupl AT ROW 9.57 COL 92 RIGHT-ALIGNED
+     tb_open-inv AT ROW 10.52 COL 52 RIGHT-ALIGNED WIDGET-ID 34
+     tb_prt-zero-qty AT ROW 10.52 COL 88.8 RIGHT-ALIGNED WIDGET-ID 12
+     tb_print-dept AT ROW 11.48 COL 48.8 RIGHT-ALIGNED
+     fi_depts AT ROW 11.52 COL 49 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
-     tb_prt-inst AT ROW 11.1 COL 49 RIGHT-ALIGNED
-     tb_prt-zero-qty AT ROW 12 COL 56 RIGHT-ALIGNED WIDGET-ID 12
-     tb_open-inv AT ROW 12 COL 87.4 RIGHT-ALIGNED WIDGET-ID 34
-     lbl_sort AT ROW 13.05 COL 26.2 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 13.05 COL 39 NO-LABEL
-     fi_broker-bol AT ROW 13.05 COL 75 COLON-ALIGNED HELP
+     rd_sort AT ROW 12.43 COL 39 NO-LABEL
+     fi_broker-bol AT ROW 12.43 COL 75 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number" WIDGET-ID 6
-     tb_qty-all AT ROW 14.05 COL 28 WIDGET-ID 28
-     rs_no_PN AT ROW 14.05 COL 28.2 NO-LABEL WIDGET-ID 8
-     tb_cust-copy AT ROW 14.95 COL 12
-     tb_office-copy AT ROW 14.95 COL 39
-     tb_print-message AT ROW 14.95 COL 55.6 WIDGET-ID 40
-     tb_sman-copy AT ROW 14.95 COL 64
-     btnInvoiceMessage AT ROW 14.95 COL 74.4
-     tb_BatchMail AT ROW 16.81 COL 48.8 RIGHT-ALIGNED
-     tb_HideDialog AT ROW 16.81 COL 48
-     tb_attachBOL AT ROW 16.81 COL 69 WIDGET-ID 16
-     rd-dest AT ROW 17.29 COL 5 NO-LABEL
-     lines-per-page AT ROW 17.86 COL 83 COLON-ALIGNED
-     lv-ornt AT ROW 18 COL 30 NO-LABEL
-     lv-font-no AT ROW 19.24 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 20.19 COL 27 COLON-ALIGNED NO-LABEL
-     tb_email-orig AT ROW 21.29 COL 30 WIDGET-ID 14
-     tb_override-email AT ROW 21.57 COL 60 WIDGET-ID 18
-     td-show-parm AT ROW 22.38 COL 30
-     run_format AT ROW 23.14 COL 66 COLON-ALIGNED WIDGET-ID 12
-     tb_splitPDF AT ROW 23.43 COL 30 WIDGET-ID 26
-     btn-ok AT ROW 24.81 COL 23
-     btn-cancel AT ROW 24.81 COL 56
-     fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     fiBeginDateLabel AT ROW 4.57 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.33 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.43 COL 4
-          BGCOLOR 2 
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     rs_no_PN AT ROW 13.38 COL 39 NO-LABEL WIDGET-ID 8
+     tb_qty-all AT ROW 14.33 COL 28 WIDGET-ID 28
+     tb_cust-copy AT ROW 15.29 COL 28
+     tb_office-copy AT ROW 15.29 COL 50
+     tb_sman-copy AT ROW 15.29 COL 71
+     lv-scr-num-copies AT ROW 16.24 COL 38 COLON-ALIGNED
+     tb_print-message AT ROW 16.29 COL 50 WIDGET-ID 40
+     btnInvoiceMessage AT ROW 16.18 COL 71
+     tb_BatchMail AT ROW 18.62 COL 46 RIGHT-ALIGNED
+     tb_HideDialog AT ROW 18.62 COL 49
+     tb_attachBOL AT ROW 18.62 COL 70 WIDGET-ID 16
+     rd-dest AT ROW 19.1 COL 6 NO-LABEL
+     lv-font-no AT ROW 19.57 COL 35 COLON-ALIGNED
+     lv-ornt AT ROW 19.57 COL 46 NO-LABEL
+     lines-per-page AT ROW 19.57 COL 88 COLON-ALIGNED
+     lv-font-name AT ROW 20.76 COL 31 COLON-ALIGNED NO-LABEL
+     tb_email-orig AT ROW 22.1 COL 31 WIDGET-ID 14
+     tb_override-email AT ROW 22.14 COL 61 WIDGET-ID 18
+     tb_splitPDF AT ROW 23.1 COL 31 WIDGET-ID 26
+     td-show-parm AT ROW 24 COL 31
+     run_format AT ROW 24 COL 67 COLON-ALIGNED WIDGET-ID 12
+     tbAutoClose AT ROW 25.38 COL 29.4 WIDGET-ID 64
+     btn-ok AT ROW 26.33 COL 29.2
+     btn-cancel AT ROW 26.33 COL 53
+     fiBeginDateLabel AT ROW 4.67 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiEndDateLabel AT ROW 4.67 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     lbl_sort AT ROW 12.43 COL 26 COLON-ALIGNED NO-LABEL
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 18.14 COL 5
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 25.48.
+         AT COL 1 ROW 1
+         SIZE 95.8 BY 27
+         BGCOLOR 15 .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     RECT-6 AT ROW 16.14 COL 1.4
-     RECT-7 AT ROW 1.24 COL 1
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+     RECT-6 AT ROW 18.38 COL 3
+     RECT-7 AT ROW 1.48 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 25.48.
+         AT COL 1 ROW 1
+         SIZE 95.8 BY 27
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -590,8 +593,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Invoicing"
-         HEIGHT             = 25.71
-         WIDTH              = 96.2
+         HEIGHT             = 27.43
+         WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.29
@@ -705,11 +708,30 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lbl_sort IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
+       lbl_sort:READ-ONLY IN FRAME FRAME-A        = TRUE
        lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_sort".
 
+/* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-scr-num-copies IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -824,6 +846,11 @@ ASSIGN
        tb_splitPDF:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -845,7 +872,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
            In a persistently run window, just ignore this.  If we did not, the
            application would exit. */
         IF VALID-HANDLE(hPostInvoices) THEN   
-        DELETE OBJECT hPostInvoices.   
+            DELETE OBJECT hPostInvoices.   
         IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
     END.
 
@@ -859,7 +886,7 @@ DO:
         /* Used by calling procedure (e.g. v-oeinv.w to refresh values) */
         PUBLISH "eventInvoicePrinted".
         IF VALID-HANDLE(hPostInvoices) THEN   
-        DELETE OBJECT hPostInvoices. 
+            DELETE OBJECT hPostInvoices. 
         
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -944,22 +971,22 @@ DO:
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   
-        DEFINE    VARIABLE      lv-fax-type       AS cha     NO-UNDO.
-        DEFINE    VARIABLE      vlSkipRec         AS LOG     NO-UNDO.
-        DEFINE    VARIABLE      ll-secure         AS LOG     INIT YES NO-UNDO.
-        DEFINE    VARIABLE      lBadStatus        AS LOGICAL   NO-UNDO.
-        DEFINE    VARIABLE      cBadStatusInvoice AS CHARACTER NO-UNDO.
-        DEFINE    VARIABLE      cBadStatusBol     AS CHARACTER NO-UNDO.
-        DEFINE    VARIABLE      lCheckHoldStat    AS LOGICAL NO-UNDO .
-        DEFINE    VARIABLE      lselected         AS LOGICAL NO-UNDO .
-        DEFINE    VARIABLE      cCustNo           AS CHARACTER NO-UNDO .
-        DEFINE    VARIABLE      iCountProcess     AS INTEGER NO-UNDO.
-        DEFINE    VARIABLE      iCountValid       AS INTEGER NO-UNDO.
-        DEFINE    VARIABLE      iCountPost        AS INTEGER NO-UNDO.
-        DEFINE    VARIABLE      lError            AS LOGICAL NO-UNDO.
-        DEFINE    VARIABLE      cMessage          AS CHARACTER NO-UNDO.
-        DEFINE BUFFER bf-cust FOR cust.
-        DEFINE BUFFER bf-ar-inv FOR ar-inv .
+        DEFINE VARIABLE lv-fax-type       AS cha       NO-UNDO.
+        DEFINE VARIABLE vlSkipRec         AS LOG       NO-UNDO.
+        DEFINE VARIABLE ll-secure         AS LOG       INIT YES NO-UNDO.
+        DEFINE VARIABLE lBadStatus        AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE cBadStatusInvoice AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cBadStatusBol     AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lCheckHoldStat    AS LOGICAL   NO-UNDO .
+        DEFINE VARIABLE lselected         AS LOGICAL   NO-UNDO .
+        DEFINE VARIABLE cCustNo           AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE iCountProcess     AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE iCountValid       AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE iCountPost        AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
+        DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+        DEFINE BUFFER bf-cust     FOR cust.
+        DEFINE BUFFER bf-ar-inv   FOR ar-inv .
         DEFINE BUFFER bf-inv-head FOR inv-head .
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -968,7 +995,8 @@ DO:
                 tb_cust-copy tb_office-copy tb_sman-copy
                 /* gdm - 12080817 */ tb_setcomp 
                 .
-            ASSIGN tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
+            ASSIGN 
+                tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
             IF begin_bol:SENSITIVE THEN 
                 ASSIGN begin_bol end_bol.
 
@@ -989,7 +1017,7 @@ DO:
                 
         /* In case this was set and now are printing to screen */
         IF rd-dest EQ 2 OR rd-dest EQ 1 THEN
-           tb_splitPDF = NO.
+            tb_splitPDF = NO.
            
         IF fi_broker-bol:SENSITIVE AND
             fi_broker-bol:SCREEN-VALUE NE "" AND
@@ -1023,62 +1051,66 @@ DO:
         END.
 
         FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-        IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+        IF NOT AVAILABLE ttCustList AND tb_cust-list THEN 
+        DO:
             EMPTY TEMP-TABLE ttCustList.
             RUN BuildCustList(INPUT cocode,
-                              INPUT tb_cust-list AND glCustListActive,
-                              INPUT begin_cust,
-                              INPUT END_cust).
+                INPUT tb_cust-list AND glCustListActive,
+                INPUT begin_cust,
+                INPUT END_cust).
         END.
 
-         IF lselected THEN DO:
+        IF lselected THEN 
+        DO:
              
-                 IF tb_posted THEN do:
-                   FIND FIRST bf-ar-inv WHERE bf-ar-inv.company = cocode
-                     AND (bf-ar-inv.cust-no GE begin_cust )
-                     AND (bf-ar-inv.cust-no LE end_cust )
-                     AND (bf-ar-inv.inv-no GE begin_inv )
-                     AND (bf-ar-inv.inv-no LE end_inv )
-                     AND (bf-ar-inv.x-no GE begin_inv-id )
-                     AND (bf-ar-inv.x-no LE end_inv-id )
-                     AND (bf-ar-inv.inv-date GE begin_date )
-                     AND (bf-ar-inv.inv-date LE end_date )
-                     /*AND (bf-ar-inv.b-no GE begin_bol )
-                     AND (bf-ar-inv.b-no LE end_bol )*/
-                     NO-LOCK NO-ERROR.
+            IF tb_posted THEN 
+            DO:
+                FIND FIRST bf-ar-inv WHERE bf-ar-inv.company = cocode
+                    AND (bf-ar-inv.cust-no GE begin_cust )
+                    AND (bf-ar-inv.cust-no LE end_cust )
+                    AND (bf-ar-inv.inv-no GE begin_inv )
+                    AND (bf-ar-inv.inv-no LE end_inv )
+                    AND (bf-ar-inv.x-no GE begin_inv-id )
+                    AND (bf-ar-inv.x-no LE end_inv-id )
+                    AND (bf-ar-inv.inv-date GE begin_date )
+                    AND (bf-ar-inv.inv-date LE end_date )
+                    /*AND (bf-ar-inv.b-no GE begin_bol )
+                    AND (bf-ar-inv.b-no LE end_bol )*/
+                    NO-LOCK NO-ERROR.
                  
-                   IF  AVAIL  bf-ar-inv THEN
-                     cCustNo = bf-ar-inv.cust-no .
-                 END.
-                 ELSE DO:
-                     FIND FIRST bf-inv-head WHERE bf-inv-head.company = cocode
-                     AND (bf-inv-head.cust-no GE begin_cust )
-                     AND (bf-inv-head.cust-no LE end_cust )
-                     AND (bf-inv-head.inv-no GE begin_inv )
-                     AND (bf-inv-head.inv-no LE end_inv )
-                     AND (bf-inv-head.r-no GE begin_inv-id )
-                     AND (bf-inv-head.r-no LE end_inv-id )
-                     AND (bf-inv-head.inv-date GE begin_date )
-                     AND (bf-inv-head.inv-date LE end_date )
-                     AND (bf-inv-head.bol-no GE begin_bol )
-                     AND (bf-inv-head.bol-no LE end_bol )
-                     NO-LOCK NO-ERROR.
+                IF  AVAILABLE  bf-ar-inv THEN
+                    cCustNo = bf-ar-inv.cust-no .
+            END.
+            ELSE 
+            DO:
+                FIND FIRST bf-inv-head WHERE bf-inv-head.company = cocode
+                    AND (bf-inv-head.cust-no GE begin_cust )
+                    AND (bf-inv-head.cust-no LE end_cust )
+                    AND (bf-inv-head.inv-no GE begin_inv )
+                    AND (bf-inv-head.inv-no LE end_inv )
+                    AND (bf-inv-head.r-no GE begin_inv-id )
+                    AND (bf-inv-head.r-no LE end_inv-id )
+                    AND (bf-inv-head.inv-date GE begin_date )
+                    AND (bf-inv-head.inv-date LE end_date )
+                    AND (bf-inv-head.bol-no GE begin_bol )
+                    AND (bf-inv-head.bol-no LE end_bol )
+                    NO-LOCK NO-ERROR.
                  
-                   IF  AVAIL  bf-inv-head THEN
-                     cCustNo = bf-inv-head.cust-no .
-                 END.
+                IF  AVAILABLE  bf-inv-head THEN
+                    cCustNo = bf-inv-head.cust-no .
+            END.
 
-             FIND FIRST cust WHERE cust.company = cocode 
-                 AND cust.cust-no = cCustNo NO-LOCK NO-ERROR.
-             IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
-                 MESSAGE "Customer is not on Users Customer List.  "  SKIP
-                 "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            FIND FIRST cust WHERE cust.company = cocode 
+                AND cust.cust-no = cCustNo NO-LOCK NO-ERROR.
+            IF AVAILABLE cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 
-             FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
-             IF AVAIL ttCustList THEN ASSIGN begin_cust = ttCustList.cust-no .
-             FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
-             IF AVAIL ttCustList THEN ASSIGN end_cust = ttCustList.cust-no .
-         END.
+            FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+            IF AVAILABLE ttCustList THEN ASSIGN begin_cust = ttCustList.cust-no .
+            FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+            IF AVAILABLE ttCustList THEN ASSIGN end_cust = ttCustList.cust-no .
+        END.
 
        
         RUN assignScreenValues
@@ -1140,7 +1172,7 @@ DO:
             tb_setcomp         ,
             tb_sman-copy       ,
             td-show-parm       ,
-              ?                ,
+            ?                ,
             tb_splitPDF        ,
             tb_qty-all         ,
             tb_cust-list       ,
@@ -1159,7 +1191,8 @@ DO:
         DO:
             
             RUN bolValidate (OUTPUT lBadStatus, OUTPUT cBadStatusInvoice, OUTPUT cBadStatusBol).
-            IF lBadStatus THEN DO:        
+            IF lBadStatus THEN 
+            DO:        
                 MESSAGE "Invoice " + cBadStatusInvoice + " with Bol " +                             
                     cBadStatusBol + " will not print, status must be approved" 
                     VIEW-AS ALERT-BOX ERROR.
@@ -1192,24 +1225,24 @@ DO:
         END CASE.
 
         /*#BL# - If not emailing and a customer in the range is "Paperless" then abort */
-       /* IF rd-dest <> 5 
-            /*       AND CAN-FIND(FIRST cust                    */
-            /*                 WHERE cust.company EQ cocode     */
-            /*                   AND cust.cust-no GE begin_cust */
-            /*                   AND cust.cust-no LE end_cust   */
-            /*                   AND cust.log-field[1])         */
-            AND NOT tb_override-email
-            THEN DO:
-
-           RUN validateCustPaper.
-
+        /* IF rd-dest <> 5 
+             /*       AND CAN-FIND(FIRST cust                    */
+             /*                 WHERE cust.company EQ cocode     */
+             /*                   AND cust.cust-no GE begin_cust */
+             /*                   AND cust.cust-no LE end_cust   */
+             /*                   AND cust.log-field[1])         */
+             AND NOT tb_override-email
+             THEN DO:
+ 
+            RUN validateCustPaper.
+ 
         END.*/  /* ticket 22557 */ 
 
 
         IF NOT rd-dest:SCREEN-VALUE = '5' AND NOT rd-dest:SCREEN-VALUE = '1' THEN
         DO:
            
-          RUN runReport5 (INPUT lv-fax-type).
+            RUN runReport5 (INPUT lv-fax-type).
           
         END. /*not rd-dest = 5*/
 
@@ -1251,64 +1284,65 @@ DO:
 
         IF rd-dest:SCREEN-VALUE = '1' THEN 
         DO:
-           RUN runReport1 (INPUT lv-fax-type).            
+            RUN runReport1 (INPUT lv-fax-type).            
             
-    END.  /* rd-dest:Screen-value = 1*/
+        END.  /* rd-dest:Screen-value = 1*/
 
-    IF tb_posted AND lCopyPdfFile THEN DO:
-    RUN assignSelections
-        (begin_bol          ,
-        begin_cust         ,
-        begin_date         ,
-        begin_inv          ,
-        begin_inv-id       ,
-        end_bol            ,
-        end_cust           ,
-        end_date           ,
-        end_inv            ,
-        end_inv-id         ,
-        fi_broker-bol      ,
-        fi_depts           ,
-        lbl_sort           ,
-        lines-per-page     ,
-        lv-font-name       ,
-        lv-font-no         ,
-        lv-scr-num-copies  ,
-        lv-ornt            ,
-        5 /*rd-dest */           ,
-        rd_sort            ,
-        rs_no_PN           ,
-        tb_attachBOL       ,
-        YES /*tb_BatchMail */       ,
-        tb_collate         ,
-        tb_cust-copy       ,
-        tb_email-orig      ,
-        tb_HideDialog      ,
-        tb_office-copy     ,
-        tb_override-email  ,
-        tb_posted          ,
-        tb_print-dept      ,
-        tb_prt-inst        ,
-        tb_prt-zero-qty    ,
-        tb_reprint         ,
-        tb_setcomp         ,
-        tb_sman-copy       ,
-        td-show-parm       ,
-                 ?         ,
-        YES /* tb_splitPDF */       ,
-        tb_qty-all         ,
-        tb_cust-list       ,
-        tb_prt-dupl        ,
-        YES /* Pdf only */ ,
-        tb_open-inv,
-        tb_print-message,
-        cInvMessage1,
-        cInvMessage2,
-        cInvMessage3,
-        cInvMessage4,
-        cInvMessage5        
-        ).
-RUN BatchMail (begin_cust, end_cust).
+        IF tb_posted AND lCopyPdfFile THEN 
+        DO:
+            RUN assignSelections
+                (begin_bol          ,
+                begin_cust         ,
+                begin_date         ,
+                begin_inv          ,
+                begin_inv-id       ,
+                end_bol            ,
+                end_cust           ,
+                end_date           ,
+                end_inv            ,
+                end_inv-id         ,
+                fi_broker-bol      ,
+                fi_depts           ,
+                lbl_sort           ,
+                lines-per-page     ,
+                lv-font-name       ,
+                lv-font-no         ,
+                lv-scr-num-copies  ,
+                lv-ornt            ,
+                5 /*rd-dest */           ,
+                rd_sort            ,
+                rs_no_PN           ,
+                tb_attachBOL       ,
+                YES /*tb_BatchMail */       ,
+                tb_collate         ,
+                tb_cust-copy       ,
+                tb_email-orig      ,
+                tb_HideDialog      ,
+                tb_office-copy     ,
+                tb_override-email  ,
+                tb_posted          ,
+                tb_print-dept      ,
+                tb_prt-inst        ,
+                tb_prt-zero-qty    ,
+                tb_reprint         ,
+                tb_setcomp         ,
+                tb_sman-copy       ,
+                td-show-parm       ,
+                ?         ,
+                YES /* tb_splitPDF */       ,
+                tb_qty-all         ,
+                tb_cust-list       ,
+                tb_prt-dupl        ,
+                YES /* Pdf only */ ,
+                tb_open-inv,
+                tb_print-message,
+                cInvMessage1,
+                cInvMessage2,
+                cInvMessage3,
+                cInvMessage4,
+                cInvMessage5        
+                ).
+            RUN BatchMail (begin_cust, end_cust).
         END.
         
         IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
@@ -1321,24 +1355,25 @@ RUN BatchMail (begin_cust, end_cust).
         
       
         RUN ValidateInvoices IN hPostInvoices (cocode,
-                                               begin_inv,
-                                               (IF end_inv NE 0 THEN end_inv ELSE 9999999) ,
-                                               begin_date,
-                                               end_date,
-                                               begin_cust,
-                                               end_cust,
-                                               date(TODAY),
-                                               INPUT NO, /* Update Tax */
-                                               INPUT NO, /* UnApproved Invoices*/
-                                               OUTPUT iCountProcess,
-                                               OUTPUT iCountValid,
-                                               OUTPUT iCountPost,
-                                               OUTPUT lError,
-                                               OUTPUT cMessage) . 
- /*   END. */
-  
+            begin_inv,
+            (IF end_inv NE 0 THEN end_inv ELSE 9999999) ,
+            begin_date,
+            end_date,
+            begin_cust,
+            end_cust,
+            DATE(TODAY),
+            INPUT NO, /* Update Tax */
+            INPUT NO, /* UnApproved Invoices*/
+            OUTPUT iCountProcess,
+            OUTPUT iCountValid,
+            OUTPUT iCountPost,
+            OUTPUT lError,
+            OUTPUT cMessage) . 
+        /*   END. */
+        IF tbAutoClose:CHECKED THEN 
+            APPLY "CLOSE":U TO THIS-PROCEDURE. 
     
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1348,9 +1383,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
-  RUN CustList.
+        RUN CustList.
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1360,15 +1395,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnInvoiceMessage C-Win
 ON CHOOSE OF btnInvoiceMessage IN FRAME FRAME-A /* Invoice Message */
 DO:
-  RUN custom/d-invmesssage.w (
-        "update" ,
-        INPUT-OUTPUT cInvMessage1,
-        INPUT-OUTPUT cInvMessage2,
-        INPUT-OUTPUT cInvMessage3,
-        INPUT-OUTPUT cInvMessage4,
-        INPUT-OUTPUT cInvMessage5).
+        RUN custom/d-invmesssage.w (
+            "update" ,
+            INPUT-OUTPUT cInvMessage1,
+            INPUT-OUTPUT cInvMessage2,
+            INPUT-OUTPUT cInvMessage3,
+            INPUT-OUTPUT cInvMessage4,
+            INPUT-OUTPUT cInvMessage5).
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1412,31 +1447,32 @@ DO:
 ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
 DO:
 
-       DEFINE VARIABLE cBeginBolDate AS CHARACTER   NO-UNDO.
-       DEFINE VARIABLE cEndBolDate AS CHARACTER   NO-UNDO.
-       DEFINE VARIABLE cBeginCustomer AS CHARACTER   NO-UNDO.
-       DEFINE VARIABLE cEndCustomer AS CHARACTER   NO-UNDO.
+        DEFINE VARIABLE cBeginBolDate  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cEndBolDate    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cBeginCustomer AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cEndCustomer   AS CHARACTER NO-UNDO.
 
 
-       ASSIGN {&self-name}.
+        ASSIGN {&self-name}.
 
-       IF begin_inv = END_inv THEN DO:
+        IF begin_inv = END_inv THEN 
+        DO:
 
-          RUN setBolDates (INPUT begin_inv:screen-value, INPUT end_inv:screen-value, INPUT begin_cust:SCREEN-VALUE, INPUT end_cust:SCREEN-VALUE, 
-                           OUTPUT cBeginBolDate, OUTPUT cEndBolDate,
-                           OUTPUT cBeginCustomer, OUTPUT cEndCustomer).
+            RUN setBolDates (INPUT begin_inv:screen-value, INPUT end_inv:screen-value, INPUT begin_cust:SCREEN-VALUE, INPUT end_cust:SCREEN-VALUE, 
+                OUTPUT cBeginBolDate, OUTPUT cEndBolDate,
+                OUTPUT cBeginCustomer, OUTPUT cEndCustomer).
 
-          IF cBeginBolDate NE ? THEN ASSIGN begin_date:SCREEN-VALUE = cBeginBolDate
-                                            end_date:SCREEN-VALUE   = cEndBolDate.
-          IF cBeginCustomer NE ? AND cEndCustomer NE ? THEN 
-             ASSIGN begin_cust:SCREEN-VALUE = cBeginCustomer
+            IF cBeginBolDate NE ? THEN ASSIGN begin_date:SCREEN-VALUE = cBeginBolDate
+                    end_date:SCREEN-VALUE   = cEndBolDate.
+            IF cBeginCustomer NE ? AND cEndCustomer NE ? THEN 
+                ASSIGN begin_cust:SCREEN-VALUE = cBeginCustomer
                     end_cust:SCREEN-VALUE   = cEndCustomer.
                     
-          RUN set-broker-bol-proc.
+            RUN set-broker-bol-proc.
 
-       END.
+        END.
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1479,7 +1515,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
-        DEF VAR char-val AS cha NO-UNDO.
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
         IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE        = ENTRY(1,char-val)
@@ -1515,7 +1551,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 DO:
-    {custom/chgfont.i}
+        {custom/chgfont.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1539,11 +1575,11 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
         ASSIGN {&self-name}.
         RUN SetEmailBoxes.
-    IF rd-dest EQ 2 THEN 
-      ASSIGN 
-          tb_splitPDF:HIDDEN    = YES
-          tb_splitPDF:SENSITIVE = NO
-          .        
+        IF rd-dest EQ 2 THEN 
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = YES
+                tb_splitPDF:SENSITIVE = NO
+                .        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1576,18 +1612,20 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON HELP OF run_format IN FRAME FRAME-A /* Format */
 DO:
-    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
     
-    RUN windows/l-syschrL.w (gcompany,"INVPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
-     IF char-val NE '' THEN
-      run_format:SCREEN-VALUE = ENTRY(1,char-val).
-     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
-       ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
-              vcDefaultForm = v-print-fmt.
-      RUN  pRunFormatValueChanged .
-     END.
+        RUN windows/l-syschrL.w (gcompany,"INVPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val NE '' THEN
+            run_format:SCREEN-VALUE = ENTRY(1,char-val).
+        IF v-print-fmt NE run_format:SCREEN-VALUE THEN 
+        DO:
+            ASSIGN 
+                v-print-fmt   = run_format:SCREEN-VALUE
+                vcDefaultForm = v-print-fmt.
+            RUN  pRunFormatValueChanged .
+        END.
 
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1596,14 +1634,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
 DO:
-   ASSIGN run_format.
+        ASSIGN run_format.
 
-   IF v-print-fmt NE run_format THEN DO:
-       ASSIGN v-print-fmt =  run_format
-              vcDefaultForm = v-print-fmt.
-      RUN  pRunFormatValueChanged .
-   END.
-END.
+        IF v-print-fmt NE run_format THEN 
+        DO:
+            ASSIGN 
+                v-print-fmt   = run_format
+                vcDefaultForm = v-print-fmt.
+            RUN  pRunFormatValueChanged .
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1614,17 +1654,17 @@ END.
 ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
 DO:
         ASSIGN {&self-name}.
-    /*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
+        /*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
         IF tb_BatchMail THEN
-          ASSIGN 
-             tb_splitPDF:HIDDEN = NO
-             tb_splitPDF:SENSITIVE = YES
-             .
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = NO
+                tb_splitPDF:SENSITIVE = YES
+                .
         ELSE
-          ASSIGN 
-             tb_splitPDF:HIDDEN = YES
-             tb_splitPDF:SENSITIVE = NO
-             .
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = YES
+                tb_splitPDF:SENSITIVE = NO
+                .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1646,10 +1686,10 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
 DO:
-  assign {&self-name}.
-  EMPTY TEMP-TABLE ttCustList.
-  RUN SetCustRange(INPUT tb_cust-list).
-END.
+        ASSIGN {&self-name}.
+        EMPTY TEMP-TABLE ttCustList.
+        RUN SetCustRange(INPUT tb_cust-list).
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1703,46 +1743,40 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_posted C-Win
 ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted Invoices? */
 DO:
-    ASSIGN {&self-name}.
-    IF tb_posted THEN 
-        ASSIGN 
-            tb_reprint              =  YES
-            tb_reprint:SCREEN-VALUE = "YES"
-             .    
-    IF VALID-HANDLE(hSuperProc) THEN DO:
-       THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
-       DELETE OBJECT hSuperProc.
-    END.
-  IF ipcInvoiceType EQ "inv-head" AND NOT tb_posted THEN DO:
+        ASSIGN {&self-name}.
+        IF tb_posted THEN 
+            ASSIGN 
+                tb_reprint              = YES
+                tb_reprint:SCREEN-VALUE = "YES"
+                .    
+        IF VALID-HANDLE(hSuperProc) THEN 
+        DO:
+            THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
+            DELETE OBJECT hSuperProc.
+        END.
+        IF ipcInvoiceType EQ "inv-head" AND NOT tb_posted THEN 
+        DO:
 
-    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
-           fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"
+            ASSIGN 
+                fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+                fiEndDateLabel:SCREEN-VALUE   = "Ending Bol Date:"
            
-           .
-    RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
-  END.
+                .
+            RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
+        END.
 
 
-  ELSE DO:
-   RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
-   ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
-          fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:".
+        ELSE 
+        DO:
+            RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+            ASSIGN 
+                fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+                fiEndDateLabel:SCREEN-VALUE   = "Ending Inv Date:".
   
-  END.
+        END.
 
     
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hSuperProc).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_print-message
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-message C-Win
-ON VALUE-CHANGED OF tb_print-message IN FRAME FRAME-A /* Print Message */
-DO:
-        ASSIGN {&self-name}.
+        THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hSuperProc).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1752,6 +1786,17 @@ DO:
 &Scoped-define SELF-NAME tb_print-dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-dept C-Win
 ON VALUE-CHANGED OF tb_print-dept IN FRAME FRAME-A /* Print Dept Notes? */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_print-message
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-message C-Win
+ON VALUE-CHANGED OF tb_print-message IN FRAME FRAME-A /* Print Message */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -1850,28 +1895,33 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
+    DO:
     
-    DELETE OBJECT hSuperProc.
-    RUN disable_UI.
-END.
+        DELETE OBJECT hSuperProc.
+        RUN disable_UI.
+    END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
 /* {oerep/r-invprt.i} */
-IF ipcInvoiceType EQ "inv-head" THEN DO:
-  ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
-         fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"
-         .
-  RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
+IF ipcInvoiceType EQ "inv-head" THEN 
+DO:
+    ASSIGN 
+        fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+        fiEndDateLabel:SCREEN-VALUE   = "Ending Bol Date:"
+        .
+    RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
 END.
 
 
-ELSE DO:
- RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
- ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
-        fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
+ELSE 
+DO:
+    RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+    ASSIGN 
+        fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+        fiEndDateLabel:SCREEN-VALUE   = "Ending Inv Date:"
         .
 
 END.
@@ -1898,7 +1948,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "INVPRINT"
         NO-LOCK NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN
+    IF NOT AVAILABLE sys-ctrl THEN
     DO TRANSACTION:
         CREATE sys-ctrl.
         ASSIGN
@@ -1922,7 +1972,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         users.user_id EQ USERID("NOSWEAT")
         NO-LOCK NO-ERROR.
 
-    IF AVAIL users AND users.user_program[2] NE "" THEN
+    IF AVAILABLE users AND users.user_program[2] NE "" THEN
         init-dir = users.user_program[2].
     ELSE
         init-dir = "c:\tmp".
@@ -1932,51 +1982,60 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_date   = TODAY.
         
     IF ipcInvoiceType EQ "inv-head" THEN 
-      ASSIGN begin_bol:HIDDEN = NO
-             begin_bol:SENSITIVE = YES
-             end_bol:HIDDEN = NO
-             end_bol:SENSITIVE = YES
+        ASSIGN begin_bol:HIDDEN    = NO
+            begin_bol:SENSITIVE = YES
+            end_bol:HIDDEN      = NO
+            end_bol:SENSITIVE   = YES
             .            
     ELSE
-      ASSIGN tb_posted:HIDDEN = NO
-             tb_posted:SENSITIVE = YES
-             .
+        ASSIGN tb_posted:HIDDEN    = NO
+            tb_posted:SENSITIVE = YES
+            .
      
-   /* IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
-
-    IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
-        ASSIGN tb_print-dept:HIDDEN    = NO
-            tb_print-dept:SENSITIVE = YES
-            fi_depts:HIDDEN         = NO
-            fi_depts:SENSITIVE      = YES.
-
-    IF v-print-fmt EQ "Shamrock" THEN
-        ASSIGN tb_prt-dupl:HIDDEN    = NO
-            tb_prt-dupl:SENSITIVE = YES.
-
-    IF (v-print-fmt EQ "Packrite" OR  
-        v-print-fmt EQ "Hughes" OR
-        v-print-fmt EQ "NStock" OR 
-        v-print-fmt EQ "nStockLogo") THEN
-        ASSIGN tb_setcomp:HIDDEN = NO.
-    /* 20130718 JAD Task 02071304 Add Capitol to v-print-fmt */      
-    IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
-        ASSIGN
-            fi_broker-bol:SENSITIVE = YES
-            fi_broker-bol:HIDDEN    = NO.
-
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
-        ASSIGN
-            tb_prt-zero-qty:SENSITIVE = YES
-            tb_prt-zero-qty:HIDDEN    = NO.*/
-
+    /* IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
+ 
+     IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+         ASSIGN tb_print-dept:HIDDEN    = NO
+             tb_print-dept:SENSITIVE = YES
+             fi_depts:HIDDEN         = NO
+             fi_depts:SENSITIVE      = YES.
+ 
+     IF v-print-fmt EQ "Shamrock" THEN
+         ASSIGN tb_prt-dupl:HIDDEN    = NO
+             tb_prt-dupl:SENSITIVE = YES.
+ 
+     IF (v-print-fmt EQ "Packrite" OR  
+         v-print-fmt EQ "Hughes" OR
+         v-print-fmt EQ "NStock" OR 
+         v-print-fmt EQ "nStockLogo") THEN
+         ASSIGN tb_setcomp:HIDDEN = NO.
+     /* 20130718 JAD Task 02071304 Add Capitol to v-print-fmt */      
+     IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
+         ASSIGN
+             fi_broker-bol:SENSITIVE = YES
+             fi_broker-bol:HIDDEN    = NO.
+ 
+     IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+         ASSIGN
+             tb_prt-zero-qty:SENSITIVE = YES
+             tb_prt-zero-qty:HIDDEN    = NO.*/
+            
+    btn-ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn-cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    btnInvoiceMessage:LOAD-IMAGE("Graphics/32x32/btnInvoiceMessage.png").
     RUN enable_UI.
+    {sys/inc/reportsConfigNK1.i "OB3" }
+    ASSIGN
+        td-show-parm:SENSITIVE = lShowParameters
+        td-show-parm:HIDDEN    = NOT lShowParameters
+        td-show-parm:VISIBLE   = lShowParameters
+        .
 
     {methods/nowait.i}
 
-   RUN sys/inc/CustListForm.p ( "OB3",cocode, 
-                               OUTPUT ou-log,
-                               OUTPUT ou-cust-int) .
+    RUN sys/inc/CustListForm.p ( "OB3",cocode, 
+        OUTPUT ou-log,
+        OUTPUT ou-cust-int) .
 
     /*IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
         ASSIGN rs_no_PN:HIDDEN    = FALSE
@@ -1984,26 +2043,26 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
 
-      /*  IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
-            ASSIGN
-                tb_cust-copy:HIDDEN      = NO
-                tb_cust-copy:SENSITIVE   = YES
-                tb_office-copy:HIDDEN    = NO
-                tb_office-copy:SENSITIVE = YES
-                tb_sman-copy:HIDDEN      = NO
-                tb_sman-copy:SENSITIVE   = YES.
-
-        IF v-print-fmt EQ "Fibrex" THEN
-            ASSIGN
-                tb_collate:HIDDEN           = NO
-                tb_collate:SENSITIVE        = YES
-                lv-scr-num-copies:HIDDEN    = NO
-                lv-scr-num-copies:SENSITIVE = YES.
-        IF v-print-fmt EQ "Protagon" OR v-print-fmt EQ "Protagon2"  THEN
-            ASSIGN
-                tb_setcomp:HIDDEN    = YES
-                tb_setcomp:SENSITIVE = NO
-                tb_setcomp           = NO.*/
+        /*  IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+              ASSIGN
+                  tb_cust-copy:HIDDEN      = NO
+                  tb_cust-copy:SENSITIVE   = YES
+                  tb_office-copy:HIDDEN    = NO
+                  tb_office-copy:SENSITIVE = YES
+                  tb_sman-copy:HIDDEN      = NO
+                  tb_sman-copy:SENSITIVE   = YES.
+  
+          IF v-print-fmt EQ "Fibrex" THEN
+              ASSIGN
+                  tb_collate:HIDDEN           = NO
+                  tb_collate:SENSITIVE        = YES
+                  lv-scr-num-copies:HIDDEN    = NO
+                  lv-scr-num-copies:SENSITIVE = YES.
+          IF v-print-fmt EQ "Protagon" OR v-print-fmt EQ "Protagon2"  THEN
+              ASSIGN
+                  tb_setcomp:HIDDEN    = YES
+                  tb_setcomp:SENSITIVE = NO
+                  tb_setcomp           = NO.*/
         DISABLE lines-per-page.
 
         RUN  pRunFormatValueChanged .
@@ -2011,131 +2070,133 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {custom/usrprint.i}
                        
         IF ipcInvoiceType EQ "inv-head" THEN
-          ASSIGN tb_posted:SCREEN-VALUE = "NO"
-                 fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
-                 fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"          
-                 .
+            ASSIGN tb_posted:SCREEN-VALUE        = "NO"
+                fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+                fiEndDateLabel:SCREEN-VALUE   = "Ending Bol Date:"          
+                .
         IF ipcInvoiceType NE "inv-head" THEN 
-         ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
-                fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
+            ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+                fiEndDateLabel:SCREEN-VALUE   = "Ending Inv Date:"
                 .
 
 
-          IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
-              ASSIGN 
-              tb_splitPDF:HIDDEN = NO
-              tb_splitPDF:SENSITIVE = YES
-              .
-          ELSE
-              ASSIGN 
-                  tb_splitPDF:HIDDEN = YES
-                  tb_splitPDF:SENSITIVE = NO.        
+        IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = NO
+                tb_splitPDF:SENSITIVE = YES
+                .
+        ELSE
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = YES
+                tb_splitPDF:SENSITIVE = NO.        
 
-  /*IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
-         ASSIGN tb_qty-all:HIDDEN = NO .
-     ELSE tb_qty-all:HIDDEN = YES .*/
+        /*IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
+               ASSIGN tb_qty-all:HIDDEN = NO .
+           ELSE tb_qty-all:HIDDEN = YES .*/
 
-lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
-IF glPaperless THEN 
-    tb_override-email:CHECKED = FALSE.
+        lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
+        IF glPaperless THEN 
+            tb_override-email:CHECKED = FALSE.
 
     
-    RUN pGetInvMessage.
+        RUN pGetInvMessage.
 
-/* Include file */
-    RUN setBOLRange (INPUT begin_bol:SCREEN-VALUE ,  
-                    INPUT end_bol:SCREEN-VALUE,
-                    INPUT begin_cust:SCREEN-VALUE,
-                    INPUT end_cust:SCREEN-VALUE,
-                    INPUT begin_inv:SCREEN-VALUE ,
-                    INPUT end_inv:SCREEN-VALUE ,    
-                    INPUT tb_reprint:SCREEN-VALUE,
-                    INPUT begin_date:SCREEN-VALUE,
-                    INPUT end_date:SCREEN-VALUE,
-                    INPUT tb_posted:SCREEN-VALUE ,
-                    INPUT begin_inv-id:SCREEN-VALUE ,
-                    INPUT end_inv-id:SCREEN-VALUE ,
-                    OUTPUT begin_cust-screen-value ,
-                    OUTPUT end_cust-screen-value,
-                    OUTPUT tb_reprint-screen-value,
-                    OUTPUT tb_posted-screen-value, 
-                    OUTPUT begin_bol-screen-value,
-                    OUTPUT end_bol-screen-value,
-                    OUTPUT begin_date-screen-value ,
-                    OUTPUT end_date-screen-value 
-                    ).
+        /* Include file */
+        RUN setBOLRange (INPUT begin_bol:SCREEN-VALUE ,  
+            INPUT end_bol:SCREEN-VALUE,
+            INPUT begin_cust:SCREEN-VALUE,
+            INPUT end_cust:SCREEN-VALUE,
+            INPUT begin_inv:SCREEN-VALUE ,
+            INPUT end_inv:SCREEN-VALUE ,    
+            INPUT tb_reprint:SCREEN-VALUE,
+            INPUT begin_date:SCREEN-VALUE,
+            INPUT end_date:SCREEN-VALUE,
+            INPUT tb_posted:SCREEN-VALUE ,
+            INPUT begin_inv-id:SCREEN-VALUE ,
+            INPUT end_inv-id:SCREEN-VALUE ,
+            OUTPUT begin_cust-screen-value ,
+            OUTPUT end_cust-screen-value,
+            OUTPUT tb_reprint-screen-value,
+            OUTPUT tb_posted-screen-value, 
+            OUTPUT begin_bol-screen-value,
+            OUTPUT end_bol-screen-value,
+            OUTPUT begin_date-screen-value ,
+            OUTPUT end_date-screen-value 
+            ).
 
-IF begin_cust-screen-value NE ? THEN begin_cust:SCREEN-VALUE = begin_cust-SCREEN-VALUE.
-IF end_cust-screen-value   NE ? THEN end_cust:SCREEN-VALUE   = end_cust-SCREEN-VALUE .
-IF tb_reprint-screen-value NE ? THEN tb_reprint:SCREEN-VALUE = tb_reprint-SCREEN-VALUE.
-IF tb_posted-screen-value  NE ? THEN tb_posted:SCREEN-VALUE  = tb_posted-SCREEN-VALUE. 
-IF begin_bol-screen-value  NE ? THEN begin_bol:SCREEN-VALUE  = begin_bol-SCREEN-VALUE. 
-IF end_bol-screen-value    NE ? THEN end_bol:SCREEN-VALUE    = end_bol-SCREEN-VALUE.                                                            
-IF begin_date-screen-value NE ? THEN begin_date:SCREEN-VALUE = begin_date-SCREEN-VALUE.
-IF end_date-screen-value   NE ? THEN end_date:SCREEN-VALUE   = end_date-SCREEN-VALUE. 
+        IF begin_cust-screen-value NE ? THEN begin_cust:SCREEN-VALUE = begin_cust-SCREEN-VALUE.
+        IF end_cust-screen-value   NE ? THEN end_cust:SCREEN-VALUE   = end_cust-SCREEN-VALUE .
+        IF tb_reprint-screen-value NE ? THEN tb_reprint:SCREEN-VALUE = tb_reprint-SCREEN-VALUE.
+        IF tb_posted-screen-value  NE ? THEN tb_posted:SCREEN-VALUE  = tb_posted-SCREEN-VALUE. 
+        IF begin_bol-screen-value  NE ? THEN begin_bol:SCREEN-VALUE  = begin_bol-SCREEN-VALUE. 
+        IF end_bol-screen-value    NE ? THEN end_bol:SCREEN-VALUE    = end_bol-SCREEN-VALUE.                                                            
+        IF begin_date-screen-value NE ? THEN begin_date:SCREEN-VALUE = begin_date-SCREEN-VALUE.
+        IF end_date-screen-value   NE ? THEN end_date:SCREEN-VALUE   = end_date-SCREEN-VALUE. 
 
-/*END. */
+        /*END. */
 
-/* 05301305 - IF from-to invoice is completed, then the from-to bol# is */
-/* irrelevant and was causing problems                                  */
-IF INT(begin_inv:SCREEN-VALUE  IN FRAME frame-a) GT 0 AND INT(end_inv:SCREEN-VALUE  IN FRAME frame-a) GT 0 THEN
-    ASSIGN begin_bol:SCREEN-VALUE  IN FRAME frame-a = "" end_bol:SCREEN-VALUE  IN FRAME frame-a   = "99999999".
-RUN SetEmailBoxes.
+        /* 05301305 - IF from-to invoice is completed, then the from-to bol# is */
+        /* irrelevant and was causing problems                                  */
+        IF INT(begin_inv:SCREEN-VALUE  IN FRAME frame-a) GT 0 AND INT(end_inv:SCREEN-VALUE  IN FRAME frame-a) GT 0 THEN
+            ASSIGN begin_bol:SCREEN-VALUE  IN FRAME frame-a = "" end_bol:SCREEN-VALUE  IN FRAME frame-a   = "99999999".
+        RUN SetEmailBoxes.
 
-fi_broker-bol:SCREEN-VALUE  IN FRAME frame-a = "".
+        fi_broker-bol:SCREEN-VALUE  IN FRAME frame-a = "".
 
-RUN set-broker-bol-proc.
+        RUN set-broker-bol-proc.
 
-RUN sys/ref/CustList.p (INPUT cocode,
-                          INPUT 'OB3',
-                          INPUT NO,
-                          OUTPUT glCustListActive).
+        RUN sys/ref/CustList.p (INPUT cocode,
+            INPUT 'OB3',
+            INPUT NO,
+            OUTPUT glCustListActive).
 
- {sys/inc/chblankcust.i ""OB3""}
+        {sys/inc/chblankcust.i ""OB3""}
 
- IF ou-log THEN DO:
-      ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
-        tb_cust-list = YES 
-        .
-      RUN SetCustRange(INPUT tb_cust-list).
-  END.
-  ELSE
-      ASSIGN
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
-        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        .
- IF ou-log AND ou-cust-int = 0 THEN do:
-       ASSIGN 
-        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
-        tb_cust-list = NO
-        .
-      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
-   END.
+        IF ou-log THEN 
+        DO:
+            ASSIGN 
+                tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME}    = NO
+                btnCustList:SENSITIVE IN FRAME {&FRAME-NAME}     = YES
+                tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
+                tb_cust-list                                     = YES 
+                .
+            RUN SetCustRange(INPUT tb_cust-list).
+        END.
+        ELSE
+            ASSIGN
+                tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME}    = NO
+                tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
+                btnCustList:SENSITIVE IN FRAME {&FRAME-NAME}     = NO
+                .
+        IF ou-log AND ou-cust-int = 0 THEN 
+        DO:
+            ASSIGN 
+                tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME}    = YES
+                btnCustList:SENSITIVE IN FRAME {&FRAME-NAME}     = NO
+                tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+                tb_cust-list                                     = NO
+                .
+            RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
+        END.
 
 
-APPLY "entry" TO begin_cust  IN FRAME frame-a.
+        APPLY "entry" TO begin_cust  IN FRAME frame-a.
 
-ASSIGN 
-    tb_email-orig:SCREEN-VALUE  IN FRAME frame-a = "NO"
-    tb_email-orig                                = NO.
-END.
+        ASSIGN 
+            tb_email-orig:SCREEN-VALUE  IN FRAME frame-a = "NO"
+            tb_email-orig                                = NO.
+    END.
 
-IF NOT lAsiUser THEN
-    RUN_format:HIDDEN IN FRAME FRAME-A = YES .
-ELSE 
-    RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
+    IF NOT lAsiUser THEN
+        RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+    ELSE 
+        RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
     
-APPLY "VALUE-CHANGED":U TO tb_posted IN FRAME {&FRAME-NAME}.    
-APPLY "VALUE-CHANGED":U TO tb_print-message IN FRAME {&FRAME-NAME}.    
+    APPLY "VALUE-CHANGED":U TO tb_posted IN FRAME {&FRAME-NAME}.    
+    APPLY "VALUE-CHANGED":U TO tb_print-message IN FRAME {&FRAME-NAME}.    
 
-IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2147,38 +2208,40 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
 PROCEDURE BuildCustList :
 /*------------------------------------------------------------------------------
-  Purpose:     Builds the temp table of customers   
-  Parameters:  Company Code, Customer list logical and/or customer range
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplList AS LOGICAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcEndCust AS CHARACTER NO-UNDO.
+      Purpose:     Builds the temp table of customers   
+      Parameters:  Company Code, Customer list logical and/or customer range
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplList AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndCust AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-cust FOR cust.
 
-DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
 
-IF iplList THEN DO:
-    RUN sys/ref/CustList.p (INPUT ipcCompany,
-                            INPUT 'OB3',
-                            INPUT YES,
-                            OUTPUT lActive).
-END.
-ELSE DO:
-    FOR EACH bf-cust
-        WHERE bf-cust.company EQ ipcCompany
-          AND bf-cust.cust-no GE ipcBeginCust
-          AND bf-cust.cust-no LE ipcEndCust
-        NO-LOCK:
-        CREATE ttCustList.
-        ASSIGN 
-            ttCustList.cust-no = bf-cust.cust-no
-            ttCustList.log-fld = YES
-        .
+    IF iplList THEN 
+    DO:
+        RUN sys/ref/CustList.p (INPUT ipcCompany,
+            INPUT 'OB3',
+            INPUT YES,
+            OUTPUT lActive).
     END.
-END.
+    ELSE 
+    DO:
+        FOR EACH bf-cust
+            WHERE bf-cust.company EQ ipcCompany
+            AND bf-cust.cust-no GE ipcBeginCust
+            AND bf-cust.cust-no LE ipcEndCust
+            NO-LOCK:
+            CREATE ttCustList.
+            ASSIGN 
+                ttCustList.cust-no = bf-cust.cust-no
+                ttCustList.log-fld = YES
+                .
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -2188,13 +2251,13 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustList C-Win 
 PROCEDURE CustList :
 /*------------------------------------------------------------------------------
-  Purpose:  Display a UI of selected customers   
-  Parameters:  
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:  Display a UI of selected customers   
+      Parameters:  
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
-                                  INPUT 'OB3').
+        INPUT 'OB3').
 
 
 END PROCEDURE.
@@ -2234,17 +2297,16 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_inv end_inv begin_date end_date 
           begin_Inv-id end_inv-id tb_reprint tb_setcomp tb_prt-inst tb_open-inv 
-          lbl_sort rd_sort tb_qty-all tb_BatchMail tb_HideDialog tb_attachBOL 
-          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name tb_email-orig 
-          tb_override-email td-show-parm run_format tb_splitPDF fiEndDateLabel 
-          fiBeginDateLabel 
+          rd_sort tb_qty-all tb_BatchMail tb_HideDialog tb_attachBOL rd-dest 
+          tb_email-orig tb_override-email tb_splitPDF run_format tbAutoClose 
+          fiBeginDateLabel fiEndDateLabel lbl_sort 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
          end_inv begin_date end_date begin_Inv-id end_inv-id tb_reprint 
          tb_setcomp tb_prt-inst tb_open-inv rd_sort tb_qty-all 
          btnInvoiceMessage tb_BatchMail tb_HideDialog tb_attachBOL rd-dest 
-         lines-per-page lv-ornt lv-font-no tb_email-orig tb_override-email 
-         td-show-parm run_format btn-ok btn-cancel 
+         tb_email-orig tb_override-email run_format tbAutoClose btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2256,13 +2318,13 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER lv-fax-type AS CHAR NO-UNDO.
-    DEFINE INPUT PARAMETER ip-begin-cust AS CHAR NO-UNDO.
-    DEFINE INPUT PARAMETER ip-end-cust AS CHAR NO-UNDO.
-    DEFINE INPUT PARAMETER lv-fax-image AS CHAR NO-UNDO.
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER lv-fax-type AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-begin-cust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-end-cust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER lv-fax-image AS CHARACTER NO-UNDO.
 
     IF v-print-fmt <> "Southpak-xl" AND v-print-fmt <> "PrystupExcel" THEN
     DO:
@@ -2307,20 +2369,20 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvMessage C-Win 
 PROCEDURE pGetInvMessage :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     FIND FIRST ar-ctrl
         WHERE ar-ctrl.company EQ cocode
         NO-LOCK NO-ERROR.
 
     IF AVAILABLE ar-ctrl THEN
-      ASSIGN
-           cInvMessage1 = ar-ctrl.invoiceMessage1
-           cInvMessage2 = ar-ctrl.invoiceMessage2
-           cInvMessage3 = ar-ctrl.invoiceMessage3
-           cInvMessage4 = ar-ctrl.invoiceMessage4
-           cInvMessage5 = ar-ctrl.invoiceMessage5 .
+        ASSIGN
+            cInvMessage1 = ar-ctrl.invoiceMessage1
+            cInvMessage2 = ar-ctrl.invoiceMessage2
+            cInvMessage3 = ar-ctrl.invoiceMessage3
+            cInvMessage4 = ar-ctrl.invoiceMessage4
+            cInvMessage5 = ar-ctrl.invoiceMessage5 .
 
 
 END PROCEDURE.
@@ -2331,65 +2393,65 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
 
-         IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
-         ELSE lv-prt-bypass = YES.
+        IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
+        ELSE lv-prt-bypass = YES.
 
-         IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Pacific" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Lovepac-CAN" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
-             ASSIGN tb_print-dept:HIDDEN    = NO
-             tb_print-dept:SENSITIVE = YES
-             fi_depts:HIDDEN         = NO
-             fi_depts:SENSITIVE      = YES.
-         ELSE
-             ASSIGN tb_print-dept:HIDDEN    = YES
-             tb_print-dept:SENSITIVE = NO
-             fi_depts:HIDDEN         = YES
-             fi_depts:SENSITIVE      = NO.
+        IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Pacific" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Lovepac-CAN" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+            ASSIGN tb_print-dept:HIDDEN    = NO
+                tb_print-dept:SENSITIVE = YES
+                fi_depts:HIDDEN         = NO
+                fi_depts:SENSITIVE      = YES.
+        ELSE
+            ASSIGN tb_print-dept:HIDDEN    = YES
+                tb_print-dept:SENSITIVE = NO
+                fi_depts:HIDDEN         = YES
+                fi_depts:SENSITIVE      = NO.
          
-         IF v-print-fmt EQ "Shamrock" THEN
-             ASSIGN tb_prt-dupl:HIDDEN    = NO
-             tb_prt-dupl:SENSITIVE = YES.
-         ELSE
-             ASSIGN tb_prt-dupl:HIDDEN    = YES
-             tb_prt-dupl:SENSITIVE = NO.
+        IF v-print-fmt EQ "Shamrock" THEN
+            ASSIGN tb_prt-dupl:HIDDEN    = NO
+                tb_prt-dupl:SENSITIVE = YES.
+        ELSE
+            ASSIGN tb_prt-dupl:HIDDEN    = YES
+                tb_prt-dupl:SENSITIVE = NO.
 
-         IF (v-print-fmt EQ "Packrite" OR  
-             v-print-fmt EQ "Hughes" OR
-             v-print-fmt EQ "NStock" OR 
-             v-print-fmt EQ "nStockLogo" OR v-print-fmt EQ "NStockLogo1" OR v-print-fmt EQ "NStockLogo2") THEN
-             ASSIGN tb_setcomp:HIDDEN = NO.
-         ELSE ASSIGN tb_setcomp:HIDDEN = YES.
+        IF (v-print-fmt EQ "Packrite" OR  
+            v-print-fmt EQ "Hughes" OR
+            v-print-fmt EQ "NStock" OR 
+            v-print-fmt EQ "nStockLogo" OR v-print-fmt EQ "NStockLogo1" OR v-print-fmt EQ "NStockLogo2") THEN
+            ASSIGN tb_setcomp:HIDDEN = NO.
+        ELSE ASSIGN tb_setcomp:HIDDEN = YES.
          
-         IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
-             ASSIGN
-             fi_broker-bol:SENSITIVE = YES
-             fi_broker-bol:HIDDEN    = NO.
-         ELSE
-             ASSIGN
-             fi_broker-bol:SENSITIVE = NO
-             fi_broker-bol:HIDDEN    = YES.
+        IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
+            ASSIGN
+                fi_broker-bol:SENSITIVE = YES
+                fi_broker-bol:HIDDEN    = NO.
+        ELSE
+            ASSIGN
+                fi_broker-bol:SENSITIVE = NO
+                fi_broker-bol:HIDDEN    = YES.
          
-         IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
-             ASSIGN
-             tb_prt-zero-qty:SENSITIVE = YES
-             tb_prt-zero-qty:HIDDEN    = NO.
-         ASSIGN
-             tb_prt-zero-qty:SENSITIVE = NO
-             tb_prt-zero-qty:HIDDEN    = YES.
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+            ASSIGN
+                tb_prt-zero-qty:SENSITIVE = YES
+                tb_prt-zero-qty:HIDDEN    = NO.
+        ASSIGN
+            tb_prt-zero-qty:SENSITIVE = NO
+            tb_prt-zero-qty:HIDDEN    = YES.
 
-         IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
-             ASSIGN rs_no_PN:HIDDEN    = FALSE
-             rs_no_PN:SENSITIVE = TRUE.
-         ELSE
-             ASSIGN rs_no_PN:HIDDEN    = TRUE
-             rs_no_PN:SENSITIVE = FALSE.
+        IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
+            ASSIGN rs_no_PN:HIDDEN    = FALSE
+                rs_no_PN:SENSITIVE = TRUE.
+        ELSE
+            ASSIGN rs_no_PN:HIDDEN    = TRUE
+                rs_no_PN:SENSITIVE = FALSE.
 
-         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
+        IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES
@@ -2397,8 +2459,8 @@ PROCEDURE pRunFormatValueChanged :
                 tb_office-copy:SENSITIVE = YES
                 tb_sman-copy:HIDDEN      = NO
                 tb_sman-copy:SENSITIVE   = YES.
-         ELSE
-             ASSIGN
+        ELSE
+            ASSIGN
                 tb_cust-copy:HIDDEN      = YES
                 tb_cust-copy:SENSITIVE   = NO
                 tb_office-copy:HIDDEN    = YES
@@ -2406,44 +2468,44 @@ PROCEDURE pRunFormatValueChanged :
                 tb_sman-copy:HIDDEN      = YES
                 tb_sman-copy:SENSITIVE   = NO.
 
-         IF v-print-fmt EQ "Fibrex" THEN
+        IF v-print-fmt EQ "Fibrex" THEN
             ASSIGN
                 tb_collate:HIDDEN           = NO
                 tb_collate:SENSITIVE        = YES
                 lv-scr-num-copies:HIDDEN    = NO
                 lv-scr-num-copies:SENSITIVE = YES.
-         ELSE
-             ASSIGN
+        ELSE
+            ASSIGN
                 tb_collate:HIDDEN           = YES
                 tb_collate:SENSITIVE        = NO
                 lv-scr-num-copies:HIDDEN    = YES
                 lv-scr-num-copies:SENSITIVE = NO.
 
-         IF v-print-fmt EQ "Protagon" OR v-print-fmt EQ "Protagon2"  THEN
+        IF v-print-fmt EQ "Protagon" OR v-print-fmt EQ "Protagon2"  THEN
             ASSIGN
                 tb_setcomp:HIDDEN    = YES
                 tb_setcomp:SENSITIVE = NO
                 tb_setcomp           = NO.
-         ELSE
-             ASSIGN
+        ELSE
+            ASSIGN
                 tb_setcomp:HIDDEN    = NO
                 tb_setcomp:SENSITIVE = YES
                 tb_setcomp           = YES.
 
-         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" OR v-print-fmt EQ "invprint10-CAN" THEN
-             ASSIGN tb_qty-all:HIDDEN = NO .
-         ELSE tb_qty-all:HIDDEN = YES .
+        IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" OR v-print-fmt EQ "invprint10-CAN" THEN
+            ASSIGN tb_qty-all:HIDDEN = NO .
+        ELSE tb_qty-all:HIDDEN = YES .
          
-         IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" THEN
-             ASSIGN btnInvoiceMessage:HIDDEN    = NO
-                    tb_print-message:HIDDEN     = NO
-                    btnInvoiceMessage:SENSITIVE = YES
-                    tb_print-message:SENSITIVE  = YES.
-         ELSE
-             ASSIGN btnInvoiceMessage:HIDDEN    = YES
-                    tb_print-message:HIDDEN     = YES
-                    btnInvoiceMessage:SENSITIVE = NO
-                    tb_print-message:SENSITIVE  = NO.
+        IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" OR v-print-fmt EQ "ColoniaX" OR v-print-fmt EQ "ColonialLot#" THEN
+            ASSIGN btnInvoiceMessage:HIDDEN    = NO
+                tb_print-message:HIDDEN     = NO
+                btnInvoiceMessage:SENSITIVE = YES
+                tb_print-message:SENSITIVE  = YES.
+        ELSE
+            ASSIGN btnInvoiceMessage:HIDDEN    = YES
+                tb_print-message:HIDDEN     = YES
+                btnInvoiceMessage:SENSITIVE = NO
+                tb_print-message:SENSITIVE  = NO.
        
     END.
 END PROCEDURE.
@@ -2454,9 +2516,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-broker-bol-proc C-Win 
 PROCEDURE set-broker-bol-proc :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
 
         IF fi_broker-bol:SENSITIVE AND
@@ -2467,7 +2529,7 @@ PROCEDURE set-broker-bol-proc :
                 b-broker-bol.CODE EQ STRING(begin_inv:SCREEN-VALUE)
                 NO-LOCK NO-ERROR.
 
-            IF AVAIL b-broker-bol THEN
+            IF AVAILABLE b-broker-bol THEN
             DO:
                 fi_broker-bol:SCREEN-VALUE = b-broker-bol.code2.
                 RELEASE b-broker-bol.
@@ -2485,21 +2547,21 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
 PROCEDURE SetCustRange :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN
-        begin_cust:SENSITIVE = NOT iplChecked
-        end_cust:SENSITIVE = NOT iplChecked
-        begin_cust:VISIBLE = NOT iplChecked
-        end_cust:VISIBLE = NOT iplChecked
-        btnCustList:SENSITIVE = iplChecked
-       .
-  END.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            begin_cust:SENSITIVE  = NOT iplChecked
+            end_cust:SENSITIVE    = NOT iplChecked
+            begin_cust:VISIBLE    = NOT iplChecked
+            end_cust:VISIBLE      = NOT iplChecked
+            btnCustList:SENSITIVE = iplChecked
+            .
+    END.
 
 END PROCEDURE.
 
@@ -2509,9 +2571,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetEmailBoxes C-Win 
 PROCEDURE SetEmailBoxes :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
 
     IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} = '5' THEN
         ASSIGN tb_BatchMail:SENSITIVE  = YES

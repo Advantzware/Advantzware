@@ -155,7 +155,13 @@ ELSE
 &ELSE
 CREATE "WScript.Network" WshNetwork.
 
-CREATE "Excel.Application" chExcelApplication .
+CREATE "Excel.Application" chExcelApplication NO-ERROR.
+IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
+    MESSAGE 
+      "Microsoft Excel is required.  This report is unable to be executed."
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.
 
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer"
@@ -448,7 +454,7 @@ os-command silent value(CommandString).
    open query qExcel for each ttQuoKnightXL.
    rptExcel:report-data-source = query qExcel:handle.
    rptExcel:export-report-xls(qFile).
-   open-mime-resource "application/excel" string("file://" + replace(v-dir, "\", "/") + "quote.xls") false.
+   open-mime-resource "application/excel" string("file://" + replace(v-dir, "\", "/") + "quote.xls") NOT-EMBEDDED.
    os-delete value(qFile).
 &ELSE
 

@@ -356,6 +356,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME module.expire-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL module.expire-date br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF module.expire-date IN BROWSE br_table /* Expiration Date */
+DO:
+    IF DATE(SELF:SCREEN-VALUE) EQ ? THEN
+    DO:
+        MESSAGE "Please enter a valid expiration date." VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME bt-clear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-clear B-table-Win
 ON CHOOSE OF bt-clear IN FRAME F-Main /* Clear Search */
@@ -436,6 +452,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -6,6 +6,7 @@ DEFINE VARIABLE cReasonDesc AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hdJobProcs  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 if chosen eq 2 then DO:
@@ -21,6 +22,11 @@ if chosen eq 2 then DO:
        v-tot-msf[1] = v-tot-msf[1] + w-ord.msf
        v-tot-val[1] = v-tot-val[1] + w-ord.t-price.
        .
+       
+       ASSIGN
+       iCount = INT((INT(itemfg.case-count) * INT(itemfg.case-pall))
+                   + INT(itemfg.quantityPartial)).
+                   
     /*{oe/rep/schdrel3N.i}*/
 
 /* oe/rep/schdrel3N.i */ 
@@ -382,6 +388,7 @@ if chosen eq 2 then DO:
                 END.
                 WHEN "dock-appointment" THEN cVarValue = IF v-dockTime NE ? THEN STRING(v-dockTime,"99/99/9999 HH:MM") ELSE "" .
             
+                WHEN "pallet-count-quantity" THEN cVarValue = string(iCount).
             END CASE.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
