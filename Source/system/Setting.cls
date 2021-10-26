@@ -109,6 +109,17 @@ CLASS system.Setting:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
+	METHOD PUBLIC INTEGER GetSecurityLevel(  ):
+		
+		RETURN iUserSecurityLevel.
+
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
 	METHOD PRIVATE VOID pConcatRecordData( BUFFER ipbf-ttSetting FOR ttSetting):
 		DEFINE VARIABLE cAllData AS CHARACTER NO-UNDO.
 		DEFINE VARIABLE hdBuffer AS HANDLE    NO-UNDO.
