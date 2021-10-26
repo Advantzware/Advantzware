@@ -27,7 +27,6 @@ DEFINE VARIABLE list-name    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-comp-curr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cAPSecure    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPSecure    AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER bf-chk FOR ap-chk.
@@ -131,29 +130,41 @@ DO TRANSACTION:
 END.      
 lv-fgpost-dir = sys-ctrl.log-fld .
 
-DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lAPInvoiceLength AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cNK1Value        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE lAccessClose        AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE cAccessList         AS CHARACTER        NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
-    lAPInvoiceLength = LOGICAL(cNK1Value) NO-ERROR.      
+    lAPInvoiceLength = logical(cNK1Value) NO-ERROR.      
 
-DEFINE TEMP-TABLE tt-ap-invl NO-UNDO
-    FIELD row-id  AS ROWID
-    FIELD actnum  LIKE account.actnum
-    FIELD unit-pr LIKE ap-invl.unit-pr
-    FIELD amt     LIKE ap-invl.amt
-    INDEX row-id row-id.
+DEF TEMP-TABLE tt-ap-invl NO-UNDO
+                          FIELD row-id AS ROWID
+                          FIELD actnum LIKE account.actnum
+                          FIELD unit-pr LIKE ap-invl.unit-pr
+                          FIELD amt LIKE ap-invl.amt
+                          INDEX row-id row-id.
 
-DEFINE TEMP-TABLE tt-ap-tax NO-UNDO
-    FIELD row-id   AS ROWID
-    FIELD actnum   LIKE account.actnum
-    FIELD amt      LIKE ap-invl.amt
-    FIELD curr-amt LIKE ap-invl.amt
-    INDEX row-id row-id.
+DEF TEMP-TABLE tt-ap-tax  NO-UNDO
+                          FIELD row-id AS ROWID
+                          FIELD actnum LIKE account.actnum
+                          FIELD amt LIKE ap-invl.amt
+                          FIELD curr-amt LIKE ap-invl.amt
+                          INDEX row-id row-id.
+                          
+RUN methods/prgsecur.p
+	    (INPUT "APSecure",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAPSecure, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */                          
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -533,19 +544,24 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO: 
-        DEFINE VARIABLE lv-post AS LOG NO-UNDO.
+DO: 
+  DEF VAR lv-post AS LOG NO-UNDO.
 
-        RUN check-date.
-        IF v-invalid THEN RETURN NO-APPLY. 
+  run check-date.
+  if v-invalid then return no-apply. 
+  
+  RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply. 
+  
+  RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply.
 
-        IF lv-fgpost-dir THEN 
-        DO:
-            RUN check-inv-date(begin_date:SCREEN-VALUE).
-            IF v-invalid-inv THEN RETURN NO-APPLY. 
-            RUN check-inv-date(end_date:SCREEN-VALUE).
-            IF v-invalid-inv THEN RETURN NO-APPLY.
-        END.
+  IF lv-fgpost-dir THEN DO:
+  RUN check-inv-date(begin_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply. 
+  RUN check-inv-date(end_date:SCREEN-VALUE).
+  if v-invalid-inv then return no-apply.
+  END.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
@@ -988,6 +1004,40 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckInvDatePeriod C-Win 
+PROCEDURE pCheckInvDatePeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ 
+  DEFINE INPUT PARAMETER ip-date AS CHAR.    
+  DEFINE BUFFER bf-period FOR period. 
+  
+  ASSIGN 
+      v-invalid-inv = NO 
+      .                 
+      FIND FIRST bf-period                   
+         WHERE bf-period.company EQ cocode
+         AND bf-period.pst     LE date(ip-date)
+         AND bf-period.pend    GE date(ip-date)
+          AND bf-period.pnum   EQ MONTH(DATE(tran-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
+       NO-LOCK NO-ERROR.
+             
+       IF NOT AVAIL bf-period THEN
+       DO:
+           v-invalid-inv = YES .
+           MESSAGE "Invoice date must be in posted date period." VIEW-AS ALERT-BOX ERROR.
+           RETURN.
+       END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME       
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clear-ap C-Win 
 PROCEDURE clear-ap :
@@ -2009,46 +2059,48 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-date C-Win 
 PROCEDURE valid-date :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE ll AS LOG NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplCheckDate AS LOGICAL NO-UNDO.
+  DEF VAR ll AS LOG NO-UNDO.
+  DEFINE BUFFER bf-period FOR period.
 
+  DO WITH FRAME {&FRAME-NAME}:
+    IF NOT ll-warned THEN DO:
+      ll = NO.
 
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT ll-warned THEN 
-        DO:
-            ll = NO.
+      FOR EACH period NO-LOCK
+          WHERE period.company EQ cocode
+            AND period.pst     LE TODAY
+            AND period.pend    GE TODAY
+          BY period.pst:
 
-            FOR EACH period NO-LOCK
-                WHERE period.company EQ cocode
-                AND period.pst     LE TODAY
-                AND period.pend    GE TODAY
-                BY period.pst:
-
-                IF period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
-                    period.pend LT DATE(tran-date:SCREEN-VALUE) THEN 
-                DO:
-                    ll = YES.
-                    MESSAGE TRIM(tran-date:LABEL) + " is not in current period, " +
-                        "would you like to re-enter..."
-                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                        UPDATE ll.
-                END.
-
-                IF ll THEN 
-                DO:
-                    APPLY "entry" TO tran-date.
-                    RETURN ERROR.
-                END.
-
-                LEAVE.
-            END.
-
-            ll-warned = YES.
+        IF iplCheckDate AND (period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
+           period.pend LT DATE(tran-date:SCREEN-VALUE)) THEN DO:
+          ll = YES.
+          MESSAGE TRIM(tran-date:LABEL) + " is not in current period, " +
+                  "would you like to re-enter..."
+              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+              UPDATE ll.
         END.
+        
+        FIND FIRST bf-period NO-LOCK
+          WHERE bf-period.company EQ cocode
+            AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
+            AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
+          NO-ERROR.
+        IF AVAIL bf-period THEN
+        ASSIGN
+            begin_date:SCREEN-VALUE = STRING(bf-period.pst)
+            end_date:SCREEN-VALUE = STRING(bf-period.pend).
+
+        LEAVE.
+      END.
+
+      ll-warned = YES.
     END.
 
 END PROCEDURE.
