@@ -94,6 +94,7 @@ DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -228,6 +229,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 /*END.                                                          */
 
 /* Start processing */
+ FIND FIRST ar-ctrl NO-LOCK WHERE ar-ctrl.company = cocode NO-ERROR. 
+ FIND FIRST arclass NO-LOCK 
+      WHERE arclass.receivablesAcct EQ ar-ctrl.receivables NO-ERROR.
+ iARClassForReceivablesAccount = IF AVAIL arclass THEN arclass.classID ELSE 0.     
+   
  FOR EACH company WHERE
        company.company GE b-comp AND
        company.company LE e-comp
@@ -242,9 +248,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
         AND ttCustList.log-fld no-lock) else true)
         AND cust.sman    GE v-s-sman
-        AND cust.sman    LE v-e-sman
-        AND cust.classID GE v-s-class
-        AND cust.classID LE v-e-class
+        AND cust.sman    LE v-e-sman        
+        AND ((cust.classID EQ 0 AND iARClassForReceivablesAccount GE v-s-class
+        AND iARClassForReceivablesAccount LE v-e-class) OR 
+        (cust.classID NE 0  AND cust.classID GE v-s-class
+        AND cust.classID LE v-e-class))
         AND (cust.ACTIVE NE "I" OR v-inactive-custs)
         AND ((cust.curr-code GE v-s-curr    AND
               cust.curr-code LE v-e-curr)       OR
@@ -281,6 +289,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                                                    ELSE cust.curr-code
        tt-cust.sorter    = STRING({&sort-by})
        tt-cust.row-id    = ROWID(cust).
+       
+       IF "{&sort-by}" EQ "cust.classID" AND STRING({&sort-by}) EQ "0" THEN
+       tt-cust.sorter = string(iARClassForReceivablesAccount,"99").
 
       IF tt-cust.curr-code NE company.curr-code THEN ll-mult-curr = YES.
     END.
@@ -597,7 +608,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
                      WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
-                     WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                     WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                      WHEN "inv-note"  THEN  NEXT  .
                      WHEN "coll-note" THEN  NEXT  .
                     
@@ -763,7 +774,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
-                         WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                         WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
@@ -832,7 +843,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
-                         WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                         WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
@@ -932,7 +943,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
-                         WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                         WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -1154,7 +1165,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
-                     WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                     WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
@@ -1271,7 +1282,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
-                     WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
+                     WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
@@ -1302,7 +1313,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     CREATE ttArClass.
     ASSIGN
         ttArClass.cust-no = cust.cust-no
-        ttArClass.arclass = cust.classID 
+        ttArClass.arclass = (IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount) 
         ttArClass.amount  = c1. 
        
     if (not v-first-cust) or c1 ne 0 then do:
