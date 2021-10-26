@@ -154,8 +154,7 @@ OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
 
 FOR EACH dynSubject NO-LOCK WHERE 
-    dynSubject.subjectID LT 5000 AND
-    dynSubject.isActive EQ TRUE
+    dynSubject.subjectID LT 5000
     BY dynSubject.subjectid:
     EXPORT STREAM s0 dynSubject.
     FOR EACH dynSubjectTable OF dynSubject NO-LOCK:
@@ -339,6 +338,15 @@ FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile settingType
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+
 
 QUIT.
 

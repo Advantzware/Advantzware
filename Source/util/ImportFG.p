@@ -101,6 +101,10 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD SpecNote5Title          AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Spec Note 5 Title [60]" HELP "Optional - Size:60" 
     FIELD SpecNote5Note           AS CHARACTER FORMAT "X(200)" COLUMN-LABEL "Spec Note 5 Note [Large]" HELP "Optional - Size:Large"
     FIELD productTaxClass         AS CHARACTER FORMAT "X(18)" COLUMN-LABEL "Product Tax Class" HELP "Optional - Size:18" 
+    FIELD vend-no                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Vendor 1" HELP "Optional - Size:10"
+    FIELD vend-item               AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Vendor 1 Item #" HELP "Optional - Size:16"
+    FIELD vend2-no                AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Vendor 2" HELP "Optional - Size:10" 
+    FIELD vend2-item              AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Vendor 2 Item #" HELP "Optional - Size:16" 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -225,6 +229,10 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportFG.PalletDep, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitHeight).
     RUN pAssignValueD (ipbf-ttImportFG.StdPalletVol, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.palletVolume).
     RUN pAssignValueC (ipbf-ttImportFG.productTaxClass, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.productTaxClass).
+    RUN pAssignValueC (ipbf-ttImportFG.vend-no, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.vend-no).
+    RUN pAssignValueC (ipbf-ttImportFG.vend-item, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.vend-item).
+    RUN pAssignValueC (ipbf-ttImportFG.vend2-no, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.vend2-no).
+    RUN pAssignValueC (ipbf-ttImportFG.vend2-item, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.vend2-item).
     /*Recalculate derived values*/
     ASSIGN 
         bf-itemfg.std-tot-cost = bf-itemfg.std-mat-cost + bf-itemfg.std-lab-cost + bf-itemfg.std-var-cost + bf-itemfg.std-fix-cost
@@ -329,6 +337,43 @@ PROCEDURE pValidate PRIVATE:
             ipbf-ttImportFG.Company,  
             OUTPUT oplValid, 
             OUTPUT cValidNote).
+   
+    IF oplValid AND ipbf-ttImportFG.vend-no NE "" THEN 
+    DO:
+        FIND FIRST vend NO-LOCK 
+            WHERE vend.company EQ ipbf-ttImportFG.Company
+            AND vend.vend-no EQ ipbf-ttImportFG.vend-no
+            NO-ERROR .
+        IF NOT AVAILABLE vend  THEN
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Vendor 1 is not valid."
+                .
+        IF AVAILABLE vend AND vend.active  EQ "I" THEN 
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Vendor 1 is not acitve."
+                .
+    END.
+    
+    IF oplValid AND ipbf-ttImportFG.vend2-no NE "" THEN 
+    DO:
+        FIND FIRST vend NO-LOCK 
+            WHERE vend.company EQ ipbf-ttImportFG.Company
+            AND vend.vend-no EQ ipbf-ttImportFG.vend2-no
+            NO-ERROR .
+        IF NOT AVAILABLE vend  THEN
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Vendor 1 is not valid."
+                .    
+        
+        IF AVAILABLE vend AND vend.active  EQ "I" THEN 
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Vendor 2 is not acitve."
+                .
+    END.   
   
     /*Field Level Validation*/
     IF oplValid AND iplFieldValidation THEN 
@@ -370,7 +415,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
 
         IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
-            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).            
+            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

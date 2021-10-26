@@ -1067,6 +1067,7 @@ PROCEDURE pSave :
                 dynValueColumn.isActive          = ttSubjectColumn.isActive
                 dynValueColumn.isCalcField       = ttSubjectColumn.isCalcField
                 dynValueColumn.isFilterInitField = ttSubjectColumn.isFilterInitField
+                dynValueColumn.isFormField       = ttSubjectColumn.isFormField
                 dynValueColumn.isGroup           = ttSubjectColumn.isGroup
                 dynValueColumn.isReturnValue     = ttSubjectColumn.isReturnValue
                 dynValueColumn.isSearchable      = ttSubjectColumn.isSearchable
@@ -1191,6 +1192,7 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.isActive          = dynValueColumn.isActive      
             ttSubjectColumn.isCalcField       = dynValueColumn.isCalcField
             ttSubjectColumn.isFilterInitField = dynValueColumn.isFilterInitField
+            ttSubjectColumn.isFormField       = dynValueColumn.isFormField
             ttSubjectColumn.isGroup           = dynValueColumn.isGroup       
             ttSubjectColumn.isReturnValue     = dynValueColumn.isReturnValue 
             ttSubjectColumn.isSearchable      = dynValueColumn.isSearchable  

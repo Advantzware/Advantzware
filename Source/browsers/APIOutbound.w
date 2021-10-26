@@ -535,7 +535,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+{methods/browsers/setCellColumns.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -628,7 +628,9 @@ PROCEDURE local-initialize :
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
+    
+    RUN setCellColumns NO-ERROR.
+    
     /* Code placed here will execute AFTER standard behavior.    */
     &IF INDEX("{&NORECKEY}","{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}") = 0 &THEN
         {methods/template/local/setvalue.i}

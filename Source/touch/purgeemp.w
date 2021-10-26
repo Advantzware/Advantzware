@@ -63,9 +63,10 @@ DEFINE STREAM st-emplogin.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_date end_date begin_emp end_emp btn_ok ~
-btn_cancel RECT-27 
-&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_emp end_emp 
+&Scoped-Define ENABLED-OBJECTS RECT-27 begin_date end_date begin_emp ~
+end_emp tbAutoClose btn_ok btn_cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_emp end_emp ~
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -84,11 +85,11 @@ DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_cancel AUTO-END-KEY 
     LABEL "Ca&ncel" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn_ok 
     LABEL "&OK" 
-    SIZE 15 BY 1.14.
+    SIZE 16 BY 1.29.
 
 DEFINE VARIABLE begin_date AS DATE      FORMAT "99/99/9999" 
     LABEL "From Date" 
@@ -111,26 +112,33 @@ DEFINE VARIABLE end_emp    AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz"
     SIZE 9 BY 1.
 
 DEFINE RECTANGLE RECT-27
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-    SIZE 91 BY 4.76.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+    SIZE 90 BY 4.48.
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL NO 
+    LABEL "Auto Close" 
+    VIEW-AS TOGGLE-BOX
+    SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_date AT ROW 2.67 COL 23 COLON-ALIGNED
-    end_date AT ROW 2.67 COL 55 COLON-ALIGNED
-    begin_emp AT ROW 4.1 COL 23 COLON-ALIGNED
-    end_emp AT ROW 4.1 COL 56 COLON-ALIGNED
-    btn_ok AT ROW 7.19 COL 22
-    btn_cancel AT ROW 7.19 COL 57
-    RECT-27 AT ROW 1.24 COL 3
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 22 BY .62 AT ROW 1.24 COL 7
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    begin_date AT ROW 2.43 COL 29 COLON-ALIGNED
+    end_date AT ROW 2.43 COL 61 COLON-ALIGNED
+    begin_emp AT ROW 3.86 COL 29 COLON-ALIGNED
+    end_emp AT ROW 3.86 COL 62 COLON-ALIGNED
+    tbAutoClose AT ROW 6 COL 42.8 WIDGET-ID 58
+    btn_ok AT ROW 6.91 COL 26
+    btn_cancel AT ROW 6.91 COL 56
+    " Selection Parameters" VIEW-AS TEXT
+    SIZE 21.2 BY .62 AT ROW 1.14 COL 5
+    RECT-27 AT ROW 1.52 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.4 ROW 1
-    SIZE 94.8 BY 9.19
+    AT COL 1 ROW 1
+    SIZE 96 BY 8.62
+    BGCOLOR 15 
     DEFAULT-BUTTON btn_cancel.
 
 
@@ -151,12 +159,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
         TITLE              = "Employee Transaction Purge"
-        HEIGHT             = 8.05
-        WIDTH              = 95
+        HEIGHT             = 8.62
+        WIDTH              = 96
         MAX-HEIGHT         = 24.91
-        MAX-WIDTH          = 100.2
+        MAX-WIDTH          = 101.2
         VIRTUAL-HEIGHT     = 24.91
-        VIRTUAL-WIDTH      = 100.2
+        VIRTUAL-WIDTH      = 101.2
         RESIZE             = YES
         SCROLL-BARS        = NO
         STATUS-AREA        = YES
@@ -185,18 +193,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
-ASSIGN
-    btn_cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
-
-
-ASSIGN
-    btn_ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
-
-
 /* SETTINGS FOR FILL-IN begin_date IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR FILL-IN begin_emp IN FRAME FRAME-A
    1                                                                    */
+ASSIGN 
+    btn_cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+
+ASSIGN 
+    btn_ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+
 /* SETTINGS FOR FILL-IN end_date IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR FILL-IN end_emp IN FRAME FRAME-A
@@ -217,7 +223,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -331,6 +337,9 @@ ON CHOOSE OF btn_ok IN FRAME FRAME-A /* OK */
 
         RUN purge-trans.
 
+        IF tbAutoClose:CHECKED THEN 
+            APPLY "END-ERROR":U TO SELF.
+        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,7 +416,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_date   = TODAY
         .
     RUN enable_UI.
-
+    btn_ok:LOAD-IMAGE("Graphics/32x32/Ok.png").
+    btn_cancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
+    
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -449,9 +460,10 @@ PROCEDURE enable_UI :
                    These statements here are based on the "Other 
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
-    DISPLAY begin_date end_date begin_emp end_emp 
+    DISPLAY begin_date end_date begin_emp end_emp tbAutoClose 
         WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE begin_date end_date begin_emp end_emp btn_ok btn_cancel RECT-27 
+    ENABLE RECT-27 begin_date end_date begin_emp end_emp tbAutoClose btn_ok 
+        btn_cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -463,10 +475,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purge-trans C-Win 
 PROCEDURE purge-trans :
     /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
     MESSAGE "All machine transactions will be purged " SKIP
         "for period between " begin_date
         " - " end_date " and for employee " begin_emp " - " end_emp "."
@@ -491,10 +503,10 @@ PROCEDURE purge-trans :
 
         FOR EACH machemp EXCLUSIVE-LOCK
             WHERE machemp.end_date >= begin_date 
-              AND machemp.end_date <= end_date
-              AND machemp.employee >= begin_emp
-              AND machemp.employee <= end_emp 
-              AND machemp.posted :
+            AND machemp.end_date <= end_date
+            AND machemp.employee >= begin_emp
+            AND machemp.employee <= end_emp 
+            AND machemp.posted :
 
             FOR EACH machtran WHERE    machtran.rec_key = machemp.table_rec_key
                 AND machtran.posted :
@@ -511,10 +523,10 @@ PROCEDURE purge-trans :
 
         FOR EACH emplogin EXCLUSIVE-LOCK
             WHERE emplogin.company EQ g_company
-              AND emplogin.end_date >= begin_date 
-              AND emplogin.end_date <= end_date
-              AND emplogin.employee >= begin_emp
-              AND emplogin.employee <= end_emp :
+            AND emplogin.end_date >= begin_date 
+            AND emplogin.end_date <= end_date
+            AND emplogin.employee >= begin_emp
+            AND emplogin.employee <= end_emp :
             EXPORT STREAM st-emplogin emplogin.
             DELETE emplogin.                         
         END.

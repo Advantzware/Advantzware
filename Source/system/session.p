@@ -218,6 +218,19 @@ FUNCTION sfIsUserSuperAdmin RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfSubjectID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfSubjectID Procedure
+FUNCTION sfSubjectID RETURNS INTEGER 
+  (ipiSubjectID AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfVersion Procedure
@@ -558,6 +571,139 @@ PROCEDURE displayMessageQuestion:
 
 END PROCEDURE.
 &ANALYZE-RESUME
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-displayMessageQuestionDialog) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayMessageQuestionDialog Procedure
+PROCEDURE displayMessageQuestionDialog:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Displays a selected message and returns a character-based answer as output
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lMessage AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ 
+    FIND FIRST zMessage NO-LOCK
+         WHERE zMessage.msgID EQ ipcMessageID       
+         NO-ERROR.    
+    IF NOT AVAIL zMessage THEN DO:
+        cMessage = "Unable to locate message ID " + ipcMessageID + " in the zMessage table. ~n" 
+                 + "Please correct this using function NZ@ or contact ASI Support".
+
+        RUN sharpshooter/messageDialog.w (
+            cMessage,
+            NO,
+            NO,
+            YES,
+            OUTPUT lMessage
+            ).
+                             
+        RETURN.
+    END.  
+    ELSE IF zMessage.userSuppress AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN
+         opcOutput = zMessage.rtnValue.
+         
+    ELSE IF zMessage.userSuppress AND zMessage.rtnValue EQ "" AND
+            zMessage.msgType EQ "QUESTION-YN" THEN DO:
+            cMessage = "Message # " + zMessage.msgID + " requires an answer that is not defined, "
+                     + "so please respond here with the desired response. ~n"   
+                     + fMessageText(ipcMessageID).
+    
+            RUN sharpshooter/messageDialog.w (
+                cMessage,
+                YES,
+                YES,
+                NO,
+                OUTPUT lMessage
+                ).                
+            opcOutput = STRING(lMessage).                       
+    END.    
+    ELSE IF zMessage.msgType NE "QUESTION-YN" AND zMessage.msgType NE "Message-Action" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
+        IF zMessage.userSuppress THEN 
+            opcOutput = zMessage.rtnValue.
+        ELSE DO:
+            cMessage = "User must enter a valid response, "
+                     + "so please respond here with the desired response. ~n"   
+                     + fMessageText(ipcMessageID).
+    
+            RUN sharpshooter/messageDialog.w (
+                cMessage,
+                YES,
+                YES,
+                NO,
+                OUTPUT lMessage
+                ).                
+            opcOutput = STRING(lMessage).
+        END.                          
+    END.                  
+    ELSE DO:
+        CASE zMessage.msgType:
+            WHEN "QUESTION-YN" THEN DO:
+                cMessage = fMessageText(ipcMessageID).
+        
+                RUN sharpshooter/messageDialog.w (
+                    cMessage,
+                    YES,
+                    YES,
+                    NO,
+                    OUTPUT lMessage
+                    ).                
+
+                opcOutput = STRING(lMessage).
+            END.
+            /* Deal with these options in next phase */
+            WHEN "Message-Action" THEN DO:                      
+                IF zMessage.rtnValue EQ "ASK" THEN DO:
+                    cMessage = fMessageText(ipcMessageID).
+        
+                    RUN sharpshooter/messageDialog.w (
+                        cMessage,
+                        YES,
+                        YES,
+                        NO,
+                        OUTPUT lMessage
+                        ).                
+    
+                    opcOutput = STRING(lMessage).                  
+                END.
+                ELSE DO:
+                    cMessage = fMessageText(ipcMessageID).
+        
+                    RUN sharpshooter/messageDialog.w (
+                        cMessage,
+                        YES,
+                        YES,
+                        NO,
+                        OUTPUT lMessage
+                        ).  
+                    opcOutput = STRING(zMessage.rtnValue).
+                END.            
+            END.
+            WHEN "QUESTION-INT" THEN DO:
+            END.
+            WHEN "QUESTION-DECI" THEN DO:
+            END.
+            WHEN "QUESTION-DATE" THEN DO:
+            END.
+        END CASE.
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ENDIF
 
 
@@ -2589,6 +2735,36 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfSubjectID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfSubjectID Procedure
+FUNCTION sfSubjectID RETURNS INTEGER 
+  ( ipiSubjectID AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bDynSubject FOR dynSubject.
+
+    IF ipiSubjectID EQ 0 THEN
+    RETURN ipiSubjectID.
+
+    IF CAN-FIND(FIRST bDynSubject
+                WHERE bDynSubject.altSubjectID EQ ipiSubjectID
+                  AND bDynSubject.isActive     EQ YES) THEN
+    FIND FIRST bDynSubject NO-LOCK
+         WHERE bDynSubject.altSubjectID EQ ipiSubjectID
+           AND bDynSubject.isActive     EQ YES
+         NO-ERROR.
+    RETURN IF AVAILABLE bDynSubject THEN bDynSubject.subjectID ELSE ipiSubjectID.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfVersion) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfVersion Procedure
@@ -2706,7 +2882,9 @@ FUNCTION sfGetNextRecKey RETURNS CHARACTER
     RETURN STRING(YEAR(TODAY),"9999")
          + STRING(MONTH(TODAY),"99")
          + STRING(DAY(TODAY),"99")
-         + STRING(TIME,"99999")
+         + "_"
+         + STRING(TIME,"HH:MM:SS")
+         + "_"
          + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
          .
          

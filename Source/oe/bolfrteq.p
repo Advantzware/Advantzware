@@ -13,6 +13,7 @@ DEF VAR ld AS DEC NO-UNDO.
       FOR EACH oe-boll
           WHERE oe-boll.company EQ io-bolh.company
             AND oe-boll.b-no    EQ io-bolh.b-no
+            AND oe-boll.qty     NE 0
           BREAK BY oe-boll.b-no:
 
         ASSIGN
@@ -27,6 +28,7 @@ DEF VAR ld AS DEC NO-UNDO.
       FOR EACH oe-boll
           WHERE oe-boll.company EQ io-bolh.company
             AND oe-boll.b-no    EQ io-bolh.b-no
+            AND oe-boll.qty     NE 0
           BREAK BY oe-boll.b-no:
 
         IF old-freight EQ 0 THEN oe-boll.freight = 0.

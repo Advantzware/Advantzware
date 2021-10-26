@@ -177,7 +177,7 @@ DEFINE VARIABLE lbl_i-code    AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?
     VIEW-AS FILL-IN 
     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_pur-man   AS CHARACTER FORMAT "X(256)":U INITIAL "Purch/Manuf?" 
+DEFINE VARIABLE lbl_pur-man   AS CHARACTER FORMAT "X(256)":U INITIAL "Est Purch/Manuf?" 
     VIEW-AS FILL-IN 
     SIZE 16 BY 1 NO-UNDO.
 
@@ -1084,11 +1084,13 @@ PROCEDURE run-process :
                 WHERE eb.company EQ quotehd.company
                 AND eb.est-no EQ quotehd.est-no
                 AND eb.part-no EQ  quoteitm.part-no
+                AND (eb.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
                 NO-LOCK NO-ERROR.
-
+                
+        IF NOT AVAILABLE eb AND quotehd.est-no NE "" THEN NEXT.        
+               
         IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN 
-        DO:
-            IF NOT AVAILABLE eb THEN NEXT.
+        DO:             
             IF NOT CAN-FIND(FIRST ef OF eb
                 WHERE ef.board GE begin_rm-no
                 AND ef.board LE END_rm-no) 
@@ -1133,13 +1135,13 @@ PROCEDURE run-process :
             CAN-FIND(FIRST eb
             WHERE eb.company EQ quotehd.company
             AND eb.est-no  EQ quotehd.est-no
-            AND eb.part-no EQ  quoteitm.part-no ) )               OR
+            AND eb.part-no EQ  quoteitm.part-no 
+            AND (eb.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)) )               OR
             CAN-FIND(FIRST itemfg
             WHERE ROWID(itemfg)   EQ lv-rowid
             AND (itemfg.procat   GE begin_fg-cat OR NOT td_only-fgitem)
             AND (itemfg.procat   LE end_fg-cat OR NOT td_only-fgitem)
-            AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
-            AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+            AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")             
             AND lv-rowid        NE ?)                             OR
             ( NOT td_only-fgitem AND
             CAN-FIND(FIRST itemfg
@@ -1148,8 +1150,7 @@ PROCEDURE run-process :
             AND itemfg.part-no  NE ""
             AND (itemfg.cust-no EQ quotehd.cust-no OR
             itemfg.i-code  EQ "S")
-            AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
-            AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+            AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")             
             AND lv-rowid        EQ ?))                             THEN
             FOR EACH quoteqty
                 WHERE quoteqty.company EQ quoteitm.company
@@ -1249,12 +1250,13 @@ PROCEDURE run-process :
                     WHERE eb.company EQ quotehd.company
                     AND eb.est-no EQ quotehd.est-no
                     AND eb.part-no EQ  quoteitm.part-no
+                    AND (eb.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
                     NO-LOCK NO-ERROR.
-
+                    
+            IF NOT AVAILABLE eb AND quotehd.est-no NE "" THEN NEXT.
+            
             IF begin_rm-no NE "" AND NOT END_rm-no BEGINS "zzzzz" AND quotehd.est-no NE "" THEN 
-            DO:
-      
-                IF NOT AVAILABLE eb THEN NEXT.
+            DO:                                 
                 IF NOT CAN-FIND(FIRST ef OF eb
                     WHERE ef.board GE begin_rm-no
                     AND ef.board LE END_rm-no) 
@@ -1299,13 +1301,13 @@ PROCEDURE run-process :
                 CAN-FIND(FIRST eb
                 WHERE eb.company EQ quotehd.company
                 AND eb.est-no  EQ quotehd.est-no
-                AND eb.part-no EQ  quoteitm.part-no) )               OR
+                AND eb.part-no EQ  quoteitm.part-no 
+                AND (eb.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)) )               OR
                 CAN-FIND(FIRST itemfg
                 WHERE ROWID(itemfg)   EQ lv-rowid
                 AND (itemfg.procat   GE begin_fg-cat OR NOT td_only-fgitem)
                 AND (itemfg.procat   LE end_fg-cat OR NOT td_only-fgitem)
-                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
-                AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")                
                 AND lv-rowid        NE ?)                             OR
                 (NOT td_only-fgitem AND
                 CAN-FIND(FIRST itemfg
@@ -1314,8 +1316,7 @@ PROCEDURE run-process :
                 AND itemfg.part-no  NE ""
                 AND (itemfg.cust-no EQ quotehd.cust-no OR
                 itemfg.i-code  EQ "S")
-                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
-                AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
+                AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")                
                 AND lv-rowid        EQ ?))                             THEN
                 FOR EACH quoteqty
                     WHERE quoteqty.company EQ quoteitm.company

@@ -591,10 +591,10 @@ PROCEDURE GetStorageAndHandlingForLocation:
 END PROCEDURE.
 
 PROCEDURE pGetStorageAndHandlingForWidthAndHeight PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiStackHeight  AS INTEGER   NO-UNDO.
@@ -611,29 +611,30 @@ PROCEDURE pGetStorageAndHandlingForWidthAndHeight PRIVATE:
     DEFINE BUFFER bf-storageCost      FOR storageCost.
     
     FIND FIRST bf-palletSize NO-LOCK
-         WHERE bf-palletSize.company    EQ ipcCompany
-           AND bf-palletSize.location   EQ ipcLocation
-           AND bf-palletSize.upToWidth  GE ipdWidth
-           AND bf-palletSize.upToLength GE ipdLength
-         NO-ERROR.
+        WHERE bf-palletSize.company    EQ ipcCompany
+        AND bf-palletSize.location   EQ ipcLocation
+        AND bf-palletSize.upToWidth  GE ipdWidth
+        AND bf-palletSize.upToLength GE ipdLength
+        NO-ERROR.
     IF AVAILABLE bf-palletSize THEN
         iPositions = bf-palletSize.positions.
 
     IF iPositions EQ 0 THEN
         FOR LAST bf-storageCost NO-LOCK
-             WHERE bf-storageCost.company  EQ ipcCompany
-               AND bf-storageCost.location EQ ipcLocation
-             BY bf-storageCost.positions:
+            WHERE bf-storageCost.company  EQ ipcCompany
+            AND bf-storageCost.location EQ ipcLocation
+            BY bf-storageCost.positions:
             LEAVE.
         END.
     ELSE        
         FIND FIRST bf-storageCost NO-LOCK
-             WHERE bf-storageCost.company   EQ bf-palletSize.company
-               AND bf-storageCost.location  EQ bf-palletSize.location
-               AND bf-storageCost.positions EQ iPositions
-             NO-ERROR.
+            WHERE bf-storageCost.company   EQ bf-palletSize.company
+            AND bf-storageCost.location  EQ bf-palletSize.location
+            AND bf-storageCost.positions EQ iPositions
+            NO-ERROR.
 
-    IF AVAILABLE bf-storageCost THEN DO:
+    IF AVAILABLE bf-storageCost THEN 
+    DO:
         opdCostHandling = bf-storageCost.handlingFee.
         
         CASE ipiStackHeight:
@@ -646,7 +647,7 @@ PROCEDURE pGetStorageAndHandlingForWidthAndHeight PRIVATE:
             WHEN 4 THEN
                 opdCostStorage = bf-storageCost.stack4High.
             OTHERWISE
-                opdCostStorage = bf-storageCost.stack1High. 
+            opdCostStorage = bf-storageCost.stack1High. 
         END CASE.             
     END.         
 END PROCEDURE.
@@ -755,11 +756,13 @@ PROCEDURE pProcessBOLLines PRIVATE:
     DEFINE BUFFER bf-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-itemfg  FOR itemfg.
         
-    DEFINE VARIABLE dMSF AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMSF      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cShipFrom AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBOLLine.
     EMPTY TEMP-TABLE ttFreightClass.
     
+    cShipFrom = ipbf-oe-bolh.loc.
     FOR EACH bf-oe-boll NO-LOCK 
         WHERE bf-oe-boll.company EQ ipbf-oe-bolh.company
         AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no,
@@ -769,8 +772,8 @@ PROCEDURE pProcessBOLLines PRIVATE:
         BREAK BY bf-itemfg.i-no
         BY bf-oe-boll.line:
         
-        IF FIRST(bf-oe-boll.line) THEN 
-            iopcShipFrom = bf-oe-boll.loc.
+        IF FIRST(bf-oe-boll.line) AND cShipFrom EQ "" THEN 
+            cShipFrom = bf-oe-boll.loc.
         IF FIRST-OF(bf-itemfg.i-no) THEN
             RUN fg/GetFGArea.p (ROWID(bf-itemfg),"MSF", OUTPUT dMSF).    
         
@@ -798,6 +801,8 @@ PROCEDURE pProcessBOLLines PRIVATE:
             ttFreightClass.dPallets = ttFreightClass.dPallets + ttBOLLine.dPallets
             .
     END.  /*Each bf-oe-boll*/
+    IF cShipFrom NE "" THEN 
+        iopcShipFrom = cShipFrom.
 
 END PROCEDURE.
 
@@ -1193,29 +1198,33 @@ PROCEDURE pProrateFreightAcrossBOLLines PRIVATE:
     
     DEFINE BUFFER bf-oe-boll FOR oe-boll. 
     
-    DEFINE VARIABLE dNewLineFreight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dNewLineFreight    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dFreightTotalSoFar AS DECIMAL NO-UNDO.
     
     FOR EACH bf-oe-boll EXCLUSIVE-LOCK 
         WHERE bf-oe-boll.company EQ ipbf-oe-bolh.company
-        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no, 
+        AND bf-oe-boll.b-no EQ ipbf-oe-bolh.b-no
+        AND bf-oe-boll.qty NE 0, 
         FIRST ttBOLLine
         WHERE ttBOLLine.riBOLLine EQ ROWID(bf-oe-boll)
         BREAK BY bf-oe-boll.b-no: 
         CASE ipcChargeMethod:
-            WHEN "P" THEN DO:
-                IF ipdTotalPallets GT 0 THEN 
-                    dNewLineFreight = ttBOLLine.dPallets / ipdTotalPallets * ipdTotalFreight.
-                ELSE 
-                    dNewLineFreight = 0.
-            END.
-            WHEN "W" THEN DO: 
-                IF ipdTotalLbs GT 0 THEN 
-                    dNewLineFreight = ttBOLLine.dLbs / ipdTotalLbs * ipdTotalFreight.
-                ELSE 
-                    dNewLineFreight = 0.
-            END.
-            OTHERWISE DO:
+            WHEN "P" THEN 
+                DO:
+                    IF ipdTotalPallets GT 0 THEN 
+                        dNewLineFreight = ttBOLLine.dPallets / ipdTotalPallets * ipdTotalFreight.
+                    ELSE 
+                        dNewLineFreight = 0.
+                END.
+            WHEN "W" THEN 
+                DO: 
+                    IF ipdTotalLbs GT 0 THEN 
+                        dNewLineFreight = ttBOLLine.dLbs / ipdTotalLbs * ipdTotalFreight.
+                    ELSE 
+                        dNewLineFreight = 0.
+                END.
+            OTHERWISE 
+            DO:
                 IF ipdTotalMSF GT 0 THEN 
                     dNewLineFreight = ttBOLLine.dMSF / ipdTotalMSF * ipdTotalFreight.
                 ELSE 
@@ -1224,12 +1233,14 @@ PROCEDURE pProrateFreightAcrossBOLLines PRIVATE:
         END CASE.
         IF dNewLineFreight EQ ? THEN dNewLineFreight = 0.
         
+        dNewLineFreight = ROUND(dNewLineFreight,2).        
+        
         IF LAST-OF(bf-oe-boll.b-no) THEN   
             dNewLineFreight = ipdTotalFreight - dFreightTotalSoFar.
         ELSE
             dFreightTotalSoFar = dFreightTotalSoFar + dNewLineFreight.
         
-        bf-oe-boll.freight = dNewLineFreight.
+        bf-oe-boll.freight = MAX(dNewLineFreight,0).
         
     END. /*Each bf-oe-boll - exclusive*/
                        
@@ -1253,11 +1264,12 @@ PROCEDURE ProrateFreightAcrossBOLLines:
     DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
     DEFINE BUFFER bf-shipto   FOR shipto.
     
-    DEFINE VARIABLE dTotPallets AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dTotMSF     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dTotLbs     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dMSF        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cShipFrom   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotPallets   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotMSF       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotLbs       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMSF          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cShipFrom     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cChargeMethod AS CHARACTER NO-UNDO.
     
     RUN pGetBOLHeaderBuffer(ipriBOL, BUFFER bf-oe-bolh, OUTPUT oplError, OUTPUT opcMessage).
     IF oplError OR NOT AVAILABLE bf-oe-bolh THEN RETURN.
@@ -1272,10 +1284,13 @@ PROCEDURE ProrateFreightAcrossBOLLines:
     RUN pGetCarrierBuffers(bf-oe-bolh.company, cShipFrom, bf-oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip, 
         BUFFER bf-carrier, BUFFER bf-carr-mtx, 
         OUTPUT oplError, OUTPUT opcMessage).
-    IF AVAILABLE bf-carrier THEN 
-    DO:
-        RUN pProrateFreightAcrossBOLLines(BUFFER bf-oe-bolh, bf-carrier.chg-method, ipdFreight, dTotPallets, dTotLbs, dTotMSF).
-    END. /*available bf-carrier*/
+        
+    IF AVAILABLE bf-carrier THEN
+        cChargeMethod = bf-carrier.chg-method. 
+    ELSE 
+        cChargeMethod = "P".
+    
+    RUN pProrateFreightAcrossBOLLines(BUFFER bf-oe-bolh, cChargeMethod, ipdFreight, dTotPallets, dTotLbs, dTotMSF).
     
 END PROCEDURE.
 

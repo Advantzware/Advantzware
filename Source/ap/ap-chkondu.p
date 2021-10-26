@@ -331,9 +331,9 @@ PROCEDURE writeRegisterLine:
     DEF INPUT PARAMETER ipc-bookmark    AS CHAR              FORMAT "X(5)"       NO-UNDO.
     DEF INPUT PARAMETER ipi-line        AS INT               FORMAT ">9"         NO-UNDO.
     DEF INPUT PARAMETER ip-inv-no       LIKE ap-sel.inv-no   FORMAT "X(12)"      NO-UNDO.
-    DEF INPUT PARAMETER ip-po-no        LIKE ap-inv.po-no    FORMAT ">>>>>9"      NO-UNDO.
+    DEF INPUT PARAMETER ip-po-no        LIKE ap-inv.po-no    FORMAT ">>>>>>>9"   NO-UNDO.
     DEF INPUT PARAMETER ip-date         LIKE ap-inv.inv-date FORMAT "99/99/99"   NO-UNDO.
-    DEF INPUT PARAMETER ip-invamt       LIKE ap-inv.net  FORMAT "->,>>>,>>9.99"   NO-UNDO.
+    DEF INPUT PARAMETER ip-invamt       LIKE ap-inv.net      FORMAT "->,>>>,>>9.99"   NO-UNDO.
     DEF INPUT PARAMETER ip-amount       LIKE ap-sel.amt-paid FORMAT "->,>>>,>>9.99" NO-UNDO.
     DEF INPUT PARAMETER ip-discount     LIKE ap-sel.disc-amt FORMAT "->,>>>,>>9.99" NO-UNDO.
     DEF INPUT PARAMETER ip-net          AS DEC               FORMAT "->,>>>,>>9.99".
