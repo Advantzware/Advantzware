@@ -25,7 +25,7 @@ PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " inv-head.inv-no FORMAT ">>>>>>9" "</
     "<=#3><R+4> Customer PO                  Invoice Date <FCourier New>"    
     "<=3><R+1> " inv-head.cust-no  space(7) cust.contact
     "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999" space(5) cust.fax
-    "<=3><R+5> " v-ord-po-no space(3) v-inv-date .
+    "<=3><R+5> " v-ord-po-no space(3) string( string(DYNAMIC-FUNCTION("sfCommon_GetMonthName",month(v-inv-date))) + "/" + string(day(v-inv-date),"99") + "/" + string(year(v-inv-date),"9999")) format "x(12)".   
 
     
 PUT "<R21><C1><#4><FROM><R25><C81><RECT><||3>" SKIP

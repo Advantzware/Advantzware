@@ -143,6 +143,17 @@ FUNCTION sfCommon_GetWeekDayInText RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_GetMonthName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetMonthName Procedure 
+FUNCTION sfCommon_GetMonthName RETURNS CHARACTER
+  ( INPUT ipiMonth AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_HideAMPM) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HideAMPM Procedure 
@@ -1280,6 +1291,44 @@ FUNCTION sfCommon_GetWeekDayInText RETURNS CHARACTER
         .
 
     RETURN cWeekDayChar[ipiWeekDay].
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetMonthName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetMonthName Procedure 
+FUNCTION sfCommon_GetMonthName RETURNS CHARACTER
+  ( INPUT ipiMonth AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMonthChar AS CHARACTER NO-UNDO EXTENT 12.
+    
+    IF ipiMonth LT 1 OR ipiMonth GT 12 THEN
+        RETURN "".
+
+    ASSIGN
+        cMonthChar[1] = "JAN"
+        cMonthChar[2] = "FEB"
+        cMonthChar[3] = "MAR"
+        cMonthChar[4] = "APR"
+        cMonthChar[5] = "MAY"
+        cMonthChar[6] = "Jun"
+        cMonthChar[7] = "JUL"
+        cMonthChar[8] = "AUG"
+        cMonthChar[9] = "SEP"
+        cMonthChar[10] = "OCT"
+        cMonthChar[11] = "NOV"
+        cMonthChar[12] = "DEC"
+        .
+
+    RETURN cMonthChar[ipiMonth].
 
 END FUNCTION.
 
