@@ -98,6 +98,7 @@ DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
+                               FIELD classID   AS   INTEGER
                                FIELD row-id    AS   ROWID
                                INDEX tt-cust curr-code sorter.
 
@@ -228,12 +229,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 /*  END.                                                        */
 /*END.                                                          */
 
-/* Start processing */
- FIND FIRST ar-ctrl NO-LOCK WHERE ar-ctrl.company = cocode NO-ERROR. 
- FIND FIRST arclass NO-LOCK 
-      WHERE arclass.receivablesAcct EQ ar-ctrl.receivables NO-ERROR.
- iARClassForReceivablesAccount = IF AVAIL arclass THEN arclass.classID ELSE 0.     
-   
+/* Start processing */   
  FOR EACH company WHERE
        company.company GE b-comp AND
        company.company LE e-comp
@@ -249,10 +245,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         AND ttCustList.log-fld no-lock) else true)
         AND cust.sman    GE v-s-sman
         AND cust.sman    LE v-e-sman        
-        AND ((cust.classID EQ 0 AND iARClassForReceivablesAccount GE v-s-class
-        AND iARClassForReceivablesAccount LE v-e-class) OR 
-        (cust.classID NE 0  AND cust.classID GE v-s-class
-        AND cust.classID LE v-e-class))
+        AND (cust.classID GE v-s-class OR cust.classID EQ 0)
+        AND (cust.classID LE v-e-class OR cust.classID EQ 0)
         AND (cust.ACTIVE NE "I" OR v-inactive-custs)
         AND ((cust.curr-code GE v-s-curr    AND
               cust.curr-code LE v-e-curr)       OR
@@ -290,6 +284,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
        tt-cust.sorter    = STRING({&sort-by})
        tt-cust.row-id    = ROWID(cust).
        
+       FIND FIRST ar-ctrl NO-LOCK WHERE ar-ctrl.company EQ cust.company NO-ERROR. 
+       FIND FIRST arclass NO-LOCK 
+            WHERE arclass.receivablesAcct EQ ar-ctrl.receivables NO-ERROR.
+       iARClassForReceivablesAccount = IF AVAIL arclass THEN arclass.classID ELSE 0.
+       tt-cust.classID = IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount.
        IF "{&sort-by}" EQ "cust.classID" AND STRING({&sort-by}) EQ "0" THEN
        tt-cust.sorter = string(iARClassForReceivablesAccount,"99").
 
@@ -297,7 +296,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     END.
   END.
 
-  FOR EACH tt-cust,
+  FOR EACH tt-cust
+      WHERE tt-cust.classID GE v-s-class 
+      AND tt-cust.classID LE v-e-class,
       FIRST cust 
       FIELDS(company cust-no sman curr-code NAME area-code
              phone terms fax cr-lim contact addr city state zip)

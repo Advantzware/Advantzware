@@ -116,6 +116,8 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cLvText           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dAmountDue        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iRecCount         AS INTEGER   NO-UNDO EXTENT 2.
+    DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
+    
     
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
@@ -128,8 +130,8 @@ PROCEDURE pBusinessLogic:
           AND cust.sman    LE cEndSalesRep
           AND cust.terms   GE cStartTerms
           AND cust.terms   LE cEndTerms
-          AND cust.classID GE iStartARClass
-          AND cust.classID LE iEndARClass
+          AND (cust.classID GE iStartARClass OR cust.classID EQ 0)
+          AND (cust.classID LE iEndARClass OR cust.classID EQ 0 )
           AND (cust.active NE "I"
            OR lInactiveCustomers)
           AND ((cust.curr-code GE cStartCurrency
@@ -165,15 +167,22 @@ PROCEDURE pBusinessLogic:
                 tt-cust.row-id    = ROWID(cust)
                 iRecCount[2]      = iRecCount[2] + 1
                 .
+             FIND FIRST ar-ctrl NO-LOCK WHERE ar-ctrl.company = cust.company NO-ERROR. 
+             FIND FIRST arclass NO-LOCK 
+             WHERE arclass.receivablesAcct EQ ar-ctrl.receivables NO-ERROR.
+             iARClassForReceivablesAccount = IF AVAIL arclass THEN arclass.classID ELSE 0.
+             tt-cust.classID = IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount. 
             IF lProgressBar THEN
             RUN spProgressBar (cProgressBar, iRecCount[2], ?).
             IF tt-cust.curr-code NE company.curr-code THEN
             lMultCurr = YES.
         END. /* if lValidCust */
     END. /* each company */
-    FOR EACH tt-cust,
+    FOR EACH tt-cust 
+        WHERE tt-cust.classID GE iStartARClass 
+        AND tt-cust.classID LE iEndARClass,
         FIRST cust FIELDS(company cust-no sman curr-code name area-code phone terms fax cr-lim contact addr city state zip) NO-LOCK
-        WHERE ROWID(cust) EQ tt-cust.row-id
+        WHERE ROWID(cust) EQ tt-cust.row-id        
         BREAK BY tt-cust.curr-code
               BY tt-cust.sorter
         :
@@ -376,7 +385,7 @@ PROCEDURE pBusinessLogic:
                         ttAgedReceivables.custPoNo    = cPoNo                        
                         ttAgedReceivables.jobNo       = cJobStr
                         ttAgedReceivables.totalDue    = dAmountDue
-                        ttAgedReceivables.arClass     = cust.classID
+                        ttAgedReceivables.arClass     = tt-cust.classID
                         ttAgedReceivables.invoiceNote = ""                           
                         ttAgedReceivables.collNote    = ""
                         ttAgedReceivables.xxSort1     = tt-cust.sorter
@@ -503,7 +512,7 @@ PROCEDURE pBusinessLogic:
                                     ttAgedReceivables.periodDay4  = 0
                                     ttAgedReceivables.custPoNo    = cPoNo
                                     ttAgedReceivables.jobNo       = cJobStr
-                                    ttAgedReceivables.arClass     = cust.classID
+                                    ttAgedReceivables.arClass     = tt-cust.classID
                                     ttAgedReceivables.invoiceNote = ""
                                     ttAgedReceivables.collNote    = ""
                                     ttAgedReceivables.xxSort1     = tt-cust.sorter
@@ -547,7 +556,7 @@ PROCEDURE pBusinessLogic:
                                 ttAgedReceivables.periodDay4  = 0
                                 ttAgedReceivables.custPoNo    = cPoNo
                                 ttAgedReceivables.jobNo       = cJobStr
-                                ttAgedReceivables.arClass     = cust.classID
+                                ttAgedReceivables.arClass     = tt-cust.classID
                                 ttAgedReceivables.invoiceNote = ""
                                 ttAgedReceivables.collNote    = ""
                                 ttAgedReceivables.xxSort1     = tt-cust.sorter
@@ -611,7 +620,7 @@ PROCEDURE pBusinessLogic:
                                 ttAgedReceivables.periodDay4  = 0
                                 ttAgedReceivables.custPoNo    = cPoNo
                                 ttAgedReceivables.jobNo       = cJobStr
-                                ttAgedReceivables.arClass     = cust.classID
+                                ttAgedReceivables.arClass     = tt-cust.classID
                                 ttAgedReceivables.invoiceNote = ""
                                 ttAgedReceivables.collNote    = ""
                                 ttAgedReceivables.xxSort1     = tt-cust.sorter
@@ -775,7 +784,7 @@ PROCEDURE pBusinessLogic:
                         ttAgedReceivables.periodDay4  = dUnapp[5]
                         ttAgedReceivables.custPoNo    = cPoNo                                                                                 
                         ttAgedReceivables.jobNo       = cJobStr
-                        ttAgedReceivables.arClass     = cust.classID                                                                       
+                        ttAgedReceivables.arClass     = tt-cust.classID                                                                       
                         ttAgedReceivables.invoiceNote = cInvoiceNote
                         ttAgedReceivables.collNote    = ""
                         ttAgedReceivables.xxSort1     = tt-cust.sorter
@@ -853,7 +862,7 @@ PROCEDURE pBusinessLogic:
                         ttAgedReceivables.periodDay4  = 0
                         ttAgedReceivables.custPoNo    = cPoNo
                         ttAgedReceivables.jobNo       = cJobStr
-                        ttAgedReceivables.arClass     = cust.classID
+                        ttAgedReceivables.arClass     = tt-cust.classID
                         ttAgedReceivables.invoiceNote = cInvoiceNote
                         ttAgedReceivables.collNote    = ""
                         ttAgedReceivables.xxSort1     = tt-cust.sorter
