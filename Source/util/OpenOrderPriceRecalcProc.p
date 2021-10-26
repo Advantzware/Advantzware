@@ -44,7 +44,6 @@ MAIN-LOOP:
 FOR EACH oe-ordl NO-LOCK
     WHERE oe-ordl.company EQ ipcCompany
     AND oe-ordl.stat NE "C"
-    AND oe-ordl.ship-qty EQ 0
     AND oe-ordl.cust-no GE ipcBeginCustomer
     AND oe-ordl.cust-no LE ipcEndCustomer
     AND oe-ordl.i-no GE ipcBeginFGItem

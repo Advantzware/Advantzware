@@ -153,7 +153,7 @@ DEFINE BROWSE BROWSE-1
       loadtag.tag-no FORMAT "X(20)":U
       loadtag.i-no FORMAT "x(15)":U
       loadtag.i-name FORMAT "x(30)":U
-      loadtag.po-no FORMAT ">>>>>9":U
+      loadtag.po-no FORMAT ">>>>>>>9":U
       loadtag.ord-no FORMAT ">>>>>9":U
       loadtag.job-no FORMAT "x(6)":U
       loadtag.job-no2 FORMAT ">9":U

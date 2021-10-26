@@ -763,7 +763,7 @@ DO:
                  IF style.type = "f" THEN  /* foam */
                  DO:
                     RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-                    style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                    style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
                     APPLY "ENTRY":U TO style.material[1].
                  END.
                  ELSE

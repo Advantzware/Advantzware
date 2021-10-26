@@ -193,7 +193,7 @@ DEFINE BROWSE BROWSE-1
       loadtag.loc COLUMN-LABEL "Location" FORMAT "x(5)":U
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       loadtag.ord-no FORMAT ">>>>>9":U
-      loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
+      loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
       loadtag.qty-case FORMAT "->,>>>,>>9":U
       loadtag.pallet-count FORMAT "->,>>>,>>9":U

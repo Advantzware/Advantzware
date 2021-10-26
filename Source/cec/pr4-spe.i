@@ -26,6 +26,10 @@ DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
                  xeb.blank-no,
                  s-qty[i],
                  item.cons-uom,
+                 item.s-len, 
+                 item.s-wid, 
+                 item.s-dep,
+                 item.basis-w,
                  OUTPUT dCostQtyUOM,
                  OUTPUT dSetupCostQtyUOM,
                  OUTPUT s-cost[i]).         

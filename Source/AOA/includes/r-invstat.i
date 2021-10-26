@@ -506,10 +506,12 @@ PROCEDURE pBuildJobItem PRIVATE:
         
         cSource = "Job Header - "
                 + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
-                ELSE "Single".
+                  ELSE "Single".
               
         /* No Backlog at time of "as of" */
-        IF (dQtyInv GE dQtyOrd) OR (job.close-date LT ipdtAsOf AND dQtyOnHand EQ 0) THEN NEXT.
+        IF dQtyInv GE dQtyOrd OR
+          (job.close-date LT ipdtAsOf AND dQtyOnHand EQ 0) OR
+          (AVAILABLE oe-ord AND oe-ord.closeDate LT ipdtAsOf) THEN NEXT.
         
         RUN pAddJobItem (
             job-hdr.company,
@@ -660,7 +662,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             ).
         
         IF dPricePerUOM LT dInvAmt THEN NEXT.  /* already invoiced at time of "as of" */
-        
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
@@ -733,6 +735,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dQtyInv,
             OUTPUT dQtyShip
             ).
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,

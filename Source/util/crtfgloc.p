@@ -53,9 +53,10 @@ IF ll EQ YES THEN DO:
   /* ******************************************************************** */
   
   /****************************/
-  FOR EACH company,
-    EACH oe-ord WHERE oe-ord.company = company.company
-    AND oe-ord.opened NO-LOCK:
+  FOR EACH company NO-LOCK,
+    EACH oe-ord NO-LOCK
+    WHERE oe-ord.company EQ company.company
+      AND oe-ord.opened  EQ YES:
     
     FOR EACH oe-rel WHERE oe-rel.company = oe-ord.company
       AND oe-rel.ord-no = oe-ord.ord-no NO-LOCK.
@@ -156,10 +157,11 @@ IF ll EQ YES THEN DO:
   DISP i.
   
   
-  FOR EACH company,
-    EACH oe-ord WHERE oe-ord.company = company.company
-    AND oe-ord.opened NO-LOCK:
-    
+  FOR EACH company NO-LOCK,
+    EACH oe-ord NO-LOCK
+    WHERE oe-ord.company EQ company.company
+      AND oe-ord.opened  EQ YES
+    :    
     FOR EACH oe-rel WHERE oe-rel.company = oe-ord.company
       AND oe-rel.ord-no = oe-ord.ord-no EXCLUSIVE-LOCK.
       i = i + 1.
@@ -270,10 +272,7 @@ IF ll EQ YES THEN DO:
       end.
       ************************************/
     END.
-    
-    
-    
-    
+
     FOR EACH itemfg-loc WHERE itemfg-loc.company = itemfg.company
       AND itemfg-loc.i-no EQ itemfg.i-no
       EXCLUSIVE-LOCK:
@@ -302,7 +301,6 @@ IF ll EQ YES THEN DO:
     
     /* end ---------------------------------- copr. 1999  advanced software, inc. */
     
-    
   END. /* each itemfg */
 END. /* if ll */
 
@@ -310,8 +308,3 @@ MESSAGE "Done!"
 VIEW-AS ALERT-BOX INFO BUTTONS OK.
 /* if choose OK */
 PAUSE 0 BEFORE-HIDE.
-
-
-
-
-

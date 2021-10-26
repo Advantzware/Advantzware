@@ -582,7 +582,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.line FORMAT ">>99":U
       get-cost() @ ld-cost COLUMN-LABEL "Cost" WIDTH 20
       get-cost-uom() @ ld-cost-uom COLUMN-LABEL "Cost!UOM"
-      oe-ordl.po-no-po FORMAT ">>>>>9":U
+      oe-ordl.po-no-po FORMAT ">>>>>>>9":U
       get-last-shipto() @ v-last-shipto COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)":U
             WIDTH 10
   ENABLE

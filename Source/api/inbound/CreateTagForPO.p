@@ -430,7 +430,7 @@ DO TRANSACTION ON ERROR UNDO,LEAVE:
 
         /* creates new tag number for RM items - existing logic, taken from program (rmloadtg4.w) */   
         DO WHILE TRUE:
-            cTagNo = STRING(po-ordl.po-no,'9999999') + STRING(po-ordl.line,'999') + STRING(iNo,'9999999').
+            cTagNo = STRING(po-ordl.po-no,'99999999') + STRING(po-ordl.line,'999') + STRING(iNo,'9999999').
             IF NOT CAN-FIND(FIRST loadtag
                             WHERE loadtag.company   EQ ipcCompany
                               AND loadtag.item-type EQ YES

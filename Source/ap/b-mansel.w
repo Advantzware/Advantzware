@@ -755,8 +755,8 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  /* ======== validation ===========*/
-  IF ap-sel.inv-no:MODIFIED IN BROWSE {&browse-name} THEN DO:
+  /* ======== validation ===========*/    
+  IF ap-sel.inv-no:MODIFIED IN BROWSE {&browse-name} OR adm-new-record THEN DO:
      FIND FIRST ap-inv WHERE ap-inv.company = g_company
                         AND ap-inv.vend-no = ap-chk.vend-no
                         AND ap-inv.inv-no = (ap-sel.inv-no:SCREEN-VALUE IN BROWSE {&browse-name})

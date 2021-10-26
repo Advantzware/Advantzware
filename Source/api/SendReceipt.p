@@ -1,18 +1,14 @@
 /*------------------------------------------------------------------------
     File        : api/SendReceipt.p
     Purpose     : Returns the request data for receipt
-
     Syntax      :
-
     Description : Returns the request data for receipt
-
     Author(s)   : DEVA$!
     Created     : Fri Jun 04 07:04:19 EDT 2021
     Notes       :
   ----------------------------------------------------------------------*/
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
-    {api/ttReceipt.i}
     
     DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
     DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -21,22 +17,24 @@
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReceiverNumber   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReceiptDate      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReceiptTime      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDescription  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOLineNumber     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cJobID            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID2           AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE mptrTTReceipt    AS MEMPTR    NO-UNDO.
-    DEFINE VARIABLE cReceiverNumber  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReceiptDate     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReceiptTime     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemID          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDescription AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemUOM         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemQuantity    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOID            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLineNumber    AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE hdTTHandle       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE lcLineDataConcat AS LONGCHAR  NO-UNDO.
-    
-    DEFINE BUFFER bf-line-APIOutboundDetail FOR APIOutboundDetail.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
     
     RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
                  
@@ -52,70 +50,105 @@
     ELSE DO:
         FIND FIRST ttArgs
              WHERE ttArgs.argType  = "ROWID"
-               AND ttArgs.argKey   = "TTReceiptHandle"
-             NO-ERROR.
-        IF NOT AVAILABLE ttArgs THEN DO:
+               AND ttArgs.argKey   = "rm-rcpth" NO-ERROR.
+        IF AVAILABLE ttArgs THEN
+            FIND FIRST bf-rm-rcpth NO-LOCK
+                 WHERE ROWID(bf-rm-rcpth) EQ TO-ROWID(ttArgs.argValue)
+                 NO-ERROR.
+
+        FIND FIRST ttArgs
+             WHERE ttArgs.argType  = "ROWID"
+               AND ttArgs.argKey   = "fg-rcpth" NO-ERROR.
+        IF AVAILABLE ttArgs THEN
+            FIND FIRST bf-fg-rcpth NO-LOCK
+                 WHERE ROWID(bf-fg-rcpth) EQ TO-ROWID(ttArgs.argValue)
+                 NO-ERROR.
+
+        IF NOT AVAILABLE bf-fg-rcpth AND NOT AVAILABLE bf-rm-rcpth THEN DO:
             ASSIGN
+                opcMessage = "Invalid receipt ROWID passed to handler"
                 oplSuccess = FALSE
-                opcMessage = "Invalid temp-table handle"
                 .
-            
             RETURN.
         END.
+
+        IF AVAILABLE bf-rm-rcpth THEN DO:
+            FIND FIRST bf-rm-rdtlh NO-LOCK
+                 WHERE bf-rm-rdtlh.company   EQ bf-rm-rcpth.company
+                   AND bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
+                   AND bf-rm-rcpth.rita-code EQ bf-rm-rcpth.rita-code
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-rm-rdtlh THEN DO:
+                ASSIGN
+                    opcMessage = "No Raw Material detail record found"
+                    oplSuccess = FALSE
+                    .
+                RETURN.            
+            END.
+        END.
+
+        IF AVAILABLE bf-fg-rcpth THEN DO:
+            FIND FIRST bf-fg-rdtlh NO-LOCK
+                 WHERE bf-fg-rdtlh.company   EQ bf-fg-rcpth.company
+                   AND bf-fg-rdtlh.r-no      EQ bf-fg-rcpth.r-no
+                   AND bf-fg-rcpth.rita-code EQ bf-fg-rcpth.rita-code
+                 NO-ERROR.                 
+            IF NOT AVAILABLE bf-fg-rdtlh THEN DO:
+                ASSIGN
+                    opcMessage = "No Finished good detail record found"
+                    oplSuccess = FALSE
+                    .
+                RETURN.            
+            END.
+        END.        
         
-        hdTTHandle = HANDLE(ttArgs.argValue).
-        
-        IF NOT VALID-HANDLE (hdTTHandle) THEN DO:
+        IF AVAILABLE bf-rm-rcpth THEN DO:
             ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Invalid temp-table handle"
-                .
-            
-            RETURN.        
+                cReceiverNumber   = STRING(bf-rm-rdtlh.r-no)
+                cLocation         = bf-rm-rcpth.loc
+                cReceiptDate      = STRING(bf-rm-rdtlh.upd-date)
+                cReceiptTime      = STRING(bf-rm-rdtlh.upd-time)
+                cItemID           = bf-rm-rdtlh.i-no
+                cItemDescription  = bf-rm-rcpth.i-name
+                cQuantityUOM      = bf-rm-rcpth.pur-uom
+                cQuantityReceived = STRING(bf-rm-rdtlh.qty)
+                cPOID             = STRING(bf-rm-rcpth.po-no)
+                cPOLineNumber     = STRING(bf-rm-rcpth.po-line)
+                cJobID            = bf-rm-rcpth.job-no
+                cJobID2           = STRING (bf-rm-rcpth.job-no2)
+                . 
         END.
 
-        FIND FIRST bf-line-APIOutboundDetail NO-LOCK
-             WHERE bf-line-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
-               AND bf-line-APIOutboundDetail.detailID      EQ "LineDetail"
-               AND bf-line-APIOutboundDetail.parentID      EQ "SendReceipt"
-             NO-ERROR.
-             
-        /* Code to send data from dynamic temp-table handle to static temp-table */
-        hdTTHandle:WRITE-XML("MEMPTR", mptrTTReceipt).
-        
-        TEMP-TABLE ttReceipt:READ-XML("MEMPTR", mptrTTReceipt, "EMPTY", ?, FALSE).
-        
-        SET-SIZE(mptrTTReceipt) = 0.
-
-        ASSIGN
-            cReceiverNumber  = STRING("Test")
-            .
-        
-        IF AVAILABLE bf-line-APIOutboundDetail THEN DO:            
-            FOR EACH ttReceipt
-                BY ttReceipt.lineID:
-                lcLineData = bf-line-APIOutboundDetail.data.
-                
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineNumber", STRING(ttReceipt.lineID)).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemID", ttReceipt.itemID).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemDescription", ttReceipt.itemName).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemUOM", ttReceipt.quantityUOM).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemQuantity", STRING(ttReceipt.quantity)).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "POID", STRING(ttReceipt.poID)).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "POLineNumber", STRING(ttReceipt.poLine)).
-                
-                lcLineDataConcat = lcLineDataConcat + lcLineData.
-            END.            
+        IF AVAILABLE bf-fg-rcpth THEN DO:
+            ASSIGN
+                cReceiverNumber   = STRING(bf-fg-rdtlh.r-no)
+                cLocation         = bf-fg-rcpth.loc
+                cReceiptDate      = STRING(bf-fg-rdtlh.upd-date)
+                cReceiptTime      = STRING(bf-fg-rdtlh.upd-time)
+                cItemID           = bf-fg-rdtlh.i-no
+                cItemDescription  = bf-fg-rcpth.i-name
+                cQuantityUOM      = bf-fg-rcpth.pur-uom
+                cQuantityReceived = STRING(bf-fg-rdtlh.qty)
+                cPOID             = STRING(bf-fg-rcpth.po-no)
+                cPOLineNumber     = STRING(bf-fg-rcpth.po-line)
+                cJobID            = bf-fg-rcpth.job-no
+                cJobID2           = STRING (bf-fg-rcpth.job-no2)
+                . 
         END.
-        
-        RUN pUpdateDelimiter (INPUT-OUTPUT lcLineDataConcat, gcRequestDataType).
-        
-        ioplcRequestData = REPLACE(ioplcRequestData, "$LineDetail$", lcLineDataConcat).
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ReceiverNumber", cReceiverNumber).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Location", cLocation).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ReceiptDate", cReceiptDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ReceiptTime", cReceiptTime).
-                    
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Item", cItemID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ItemDescription", cItemDescription).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "QuantityUOM", cQuantityUOM).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "QuantityReceived", cQuantityReceived).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "POID", cPOID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "POLineNumber", cPOLineNumber).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID", cJobID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "JobID2", cJobID2).        
+            
         ASSIGN
             opcMessage = ""
             oplSuccess = TRUE

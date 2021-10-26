@@ -132,6 +132,7 @@ format
   oe-ordl.part-dscr1 at 44 format "x(30)" skip
   locbin[4] at 23
   oe-ordl.part-dscr2 at 44 format "x(30)"
+  "Lot#: " AT 2 tt-rell.lot-no at 8
   with down frame relprint no-box no-label STREAM-IO width 110.
 /*
 format
@@ -368,6 +369,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               oe-ordl.i-name   when avail oe-ordl  SKIP
               oe-ordl.part-dscr1 when avail oe-ordl   /* CTS */
               oe-ordl.part-dscr2 when avail oe-ordl /*bsm*/
+              tt-rell.lot-no   when tt-rell.lot-no NE ""
               with frame relprint STREAM-IO NO-BOX NO-LABELS WIDTH 120.
               down with frame relprint.
               v-printline = v-printline + 4 + IF xx >= 4 THEN 1 ELSE 0 .
@@ -399,6 +401,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               END.
               ELSE IF s-print-part-no THEN PUT SKIP.
             end.
+            
+            IF tt-rell.lot-no NE "" THEN DO:
+                PUT "Lot#: " AT 2 tt-rell.lot-no at 8.
+            END. /* IF tt-rell.lot-no NE "" */
+            
           end.
         end.
         else do:
@@ -426,6 +433,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             END.
             ELSE IF s-print-part-no THEN PUT SKIP.
           end.
+          
+          IF tt-rell.lot-no NE "" THEN DO:
+             PUT "Lot#: " AT 2 tt-rell.lot-no at 8.
+          END. /* IF tt-rell.lot-no NE "" */
+          
         end.
 
         put skip(1).
