@@ -216,7 +216,6 @@ END.
 &ANALYZE-RESUME
 
 
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK F-Frame-Win 
@@ -358,6 +357,25 @@ PROCEDURE GetTag :
     DEFINE OUTPUT PARAMETER opoLoadtag AS Inventory.Loadtag NO-UNDO.
     
     {methods/run_link.i "TAG-SOURCE" "GetTag" "(OUTPUT opoLoadtag)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
+    
+    fiQuantity:SCREEN-VALUE = "0.00".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

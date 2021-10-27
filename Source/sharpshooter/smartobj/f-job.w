@@ -243,7 +243,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 1.24 , 8.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 131.00 ) */
+       /* Size in UIB:  ( 2.05 , 136.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
@@ -497,6 +497,24 @@ PROCEDURE pInit :
         {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.  
 
     {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "JOB-SOURCE" "Reset"}
+    {methods/run_link.i "FGItem-SOURCE" "Reset"}
+    {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(0,0,0,0)"}
+    {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(1)"}
+    {methods/run_link.i "USERFIELD-SOURCE" "SetUserFields" "("","","","","","")"}
+    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

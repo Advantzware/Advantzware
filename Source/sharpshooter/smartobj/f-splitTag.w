@@ -198,7 +198,6 @@ END.
 &ANALYZE-RESUME
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
 ON LEAVE OF fiQuantity IN FRAME F-Main /* QUANTITY */
 DO:
@@ -353,6 +352,25 @@ PROCEDURE GetTag :
     DEFINE OUTPUT PARAMETER opoLoadtag AS Inventory.Loadtag NO-UNDO.
     
     {methods/run_link.i "SPLIT-SOURCE" "GetTag" "(OUTPUT opoLoadtag)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    {methods/run_link.i "SPLIT-SOURCE" "EmptyTag"}
+    {methods/run_link.i "SPLIT-SOURCE" "ScanNextTag"}
+    
+    fiQuantity:SCREEN-VALUE = "0.00".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

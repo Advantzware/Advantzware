@@ -79,10 +79,10 @@ oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete btPrint btnExitText btnSettingsText ~
+&Scoped-Define ENABLED-OBJECTS btClear btDelete btPrint btnExitText ~
+btnClearText btnSettingsText btnDeleteText statusMessage btnPrintText 
+&Scoped-Define DISPLAYED-OBJECTS btnExitText btnClearText btnSettingsText ~
 btnDeleteText statusMessage btnPrintText 
-&Scoped-Define DISPLAYED-OBJECTS btnExitText btnSettingsText btnDeleteText ~
-statusMessage btnPrintText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -108,6 +108,12 @@ DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btClear 
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91.
+
 DEFINE BUTTON btDelete 
      IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
@@ -117,6 +123,11 @@ DEFINE BUTTON btPrint
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print" 
      SIZE 8 BY 1.91.
+
+DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
+      VIEW-AS TEXT 
+     SIZE 12 BY 1.43
+     BGCOLOR 21  NO-UNDO.
 
 DEFINE VARIABLE btnDeleteText AS CHARACTER FORMAT "X(256)":U INITIAL "DELETE" 
       VIEW-AS TEXT 
@@ -146,9 +157,11 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btClear AT ROW 3.19 COL 199.8 WIDGET-ID 146
      btDelete AT ROW 34 COL 17 WIDGET-ID 62
      btPrint AT ROW 34 COL 199 WIDGET-ID 30
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     btnClearText AT ROW 3.38 COL 187 NO-LABEL WIDGET-ID 148
      btnSettingsText AT ROW 34.1 COL 147 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      btnDeleteText AT ROW 34.24 COL 2 NO-LABEL WIDGET-ID 64
      statusMessage AT ROW 34.24 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 66
@@ -213,6 +226,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN btnClearText IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
    ALIGN-L                                                              */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
@@ -254,11 +269,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    RUN pStatusMessage ("", 0).
+
+    {methods/run_link.i "PO-SOURCE" "Reset"}
+    
+    {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadtag"} 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
 ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
 DO:
     {methods/run_link.i "LOADTAG-SOURCE" "DeleteSelected"}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearText
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearText W-Win
+ON MOUSE-SELECT-CLICK OF btnClearText IN FRAME F-Main
+DO:
+    APPLY "CHOOSE" TO btClear.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,6 +477,8 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_f-poprint ,
              h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags ,
+             h_f-poprint , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-loadtags , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -509,10 +553,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY btnExitText btnSettingsText btnDeleteText statusMessage btnPrintText 
+  DISPLAY btnExitText btnClearText btnSettingsText btnDeleteText statusMessage 
+          btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btDelete btPrint btnExitText btnSettingsText btnDeleteText 
-         statusMessage btnPrintText 
+  ENABLE btClear btDelete btPrint btnExitText btnClearText btnSettingsText 
+         btnDeleteText statusMessage btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -681,6 +726,8 @@ PROCEDURE pWinReSize :
             btnExitText:COL                    = dCol - 9
             btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
             btnSettingsText:COL                = btnPrintText:COL - btnSettingsText:WIDTH - 10
+            btnClearText:COL                   = dCol - 12
+            btClear:COL                        = dCol
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.

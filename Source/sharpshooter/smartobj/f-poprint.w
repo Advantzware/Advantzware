@@ -335,12 +335,24 @@ END.
 
 &Scoped-define SELF-NAME fiPOLine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOLine F-Frame-Win
+ON ENTRY OF fiPOLine IN FRAME F-Main /* PO and LINE */
+DO:
+    SELF:BGCOLOR = 30.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOLine F-Frame-Win
 ON LEAVE OF fiPOLine IN FRAME F-Main /* PO and LINE */
 DO:   
     IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
 
     RUN pScanPO (SELF:SCREEN-VALUE).
+    
+    SELF:BGCOLOR = 15.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -393,6 +405,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_qtyunits , 'QTY':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_qtyunits ,
+             BROWSE-2:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -635,6 +649,31 @@ PROCEDURE pScanPO :
         btCreate:SENSITIVE = TRUE
         btUpdate:SENSITIVE = TRUE
         .
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    EMPTY TEMP-TABLE ttPOLine.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    
+    {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(0,0,0,0)"}
+    
+    fiPOLine:SCREEN-VALUE = "".
+        
+    APPLY "ENTRY" TO fiPOLine.
     
 END PROCEDURE.
 
