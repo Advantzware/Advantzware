@@ -149,7 +149,7 @@ DEFINE BROWSE Browser-Table
       loadtag.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       loadtag.job-no2 FORMAT ">9":U LABEL-BGCOLOR 14
       loadtag.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      loadtag.po-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      loadtag.po-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       loadtag.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       loadtag.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       loadtag.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14

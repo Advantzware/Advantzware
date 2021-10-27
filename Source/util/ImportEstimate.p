@@ -774,19 +774,6 @@ PROCEDURE pAssignInks:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateEstimate PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Runs the calculation program to build the calculated estimate data
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstNo   AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO INIT NO.
-    
-    RUN CalculateEstimate IN hdEstimateCalcProcs (ipcCompany, ipcEstNo, lPurge).
-    
-END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
@@ -797,15 +784,15 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
-
-    DEFINE VARIABLE riEb        AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cIndustry   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEstType    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE riItemfg    AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cEstNumber  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEstGroup   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAutoNumber AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lNewGroup   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE riEb      AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEstType  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE riItemfg  AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdOpProcs AS HANDLE NO-UNDO.
     
     /*Shipto address*/
     DEFINE VARIABLE riShipto      AS ROWID     NO-UNDO.
@@ -1115,8 +1102,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     RUN pAddBoxDesign(BUFFER eb, ipbf-ttImportEstimate.ImageBoxDesign).
 
-    RUN pCalculateEstimate (est.company, est.est-no).
+    RUN est/OperationProcs.p PERSISTENT SET hdOpProcs.
     
+    RUN BuildEstimateRouting IN hdOpProcs (eb.company, eb.est-no, eb.form-no, ipbf-ttImportEstimate.Quantity). 
+    
+    IF VALID-HANDLE(hdOpProcs) THEN
+        DELETE PROCEDURE hdOpProcs.
+    
+
     RELEASE est.
     RELEASE est-qty.
     RELEASE ef.

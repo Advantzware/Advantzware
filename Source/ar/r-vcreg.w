@@ -808,111 +808,108 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
-    DEFINE VARIABLE t1       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
+ DEF VAR t1 AS DEC NO-UNDO.
+ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-    postit:
-    DO TRANSACTION ON ERROR UNDO, LEAVE:
+ postit:
+ do transaction on error undo, leave:
 
-        FOR EACH ar-cash EXCLUSIVE-LOCK WHERE
-            ar-cash.company = cocode AND
-            ar-cash.cleared = ? AND
-            ar-cash.posted = YES, 
-            FIRST cust WHERE
-            cust.company EQ cocode AND
-            cust.cust-no EQ ar-cash.cust-no
-            EXCLUSIVE-LOCK
-            ON ERROR UNDO postit, LEAVE postit:
+   for each ar-cash EXCLUSIVE-LOCK where
+       ar-cash.company = cocode and
+       ar-cash.cleared = ? and
+       ar-cash.posted = YES, 
+       FIRST cust WHERE
+             cust.company EQ cocode AND
+             cust.cust-no EQ ar-cash.cust-no
+        EXCLUSIVE-LOCK
+        on error undo postit, leave postit:
 
-            ASSIGN 
-                t1                 = 0
-                ar-cash.cleared    = NO
-                ar-cash.reconciled = ?.
+       assign t1 = 0
+              ar-cash.cleared = NO
+              ar-cash.reconciled = ?.
 
-            FIND FIRST bank WHERE
-                bank.company = cocode AND
-                bank.bank-code = ar-cash.bank-code
-                NO-ERROR.
+       find first bank where
+            bank.company = cocode and
+            bank.bank-code = ar-cash.bank-code
+            no-error.
 
-            IF AVAILABLE bank THEN
-            DO:
-                bank.bal = bank.bal - ar-cash.check-amt.
-                RELEASE bank.
-            END.
+       if AVAIL bank then
+       DO:
+          bank.bal = bank.bal - ar-cash.check-amt.
+          RELEASE bank.
+       END.
 
-            EMPTY TEMP-TABLE xcashl.
+       EMPTY TEMP-TABLE xcashl.
 
-            FOR EACH ar-cashl WHERE ar-cashl.c-no = ar-cash.c-no
-                EXCLUSIVE-LOCK:
+       for each ar-cashl where ar-cashl.c-no = ar-cash.c-no
+           EXCLUSIVE-LOCK:
 
-                CREATE xcashl.   
+           create xcashl.   
 
-                xcashl.recnum = RECID(ar-cashl).   
+           xcashl.recnum = recid(ar-cashl).   
 
-                IF ar-cashl.inv-no NE 0 AND ar-cashl.on-account EQ NO THEN 
-                DO:
+           IF ar-cashl.inv-no NE 0 AND ar-cashl.on-account EQ NO THEN DO:
 
-                    FIND FIRST ar-inv WHERE
-                        ar-inv.company = cocode AND
-                        ar-inv.inv-no = ar-cashl.inv-no
-                        EXCLUSIVE-LOCK NO-ERROR.
+              find first ar-inv where
+                   ar-inv.company = cocode and
+                   ar-inv.inv-no = ar-cashl.inv-no
+                   EXCLUSIVE-LOCK no-error.
 
-                    IF AVAILABLE ar-inv THEN
-                    DO:
-                        ASSIGN
-                            ar-inv.paid       = ar-inv.paid - ar-cashl.amt-paid - ar-cashl.amt-disc
-                            ar-inv.disc-taken = ar-inv.disc-taken + ar-cashl.amt-disc
-                            ar-inv.due        = ar-inv.due + ar-cashl.amt-paid + ar-cashl.amt-disc.
+              if AVAIL ar-inv then
+              do:
+                 assign
+                 ar-inv.paid = ar-inv.paid - ar-cashl.amt-paid - ar-cashl.amt-disc
+                 ar-inv.disc-taken = ar-inv.disc-taken + ar-cashl.amt-disc
+                 ar-inv.due = ar-inv.due + ar-cashl.amt-paid + ar-cashl.amt-disc.
 
-                        RELEASE ar-inv.
+                 RELEASE ar-inv.
 
-                    END. /* if avail ar-inv  */
+              end. /* if avail ar-inv  */
 
-                END. /*inv-no ne 0 AND ar-cashl.on-account EQ NO*/
+           END. /*inv-no ne 0 AND ar-cashl.on-account EQ NO*/
 
-                IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN
-                    cust.on-account = cust.on-account - ar-cashl.amt-paid.
+           IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN
+              cust.on-account = cust.on-account - ar-cashl.amt-paid.
 
-                RUN GL_SpCreateGLHist(cocode,
-                    ar-cashl.actnum,
-                    "CASHRVD",
-                    "VOID " + cust.cust-no + " " +
-                    STRING(ar-cash.check-no,"999999999999") +
-                    " Inv# " + STRING(ar-cashl.inv-no),
-                    tran-date,
-                    (-1 * ar-cashl.amt-paid),
-                    v-trnum,
-                    tran-period,
-                    "A",
-                    tran-date,
-                    "",
-                    "AR").
+          RUN GL_SpCreateGLHist(cocode,
+                             ar-cashl.actnum,
+                             "CASHRVD",
+                             "VOID " + cust.cust-no + " " +
+                                 STRING(ar-cash.check-no,"999999999999") +
+                                 " Inv# " + STRING(ar-cashl.inv-no),
+                             tran-date,
+                             (-1 * ar-cashl.amt-paid),
+                             v-trnum,
+                             tran-period,
+                             "A",
+                             tran-date,
+                             "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date),
+                             "AR").
 
-                ASSIGN
-                    t1 = t1 + ar-cashl.amt-paid + ar-cashl.amt-disc.
+           ASSIGN
+             t1 = t1 + ar-cashl.amt-paid + ar-cashl.amt-disc.
 
-                IF ar-cashl.amt-disc NE 0 THEN 
-                DO:
-                    RUN GL_SpCreateGLHist(cocode,
-                        xdis-acct,
-                        "CRDISVD",
-                        "VOID " + cust.cust-no + " " +
-                        STRING(ar-cash.check-no,"999999999999") +
-                        " Inv# " + STRING(ar-cashl.inv-no),
-                        tran-date,
-                        (-1 * ar-cashl.amt-disc),
-                        v-trnum,
-                        tran-period,
-                        "A",
-                        tran-date,
-                        "",
-                        "AR").
+           IF ar-cashl.amt-disc NE 0 THEN DO:
+               RUN GL_SpCreateGLHist(cocode,
+                                  xdis-acct,
+                                  "CRDISVD",
+                                  "VOID " + cust.cust-no + " " +
+                                          STRING(ar-cash.check-no,"999999999999") +
+                                          " Inv# " + STRING(ar-cashl.inv-no),
+                                  tran-date,
+                                  (-1 * ar-cashl.amt-disc),
+                                  v-trnum,
+                                  tran-period,
+                                  "A",
+                                  tran-date,
+                                  "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date),
+                                  "AR").
              
 
                     CREATE ar-ledger.
@@ -968,34 +965,57 @@ PROCEDURE post-gl :
 
             CREATE ar-ledger.
             ASSIGN
-                ar-ledger.company  = cocode
-                ar-ledger.cust-no  = ar-cash.cust-no
-                ar-ledger.amt      = -1 * ar-cash.check-amt
-                ar-ledger.ref-num  = "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
-                ar-ledger.ref-date = ar-cash.check-date
-                ar-ledger.tr-date  = tran-date
-                ar-ledger.tr-num   = v-trnum.
+             glhist.company = cocode
+             glhist.actnum  = xar-acct
+             glhist.jrnl    = "CASHRVD"
+             glhist.tr-dscr = "CASH RECEIPTS VOID"
+             glhist.tr-date = tran-date
+             glhist.period  = tran-period
+             glhist.tr-num  = v-trnum   
+             glhist.glYear  = IF AVAIL period THEN period.yr ELSE YEAR(tran-date)
+             glhist.yr      = YEAR(tran-date)
+             glhist.module  = "AR"
+             glhist.posted  = NO
+             glhist.entryType = "A"
+             glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
+             glhist.sourceDate = tran-date
+             lv-rowid       = ROWID(glhist).
+          END.
+          glhist.tr-amt = glhist.tr-amt + t1.
 
-            RELEASE ar-ledger.
+          RELEASE glhist.
+       END.
 
-            FOR EACH xcashl,
-                FIRST ar-cashl WHERE RECID(ar-cashl) EQ xcashl.recnum
-                NO-LOCK:
+       create ar-ledger.
+       assign
+        ar-ledger.company = cocode
+        ar-ledger.cust-no = ar-cash.cust-no
+        ar-ledger.amt = -1 * ar-cash.check-amt
+        ar-ledger.ref-num = "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999")
+        ar-ledger.ref-date = ar-cash.check-date
+        ar-ledger.tr-date = tran-date
+        ar-ledger.tr-num = v-trnum.
 
-                FIND LAST xar-cashl WHERE xar-cashl.c-no EQ ar-cashl.c-no
-                    USE-INDEX c-no NO-LOCK NO-ERROR.
-                x = IF AVAILABLE xar-cashl THEN xar-cashl.line ELSE 0.
+       RELEASE ar-ledger.
 
-                CREATE xar-cashl.
+       for each xcashl,
+           first ar-cashl where recid(ar-cashl) eq xcashl.recnum
+           no-lock:
 
-                BUFFER-COPY ar-cashl EXCEPT LINE amt-disc amt-due amt-paid rec_key
-                    TO xar-cashl 
-                    ASSIGN
-                    xar-cashl.line       = x + 1
-                    xar-cashl.amt-due    = ar-cashl.amt-due
-                    xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
+          find last xar-cashl where xar-cashl.c-no eq ar-cashl.c-no
+              use-index c-no no-lock no-error.
+          x = if avail xar-cashl then xar-cashl.line else 0.
 
-                    xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
+          create xar-cashl.
+
+          BUFFER-COPY ar-cashl EXCEPT LINE amt-disc amt-due amt-paid rec_key
+                   TO xar-cashl 
+             assign
+              xar-cashl.line       = x + 1
+              xar-cashl.amt-due    = -(ar-cashl.amt-due)
+              xar-cashl.amt-disc   = -(ar-cashl.amt-disc)
+
+              xar-cashl.amt-paid   = -(ar-cashl.amt-paid).
           
                 ASSIGN
                     xar-cashl.voided = YES.

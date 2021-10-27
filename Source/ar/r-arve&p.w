@@ -115,6 +115,8 @@ DO TRANSACTION:
     {sys/inc/inexport.i}
 END.
 
+DEFINE BUFFER bf-period FOR period.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -452,9 +454,10 @@ ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Invoice Date */
-    DO:
-        ASSIGN {&self-name}.
-    END.
+DO:
+  assign {&self-name}.      
+   {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 1}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -494,8 +497,22 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
     DO:
         DEFINE VARIABLE lv-post AS LOG NO-UNDO.
   
-        RUN check-date.
-        IF v-invalid THEN RETURN NO-APPLY.
+  run check-date.
+  if v-invalid then return no-apply.  
+  
+  {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}
+  
+  {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}  
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&displayed-objects}.
+  END.
+
+  ASSIGN v-s-inv-no = begin_inv
+         v-e-inv-no = END_inv
+         v-s-date   = begin_date
+         v-e-date   = END_date   
+         v-sort     = tb_sort.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -588,9 +605,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Invoice Date */
-    DO:
-        ASSIGN {&self-name}.
-    END.
+DO:
+  assign {&self-name}.    
+  {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 1}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1318,12 +1336,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win 
-PROCEDURE pPostSalesTax PRIVATE :
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win
+PROCEDURE pPostSalesTax PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriArInv AS ROWID NO-UNDO.
     
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.

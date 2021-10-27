@@ -23,7 +23,7 @@ FOR EACH company,
 
   DISPLAY "Processing Company/PO#: " +
           TRIM(po-ordl.company) + "/" +
-          TRIM(STRING(po-ordl.po-no),">>>>>") FORMAT "x(50)"
+          TRIM(STRING(po-ordl.po-no),">>>>>>>>") FORMAT "x(50)"
       WITH FRAME f1 1 DOWN.
 
 

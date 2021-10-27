@@ -280,7 +280,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Warehouse' THEN loadtag.loc ELSE ~
   IF sortColumn EQ 'Bin' THEN loadtag.loc-bin ELSE ~
   IF sortColumn EQ 'Job' THEN STRING(loadtag.job-no,'x(6)') ELSE ~
-  IF sortColumn EQ 'PO' THEN STRING(loadtag.po-no,'999999') ELSE ~
+  IF sortColumn EQ 'PO' THEN STRING(loadtag.po-no,'99999999') ELSE ~
   IF sortColumn EQ 'Order' THEN STRING(loadtag.ord-no,'999999') ELSE ~
   IF sortColumn EQ 'Item' THEN loadtag.i-no ELSE ~
   IF sortColumn EQ 'Name' THEN loadtag.i-name ELSE ~
@@ -293,7 +293,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Warehouse'         THEN loadtag.loc     ELSE ~
   IF sortColumn EQ 'Run #'             THEN STRING(loadtag.job-no2,'>9')   ELSE ~
   IF sortColumn EQ 'Job Number'        THEN STRING(loadtag.job-no,'x(6)')  ELSE ~
-  IF sortColumn EQ 'Purchase Order#'   THEN STRING(loadtag.po-no,'>>>>>9') ELSE ~
+  IF sortColumn EQ 'Purchase Order#'   THEN STRING(loadtag.po-no,'>>>>>>>9') ELSE ~
   IF sortColumn EQ 'Order#'            THEN STRING(loadtag.ord-no,'>>>>>9') ELSE ~
   IF sortColumn EQ 'Name'              THEN loadtag.i-name  ELSE ~
   IF sortColumn EQ 'Item'              THEN loadtag.i-no    ELSE ~
@@ -489,7 +489,7 @@ PROCEDURE openQuery:
   STRING(DAY(po-ordl.due-date),'99') ELSE ~
   IF sortColumn EQ 'Vendor' THEN STRING(po-ordl.vend-no) ELSE ~
   IF sortColumn EQ 'Ship To' THEN po-ord.ship-id ELSE ~
-  STRING(po-ordl.po-no,'>>>>>9') ~{&SORTED}
+  STRING(po-ordl.po-no,'>>>>>>>9') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-estitm' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -529,7 +529,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
   IF sortColumn EQ 'Sheet!Wid' THEN STRING(po-ordl.s-wid,'999.9999') ELSE ~
   IF sortColumn EQ 'Sheet!len' THEN STRING(po-ordl.s-len,'999.9999') ELSE ~
-  STRING(po-ordl.po-no,'999999') ~{&SORTED}
+  STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-poordl' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -540,7 +540,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
   IF sortColumn EQ 'Sheet Wid' THEN STRING(po-ordl.s-wid,'999.9999') ELSE ~
   IF sortColumn EQ 'Sheet len' THEN STRING(po-ordl.s-len,'99999.9999') ELSE ~
-  STRING(po-ordl.po-no,'999999') ~{&SORTED}
+  STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'bi-poord' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -552,7 +552,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
   IF sortColumn EQ 'Sheet Wid' THEN STRING(po-ordl.s-wid,'999.9999') ELSE ~
   IF sortColumn EQ 'Sheet len' THEN STRING(po-ordl.s-len,'99999.9999') ELSE ~
-  STRING(po-ordl.po-no,'999999') ~{&SORTED}
+  STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'oe-prmtx' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -569,7 +569,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
   IF sortColumn EQ 'Printed?' THEN STRING(po-ord.printed,'Y/N') ELSE ~
   IF sortColumn EQ 'Status' THEN po-ord.stat ELSE ~
-  STRING(po-ord.po-no,'>>>>>9') ~{&SORTED}
+  STRING(po-ord.po-no,'>>>>>>>9') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'rm-ibin' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~

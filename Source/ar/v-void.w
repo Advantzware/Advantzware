@@ -61,16 +61,29 @@ DEF VAR v-c-no AS INT NO-UNDO.
 DEFINE QUERY external_tables FOR ar-cash.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS ar-cash.check-no ar-cash.check-amt ~
-ar-cash.check-date ar-cash.bank-code 
+ar-cash.bank-code ar-cash.check-date 
 &Scoped-define ENABLED-TABLES ar-cash
 &Scoped-define FIRST-ENABLED-TABLE ar-cash
-&Scoped-Define ENABLED-OBJECTS RECT-1 fi_fchk fi_cust btn_go 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn_go fi_cust fi_fchk browse-sales-forecast
 &Scoped-Define DISPLAYED-FIELDS ar-cash.check-no ar-cash.check-amt ~
-ar-cash.check-date ar-cash.cust-no ar-cash.bank-code 
+ar-cash.bank-code ar-cash.check-date ar-cash.cust-no 
 &Scoped-define DISPLAYED-TABLES ar-cash
 &Scoped-define FIRST-DISPLAYED-TABLE ar-cash
-&Scoped-Define DISPLAYED-OBJECTS fi_fchk fi_cust fi_name cust_name ~
-bank_name v-voided 
+&Scoped-Define DISPLAYED-OBJECTS fi_cust fi_fchk fi_name bank_name v-voided ~
+cust_name 
+
+/* Definitions for BROWSE browse-sales-forecast                         */
+&Scoped-define FIELDS-IN-QUERY-browse-sales-forecast ar-cashl.inv-no ar-cashl.amt-paid   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-browse-sales-forecast   
+&Scoped-define SELF-NAME browse-sales-forecast
+&Scoped-define QUERY-STRING-browse-sales-forecast FOR EACH ar-cashl where ar-cashl.company eq ar-cash.company and ar-cashl.c-no eq ar-cash.c-no NO-LOCK
+&Scoped-define OPEN-QUERY-browse-sales-forecast OPEN QUERY {&SELF-NAME} FOR EACH ar-cashl where ar-cashl.company eq ar-cash.company and ar-cashl.c-no eq ar-cash.c-no NO-LOCK.
+&Scoped-define TABLES-IN-QUERY-browse-sales-forecast ar-cashl
+&Scoped-define FIRST-TABLE-IN-QUERY-browse-sales-forecast ar-cashl
+
+/* Definitions for FRAME FRAME-A                                        */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-FRAME-A ~
+    ~{&OPEN-QUERY-browse-sales-forecast}
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -114,12 +127,12 @@ DEFINE BUTTON btn_go
      SIZE 12 BY 1.
 
 DEFINE BUTTON btn_save 
-     LABEL "&Save" 
+     LABEL "&Void" 
      SIZE 12 BY 1.
 
 DEFINE VARIABLE bank_name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+     SIZE 38.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cust_name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -149,40 +162,57 @@ DEFINE VARIABLE v-voided AS LOGICAL FORMAT "Yes/No" INITIAL NO
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 123 BY 6.19.
+     SIZE 143 BY 8.95.
+     
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+
+DEFINE QUERY browse-sales-forecast FOR 
+    ar-cashl SCROLLING.
+&ANALYZE-RESUME   
+
+DEFINE BROWSE browse-sales-forecast
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-sales-forecast C-Win _FREEFORM
+    QUERY browse-sales-forecast NO-LOCK DISPLAY
+    ar-cashl.inv-no FORMAT ">>>>>>>>" COLUMN-LABEL "Invoice"
+    ar-cashl.amt-paid FORMAT "->>>,>>>,>>9.99" COLUMN-LABEL "Amount"
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 51.4 BY 8.62 ROW-HEIGHT-CHARS .57 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_fchk AT ROW 1.48 COL 11 COLON-ALIGNED
-     fi_cust AT ROW 1.48 COL 48 COLON-ALIGNED
+     btn_go AT ROW 1.43 COL 129
+     fi_cust AT ROW 1.48 COL 14.2 COLON-ALIGNED
+     fi_fchk AT ROW 1.48 COL 45.2 COLON-ALIGNED
      fi_name AT ROW 1.48 COL 68.8 COLON-ALIGNED HELP
           "Enter Finished Goods Name used for Alpha Numeric Searches." NO-LABEL
-     btn_go AT ROW 2.91 COL 13
-     ar-cash.check-no AT ROW 4.1 COL 19 COLON-ALIGNED FORMAT "999999999999"
+     ar-cash.check-no AT ROW 2.71 COL 14.2 COLON-ALIGNED FORMAT "999999999999"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     ar-cash.check-amt AT ROW 4.1 COL 56.8 COLON-ALIGNED
+     ar-cash.check-amt AT ROW 2.71 COL 52.2 COLON-ALIGNED
           LABEL "Check Amount"
           VIEW-AS FILL-IN 
-          SIZE 24 BY 1
-     ar-cash.check-date AT ROW 4.1 COL 99.6 COLON-ALIGNED
+          SIZE 21.8 BY 1
+     ar-cash.bank-code AT ROW 2.71 COL 88.8 COLON-ALIGNED
+          LABEL "Bank Code"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     bank_name AT ROW 2.71 COL 102.4 COLON-ALIGNED NO-LABEL
+     ar-cash.check-date AT ROW 4.1 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
+     v-voided AT ROW 4.24 COL 99.8 COLON-ALIGNED
      ar-cash.cust-no AT ROW 5.33 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      cust_name AT ROW 5.33 COL 39 COLON-ALIGNED NO-LABEL
-     ar-cash.bank-code AT ROW 6.48 COL 19 COLON-ALIGNED
-          LABEL "Bank Code"
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-     bank_name AT ROW 6.52 COL 39 COLON-ALIGNED NO-LABEL
-     v-voided AT ROW 6.52 COL 99 COLON-ALIGNED
      btn_save AT ROW 8.62 COL 90
      btn_can-2 AT ROW 8.62 COL 103
-     RECT-1 AT ROW 4 COL 1
+     RECT-1 AT ROW 1.24 COL 1
+     browse-sales-forecast AT ROW 10.91 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -251,6 +281,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btn_can-2 IN FRAME F-Main
    NO-ENABLE                                                            */
+
+
 /* SETTINGS FOR BUTTON btn_save IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-cash.check-amt IN FRAME F-Main
@@ -259,8 +291,17 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN ar-cash.cust-no IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       ar-cash.cust-no:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN cust_name IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       cust_name:HIDDEN IN FRAME F-Main           = TRUE.
+       
+ASSIGN 
+        browse-sales-forecast:HIDDEN IN FRAME F-Main = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_name IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-voided IN FRAME F-Main
@@ -278,7 +319,17 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
+/* Setting information for Queries and Browse Widgets fields            */
 
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browse-sales-forecast
+/* Query rebuild information for BROWSE browse-sales-forecast
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ar-cashl where ar-cashl.company eq ar-cash.company and ar-cashl.c-no eq ar-cash.c-no NO-LOCK.
+     _END_FREEFORM
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Query            is OPENED
+*/  /* BROWSE browse-sales-forecast */
+&ANALYZE-RESUME 
 
 
 
@@ -362,22 +413,30 @@ DO:
         v-voided = IF ar-cash.cleared = ? THEN YES ELSE NO.
 
         DISPLAY ar-cash.check-amt
-                ar-cash.cust-no ar-cash.bank-code
+                /*ar-cash.cust-no*/ ar-cash.bank-code
                 ar-cash.check-no ar-cash.check-date
-                cust_name bank_name v-voided
+                /*cust_name*/ bank_name v-voided
                 WITH FRAME {&FRAME-NAME}.
 
         RELEASE cust.
         RELEASE bank.
 
         ASSIGN
-           v-voided:SENSITIVE = YES
+           v-voided:SENSITIVE = NO
            btn_go:SENSITIVE = NO
            fi_fchk:SENSITIVE = NO
            fi_cust:SENSITIVE = NO
            btn_can-2:SENSITIVE = YES
            btn_save:SENSITIVE = YES
            v-c-no = ar-cash.c-no.
+           
+           browse-sales-forecast:HIDDEN IN FRAME F-Main = FALSE.
+           CLOSE QUERY browse-sales-forecast.
+           
+           OPEN QUERY browse-sales-forecast FOR EACH ar-cashl WHERE
+                      ar-cashl.company = ar-cash.company AND
+                      ar-cashl.c-no = ar-cash.c-no
+                      NO-LOCK .
      END.
      ELSE
      DO:
@@ -395,10 +454,10 @@ END.
 
 &Scoped-define SELF-NAME btn_save
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_save V-table-Win
-ON CHOOSE OF btn_save IN FRAME F-Main /* Save */
+ON CHOOSE OF btn_save IN FRAME F-Main /* Void */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-
+      v-voided:SCREEN-VALUE = IF v-voided THEN "No" ELSE "Yes".      
       ASSIGN v-voided.
 
       FIND FIRST ar-cash WHERE
@@ -410,13 +469,14 @@ DO:
          IF v-voided THEN DO:
             FOR EACH ar-cashl WHERE ar-cashl.company = ar-cash.company
                                 AND ar-cashl.c-no = ar-cash.c-no:
-               IF ar-cashl.inv-no = 0 THEN DO:
+               /*IF ar-cashl.inv-no = 0 THEN DO:
                   MESSAGE "Must be applied before voiding receipt.      "
                      VIEW-AS ALERT-BOX INFO BUTTONS OK.
                   v-voided = NO.
                   DISPLAY v-voided WITH FRAME {&FRAME-NAME}.
                   LEAVE.
-               END.
+               END.  */
+               ar-cashl.check-no =  string(ar-cash.check-no,">>>>>>999999").
             END.
          END.
 
@@ -434,6 +494,7 @@ DO:
         v-voided:SENSITIVE = NO
         fi_fchk:SENSITIVE = YES
         fi_cust:SENSITIVE = YES.
+        browse-sales-forecast:HIDDEN IN FRAME F-Main = TRUE.
 
       APPLY "ENTRY":U TO fi_fchk IN FRAME {&FRAME-NAME}.
    END.
@@ -461,7 +522,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -475,7 +535,7 @@ DO:
       IF LASTKEY = -1 THEN RETURN.
      {&methods/lValidateError.i YES}
 
-      IF INT64(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
+      IF fi_cust:SCREEN-VALUE NE "" AND INT64(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
          MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
          RETURN NO-APPLY.
       END.
@@ -487,9 +547,24 @@ DO:
              RETURN NO-APPLY.
           END.
       {&methods/lValidateError.i NO}
+      
    END.
 END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fi_fchk          
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_fchk W-Win
+ON HELP OF fi_fchk IN FRAME F-Main /* Check No */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    def VARIABLE reRecid as recid no-undo.     /* recid output */
+    APPLY "entry" TO {&self-name}.
+    RUN windows/l-ar-cash.w (cocode,fi_cust:SCREEN-VALUE, fi_fchk:SCREEN-VALUE, OUTPUT char-val, OUTPUT reRecid).
+    IF char-val <> "" THEN ASSIGN fi_fchk:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

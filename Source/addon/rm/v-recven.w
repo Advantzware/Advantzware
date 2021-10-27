@@ -1033,7 +1033,7 @@ PROCEDURE create-loadtag-proc :
    DEF VAR char-hdl AS CHAR NO-UNDO.
 
    DO WHILE TRUE:
-      tagNo = STRING(w-po.po-no,'9999999') + STRING(w-po.line,'999') + STRING(ipTagNo,'9999999').
+      tagNo = STRING(w-po.po-no,'99999999') + STRING(w-po.line,'999') + STRING(ipTagNo,'9999999').
       IF NOT CAN-FIND(FIRST loadtag
                       WHERE loadtag.company EQ cocode
                         AND loadtag.item-type EQ YES
