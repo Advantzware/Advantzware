@@ -2315,8 +2315,6 @@ PROCEDURE purgeProcess:
         cFileList = TRIM(cFileList,",")
         cOutputDir = ipcOutputDir.
     
-    MESSAGE cFileList VIEW-AS ALERT-BOX.
-    
     DO iCtr = 1 TO NUM-ENTRIES(cFileList):
         RUN pDeleteRecordsByRowid (
             ENTRY(iCtr,cFileList),

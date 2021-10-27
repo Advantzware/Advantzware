@@ -141,7 +141,6 @@ DEFINE VARIABLE cbGroup AS CHARACTER FORMAT "X(256)":U INITIAL "EST"
                      "Materials/Finished Goods","INV",
                      "Jobs/Scheduling","JOB",
                      "Purchasing/Accounts Payable","PUR",
-                     "General Ledger","FIN",
                      "System","SYS"
      DROP-DOWN-LIST
      SIZE 47 BY 1
@@ -398,13 +397,24 @@ END.
 &Scoped-define SELF-NAME btAnalyze
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAnalyze wWin
 ON CHOOSE OF btAnalyze IN FRAME fMain /* Analyze */
+OR CHOOSE OF btPurge
 DO:    
     ASSIGN 
         fiFileName:SCREEN-VALUE = "PurgeList.csv"
         btViewFile:SENSITIVE = TRUE.
-    RUN ipAnalyze IN THIS-PROCEDURE.
-    IF tbAutoOpen:CHECKED THEN APPLY 'choose' TO btViewFile. 
+
+    CASE SELF:NAME:
+        WHEN "btAnalyze" THEN DO:
+            RUN ipAnalyze IN THIS-PROCEDURE.
+        END.
+        WHEN "btPurge" THEN DO:
+            IF NOT lAnalyzed THEN 
+                RUN ipAnalyze IN THIS-PROCEDURE.
+            RUN ipPurge IN THIS-PROCEDURE.
+        END. 
+    END CASE.
     
+    IF tbAutoOpen:CHECKED THEN APPLY 'choose' TO btViewFile. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,25 +426,6 @@ END.
 ON CHOOSE OF btExit IN FRAME fMain /* Exit */
 DO:    
     APPLY 'close':U TO THIS-PROCEDURE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btPurge
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPurge wWin
-ON CHOOSE OF btPurge IN FRAME fMain /* Purge */
-DO:    
-    ASSIGN 
-        fiFileName:SCREEN-VALUE = "PurgeList.csv".
-    
-    IF NOT lAnalyzed THEN 
-        RUN ipAnalyze IN THIS-PROCEDURE.
-    
-    RUN ipPurge IN THIS-PROCEDURE.
-    IF tbAutoOpen:CHECKED THEN APPLY 'choose' TO btViewFile. 
-        
 END.
 
 /* _UIB-CODE-BLOCK-END */
