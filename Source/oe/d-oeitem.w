@@ -192,6 +192,25 @@ DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dRemainingQty   AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtRelDate       AS DATE      NO-UNDO COLUMN-LABEL "Release!Date" FORMAT "99/99/9999".
+DEFINE VARIABLE iXferQty        AS INTEGER   NO-UNDO COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE dPrice          AS DECIMAL   NO-UNDO COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<".
+DEFINE VARIABLE cUOM            AS CHARACTER NO-UNDO COLUMN-LABEL "UOM" FORMAT "x(4)".
+DEFINE VARIABLE iProdQty        AS INTEGER   NO-UNDO COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE iBalQty         AS INTEGER   NO-UNDO COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE iActRelQty      AS INTEGER   NO-UNDO COLUMN-LABEL "Act. Rel.!Quantity" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE iWIP            AS INTEGER   NO-UNDO COLUMN-LABEL "Production!Balance" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE iPct            AS INTEGER   NO-UNDO COLUMN-LABEL "O/U%" FORMAT "->>>>>%".
+DEFINE VARIABLE dInvLineCost    AS DECIMAL   NO-UNDO COLUMN-LABEL "Invoice!Line Cost".
+DEFINE VARIABLE cCostUOM        AS CHARACTER NO-UNDO COLUMN-LABEL "Cost!UOM".
+DEFINE VARIABLE cLastShipTo     AS CHARACTER NO-UNDO COLUMN-LABEL "Last!ShipTo" FORMAT "x(8)".
+DEFINE VARIABLE iActBOLQty      AS INTEGER   NO-UNDO COLUMN-LABEL "Actual!BOL Qty" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE dTotQtyRet      AS INTEGER   NO-UNDO COLUMN-LABEL "Total Qty!Returned" FORMAT ">>>,>>9".
+DEFINE VARIABLE dTotRetInv      AS INTEGER   NO-UNDO COLUMN-LABEL "Qty Return!Inventory" FORMAT ">>>,>>9".
+DEFINE VARIABLE iHandQtyNoAlloc AS INTEGER   NO-UNDO COLUMN-LABEL "On Hand Qty!not Allocated" FORMAT "->>,>>>,>>9".
+DEFINE VARIABLE li-qoh          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE li-bal          AS INTEGER   NO-UNDO.
+
 DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
@@ -485,8 +504,8 @@ job-hdr.opened EQ YES NO-LOCK, ~
 &Scoped-define FIELDS-IN-QUERY-browseLocations w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseLocations   
 &Scoped-define SELF-NAME browseLocations
-&Scoped-define QUERY-STRING-browseLocations FOR EACH w-jobs
-&Scoped-define OPEN-QUERY-browseLocations OPEN QUERY {&SELF-NAME} FOR EACH w-jobs.
+&Scoped-define QUERY-STRING-browseLocations FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND iPrintAvailQty EQ 2) OR (w-jobs.qtyAvailable LT 0 AND iPrintAvailQty EQ 3) OR (w-jobs.qtyAvailable EQ 0 AND iPrintAvailQty EQ 4) OR (iPrintAvailQty EQ 1))
+&Scoped-define OPEN-QUERY-browseLocations OPEN QUERY {&SELF-NAME} FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND iPrintAvailQty EQ 2) OR (w-jobs.qtyAvailable LT 0 AND iPrintAvailQty EQ 3) OR (w-jobs.qtyAvailable EQ 0 AND iPrintAvailQty EQ 4) OR (iPrintAvailQty EQ 1)).
 &Scoped-define TABLES-IN-QUERY-browseLocations w-jobs
 &Scoped-define FIRST-TABLE-IN-QUERY-browseLocations w-jobs
 
@@ -521,10 +540,16 @@ po-ord.po-no EQ po-ordl.po-no NO-LOCK INDEXED-REPOSITION.
 /* Definitions for BROWSE browseReleases                                */
 &Scoped-define FIELDS-IN-QUERY-browseReleases oe-rel.spare-char-1 ~
 oe-ord.cust-no oe-ord.ord-no oe-rel.tot-qty oe-rel.stat oe-ordl.qty ~
-oe-ordl.ship-qty oe-ordl.req-date oe-ordl.i-no oe-ordl.part-no ~
-oe-ordl.po-no oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date ~
-oe-ord.stat oe-ordl.inv-qty oe-ordl.i-name oe-ordl.line oe-ordl.po-no-po ~
-oe-ordl.cost 
+oe-ordl.ship-qty fGetRelDate() @ dtRelDate oe-ordl.req-date ~
+fGetXferQty() @ iXferQty fGetPriceDisc() @ dPrice fGetPrUOM() @ cUOM ~
+oe-ordl.t-price oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ord.po-no ~
+oe-ordl.est-no oe-ordl.job-no oe-ordl.job-no2 oe-ord.ord-date oe-ord.stat ~
+oe-ordl.inv-qty fGetProd(li-bal) @ iProdQty fGetBal(li-qoh) @ iBalQty ~
+fGetActRelQty() @ iActRelQty fGetWIP() @ iWIP fGetPct(li-bal) @ iPct ~
+oe-ordl.i-name oe-ordl.line fGetCost() @ dInvLineCost ~
+fGetCostUOM() @ cCostUOM oe-ordl.po-no-po fGetLastShipTo() @ cLastShipTo ~
+fGetTotalReturned() @ dTotQtyRet fGetReturnedInv() @ dTotRetInv ~
+fGetActRelQty() - fGetActBOLQty() @ iHandQtyNoAlloc oe-ordl.cost 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseReleases 
 &Scoped-define QUERY-STRING-browseReleases FOR EACH oe-rel ~
       WHERE oe-rel.company EQ oe-ordl.company AND ~
@@ -616,9 +641,9 @@ oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
-fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
-fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
+&Scoped-Define DISPLAYED-OBJECTS iPrintAvailQty fiPrevOrder fiPromDtLabel ~
+fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
+fi_sname-1 fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -631,9 +656,121 @@ oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3
 
 /* ************************  Function Prototypes ********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActBOLQty d-oeitem 
+FUNCTION fGetActBOLQty RETURNS INTEGER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActRelQty d-oeitem 
+FUNCTION fGetActRelQty RETURNS INTEGER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetBal d-oeitem 
+FUNCTION fGetBal RETURNS INTEGER
+  (OUTPUT op-qoh AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetCost d-oeitem 
+FUNCTION fGetCost RETURNS DECIMAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetCostUOM d-oeitem 
+FUNCTION fGetCostUOM RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLastShipTo d-oeitem 
+FUNCTION fGetLastShipTo RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPct d-oeitem 
+FUNCTION fGetPct RETURNS INTEGER
+  (ipBal AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPriceDisc d-oeitem 
+FUNCTION fGetPriceDisc RETURNS DECIMAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetProd d-oeitem 
+FUNCTION fGetProd RETURNS INTEGER
+  (OUTPUT op-bal AS INTEGER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPrUOM d-oeitem 
+FUNCTION fGetPrUOM RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRelDate d-oeitem 
+FUNCTION fGetRelDate RETURNS DATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetReturned d-oeitem 
+FUNCTION fGetReturned RETURNS DECIMAL
+  (ipcValueNeeded AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetReturnedInv d-oeitem 
+FUNCTION fGetReturnedInv RETURNS DECIMAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable d-oeitem 
 FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalReturned d-oeitem 
+FUNCTION fGetTotalReturned RETURNS DECIMAL
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetWIP d-oeitem 
+FUNCTION fGetWIP RETURNS INTEGER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetXferQty d-oeitem 
+FUNCTION fGetXferQty RETURNS INTEGER
+  (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -823,6 +960,15 @@ DEFINE VARIABLE spare-dec-1 LIKE itemfg.spare-dec-1
      SIZE 18 BY 1
      BGCOLOR 15 FGCOLOR 1  NO-UNDO.
 
+DEFINE VARIABLE iPrintAvailQty AS INTEGER INITIAL 1 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "All Locations", 1,
+"Non-Zero", 2,
+"Negative", 3,
+"Zero Balance", 4
+     SIZE 77 BY .91 NO-UNDO.
+
 DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 77.2 BY 4.86.
@@ -920,7 +1066,7 @@ DEFINE BROWSE browseLocations
     w-jobs.lead-days
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Locations".
 
@@ -946,25 +1092,42 @@ DEFINE BROWSE browseReleases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseReleases d-oeitem _STRUCTURED
   QUERY browseReleases NO-LOCK DISPLAY
       oe-rel.spare-char-1 COLUMN-LABEL "From" FORMAT "x(8)":U
-      oe-ord.cust-no FORMAT "x(8)":U
-      oe-ord.ord-no FORMAT ">>>>>9":U
+      oe-ord.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
+      oe-ord.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U
       oe-rel.tot-qty COLUMN-LABEL "Release!Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.stat FORMAT "X":U
       oe-ordl.qty FORMAT "->>,>>>,>>9.9<<":U
-      oe-ordl.ship-qty FORMAT "->>,>>>,>>9.99":U
-      oe-ordl.req-date FORMAT "99/99/9999":U
-      oe-ordl.i-no FORMAT "x(15)":U
-      oe-ordl.part-no FORMAT "x(15)":U
-      oe-ordl.po-no FORMAT "x(15)":U
-      oe-ordl.est-no FORMAT "x(5)":U
-      oe-ordl.job-no FORMAT "x(6)":U
-      oe-ordl.job-no2 FORMAT ">9":U
-      oe-ord.ord-date FORMAT "99/99/9999":U
-      oe-ord.stat FORMAT "x":U
-      oe-ordl.inv-qty FORMAT "->>,>>>,>>9.99":U
-      oe-ordl.i-name FORMAT "x(30)":U
+      oe-ordl.ship-qty COLUMN-LABEL "Shipped!Quantity" FORMAT "->>,>>>,>>9.99":U
+      fGetRelDate() @ dtRelDate
+      oe-ordl.req-date COLUMN-LABEL "Request!Date" FORMAT "99/99/9999":U
+      fGetXferQty() @ iXferQty
+      fGetPriceDisc() @ dPrice
+      fGetPrUOM() @ cUOM
+      oe-ordl.t-price COLUMN-LABEL "Extended!Price" FORMAT "->>,>>>,>>9.99":U
+      oe-ordl.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
+      oe-ordl.po-no COLUMN-LABEL "Customer PO" FORMAT "x(15)":U
+      oe-ord.po-no COLUMN-LABEL "Order PO" FORMAT "x(15)":U
+      oe-ordl.est-no COLUMN-LABEL "Estimate" FORMAT "x(5)":U
+      oe-ordl.job-no COLUMN-LABEL "Job!Number" FORMAT "x(6)":U
+      oe-ordl.job-no2 COLUMN-LABEL "Run" FORMAT ">9":U
+      oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
+      oe-ord.stat COLUMN-LABEL "Order!Status" FORMAT "x":U
+      oe-ordl.inv-qty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>9.99":U
+      fGetProd(li-bal) @ iProdQty
+      fGetBal(li-qoh) @ iBalQty
+      fGetActRelQty() @ iActRelQty
+      fGetWIP() @ iWIP
+      fGetPct(li-bal) @ iPct
+      oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       oe-ordl.line FORMAT "99":U
-      oe-ordl.po-no-po FORMAT ">>>>>9":U
+      fGetCost() @ dInvLineCost
+      fGetCostUOM() @ cCostUOM
+      oe-ordl.po-no-po COLUMN-LABEL "Board PO" FORMAT ">>>>>>>9":U
+      fGetLastShipTo() @ cLastShipTo
+      fGetTotalReturned() @ dTotQtyRet
+      fGetReturnedInv() @ dTotRetInv
+      fGetActRelQty() - fGetActBOLQty() @ iHandQtyNoAlloc
       oe-ordl.cost FORMAT "->>>,>>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -978,6 +1141,7 @@ DEFINE BROWSE browseReleases
 DEFINE FRAME d-oeitem
      browseLocations AT ROW 1.24 COL 145
      browseJobs AT ROW 1.24 COL 145
+     iPrintAvailQty AT ROW 16.24 COL 147 NO-LABEL
      fiPrevOrder AT ROW 9.57 COL 93.6 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.81 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      fi_type-dscr AT ROW 6.71 COL 119.6 COLON-ALIGNED NO-LABEL
@@ -1378,6 +1542,11 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ordl.i-no IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR RADIO-SET iPrintAvailQty IN FRAME d-oeitem
+   NO-ENABLE                                                            */
+ASSIGN 
+       iPrintAvailQty:HIDDEN IN FRAME d-oeitem           = TRUE.
+
 /* SETTINGS FOR FILL-IN oe-ordl.job-no IN FRAME d-oeitem
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-ordl.job-no2 IN FRAME d-oeitem
@@ -1424,10 +1593,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1481,7 +1650,11 @@ job-hdr.opened EQ YES"
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browseLocations
 /* Query rebuild information for BROWSE browseLocations
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH w-jobs.
+OPEN QUERY {&SELF-NAME} FOR EACH w-jobs
+WHERE ((w-jobs.qtyAvailable NE 0 AND iPrintAvailQty EQ 2)
+OR (w-jobs.qtyAvailable LT 0 AND iPrintAvailQty EQ 3)
+OR (w-jobs.qtyAvailable EQ 0 AND iPrintAvailQty EQ 4)
+OR (iPrintAvailQty EQ 1)).
      _END_FREEFORM
      _Query            is NOT OPENED
 */  /* BROWSE browseLocations */
@@ -1527,27 +1700,76 @@ LOOKUP(oe-rel.s-code,""B,S"") NE 0 AND
 LOOKUP(oe-rel.stat,""S,A,L,B,Z"") NE 0"
      _FldNameList[1]   > ASI.oe-rel.spare-char-1
 "oe-rel.spare-char-1" "From" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   = ASI.oe-ord.cust-no
-     _FldNameList[3]   = ASI.oe-ord.ord-no
+     _FldNameList[2]   > ASI.oe-ord.cust-no
+"oe-ord.cust-no" "Customer" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.oe-ord.ord-no
+"oe-ord.ord-no" "Order" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-rel.tot-qty
 "oe-rel.tot-qty" "Release!Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = ASI.oe-rel.stat
      _FldNameList[6]   = ASI.oe-ordl.qty
-     _FldNameList[7]   = ASI.oe-ordl.ship-qty
-     _FldNameList[8]   = ASI.oe-ordl.req-date
-     _FldNameList[9]   = ASI.oe-ordl.i-no
-     _FldNameList[10]   = ASI.oe-ordl.part-no
-     _FldNameList[11]   = ASI.oe-ordl.po-no
-     _FldNameList[12]   = ASI.oe-ordl.est-no
-     _FldNameList[13]   = ASI.oe-ordl.job-no
-     _FldNameList[14]   = ASI.oe-ordl.job-no2
-     _FldNameList[15]   = ASI.oe-ord.ord-date
-     _FldNameList[16]   = ASI.oe-ord.stat
-     _FldNameList[17]   = ASI.oe-ordl.inv-qty
-     _FldNameList[18]   = ASI.oe-ordl.i-name
-     _FldNameList[19]   = ASI.oe-ordl.line
-     _FldNameList[20]   = ASI.oe-ordl.po-no-po
-     _FldNameList[21]   = ASI.oe-ordl.cost
+     _FldNameList[7]   > ASI.oe-ordl.ship-qty
+"oe-ordl.ship-qty" "Shipped!Quantity" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > "_<CALC>"
+"fGetRelDate() @ dtRelDate" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.oe-ordl.req-date
+"oe-ordl.req-date" "Request!Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
+"fGetXferQty() @ iXferQty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > "_<CALC>"
+"fGetPriceDisc() @ dPrice" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > "_<CALC>"
+"fGetPrUOM() @ cUOM" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > ASI.oe-ordl.t-price
+"oe-ordl.t-price" "Extended!Price" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.oe-ordl.i-no
+"oe-ordl.i-no" "Item" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.oe-ordl.part-no
+"oe-ordl.part-no" "Customer Part" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > ASI.oe-ordl.po-no
+"oe-ordl.po-no" "Customer PO" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > ASI.oe-ord.po-no
+"oe-ord.po-no" "Order PO" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.oe-ordl.est-no
+"oe-ordl.est-no" "Estimate" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[19]   > ASI.oe-ordl.job-no
+"oe-ordl.job-no" "Job!Number" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > ASI.oe-ordl.job-no2
+"oe-ordl.job-no2" "Run" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > ASI.oe-ord.ord-date
+"oe-ord.ord-date" "Order Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[22]   > ASI.oe-ord.stat
+"oe-ord.stat" "Order!Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[23]   > ASI.oe-ordl.inv-qty
+"oe-ordl.inv-qty" "Invoice!Quantity" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > "_<CALC>"
+"fGetProd(li-bal) @ iProdQty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[25]   > "_<CALC>"
+"fGetBal(li-qoh) @ iBalQty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[26]   > "_<CALC>"
+"fGetActRelQty() @ iActRelQty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[27]   > "_<CALC>"
+"fGetWIP() @ iWIP" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[28]   > "_<CALC>"
+"fGetPct(li-bal) @ iPct" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[29]   > ASI.oe-ordl.i-name
+"oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[30]   = ASI.oe-ordl.line
+     _FldNameList[31]   > "_<CALC>"
+"fGetCost() @ dInvLineCost" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[32]   > "_<CALC>"
+"fGetCostUOM() @ cCostUOM" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > ASI.oe-ordl.po-no-po
+"oe-ordl.po-no-po" "Board PO" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[34]   > "_<CALC>"
+"fGetLastShipTo() @ cLastShipTo" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[35]   > "_<CALC>"
+"fGetTotalReturned() @ dTotQtyRet" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[36]   > "_<CALC>"
+"fGetReturnedInv() @ dTotRetInv" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[37]   > "_<CALC>"
+"fGetActRelQty() - fGetActBOLQty() @ iHandQtyNoAlloc" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[38]   = ASI.oe-ordl.cost
      _Query            is NOT OPENED
 */  /* BROWSE browseReleases */
 &ANALYZE-RESUME
@@ -2649,6 +2871,7 @@ DO:
             .
            ELSE 
                btnTags:SENSITIVE = FALSE.  
+    RUN pViewDetail ("Locations").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2659,6 +2882,18 @@ END.
 ON VALUE-CHANGED OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
 DO:
    lCheckFgForceWarning = NO .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME iPrintAvailQty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPrintAvailQty d-oeitem
+ON VALUE-CHANGED OF iPrintAvailQty IN FRAME d-oeitem
+DO:
+    ASSIGN {&SELF-NAME}.
+    {&OPEN-QUERY-browseLocations}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3786,6 +4021,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ELSE
           RUN pViewDetail ("").
       END.
+      ELSE
+      FRAME {&FRAME-NAME}:WIDTH = 145.
 
     END.
  
@@ -6297,9 +6534,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
-          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
-          fi_sname-3 fi_sname-lbl fi_jobStartDate 
+  DISPLAY iPrintAvailQty fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom 
+          spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 
+          fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
@@ -9162,6 +9399,8 @@ PROCEDURE pViewDetail :
             BROWSE browseReleases:WIDTH      = dWidth
             BROWSE browseReleases:SENSITIVE  = NO
             BROWSE browseReleases:HIDDEN     = YES
+            iPrintAvailQty:SENSITIVE         = NO
+            iPrintAvailQty:HIDDEN            = YES
             btnAllocated:HIDDEN              = NO
             btnAllocated:SENSITIVE           = YES
             btnJobs:HIDDEN                   = NO
@@ -9220,6 +9459,8 @@ PROCEDURE pViewDetail :
                     BROWSE browseLocations:HIDDEN    = NO
                     BROWSE browseLocations:SENSITIVE = YES
                     btnLocations:SENSITIVE           = NO
+                    iPrintAvailQty:HIDDEN            = NO
+                    iPrintAvailQty:SENSITIVE         = YES 
                     .
                 RUN build-table.
                 {&OPEN-QUERY-browseLocations}
@@ -9257,6 +9498,8 @@ PROCEDURE pViewDetail :
                 btnPOs:HIDDEN             = YES
                 btnReleases:SENSITIVE     = NO
                 btnReleases:HIDDEN        = YES
+                iPrintAvailQty:SENSITIVE  = NO
+                iPrintAvailQty:HIDDEN     = YES
                 btnViewDetail:LABEL       = "View Detail"
                 FRAME {&FRAME-NAME}:WIDTH = 146
                 .            
@@ -11541,6 +11784,405 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetActBOLQty d-oeitem 
+FUNCTION fGetActBOLQty RETURNS INTEGER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
+    DEFINE VARIABLE li       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE liReturn AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-stat  AS CHARACTER NO-UNDO.
+
+    IF VALID-HANDLE(lr-rel-lib) THEN 
+    FOR EACH oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+          AND oe-rel.ord-no  EQ oe-ordl.ord-no
+          AND oe-rel.i-no    EQ oe-ordl.i-no
+          AND oe-rel.line    EQ oe-ordl.line
+          AND LOOKUP(oe-rel.stat, "P") GT 0
+        :
+        RUN get-act-qty IN lr-rel-lib (ROWID(oe-rel), OUTPUT liReturn).
+        li = li + liReturn.
+    END.
+    RETURN li.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetActRelQty d-oeitem 
+FUNCTION fGetActRelQty RETURNS INTEGER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE oe-ordl THEN
+    FOR EACH oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+          AND oe-rel.ord-no  EQ oe-ordl.ord-no
+          AND oe-rel.i-no    EQ oe-ordl.i-no
+          AND oe-rel.line    EQ oe-ordl.line
+        :
+        RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT lv-stat).
+        IF INDEX("A,B,P",lv-stat) GT 0 THEN
+        li = li + oe-rel.qty.
+    END.
+    RETURN li.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetBal d-oeitem 
+FUNCTION fGetBal RETURNS INTEGER
+  (OUTPUT op-qoh AS INTEGER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iTotalJobOnHandQty AS INTEGER NO-UNDO.
+
+    /*   IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN */
+    FOR EACH job-hdr FIELDS(company job-no job-no2 i-no) NO-LOCK
+        WHERE job-hdr.company EQ oe-ordl.company 
+          AND job-hdr.ord-no  EQ oe-ordl.ord-no 
+          AND job-hdr.i-no    EQ oe-ordl.i-no
+        USE-INDEX ord-no
+        BREAK BY job-hdr.job-no
+              BY job-hdr.job-no2
+              BY job-hdr.i-no
+        :
+        IF LAST-OF(job-hdr.i-no) THEN    
+        FOR EACH fg-bin FIELDS (qty) NO-LOCK
+            WHERE fg-bin.company EQ job-hdr.company
+              AND fg-bin.job-no  EQ job-hdr.job-no
+              AND fg-bin.job-no2 EQ job-hdr.job-no2
+              AND fg-bin.i-no    EQ job-hdr.i-no
+            :
+            iTotalJobOnHandQty = iTotalJobOnHandQty + fg-bin.qty.
+        END.
+    END.
+    op-qoh = iTotalJobOnHandQty.
+    RETURN iTotalJobOnHandQty.    /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetCost d-oeitem 
+FUNCTION fGetCost RETURNS DECIMAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST ar-invl NO-LOCK
+         WHERE ar-invl.company EQ oe-ord.company
+           AND ar-invl.ord-no  EQ oe-ord.ord-no
+           AND ar-invl.i-no    EQ oe-ordl.i-no
+         NO-ERROR.
+    RETURN IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetCostUOM d-oeitem 
+FUNCTION fGetCostUOM RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST ar-invl NO-LOCK
+         WHERE ar-invl.company EQ oe-ord.company
+           AND ar-invl.ord-no  EQ oe-ord.ord-no
+           AND ar-invl.i-no    EQ oe-ordl.i-no
+         NO-ERROR.
+    IF AVAILABLE ar-invl THEN DO:
+        RETURN IF ar-invl.dscr[1] EQ "" THEN "M"
+               ELSE ar-invl.dscr[1].
+    END.
+    ELSE
+    RETURN "M".
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLastShipTo d-oeitem 
+FUNCTION fGetLastShipTo RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+  Purpose:  Task 09111201 
+            Add new field called  "Last Shipto" on  O-Q-1.
+            This will print the last or next shipto code form the Release Folder.
+            
+            When multiple release lines exist for the item, the program will look for a release in the following priority:
+            Release Status C for Completed.
+            Release Status Z for Invoiced.
+            Release Status P for posted release that is in the bill of lading file.
+            Release Status B for back ordered release
+            Release Status A for Actual Release.
+            Release Status I for Invoicable / past warehouse terms.
+            Release Status L for late.
+            Release Status S for released.
+            
+            The logic is to print the history of the shipment first back to the release status.
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER buf-oe-rel FOR oe-rel.
+
+    FOR EACH buf-oe-rel NO-LOCK
+        WHERE buf-oe-rel.company EQ oe-ordl.company
+          AND buf-oe-rel.ord-no  EQ oe-ordl.ord-no
+          AND buf-oe-rel.i-no    EQ oe-ordl.i-no
+          AND buf-oe-rel.line    EQ oe-ordl.line
+           BY (IF buf-oe-rel.stat = "C" THEN 1 
+          ELSE IF buf-oe-rel.stat = "Z" THEN 2 
+          ELSE IF buf-oe-rel.stat = "P" THEN 3 
+          ELSE IF buf-oe-rel.stat = "B" THEN 4 
+          ELSE IF buf-oe-rel.stat = "A" THEN 5 
+          ELSE IF buf-oe-rel.stat = "I" THEN 6 
+          ELSE IF buf-oe-rel.stat = "L" THEN 7 
+          ELSE IF buf-oe-rel.stat = "S" THEN 8         
+          ELSE 12)
+        :
+        RETURN buf-oe-rel.ship-id.
+    END.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPct d-oeitem 
+FUNCTION fGetPct RETURNS INTEGER
+  (ipBal AS INTEGER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
+
+    IF oe-ordl.qty NE 0 THEN DO:
+        rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
+        IF rtnValue EQ 0 THEN rtnValue = 100.
+        IF rtnValue EQ -100 THEN rtnValue = 0.
+    END.
+    RETURN rtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPriceDisc d-oeitem 
+FUNCTION fGetPriceDisc RETURNS DECIMAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+
+    DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
+
+    FIND b-oe-ordl NO-LOCK
+         WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl).
+
+    ld = b-oe-ordl.price * (1 - (b-oe-ordl.disc / 100)).
+
+    FOR EACH ar-invl FIELDS(inv-no unit-pr disc) NO-LOCK
+        WHERE ar-invl.company EQ b-oe-ordl.company
+          AND ar-invl.ord-no  EQ b-oe-ordl.ord-no
+          AND ar-invl.i-no    EQ b-oe-ordl.i-no
+           BY ar-invl.inv-no DESCENDING
+        :
+        ld = ar-invl.unit-pr * (1 - (ar-invl.disc / 100)).
+        LEAVE.
+    END.
+    RETURN ld.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetProd d-oeitem 
+FUNCTION fGetProd RETURNS INTEGER
+  (OUTPUT op-bal AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iTotalProdQty AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iJobProdQty   AS INTEGER NO-UNDO.
+
+    FOR EACH job-hdr FIELDS(company job-no job-no2 i-no) NO-LOCK 
+        WHERE job-hdr.company EQ oe-ordl.company 
+          AND job-hdr.ord-no  EQ oe-ordl.ord-no 
+          AND job-hdr.i-no    EQ oe-ordl.i-no
+        USE-INDEX ord-no
+        BREAK BY job-hdr.job-no
+              BY job-hdr.job-no2
+        :
+        IF FIRST-OF(job-hdr.job-no2) THEN DO:
+            RUN fg/GetProductionQty.p (
+                job-hdr.company,
+                job-hdr.job-no,
+                job-hdr.job-no2,
+                job-hdr.i-no,
+                NO,
+                OUTPUT iJobProdQty
+                ).
+            iTotalProdQty = iTotalProdQty + iJobProdQty.
+        END.
+    END.
+    IF oe-ordl.po-no-po NE 0 THEN
+    FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK
+        WHERE fg-rcpth.company   EQ oe-ordl.company
+          AND fg-rcpth.po-no     EQ STRING(oe-ordl.po-no-po) 
+          AND fg-rcpth.i-no      EQ oe-ordl.i-no 
+          AND fg-rcpth.rita-code EQ "R",
+        EACH fg-rdtlh FIELDS(qty) NO-LOCK 
+        WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+        :
+        iTotalProdQty = iTotalProdQty + fg-rdtlh.qty.
+    END.
+    op-bal = iTotalProdQty.
+    RETURN iTotalProdQty.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPrUOM d-oeitem 
+FUNCTION fGetPrUOM RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+
+    DEFINE VARIABLE lv-uom AS CHARACTER NO-UNDO.
+
+    FIND b-oe-ordl NO-LOCK
+         WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl).
+    lv-uom = b-oe-ordl.pr-uom.
+
+    FOR EACH ar-invl FIELDS(inv-no pr-uom) NO-LOCK
+        WHERE ar-invl.company EQ b-oe-ordl.company
+          AND ar-invl.ord-no  EQ b-oe-ordl.ord-no
+          AND ar-invl.i-no    EQ b-oe-ordl.i-no
+           BY ar-invl.inv-no DESCENDING
+        :
+        lv-uom = ar-invl.pr-uom.
+        LEAVE.
+    END.
+    RETURN lv-uom.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRelDate d-oeitem 
+FUNCTION fGetRelDate RETURNS DATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dtReturn AS DATE      NO-UNDO.
+    DEFINE VARIABLE cRelStat AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE oe-rel THEN DO:
+        {oe/rel-stat.i cRelStat}
+        IF AVAILABLE oe-rell THEN
+        FIND FIRST oe-relh NO-LOCK
+             WHERE oe-relh.r-no EQ oe-rell.r-no
+             NO-ERROR.
+        dtReturn = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+    END.
+    RETURN dtReturn.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetReturned d-oeitem 
+FUNCTION fGetReturned RETURNS DECIMAL
+  (ipcValueNeeded AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dTotQtyRet AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
+
+    FOR EACH ar-invl NO-LOCK
+        WHERE ar-invl.company EQ oe-ordl.company
+          AND ar-invl.ord-no  EQ oe-ordl.ord-no
+          AND ar-invl.i-no    EQ oe-ordl.i-no
+        BREAK BY ar-invl.inv-no
+        :
+        IF FIRST-OF(ar-invl.inv-no) THEN
+        FOR EACH oe-reth NO-LOCK
+            WHERE oe-reth.company EQ ar-invl.company
+              AND oe-reth.posted  EQ TRUE
+              AND oe-reth.applied EQ TRUE 
+              AND oe-reth.cust-no EQ oe-ordl.cust-no
+              AND oe-reth.inv-no  EQ ar-invl.inv-no,
+            EACH oe-retl NO-LOCK
+            WHERE oe-retl.company EQ oe-reth.company
+              AND oe-retl.r-no    EQ oe-reth.r-no
+              AND oe-retl.i-no    EQ ar-invl.i-no
+            :
+            ASSIGN
+                dTotQtyRet = dTotQtyRet + oe-retl.tot-qty-return        
+                dTotRetInv = dTotRetInv + oe-retl.qty-return-inv
+                .
+        END.  /* for each return */
+    END. /* for each ar-invl */
+    RETURN IF ipcValueNeeded EQ "TotalReturned" THEN dTotQtyRet
+           ELSE dTotRetInv.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetReturnedInv d-oeitem 
+FUNCTION fGetReturnedInv RETURNS DECIMAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN fGetReturned("ReturnedInv").
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable d-oeitem 
 FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER, ipcCust AS CHARACTER , ipcShipto AS CHARACTER, ipcFGItemID AS CHARACTER ):
@@ -11553,6 +12195,70 @@ DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalReturned d-oeitem 
+FUNCTION fGetTotalReturned RETURNS DECIMAL
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN fGetReturned("TotalREturned"). 
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetWIP d-oeitem 
+FUNCTION fGetWIP RETURNS INTEGER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE rtnValue AS INTEGER NO-UNDO.
+
+    rtnValue = oe-ordl.qty - (li-qoh + oe-ordl.ship-qty).
+    IF rtnValue LT 0 OR
+       rtnValue LT oe-ordl.qty * oe-ordl.under-pct / 100 THEN
+    rtnValue = 0.
+    RETURN rtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetXferQty d-oeitem 
+FUNCTION fGetXferQty RETURNS INTEGER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER buf-oe-rel   FOR oe-rel.
+    DEFINE BUFFER buf-reftable FOR reftable.
+
+    DEFINE VARIABLE vTransfer-Qty AS INTEGER NO-UNDO INIT 0.
+
+    FOR EACH buf-oe-rel NO-LOCK
+        WHERE buf-oe-rel.company EQ oe-ordl.company
+          AND buf-oe-rel.ord-no  EQ oe-ordl.ord-no
+          AND buf-oe-rel.i-no    EQ oe-ordl.i-no
+          AND buf-oe-rel.line    EQ oe-ordl.line
+          AND (buf-oe-rel.stat   EQ "C"
+           OR buf-oe-rel.stat    EQ "Z")
+        :
+        IF oe-ord.type NE "T" AND buf-oe-rel.s-code NE "T" THEN NEXT.
+        vTransfer-Qty = vTransfer-Qty + buf-oe-rel.qty.
+    END.
+    RETURN vTransfer-Qty.   /* Function return value. */
 
 END FUNCTION.
 
