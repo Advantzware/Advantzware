@@ -53,7 +53,7 @@ DEF WORKFILE w-qty
 {ce/mach-ink.i new}
 
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iCoat      AS INTEGER NO-UNDO.
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
 DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
 RUN pSetGlobalVars(xef.company).
