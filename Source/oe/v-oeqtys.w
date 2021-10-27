@@ -460,16 +460,26 @@ PROCEDURE calc-fgqtys :
              USE-INDEX ord-item
              NO-ERROR.
         IF NOT AVAILABLE oe-rel THEN DO:
+            RELEASE oe-ord.
+            RELEASE shipto.
             FIND FIRST oe-ord NO-LOCK
                  WHERE oe-ord.company EQ oe-ordl.company
                    AND oe-ord.ord-no  EQ oe-ordl.ord-no
                  NO-ERROR.
-            IF NOT AVAILABLE oe-ord THEN
-            RETURN.
+            IF AVAILABLE oe-ord THEN
+            FIND FIRST shipto NO-LOCK
+                 WHERE shipto.company EQ oe-ord.company
+                   AND shipto.cust-no EQ oe-ord.cust-no
+                   AND shipto.ship-id EQ oe-ord.ship-id
+                 NO-ERROR.
+            IF AVAILABLE shipto THEN
+            cLocation = shipto.loc.
+            ELSE
+            IF AVAILABLE oe-ord THEN
             cLocation = oe-ord.loc.
         END.
         ELSE
-        cLocation = oe-rel.loc.
+        cLocation = oe-rel.spare-char-1.
         FOR EACH itemfg-loc NO-LOCK
             WHERE itemfg-loc.company EQ itemfg.company
               AND itemfg-loc.loc     EQ cLocation
@@ -604,7 +614,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  cDisplayFGLocationSummary = oSetting:GetByName("DisplayFGLocationDetails").
+  cDisplayFGLocationSummary = oSetting:GetByName("DisplayFGLocationSummary").
 
 END PROCEDURE.
 

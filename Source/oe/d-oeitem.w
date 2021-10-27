@@ -4072,7 +4072,6 @@ RUN disable_UI.
 
 &Scoped-define Source OU1
 {methods/build-table.i "b"}
-{methods/pCheckRelease.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -9366,8 +9365,7 @@ PROCEDURE pViewDetail :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcShow AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dWidth       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dWidth AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER bOEOrd  FOR oe-ord.
     DEFINE BUFFER bOEOrdl FOR oe-ordl.
@@ -9476,8 +9474,6 @@ PROCEDURE pViewDetail :
             WHEN "Releases" THEN DO:
                 IF AVAILABLE w-jobs THEN DO:
                     cLocation = w-jobs.loc.
-                    RUN pCheckRelease (cLocation, OUTPUT lRecordFound).
-                    IF NOT lRecordFound THEN RETURN.
                     ASSIGN
                         BROWSE browseReleases:HIDDEN    = NO
                         BROWSE browseReleases:SENSITIVE = YES
