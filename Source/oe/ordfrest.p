@@ -544,7 +544,7 @@ PROCEDURE create-order-lines.
                                xoe-ord.cust-no,
                                TRIM(xoe-ord.ship-id),
                                oe-ordl.i-no,
-                               0,
+                               xoe-ord.ord-no,
                                OUTPUT oe-ordl.over-pct ,
                                OUTPUT oe-ordl.Under-pct,
                                OUTPUT cTagDesc ) .   
