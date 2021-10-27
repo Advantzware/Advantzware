@@ -41,8 +41,8 @@ v-printline = v-printline + 5.
 
 
 PUT "<FArial><=4><R+1>     Ship Date               FOB                           Ship Via                                                 Terms               S.Person       Pallets     BOL#" SKIP
-     "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(1)
-     v-fob FORM "x(12)" SPACE(1)
+     "<FCourier New><=4><R+3><C1.2>" string(string(DYNAMIC-FUNCTION("sfCommon_GetMonthName",month(v-date-ship))) + "/" + string(day(v-date-ship),"99") + "/" + string(year(v-date-ship),"9999")) format "x(11)" space(1)
+     "<C11>" v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(30)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
      v-tot-pallets FORM "->>>,>>9" SPACE(1)
