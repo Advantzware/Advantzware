@@ -1677,7 +1677,7 @@ CASE ip-nk1-value:
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).           
-            ). 
+ 
     WHEN "CEInksWithUnits" THEN     
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
