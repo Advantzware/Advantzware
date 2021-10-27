@@ -641,9 +641,9 @@ oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
 oe-ordl.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS iPrintAvailQty fiPrevOrder fiPromDtLabel ~
-fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
-fi_sname-1 fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
+&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
+fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
+fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -1027,7 +1027,7 @@ DEFINE BROWSE browseAllocated
     ttAllocated.allocated
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Allocated".
 
@@ -1046,7 +1046,7 @@ DEFINE BROWSE browseJobs
       job-hdr.opened COLUMN-LABEL "Open" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Jobs".
 
@@ -1060,13 +1060,9 @@ DEFINE BROWSE browseLocations
     w-jobs.allocated
     w-jobs.backOrder
     w-jobs.qtyAvailable
-    w-jobs.ord-level
-    w-jobs.ord-min  
-    w-jobs.ord-max
-    w-jobs.lead-days
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Locations".
 
@@ -1084,7 +1080,7 @@ DEFINE BROWSE browsePOs
       po-ordl.ord-qty - po-ordl.t-rec-qty @ dRemainingQty COLUMN-LABEL "Remaining Quantity" FORMAT "->>>,>>>,>>9.9<<<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "POs".
 
@@ -1131,7 +1127,7 @@ DEFINE BROWSE browseReleases
       oe-ordl.cost FORMAT "->>>,>>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 79 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Releases".
 
@@ -1406,7 +1402,7 @@ DEFINE FRAME d-oeitem
      RECT-39 AT ROW 1.24 COL 2
      RECT-40 AT ROW 1.24 COL 80.2 WIDGET-ID 8
      RECT-41 AT ROW 11.38 COL 80.2 WIDGET-ID 10
-     SPACE(79.80) SKIP(1.38)
+     SPACE(127.80) SKIP(1.38)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -1543,7 +1539,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.i-no IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RADIO-SET iPrintAvailQty IN FRAME d-oeitem
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        iPrintAvailQty:HIDDEN IN FRAME d-oeitem           = TRUE.
 
@@ -4006,25 +4002,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ENABLE oe-ordl.qty.
       END. /* webupdate */
 
-      cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
-      IF cDisplayFGLocationDetails NE "NO" THEN DO:
-          RUN sys/ref/nk1look.p (
-              oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
-              OUTPUT cFGBinInquiry, OUTPUT lFound
-              ).
-          ASSIGN
-              btnViewDetail:SENSITIVE = YES
-              btnViewDetail:HIDDEN    = NO
-              .
-          IF cDisplayFGLocationDetails EQ "YES" THEN
-          RUN pViewDetail ("Locations").
-          ELSE
-          RUN pViewDetail ("").
-      END.
-      ELSE
-      FRAME {&FRAME-NAME}:WIDTH = 145.
-
-    END.
+/*    END.*/
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
@@ -4053,6 +4031,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
            oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
   END.
+
   IF NOT oescreen-log
     OR (oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE  IN FRAME {&FRAME-NAME} NE "") THEN
       ASSIGN
@@ -4064,8 +4043,29 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+
+      cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
+      cDisplayFGLocationDetails = "YES".
+      IF cDisplayFGLocationDetails NE "NO" THEN DO:
+          RUN sys/ref/nk1look.p (
+              oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
+              OUTPUT cFGBinInquiry, OUTPUT lFound
+              ).
+          ASSIGN
+              btnViewDetail:SENSITIVE = YES
+              btnViewDetail:HIDDEN    = NO
+              .
+          IF cDisplayFGLocationDetails EQ "YES" THEN
+          RUN pViewDetail ("Locations").
+          ELSE
+          RUN pViewDetail ("").
+      END.
+      ELSE
+      FRAME {&FRAME-NAME}:WIDTH = 146.
+
   IF NOT llOEDiscount THEN
   ASSIGN   asi.oe-ordl.disc:SENSITIVE IN FRAME {&FRAME-NAME} = NO .  
+    END.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -6534,9 +6534,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY iPrintAvailQty fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom 
-          spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 
-          fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
+  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
+          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
+          fi_sname-3 fi_sname-lbl fi_jobStartDate 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
@@ -9378,6 +9378,7 @@ PROCEDURE pViewDetail :
             cFGItem = oe-ordl.i-no:SCREEN-VALUE 
             dWidth  = SESSION:WIDTH - 1
             .
+        IF dWidth GT 271 THEN dWidth = 271.
         IF dWidth LT 225 THEN dWidth = 225.
         ASSIGN
             FRAME {&FRAME-NAME}:WIDTH = dWidth.
@@ -9487,6 +9488,7 @@ PROCEDURE pViewDetail :
                 END.
             END.
             OTHERWISE
+            DO:
             ASSIGN
                 btnAllocated:SENSITIVE    = NO
                 btnAllocated:HIDDEN       = YES
@@ -9503,6 +9505,7 @@ PROCEDURE pViewDetail :
                 btnViewDetail:LABEL       = "View Detail"
                 FRAME {&FRAME-NAME}:WIDTH = 146
                 .            
+            END.
         END CASE.
     END.
 
