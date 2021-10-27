@@ -470,15 +470,9 @@ PROCEDURE calc-fgqtys :
         END.
         ELSE
         cLocation = oe-rel.loc.
-        FIND FIRST loc NO-LOCK
-             WHERE loc.company EQ itemfg.company
-               AND loc.loc     EQ cLocation
-             NO-ERROR.
-        IF NOT AVAILABLE loc THEN
-        RETURN.
         FOR EACH itemfg-loc NO-LOCK
-            WHERE itemfg-loc.company EQ loc.company
-              AND itemfg-loc.loc     EQ loc.loc
+            WHERE itemfg-loc.company EQ itemfg.company
+              AND itemfg-loc.loc     EQ cLocation
               AND itemfg-loc.i-no    EQ itemfg.i-no
             :
             ASSIGN 
