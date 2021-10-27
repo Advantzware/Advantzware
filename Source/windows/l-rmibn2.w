@@ -200,7 +200,7 @@ DEFINE BROWSE BROWSE-1
       rm-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 11.4
       rm-bin.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 27.2
       rm-bin.qty FORMAT "->>>,>>9.9<<":U WIDTH 13.2      
-      rm-bin.po-no FORMAT ">>>>>>>":U WIDTH 13.2
+      rm-bin.po-no FORMAT ">>>>>>>>":U WIDTH 13.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 92 BY 11.19

@@ -827,8 +827,8 @@ FOR EACH ef
             END.
             ELSE dExpectedPallets = 0 .
             
-        
-        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" TRIM(STRING(job-hdr.i-no,"x(18)"))  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>"  job-hdr.keyItem "</B> "  
+         
+        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" job-hdr.i-no FORMAT "x(15)"  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>"  job-hdr.keyItem "</B> "  
             "<C35>" cMoldsLabel FORMAT "x(8)" "<C44><B>" TRIM(STRING(eb.num-up)) "</B>"   
             "<C50>" cWetWeightLabel FORMAT "x(13)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "</B>" 
             "<C65>" cFirstDryLabel FORMAT "x(14)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00003")) "</B>" SKIP

@@ -538,7 +538,7 @@ DO:
            else lv-ind = "".  
            IF AVAILABLE style AND style.type EQ "f" THEN DO: /* foam */
                  RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-                 rfqitem.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                 rfqitem.board:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
                  APPLY "ENTRY":U TO rfqitem.board.
            END.
            else DO:

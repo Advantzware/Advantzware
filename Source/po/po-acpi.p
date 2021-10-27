@@ -542,7 +542,7 @@ print-po-blok:
 
       END.
 
-      RUN po/po-ordls.p (RECID(po-ordl)).
+      
 
       {po/poprints.i}
 

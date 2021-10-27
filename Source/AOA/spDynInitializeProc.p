@@ -5,6 +5,9 @@
 
 DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 
+&Scoped-define sysCtrlIncludeOnly
+{sys/ref/sys-ctrl.i}
+
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION sfGetUserControlFieldValue RETURNS CHARACTER PRIVATE
@@ -86,6 +89,11 @@ END PROCEDURE.
 
 PROCEDURE dynInitEstTypeID:
     cSessionValue = ",,MISC,MISC".
+    RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitFormFormat:
+    cSessionValue = str-init[LOOKUP("INVPRINT",name-fld-list)].
     RETURN cSessionValue.
 END PROCEDURE.
 

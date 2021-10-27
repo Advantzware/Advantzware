@@ -24,7 +24,7 @@ FOR EACH itemfg NO-LOCK,
 END. /* each itemfg */
 OUTPUT CLOSE.
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-open-mime-resource "text/plain" "file:///util/fgbinrpt.log" false.
+open-mime-resource "text/plain" "file:///util/fgbinrpt.log" NOT-EMBEDDED.
 &ELSE
 OS-COMMAND NO-WAIT notepad.exe util/fgbinrpt.log.
 &ENDIF

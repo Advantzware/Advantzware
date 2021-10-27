@@ -299,7 +299,7 @@ find first company where company.company eq cocode NO-LOCK.
             
             assign v-line-number = v-line-number + 1.
             
-            run po/po-ordls.p (recid(po-ordl)).
+            
             
             {po/poprints.i}
             

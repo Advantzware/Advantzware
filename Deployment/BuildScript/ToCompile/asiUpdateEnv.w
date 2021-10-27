@@ -3803,6 +3803,7 @@ PROCEDURE ipDataFix210400:
     RUN ipFixFoldingEstimateScores.
     RUN ipFixLocationStorageCost.
     RUN ipSetSystemScope.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -3823,6 +3824,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadDAOAData.
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
+    RUN ipLoadSettingType.
     RUN ipSetCueCards.
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
@@ -5981,6 +5983,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadSettingType C-Win 
+PROCEDURE ipLoadSettingType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Setting Type Records").
+
+    &SCOPED-DEFINE tablename settingType
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadTranslation C-Win 
 PROCEDURE ipLoadTranslation :
 /*------------------------------------------------------------------------------
@@ -6430,6 +6460,9 @@ PROCEDURE ipRefTableConv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER recalc-mr FOR reftable.
+
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
@@ -6510,6 +6543,25 @@ PROCEDURE ipRefTableConv :
             END.
         END.   
     END.  /*FOR EACH reftable1*/  
+    
+    /* Ticket 103950 ConvertMRReftableToEstField.p */
+    FOR EACH bf-est EXCLUSIVE-LOCK:
+        FIND FIRST recalc-mr EXCLUSIVE-LOCK
+             WHERE recalc-mr.reftable EQ "est.recalc-mr"
+             AND recalc-mr.company  EQ bf-est.company
+             AND recalc-mr.loc      EQ bf-est.loc
+             AND recalc-mr.code     EQ TRIM(bf-est.est-no)
+          NO-ERROR.
+         IF AVAILABLE recalc-mr THEN 
+         DO:
+           ASSIGN
+              bf-est.recalc-mr              =  recalc-mr.val[1] EQ 1
+              bf-est.allFormsInk            =  recalc-mr.val[2] EQ 1
+              bf-est.calcBoardCostFromBlank =  recalc-mr.val[3] EQ 1  .
+           DELETE recalc-mr.
+         END. 
+    END.
+    RELEASE bf-est.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -6987,7 +7039,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "McjlwjaffvkbBCti".
+            tempUser._Password = ENCODE("Boxco2020!").
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -6996,7 +7048,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "McjlwjaffvkbBCti".
+            _User._Password = ENCODE("Boxco2020!").
     END.
 
     RELEASE _user.

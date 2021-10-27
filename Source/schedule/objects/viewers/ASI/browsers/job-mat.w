@@ -182,7 +182,7 @@ DEFINE BROWSE br_table
       job-mat.len FORMAT ">,>>9.99<<":U
       job-mat.n-up FORMAT ">>9":U
       job-mat.basis-w FORMAT ">>9.99":U
-      po-ordl.po-no COLUMN-LABEL "PO" FORMAT ">>>>>9":U
+      po-ordl.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U
       po-ordl.t-rec-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

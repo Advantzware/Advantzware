@@ -76,7 +76,7 @@ end.
 def var iFormNumber as int no-undo.
 def var iBlankNumber as int no-undo.
 def var iNumofCADForm as int no-undo.
-def var iProjectCount as int init 50 no-undo.
+def var iProjectCount as int init 99 no-undo.
 
 def temp-table tt-SubDir NO-UNDO field DirName as cha.
 

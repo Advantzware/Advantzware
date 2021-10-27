@@ -127,13 +127,13 @@ DEFINE VARIABLE cFileName   as CHARACTER          NO-UNDO .
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
                            "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR," +
-                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED"
+                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED,Last Ship"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
                             "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr," +
-                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue"
-       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "10,20,10,15,7,7,7,7,5"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c" 
+                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue,last-date"
+       cFieldLength = "3,8,11,10,15,30,20," + "6,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "10,20,10,15,7,7,7,7,5,16"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}

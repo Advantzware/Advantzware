@@ -323,7 +323,7 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
            v-i-name = REPLACE(REPLACE(v-i-name,'"', " "),","," ")
            v-vend-name = REPLACE(REPLACE(v-vend-name,'"', " "),","," ")
            str_buffa = tt-report.key-09 + v-comma +
-                       string(po-ord.po-no,">>>>>9") + v-comma +
+                       string(po-ord.po-no,">>>>>>>9") + v-comma +
                        v-vend-name + v-comma +
                        tt-report.key-04 + v-comma +
                        v-i-name + v-comma +
