@@ -17,6 +17,14 @@ def var v-cas-cnt as DEC NO-UNDO.
 def var v-blk-frm as char format "x(5)" NO-UNDO.
 def var v-cas-pal-w like item.basis-w NO-UNDO.
 DEF VAR ld-rm-rate AS DEC NO-UNDO.
+DEFINE VARIABLE dSetupCostQtyUOM AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostQtyUOM      AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dSetupCost       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-vend-no        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dDimLength       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dDimWidth        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dDimDepth        AS DECIMAL NO-UNDO.
+
 
 def shared var v-summ as log NO-UNDO.
 
@@ -105,6 +113,12 @@ for each cas where cas.typ eq 1
          and item.i-no eq xeb.cas-no
        no-lock no-error.
    
+    ASSIGN
+        dDimLength = IF xeb.cas-len NE 0 THEN xeb.cas-len ELSE item.case-l
+        dDimWidth  = IF xeb.cas-wid NE 0 THEN xeb.cas-wid ELSE item.case-w
+        dDimDepth  = IF xeb.cas-dep NE 0 THEN xeb.cas-dep ELSE item.case-d     
+        .
+   
    IF xeb.casNoCharge THEN cas.cost = 0.
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
@@ -113,9 +127,34 @@ for each cas where cas.typ eq 1
      FOR EACH xcas WHERE xcas.typ EQ 1 AND xcas.ino EQ cas.ino:
        cas.t-qty = cas.t-qty + xcas.qty.
      END.
-      
-     {est/matcost.i cas.t-qty cas.cost 1}
-     cas.cost = (cas.cost * cas.qty) + lv-setup-1.    
+     
+     
+       IF lNewVendorItemCost THEN
+       DO:
+           RUN est/getVendorCostinQtyUOM.p(Item.company, 
+               item.i-no, 
+               "RM", 
+               v-vend-no,
+               xeb.est-no,
+               xeb.form-no,
+               xeb.blank-no,
+               cas.qty,
+               "EA",
+               dDimLength, 
+               dDimWidth, 
+               dDimDepth,
+               item.basis-w,
+               OUTPUT dCostQtyUOM,
+               OUTPUT dSetupCostQtyUOM,
+               OUTPUT cas.cost).
+               
+       END.
+       ELSE
+       DO:         
+           {est/matcost.i cas.t-qty cas.cost 1}
+           cas.cost = (cas.cost * cas.qty) + lv-setup-1. 
+                
+       END.   
    END.
 
    ASSIGN
@@ -285,11 +324,43 @@ for each cas where cas.typ eq 3
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
 
+    ASSIGN
+        dDimLength = IF xeb.tr-len NE 0 THEN xeb.tr-len ELSE item.case-l
+        dDimWidth  = IF xeb.tr-wid NE 0 THEN xeb.tr-wid ELSE item.case-w
+        dDimDepth  = IF xeb.tr-dep NE 0 THEN xeb.tr-dep ELSE item.case-d     
+        dSetupCost = 0
+        .
+           
    IF xeb.trNoCharge THEN cas.cost = 0.
    ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
-   ELSE DO:     
-     {est/matcost.i cas.t-qty cas.cost 3}
-     cas.cost = (cas.cost * cas.qty) + lv-setup-3.      
+   ELSE DO:
+      
+       IF lNewVendorItemCost THEN
+       DO:
+           RUN est/getVendorCostinQtyUOM.p(Item.company, 
+               item.i-no, 
+               "RM", 
+               v-vend-no,
+               xeb.est-no,
+               xeb.form-no,
+               xeb.blank-no,
+               cas.qty,
+               "EA",
+               dDimLength, 
+               dDimWidth, 
+               dDimDepth,
+               item.basis-w,
+               OUTPUT dCostQtyUOM,
+               OUTPUT dSetupCostQtyUOM,
+               OUTPUT cas.cost).
+               
+       END.
+       ELSE
+       DO:    
+           {est/matcost.i cas.t-qty cas.cost 3}
+           cas.cost = (cas.cost * cas.qty) + lv-setup-3.
+       END.
+           
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */
@@ -408,9 +479,40 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
    END.
 
    strap-qty = cas.qty / 1000.
+   
+    ASSIGN
+        dDimLength = item.case-l
+        dDimWidth  = item.case-w
+        dDimDepth  = item.case-d     
+        dSetupCost = 0
+        .
           
-   {est/matcost.i strap-qty cas.cost strap}
-   cas.cost = (cas.cost * strap-qty) + lv-setup-strap .
+    IF lNewVendorItemCost THEN
+    DO:
+        RUN est/getVendorCostinQtyUOM.p(Item.company, 
+            item.i-no, 
+            "RM", 
+            v-vend-no,
+            xeb.est-no,
+            xeb.form-no,
+            xeb.blank-no,
+            strap-qty,
+            "MLI",
+            dDimLength, 
+            dDimWidth, 
+            dDimDepth,
+            item.basis-w,
+            OUTPUT dCostQtyUOM,
+            OUTPUT dSetupCostQtyUOM,
+            OUTPUT cas.cost).
+        dSetupCost = dSetupCostQtyUOM. 
+    END.
+    ELSE
+    DO:
+        {est/matcost.i strap-qty cas.cost strap}
+        cas.cost = (cas.cost * strap-qty) + lv-setup-strap .
+        dSetupCost = lv-setup-strap.
+    END.
    
    ASSIGN      
       cas.cosm = cas.cost / (cas.cosm / 1000).
@@ -419,7 +521,7 @@ for each cas where cas.typ = 4 by cas.snum by cas.bnum with no-labels no-box:
       display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
               item.i-name
               strap-qty         format ">>>,>>>"         to 50 "MLI"
-              lv-setup-strap when lv-setup-strap ne 0 format ">>>9.99" to 61
+              dSetupCost when dSetupCost ne 0 format ">>>9.99" to 61
               cas.cosm          format ">>,>>9.99"                      to 69
               cas.cost          format ">>>,>>9.99"      to 80 skip
           with stream-io.

@@ -4543,7 +4543,7 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             ipdQty, ipcQtyUOM, 
             ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
             ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
+            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
             OUTPUT lError, OUTPUT cMessage).
     END.
     ELSE 
@@ -4681,7 +4681,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                     ipdQty, ipcQtyUOM, 
                     ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
                     ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-                    OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
+                    OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
                     OUTPUT lError, OUTPUT cMessage).
          END.
 
