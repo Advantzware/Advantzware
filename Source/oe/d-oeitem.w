@@ -4045,7 +4045,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
       cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
-      cDisplayFGLocationDetails = "YES".
       IF cDisplayFGLocationDetails NE "NO" THEN DO:
           RUN sys/ref/nk1look.p (
               oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
