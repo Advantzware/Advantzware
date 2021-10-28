@@ -13,7 +13,6 @@
 
     DEFINE TEMP-TABLE ttEstCostHeaderID NO-UNDO
         FIELD estCostHeaderID AS INT64
-        FIELD orderID         AS INTEGER
         FIELD riJobHeader     AS ROWID
         .
         
@@ -92,6 +91,9 @@
     DEFINE VARIABLE oEstCostMaterial  AS system.Attribute NO-UNDO.
     DEFINE VARIABLE oEstCostOperation AS system.Attribute NO-UNDO.
     DEFINE VARIABLE oEstCostItem      AS system.Attribute NO-UNDO.
+    DEFINE VARIABLE oJobHeader        AS system.Attribute NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
     RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
                  
@@ -144,6 +146,7 @@
         oEstCostItem      = NEW system.Attribute("estCostItem").
         oEfAttribute      = NEW system.Attribute("ef").
         oEbAttribute      = NEW system.Attribute("eb").
+        oJobHeader        = NEW system.Attribute("job-hdr").
         
         RUN pGetRequestData ("Job", OUTPUT lcData).
         oEstCostHeader:RequestData = lcData.
@@ -185,6 +188,10 @@
             IF NOT AVAILABLE estCostHeader THEN
                 NEXT.
             
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE ROWID(job-hdr) EQ ttEstCostHeaderID.riJobHeader
+                 NO-ERROR.
+                 
             lJobAvailable = TRUE.
             
             lFormAvailable = FALSE.
@@ -218,7 +225,15 @@
                            AND eb.form-no  EQ estCostBlank.formNo
                            AND eb.blank-no EQ estCostBlank.blankNo
                          NO-ERROR.
-                    
+
+                    FIND FIRST bf-job-hdr NO-LOCK
+                         WHERE bf-job-hdr.company  EQ estCostBlank.company 
+                           AND bf-job-hdr.job-no   EQ estCostHeader.jobID
+                           AND bf-job-hdr.job-no2  EQ estCostHeader.jobID2
+                           AND bf-job-hdr.frm      EQ estCostBlank.formNo
+                           AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
+                           NO-ERROR.
+                          
                     ASSIGN
                         lBlankAvailable    = TRUE
                         lMaterialAvailable = FALSE
@@ -252,6 +267,7 @@
 
                     lcBlank = oEstCostBlank:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
                     lcBlank = oEbAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
+                    lcBlank = oJobHeader:ReplaceAttributes(lcBlank, BUFFER bf-job-hdr:HANDLE).
                     
                     lcConcatBlank = lcConcatBlank + lcBlank.
                 END.
@@ -302,6 +318,8 @@
             RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
             
             RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
+
+            lcJob = oJobHeader:ReplaceAttributes(lcJob, BUFFER job-hdr:HANDLE).
             
             lcConcatJob = lcConcatJob + lcJob.
         END.

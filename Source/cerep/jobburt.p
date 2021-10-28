@@ -171,7 +171,6 @@ DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
 
 DEFINE TEMP-TABLE ttEstCostHeaderID NO-UNDO
     FIELD estCostHeaderID AS INT64
-    FIELD orderID         AS INTEGER
     FIELD riJobHeader     AS ROWID
     .
 
@@ -210,6 +209,76 @@ FOR EACH job-hdr NO-LOCK
     BY job-hdr.job-no2
     BY job-hdr.frm: 
 
+    FIND FIRST job
+        WHERE job.company EQ cocode
+        AND job.job     EQ job-hdr.job
+        AND job.job-no  EQ job-hdr.job-no
+        AND job.job-no2 EQ job-hdr.job-no2
+        NO-LOCK NO-ERROR.
+
+    IF production AND
+        job.cs-trans-date NE ? THEN 
+    DO:
+        li = 0.
+        DO WHILE li LT 1000:
+            li = li + 1.
+            FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+            IF AVAILABLE job THEN
+                ASSIGN
+                    job.pr-printed    = YES
+                    job.pr-user-id-p  = USERID("nosweat")
+                    job.pr-print-date = TODAY
+                    job.pr-print-time = TIME
+                    li                = 1000.
+        END.
+    END.
+
+    ELSE 
+    DO:
+        li = 0.
+        IF NOT job-hdr.ftick-prnt THEN 
+        DO WHILE li LT 1000:
+            li = li + 1.
+            FIND xjob-hdr EXCLUSIVE-LOCK
+                WHERE ROWID(xjob-hdr) EQ ROWID(job-hdr)
+                NO-ERROR NO-WAIT.
+            IF AVAILABLE xjob-hdr THEN 
+            DO:
+                ASSIGN
+                    xjob-hdr.ftick-prnt = YES
+                    li                  = 1000.
+                FIND xjob-hdr NO-LOCK
+                    WHERE ROWID(xjob-hdr) EQ ROWID(job-hdr)
+                    NO-ERROR NO-WAIT.
+
+            END.
+        END.
+
+        li = 0.
+        DO WHILE li LT 1000:
+            li = li + 1.
+            FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+            IF AVAILABLE job THEN 
+            DO:
+                li = 1000.
+
+                IF NOT job.cs-printed THEN
+                    ASSIGN
+                        job.cs-printed    = YES
+                        job.cs-user-id-p  = USERID("nosweat")
+                        job.cs-print-date = TODAY
+                        job.cs-print-time = TIME.
+
+                IF approve THEN
+                    ASSIGN
+                        job.cs-to-pr      = YES
+                        job.cs-user-id-t  = USERID("nosweat")
+                        job.cs-trans-date = TODAY
+                        job.cs-trans-time = TIME.
+            END.
+        END.
+    END.
+    
     FIND FIRST estCostHeader NO-LOCK
          WHERE estCostHeader.company    = job-hdr.company
            AND estCostHeader.estimateNo = job-hdr.est-no
@@ -224,7 +293,10 @@ FOR EACH job-hdr NO-LOCK
          NO-ERROR.
     IF NOT AVAILABLE ttEstCostHeaderID THEN DO:
         CREATE ttEstCostHeaderID.
-        ttEstCostHeaderID.estCostHeaderID = estCostHeader.estCostHeaderID.    
+        ASSIGN
+            ttEstCostHeaderID.estCostHeaderID = estCostHeader.estCostHeaderID
+            ttEstCostHeaderID.riJobHeader     = ROWID(job-hdr)
+            .    
     END.
 END.
 /* end of building tt-reftable */

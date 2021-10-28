@@ -177,7 +177,7 @@
   {
     "dbFieldName": "customerID",
     "dbFieldExtent": 0,
-    "attributeName": "Customer"
+    "attributeName": "CustomerID"
   },
   {
     "dbFieldName": "customerName",

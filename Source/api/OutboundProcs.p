@@ -978,6 +978,10 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPhone", bf-cust.phone).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).        
     END.
+    
+    RUN Format_UpdateLineCount (INPUT-OUTPUT ioplcRequestData).
+    RUN Format_UpdatePageCount (INPUT-OUTPUT ioplcRequestData).
+    
 END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:
