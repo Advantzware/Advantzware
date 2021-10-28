@@ -800,8 +800,8 @@ ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
         DO:
             RUN check-date.
             IF v-invalid THEN RETURN NO-APPLY.
-            RUN valid-date NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            RUN valid-date.
+            IF v-invalid THEN RETURN NO-APPLY.
         END.
     END.
 
@@ -2065,46 +2065,50 @@ PROCEDURE valid-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER iplCheckDate AS LOGICAL NO-UNDO.
-  DEF VAR ll AS LOG NO-UNDO.
-  DEFINE BUFFER bf-period FOR period.
+    DEF VAR ll AS LOG NO-UNDO.
+    DEFINE BUFFER bf-period FOR period.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT ll-warned THEN DO:
-      ll = NO.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT ll-warned THEN DO:
+            ll = NO.
 
-      FOR EACH period NO-LOCK
-          WHERE period.company EQ cocode
-            AND period.pst     LE TODAY
-            AND period.pend    GE TODAY
-          BY period.pst:
+            FOR EACH period NO-LOCK
+                WHERE period.company EQ cocode
+                AND period.pst     LE TODAY
+                AND period.pend    GE TODAY
+                BY period.pst:
 
-        IF iplCheckDate AND (period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
-           period.pend LT DATE(tran-date:SCREEN-VALUE)) THEN DO:
-          ll = YES.
-          MESSAGE TRIM(tran-date:LABEL) + " is not in current period, " +
-                  "would you like to re-enter..."
-              VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-              UPDATE ll.
-        END.
+                IF /* iplCheckDate 
+                AND */ (period.pst  GT DATE(tran-date:SCREEN-VALUE) OR
+                    period.pend LT DATE(tran-date:SCREEN-VALUE)) THEN DO:
+                    ll = YES.
+                    MESSAGE TRIM(tran-date:LABEL) + " is not in current period, " +
+                        "would you like to re-enter..."
+                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE ll.
+                    IF ll THEN DO:
+                        ASSIGN 
+                            v-invalid = TRUE.
+                        RETURN.
+                    END.
+                END.
+            END.        
         
-        FIND FIRST bf-period NO-LOCK
-          WHERE bf-period.company EQ cocode
-            AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
-            AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
-          NO-ERROR.
-        IF AVAIL bf-period THEN
-        ASSIGN
-            begin_date:SCREEN-VALUE = STRING(bf-period.pst)
-            end_date:SCREEN-VALUE = STRING(bf-period.pend).
+            FIND FIRST bf-period NO-LOCK
+                WHERE bf-period.company EQ cocode
+                AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
+                AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
+            NO-ERROR.
+        
+            IF AVAIL bf-period THEN
+            ASSIGN
+                begin_date:SCREEN-VALUE = STRING(bf-period.pst)
+                end_date:SCREEN-VALUE = STRING(bf-period.pend).
 
-        LEAVE.
-      END.
-
-      ll-warned = YES.
+            ll-warned = YES.
+        END.
     END.
-  END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
