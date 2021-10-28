@@ -44,6 +44,7 @@ DEFINE TEMP-TABLE ttAllocated NO-UNDO
     FIELD part-no   LIKE oe-ordl.part-no
     FIELD po-no     LIKE oe-ordl.po-no
     FIELD allocated AS DECIMAL LABEL "Allocated" FORMAT "->>,>>>,>>9.9<<"
+    FIELD loc       LIKE oe-ord.loc LABEL "Whse"
     .
 
 DEFINE VARIABLE ll-new-file AS LOG   NO-UNDO.
@@ -486,7 +487,7 @@ po-ord oe-rel oe-ordl oe-ord itemfg
 /* Definitions for BROWSE browseJobs                                    */
 &Scoped-define FIELDS-IN-QUERY-browseJobs job-hdr.job-no job-hdr.job-no2 ~
 job-hdr.est-no job-hdr.ord-no job-hdr.cust-no job-hdr.due-date job.stat ~
-job-hdr.qty job-hdr.i-no job-hdr.opened 
+job-hdr.qty job-hdr.i-no job-hdr.opened job-hdr.loc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseJobs 
 &Scoped-define QUERY-STRING-browseJobs FOR EACH job-hdr ~
       WHERE job-hdr.company EQ itemfg.company AND ~
@@ -521,7 +522,7 @@ w-jobs.loc EQ "*ALL") NO-LOCK, ~
 &Scoped-define FIELDS-IN-QUERY-browsePOs po-ordl.po-no po-ordl.vend-no ~
 po-ordl.due-date po-ordl.job-no po-ordl.ord-qty po-ordl.t-rec-qty ~
 po-ordl.cost po-ordl.line ~
-po-ordl.ord-qty - po-ordl.t-rec-qty @ dRemainingQty 
+po-ordl.ord-qty - po-ordl.t-rec-qty @ dRemainingQty po-ord.loc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browsePOs 
 &Scoped-define QUERY-STRING-browsePOs FOR EACH po-ordl ~
       WHERE po-ordl.company EQ itemfg.company AND ~
@@ -1036,6 +1037,7 @@ DEFINE BROWSE browseAllocated
     ttAllocated.part-no
     ttAllocated.po-no
     ttAllocated.allocated
+    ttAllocated.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
@@ -1055,6 +1057,7 @@ DEFINE BROWSE browseJobs
       job-hdr.qty FORMAT ">>,>>>,>>9":U
       job-hdr.i-no FORMAT "x(15)":U
       job-hdr.opened COLUMN-LABEL "Open" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      job-hdr.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
@@ -1089,6 +1092,7 @@ DEFINE BROWSE browsePOs
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U
       po-ordl.line FORMAT "99":U
       po-ordl.ord-qty - po-ordl.t-rec-qty @ dRemainingQty COLUMN-LABEL "Remaining Quantity" FORMAT "->>>,>>>,>>9.9<<<<<":U
+      po-ord.loc FORMAT "x(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
@@ -1652,6 +1656,8 @@ w-jobs.loc EQ ""*ALL"")"
      _FldNameList[9]   = ASI.job-hdr.i-no
      _FldNameList[10]   > ASI.job-hdr.opened
 "job-hdr.opened" "Open" "yes/no" "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[11]   > ASI.job-hdr.loc
+"job-hdr.loc" "Whse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE browseJobs */
 &ANALYZE-RESUME
@@ -1692,6 +1698,7 @@ w-jobs.loc EQ ""*ALL"")"
      _FldNameList[8]   = ASI.po-ordl.line
      _FldNameList[9]   > "_<CALC>"
 "po-ordl.ord-qty - po-ordl.t-rec-qty @ dRemainingQty" "Remaining Quantity" "->>>,>>>,>>9.9<<<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   = ASI.po-ord.loc
      _Query            is NOT OPENED
 */  /* BROWSE browsePOs */
 &ANALYZE-RESUME
@@ -9789,6 +9796,7 @@ PROCEDURE pViewDetail :
                             ttAllocated.part-no   = bOEOrdl.part-no
                             ttAllocated.po-no     = bOEOrdl.po-no
                             ttAllocated.allocated = bOEOrdl.qty - bOEOrdl.ship-qty
+                            ttAllocated.loc       = bOEOrd.loc
                             .
                     END.
                     {&OPEN-QUERY-browseAllocated}
