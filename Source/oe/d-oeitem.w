@@ -1907,6 +1907,8 @@ DO:
                                 lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                                 oe-ordl.i-name:screen-value = ENTRY(2,char-val).
                             RUN display-fgitem NO-ERROR.
+                            IF btnViewDetail:LABEL EQ "Close Detail" THEN
+                            RUN pViewDetail ("Locations").
                             IF NOT ERROR-STATUS:ERROR THEN 
                             DO:
                                 IF AVAILABLE oe-ord THEN
@@ -2952,7 +2954,8 @@ DO:
             btnTags:SENSITIVE = TRUE
                 .
         ELSE 
-            btnTags:SENSITIVE = FALSE.  
+            btnTags:SENSITIVE = FALSE.
+        IF btnViewDetail:LABEL EQ "Close Detail" THEN
         RUN pViewDetail ("Locations").
     END.
 
