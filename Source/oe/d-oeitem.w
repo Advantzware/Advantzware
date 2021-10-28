@@ -212,11 +212,12 @@ DEFINE VARIABLE li-qoh          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-bal          AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefaultQtyDisplay      AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 
 oSetting = NEW system.Setting().
- 
+
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -245,7 +246,6 @@ DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCreateJobFromFG AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lUnspecified AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cFGBinInquiry AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFGItem AS CHARACTER NO-UNDO.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
@@ -482,18 +482,22 @@ po-ord oe-rel oe-ordl oe-ord itemfg
 
 /* Definitions for BROWSE browseJobs                                    */
 &Scoped-define FIELDS-IN-QUERY-browseJobs job-hdr.job-no job-hdr.job-no2 ~
-job-hdr.est-no job-hdr.ord-no job-hdr.cust-no job-hdr.start-date job.stat ~
+job-hdr.est-no job-hdr.ord-no job-hdr.cust-no job-hdr.due-date job.stat ~
 job-hdr.qty job-hdr.i-no job-hdr.opened 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseJobs 
 &Scoped-define QUERY-STRING-browseJobs FOR EACH job-hdr ~
       WHERE job-hdr.company EQ itemfg.company AND ~
 job-hdr.i-no EQ cFGItem AND ~
-job-hdr.opened EQ YES NO-LOCK, ~
+job-hdr.opened EQ YES AND ~
+(job-hdr.loc EQ w-jobs.loc OR ~
+w-jobs.loc EQ "*ALL") NO-LOCK, ~
       FIRST job OF job-hdr NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-browseJobs OPEN QUERY browseJobs FOR EACH job-hdr ~
       WHERE job-hdr.company EQ itemfg.company AND ~
 job-hdr.i-no EQ cFGItem AND ~
-job-hdr.opened EQ YES NO-LOCK, ~
+job-hdr.opened EQ YES AND ~
+(job-hdr.loc EQ w-jobs.loc OR ~
+w-jobs.loc EQ "*ALL") NO-LOCK, ~
       FIRST job OF job-hdr NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-browseJobs job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-browseJobs job-hdr
@@ -501,7 +505,7 @@ job-hdr.opened EQ YES NO-LOCK, ~
 
 
 /* Definitions for BROWSE browseLocations                               */
-&Scoped-define FIELDS-IN-QUERY-browseLocations w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days   
+&Scoped-define FIELDS-IN-QUERY-browseLocations w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseLocations   
 &Scoped-define SELF-NAME browseLocations
 &Scoped-define QUERY-STRING-browseLocations FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND iPrintAvailQty EQ 2) OR (w-jobs.qtyAvailable LT 0 AND iPrintAvailQty EQ 3) OR (w-jobs.qtyAvailable EQ 0 AND iPrintAvailQty EQ 4) OR (iPrintAvailQty EQ 1))
@@ -523,7 +527,9 @@ po-ordl.item-type EQ NO AND ~
 po-ordl.opened EQ YES NO-LOCK, ~
       FIRST po-ord WHERE TRUE /* Join to po-ordl incomplete */ ~
       AND po-ord.company EQ po-ordl.company AND ~
-po-ord.po-no EQ po-ordl.po-no NO-LOCK INDEXED-REPOSITION
+po-ord.po-no EQ po-ordl.po-no AND ~
+(po-ord.loc EQ w-jobs.loc OR ~
+w-jobs.loc EQ "*ALL") NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-browsePOs OPEN QUERY browsePOs FOR EACH po-ordl ~
       WHERE po-ordl.company EQ itemfg.company AND ~
 po-ordl.i-no EQ cFGItem AND ~
@@ -531,7 +537,9 @@ po-ordl.item-type EQ NO AND ~
 po-ordl.opened EQ YES NO-LOCK, ~
       FIRST po-ord WHERE TRUE /* Join to po-ordl incomplete */ ~
       AND po-ord.company EQ po-ordl.company AND ~
-po-ord.po-no EQ po-ordl.po-no NO-LOCK INDEXED-REPOSITION.
+po-ord.po-no EQ po-ordl.po-no AND ~
+(po-ord.loc EQ w-jobs.loc OR ~
+w-jobs.loc EQ "*ALL") NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-browsePOs po-ordl po-ord
 &Scoped-define FIRST-TABLE-IN-QUERY-browsePOs po-ordl
 &Scoped-define SECOND-TABLE-IN-QUERY-browsePOs po-ord
@@ -1039,7 +1047,7 @@ DEFINE BROWSE browseJobs
       job-hdr.est-no FORMAT "x(5)":U
       job-hdr.ord-no FORMAT ">>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U
-      job-hdr.start-date FORMAT "99/99/9999":U
+      job-hdr.due-date FORMAT "99/99/9999":U
       job.stat FORMAT "x":U
       job-hdr.qty FORMAT ">>,>>>,>>9":U
       job-hdr.i-no FORMAT "x(15)":U
@@ -1369,7 +1377,7 @@ DEFINE FRAME d-oeitem
           SIZE 5.8 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.spare-dec-1 AT ROW 2.43 COL 51.2 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Cust" FORMAT "->>,>>>,>>9.99"
+          LABEL "Cust" FORMAT "->>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
@@ -1627,13 +1635,15 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttAllocated.
      _TblOptList       = ", FIRST"
      _Where[1]         = "job-hdr.company EQ itemfg.company AND
 job-hdr.i-no EQ cFGItem AND
-job-hdr.opened EQ YES"
+job-hdr.opened EQ YES AND
+(job-hdr.loc EQ w-jobs.loc OR
+w-jobs.loc EQ ""*ALL"")"
      _FldNameList[1]   = ASI.job-hdr.job-no
      _FldNameList[2]   = ASI.job-hdr.job-no2
      _FldNameList[3]   = ASI.job-hdr.est-no
      _FldNameList[4]   = ASI.job-hdr.ord-no
      _FldNameList[5]   = ASI.job-hdr.cust-no
-     _FldNameList[6]   = ASI.job-hdr.start-date
+     _FldNameList[6]   = ASI.job-hdr.due-date
      _FldNameList[7]   = ASI.job.stat
      _FldNameList[8]   = ASI.job-hdr.qty
      _FldNameList[9]   = ASI.job-hdr.i-no
@@ -1666,7 +1676,9 @@ po-ordl.i-no EQ cFGItem AND
 po-ordl.item-type EQ NO AND
 po-ordl.opened EQ YES"
      _Where[2]         = "po-ord.company EQ po-ordl.company AND
-po-ord.po-no EQ po-ordl.po-no"
+po-ord.po-no EQ po-ordl.po-no AND
+(po-ord.loc EQ w-jobs.loc OR
+w-jobs.loc EQ ""*ALL"")"
      _FldNameList[1]   = ASI.po-ordl.po-no
      _FldNameList[2]   = ASI.po-ordl.vend-no
      _FldNameList[3]   = ASI.po-ordl.due-date
@@ -4046,11 +4058,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
       cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
       IF cDisplayFGLocationDetails NE "NO" THEN DO:
-          RUN sys/ref/nk1look.p (
-              oe-ordl.company,"FGBinInquiry","L",NO,NO,"","",
-              OUTPUT cFGBinInquiry, OUTPUT lFound
+           RUN sys/ref/nk1look.p (
+              cocode,
+              "FGDefaultQtyDisplay",
+              "I",
+              NO, 
+              YES,
+              "",
+              "",
+              OUTPUT cFGDefaultQtyDisplay,
+              OUTPUT lFound
               ).
+          IF lFound THEN 
+          iPrintAvailQty = INTEGER(cFGDefaultQtyDisplay).
+          IF iPrintAvailQty EQ 0 THEN
+          iPrintAvailQty = 1.
           ASSIGN
+              iPrintAvailQty:SCREEN-VALUE = STRING(iPrintAvailQty)
               btnViewDetail:SENSITIVE = YES
               btnViewDetail:HIDDEN    = NO
               .
@@ -4062,8 +4086,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ELSE
       FRAME {&FRAME-NAME}:WIDTH = 146.
 
-  IF NOT llOEDiscount THEN
-  ASSIGN   asi.oe-ordl.disc:SENSITIVE IN FRAME {&FRAME-NAME} = NO .  
+      IF NOT llOEDiscount THEN
+      asi.oe-ordl.disc:SENSITIVE IN FRAME {&FRAME-NAME} = NO.  
     END.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -9426,6 +9450,8 @@ PROCEDURE pViewDetail :
                     FIRST bOEOrd NO-LOCK
                     WHERE bOEOrd.company  EQ bOEOrdl.company
                       AND bOEOrd.ord-no   EQ bOEOrdl.ord-no
+                      AND (bOEOrd.loc EQ w-jobs.loc
+                       OR w-jobs.loc EQ "*ALL")
                     :
                     CREATE ttAllocated.
                     ASSIGN

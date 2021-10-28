@@ -590,10 +590,10 @@ PROCEDURE local-display-fields :
         RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("display-fields").
     END.
     
-    IF cDisplayFGLocationSummary EQ "NO" THEN
-    HIDE {&LocationQty}.
-    ELSE
+    IF cDisplayFGLocationSummary EQ "YES" THEN
     DISPLAY {&LocationQty}.
+    ELSE
+    HIDE {&LocationQty}.
   END.
 
 END PROCEDURE.
