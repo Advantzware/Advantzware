@@ -2103,6 +2103,7 @@ PROCEDURE valid-date :
 
       ll-warned = YES.
     END.
+  END.
 
 END PROCEDURE.
 
