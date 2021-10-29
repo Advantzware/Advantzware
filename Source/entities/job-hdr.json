@@ -1,0 +1,32 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "job-no",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID"
+  },
+  {
+    "dbFieldName": "job-no2",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID2"
+  },
+  {
+    "dbFieldName": "cust-no",
+    "dbFieldExtent": 0,
+    "attributeName": "CustomerID"
+  },
+  {
+    "dbFieldName": "due-date",
+    "dbFieldExtent": 0,
+    "attributeName": "DueDate"
+  },
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderID"
+  },
+  {
+    "dbFieldName": "qty",
+    "dbFieldExtent": 0,
+    "attributeName": "JobHeaderQuantity"
+  }
+]}

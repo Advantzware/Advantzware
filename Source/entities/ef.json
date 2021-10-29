@@ -1,0 +1,82 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "form-no",
+    "dbFieldExtent": 0,
+    "attributeName": "FormNo"
+  },
+  {
+    "dbFieldName": "gsh-wid",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossSheetWidth"
+  },
+  {
+    "dbFieldName": "gsh-dep",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossSheetDepth"
+  },
+  {
+    "dbFieldName": "gsh-len",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossSheetLength"
+  },
+  {
+    "dbFieldName": "gsh-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossSheetQuantity"
+  },
+  {
+    "dbFieldName": "gsh-wid",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossSheetWidth"
+  },
+  {
+    "dbFieldName": "i-code",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemCode"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID"
+  },
+  {
+    "dbFieldName": "n-out",
+    "dbFieldExtent": 0,
+    "attributeName": "NumberOut"
+  },
+  {
+    "dbFieldName": "nsh-dep",
+    "dbFieldExtent": 0,
+    "attributeName": "NetSheetDepth"
+  },
+  {
+    "dbFieldName": "nsh-len",
+    "dbFieldExtent": 0,
+    "attributeName": "NetSheetLength"
+  },
+  {
+    "dbFieldName": "nsh-wid",
+    "dbFieldExtent": 0,
+    "attributeName": "NetSheetWidth"
+  },
+  {
+    "dbFieldName": "trim-d",
+    "dbFieldExtent": 0,
+    "attributeName": "TrimDepth"
+  },
+  {
+    "dbFieldName": "trim-l",
+    "dbFieldExtent": 0,
+    "attributeName": "TrimLength"
+  },
+  {
+    "dbFieldName": "trim-pen",
+    "dbFieldExtent": 0,
+    "attributeName": "TrimPenPercent"
+  },
+  {
+    "dbFieldName": "trim-w",
+    "dbFieldExtent": 0,
+    "attributeName": "TrimWidth"
+  }
+]}

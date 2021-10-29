@@ -1,0 +1,357 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "areaUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "areaUOM"
+  },
+  {
+    "dbFieldName": "basisWeight",
+    "dbFieldExtent": 0,
+    "attributeName": "basisWeight"
+  },
+  {
+    "dbFieldName": "blankArea",
+    "dbFieldExtent": 0,
+    "attributeName": "blankArea"
+  },
+  {
+    "dbFieldName": "company",
+    "dbFieldExtent": 0,
+    "attributeName": "Company"
+  },
+  {
+    "dbFieldName": "costOverridePerUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "costOverridePerUOM"
+  },
+  {
+    "dbFieldName": "costOverrideUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "costOverrideUOM"
+  },
+  {
+    "dbFieldName": "costTotalBoard",
+    "dbFieldExtent": 0,
+    "attributeName": "CostBoard"
+  },
+  {
+    "dbFieldName": "costTotalFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFactory"
+  },
+  {
+    "dbFieldName": "costTotalFixedOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFO"
+  },
+  {
+    "dbFieldName": "costTotalFull",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFull"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 1,
+    "attributeName": "CostGroupLevel1"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 2,
+    "attributeName": "CostGroupLevel2"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 3,
+    "attributeName": "CostGroupLevel3"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 4,
+    "attributeName": "CostGroupLevel4"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 5,
+    "attributeName": "CostGroupLevel5"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 6,
+    "attributeName": "CostGroupLevel6"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 7,
+    "attributeName": "CostGroupLevel7"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 8,
+    "attributeName": "CostGroupLevel8"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 9,
+    "attributeName": "CostGroupLevel9"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 10,
+    "attributeName": "CostGroupLevel10"
+  },
+  {
+    "dbFieldName": "costTotalLabor",
+    "dbFieldExtent": 0,
+    "attributeName": "CostLabor"
+  },
+  {
+    "dbFieldName": "costTotalMaterial",
+    "dbFieldExtent": 0,
+    "attributeName": "CostMaterial"
+  },
+  {
+    "dbFieldName": "costTotalNonFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostNonFactory"
+  },
+  {
+    "dbFieldName": "costTotalVariableOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostVO"
+  },
+  {
+    "dbFieldName": "dieArea",
+    "dbFieldExtent": 0,
+    "attributeName": "dieArea"
+  },
+  {
+    "dbFieldName": "dieDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "dieDepth"
+  },
+  {
+    "dbFieldName": "dieLength",
+    "dbFieldExtent": 0,
+    "attributeName": "dieLength"
+  },
+  {
+    "dbFieldName": "dieWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "dieWidth"
+  },
+  {
+    "dbFieldName": "dimUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "dimUOM"
+  },
+  {
+    "dbFieldName": "estCostFormID",
+    "dbFieldExtent": 0,
+    "attributeName": "FormID"
+  },
+  {
+    "dbFieldName": "estCostHeaderID",
+    "dbFieldExtent": 0,
+    "attributeName": "HeaderID"
+  },
+  {
+    "dbFieldName": "estimateNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Estimate"
+  },
+  {
+    "dbFieldName": "formNo",
+    "dbFieldExtent": 0,
+    "attributeName": "FormNo"
+  },
+  {
+    "dbFieldName": "grossArea",
+    "dbFieldExtent": 0,
+    "attributeName": "grossArea"
+  },
+  {
+    "dbFieldName": "grossDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "grossDepth"
+  },
+  {
+    "dbFieldName": "grossLength",
+    "dbFieldExtent": 0,
+    "attributeName": "grossLength"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredNoWaste",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredNoWaste"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredRunWaste",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredRunWaste"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredSetupWaste",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredSetupWaste"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredTotal",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredTotal"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredTotalArea",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredTotalArea"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredTotalAreaUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredTotalAreaUOM"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredTotalWeight",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredTotalWeight"
+  },
+  {
+    "dbFieldName": "grossQtyRequiredTotalWeightUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "grossQtyRequiredTotalWeightUOM"
+  },
+  {
+    "dbFieldName": "grossWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "grossWidth"
+  },
+  {
+    "dbFieldName": "netArea",
+    "dbFieldExtent": 0,
+    "attributeName": "netArea"
+  },
+  {
+    "dbFieldName": "netDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "netDepth"
+  },
+  {
+    "dbFieldName": "netLength",
+    "dbFieldExtent": 0,
+    "attributeName": "netLength"
+  },
+  {
+    "dbFieldName": "netProfit",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfit"
+  },
+  {
+    "dbFieldName": "netWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "netWidth"
+  },
+  {
+    "dbFieldName": "noCost",
+    "dbFieldExtent": 0,
+    "attributeName": "NoCost"
+  },
+  {
+    "dbFieldName": "numOut",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutTotal"
+  },
+  {
+    "dbFieldName": "numOutBlanksOnNet",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutBlanks"
+  },
+  {
+    "dbFieldName": "numOutNet",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutNetSheet"
+  },
+  {
+    "dbFieldName": "numOutNetDepth",
+    "dbFieldExtent": 0,
+    "attributeName": "NumoutNetDepth"
+  },
+  {
+    "dbFieldName": "numOutNetLength",
+    "dbFieldExtent": 0,
+    "attributeName": "NumOutNetLength"
+  },
+  {
+    "dbFieldName": "numOutNetWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "NumOutNetWidth"
+  },
+  {
+    "dbFieldName": "profitPctGross",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossProfitPercent"
+  },
+  {
+    "dbFieldName": "profitPctNet",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfitPercent"
+  },
+  {
+    "dbFieldName": "quantityFGOnForm",
+    "dbFieldExtent": 0,
+    "attributeName": "quantityFGOnForm"
+  },
+  {
+    "dbFieldName": "quantityFGOnFormRequired",
+    "dbFieldExtent": 0,
+    "attributeName": "quantityFGOnFormRequired"
+  },
+  {
+    "dbFieldName": "quantityFGOnFormYielded",
+    "dbFieldExtent": 0,
+    "attributeName": "quantityFGOnFormYielded"
+  },
+  {
+    "dbFieldName": "rec_key",
+    "dbFieldExtent": 0,
+    "attributeName": "RecordKey"
+  },
+  {
+    "dbFieldName": "rollWidth",
+    "dbFieldExtent": 0,
+    "attributeName": "rollWidth"
+  },
+  {
+    "dbFieldName": "sellPrice",
+    "dbFieldExtent": 0,
+    "attributeName": "Price"
+  },
+  {
+    "dbFieldName": "weightDieSheet",
+    "dbFieldExtent": 0,
+    "attributeName": "weightDieSheet"
+  },
+  {
+    "dbFieldName": "weightDieUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "weightDieUOM"
+  },
+  {
+    "dbFieldName": "weightGrossSheet",
+    "dbFieldExtent": 0,
+    "attributeName": "weightGrossSheet"
+  },
+  {
+    "dbFieldName": "weightGrossUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "weightGrossUOM"
+  },
+  {
+    "dbFieldName": "weightNetSheet",
+    "dbFieldExtent": 0,
+    "attributeName": "weightNetSheet"
+  },
+  {
+    "dbFieldName": "weightNetUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "weightNetUOM"
+  }
+]}
