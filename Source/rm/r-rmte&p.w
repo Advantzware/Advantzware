@@ -1951,9 +1951,6 @@ PROCEDURE post-rm :
     DEFINE VARIABLE v-recid        AS RECID     NO-UNDO.
     DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE dQuantity      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE v-rmemail-file AS CHARACTER NO-UNDO.
@@ -2328,59 +2325,23 @@ PROCEDURE post-rm :
                 .
         END.
       
-        IF AVAILABLE rm-rcpth AND AVAILABLE rm-rdtlh AND rm-rcpth.rita-code EQ "R" AND rm-rcpth.po-no NE "" THEN 
-        DO:
-            FIND FIRST bf-po-ordl NO-LOCK
-                WHERE bf-po-ordl.company EQ rm-rcpth.company
-                AND bf-po-ordl.po-no   EQ INTEGER(rm-rcpth.po-no)
-                AND bf-po-ordl.line    EQ rm-rcpth.po-line
-                NO-ERROR.
-            IF AVAILABLE bf-po-ordl THEN 
-            DO:   
-                FIND FIRST ttReceipt
-                    WHERE ttReceipt.poID   EQ bf-po-ordl.po-no
-                    AND ttReceipt.poLine EQ bf-po-ordl.line
-                    NO-ERROR.
-                IF NOT AVAILABLE ttReceipt THEN 
-                DO:
-                    CREATE ttReceipt.
-                    ASSIGN
-                        iCount                = iCount + 1
-                        ttReceipt.lineID      = iCount
-                        ttReceipt.company     = bf-po-ordl.company
-                        ttReceipt.location    = rm-rcpth.loc
-                        ttReceipt.poID        = bf-po-ordl.po-no
-                        ttReceipt.poLine      = bf-po-ordl.line
-                        ttReceipt.itemID      = rm-rcpth.i-no
-                        ttReceipt.itemName    = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
-                        ttReceipt.quantityUOM = bf-po-ordl.pr-uom
-                        .
-                END.
-              
-                dQuantity = rm-rdtlh.qty.
-              
-                IF ttReceipt.quantityUOM EQ "" OR ttReceipt.quantityUOM NE rm-rcpth.pur-uom THEN 
-                DO:
-                    RUN Conv_QuantityFromUOMToUOM (
-                        INPUT  rm-rcpth.company,
-                        INPUT  rm-rcpth.i-no,
-                        INPUT  "RM",
-                        INPUT  dQuantity,
-                        INPUT  rm-rcpth.pur-uom, 
-                        INPUT  ttReceipt.quantityUOM,
-                        INPUT  0,
-                        INPUT  bf-po-ordl.s-len,
-                        INPUT  bf-po-ordl.s-wid,
-                        INPUT  bf-po-ordl.s-dep,
-                        INPUT  0,
-                        OUTPUT dQuantity,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).          
-                END. 
-              
-                ttReceipt.quantity = ttReceipt.quantity + dQuantity.
-            END.
+        IF AVAILABLE rm-rcpth AND AVAILABLE rm-rdtlh AND rm-rcpth.rita-code EQ "R" THEN DO:
+            CREATE ttReceipt.
+            ASSIGN
+                iCount                 = iCount + 1
+                ttReceipt.lineID       = iCount
+                ttReceipt.company      = rm-rcpth.company
+                ttReceipt.location     = rm-rcpth.loc
+                ttReceipt.poID         = INTEGER(rm-rcpth.po-no)
+                ttReceipt.poLine       = rm-rcpth.po-line
+                ttReceipt.jobID        = rm-rcpth.job-no
+                ttReceipt.jobID2       = rm-rcpth.job-no2                  
+                ttReceipt.itemID       = rm-rcpth.i-no
+                ttReceipt.itemName     = IF rm-rcpth.i-name EQ "" THEN rm-rcpth.i-no ELSE rm-rcpth.i-name
+                ttReceipt.quantityUOM  = rm-rcpth.pur-uom
+                ttReceipt.quantity     = rm-rdtlh.qty
+                ttReceipt.rcpthRowID   = ROWID(rm-rcpth)
+                .
         END.
     END. /* for each rm-rctd */
 
@@ -2455,10 +2416,10 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
         INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
-        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "SendReceipts",                                     /* API ID (Mandatory) */
         INPUT  "",                                                 /* Scope ID */
         INPUT  "",                                                 /* Scoped Type */
-        INPUT  "CreateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "RMPost",                                           /* Trigger ID (Mandatory) */
         INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
@@ -2466,7 +2427,25 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
         OUTPUT lSuccess,                                           /* Success/Failure flag */
         OUTPUT cMessage                                            /* Status message */
         ) NO-ERROR.
-        
+
+    FOR EACH ttReceipt:
+        IF ttReceipt.jobID NE "" THEN
+            RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
+                INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
+                INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+                INPUT  "",                                                 /* Scope ID */
+                INPUT  "",                                                 /* Scoped Type */
+                INPUT  "JobRMPost",                                        /* Trigger ID (Mandatory) */
+                INPUT  "rm-rcpth",                                         /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  STRING(ttReceipt.rcpthRowID),                       /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
+                OUTPUT lSuccess,                                           /* Success/Failure flag */
+                OUTPUT cMessage                                            /* Status message */
+                ) NO-ERROR.
+    END.
+            
     EMPTY TEMP-TABLE ttReceipt.
         
     DELETE PROCEDURE hdOutboundProcs.    

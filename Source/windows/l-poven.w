@@ -678,7 +678,7 @@ PROCEDURE reset-tt-report :
         create tt-report.
         assign
          tt-report.term-id = v-term
-         tt-report.key-01  = string(po-ord.po-no,">>>>>>")
+         tt-report.key-01  = string(po-ord.po-no,">>>>>>>>")
          tt-report.rec-id  = recid(po-ordl)
          tt-report.key-05 = STRING(RECID(po-ordl))
          lv-first-recid = IF lv-first-recid = ? THEN RECID(tt-report) ELSE lv-first-recid

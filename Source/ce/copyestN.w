@@ -63,13 +63,12 @@ ASSIGN
 &Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 RECT-20 from_company ~
 from_est tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
 tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
-tb_clip-att to_company fi_cust fi_part fi_shipto fi_rep tbAutoClose ~
+tb_clip-att to_company fi_cust fi_part fi_shipto fi_rep ~
 btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS from_company from_name from_est from_ship ~
 from_part tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
 tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
-tb_clip-att to_company to_name to_est fi_cust fi_part fi_shipto fi_rep ~
-tbAutoClose 
+tb_clip-att to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -165,11 +164,6 @@ DEFINE RECTANGLE RECT-20
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
     SIZE 71 BY 6.19.
 
-DEFINE VARIABLE tbAutoClose    AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tb_clip-att    AS LOGICAL INITIAL YES 
     LABEL "Copy Paper Clip Attachments?" 
     VIEW-AS TOGGLE-BOX
@@ -253,27 +247,26 @@ DEFINE FRAME FRAME-A
     tb_dept-notes AT ROW 10.24 COL 42.6 WIDGET-ID 14
     tb_copy-prep AT ROW 11.1 COL 16.4 WIDGET-ID 20
     tb_clip-att AT ROW 11.14 COL 42.6 WIDGET-ID 16
-    to_company AT ROW 14.1 COL 23 COLON-ALIGNED HELP
+    to_company AT ROW 14.1 COL 25 COLON-ALIGNED HELP
     "Copy To Company"
-    to_name AT ROW 14.1 COL 40 COLON-ALIGNED NO-LABELS
-    to_est AT ROW 15.05 COL 23 COLON-ALIGNED HELP
+    to_name AT ROW 14.1 COL 42 COLON-ALIGNED NO-LABELS
+    to_est AT ROW 15.05 COL 25 COLON-ALIGNED HELP
     "Enter Estimate# to Be To"
-    fi_cust AT ROW 16 COL 23 COLON-ALIGNED HELP
+    fi_cust AT ROW 16 COL 25 COLON-ALIGNED HELP
     "Enter New Customer Number"
-    fi_part AT ROW 16.95 COL 23 COLON-ALIGNED HELP
+    fi_part AT ROW 16.95 COL 25 COLON-ALIGNED HELP
     "Enter New Customer Part Number"
-    fi_shipto AT ROW 17.91 COL 23 COLON-ALIGNED HELP
+    fi_shipto AT ROW 17.91 COL 25 COLON-ALIGNED HELP
     "Enter New Customer Part Number" WIDGET-ID 10
-    fi_rep AT ROW 18.86 COL 23 COLON-ALIGNED HELP
+    fi_rep AT ROW 18.86 COL 25 COLON-ALIGNED HELP
     "Enter New Customer Part Number" WIDGET-ID 12
-    tbAutoClose AT ROW 20.62 COL 24.6 WIDGET-ID 64
-    btn-process AT ROW 21.57 COL 24.4
-    btn-cancel AT ROW 21.57 COL 53
+    btn-process AT ROW 21 COL 26.8
+    btn-cancel AT ROW 21 COL 53
     " C O P Y  T O" VIEW-AS TEXT
-    SIZE 14 BY 1 AT ROW 12.71 COL 40
+    SIZE 13 BY 1 AT ROW 12.71 COL 40
     BGCOLOR 8 
     " C O P Y  F R O M" VIEW-AS TEXT
-    SIZE 19 BY 1 AT ROW 1.95 COL 38
+    SIZE 17 BY 1 AT ROW 1.95 COL 38
     BGCOLOR 8 
     " Selection Parameters" VIEW-AS TEXT
     SIZE 21 BY .95 AT ROW 1.24 COL 4
@@ -505,8 +498,6 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
         END.
 
         RELEASE ce-ctrl.
-        IF tbAutoClose:CHECKED THEN 
-            APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1045,12 +1036,12 @@ PROCEDURE enable_UI :
     DISPLAY from_company from_name from_est from_ship from_part tb_copy 
         tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
         tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
-        to_company to_name to_est fi_cust fi_part fi_shipto fi_rep tbAutoClose 
+        to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-17 RECT-18 RECT-19 RECT-20 from_company from_est tb_copy 
         tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
         tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
-        to_company fi_cust fi_part fi_shipto fi_rep tbAutoClose btn-process 
+        to_company fi_cust fi_part fi_shipto fi_rep btn-process 
         btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -1609,6 +1600,8 @@ PROCEDURE run-process :
     SESSION:SET-WAIT-STATE("").
 
     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
+    
+    APPLY 'CLOSE' TO THIS-PROCEDURE.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 

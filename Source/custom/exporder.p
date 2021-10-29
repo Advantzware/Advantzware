@@ -29,8 +29,11 @@ OUTPUT TO value(oeexport-char) /*c:\tmp\FCORINGTG.DAT.*/.
 
 v-comma = "~t" /*","*/ .
 
-FOR EACH oe-ord NO-LOCK WHERE oe-ord.company = cocode AND oe-ord.opened,
-    EACH oe-ordl OF oe-ord NO-LOCK WHERE oe-ordl.opened:
+FOR EACH oe-ord NO-LOCK
+    WHERE oe-ord.company EQ cocode
+      AND oe-ord.opened  EQ YES,
+    EACH oe-ordl OF oe-ord NO-LOCK
+    WHERE oe-ordl.opened EQ YES:
     FIND FIRST itemfg WHERE itemfg.company = oe-ord.company
                         AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
     IF (AVAIL itemfg AND itemfg.procat = "ART") OR NOT AVAIL itemfg THEN NEXT.

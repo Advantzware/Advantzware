@@ -511,7 +511,7 @@ PROCEDURE Print-Detail :
      /* Print a detail line. */
      PUT /*LineNum() FORMAT "99" AT 1 */
          wrk-chk.inv-no                TO 12 FORMAT "x(12)"
-         trim(string(wrk-chk.po-no,">>>>>>")) to 25 format "x(12)"
+         trim(string(wrk-chk.po-no,">>>>>>>>")) to 25 format "x(12)"
          wrk-chk.inv-date              TO 34 FORMAT "99/99/99"
          wrk-chk.inv-amt               TO 45 FORMAT "->>>,>>9.99"
          wrk-chk.amt-paid              TO 56 FORMAT "->>>,>>9.99"

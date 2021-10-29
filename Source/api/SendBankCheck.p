@@ -68,6 +68,7 @@ DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD Amt         AS DECIMAL
     FIELD checkDate   AS DATE
     FIELD invDate     AS DATE
+    FIELD delMethod   AS CHARACTER
     .
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
@@ -161,6 +162,7 @@ FOR EACH ap-sel NO-LOCK
         ttPaymentData.invDate     = ap-inv.inv-date
         ttPaymentData.checkDate   = TODAY
         ttPaymentData.amt         = ap-sel.amt-paid * (ap-sel.amt-paid / (ap-inv.net + ap-inv.freight))
+        ttPaymentData.delMethod   = ap-sel.deliveryMethod
         .    
 
     FIND FIRST currency NO-LOCK
@@ -270,6 +272,7 @@ FOR EACH ttPaymentData
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BankAccount",cBankAccount).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "SPACE", " ").          
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FillZero", cFillZero).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DeliveryMethod", ttPaymentData.delMethod). 
         lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.        
         
     END.

@@ -199,6 +199,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetProgramAndPage Include
+PROCEDURE GetProgramAndPage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCurrentProgram AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCurrentPage AS INTEGER NO-UNDO.
+    
+    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+    iCurrentPage = INTEGER(RETURN-VALUE).
+
+    ASSIGN
+        opcCurrentProgram = PROGRAM-NAME(1)
+        opcCurrentProgram = REPLACE(opcCurrentProgram, "\", "/")
+        opcCurrentProgram = SUBSTRING(opcCurrentProgram,1,INDEX(opcCurrentProgram,".") - 1)
+        opcCurrentProgram = ENTRY(NUM-ENTRIES(opcCurrentProgram," "), opcCurrentProgram," ")
+        .
+            
+    opcCurrentProgram = opcCurrentProgram + "/" + STRING(iCurrentPage).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Init-Options-Panel Include 
 PROCEDURE Init-Options-Panel :
 /*------------------------------------------------------------------------------

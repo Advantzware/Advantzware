@@ -687,6 +687,11 @@ ASSIGN
                     v-ovund
                 with stream-io width 135 no-labels no-box frame line-det3.
                 v-printline = v-printline + 4.
+                                
+                IF v-printline >= 40 THEN DO:
+                  v-printline = 0.
+                  PAGE {1}.
+                END.
           /*end. /* last-of(eb.form-no) */ ysk*/
         end. /* each eb , ebloop*/
         END. /* do: */
@@ -763,6 +768,11 @@ ASSIGN
                 put skip(1).
                 v-printline = v-printline + 2.
             END.
+            
+            IF v-printline >= 48 THEN DO:  
+                  v-printline = 0.
+                  PAGE {1}.
+            END.
 
             delete wrk-ink.
           end. /* each wrk-ink */
@@ -788,7 +798,7 @@ ASSIGN
               v-printline = v-printline + 1.
           END.
 
-          IF v-printline >= 40 THEN DO:
+          IF v-printline >= 48 THEN DO:
                 v-printline = 0.
                 PAGE {1}.
             END.
@@ -968,8 +978,8 @@ ASSIGN
               if wrk-op.num-sh[j + k] ne 0 then v-ok = yes.
             end.
             if not v-ok then next.
-
-            IF v-printline >= 40 THEN DO:
+             
+            IF v-printline >= 48 THEN DO:
                 v-printline = 0.
                 PAGE {1}.
             END.
@@ -1017,8 +1027,8 @@ ASSIGN
               if wrk-op.num-sh[j + k] ne 0 then v-ok = yes.
             end.
             if not v-ok then next.
-
-            IF v-printline >= 40 THEN DO:
+            
+            IF v-printline >= 48 THEN DO:
                 v-printline = 0.
                 PAGE {1}.
               END.
@@ -1054,6 +1064,10 @@ ASSIGN
                   space(1)
                   wrk-op.speed[k] format ">>>>>".
               v-printline = v-printline + 1.
+              IF v-printline >= 48 THEN DO: 
+                 v-printline = 0.
+                 PAGE {1}.
+              END.
             end.
           end.
 
