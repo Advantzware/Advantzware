@@ -75,7 +75,7 @@ ASSIGN
                             "Set Header,Group,Exempt from Disc," +
                             "P/M,Sell Price,Sell Price UOM,Type Code,Currency," +
                             "Warehouse,Bin,Inventory Class,Cycle Count Code,Production Code," +
-                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone,Sub Zone," +
+                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,Pallet#,Zone,Sub Zone," +
                             "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Total Std Cost,Average Cost,Last Cost,Cost UOM,Full Cost," +
@@ -147,7 +147,7 @@ ASSIGN
                             "Style,Die #,Plate #,CAD #,Quality/SPC #,UPC#,Release Sequence,Taxable," +
                             "Varied,Status,P/M,Ship Method,Stock/Custom,Sell Price,Sell Price UOM," +
                             "Currency,Category,Type Code,Warehouse,Bin,Inventory Class,Cycle Count Code," +
-                            "Count,Units/Pall,Production Code,Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone,Sub Zone," +
+                            "Count,Units/Pall,Production Code,Weight,Pk Note,Freight Class,Freight Class Desc,Pallet#,Zone,Sub Zone," +
                             "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Full Cost,Cost UOM,Stocked,Box Length,Box Width,Box Depth,Blank Length,Blank Width," +
