@@ -344,9 +344,32 @@
     END.
 
     FINALLY:
+        IF VALID-OBJECT (oEbAttribute) THEN
+            DELETE OBJECT oEbAttribute.
+
+        IF VALID-OBJECT (oEfAttribute) THEN
+            DELETE OBJECT oEfAttribute.                    
+
         IF VALID-OBJECT (oEstCostHeader) THEN
             DELETE OBJECT oEstCostHeader.
-            	
+
+        IF VALID-OBJECT (oEstCostForm) THEN
+            DELETE OBJECT oEstCostForm.
+
+        IF VALID-OBJECT (oEstCostBlank) THEN
+            DELETE OBJECT oEstCostBlank.
+
+        IF VALID-OBJECT (oEstCostMaterial) THEN
+            DELETE OBJECT oEstCostMaterial.
+
+        IF VALID-OBJECT (oEstCostOperation) THEN
+            DELETE OBJECT oEstCostOperation.
+
+        IF VALID-OBJECT (oEstCostItem) THEN
+            DELETE OBJECT oEstCostItem.
+
+        IF VALID-OBJECT (oJobHeader) THEN
+            DELETE OBJECT oJobHeader.
     END FINALLY.
     
 
