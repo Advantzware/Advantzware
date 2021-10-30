@@ -34,11 +34,7 @@ def new shared var cocode as cha no-undo.
 def new shared buffer xest for est.
 def new shared buffer xef  for ef.
 def new shared buffer xeb  for eb.
-{cec/descalc.i new}
-def TEMP-TABLE w-box-h NO-UNDO like box-design-hdr.
-def TEMP-TABLE w-box-l NO-UNDO like box-design-line.
-def var lv-wscore like box-design-hdr.wscore no-undo.
-def var lv-wcum-score like box-design-hdr.wcum-score no-undo.
+
 DEF VAR ll-box-refreshed AS LOG NO-UNDO.
 
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -432,131 +428,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-box V-table-Win 
-PROCEDURE build-box :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-session:set-wait-state("general").
-  /* copied from cec/est-6-re.p */
-def input parameter v-rebuild as char.
-
-def buffer xbox-design-hdr  for box-design-hdr.
-def buffer xbox-design-line for box-design-line.
-
-cocode = eb.company.
-find xeb where recid(xeb) = recid(eb) no-lock.               
-
-for each box-design-hdr where box-design-hdr.design-no = 0 and
-                              box-design-hdr.company = xeb.company 
-                          and box-design-hdr.est-no = xeb.est-no
-    /*{cec/est-6W.i box-design-hdr}*/
-      and box-design-hdr.form-no   eq xeb.form-no
-      and box-design-hdr.blank-no  eq xeb.blank-no
-    no-lock:
-  /*      
-  for each box-design-line of box-design-hdr:
-    create w-box-l.
-    buffer-copy box-design-line to w-box-l.
-  end.
-  */
-
-  create w-box-h.
-  buffer-copy box-design-hdr to w-box-h.
-end.
-
-{cec/est-6del.i}
-
-find first xest where xest.company = xeb.company and
-                      xest.est-no = xeb.est-no
-                      no-lock.
-find first xef where xef.company = xeb.company 
-                 and xef.est-no   eq xeb.est-no
-                 and xef.form-no eq xeb.form-no  no-lock.
-
-find first style where style.company eq xeb.company
-                   and style.style   eq xeb.style
-                 no-lock no-error.
-if avail style then
-  find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
-                                       and xbox-design-hdr.company   eq style.company 
-                               and xbox-design-hdr.est-no    eq ""
-             no-lock no-error.
-
-if avail xbox-design-hdr then do:
-   run cec/descalc.p (recid(xest), recid(xeb)).
-   create box-design-hdr.
-   assign  box-design-hdr.design-no   = 0
-           box-design-hdr.company = xeb.company
-           box-design-hdr.est-no      = xeb.est-no
-           box-design-hdr.form-no     = xeb.form-no
-           box-design-hdr.blank-no    = xeb.blank-no
-           box-design-hdr.description = if avail xbox-design-hdr then
-                                          xbox-design-hdr.description else ""
-           box-design-hdr.lscore      = v-lscore-c
-           box-design-hdr.lcum-score  = v-lcum-score-c
-/*           fil_id                     = recid(box-design-hdr). */
-           box-design-hdr.wscore = xbox-design-hdr.wscore
-           box-design-hdr.wcum-score = xbox-design-hdr.wcum-score
-           box-design-hdr.box-text = xbox-design-hdr.box-text
-           .
-
-   for each xbox-design-line of xbox-design-hdr no-lock:
-      create box-design-line.
-      assign box-design-line.design-no  = box-design-hdr.design-no
-             box-design-line.company = box-design-hdr.company
-             box-design-line.est-no      = box-design-hdr.est-no
-             box-design-line.form-no    = box-design-hdr.form-no
-             box-design-line.blank-no   = box-design-hdr.blank-no
-             box-design-line.line-no    = xbox-design-line.line-no
-             box-design-line.line-text  = xbox-design-line.line-text.
-
-      find first w-box-design-line
-           where w-box-design-line.line-no eq box-design-line.line-no   no-error.
-      if avail w-box-design-line then
-         assign  box-design-line.wscore     = w-box-design-line.wscore-c
-                 box-design-line.wcum-score = w-box-design-line.wcum-score-c.
-   end.
- 
-   if v-rebuild ne "B" then do:
-      if v-rebuild eq "S" then
-         box-design-hdr.description = w-box-h.description.
-      else  assign box-design-hdr.lscore      = w-box-h.lscore
-                   box-design-hdr.lcum-score  = w-box-h.lcum-score
-                   box-design-hdr.wscore      = w-box-h.wscore
-                   box-design-hdr.wcum-score  = w-box-h.wcum-score.
-
-      for each w-box-l of box-design-hdr no-lock,
-          first box-design-line of w-box-l:
-      
-          if v-rebuild eq "S" then
-             assign box-design-line.line-no    = w-box-l.line-no
-                     box-design-line.line-text  = w-box-l.line-text.
-          else do:
-             find first w-box-design-line
-                  where w-box-design-line.line-no eq w-box-l.line-no   no-error.
-             if avail w-box-design-line then
-                assign box-design-line.wscore     = w-box-l.wscore
-                       box-design-line.wcum-score = w-box-l.wcum-score.
-          end.     
-      end.
-   end.
-end.
-/*
-def var char-hdl as cha no-undo.
-run get-link-handle in adm-broker-hdl (this-procedure,"record-source", output char-hdl).
-run dispatch in widget-handle(char-hdl) ('open-query').  
-*/
-run build-screen.
-session:set-wait-state("").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -626,27 +497,14 @@ PROCEDURE refresh-boximg :
 
    FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
    IF NOT AVAIL box-design-hdr THEN RETURN.
-
-   ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.
-  /*
-   if box-design-hdr.box-3d-image <> "" then do:
-     /*  box-image:auto-resize = yes. */
-     ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
-     /*assign box-image:height-pixels = box-image:height-pixels - 10
-            box-image:width-pixels =  box-image:width-pixels - 10.
-            
-     */
-   end.
-   ELSE */
-        if box-design-hdr.box-image <> "" then do:
-     /*  box-image:auto-resize = yes. */
-     ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name}.
-     /*assign box-image:height-pixels = box-image:height-pixels - 10
-            box-image:width-pixels =  box-image:width-pixels - 10.
-            
-     */
-   end.
-   ll-box-refreshed = YES.
+    ll-dummy = box-image-2:load-image("") IN FRAME {&frame-name} NO-ERROR.
+  
+    IF box-design-hdr.box-image <> "" THEN 
+    DO:
+        ll-dummy = box-image-2:load-image(box-design-hdr.box-image) IN FRAME {&frame-name}.
+     
+    END.
+    ll-box-refreshed = YES.
 
 END PROCEDURE.
 

@@ -300,7 +300,7 @@ find first xef where xef.company = xeb.company
                  and xef.est-no   eq xeb.est-no
                  and xef.form-no eq xeb.form-no  no-lock.
 
-RUN build-box1 (v-rebuild).
+RUN build-box1 (v-rebuild, BUFFER xeb).
 
 run dispatch ('open-query').
 
@@ -318,97 +318,24 @@ PROCEDURE build-box1 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def input parameter v-rebuild as char.
+ DEFINE INPUT PARAMETER v-rebuild AS CHARACTER NO-UNDO.
+ DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+ 
+ DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+ 
+
+    IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+        RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
-def buffer xbox-design-hdr  for box-design-hdr.
-def buffer xbox-design-line for box-design-line.
-
-
-cocode = xeb.company.
-
-for each box-design-hdr where box-design-hdr.design-no = 0 and
-                              box-design-hdr.company = xeb.company 
-                          and box-design-hdr.est-no = xeb.est-no
-    /*{cec/est-6W.i box-design-hdr}*/
-      and box-design-hdr.form-no   eq xeb.form-no
-      and box-design-hdr.blank-no  eq xeb.blank-no
-    no-lock:
-
-    create w-box-h.
-    buffer-copy box-design-hdr to w-box-h.
-end.
-
-{cec/est-6del.i}
-
-find first style where style.company eq xeb.company
-                   and style.style   eq xeb.style
-                 no-lock no-error.
-if avail style then
-  find first xbox-design-hdr where xbox-design-hdr.design-no eq style.designIDAlt
-  			       and xbox-design-hdr.company   eq style.company 
-                               and xbox-design-hdr.est-no    eq ""
-             no-lock no-error.
-
-if avail xbox-design-hdr then do:
-   run cec/descalc.p (recid(xest), recid(xeb)).
-   create box-design-hdr.
-   assign  box-design-hdr.design-no   = 0
-           box-design-hdr.company = xeb.company
-           box-design-hdr.est-no      = xeb.est-no
-           box-design-hdr.form-no     = xeb.form-no
-           box-design-hdr.blank-no    = xeb.blank-no
-           box-design-hdr.description = if avail xbox-design-hdr then
-                                          xbox-design-hdr.description else ""
-           box-design-hdr.lscore      = v-lscore-c
-           box-design-hdr.lcum-score  = v-lcum-score-c
-/*           fil_id                     = recid(box-design-hdr). */
-           box-design-hdr.wscore = xbox-design-hdr.wscore
-           box-design-hdr.wcum-score = xbox-design-hdr.wcum-score
-           box-design-hdr.box-text = xbox-design-hdr.box-text
-           box-design-hdr.box-image = xbox-design-hdr.box-image
-           .
-
-   for each xbox-design-line of xbox-design-hdr no-lock:
-      create box-design-line.
-      assign box-design-line.design-no  = box-design-hdr.design-no
-             box-design-line.company = box-design-hdr.company
-             box-design-line.est-no      = box-design-hdr.est-no
-             box-design-line.form-no    = box-design-hdr.form-no
-             box-design-line.blank-no   = box-design-hdr.blank-no
-             box-design-line.line-no    = xbox-design-line.line-no
-             box-design-line.line-text  = xbox-design-line.line-text.
-
-      find first w-box-design-line
-           where w-box-design-line.line-no eq box-design-line.line-no   no-error.
-      if avail w-box-design-line then
-         assign  box-design-line.wscore     = w-box-design-line.wscore-c
-                 box-design-line.wcum-score = w-box-design-line.wcum-score-c.
-   end.
-   if v-rebuild ne "B" then do:
-      if v-rebuild eq "S" then
-         box-design-hdr.description = w-box-h.description.
-      else  assign box-design-hdr.lscore      = w-box-h.lscore
-                   box-design-hdr.lcum-score  = w-box-h.lcum-score
-                   box-design-hdr.wscore      = w-box-h.wscore
-                   box-design-hdr.wcum-score  = w-box-h.wcum-score.
-
-      for each w-box-l of box-design-hdr no-lock,
-          first box-design-line of w-box-l:
-      
-          if v-rebuild eq "S" then
-             assign box-design-line.line-no    = w-box-l.line-no
-                     box-design-line.line-text  = w-box-l.line-text.
-          else do:
-             find first w-box-design-line
-                  where w-box-design-line.line-no eq w-box-l.line-no   no-error.
-             if avail w-box-design-line then
-                assign box-design-line.wscore     = w-box-l.wscore
-                       box-design-line.wcum-score = w-box-l.wcum-score.
-          end.     
-      end.
-   end.
-end.
-
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildBoxDesignForEstimate IN hdFormulaProcs (
+        INPUT ROWID(ipbf-eb)
+        ).
+        
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
