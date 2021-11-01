@@ -91,7 +91,7 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-rmrcpt AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-allocated AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -353,22 +353,11 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-rmrcpt ).
        RUN set-position IN h_p-rmrcpt ( 22.43 , 28.00 ) NO-ERROR.
        RUN set-size IN h_p-rmrcpt ( 1.76 , 82.00 ) NO-ERROR.
-       
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-allocated.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-allocated ).
-       RUN set-position IN h_p-allocated ( 22.43 , 115.00 ) NO-ERROR.
-       RUN set-size IN h_p-allocated ( 1.76 , 22.00 ) NO-ERROR.
 
        /* Links to SmartNavBrowser h_b-rcptd. */
        RUN add-link IN adm-broker-hdl ( h_p-rmrcpt , 'TableIO':U , h_b-rcptd ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'cancel-item':U , h_b-rcptd ).
        RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'Record':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_p-allocated , 'TableIO':U , h_b-rcptd ).
 
        /* Links to SmartPanel h_p-rmrcpt. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-rmrcpt ).

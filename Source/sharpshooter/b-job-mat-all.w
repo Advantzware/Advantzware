@@ -57,6 +57,8 @@ DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lHasAccess     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hdPgmSecurity  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lReturnError   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
 
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
 RUN epCanAccess IN hdPgmSecurity (
@@ -91,7 +93,7 @@ DELETE OBJECT hdPgmSecurity.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr item.q-avail job-mat.qty-all job-mat.qty-uom cEmptyColumn   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table job-mat.rm-i-no job-mat.qty-all 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table job-mat
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table job-mat
 &Scoped-define SELF-NAME br_table
@@ -185,10 +187,7 @@ DEFINE BROWSE br_table
       job-mat.qty-all COLUMN-LABEL "Allocation" FORMAT "->>,>>9.99<<<<":U WIDTH 27
       item.q-avail COLUMN-LABEL "Qty Available" FORMAT "->,>>>,>>9.9<<<<<":U WIDTH 27      
       job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
-      cEmptyColumn COLUMN-LABEL ""
-      ENABLE
-      job-mat.rm-i-no
-      job-mat.qty-all
+      cEmptyColumn COLUMN-LABEL ""          
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 198 BY 18.48
@@ -337,6 +336,8 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
+  
+  {methods/run_link.i "container-source" "pStatusClear" }
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,6 +561,7 @@ PROCEDURE pRunAlloc :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-ask AS LOG NO-UNDO.
+  DEF OUTPUT PARAM opcMessage AS CHARACTER NO-UNDO.
 
   DEF VAR lv-alloc-char AS cha NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
@@ -581,39 +583,42 @@ PROCEDURE pRunAlloc :
   IF job.stat = "H" THEN DO:
 
       IF NOT AVAIL ITEM THEN DO:
-          MESSAGE "Estimated Material cannot be Allocated, Press Update Key to Add Real Material ..." VIEW-AS ALERT-BOX ERROR.
-          RETURN ERROR.
+          opcMessage = "Estimated Material cannot be Allocated".
+          RETURN .
       END.
 
-      lCheck = YES .
-     MESSAGE "The job status is Hold, are you sure you want to" SKIP lv-alloc-char "this material ?"
-            VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll.
+      lCheck = YES .     
+     RUN sharpshooter\messageDialog.w("The job status is Hold, are you sure you want to " + lv-alloc-char  + " this material ?",
+                                      YES,
+                                      YES,
+                                      NO,
+                                      OUTPUT ll
+                                      ).
      IF NOT ll THEN do:
          RETURN ERROR.
      END.
   END.
   ELSE IF INDEX("LRAW",job.stat) = 0 THEN DO:
-     MESSAGE "The job status must be 'R'eleased in order to perform this selection"
-            VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
+     opcMessage = "The job status must be 'R'eleased in order to perform this selection".            
+     RETURN .
   END.
 
 
   IF NOT AVAIL ITEM AND NOT lCheck THEN DO:
-      MESSAGE "Estimated Material cannot be Allocated, Press Update Key to Add Real Material ..." VIEW-AS ALERT-BOX ERROR.
-      RETURN ERROR.
+      opcMessage = "Estimated Material cannot be Allocated" .
+      RETURN .
   END.
 
-
-  //lv-allocated = YES.
-
-   
    IF ip-ask THEN DO:
      IF AVAIL job-mat AND job-mat.all-flg THEN lv-alloc-char = "Deallocate?".
      ELSE lv-alloc-char = "Allocate?".
      IF NOT lCheck THEN
-     MESSAGE "Are you sure you want to " lv-alloc-char VIEW-AS ALERT-BOX WARNING
-         BUTTON YES-NO UPDATE ll.
+     RUN sharpshooter\messageDialog.w("Are you sure you want to " + lv-alloc-char,
+                                      YES,
+                                      YES,
+                                      NO,
+                                      OUTPUT ll
+                                      ).        
    END.
 
    ELSE ll = YES.
@@ -631,6 +636,37 @@ PROCEDURE pRunAlloc :
       RUN dispatch ("display-fields").
    END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMaterial B-table-Win 
+PROCEDURE pGetMaterial :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oprwRowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiForm AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBlank AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRmItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRmItemDesc AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAllocation AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAvailQty AS DECIMAL NO-UNDO.
+      
+    IF AVAIL job-mat THEN
+    DO:
+        ASSIGN
+             oprwRowid     = ROWID(job-mat)
+             opiForm       = job-mat.frm
+             opiBlank      = job-mat.blank-no
+             opcRmItem     = job-mat.rm-i-no
+             opdAllocation = job-mat.qty-all
+             opdAvailQty   = item.q-avail
+             opcRmItemDesc = item.i-dscr.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -681,6 +717,23 @@ PROCEDURE pOpenQuery :
         .
         
     RUN dispatch ('open-query').
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}} 
+    REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.    
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

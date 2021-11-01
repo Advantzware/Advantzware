@@ -54,16 +54,9 @@ DEFINE VARIABLE iBlankNo         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lHasAccess     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hdPgmSecurity  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobProcs     AS HANDLE    NO-UNDO.
 
-RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
-RUN epCanAccess IN hdPgmSecurity (
-    INPUT  "sharpshooter/b-fgInqBins.w", 
-    INPUT  "", 
-    OUTPUT lHasAccess
-    ).    
-DELETE OBJECT hdPgmSecurity.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -430,148 +423,22 @@ PROCEDURE pCopyJob :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.   
-    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.  
-    
-    DEFINE VARIABLE lComplete  AS LOGICAL   NO-UNDO.
-     
-    DEFINE BUFFER bf-job-mat FOR job-mat.
-    DEFINE BUFFER bff-job-mat FOR job-mat.
-    DEFINE BUFFER bf-job FOR job.
-    DEFINE BUFFER bf-item FOR ITEM.
-    DEFINE BUFFER bff-job FOR job.
-    DEFINE BUFFER bf-job-hdr FOR job-hdr.
-    
-    FIND FIRST bff-job NO-LOCK
-         WHERE bff-job.company EQ ipcCompany
-         AND bff-job.job-no EQ ipcJobNo
-         AND bff-job.job-no2 EQ ipiJobNo2 NO-ERROR.
-    IF NOT AVAIL bff-job THEN
-    RETURN NO-APPLY.
-    
-    FOR EACH bf-job-mat NO-LOCK
-        WHERE bf-job-mat.company EQ cCompany
-        and bf-job-mat.job-no  EQ cJobNo 
-        AND bf-job-mat.job-no ne ""   
-        AND bf-job-mat.job-no2 EQ iJobNo2 
-        AND (bf-job-mat.frm      EQ iFormNo OR iFormNo EQ ?)         
-        AND (bf-job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) USE-INDEX seq-idx, 
-        FIRST bf-job       WHERE bf-job.company EQ bf-job-mat.company 
-        AND bf-job.job     EQ bf-job-mat.job       
-        AND bf-job.job-no  EQ bf-job-mat.job-no         
-        AND bf-job.job-no2 EQ bf-job-mat.job-no2, 
-        FIRST bf-item NO-LOCK WHERE bf-item.company EQ bf-job-mat.company 
-        AND bf-item.i-no    EQ bf-job-mat.rm-i-no 
-        and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0 :
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.   
+    DEFINE INPUT PARAMETER iprwRowId    AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
         
-         CREATE bff-job-mat.
-         BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
-         ASSIGN
-              bff-job-mat.job     = bff-job.job
-              bff-job-mat.job-no  = bff-job.job-no
-              bff-job-mat.job-no2 = bff-job.job-no2.
-         lComplete = YES. 
-         
-         FIND FIRST bf-job-hdr NO-LOCK 
-              WHERE bf-job-hdr.company EQ cCompany
-              AND bf-job-hdr.job-no EQ bff-job.job-no  
-              AND bf-job-hdr.job-no2 EQ bff-job.job-no2
-              AND bf-job-hdr.frm EQ bf-job-mat.frm NO-ERROR.
-              
-         FIND FIRST job-hdr NO-LOCK 
-              WHERE job-hdr.company EQ cCompany
-              AND job-hdr.job-no EQ bf-job-mat.job-no  
-              AND job-hdr.job-no2 EQ bf-job-mat.job-no2
-              AND job-hdr.frm EQ bf-job-mat.frm NO-ERROR.
-         IF AVAIL job-hdr AND AVAIL bf-job-hdr AND bf-job-hdr.qty NE job-hdr.qty THEN
-         bff-job-mat.qty-all = 0.
-    END.
-    IF lComplete THEN
-    MESSAGE "Copy Complete.." VIEW-AS ALERT-BOX INFO.
-
+    RUN job_CopyMaterialPreviousJob IN hdJobProcs(INPUT ipcCompany, 
+                                                 INPUT iprwRowId, 
+                                                 INPUT cJobNo,
+                                                 INPUT iJobNo2,
+                                                 INPUT iFormNo, 
+                                                 INPUT iBlankNo,
+                                                 OUTPUT oplComplete).
  END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IssueQuantity B-table-Win 
-PROCEDURE IssueQuantity :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dTotalQuantity   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSubUnitCount    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dPartialQuantity AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cAdjReasonCode   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
-
-    /* If not automatically cleared by security level, ask for password */
-    IF NOT lHasAccess THEN DO:
-        RUN sys/ref/d-passwd.w (
-            INPUT  10, 
-            OUTPUT lHasAccess
-            ). 
-    END.
-
-    IF NOT lHasAccess THEN
-        RETURN.
-
-    IF AVAILABLE job-mat AND AVAILABLE item THEN DO:
-        RUN inventory/adjustQuantityIssue.w (
-            INPUT  item.i-no,
-            INPUT  item.i-name,
-            INPUT  job-mat.qty-iss,
-            INPUT  job-mat.qty,
-            INPUT  FALSE, /* Required Adj Reason  */
-            INPUT  TRUE,  /* Allow decimal units */
-            OUTPUT dTotalQuantity,
-            OUTPUT cAdjustType,
-            OUTPUT cAdjReasonCode,
-            OUTPUT lValueReturned,
-            OUTPUT dValue
-            ).
-  
-        IF lValueReturned THEN DO: 
-            IF dTotalQuantity EQ 0 THEN DO:
-                MESSAGE "Cannot issue zero quantity value"
-                    VIEW-AS ALERT-BOX ERROR.
-                RETURN.    
-            END.
-
-            MESSAGE "Issue " + STRING(dTotalQuantity) + " quantity ?" 
-                    VIEW-AS ALERT-BOX QUESTION
-                    BUTTON OK-CANCEL
-                    TITLE "Issue Quantity" UPDATE lContinue AS LOGICAL.
-            IF lContinue THEN DO:
-                FIND CURRENT job-mat EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE job-mat THEN
-                    job-mat.post = TRUE.
-                    
-                RUN jc/issuemat.p (
-                    INPUT ROWID(job-mat),
-                    INPUT dTotalQuantity,
-                    INPUT FALSE,  /* Prompt for bin selection */
-                    INPUT TRUE
-                    ).
-
-                {&OPEN-QUERY-{&BROWSE-NAME}}
-
-                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
-            END.
-        END.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenQuery B-table-Win 
 PROCEDURE OpenQuery :
@@ -620,6 +487,28 @@ PROCEDURE pOpenQuery :
     RUN dispatch ('open-query').
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+        
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE PROCEDURE hdJobProcs.
+                
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+   /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

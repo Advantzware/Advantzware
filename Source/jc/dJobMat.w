@@ -27,10 +27,13 @@
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ipType AS CHARACTER NO-UNDO.
 DEF INPUT PARAM ipCompany AS CHARACTER NO-UNDO.
+DEF INPUT PARAM iprwRowId AS ROWID NO-UNDO.
 DEF INPUT-OUTPUT PARAM iopiForm AS INTEGER NO-UNDO.
 DEF INPUT-OUTPUT PARAM iopiBlank AS INTEGER NO-UNDO.
 DEF INPUT-OUTPUT PARAM iopcRmItem AS CHARACTER NO-UNDO.
+DEF INPUT-OUTPUT PARAM iopcRmItemDesc AS CHARACTER NO-UNDO.
 DEF INPUT-OUTPUT PARAM iopdAllocation AS DECIMAL NO-UNDO.
+DEF INPUT-OUTPUT PARAM iopdAvailQty AS DECIMAL NO-UNDO.
 DEF OUTPUT PARAM oplCreated AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -209,6 +212,19 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
+       DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+       IF ipType EQ "Add" THEN
+       DO:        
+           RUN valid-blank-no (OUTPUT lReturnError)NO-ERROR.
+           IF lReturnError THEN RETURN NO-APPLY.
+           
+           RUN valid-frm (OUTPUT lReturnError)NO-ERROR.
+           IF lReturnError THEN RETURN NO-APPLY. 
+       END.
+              
+       RUN valid-rm-i-no (OUTPUT lReturnError)NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
+       
        DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             iopiForm       =  INTEGER(iForm:SCREEN-VALUE)
@@ -236,7 +252,7 @@ DO:
           IF AVAIL ITEM THEN DO:
           ASSIGN
             rmItem:SCREEN-VALUE = ITEM.i-no
-            cItemDesc:SCREEN-VALUE = ITEM.i-name
+            cItemDesc:SCREEN-VALUE = ITEM.i-dscr
             dAvailQty:SCREEN-VALUE = string(ITEM.q-avail).
           END.
       END.
@@ -264,12 +280,16 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   
+  FIND FIRST job NO-LOCK WHERE ROWID(job) EQ iprwRowId NO-ERROR.
 
   ASSIGN   
-   iForm:SCREEN-VALUE  = string(iopiForm)
-   iBlank:SCREEN-VALUE = string(iopiBlank)     
-   rmItem:SCREEN-VALUE = iopcRmItem   
-   dAllocation:SCREEN-VALUE = string(iopdAllocation).
+   iForm  = (iopiForm)
+   iBlank = (iopiBlank)     
+   rmItem = iopcRmItem   
+   dAllocation = (iopdAllocation)
+   dAvailQty = (iopdAvailQty)
+   cItemDesc = iopcRmItemDesc.
 
   RUN enable_UI.
   
@@ -279,6 +299,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       iBlank:SENSITIVE IN FRAME {&FRAME-NAME} = NO   
       rmItem:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
       dAllocation:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+  ELSE IF ipType EQ "Update" THEN
+  DO:
+     ASSIGN
+      iForm:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+      iBlank:SENSITIVE IN FRAME {&FRAME-NAME} = NO . 
+  END.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -329,3 +355,137 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank-no Dialog-Frame 
+PROCEDURE valid-blank-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+ DEF VAR li-est-type LIKE est.est-type NO-UNDO.
+ 
+  RELEASE job-hdr.
+  RELEASE eb.
+        
+  IF li-est-type NE 1 THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST est NO-LOCK
+         WHERE est.company EQ ipCompany
+         AND est.est-no  EQ job.est-no
+       NO-ERROR.
+      ASSIGN
+      
+    li-est-type = IF AVAIL est THEN est.est-type ELSE 0
+    li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
+    
+    IF INT(iBlank:SCREEN-VALUE ) ne 0 then do:  
+       
+      IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
+      FIND FIRST eb
+          WHERE eb.company  EQ est.company
+            AND eb.est-no   EQ est.est-no
+            AND eb.blank-no EQ INT(iBlank:SCREEN-VALUE )
+          NO-LOCK NO-ERROR.
+      ELSE
+      FIND FIRST job-hdr
+          WHERE job-hdr.company  EQ job.company
+            AND job-hdr.job      EQ job.job 
+            AND job-hdr.job-no   EQ job.job-no
+            AND job-hdr.job-no2  EQ job.job-no2
+            AND job-hdr.frm      EQ INT(iForm:SCREEN-VALUE )
+            AND job-hdr.blank-no EQ INT(iBlank:SCREEN-VALUE )
+          NO-LOCK NO-ERROR.
+            
+      IF NOT AVAIL job-hdr AND NOT AVAIL eb THEN DO:
+        MESSAGE "Must enter a valid blank..." VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO iBlank.
+        opReturnError = YES.
+        RETURN .
+      END.
+    END. 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-frm Dialog-Frame 
+PROCEDURE valid-frm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+  DEF VAR li-est-type LIKE est.est-type NO-UNDO.
+  
+  RELEASE job-hdr.
+  RELEASE ef.
+
+  DO WITH FRAME {&frame-name}:
+  
+    FIND FIRST est NO-LOCK
+         WHERE est.company EQ ipCompany
+         AND est.est-no  EQ job.est-no
+       NO-ERROR.
+      ASSIGN
+      
+    li-est-type = IF AVAIL est THEN est.est-type ELSE 0
+    li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
+      
+    IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
+    FIND FIRST ef
+        WHERE ef.company EQ est.company
+          AND ef.est-no  EQ est.est-no
+          AND ef.form-no EQ INT(iForm:SCREEN-VALUE )
+        NO-LOCK NO-ERROR.
+    ELSE
+    FIND FIRST job-hdr
+        WHERE job-hdr.company EQ ipCompany
+          AND job-hdr.job     EQ job.job
+          AND job-hdr.job-no  EQ job.job-no
+          AND job-hdr.job-no2 EQ job.job-no2
+          AND job-hdr.frm     EQ INT(iForm:SCREEN-VALUE )
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL job-hdr AND NOT AVAIL ef THEN DO:
+      MESSAGE "Must enter a valid form..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO iForm.
+      opReturnError = YES.
+      RETURN .
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-i-no Dialog-Frame 
+PROCEDURE valid-rm-i-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+  DO WITH FRAME {&FRAME-NAME}:
+    rmItem:SCREEN-VALUE = CAPS(rmItem:SCREEN-VALUE).
+
+    IF NOT CAN-FIND(FIRST ITEM
+                    where (item.company = ipCompany)
+                      AND item.i-no EQ rmItem:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE "Must enter a valid RM..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO rmItem.
+      opReturnError = YES.
+      RETURN.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
