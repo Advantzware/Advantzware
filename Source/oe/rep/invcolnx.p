@@ -91,10 +91,21 @@ DEF VAR v-frt-tax AS DEC NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEF VAR ls-image1     AS CHARACTER NO-UNDO.
+DEF VAR ls-full-img1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
@@ -667,7 +678,13 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
    
     IF v-printline <= 66 THEN page. /*PUT SKIP(74 - v-printline). */
-    
+
+
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                            PAGE.
+
+    PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                            PAGE.    
  
     end. /* each xinv-head */
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object02 h_p-fest1
 &SCOPED-DEFINE h_Object03 h_vp-est
 &SCOPED-DEFINE h_Object04 h_p-probe
+&SCOPED-DEFINE h_Object07 h_vp-mrp
 &SCOPED-DEFINE h_Object05 h_p-estop
 &SCOPED-DEFINE h_Object06 h_p-estprp
 &SCOPED-DEFINE moveRight {&h_Object05},{&h_Object06}
@@ -163,6 +164,7 @@ DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_btn-add-mat AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-mrp AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -1027,6 +1029,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-probe ).
        RUN set-position IN h_p-probe ( 21.48 , 14.00 ) NO-ERROR.
        RUN set-size IN h_p-probe ( 2.38 , 116.00 ) NO-ERROR.
+       
+      RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-mrp.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-mrp ).
+       RUN set-position IN h_vp-mrp ( 21.48 , 134.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.33 , 14.80 ) */ 
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -1041,7 +1051,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( h_p-probe , 'TableIO':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'initbtn':U , h_p-probe ).
-
+       RUN add-link IN adm-broker-hdl ( h_vp-mrp , 'mrpPrint':U , h_probe ).
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_probe ,
              h_folder , 'AFTER':U ).

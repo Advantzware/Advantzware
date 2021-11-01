@@ -146,7 +146,7 @@ eb.t-sqin eb.bl-qty
 &Scoped-define SECOND-ENABLED-TABLE est
 &Scoped-define THIRD-ENABLED-TABLE ef
 &Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
-btn_cust btn_spclist RECT-18 RECT-19 RECT-23 RECT-24 
+btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
 eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
@@ -237,10 +237,6 @@ DEFINE BUTTON btn_fgitem
 DEFINE BUTTON btn_from 
      LABEL "From:" 
      SIZE 8 BY 1.
-
-DEFINE BUTTON btn_spclist 
-     LABEL "" 
-     SIZE 14 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -511,8 +507,7 @@ DEFINE FRAME fold
      btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
-     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
-     btn_spclist AT ROW 8.91 COL 74 WIDGET-ID 18
+     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16     
      btnPlateLookup AT ROW 7.95 COL 115.4 WIDGET-ID 20
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
@@ -1167,19 +1162,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn_spclist
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_spclist V-table-Win
-ON CHOOSE OF btn_spclist IN FRAME fold
-DO:
-  IF AVAIL eb THEN
-   RUN pExportXls.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btn_style
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
@@ -2461,9 +2443,7 @@ PROCEDURE local-display-fields :
          btn_fgitem:HIDDEN  = FALSE .
 
     btn_from:LABEL = TRIM(fi_from-est-no:LABEL) + ": " /*+ TRIM(eb.stock)*/ .
-    
-    btn_spclist:LABEL = TRIM(eb.spc-no:LABEL) + ": ".
-    btn_spclist:HIDDEN = FALSE.
+        
     btn_style:LABEL = TRIM(eb.style:LABEL) + ": " /*+ TRIM(eb.style) */ .
     IF eb.style = "" THEN
             btn_style:HIDDEN  = TRUE .
@@ -2917,21 +2897,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportXls V-table-Win 
-PROCEDURE pExportXls :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN ce/ProductListXls.p(INPUT ROWID(eb)).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -2955,7 +2920,7 @@ PROCEDURE proc-enable :
           btn_style:HIDDEN = TRUE 
           btn_board:HIDDEN = TRUE 
           btn_cust:HIDDEN = TRUE 
-          btn_spclist:HIDDEN = TRUE.
+          .
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ eb.company

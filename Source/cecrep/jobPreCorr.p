@@ -691,12 +691,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note   = ""  .
         IF NOT v-dept-log THEN v-dept-codes = "". 
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 80, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
         v-spec-note   = ""  .
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 80, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
 
            
 
@@ -715,20 +715,20 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+12><#SpecNotes4>"
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
+                                                        
+              "<P7><=Notes1>" v-dept-note[1] FORMAT "x(80)" SKIP
+              "<=Notes2>" v-dept-note[2] FORMAT "x(80)" SKIP
+              "<=Notes3>" v-dept-note[3] FORMAT "x(80)"  SKIP 
+              "<=Notes4>" v-dept-note[4] FORMAT "x(80)" SKIP
+              "<=Notes5>" v-dept-note[5] FORMAT "x(80)" SKIP
+              "<=Notes6>" v-dept-note[6] FORMAT "x(80)"  SKIP
              
-              "<P7><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
-              "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
-              "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
-              "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
-              "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
-              "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
-             
-              "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
-              "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
-              "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
-              "<=SpecNotes4>" v-spec-note[4] FORMAT "x(100)" SKIP
-              "<=SpecNotes5>" v-spec-note[5] FORMAT "x(100)" SKIP
-              "<=SpecNotes6>" v-spec-note[6] FORMAT "x(100)"  SKIP
+              "<=SpecNotes1>" v-spec-note[1] FORMAT "x(80)" SKIP
+              "<=SpecNotes2>" v-spec-note[2] FORMAT "x(80)" SKIP
+              "<=SpecNotes3>" v-spec-note[3] FORMAT "x(80)"  SKIP
+              "<=SpecNotes4>" v-spec-note[4] FORMAT "x(80)" SKIP
+              "<=SpecNotes5>" v-spec-note[5] FORMAT "x(80)" SKIP
+              "<=SpecNotes6>" v-spec-note[6] FORMAT "x(80)"  SKIP
               .
 
         v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 

@@ -243,7 +243,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 1.24 , 8.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 129.00 ) */
+       /* Size in UIB:  ( 2.05 , 131.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
@@ -495,6 +495,8 @@ PROCEDURE pInit :
     
     IF giNK1PrintCopies GT 0 THEN
         {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.  
+
+    {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

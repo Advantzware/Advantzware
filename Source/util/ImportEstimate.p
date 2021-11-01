@@ -798,16 +798,25 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
 
-    DEFINE VARIABLE riEb      AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cIndustry AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEstType  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE riItemfg  AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cEstNumber AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEstGroup AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE riEb        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cIndustry   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEstType    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE riItemfg    AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cEstNumber  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstGroup   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNewGroup   AS LOGICAL   NO-UNDO.
+    
+    /*Shipto address*/
+    DEFINE VARIABLE riShipto      AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE hCustProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-ttImportEstimate FOR ttImportEstimate.
+    IF NOT VALID-HANDLE(hCustProcs) THEN
+        RUN system/CustomerProcs.p  PERSISTENT SET hCustProcs.
+
+    DEFINE BUFFER bf-style            FOR style.
         
     ASSIGN 
         cIndustry = ipbf-ttImportEstimate.Industry
@@ -964,24 +973,37 @@ PROCEDURE pProcessRecord PRIVATE:
     IF AVAILABLE cust THEN 
     DO: 
         eb.cust-no = cust.cust-no.
-        IF ipbf-ttImportEstimate.ShipToID NE '' THEN 
-            FIND FIRST shipto NO-LOCK 
-                WHERE shipto.company EQ cust.company
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ ipbf-ttImportEstimate.ShipToID
-                NO-ERROR .
-        IF NOT AVAILABLE shipto THEN 
-            FIND FIRST shipto NO-LOCK 
-                WHERE shipto.company EQ cust.company
-                AND shipto.cust-no EQ cust.cust-no
-                AND shipto.ship-id EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAILABLE shipto THEN 
-            FIND FIRST shipto OF cust NO-LOCK NO-ERROR.
-        IF AVAILABLE shipto THEN
-            eb.ship-id = shipto.ship-id.
-        ELSE 
-            eb.ship-id = cust.cust-no.
+
+        IF ipbf-ttImportEstimate.ShipToID = "" THEN
+        DO: 
+            RUN Customer_GetDefaultShipTo IN hCustProcs(INPUT cust.company,
+                                                        INPUT cust.cust-no,
+                                                        OUTPUT riShipto).
+            FIND FIRST shipto WHERE ROWID(shipto) = riShipto NO-LOCK NO-ERROR.
+            
+            ipbf-ttImportEstimate.ShipToID = shipto.ship-id.
+            RELEASE shipto.
+        END.
+        
+        eb.ship-id = ipbf-ttImportEstimate.ShipToID.
+        
+        IF eb.ship-id <> "" THEN 
+            RUN Customer_getShiptoDetails IN hCustProcs 
+                                         (INPUT cust.company,
+                                          INPUT cust.cust-no,
+                                          INPUT eb.ship-id,
+                                          OUTPUT eb.ship-name,
+                                          OUTPUT eb.ship-addr[1],
+                                          OUTPUT eb.ship-addr[2],
+                                          OUTPUT eb.ship-city,
+                                          OUTPUT eb.ship-state,
+                                          OUTPUT eb.ship-zip,
+                                          OUTPUT eb.carrier,
+                                          OUTPUT eb.dest-code) .
+                                          
+        IF eb.ship-id = "" THEN 
+            eb.ship-id = cust.cust-no. /*maintained existing logic can be assigned to temp*/
+ 
         eb.sman = cust.sman.
     END.
     IF ipbf-ttImportEstimate.SalesManID NE '' THEN 
@@ -989,8 +1011,14 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF ipbf-ttImportEstimate.GlueID NE '' THEN 
         eb.adhesive = ipbf-ttIMportEstimate.GlueID.
-                
-    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN 
+    ELSE 
+        FOR FIRST bf-style NO-LOCK 
+            WHERE bf-style.company = eb.company 
+            AND bf-style.style   = eb.style:
+            eb.adhesive = bf-style.material[7].
+        END.
+         
+    IF ipbf-ttImportEstimate.TabInOut EQ '' THEN
         eb.tab-in = YES.
     ELSE 
         eb.tab-in = ipbf-ttImportEstimate.TabInOut EQ "In".
@@ -1096,6 +1124,9 @@ PROCEDURE pProcessRecord PRIVATE:
     
     IF VALID-HANDLE(hdFormulaProcs) THEN
         DELETE PROCEDURE hdFormulaProcs.
+        
+    IF VALID-HANDLE(hCustProcs) THEN 
+        DELETE PROCEDURE hCustProcs NO-ERROR.
     
 END PROCEDURE.
 

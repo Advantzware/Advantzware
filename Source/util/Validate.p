@@ -138,6 +138,32 @@ PROCEDURE pIsValidEstimateFormBlank:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidEstimateFBWithAllowZeroBlank:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates estimate form
+     Notes: Input 1 = estimate , input 2 = form-no  input 3 = blank-no
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsValid AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    oplIsValid = YES.
+    FIND FIRST eb NO-LOCK 
+        WHERE eb.company EQ ipcCompany
+        AND eb.est-no EQ FILL(" ",8 - LENGTH(TRIM(ipcEstimate))) + TRIM(ipcEstimate) 
+        AND eb.form-no EQ ipcFormNo  
+        AND (eb.blank-no EQ ipcBlankNo OR ipcBlankNo EQ 0)
+        NO-ERROR.
+    IF NOT AVAILABLE eb THEN 
+        ASSIGN 
+            oplIsValid = NO 
+            opcMessage = "Estimate Form or blank is not valid."
+            .                
+END PROCEDURE.
+
 PROCEDURE pIsValidCustPartID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates Cust Part ID 

@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE defaultWhere cust.company = gcompany */
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE xlocal-destroy xlocal-destroy
 {methods/defines/winReSize.i}
 {methods/template/brwcustomdef.i}
 
@@ -1870,6 +1871,21 @@ run dispatch in this-procedure ("row-changed").
  
 APPLY "value-changed" TO BROWSE {&browse-name}.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+     
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF VALID-HANDLE (hCustomerProcs) THEN
+        DELETE PROCEDURE hCustomerProcs.     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
