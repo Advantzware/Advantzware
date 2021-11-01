@@ -438,7 +438,7 @@ PROCEDURE pInsertPageHeaderFooter:
         IF iIndex LE 0 THEN
             LEAVE.
             
-        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - 1).
+        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - iLastIndex - 1).
         
         lcData = ENTRY(NUM-ENTRIES(lcData, CHR(12)), lcData, CHR(12)).
         
