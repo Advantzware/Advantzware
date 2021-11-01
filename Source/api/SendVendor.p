@@ -87,6 +87,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorPhoneCountry",bf-vend.phone-country).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorPhonePrefix",bf-vend.phone-prefix).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorPostalCode",bf-vend.Postal).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "VendorZip",bf-vend.zip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OverPercent",STRING(bf-vend.over-pct)).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "RemitToStreetAddress1",bf-vend.r-add1).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "RemitToStreetAddress2",bf-vend.r-add2).
