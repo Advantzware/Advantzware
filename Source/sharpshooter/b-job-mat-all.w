@@ -185,7 +185,7 @@ DEFINE BROWSE br_table
       job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
       item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55 
       job-mat.qty-all COLUMN-LABEL "Allocation" FORMAT "->>,>>9.99<<<<":U WIDTH 27
-      item.q-avail COLUMN-LABEL "Qty Available" FORMAT "->,>>>,>>9.9<<<<<":U WIDTH 27      
+      item.q-avail COLUMN-LABEL "Qty Available" FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 29      
       job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
       cEmptyColumn COLUMN-LABEL ""          
 /* _UIB-CODE-BLOCK-END */
