@@ -38,8 +38,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUser    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUser              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -435,6 +437,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win
+PROCEDURE GetMessageAndType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -496,11 +519,52 @@ PROCEDURE pInit :
     IF giNK1PrintCopies GT 0 THEN
         {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(INPUT giNK1PrintCopies)"}.  
 
-    {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}        
+    {methods/run_link.i "JOB-SOURCE" "ValidateJobClosed" "(TRUE)"}
+    {methods/run_link.i "JOB-SOURCE" "DisableErrorAlerts"}        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError F-Frame-Win
+PROCEDURE pJobError PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "JOB-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+    
+    RUN pSendError.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win
+PROCEDURE pSendError PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
 PROCEDURE Reset :
@@ -582,6 +646,8 @@ PROCEDURE state-changed :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
+    
+    RUN new-state ("empty-message").
     
     CASE p-state:
         WHEN "job-invalid" THEN DO:
@@ -672,6 +738,9 @@ PROCEDURE state-changed :
             {methods/run_link.i "USERFIELD-SOURCE" "GetOvers" "(OUTPUT dOvers)" }
             
             {methods/run_link.i "QTY-SOURCE" "SetOvers" "(INPUT dOvers)"}
+        END.
+        WHEN "job-error" THEN DO:
+            RUN pJobError.
         END.
     END CASE.    
 END PROCEDURE.

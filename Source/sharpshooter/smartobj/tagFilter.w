@@ -37,9 +37,12 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAutoScanNextTag AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cTagTypeScan     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAutoScanNextTag   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTagTypeScan       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE VARIABLE oKeyboard AS system.Keyboard   NO-UNDO.
 DEFINE VARIABLE oLoadtag  AS inventory.Loadtag NO-UNDO.
@@ -184,7 +187,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    IF (LASTKEY NE -1 OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
+    /* If last key is not button choose or mouse click event */
+    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
         RUN pScanTag (
             INPUT SELF:SCREEN-VALUE
             ) NO-ERROR.            
@@ -202,7 +206,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -240,6 +243,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object
+PROCEDURE DisableErrorAlerts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyTag s-object 
 PROCEDURE EmptyTag :
@@ -348,8 +367,7 @@ PROCEDURE pScanTag :
     lValidTag = oLoadTag:SetContext(INPUT cCompany, INPUT ipcTag).
 
     IF NOT lValidTag THEN DO:
-        MESSAGE "Invalid Tag '" + ipcTag + "'"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Invalid Tag '" + ipcTag + "'").
         
         SELF:SCREEN-VALUE = "".
         
@@ -357,16 +375,14 @@ PROCEDURE pScanTag :
     END.
             
     IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ TRUE AND cTagTypeScan EQ "FG" THEN DO:
-        MESSAGE "Only finished good item tags are allowed" 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Only finished good item tags are allowed").
         
         SELF:SCREEN-VALUE = "".
         
         RETURN ERROR.
     END.
     ELSE IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ FALSE AND cTagTypeScan EQ "RM" THEN DO:
-        MESSAGE "Only raw material item tags are allowed" 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Only raw material item tags are allowed").
         
         SELF:SCREEN-VALUE = "".
         
@@ -383,6 +399,42 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object
+PROCEDURE pSendError:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "job-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ScanNextTag s-object 
 PROCEDURE ScanNextTag :

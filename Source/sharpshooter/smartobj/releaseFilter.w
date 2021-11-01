@@ -174,7 +174,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btFind
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFind s-object
-ON CHOOSE OF btFind IN FRAME F-Main /* FIND */
+ON CHOOSE OF btFind IN FRAME F-Main /* Find */
 DO:
     APPLY "HELP" TO fiRelease.
 END.
@@ -236,7 +236,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiRelease s-object
 ON LEAVE OF fiRelease IN FRAME F-Main /* RELEASE */
 DO:
-    IF (LASTKEY NE -1 OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
+    /* If last key is not button choose or mouse click event */
+    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:DisplayKeyboard)) AND SELF:SCREEN-VALUE NE "" THEN
         RUN pReleaseScan.   
 END.
 
@@ -252,7 +253,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -336,22 +336,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseID s-object 
-PROCEDURE GetReleaseID :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
-    
-    opoReleaseHeader = oReleaseHeader.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseMessageAndType s-object 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
 PROCEDURE GetMessageAndType :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -364,6 +349,21 @@ PROCEDURE GetMessageAndType :
         opcStatusMessage     = cStatusMessage
         opiStatusMessageType = iStatusMessageType
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetReleaseID s-object 
+PROCEDURE GetReleaseID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoReleaseHeader AS oe.ReleaseHeader NO-UNDO.
+    
+    opoReleaseHeader = oReleaseHeader.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,11 +479,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object
-PROCEDURE pSendError:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -504,14 +501,12 @@ PROCEDURE pSendError:
         .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePostedValidation s-object
-PROCEDURE ReleasePostedValidation:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePostedValidation s-object 
+PROCEDURE ReleasePostedValidation :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -520,14 +515,12 @@ PROCEDURE ReleasePostedValidation:
     
     lReleasePostedValidation = iplReleasePostedValidation.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePrintedValidation s-object
-PROCEDURE ReleasePrintedValidation:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ReleasePrintedValidation s-object 
+PROCEDURE ReleasePrintedValidation :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -536,11 +529,9 @@ PROCEDURE ReleasePrintedValidation:
     
     lReleasePrintedValidation = iplReleasePrintedValidation.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
 PROCEDURE Set-Focus :

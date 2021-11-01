@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE cLocation          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJob               AS CHARACTER NO-UNDO.
 
@@ -420,7 +421,8 @@ DO:
         iStatusMessageType = 0
         .
     
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
+    /* If last key is not button choose or mouse click event */
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 OR LASTKEY EQ 617 THEN
         RETURN.
 
     IF SELF:SCREEN-VALUE EQ cJob AND lValidateSameJobScan THEN DO:
@@ -458,17 +460,8 @@ DO:
         ).      
 
     IF cMessage NE "" THEN DO:
-        ASSIGN
-            cStatusMessage     = cMessage
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .   
+        RUN pSendError (cMessage).
+        
         RETURN.
     END.
     
@@ -492,18 +485,8 @@ DO:
         OUTPUT cJobNo2ListItems 
         ).
     IF lParse AND cJobNo2 NE "" AND INDEX(cJobNo2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .           
-
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+        
         RETURN.            
     END.
     
@@ -524,17 +507,8 @@ DO:
         OUTPUT cFormNoListItems 
         ).  
     IF lParse AND cFormNo NE "" AND INDEX(cFormNoListItems,STRING(INTEGER(cFormNo),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            . 
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+         
         RETURN.            
     END.
 
@@ -555,17 +529,8 @@ DO:
         OUTPUT cBlankNoListItems 
         ).  
     IF lParse AND cBlankNo NE "" AND INDEX(cBlankNoListItems,STRING(INTEGER(cBlankNo),"99")) LE 0 THEN DO:
-        ASSIGN
-            cStatusMessage     = "INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER."
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            . 
+        RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
+        
         RETURN.            
     END.
 
@@ -700,6 +665,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object
+PROCEDURE DisableErrorAlerts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob s-object 
 PROCEDURE GetJob :
@@ -839,9 +820,8 @@ PROCEDURE JobFGItemChanged :
     
     /* Raise an error if output form and blank are not found on the current form and blank list */
     IF LOOKUP(STRING(INTEGER(ENTRY (1, cFormNoList)) ,"99") , cbFormNo:LIST-ITEMS) EQ 0 OR LOOKUP(STRING(INTEGER(ENTRY (1, cBlankNoList)), "99") , cbBlankNo:LIST-ITEMS) EQ 0 THEN DO:
-        MESSAGE "Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'"
-            VIEW-AS ALERT-BOX ERROR.
-        
+        RUN pSendError ("Invalid item '" + ipcItemID + "' for Job # '" + fiJobno:SCREEN-VALUE + "-" + cbJobno2:SCREEN-VALUE + "'").
+
         RETURN.
     END.
     
@@ -1076,12 +1056,48 @@ PROCEDURE pOnValueChangeOfJobDeails PRIVATE :
     
     IF NOT lValidJob THEN DO: 
         cMessage = "Invalid Job Entry".
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError (cMessage).
     END.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object
+PROCEDURE pSendError:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "job-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobDetails s-object 
 PROCEDURE pUpdateJobDetails PRIVATE :
@@ -1139,19 +1155,8 @@ PROCEDURE pValidateJob PRIVATE :
         OUTPUT lError,
         OUTPUT cMessage
         ).       
-    IF lError THEN DO:
-        ASSIGN
-            cStatusMessage     = cMessage
-            iStatusMessageType = 3
-            .
-            
-        RUN new-state("job-error").
-
-        ASSIGN
-            cStatusMessage     = ""
-            iStatusMessageType = 0
-            .        
-    END.
+    IF lError THEN
+        RUN pSendError (cMessage).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

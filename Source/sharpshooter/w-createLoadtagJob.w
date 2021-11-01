@@ -804,6 +804,9 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -818,6 +821,14 @@ PROCEDURE state-changed :
             {methods/run_link.i "LOADTAG-SOURCE" "CreateLoadTagFromTT"}
 
             SESSION:SET-WAIT-STATE ("").
+        END.
+        WHEN "error" THEN DO:
+            {methods/run_link.i "JOB-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+        END.
+        WHEN "empty-message" THEN DO:
+            RUN pStatusMessage(INPUT "", INPUT 0).
         END.
     END CASE. 
 END PROCEDURE.

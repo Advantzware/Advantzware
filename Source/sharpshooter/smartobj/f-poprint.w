@@ -50,7 +50,9 @@ DEFINE TEMP-TABLE ttPOLine NO-UNDO
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
@@ -491,6 +493,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win
+PROCEDURE GetMessageAndType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetPOLineTT F-Frame-Win 
 PROCEDURE GetPOLineTT :
 /*------------------------------------------------------------------------------
@@ -610,6 +633,8 @@ PROCEDURE pScanPO :
         btCreate:SENSITIVE      = FALSE
         .
     
+    RUN new-state ("empty-message").
+    
     ASSIGN
         iPOID     = INTEGER(ENTRY(1, ipcPOAndLine, "-"))
         iPOLine   = INTEGER(ENTRY(2, ipcPOAndLine, "-"))
@@ -623,8 +648,7 @@ PROCEDURE pScanPO :
         ) NO-ERROR.
 
     IF NOT TEMP-TABLE ttPOLine:HAS-RECORDS THEN DO:
-        MESSAGE "Invalid PO # '" + ipcPOAndLine + "' or finished good lines"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Invalid PO # '" + ipcPOAndLine + "' or finished good lines").
         
         RETURN.
     END.
@@ -654,6 +678,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win
+PROCEDURE pSendError:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.    
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+
+    RUN new-state (
+        "error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
 PROCEDURE Reset :

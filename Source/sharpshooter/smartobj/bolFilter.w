@@ -199,7 +199,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
 ON LEAVE OF fiBOL IN FRAME F-Main /* BOL */
 DO:
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
+    /* If last key is not button choose or mouse click event */
+    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 OR LASTKEY EQ 617 THEN
         RETURN.
     
     RUN pBOLScan (
