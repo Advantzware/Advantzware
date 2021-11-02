@@ -25,22 +25,19 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAM ipType AS CHARACTER NO-UNDO.
-DEF INPUT PARAM ipCompany AS CHARACTER NO-UNDO.
-DEF INPUT PARAM iprwRowId AS ROWID NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopiForm AS INTEGER NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopiBlank AS INTEGER NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopcRmItem AS CHARACTER NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopcRmItemDesc AS CHARACTER NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopdAllocation AS DECIMAL NO-UNDO.
-DEF INPUT-OUTPUT PARAM iopdAvailQty AS DECIMAL NO-UNDO.
-DEF OUTPUT PARAM oplCreated AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iprwRowId AS ROWID NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiForm AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiBlank AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcRmItem AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcRmItemDesc AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopdAllocation AS DECIMAL NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopdAvailQty AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-
-DEF VAR ldummy AS LOG NO-UNDO.
-DEF VAR i AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,77 +73,77 @@ dAvailQty
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Cancel" 
-     SIZE 8 BY 1.91
-     BGCOLOR 8 .
+    IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
+    LABEL "Cancel" 
+    SIZE 8 BY 1.91
+    BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "&Save" 
-     SIZE 8 BY 1.91
-     BGCOLOR 8 .
+    IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
+    LABEL "&Save" 
+    SIZE 8 BY 1.91
+    BGCOLOR 8 .
 
-DEFINE VARIABLE cItemDesc AS CHARACTER FORMAT "X(35)":U 
-     VIEW-AS FILL-IN 
-     SIZE 38.8 BY 1 
-     BGCOLOR 15 FGCOLOR 1 NO-UNDO.
+DEFINE VARIABLE cItemDesc   AS CHARACTER FORMAT "X(35)":U 
+    VIEW-AS FILL-IN 
+    SIZE 38.8 BY 1 
+    BGCOLOR 15 FGCOLOR 1 NO-UNDO.
 
-DEFINE VARIABLE dAllocation AS DECIMAL FORMAT "->>,>>9.99<<<<":U INITIAL 0 
-     LABEL "Allocation" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
+DEFINE VARIABLE dAllocation AS DECIMAL   FORMAT "->>,>>9.99<<<<":U INITIAL 0 
+    LABEL "Allocation" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dAvailQty AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
-     LABEL "Qty Available" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 
-     BGCOLOR 15 FGCOLOR 1 NO-UNDO.
+DEFINE VARIABLE dAvailQty   AS DECIMAL   FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+    LABEL "Qty Available" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1 
+    BGCOLOR 15 FGCOLOR 1 NO-UNDO.
 
-DEFINE VARIABLE iBlank AS INTEGER FORMAT ">>":U INITIAL 0 
-     LABEL "Blank" 
-     VIEW-AS FILL-IN 
-     SIZE 6.6 BY 1 NO-UNDO.
+DEFINE VARIABLE iBlank      AS INTEGER   FORMAT ">>":U INITIAL 0 
+    LABEL "Blank" 
+    VIEW-AS FILL-IN 
+    SIZE 6.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE iForm AS INTEGER FORMAT ">9":U INITIAL 0 
-     LABEL "Form" 
-     VIEW-AS FILL-IN 
-     SIZE 6.6 BY 1
-     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+DEFINE VARIABLE iForm       AS INTEGER   FORMAT ">9":U INITIAL 0 
+    LABEL "Form" 
+    VIEW-AS FILL-IN 
+    SIZE 6.6 BY 1
+    BGCOLOR 15 FGCOLOR 1 NO-UNDO.
 
-DEFINE VARIABLE rmItem AS CHARACTER FORMAT "X(10)" 
-     LABEL "Item No" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1.
+DEFINE VARIABLE rmItem      AS CHARACTER FORMAT "X(10)" 
+    LABEL "Item No" 
+    VIEW-AS FILL-IN 
+    SIZE 21 BY 1.
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 19 BY 2.38
-     BGCOLOR 15 .
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+    SIZE 19 BY 2.38
+    BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-30
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 90.2 BY 6.24.
+    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+    SIZE 90.2 BY 6.24.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_OK AT ROW 8 COL 73 WIDGET-ID 74
-     Btn_Cancel AT ROW 8 COL 81.6 WIDGET-ID 68
-     iForm AT ROW 1.71 COL 15 COLON-ALIGNED WIDGET-ID 66
-     iBlank AT ROW 1.71 COL 37.2 COLON-ALIGNED WIDGET-ID 60
-     rmItem AT ROW 3.43 COL 15 COLON-ALIGNED
-     cItemDesc AT ROW 3.43 COL 37 COLON-ALIGNED NO-LABEL
-     dAllocation AT ROW 5.29 COL 15 COLON-ALIGNED WIDGET-ID 62
-     dAvailQty AT ROW 5.29 COL 54.6 COLON-ALIGNED WIDGET-ID 64
-     RECT-30 AT ROW 1.19 COL 1.2 WIDGET-ID 56
-     RECT-21 AT ROW 7.71 COL 71.6 WIDGET-ID 72
-     SPACE(3.19) SKIP(0.38)
+    Btn_OK AT ROW 8 COL 73 WIDGET-ID 74
+    Btn_Cancel AT ROW 8 COL 81.6 WIDGET-ID 68
+    iForm AT ROW 1.71 COL 15 COLON-ALIGNED WIDGET-ID 66
+    iBlank AT ROW 1.71 COL 37.2 COLON-ALIGNED WIDGET-ID 60
+    rmItem AT ROW 3.43 COL 15 COLON-ALIGNED
+    cItemDesc AT ROW 3.43 COL 37 COLON-ALIGNED NO-LABELS
+    dAllocation AT ROW 5.29 COL 15 COLON-ALIGNED WIDGET-ID 62
+    dAvailQty AT ROW 5.29 COL 54.6 COLON-ALIGNED WIDGET-ID 64
+    RECT-30 AT ROW 1.19 COL 1.2 WIDGET-ID 56
+    RECT-21 AT ROW 7.71 COL 71.6 WIDGET-ID 72
+    SPACE(3.19) SKIP(0.38)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FGCOLOR 1 FONT 6
-         TITLE "Add New Material" WIDGET-ID 100.
+    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+    FGCOLOR 1 FONT 6
+    TITLE "Add New Material" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -167,8 +164,8 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 ASSIGN 
-       FRAME Dialog-Frame:SCROLLABLE       = FALSE
-       FRAME Dialog-Frame:HIDDEN           = TRUE.
+    FRAME Dialog-Frame:SCROLLABLE = FALSE
+    FRAME Dialog-Frame:HIDDEN     = TRUE.
 
 /* SETTINGS FOR FILL-IN cItemDesc IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -184,9 +181,9 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add New Material */
-DO:
-  APPLY "END-ERROR":U TO SELF.
-END.
+    DO:
+        APPLY "END-ERROR":U TO SELF.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,7 +192,7 @@ END.
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-DO:
+    DO:
         ASSIGN
             iopiForm       = 0
             iopiBlank      = 0
@@ -211,27 +208,27 @@ DO:
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-DO:
-       DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-       IF ipType EQ "Add" THEN
-       DO:        
-           RUN valid-blank-no (OUTPUT lReturnError)NO-ERROR.
-           IF lReturnError THEN RETURN NO-APPLY.
+    DO:
+        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+        IF ipType EQ "Add" THEN
+        DO:        
+            RUN valid-blank-no (OUTPUT lReturnError)NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY.
            
-           RUN valid-frm (OUTPUT lReturnError)NO-ERROR.
-           IF lReturnError THEN RETURN NO-APPLY. 
-       END.
+            RUN valid-frm (OUTPUT lReturnError)NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY. 
+        END.
               
-       RUN valid-rm-i-no (OUTPUT lReturnError)NO-ERROR.
-       IF lReturnError THEN RETURN NO-APPLY.
+        RUN valid-rm-i-no (OUTPUT lReturnError)NO-ERROR.
+        IF lReturnError THEN RETURN NO-APPLY.
        
-       DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            iopiForm       =  INTEGER(iForm:SCREEN-VALUE)
-            iopiBlank      =  INTEGER(iBlank:SCREEN-VALUE)
-            iopcRmItem     =  rmItem:SCREEN-VALUE 
-            iopdAllocation = DECIMAL(dAllocation:SCREEN-VALUE).
-         END. 
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN
+                iopiForm       = INTEGER(iForm:SCREEN-VALUE)
+                iopiBlank      = INTEGER(iBlank:SCREEN-VALUE)
+                iopcRmItem     = rmItem:SCREEN-VALUE 
+                iopdAllocation = DECIMAL(dAllocation:SCREEN-VALUE).
+        END. 
         oplCreated = YES.
         APPLY "go" TO FRAME {&FRAME-NAME}.
 
@@ -243,21 +240,23 @@ DO:
 &Scoped-define SELF-NAME rmItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rmItem Dialog-Frame
 ON HELP OF rmItem IN FRAME Dialog-Frame /* Item */
-DO:
-  DEFINE VARIABLE cReturnValue AS CHAR no-undo.    
+    DO:
+        DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.    
   
-   RUN windows/l-item5.w (ipCompany,rmItem:SCREEN-VALUE , output cReturnValue).
-        if cReturnValue <> "" then do:
-          FIND ITEM WHERE RECID(ITEM) EQ int(cReturnValue) NO-LOCK NO-ERROR.
-          IF AVAIL ITEM THEN DO:
-          ASSIGN
-            rmItem:SCREEN-VALUE = ITEM.i-no
-            cItemDesc:SCREEN-VALUE = ITEM.i-dscr
-            dAvailQty:SCREEN-VALUE = string(ITEM.q-avail).
-          END.
-      END.
+        RUN windows/l-item5.w (ipCompany,rmItem:SCREEN-VALUE , OUTPUT cReturnValue).
+        IF cReturnValue <> "" THEN 
+        DO:
+            FIND ITEM WHERE RECID(ITEM) EQ int(cReturnValue) NO-LOCK NO-ERROR.
+            IF AVAILABLE ITEM THEN 
+            DO:
+                ASSIGN
+                    rmItem:SCREEN-VALUE    = ITEM.i-no
+                    cItemDesc:SCREEN-VALUE = ITEM.i-dscr
+                    dAvailQty:SCREEN-VALUE = STRING(ITEM.q-avail).
+            END.
+        END.
   
-END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -271,42 +270,42 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
-THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
+    THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
    
-  FIND FIRST job NO-LOCK WHERE ROWID(job) EQ iprwRowId NO-ERROR.
+    FIND FIRST job NO-LOCK WHERE ROWID(job) EQ iprwRowId NO-ERROR.
 
-  ASSIGN   
-   iForm  = (iopiForm)
-   iBlank = (iopiBlank)     
-   rmItem = iopcRmItem   
-   dAllocation = (iopdAllocation)
-   dAvailQty = (iopdAvailQty)
-   cItemDesc = iopcRmItemDesc.
+    ASSIGN   
+        iForm       = (iopiForm)
+        iBlank      = (iopiBlank)     
+        rmItem      = iopcRmItem   
+        dAllocation = (iopdAllocation)
+        dAvailQty   = (iopdAvailQty)
+        cItemDesc   = iopcRmItemDesc.
 
-  RUN enable_UI.
+    RUN enable_UI.
   
-  IF ipType EQ "View" THEN
-      ASSIGN
-      iForm:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-      iBlank:SENSITIVE IN FRAME {&FRAME-NAME} = NO   
-      rmItem:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-      dAllocation:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
-  ELSE IF ipType EQ "Update" THEN
-  DO:
-     ASSIGN
-      iForm:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
-      iBlank:SENSITIVE IN FRAME {&FRAME-NAME} = NO . 
-  END.
+    IF ipType EQ "View" THEN
+        ASSIGN
+            iForm:SENSITIVE IN FRAME {&FRAME-NAME}       = NO 
+            iBlank:SENSITIVE IN FRAME {&FRAME-NAME}      = NO   
+            rmItem:SENSITIVE IN FRAME {&FRAME-NAME}      = NO 
+            dAllocation:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+    ELSE IF ipType EQ "Update" THEN
+        DO:
+            ASSIGN
+                iForm:SENSITIVE IN FRAME {&FRAME-NAME}  = NO 
+                iBlank:SENSITIVE IN FRAME {&FRAME-NAME} = NO . 
+        END.
 
-  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+    WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
 
@@ -318,16 +317,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME Dialog-Frame.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,21 +334,21 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY iForm iBlank rmItem cItemDesc dAllocation dAvailQty 
-      WITH FRAME Dialog-Frame.
-  ENABLE Btn_OK RECT-30 Btn_Cancel RECT-21 iForm iBlank rmItem dAllocation           
-      WITH FRAME Dialog-Frame.
-  VIEW FRAME Dialog-Frame.
-  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY iForm iBlank rmItem cItemDesc dAllocation dAvailQty 
+        WITH FRAME Dialog-Frame.
+    ENABLE Btn_OK RECT-30 Btn_Cancel RECT-21 iForm iBlank rmItem dAllocation           
+        WITH FRAME Dialog-Frame.
+    VIEW FRAME Dialog-Frame.
+    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -357,54 +356,56 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-blank-no Dialog-Frame 
 PROCEDURE valid-blank-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
- DEF VAR li-est-type LIKE est.est-type NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE li-est-type LIKE est.est-type NO-UNDO.
  
-  RELEASE job-hdr.
-  RELEASE eb.
+    RELEASE job-hdr.
+    RELEASE eb.
         
-  IF li-est-type NE 1 THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST est NO-LOCK
-         WHERE est.company EQ ipCompany
-         AND est.est-no  EQ job.est-no
-       NO-ERROR.
-      ASSIGN
+    IF li-est-type NE 1 THEN
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST est NO-LOCK
+            WHERE est.company EQ ipCompany
+            AND est.est-no  EQ job.est-no
+            NO-ERROR.
+        ASSIGN
       
-    li-est-type = IF AVAIL est THEN est.est-type ELSE 0
-    li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
+            li-est-type = IF AVAILABLE est THEN est.est-type ELSE 0
+            li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
     
-    IF INT(iBlank:SCREEN-VALUE ) ne 0 then do:  
+        IF INT(iBlank:SCREEN-VALUE ) NE 0 THEN 
+        DO:  
        
-      IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
-      FIND FIRST eb
-          WHERE eb.company  EQ est.company
-            AND eb.est-no   EQ est.est-no
-            AND eb.blank-no EQ INT(iBlank:SCREEN-VALUE )
-          NO-LOCK NO-ERROR.
-      ELSE
-      FIND FIRST job-hdr
-          WHERE job-hdr.company  EQ job.company
-            AND job-hdr.job      EQ job.job 
-            AND job-hdr.job-no   EQ job.job-no
-            AND job-hdr.job-no2  EQ job.job-no2
-            AND job-hdr.frm      EQ INT(iForm:SCREEN-VALUE )
-            AND job-hdr.blank-no EQ INT(iBlank:SCREEN-VALUE )
-          NO-LOCK NO-ERROR.
+            IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
+                FIND FIRST eb
+                    WHERE eb.company  EQ est.company
+                    AND eb.est-no   EQ est.est-no
+                    AND eb.blank-no EQ INT(iBlank:SCREEN-VALUE )
+                    NO-LOCK NO-ERROR.
+            ELSE
+                FIND FIRST job-hdr
+                    WHERE job-hdr.company  EQ job.company
+                    AND job-hdr.job      EQ job.job 
+                    AND job-hdr.job-no   EQ job.job-no
+                    AND job-hdr.job-no2  EQ job.job-no2
+                    AND job-hdr.frm      EQ INT(iForm:SCREEN-VALUE )
+                    AND job-hdr.blank-no EQ INT(iBlank:SCREEN-VALUE )
+                    NO-LOCK NO-ERROR.
             
-      IF NOT AVAIL job-hdr AND NOT AVAIL eb THEN DO:
-        MESSAGE "Must enter a valid blank..." VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO iBlank.
-        opReturnError = YES.
-        RETURN .
-      END.
-    END. 
-  END.
+            IF NOT AVAILABLE job-hdr AND NOT AVAILABLE eb THEN 
+            DO:
+                MESSAGE "Must enter a valid blank..." VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO iBlank.
+                opReturnError = YES.
+                RETURN .
+            END.
+        END. 
+    END.
 
 END PROCEDURE.
 
@@ -413,49 +414,50 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-frm Dialog-Frame 
 PROCEDURE valid-frm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
-  DEF VAR li-est-type LIKE est.est-type NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE li-est-type LIKE est.est-type NO-UNDO.
   
-  RELEASE job-hdr.
-  RELEASE ef.
+    RELEASE job-hdr.
+    RELEASE ef.
 
-  DO WITH FRAME {&frame-name}:
+    DO WITH FRAME {&frame-name}:
   
-    FIND FIRST est NO-LOCK
-         WHERE est.company EQ ipCompany
-         AND est.est-no  EQ job.est-no
-       NO-ERROR.
-      ASSIGN
+        FIND FIRST est NO-LOCK
+            WHERE est.company EQ ipCompany
+            AND est.est-no  EQ job.est-no
+            NO-ERROR.
+        ASSIGN
       
-    li-est-type = IF AVAIL est THEN est.est-type ELSE 0
-    li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
+            li-est-type = IF AVAILABLE est THEN est.est-type ELSE 0
+            li-est-type = li-est-type - (IF li-est-type GT 4 THEN 4 ELSE 0).
       
-    IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
-    FIND FIRST ef
-        WHERE ef.company EQ est.company
-          AND ef.est-no  EQ est.est-no
-          AND ef.form-no EQ INT(iForm:SCREEN-VALUE )
-        NO-LOCK NO-ERROR.
-    ELSE
-    FIND FIRST job-hdr
-        WHERE job-hdr.company EQ ipCompany
-          AND job-hdr.job     EQ job.job
-          AND job-hdr.job-no  EQ job.job-no
-          AND job-hdr.job-no2 EQ job.job-no2
-          AND job-hdr.frm     EQ INT(iForm:SCREEN-VALUE )
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL job-hdr AND NOT AVAIL ef THEN DO:
-      MESSAGE "Must enter a valid form..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO iForm.
-      opReturnError = YES.
-      RETURN .
+        IF li-est-type EQ 2 OR li-est-type EQ 6 THEN
+            FIND FIRST ef
+                WHERE ef.company EQ est.company
+                AND ef.est-no  EQ est.est-no
+                AND ef.form-no EQ INT(iForm:SCREEN-VALUE )
+                NO-LOCK NO-ERROR.
+        ELSE
+            FIND FIRST job-hdr
+                WHERE job-hdr.company EQ ipCompany
+                AND job-hdr.job     EQ job.job
+                AND job-hdr.job-no  EQ job.job-no
+                AND job-hdr.job-no2 EQ job.job-no2
+                AND job-hdr.frm     EQ INT(iForm:SCREEN-VALUE )
+                NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE job-hdr AND NOT AVAILABLE ef THEN 
+        DO:
+            MESSAGE "Must enter a valid form..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO iForm.
+            opReturnError = YES.
+            RETURN .
+        END.
     END.
-  END.
 
 END PROCEDURE.
 
@@ -465,25 +467,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-i-no Dialog-Frame 
 PROCEDURE valid-rm-i-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
-  DO WITH FRAME {&FRAME-NAME}:
-    rmItem:SCREEN-VALUE = CAPS(rmItem:SCREEN-VALUE).
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+        rmItem:SCREEN-VALUE = CAPS(rmItem:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST ITEM
-                    where (item.company = ipCompany)
-                      AND item.i-no EQ rmItem:SCREEN-VALUE)
-    THEN DO:
-      MESSAGE "Must enter a valid RM..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO rmItem.
-      opReturnError = YES.
-      RETURN.
+        IF NOT CAN-FIND(FIRST ITEM
+            WHERE (item.company = ipCompany)
+            AND item.i-no EQ rmItem:SCREEN-VALUE)
+            THEN 
+        DO:
+            MESSAGE "Must enter a valid RM..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO rmItem.
+            opReturnError = YES.
+            RETURN.
+        END.
     END.
-  END.
 
 END PROCEDURE.
 

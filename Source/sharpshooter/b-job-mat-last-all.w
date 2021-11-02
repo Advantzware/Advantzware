@@ -46,11 +46,11 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cJobNo           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iJobNo2          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iFormNo          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iBlankNo         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iFormNo        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iBlankNo       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
@@ -159,23 +159,23 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      job-mat,
-      job,
-      item SCROLLING.
+    job-mat,
+    job,
+    item SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
-  QUERY br_table NO-LOCK DISPLAY
-      job-mat.frm COLUMN-LABEL "Form" FORMAT "99" WIDTH 10
-      job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
-      job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
-      item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55         
-      job-mat.qty COLUMN-LABEL "Required" FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 27
-      job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>9.99<<<<":U WIDTH 27
-      job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
-      cEmptyColumn COLUMN-LABEL ""
+    QUERY br_table NO-LOCK DISPLAY
+    job-mat.frm COLUMN-LABEL "Form" FORMAT "99" WIDTH 10
+    job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
+    job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
+    item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55         
+    job-mat.qty COLUMN-LABEL "Required" FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 27
+    job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>9.99<<<<":U WIDTH 27
+    job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
+    cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
@@ -185,10 +185,10 @@ DEFINE BROWSE br_table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+    br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -205,10 +205,11 @@ DEFINE FRAME F-Main
 
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
-IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
-          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-  RETURN.
+IF NOT THIS-PROCEDURE:PERSISTENT THEN 
+DO:
+    MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+    RETURN.
 END.
 
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -245,8 +246,8 @@ END.
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
-       FRAME F-Main:HIDDEN           = TRUE.
+    FRAME F-Main:SCROLLABLE = FALSE
+    FRAME F-Main:HIDDEN     = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -298,10 +299,10 @@ WHERE item.company EQ job-mat.company
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
+    DO:
+        /* This code displays initial values for newly added or copied rows. */
+        {src/adm/template/brsentry.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -309,11 +310,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-LEAVE OF br_table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
+    DO:
+        /* Do not disable this code or no updates will take place except
+         by pressing the Save button on an Update SmartPanel. */
+        {src/adm/template/brsleave.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -321,11 +322,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-END.
+    DO:
+        /* This ADM trigger code must be preserved in order to notify other
+           objects when the browser's current row changes. */
+        {src/adm/template/brschnge.i}
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -351,20 +352,20 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-/*------------------------------------------------------------------------------
-  Purpose:     Dispatched to this procedure when the Record-
-               Source has a new row available.  This procedure
-               tries to get the new row (or foriegn keys) from
-               the Record-Source and process it.
-  Parameters:  <none>
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Dispatched to this procedure when the Record-
+                   Source has a new row available.  This procedure
+                   tries to get the new row (or foriegn keys) from
+                   the Record-Source and process it.
+      Parameters:  <none>
+    ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.             */
-  {src/adm/template/row-head.i}
+    /* Define variables needed by this internal procedure.             */
+    {src/adm/template/row-head.i}
   
-  /* Process the newly available records (i.e. display fields,
-     open queries, and/or pass records on to any RECORD-TARGETS).    */
-  {src/adm/template/row-end.i}
+    /* Process the newly available records (i.e. display fields,
+       open queries, and/or pass records on to any RECORD-TARGETS).    */
+    {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -373,17 +374,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME F-Main.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Hide all frames. */
+    HIDE FRAME F-Main.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,18 +392,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetItem B-table-Win 
 PROCEDURE GetItem :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcItemID  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJobNo   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiJobNo2  AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplAvail   AS LOGICAL   NO-UNDO.
     
-    IF AVAILABLE job-mat THEN DO:
+    IF AVAILABLE job-mat THEN 
+    DO:
         ASSIGN
             opcCompany = job-mat.company
             opcItemID  = job-mat.i-no
@@ -418,23 +420,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyJob B-table-Win 
 PROCEDURE pCopyJob :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.   
     DEFINE INPUT PARAMETER iprwRowId    AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplComplete AS LOGICAL NO-UNDO.
         
     RUN job_CopyMaterialPreviousJob IN hdJobProcs(INPUT ipcCompany, 
-                                                 INPUT iprwRowId, 
-                                                 INPUT cJobNo,
-                                                 INPUT iJobNo2,
-                                                 INPUT iFormNo, 
-                                                 INPUT iBlankNo,
-                                                 OUTPUT oplComplete).
- END PROCEDURE.
+        INPUT iprwRowId, 
+        INPUT cJobNo,
+        INPUT iJobNo2,
+        INPUT iFormNo, 
+        INPUT iBlankNo,
+        OUTPUT oplComplete).
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -442,11 +444,11 @@ PROCEDURE pCopyJob :
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenQuery B-table-Win 
 PROCEDURE OpenQuery :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
@@ -469,11 +471,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenQuery B-table-Win 
 PROCEDURE pOpenQuery :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
@@ -492,10 +494,10 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
 PROCEDURE local-destroy:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
         
@@ -505,7 +507,7 @@ PROCEDURE local-destroy:
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
-   /* Code placed here will execute AFTER standard behavior.    */
+/* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 	
@@ -514,22 +516,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     Send record ROWID's for all tables used by
+                   this file.
+      Parameters:  see template/snd-head.i
+    ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
+    /* Define variables needed by this internal procedure.               */
+    {src/adm/template/snd-head.i}
 
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "job"}
-  {src/adm/template/snd-list.i "job-mat"}
-  {src/adm/template/snd-list.i "item"}
+    /* For each requested table, put it's ROWID in the output list.      */
+    {src/adm/template/snd-list.i "job"}
+    {src/adm/template/snd-list.i "job-mat"}
+    {src/adm/template/snd-list.i "item"}
 
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
+    /* Deal with any unexpected table requests before closing.           */
+    {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -538,19 +540,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
-  DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+    /* -----------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    -------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
+    DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
-  CASE p-state:
-      /* Object instance CASEs can go here to replace standard behavior
-         or add new cases. */
-      {src/adm/template/bstates.i}
-  END CASE.
+    CASE p-state:
+        /* Object instance CASEs can go here to replace standard behavior
+           or add new cases. */
+        {src/adm/template/bstates.i}
+    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -558,15 +560,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
 PROCEDURE ViewRMInquiry :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     IF NOT AVAILABLE job-mat THEN
         RETURN.
         
-    IF NOT VALID-HANDLE(hdRMInquiry) THEN DO:         
+    IF NOT VALID-HANDLE(hdRMInquiry) THEN 
+    DO:         
         RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
 
         RUN dispatch IN hdRMInquiry (
@@ -577,7 +580,8 @@ PROCEDURE ViewRMInquiry :
     END.
                                                  
     IF VALID-HANDLE(hdRMInquiry) AND
-        VALID-HANDLE(hdRMInquiryWin) THEN DO: 
+        VALID-HANDLE(hdRMInquiryWin) THEN 
+    DO: 
 
         RUN ScanItem IN hdRMInquiry (
             INPUT job-mat.company,
@@ -590,7 +594,7 @@ PROCEDURE ViewRMInquiry :
             ) NO-ERROR.            
 
         IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
-            hdRMInquiryWin:WINDOW-STATE = 3.
+                hdRMInquiryWin:WINDOW-STATE = 3.
         
         hdRMInquiryWin:MOVE-TO-TOP().
     END.

@@ -729,7 +729,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_b-job-mat. */
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_viewrminquiry , 'RMInq':U , h_b-job-mat ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_2':U , h_b-job-mat ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_1':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'RMInq':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( h_b-job-mat-last-all , 'LastAll':U , THIS-PROCEDURE ).
               
@@ -851,24 +851,7 @@ PROCEDURE local-change-page :
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
         
   DO WITH FRAME {&FRAME-NAME}:
-      /*CASE adm-current-page:         
-          WHEN 1 THEN DO: */
-           /* RUN get-position IN h_b-job-mat ( OUTPUT dRow , OUTPUT dColTmp ) NO-ERROR.
-            RUN get-size IN h_b-job-mat ( OUTPUT dHeight , OUTPUT dWidth ) NO-ERROR.
-            ASSIGN
-                dCol    = {&WINDOW-NAME}:WIDTH  - 8
-                dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
-                dWidth  = dCol - 3
-                .
-            RUN set-size IN h_b-job-mat ( dHeight , dWidth ) NO-ERROR.
-            ASSIGN
-                dRow = {&WINDOW-NAME}:HEIGHT - 1                                
-                btnViewRM:VISIBLE       = TRUE                
-                .         */
-            //RUN set-position IN h_issueqty ( dRow , btnIssueQtyText:COL + btnIssueQtyText:WIDTH ) NO-ERROR. 
-          /*END.
-          
-      END CASE.  */
+     
   END. /* with frame */  
               
 END PROCEDURE.
@@ -1083,7 +1066,7 @@ PROCEDURE pJobScan :
             fiJobQty:SCREEN-VALUE  = job.job-no + "-" + STRING(job.job-no2,"99")
             .               
        END.
-    //APPLY "ENTRY" TO btCopy.
+    
     END.    
     RUN select-page(1).
 END PROCEDURE.
