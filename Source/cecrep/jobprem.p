@@ -838,12 +838,16 @@ do v-local-loop = 1 to v-local-copies:
                     INPUT  xeb.blank-no,
                     OUTPUT TABLE ttPanel
                     ).
-                    
+                
+                DELETE PROCEDURE hdFormulaProcs.
+                
+                   
                 IF CAN-FIND(FIRST ttPanel) THEN
                 DO:
                     RUN pPrintAltBoxDesign (BUFFER xstyle, xef.xgrain, xest.metric).
                      
                     lPOScoresFound = YES.
+                   
                 END.
             END.
             
@@ -1093,12 +1097,14 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-Style FOR style.
     DEFINE INPUT  PARAMETER ipcXGrain AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplMetric AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEstMetric AS LOGICAL   NO-UNDO.
     
     
-    DEFINE VARIABLE cLineText   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreLineL AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreLineW AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineText        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineL      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineLTotal AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineW      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineWTotal AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
@@ -1113,27 +1119,25 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
     IF NOT AVAILABLE bf-box-design-hdr THEN
         RETURN.
     
-    FOR EACH ttPanel:
-        
-        IF ttPanel.cPanelType EQ "L" THEN
-            cScoreLineL = STRING(ttPanel.dPanelSize) + "   ".
-        ELSE
-            cScoreLineW = STRING(ttPanel.dPanelSize) + "   ".
-        
-    END.
-    
     cLineText = "        " +  "Design #: " + 
                 trim(string(ipbf-Style.design-no,">>>")) +
                 "   " + ipbf-Style.dscr + "    CorrDir:"  +
-                IF ipcXGrain = "N" THEN "Vertical" ELSE "Horizontal".
+                (IF ipcXGrain = "N" THEN "Vertical" ELSE "Horizontal").
                 
-    put cLineText skip.
+    
+    PUT UNFORMATTED "<P12>" SKIP.
+    
+    put cLineText FORM "x(200)" skip.
+    
+    RUN pParseScoreLine (bf-box-design-hdr.lscore, iplEstMetric, "L", NO, OUTPUT cScoreLineL).
+    RUN pParseScoreLine (bf-box-design-hdr.lcum-score, iplEstMetric, "L", YES, OUTPUT cScoreLineLTotal).
     
     put cScoreLineL  FORM "x(100)"  skip
-        cScoreLineW FORM "x(100)"  skip.
+        cScoreLineLTotal FORM "x(100)"  skip.
         
+    v-lines = v-lines + 4.
     
-    IF bf-box-design-hdr.box-image EQ "" THEN
+    IF bf-box-design-hdr.box-image NE "" THEN
     DO: 
         FILE-INFO:FILE-NAME = bf-box-design-hdr.box-image.
      
@@ -1144,12 +1148,98 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
      PUT UNFORMATTED "<=30>" SKIP.
       
      FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
-          
-         PUT "<C66>" IF lPrintMetric AND NOT iplMetric AND bf-box-design-line.wscore <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(bf-box-design-line.wscore)}) * 25.4,0)) ELSE TRIM(bf-box-design-line.wscore) FORMAT "x(9)" 
-              IF lPrintMetric AND NOT iplMetric AND  bf-box-design-line.wcum-score <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(bf-box-design-line.wcum-score)}) * 25.4,0)) ELSE TRIM(bf-box-design-line.wcum-score) FORMAT "x(9)"  SKIP.          
+         
+         RUN pParseScoreLine (bf-box-design-line.wscore, iplEstMetric, "W", NO, OUTPUT cScoreLineW).
+         RUN pParseScoreLine (bf-box-design-line.wcum-score, iplEstMetric, "W", YES, OUTPUT cScoreLineWTotal).
+    
+         PUT "<C66>" 
+            cScoreLineW FORMAT "x(9)" 
+            cScoreLineWTotal FORMAT "x(10)"  SKIP.
+                 
      END.
 
 END PROCEDURE.
+
+PROCEDURE pParseScoreLine:
+    DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEstMetric        AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcScoreStream      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCnt        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTempVal    AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cScrNum     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLine  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSpaceCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dTmpScore   AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE cRepChar  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewText  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNum      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE deFinalScore   AS DECIMAL NO-UNDO.
+    
+    
+    ASSIGN cNewText = ipcScoreTxt.
+
+    DO iCnt = 1 TO LENGTH(ipcScoreTxt):
+        ASSIGN cTempChar = TRIM(SUBSTRING(ipcScoreTxt, iCnt, 1)).
+        
+        IF (cTempChar = "" OR iCnt = LENGTH(ipcScoreTxt)) and cRepChar <> "" Then
+        DO: 
+            IF iCnt = LENGTH(ipcScoreTxt) AND cTempChar <> "" THEN
+                ASSIGN cRepChar = cRepChar + cTempChar.
+            
+            ASSIGN iNum = INTEGER(REPLACE(REPLACE(cRepChar, "[", ""), "]", "")) NO-ERROR.
+            
+            IF NOT ERROR-STATUS:ERROR THEN
+            DO:
+                IF ipcPanelType = "W" THEN
+                    FOR EACH ttPanel 
+                        WHERE ttPanel.cPanelType EQ ipcPanelType
+                        AND ttPanel.iPanelNum  LT iNum:
+                    
+                        ASSIGN 
+                            dTmpScore = IF lPrintMetric AND NOT iplEstMetric THEN ( ({sys/inc/k16bv.i dec(ttPanel.dPanelSize)}) * 25.4) ELSE dec(ttPanel.dPanelSize).
+                        
+                        IF iplTotal THEN
+                            deFinalScore = deFinalScore + dTmpScore.
+                    END.
+                
+                FIND FIRST ttPanel 
+                    WHERE ttPanel.cPanelType EQ ipcPanelType
+                      AND ttPanel.iPanelNum  EQ iNum NO-ERROR.
+    
+                IF AVAILABLE ttPanel THEN
+                DO:
+                    
+                    ASSIGN 
+                        dTmpScore   = IF lPrintMetric AND NOT iplEstMetric THEN ( ({sys/inc/k16bv.i dec(ttPanel.dPanelSize)}) * 25.4) ELSE dec(ttPanel.dPanelSize).
+                        
+                     IF iplTotal THEN
+                        deFinalScore = deFinalScore + dTmpScore.
+                    ELSE
+                        deFinalScore  = dTmpScore.
+                           
+                    cNewText = REPLACE(cNewText, cRepChar, ( IF lPrintMetric THEN  string(round(deFinalScore,0)) ELSE string(round(deFinalScore,2)))). 
+                END.                        
+                          
+            END.
+            ASSIGN cRepChar = "".
+              
+        END.
+        
+        IF cTempChar <> "" THEN
+            ASSIGN cRepChar = cRepChar + cTempChar.
+        
+    END.
+    
+     ASSIGN opcScoreStream = cNewText.
+    
+    
+END PROCEDURE.    
+
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
 

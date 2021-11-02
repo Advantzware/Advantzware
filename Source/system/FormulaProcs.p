@@ -367,10 +367,10 @@ PROCEDURE Formula_GetPanelDetailsForPOScores:
     
     
     RUN GetPanelDetailsForEstimate (
-        INPUT  xeb.company,
-        INPUT  xeb.est-no,
-        INPUT  xeb.form-no,
-        INPUT  xeb.blank-no,
+        INPUT  ipcCompany,
+        INPUT  ipcEstimateID,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
         INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
@@ -560,6 +560,7 @@ PROCEDURE GetPanelScoreAndTypeForEstimate:
         INPUT  ipcEstimateID,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
 
@@ -920,6 +921,7 @@ PROCEDURE pBuildPanelDetailsForEstimate PRIVATE:
         INPUT  bf-eb.est-no,
         INPUT  bf-eb.form-no,
         INPUT  bf-eb.blank-no,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
     IF NOT iplRebuild THEN DO:
