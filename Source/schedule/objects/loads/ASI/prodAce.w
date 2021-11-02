@@ -1023,7 +1023,10 @@ PROCEDURE createTtblProdAce:
             PUT STREAM sHold UNFORMATTED lvProdAceData SKIP.
             NEXT.
         END. /* if prodAceshift ne */
-        lvProdAceResource = ttblResource.resource.
+        ASSIGN
+            lvProdAceResource = ttblResource.resource
+            cResource         = ttblResource.resource
+            .
         IF lProdAceBarScan THEN DO:
             ASSIGN
                 cJobNo    = ENTRY(2,lvProdAceData)
@@ -1106,7 +1109,7 @@ PROCEDURE createTtblProdAce:
             ttblProdAce.prodAceItem          = ENTRY(3,lvProdAceData)
             ttblProdAce.prodAceSeq           = INTEGER(ENTRY(5,lvProdAceData))
             ttblProdAce.prodAceShift         = ENTRY(6,lvProdAceData)
-            ttblProdAce.prodAceShiftDate     = DATE(ENTRY(6,lvProdAceData))
+            ttblProdAce.prodAceShiftDate     = DATE(ENTRY(7,lvProdAceData))
             ttblProdAce.prodAceStartDate     = DATE(ENTRY(10,lvProdAceData))
             ttblProdAce.prodAceStartTime     = INTEGER(ENTRY(11,lvProdAceData))
             ttblProdAce.prodAceEndDate       = DATE(ENTRY(8,lvProdAceData))
@@ -1124,42 +1127,6 @@ PROCEDURE createTtblProdAce:
             .
         IF lvPostProdAce THEN
         PUT STREAM sProcessed UNFORMATTED lvProdAceData SKIP.
-        IF CAN-FIND(FIRST dmiTrans
-                    WHERE dmiTrans.dmiID     EQ ttblProdAce.prodAceDMIID
-                      AND dmiTrans.jobID     EQ ENTRY(2,lvProdAceData)
-                      AND dmiTrans.productID EQ ttblProdAce.prodAceItem
-                      AND dmiTrans.seq       EQ ttblProdAce.prodAceSeq
-                      AND dmiTrans.shift     EQ ttblProdAce.prodAceShift
-                      AND dmiTrans.shiftDate EQ ttblProdAce.prodAceShiftDate
-                      AND dmiTrans.startDate EQ ttblProdAce.prodAceStartDate
-                      AND dmiTrans.startTime EQ ttblProdAce.prodAceStartTime
-            ) THEN NEXT.
-        DO TRANSACTION:
-            CREATE dmiTrans.
-            ASSIGN
-                dmiTrans.dmiID          = ttblProdAce.prodAceDMIID
-                dmiTrans.jobID          = ENTRY(2,lvProdAceData)
-                dmiTrans.productID      = ttblProdAce.prodAceItem
-                dmiTrans.seq            = ttblProdAce.prodAceSeq
-                dmiTrans.shift          = ttblProdAce.prodAceShift
-                dmiTrans.shiftDate      = ttblProdAce.prodAceShiftDate
-                dmiTrans.startDate      = ttblProdAce.prodAceStartDate
-                dmiTrans.startTime      = ttblProdAce.prodAceStartTime
-                dmiTrans.tranDate       = ttblProdAce.prodAceEndDate
-                dmiTrans.tranTime       = ttblProdAce.prodAceEndTime
-                dmiTrans.tranRunQty     = ttblProdAce.prodAceTranRunQty
-                dmiTrans.tranRejectQty  = ttblProdAce.prodAceTranRejectQty
-                dmiTrans.qtyDue         = ttblProdAce.prodAceQtyDue
-                dmiTrans.transState     = ttblProdAce.prodAceState
-                dmiTrans.jobCodeDMIID   = INTEGER(ENTRY(16,lvProdAceData))
-                dmiTrans.downTime       = INTEGER(ENTRY(17,lvProdAceData))
-                dmiTrans.runTime        = INTEGER(ENTRY(18,lvProdAceData))
-                dmiTrans.jobStatus      = ENTRY(19,lvProdAceData)
-                dmiTrans.operator       = ENTRY(20,lvProdAceData)
-                dmiTrans.posted         = NO
-                ttblProdAce.dmiTransAdd = YES
-                .
-        END. /* do trans */
     END. /* repeat */
     IF lvPostProdAce THEN DO:
         OUTPUT STREAM sHold CLOSE.

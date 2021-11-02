@@ -128,7 +128,7 @@ END.
 FOR EACH loadtag
     WHERE loadtag.company   EQ io-po-ordl.company
       AND loadtag.item-type EQ YES
-      AND loadtag.tag-no    BEGINS STRING(io-po-ordl.po-no,'9999999') +
+      AND loadtag.tag-no    BEGINS STRING(io-po-ordl.po-no,'99999999') +
                                    STRING(io-po-ordl.line,'999'):
   DELETE loadtag.
 END.

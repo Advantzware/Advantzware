@@ -745,7 +745,7 @@ PROCEDURE gencXMLOrder:
   
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
-        WHERE ttNodes.nodeName BEGINS "ISA" 
+        WHERE ttNodes.nodeName BEGINS "ISA" AND ttNodes.nodeName NE "isAdhoc"
         NO-ERROR. 
 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).

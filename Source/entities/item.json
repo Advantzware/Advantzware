@@ -1,0 +1,47 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "i-code",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemCode"
+  },
+  {
+    "dbFieldName": "i-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDescription"
+  },
+  {
+    "dbFieldName": "i-name",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemName"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID"
+  },
+  {
+    "dbFieldName": "case-d",
+    "dbFieldExtent": 0,
+    "attributeName": "CaseDepth"
+  },
+  {
+    "dbFieldName": "case-l",
+    "dbFieldExtent": 0,
+    "attributeName": "CaseLength"
+  },
+  {
+    "dbFieldName": "case-pall",
+    "dbFieldExtent": 0,
+    "attributeName": "CasesPerPallet"
+  },
+  {
+    "dbFieldName": "case-w",
+    "dbFieldExtent": 0,
+    "attributeName": "CaseWidth"
+  },  
+  {
+    "dbFieldName": "box-case",
+    "dbFieldExtent": 0,
+    "attributeName": "BoxesPerCase"
+  }
+]}

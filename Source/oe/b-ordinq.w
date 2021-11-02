@@ -681,7 +681,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ordl.line FORMAT ">>99":U
-      oe-ordl.po-no-po FORMAT ">>>>>9":U
+      oe-ordl.po-no-po FORMAT ">>>>>>>9":U
       oe-ordl.e-num FORMAT ">>>>>9":U LABEL-BGCOLOR 14
       getTotalReturned() @ dTotQtyRet COLUMN-LABEL "Tot Returned" FORMAT ">>>,>>9":U
       getReturnedInv() @ dTotRetInv COLUMN-LABEL "Qty Returned Inv" FORMAT ">>>,>>9":U

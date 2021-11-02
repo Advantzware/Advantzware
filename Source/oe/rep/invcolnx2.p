@@ -36,10 +36,11 @@ DEF VAR ls-full-img1   AS CHAR FORMAT "x(200)" NO-UNDO.
 DEF VAR v-tel          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-fax          AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-contact      AS CHAR FORMAT "x(20)" NO-UNDO.
-DEF VAR v-comp-add1    AS CHAR FORM "x(30)"   NO-UNDO.
-DEF VAR v-comp-add2    AS CHAR FORM "x(30)"   NO-UNDO.
-DEF VAR v-comp-add3    AS CHAR FORM "x(30)"   NO-UNDO.
-DEF VAR v-comp-add4    AS CHAR FORM "x(30)"   NO-UNDO.
+DEF VAR v-comp-add1    AS CHAR FORM "x(40)"   NO-UNDO.
+DEF VAR v-comp-add2    AS CHAR FORM "x(40)"   NO-UNDO.
+DEF VAR v-comp-add3    AS CHAR FORM "x(40)"   NO-UNDO.
+DEF VAR v-comp-add4    AS CHAR FORM "x(40)"   NO-UNDO.
+DEF VAR v-comp-add5    AS CHAR FORM "x(40)"   NO-UNDO.
 
 DEF VAR v-shipvia     LIKE carrier.dscr           NO-UNDO.
 DEF VAR v-t-weight    LIKE inv-line.t-weight      NO-UNDO.
@@ -144,10 +145,13 @@ DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
-ASSIGN v-comp-add1 = ""
-       v-comp-add2 = ""
-       v-comp-add3 = " "
-       v-comp-add4 = "".
+ASSIGN
+    v-comp-add1 = cInvMessage[1]
+    v-comp-add2 = cInvMessage[2]
+    v-comp-add3 = cInvMessage[3]
+    v-comp-add4 = cInvMessage[4]
+    v-comp-add5 = cInvMessage[5]
+    .
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
@@ -756,7 +760,24 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
          END.
       END.
     END. /* DO TRANSACTION */
-
+    
+    IF ltb_print-message THEN
+    DO:
+        IF v-printline > 50 THEN DO:
+          PAGE.
+          {oe/rep/invcolnx2.i}
+          v-printline = 21.
+        END.
+    
+        PUT "<R51.5><C1><P12> Remit To: <C11.5>" v-comp-add1 SKIP
+             "<C11.5>" v-comp-add2 SKIP
+             "<C11.5>" v-comp-add3 SKIP  
+             "<C11.5>" v-comp-add4 SKIP  
+             "<C11.5>" v-comp-add5 "<P10>" SKIP
+             .
+        v-printline = v-printline + 5.
+    END. /* IF ltb_print-message THEN */
+    
     DO i = 1 TO 3:
 
       ASSIGN v-bot-lab[i] = IF v-t-tax[i] NE 0 
@@ -794,6 +815,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         SKIP.
 
     ASSIGN v-printline = v-printline + 6.
+    
+    PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+    "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
+    "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+    "<P9>".
 
     IF v-printline <= 66 THEN PAGE. 
 

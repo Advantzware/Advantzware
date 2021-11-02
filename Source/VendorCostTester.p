@@ -397,13 +397,14 @@ PROCEDURE pGetBestCost PRIVATE:
     DEFINE VARIABLE dBestCostSetup      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cBestVendorID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dQuantity           AS DECIMAL   NO-UNDO INITIAL 10000.
+    DEFINE VARIABLE dBestCostTotal      AS DECIMAL NO-UNDO.
     
     cValidScopes = DYNAMIC-FUNCTION("VendCost_GetValidScopes","").
     cScope = ENTRY(iScopeEntry, cValidScopes).
     RUN VendCost_GetBestCost(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor,
         "",0,0, 
         dQuantity, "EA", dDimLength, dDimWidth, dDimDepth, "IN", dBasisWeight, "LBS/MSF",
-        OUTPUT dBestCostPerUOM, OUTPUT dBestCostSetup, OUTPUT cBestVendorID, OUTPUT lError, OUTPUT cMessage).
+        OUTPUT dBestCostPerUOM, OUTPUT dBestCostSetup, OUTPUT cBestVendorID, OUTPUT dBestCostTotal, OUTPUT lError, OUTPUT cMessage).
     MESSAGE "Best" SKIP  
         "Qty in MSF: " dDimLength * dDimWidth / 144000 * dQuantity SKIP 
         "Vendor: " cBestVendorID SKIP 

@@ -194,8 +194,14 @@ DO:
 END.
 ELSE DO:
 
- IF iplFreightCostCalc THEN
- RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0). 
+ IF iplFreightCostCalc THEN do:
+   FOR EACH bf-oe-boll
+       WHERE bf-oe-boll.company EQ oe-bolh.company
+       AND bf-oe-boll.b-no    EQ oe-bolh.b-no :
+       bf-oe-boll.freight = 0. 
+   END.                
+   RUN oe/bolfrteq.p (BUFFER oe-bolh, opdFreight, 0). 
+ END.
  
  oe-bolh.freightCalculationAmount = opdFreight.   
  /* Obtain the total freight for all lines on BOL */

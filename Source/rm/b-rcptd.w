@@ -315,7 +315,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       rm-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
       rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
@@ -3332,7 +3332,7 @@ PROCEDURE pGetTagSequence :
             FOR EACH bf-rm-rctd
                 WHERE bf-rm-rctd.company EQ ipcCompany
                 AND bf-rm-rctd.loc     EQ cLocation
-                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"999999")
+                AND bf-rm-rctd.tag     BEGINS STRING(ipiPoNo,"99999999")
                 USE-INDEX tag NO-LOCK
                 BY bf-rm-rctd.tag DESCENDING:
 
@@ -3349,7 +3349,7 @@ PROCEDURE pGetTagSequence :
     DO:
         FIND LAST rm-rdtlh NO-LOCK
             WHERE rm-rdtlh.company EQ ipcCompany
-            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"999999")
+            AND rm-rdtlh.tag     BEGINS STRING(ipiPoNo,"99999999")
             AND INT(SUBSTR(rm-rdtlh.tag,7,2)) GT iSeq
             USE-INDEX tag NO-ERROR.
         IF AVAILABLE rm-rdtlh THEN 
@@ -3358,7 +3358,7 @@ PROCEDURE pGetTagSequence :
 
     ASSIGN
         iSeq        = iSeq + 1
-        opcSequence = STRING(ipiPoNo,"999999") + STRING(iSeq,"99").
+        opcSequence = STRING(ipiPoNo,"99999999") + STRING(iSeq,"99").
 
 END PROCEDURE.
 

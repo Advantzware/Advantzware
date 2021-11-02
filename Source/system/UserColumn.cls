@@ -68,7 +68,8 @@ CLASS system.UserColumn:
                 NEXT.
             
             CREATE ttDefaultUserColumn.
-            ASSIGN       
+            ASSIGN
+                ttDefaultUserColumn.colTable    = hdBrowseColumn:TABLE       
                 ttDefaultUserColumn.colName     = hdBrowseColumn:NAME     
                 ttDefaultUserColumn.colLabel    = hdBrowseColumn:LABEL
                 ttDefaultUserColumn.colVisible  = hdBrowseColumn:VISIBLE
@@ -97,7 +98,11 @@ CLASS system.UserColumn:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC VOID pBuildUserColumn( ):
-		
+		DEFINE VARIABLE lBrowseChanged AS LOGICAL   NO-UNDO.
+		DEFINE VARIABLE iPosition      AS INTEGER   NO-UNDO.
+		DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
+		DEFINE VARIABLE cColumnTable   AS CHARACTER NO-UNDO.
+		 
         DEFINE BUFFER bf-userColumn FOR userColumn. 
         
         EMPTY TEMP-TABLE ttUserColumn.
@@ -112,24 +117,51 @@ CLASS system.UserColumn:
         
         /* Delete any field that is removed from browse after user column is saved */
         FOR EACH ttUserColumn:
+            ASSIGN
+                cColumnTable = IF NUM-ENTRIES (ttUserColumn.colName, ".") EQ 2 THEN
+                                   ENTRY(1, ttUserColumn.colName, ".")
+                               ELSE
+                                   ?
+                cColumnName  = IF NUM-ENTRIES (ttUserColumn.colName, ".") EQ 2 THEN
+                                   ENTRY(2, ttUserColumn.colName, ".")
+                               ELSE
+                                   ENTRY(1, ttUserColumn.colName, ".")
+                NO-ERROR.
+            
             FIND FIRST ttDefaultUserColumn 
-                 WHERE ttDefaultUserColumn.colName EQ ttUserColumn.colName
+                 WHERE ttDefaultUserColumn.colTable EQ cColumnTable
+                   AND ttDefaultUserColumn.colName  EQ cColumnName
                  NO-ERROR.
-            IF NOT AVAILABLE ttDefaultUserColumn THEN
+            IF AVAILABLE ttDefaultUserColumn THEN
+                NEXT.
+                 
+            FIND FIRST ttDefaultUserColumn 
+                 WHERE ttDefaultUserColumn.colTable EQ ?
+                   AND ttDefaultUserColumn.colName  EQ cColumnName
+                 NO-ERROR.
+            IF NOT AVAILABLE ttDefaultUserColumn THEN DO:
+                lBrowseChanged = TRUE.
                 DELETE ttUserColumn.
+            END.
+            ELSE  /* This is more of a conversion of colName from fieldname to tablename.fieldname format, as a browse can have columns with same field names, which is causing a problem while saving. Eg. oe-ordl.po-no and oe-ord.po  */
+                ttUserColumn.colName = (IF cColumnTable EQ ? THEN "" ELSE cColumnTable + ".") + cColumnName.                
         END.
         
-        /* Add any field that is added t browse after user column is saved */
+        /* Add any field that is added to browse after user column is saved */
         FOR EACH ttDefaultUserColumn:
+            cColumnName = (IF ttDefaultUserColumn.colTable EQ ? THEN "" ELSE ttDefaultUserColumn.colTable + ".") + ttDefaultUserColumn.colName.
+             
             FIND FIRST ttUserColumn 
-                 WHERE ttUserColumn.colName EQ ttDefaultUserColumn.colName
+                 WHERE ttUserColumn.colName EQ cColumnName
                  NO-ERROR.
             IF NOT AVAILABLE ttUserColumn THEN DO:
+                lBrowseChanged = TRUE.
+                
                 CREATE ttUserColumn.
                 ASSIGN
                     ttUserColumn.programName = ProgramName
                     ttUserColumn.usrID       = CurrentUser
-                    ttUserColumn.colName     = ttDefaultUserColumn.colName
+                    ttUserColumn.colName     = cColumnName
                     ttUserColumn.colLabel    = ttDefaultUserColumn.colLabel
                     ttUserColumn.colVisible  = ttDefaultUserColumn.colVisible
                     ttUserColumn.colWidth    = ttDefaultUserColumn.colWidth
@@ -145,7 +177,16 @@ CLASS system.UserColumn:
             IF ttUserColumn.colVisible EQ ? THEN
                 ttUserColumn.colVisible = ttDefaultUserColumn.colVisible.          
         END.
-	END METHOD.
+        /* If a new column is added or deleted reposition the duplicate positioned columns */
+        IF lBrowseChanged THEN DO:
+            FOR EACH ttUserColumn
+                BY ttUserColumn.colPosition:
+                iPosition = iPosition + 1.
+                
+                ttUserColumn.colPosition = iPosition.
+            END.
+        END.
+    END METHOD.
 
     /*------------------------------------------------------------------------------
      Purpose:
@@ -153,8 +194,9 @@ CLASS system.UserColumn:
     ------------------------------------------------------------------------------*/
 
     METHOD PUBLIC VOID pBuildUserColumnFromBrowse( ):
-        DEFINE VARIABLE iColumn        AS INTEGER NO-UNDO.
-        DEFINE VARIABLE hdBrowseColumn AS HANDLE  NO-UNDO.
+        DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE hdBrowseColumn AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
         
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
             hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn).
@@ -162,8 +204,10 @@ CLASS system.UserColumn:
             IF NOT VALID-HANDLE (hdBrowseColumn) THEN
                 NEXT.
             
+            cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME.
+            
             FIND FIRST ttUserColumn 
-                 WHERE ttUserColumn.colName EQ hdBrowseColumn:NAME
+                 WHERE ttUserColumn.colName EQ cColumnName
                  NO-ERROR.
             IF AVAILABLE ttUserColumn THEN
                 ASSIGN       
@@ -180,9 +224,13 @@ CLASS system.UserColumn:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC VOID RestoreDefaults( ):
+        DEFINE VARIABLE cColumnName AS CHARACTER NO-UNDO.
+        
 		FOR EACH ttDefaultUserColumn:
+            cColumnName = (IF ttDefaultUserColumn.colTable EQ ? THEN "" ELSE ttDefaultUserColumn.colTable + ".") + ttDefaultUserColumn.colName.
+
 		    FIND FIRST ttUserColumn
-		         WHERE ttUserColumn.colName EQ ttDefaultUserColumn.colName
+		         WHERE ttUserColumn.colName EQ cColumnName
 		         NO-ERROR.
 		    IF AVAILABLE ttUserColumn THEN
                 ASSIGN
@@ -220,8 +268,14 @@ CLASS system.UserColumn:
         END.
         
         FOR EACH ttUserColumn:
-            CREATE bf-userColumn.
-            BUFFER-COPY ttUserColumn TO bf-userColumn.
+            /* For some reason if there is a duplicate colPosition then ignore the column */
+            IF NOT CAN-FIND(FIRST userColumn
+                            WHERE userColumn.programName EQ ProgramName
+                              AND userColumn.usrID       EQ CurrentUser
+                              AND userColumn.colPosition EQ ttUserColumn.colPosition) THEN DO:  
+                CREATE bf-userColumn.
+                BUFFER-COPY ttUserColumn TO bf-userColumn.
+            END.
         END.
     END METHOD.
 
@@ -230,18 +284,21 @@ CLASS system.UserColumn:
 	 Notes:
 	------------------------------------------------------------------------------*/
 
-	METHOD PUBLIC VOID UpdateBrowse( ):
-        DEFINE VARIABLE iColumn        AS INTEGER NO-UNDO.
-        DEFINE VARIABLE hdBrowseColumn AS HANDLE  NO-UNDO.
-		
+    METHOD PUBLIC VOID UpdateBrowse( ):
+        DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE hdBrowseColumn AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
+        
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
             hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn).
             
             IF NOT VALID-HANDLE (hdBrowseColumn) THEN
                 NEXT.
-                
+            
+            cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME.
+            
             FIND FIRST ttUserColumn 
-                 WHERE ttUserColumn.colName EQ hdBrowseColumn:NAME
+                 WHERE ttUserColumn.colName EQ cColumnName
                  NO-ERROR.
             IF NOT AVAILABLE ttUserColumn THEN
                 NEXT.
@@ -254,7 +311,7 @@ CLASS system.UserColumn:
             
             /* Sometimes default width is ?, as width is set using format */
             FIND FIRST ttDefaultUserColumn 
-                 WHERE ttDefaultUserColumn.colName EQ hdBrowseColumn:NAME
+                 WHERE ttDefaultUserColumn.colName EQ cColumnName
                  NO-ERROR.
             IF AVAILABLE ttDefaultUserColumn AND ttDefaultUserColumn.colWidth EQ ? THEN
                 ttDefaultUserColumn.colWidth = hdBrowseColumn:WIDTH-PIXELS.

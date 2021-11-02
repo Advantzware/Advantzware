@@ -4310,6 +4310,11 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
 
     RUN ipStatus ("    Fix Estimate scores").
 
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
     DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-company     FOR company.
@@ -6398,6 +6403,11 @@ PROCEDURE ipRefTableConv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER recalc-mr FOR reftable.
+
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
@@ -6471,6 +6481,25 @@ PROCEDURE ipRefTableConv :
             END.
         END.   
     END.  /*FOR EACH reftable1*/  
+    
+    /* Ticket 103950 ConvertMRReftableToEstField.p */
+    FOR EACH bf-est EXCLUSIVE-LOCK:
+        FIND FIRST recalc-mr EXCLUSIVE-LOCK
+             WHERE recalc-mr.reftable EQ "est.recalc-mr"
+             AND recalc-mr.company  EQ bf-est.company
+             AND recalc-mr.loc      EQ bf-est.loc
+             AND recalc-mr.code     EQ TRIM(bf-est.est-no)
+          NO-ERROR.
+         IF AVAILABLE recalc-mr THEN 
+         DO:
+           ASSIGN
+              bf-est.recalc-mr              =  recalc-mr.val[1] EQ 1
+              bf-est.allFormsInk            =  recalc-mr.val[2] EQ 1
+              bf-est.calcBoardCostFromBlank =  recalc-mr.val[3] EQ 1  .
+           DELETE recalc-mr.
+         END. 
+    END.
+    RELEASE bf-est.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -6937,7 +6966,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "McjlwjaffvkbBCti".
+            tempUser._Password = ENCODE("Boxco2020!").
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -6946,7 +6975,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "McjlwjaffvkbBCti".
+            _User._Password = ENCODE("Boxco2020!").
     END.
 
     RELEASE _user.

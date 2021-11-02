@@ -107,8 +107,8 @@ if v-print-mode ne "ALIGN" then do:  /* production mode */
       cgross = cgross + cgrossl.
 
 
-    put trim(string(ap-inv.po-no)) at 1 format "x(6)"
-        trim(ap-sel.inv-no) at 7 format "x(11)"
+    put trim(string(ap-inv.po-no)) at 1 format "x(8)"
+        trim(ap-sel.inv-no) at 9 format "x(11)"
         ap-inv.inv-date to 25 FORM "99/99/99"
         ap-inv.due to 40
         cgrossl to 54 format "->>>,>>9.99"

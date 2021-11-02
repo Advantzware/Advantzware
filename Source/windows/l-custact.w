@@ -93,7 +93,7 @@ END.
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &SCOPED-DEFINE FIELDS-IN-QUERY-BROWSE-1 cust.cust-no cust.name cust.addr[1] ~
-cust.addr[2] cust.city cust.state cust.zip cust.sman sman.sname 
+cust.addr[2] cust.city cust.state cust.zip cust.sman sman.sname cust.acc-bal 
 &SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &SCOPED-DEFINE QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
       AND cust.company EQ ip-company AND ~
@@ -176,6 +176,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       cust.cust-no FORMAT "x(8)":U WIDTH 11.2 COLUMN-FONT 0
       cust.name FORMAT "x(30)":U COLUMN-FONT 0
+      cust.acc-bal FORMAT "->>>,>>>,>>9.99":U COLUMN-LABEL "Customer Balance" COLUMN-FONT 0
       cust.addr[1] FORMAT "x(30)":U COLUMN-FONT 0
       cust.addr[2] FORMAT "x(30)":U COLUMN-FONT 0
       cust.city FORMAT "x(15)":U COLUMN-FONT 0
@@ -246,19 +247,21 @@ CAN-DO(""A,X,S,E"",cust.active)"
 "cust.cust-no" ? ? "character" ? ? 0 ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.cust.name
 "cust.name" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.cust.addr[1]
+     _FldNameList[3]   > ASI.cust.acc-bal
+"cust.acc-bal" "Customer Balance" ? "decimal" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.cust.addr[1]
 "cust.addr[1]" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.cust.addr[2]
+     _FldNameList[5]   > ASI.cust.addr[2]
 "cust.addr[2]" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.cust.city
+     _FldNameList[6]   > ASI.cust.city
 "cust.city" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.cust.state
+     _FldNameList[7]   > ASI.cust.state
 "cust.state" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.cust.zip
+     _FldNameList[8]   > ASI.cust.zip
 "cust.zip" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.cust.sman
+     _FldNameList[9]   > ASI.cust.sman
 "cust.sman" "SalesRep" ? "character" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.sman.sname
+     _FldNameList[10]   > ASI.sman.sname
 "sman.sname" "SalesRep Name" ? "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

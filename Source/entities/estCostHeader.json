@@ -1,0 +1,362 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "calcDateTime",
+    "dbFieldExtent": 0,
+    "attributeName": "CalcTime"
+  },
+  {
+    "dbFieldName": "calculatedBy",
+    "dbFieldExtent": 0,
+    "attributeName": "CalcBy"
+  },
+  {
+    "dbFieldName": "company",
+    "dbFieldExtent": 0,
+    "attributeName": "Company"
+  },
+  {
+    "dbFieldName": "costTotalBoard",
+    "dbFieldExtent": 0,
+    "attributeName": "CostBoard"
+  },
+  {
+    "dbFieldName": "costTotalFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFactory"
+  },
+  {
+    "dbFieldName": "costTotalFixedOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFO"
+  },
+  {
+    "dbFieldName": "costTotalFull",
+    "dbFieldExtent": 0,
+    "attributeName": "CostFull"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 1,
+    "attributeName": "CostGroupLevel1"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 2,
+    "attributeName": "CostGroupLevel2"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 3,
+    "attributeName": "CostGroupLevel3"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 4,
+    "attributeName": "CostGroupLevel4"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 5,
+    "attributeName": "CostGroupLevel5"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 6,
+    "attributeName": "CostGroupLevel6"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 7,
+    "attributeName": "CostGroupLevel7"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 8,
+    "attributeName": "CostGroupLevel8"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 9,
+    "attributeName": "CostGroupLevel9"
+  },
+  {
+    "dbFieldName": "costTotalGroupLevel",
+    "dbFieldExtent": 10,
+    "attributeName": "CostGroupLevel10"
+  },
+  {
+    "dbFieldName": "costTotalLabor",
+    "dbFieldExtent": 0,
+    "attributeName": "CostLabor"
+  },
+  {
+    "dbFieldName": "costTotalMaterial",
+    "dbFieldExtent": 0,
+    "attributeName": "CostMaterial"
+  },
+  {
+    "dbFieldName": "costTotalNonFactory",
+    "dbFieldExtent": 0,
+    "attributeName": "CostNonFactory"
+  },
+  {
+    "dbFieldName": "costTotalVariableOverhead",
+    "dbFieldExtent": 0,
+    "attributeName": "CostVO"
+  },
+  {
+    "dbFieldName": "directMaterialPct",
+    "dbFieldExtent": 0,
+    "attributeName": "directMaterialPct"
+  },
+  {
+    "dbFieldName": "estCostHeaderID",
+    "dbFieldExtent": 0,
+    "attributeName": "HeaderID"
+  },
+  {
+    "dbFieldName": "estimateNo",
+    "dbFieldExtent": 0,
+    "attributeName": "Estimate"
+  },
+  {
+    "dbFieldName": "estType",
+    "dbFieldExtent": 0,
+    "attributeName": "EstType"
+  },
+  {
+    "dbFieldName": "foldPct",
+    "dbFieldExtent": 0,
+    "attributeName": "foldPct"
+  },
+  {
+    "dbFieldName": "forRealItemsUseAvgCost",
+    "dbFieldExtent": 0,
+    "attributeName": "forRealItemsUseAvgCost"
+  },
+  {
+    "dbFieldName": "gsaLaborPct",
+    "dbFieldExtent": 0,
+    "attributeName": "gsaLaborPct"
+  },
+  {
+    "dbFieldName": "gsaMaterialPct",
+    "dbFieldExtent": 0,
+    "attributeName": "gsaMaterialPct"
+  },
+  {
+    "dbFieldName": "handlingChargeFarmPct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingChargeFarmPct"
+  },
+  {
+    "dbFieldName": "handlingChargePct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingChargePct"
+  },
+  {
+    "dbFieldName": "handlingRatePerCWTFGFarmPct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingRatePerCWTFGFarmPct"
+  },
+  {
+    "dbFieldName": "handlingRatePerCWTFGPct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingRatePerCWTFGPct"
+  },
+  {
+    "dbFieldName": "handlingRatePerCWTRMFarmPct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingRatePerCWTRMFarmPct"
+  },
+  {
+    "dbFieldName": "handlingRatePerCWTRMPct",
+    "dbFieldExtent": 0,
+    "attributeName": "handlingRatePerCWTRMPct"
+  },
+  {
+    "dbFieldName": "industry",
+    "dbFieldExtent": 0,
+    "attributeName": "Industy"
+  },
+  {
+    "dbFieldName": "isUnitizedSet",
+    "dbFieldExtent": 0,
+    "attributeName": "UnitizedSet"
+  },
+  {
+    "dbFieldName": "jobID",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID"
+  },
+  {
+    "dbFieldName": "jobID2",
+    "dbFieldExtent": 0,
+    "attributeName": "JobID2"
+  },
+  {
+    "dbFieldName": "marginOn",
+    "dbFieldExtent": 0,
+    "attributeName": "MarginOn"
+  },
+  {
+    "dbFieldName": "marginPct",
+    "dbFieldExtent": 0,
+    "attributeName": "marginPct"
+  },
+  {
+    "dbFieldName": "netProfit",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfit"
+  },
+  {
+    "dbFieldName": "printDateTime",
+    "dbFieldExtent": 0,
+    "attributeName": "PrintTime"
+  },
+  {
+    "dbFieldName": "printedBy",
+    "dbFieldExtent": 0,
+    "attributeName": "PrintBy"
+  },
+  {
+    "dbFieldName": "profitPctGross",
+    "dbFieldExtent": 0,
+    "attributeName": "GrossProfitPercent"
+  },
+  {
+    "dbFieldName": "profitPctNet",
+    "dbFieldExtent": 0,
+    "attributeName": "NetProfitPercent"
+  },
+  {
+    "dbFieldName": "quantityMaster",
+    "dbFieldExtent": 0,
+    "attributeName": "quantityMaster"
+  },
+  {
+    "dbFieldName": "quantityReference",
+    "dbFieldExtent": 0,
+    "attributeName": "Ref.Qty."
+  },
+  {
+    "dbFieldName": "recalcRunRates",
+    "dbFieldExtent": 0,
+    "attributeName": "recalcRunRates"
+  },
+  {
+    "dbFieldName": "recalcRunSpeed",
+    "dbFieldExtent": 0,
+    "attributeName": "RecalcRunSpeed"
+  },
+  {
+    "dbFieldName": "recalcRunWaste",
+    "dbFieldExtent": 0,
+    "attributeName": "recalcRunWaste"
+  },
+  {
+    "dbFieldName": "recalcSetupCrew",
+    "dbFieldExtent": 0,
+    "attributeName": "recalcSetupCrew"
+  },
+  {
+    "dbFieldName": "recalcSetupRates",
+    "dbFieldExtent": 0,
+    "attributeName": "recalcSetupRates"
+  },
+  {
+    "dbFieldName": "recalcSetupTime",
+    "dbFieldExtent": 0,
+    "attributeName": "RecalcSetupTime"
+  },
+  {
+    "dbFieldName": "recalcSetupWaste",
+    "dbFieldExtent": 0,
+    "attributeName": "recalcSetupWaste"
+  },
+  {
+    "dbFieldName": "rec_key",
+    "dbFieldExtent": 0,
+    "attributeName": "RecordKey"
+  },
+  {
+    "dbFieldName": "releaseCount",
+    "dbFieldExtent": 0,
+    "attributeName": "releaseCount"
+  },
+  {
+    "dbFieldName": "sellPrice",
+    "dbFieldExtent": 0,
+    "attributeName": "Price"
+  },
+  {
+    "dbFieldName": "showCommissions",
+    "dbFieldExtent": 0,
+    "attributeName": "ShowCommissions"
+  },
+  {
+    "dbFieldName": "showLaborRates",
+    "dbFieldExtent": 0,
+    "attributeName": "ShowLaborRates"
+  },
+  {
+    "dbFieldName": "special1FlatValue",
+    "dbFieldExtent": 0,
+    "attributeName": "special1FlatValue"
+  },
+  {
+    "dbFieldName": "special1MarkupPct",
+    "dbFieldExtent": 0,
+    "attributeName": "special1MarkupPct"
+  },
+  {
+    "dbFieldName": "special2FlatValue",
+    "dbFieldExtent": 0,
+    "attributeName": "special2FlatValue"
+  },
+  {
+    "dbFieldName": "special2MarkupPct",
+    "dbFieldExtent": 0,
+    "attributeName": "special2MarkupPct"
+  },
+  {
+    "dbFieldName": "special3FlatValue",
+    "dbFieldExtent": 0,
+    "attributeName": "special3FlatValue"
+  },
+  {
+    "dbFieldName": "special3MarkupPct",
+    "dbFieldExtent": 0,
+    "attributeName": "special3MarkupPct"
+  },
+  {
+    "dbFieldName": "warehouseID",
+    "dbFieldExtent": 0,
+    "attributeName": "WarehouseID"
+  },
+  {
+    "dbFieldName": "warehouseMarkupPct",
+    "dbFieldExtent": 0,
+    "attributeName": "warehouseMarkupPct"
+  },
+  {
+    "dbFieldName": "weightNet",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightNet"
+  },
+  {
+    "dbFieldName": "weightTare",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightTare"
+  },
+  {
+    "dbFieldName": "weightTotal",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightTotal"
+  },
+  {
+    "dbFieldName": "weightUOM",
+    "dbFieldExtent": 0,
+    "attributeName": "WeightUOM"
+  }
+]}
