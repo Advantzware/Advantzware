@@ -2486,7 +2486,7 @@ PROCEDURE pPostGLType PRIVATE:
                     DO:
                         IF iplCreateGL THEN 
                         DO:
-                            ttGLTransaction.transactionDesc = ipcConsolidateDesc + " INV:" + STRING(ttGLTransaction.invoiceID).
+                            ttGLTransaction.transactionDesc = ipcConsolidateDesc + " Inv:" + STRING(ttGLTransaction.invoiceID,"9999999").
                             RUN pCreateGLTransFromTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
                         END.
                         dAmountToPost = 0.
