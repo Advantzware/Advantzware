@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
-
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
 
 oBOLHeader = NEW bol.BOLHeader().
@@ -250,6 +250,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object
+PROCEDURE DisableErrorAlerts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EmptyBOL s-object 
 PROCEDURE EmptyBOL :
 /*------------------------------------------------------------------------------
@@ -342,21 +358,9 @@ PROCEDURE pBOLScan :
         RUN new-state (
             INPUT "bol-valid"
              ).
-    ELSE DO:
-        ASSIGN
-            cStatusMessage     = "INVALID BOL '" + STRING(ipiBOLID) + "'"
-            iStatusMessageType = 3
-            .
-                
-        RUN new-state (
-            INPUT "bol-error"
-             ).
-    END.
-    
-    ASSIGN
-        cStatusMessage     = ""
-        iStatusMessageType = 0
-        .                 
+    ELSE
+        RUN pSendError ("INVALID BOL '" + STRING(ipiBOLID) + "'").
+               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,6 +379,42 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PSendError s-object
+PROCEDURE pSendError PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "bol-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
 PROCEDURE Set-Focus :

@@ -676,7 +676,8 @@ PROCEDURE pInit :
         
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
         {methods/run_link.i "Setting-SOURCE" "HideSettings"}    
-
+    
+    {methods/run_link.i "BOL-SOURCE" "DisableErrorAlerts"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -811,12 +812,6 @@ PROCEDURE state-changed :
     DEFINE VARIABLE cStatusMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iStatusMessage AS INTEGER   NO-UNDO.
 
-    IF p-state BEGINS "Status-Message" THEN
-    ASSIGN
-        iStatusMessage = INTEGER(ENTRY(3,p-state,"|"))
-        cStatusMessage = ENTRY(2,p-state,"|")
-        p-state        = ENTRY(1,p-state,"|")
-        .
     CASE p-state:
         WHEN "bol-error" THEN
             RUN pBolError.
