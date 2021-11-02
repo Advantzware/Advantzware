@@ -4364,6 +4364,11 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
 
     RUN ipStatus ("    Fix Estimate scores").
 
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
     DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-company     FOR company.
@@ -4388,12 +4393,6 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
         END.   
     END.
     
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     DELETE PROCEDURE hdFormulaProcs.
     
     PROPATH = cOrigPropath.    
