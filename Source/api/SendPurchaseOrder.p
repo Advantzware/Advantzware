@@ -215,7 +215,6 @@
     DEFINE VARIABLE cItemWithAddersLiberty          AS CHARACTER NO-UNDO EXTENT 7.
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAddersX10WithSpace     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10POAdder       AS CHARACTER NO-UNDO.
     
@@ -578,7 +577,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         END.
         ASSIGN 
             cPoHeadNotesKiwi = cPoNotes
-            cPoNotes         = REPLACE(cPoNotes, "~n", "")
+            cPoNotes         = REPLACE(cPoNotes, "~n", " ")
             .
         
         cPoNotesHRMS = cPoNotes.
@@ -747,7 +746,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSizeDecimalKiwi       = ""
                 cItemWithAddersX4           = ""
                 cItemWithAddersX10          = ""
-                cItemWithAddersX10WithSpace = ""
                 citemWithAddersLiberty      = ""
                 cScoreSizeDecimalCorrTrim   = ""
                 cPOAdderCostInMSF           = ""
@@ -1365,12 +1363,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                               
                             END.    
                             ASSIGN  
-                                cItemWithAddersX4           = cItemWithAddersX4  + STRING(bf-item.i-no,"X(4)")
-                                cItemWithAddersX10          = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
-                                cItemWithAddersX10WithSpace = IF cItemWithAddersX10WithSpace EQ "" THEN
-                                                                  STRING(bf-item.i-no,"X(10)")
-                                                              ELSE
-                                                                  cItemWithAddersX10WithSpace + " " + STRING(bf-item.i-no,"X(10)")
+                                cItemWithAddersX4  = cItemWithAddersX4  + STRING(bf-item.i-no,"X(4)")
+                                cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
                                 .  
                         END. 
                         IF iIndex LE 7 THEN 
@@ -1535,7 +1529,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSizeDecimalCorrTrim", cScoreSizeDecimalCorrTrim).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10WithSpace", cItemWithAddersX10WithSpace).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi1", citemWithAddersKiwi1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
