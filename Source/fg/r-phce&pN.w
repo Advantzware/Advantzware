@@ -1119,7 +1119,7 @@ PROCEDURE cpost :
                     uperiod,
                     "A",
                     udate,
-                    "",
+                    work-job.cDesc,
                     "FG").
             END. /* each work-job */
         END.
@@ -1468,6 +1468,7 @@ PROCEDURE run-report PRIVATE :
     DEFINE BUFFER bitemfg FOR itemfg.
     DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE BUFFER bfg-rctd FOR fg-rctd .
 
     /*{sys/form/r-top5DL.f} */
@@ -1713,10 +1714,13 @@ PROCEDURE run-report PRIVATE :
                 v-uom     = itemfg.prod-uom.
 
         v-adj-qty = (IF AVAILABLE fg-bin THEN fg-bin.qty ELSE 0) - fg-rctd.t-qty.
+        
+        cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
+                       ELSE IF fg-rctd.po-no NE "" THEN "Po: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line,">>9") ELSE "".
 
         /*Invoicing  - Post Invoicing Transactions - Job Costing*/
         RUN oe/invposty.p (0, itemfg.i-no, v-adj-qty, v-uom,
-            v-cost[1], v-cost[2], v-cost[3], v-cost[4]).
+            v-cost[1], v-cost[2], v-cost[3], v-cost[4], cDescription).
 
         v-item-tot = v-item-tot + v-tot-value.
 
@@ -1786,6 +1790,7 @@ PROCEDURE run-report-inv :
     DEFINE BUFFER bitemfg FOR itemfg.
     DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE BUFFER btt-fg-bin FOR tt-fg-bin .
 
     /*{sys/form/r-top5DL.f} */
@@ -2121,10 +2126,13 @@ PROCEDURE run-report-inv :
             ASSIGN
                 v-cum-qty  = v-cum-qty + tt-fg-bin.counted-qty
                 v-item-tot = v-item-tot + tt-fg-bin.tot-value.
+                
+                cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
+                               ELSE IF fg-rctd.po-no NE "" THEN "Po: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line,">>9") ELSE "". 
 
             /*Invoicing  - Post Invoicing Transactions - Job Costing*/
             RUN oe/invposty.p (0, tt-fg-bin.i-no, tt-fg-bin.v-adj-qty, tt-fg-bin.v-uom,
-                tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4]).
+                tt-fg-bin.v-cost[1], tt-fg-bin.v-cost[2], tt-fg-bin.v-cost[3], tt-fg-bin.v-cost[4], cDescription).
         END.
 
         IF LAST-OF(tt-fg-bin.i-no) THEN 

@@ -848,7 +848,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no) ELSE ""),
                         "AP").
 
    if v-tot-amt-disc ne 0 then do:
@@ -862,7 +862,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no) ELSE ""),
                         "AP").
      
    end.
@@ -887,7 +887,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no) ELSE ""),
                         "AP").
        
      end.
@@ -903,7 +903,7 @@ do transaction on error undo, leave:
                         uperiod,
                         "A",
                         udate,
-                        string(ap-pay.vend-no),
+                        (IF AVAIL ap-pay THEN "Vendor:" + STRING(ap-pay.vend-no) ELSE ""),
                         "AP").
 end. /* postit */
 

@@ -882,7 +882,7 @@ PROCEDURE post-gl :
                              "CASHRVD",
                              "VOID " + cust.cust-no + " " +
                                  STRING(ar-cash.check-no,"999999999999") +
-                                 " Inv# " + STRING(ar-cashl.inv-no),
+                                 " Inv: " + STRING(ar-cashl.inv-no),
                              tran-date,
                              (-1 * ar-cashl.amt-paid),
                              v-trnum,
@@ -901,7 +901,7 @@ PROCEDURE post-gl :
                                   "CRDISVD",
                                   "VOID " + cust.cust-no + " " +
                                           STRING(ar-cash.check-no,"999999999999") +
-                                          " Inv# " + STRING(ar-cashl.inv-no),
+                                          " Inv: " + STRING(ar-cashl.inv-no),
                                   tran-date,
                                   (-1 * ar-cashl.amt-disc),
                                   v-trnum,

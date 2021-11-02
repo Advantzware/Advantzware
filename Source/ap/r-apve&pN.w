@@ -155,6 +155,7 @@ DEF TEMP-TABLE tt-ap-tax  NO-UNDO
                           FIELD actnum LIKE account.actnum
                           FIELD amt LIKE ap-invl.amt
                           FIELD curr-amt LIKE ap-invl.amt
+                          FIELD cDescription AS CHARACTER
                           INDEX row-id row-id.
                           
 RUN methods/prgsecur.p
@@ -1427,7 +1428,7 @@ PROCEDURE post-gl :
                 total-msf      = total-msf + ap-invl.amt-msf
                 ap-invl.posted = YES.
        
-            RUN GL_SpCreateGLHist(cocode,
+      RUN GL_SpCreateGLHist(cocode,
                 tt-ap-invl.actnum,
                 "ACPAY",
                 vend.name  + "  " + string(ap-inv.inv-date),
@@ -1437,8 +1438,20 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "",
-                "AP").                    
+                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " Po:" + STRING(ap-invl.po-no) ,
+                "AP").
+      RUN GL_SpCreateGLHist(cocode,
+                 tt-ap-invl.actnum,
+                 "ACPAY",
+                 vend.name  + "  " + string(ap-inv.inv-date),
+                 tran-date,
+                 tt-ap-invl.amt * -1,
+                 v-trnum,
+                 tran-period,
+                 "A",
+                 tran-date,
+                 (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-invl.inv-no,">>>>>>9") + " Po:" + STRING(ap-invl.po-no) ,
+                 "AP").                     
 
             FIND FIRST po-ordl
                 WHERE po-ordl.company EQ cocode
@@ -1790,7 +1803,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-inv.inv-no),
+                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9"),
                 "AP").    
         END.
     END. /* for each ap-inv */
@@ -1811,7 +1824,19 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-inv.inv-no),
+                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9"),
+                "AP").
+            RUN GL_SpCreateGLHist(cocode,
+                v-frt-acct,
+                "ACPAY",
+                "ACCOUNTS PAYABLE FREIGHT",
+                tran-date,
+                -(ACCUM TOTAL ap-inv.freight * tt-report.ex-rate),
+                v-trnum,
+                tran-period,
+                "A",
+                tran-date,
+                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9"),
                 "AP").
         END.
 
@@ -1833,23 +1858,23 @@ PROCEDURE post-gl :
                     tran-period,
                     "A",
                     tran-date,
-                    "",
+                    tt-ap-tax.cDescription,
+                    "AP"). 
+                RUN GL_SpCreateGLHist(cocode,
+                    tt-ap-tax.actnum,
+                    "ACPAY",
+                    "ACCOUNTS PAYABLE TAX",
+                    tran-date,
+                    -(ACCUM TOTAL BY tt-ap-tax.actnum tt-ap-tax.curr-amt),
+                    v-trnum,
+                    tran-period,
+                    "A",
+                    tran-date,
+                    tt-ap-tax.cDescription,
                     "AP").                
             END.
         END. 
-        
-        RUN GL_SpCreateGLHist(cocode,
-            xap-acct,
-            "ACPAY",
-            "ACCOUNTS PAYABLE INVOICE",
-            tran-date,
-            (- g2),
-            v-trnum,
-            tran-period,
-            "A",
-            tran-date,
-            "",
-            "AP").          
+          
     END.
 END PROCEDURE.
 

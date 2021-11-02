@@ -965,7 +965,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-inv.inv-no),
+                "Vendor:" + ap-payl.vend-no + " Invoice:" + STRING(ap-payl.inv-no,">>>>>>9") + " Check:" + STRING(ap-pay.check-no),
                 "AP").
         
             ASSIGN
@@ -1014,7 +1014,7 @@ PROCEDURE post-gl :
             tran-period,
             "A",
             tran-date,
-            STRING(ap-inv.inv-no),
+            (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no ELSE ""),
             "AP").
 
         /* Recalc Rm Bins whose cost has been changed by APCRMEMO sys-ctrl param */

@@ -49,6 +49,8 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 {sys/ref/fgoecost.i}
 {jc/jcgl-sh.i NEW}
 {sys/inc/fgpostgl.i} 
+{oe/invwork.i NEW}
+{sys/inc/adjustgl.i} 
 
 DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lAccess1     AS LOGICAL NO-UNDO.
@@ -1305,154 +1307,71 @@ PROCEDURE pCreateGLTrans :
   DEFINE INPUT PARAMETER iprwRowid AS ROWID   NO-UNDO.
   DEFINE INPUT PARAMETER ipdQty    AS DECIMAL NO-UNDO.
   
-  DEFINE VARIABLE cPurUom AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE dExtCost AS DECIMAL NO-UNDO.
   DEFINE VARIABLE iTrnum  LIKE gl-ctrl.trnum NO-UNDO.
+  DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-fg-bin FOR fg-bin.
   
-  FOR EACH work-gl:
-    DELETE work-gl.
-  END.
   
   FIND FIRST bf-fg-bin NO-LOCK 
-       WHERE ROWID(bf-fg-bin) EQ iprwRowid NO-ERROR.
+       WHERE ROWID(bf-fg-bin) EQ iprwRowid NO-ERROR.     
+  
+    EMPTY TEMP-TABLE work-job.
+    IF avail bf-fg-bin then
+    DO:
+       cDescription  = IF bf-fg-bin.job-no NE "" THEN "Job: " + bf-fg-bin.job-no + "-" + STRING(bf-fg-bin.job-no2)
+                        ELSE IF bf-fg-bin.po-no NE "" THEN "PO: " + STRING(bf-fg-bin.po-no) ELSE "" .
 
-  FIND FIRST itemfg NO-LOCK
-       WHERE itemfg.company EQ cocode 
-       AND itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
-  cPurUom = if fg-bin.pur-uom ne "" then fg-bin.pur-uom ELSE itemfg.pur-uom .
-  dExtCost = fg-bin.std-tot-cost * (ipdQty / IF cPurUom EQ "M" THEN 1000 ELSE 1). 
-  
-  IF AVAIL itemfg THEN   
-  FIND FIRST prodl
-       WHERE prodl.company eq cocode
-       AND prodl.procat  eq itemfg.procat
-       AND CAN-FIND(FIRST prod
-                        WHERE prod.company eq cocode
-                          AND prod.prolin  eq prodl.prolin)
-       NO-LOCK NO-ERROR.
+       run oe/invposty.p (0, bf-fg-bin.i-no, ipdQty * -1, bf-fg-bin.pur-uom,
+                          bf-fg-bin.std-lab-cost, bf-fg-bin.std-fix-cost,
+                          bf-fg-bin.std-var-cost, bf-fg-bin.std-mat-cost, cDescription).                                
+    END.    
 
-  IF avail prodl then
-  FIND FIRST prod NO-LOCK
-       WHERE prod.company eq cocode
-       AND prod.prolin  eq prodl.prolin
-       NO-ERROR.
-  
-  IF INT(bf-fg-bin.po-no) ne 0 then
-    FIND FIRST po-ord
-        WHERE po-ord.company eq cocode
-          AND po-ord.po-no   eq int(bf-fg-bin.po-no)
-        NO-LOCK NO-ERROR.
-    IF AVAIL po-ord then
-    FIND FIRST po-ordl
-        WHERE po-ordl.company   eq cocode
-          AND po-ordl.po-no     eq po-ord.po-no
-          AND po-ordl.i-no      eq bf-fg-bin.i-no
-          AND po-ordl.deleted   eq no
-          AND po-ordl.item-type eq no
-        NO-LOCK NO-ERROR.
-            
-  IF AVAIL itemfg AND fgpostgl NE "None"       AND
-    (AVAIL po-ordl OR fgpostgl EQ "AllItems") THEN DO:       
-      IF dExtCost ne 0  AND
-         dExtCost ne ?  AND
-         AVAIL prod         AND  
-         prod.fg-mat ne ""  AND
-         prod.wip-mat ne "" THEN DO:                          
-        
-        FIND FIRST work-gl WHERE work-gl.actnum eq prod.fg-mat NO-LOCK NO-ERROR.      
-        IF NOT AVAIL work-gl THEN DO:
-          create work-gl.
-          work-gl.actnum = prod.fg-mat.
-        END.
-        work-gl.debits = work-gl.debits + dExtCost.             
-        
-        FIND FIRST work-gl WHERE work-gl.actnum eq prod.wip-mat NO-LOCK NO-ERROR.      
-        IF NOT AVAIL work-gl THEN DO:
-          CREATE work-gl.
-          work-gl.actnum = prod.wip-mat.
-        END.
-        work-gl.credits = work-gl.credits + dExtCost.
-      END.  /* if w-fg-rctd.ext-cost */
-  END.         
-  
-  IF fgpostgl NE "None" THEN 
-  DO TRANSACTION:
-        loop2:
+    IF v-adjustgl THEN 
+    DO TRANSACTION:
+        /** GET next G/L TRANS. POSTING # **/
         REPEAT:
             FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
             IF AVAILABLE gl-ctrl THEN
             DO:
                 ASSIGN
-                    iTrnum       = gl-ctrl.trnum + 1
+                    iTrnum        = gl-ctrl.trnum + 1
                     gl-ctrl.trnum = iTrnum.
                 FIND CURRENT gl-ctrl NO-LOCK.
-                LEAVE loop2.
+                LEAVE.
             END.
         END.
+        
+        FIND FIRST period NO-LOCK
+            WHERE period.company EQ cocode
+            AND period.pst     LE TODAY
+            AND period.pend    GE TODAY
+            NO-ERROR.
 
-        RUN pGLFromWork (1, iTrnum).
-        RUN pGLFromWork (2, iTrnum).
-  END.
+        FOR EACH work-job BREAK BY work-job.actnum:
+
+            RUN GL_SpCreateGLHist(cocode,
+                work-job.actnum,
+                "ADJUST",
+                (IF work-job.fg THEN "FG Adjustment entries FG"
+                ELSE "FG Adjustment entries COGS"),
+                TODAY,
+                (IF work-job.fg THEN - work-job.amt
+                ELSE work-job.amt),
+                iTrnum,
+                period.pnum,
+                "A",
+                TODAY,
+                work-job.cDesc,
+                "FG").
+        END. /* each work-job */
+    END.
+
   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGLFromWork D-Dialog 
-PROCEDURE pGLFromWork :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAM ip-run AS INT NO-UNDO.
-    DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
-    DEF VAR credits AS DEC INIT 0 NO-UNDO.
-    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
-    FIND FIRST period
-        WHERE period.company EQ cocode
-        AND period.pst     LE TODAY
-        AND period.pend    GE TODAY
-        NO-LOCK.
-
-    FOR EACH work-gl 
-        WHERE (ip-run EQ 1 AND work-gl.job-no NE "")
-        OR (ip-run EQ 2 AND work-gl.job-no EQ "")
-        BREAK BY work-gl.actnum:
-
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
-          RUN GL_SpCreateGLHist(INPUT cocode,
-                             INPUT work-gl.actnum,
-                             INPUT "FGPOST",
-                             INPUT (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
-                                                      ELSE "FG Receipt from PO"),
-                             INPUT TODAY,
-                             INPUT (debits - credits),
-                             INPUT ip-trnum,
-                             INPUT period.pnum,
-                             INPUT "A",
-                             INPUT TODAY,
-                             INPUT "",
-                             INPUT "FG").
-          ASSIGN
-             debits          = 0
-             credits         = 0.
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidUnitCount D-Dialog 
 PROCEDURE pValidUnitCount :

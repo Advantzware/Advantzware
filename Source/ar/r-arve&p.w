@@ -1184,7 +1184,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "",
+                SUBSTRING(wkdistrib.tr-dscr,INDEX(wkdistrib.tr-dscr,'#') - 3,32),
                 "AR").
 
         END.    /* each wkdistrib */
@@ -1485,6 +1485,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE num-recs   LIKE wkdistrib.recs NO-UNDO.
     DEFINE VARIABLE tot-debit  LIKE wkdistrib.amount NO-UNDO.
     DEFINE VARIABLE tot-credit LIKE wkdistrib.amount NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 
     {sys/form/r-top3w.f}
 
@@ -1619,12 +1620,13 @@ PROCEDURE run-report :
                 AND currency.ex-rate     GT 0
                 NO-ERROR.        
         xar-acct = STRING(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
-        {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
+        cDescription = "HEADER".
+        {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES cDescription }
 
         IF AVAILABLE currency THEN 
         DO:
             ld-gl-amt = (ar-inv.gross * currency.ex-rate) - ar-inv.gross.
-            {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES "HEADER"}
+            {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES cDescription}
         END.
 
         FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ ar-inv.x-no
@@ -1641,7 +1643,8 @@ PROCEDURE run-report :
             ld-gl-amt = ar-invl.amt * -1 *
                 (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
 
-            {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO "LINE"}
+            cDescription = "LINE " + string(ar-invl.LINE).
+            {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO cDescription }
 
             ASSIGN
                 ld-tons[1] = IF ar-invl.t-weight NE 0 THEN ar-invl.t-weight
@@ -1681,7 +1684,8 @@ PROCEDURE run-report :
             ld-gl-amt = ar-inv.freight * -1 *
                 (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
 
-            {sys/inc/gldstsum.i xar-freight ld-gl-amt NO "FREIGHT"}
+            cDescription = "FREIGHT".
+            {sys/inc/gldstsum.i xar-freight ld-gl-amt NO cDescription}
         END.
 
         IF ar-inv.tax-amt NE 0 THEN 
@@ -1720,7 +1724,8 @@ PROCEDURE run-report :
                 IF AVAILABLE currency THEN 
                     ld-gl-amt = ld-gl-amt * currency.ex-rate.
 
-                {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
+                cDescription = "TAX".
+                {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO cDescription}
             END.
         END.
 

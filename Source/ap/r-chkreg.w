@@ -1782,7 +1782,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-sel.inv-no),
+                "Vendor:" + ap-sel.vend-no + " Invoice:" + STRING(ap-sel.inv-no,">>>>>>9"),
                 "AP").
 
             RUN GL_SpCreateGLHist(cocode,
@@ -1795,7 +1795,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-sel.inv-no),
+                "Vendor:" + ap-sel.vend-no + " Invoice:" + STRING(ap-sel.inv-no,">>>>>>9"),
                 "AP").
         END.
     END.
@@ -1975,7 +1975,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                STRING(ap-inv.inv-no),
+                "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9"),
                 "AP").
         END.
 

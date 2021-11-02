@@ -57,7 +57,9 @@ DEFINE TEMP-TABLE xpayl NO-UNDO
 DEFINE TEMP-TABLE w-disb NO-UNDO 
     FIELD w-actnum   LIKE ap-payl.actnum
     FIELD w-amt-paid LIKE ap-payl.amt-paid
-    FIELD w-amt-disc LIKE ap-payl.amt-disc.
+    FIELD w-amt-disc LIKE ap-payl.amt-disc
+    FIELD cDesc AS CHARACTER
+    .
 
 {sys/form/r-top3w.f}
 
@@ -928,9 +930,7 @@ PROCEDURE post-gl :
                         vend.acc-bal = vend.acc-bal + ap-payl.amt-paid +
                             ap-payl.amt-disc.
                 END. /* if avail ap-inv .. */
-                RELEASE ap-inv.
-                RELEASE vend.
-
+                
                 v-tot-amt-disc = v-tot-amt-disc + ap-payl.amt-disc.
 
                 IF ap-payl.d-no NE 0 THEN 
@@ -939,8 +939,13 @@ PROCEDURE post-gl :
                     ASSIGN
                         w-actnum   = ap-payl.actnum
                         w-amt-paid = ap-payl.amt-paid
-                        w-amt-disc = ap-payl.amt-disc.
+                        w-amt-disc = ap-payl.amt-disc
+                        w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " Check: " + STRING(ap-payl.check-no)
+                        .
                 END.
+                
+                RELEASE ap-inv.
+                RELEASE vend.
             END. /* for each ap-payl record */
 
             FOR EACH xpayl,
@@ -982,7 +987,7 @@ PROCEDURE post-gl :
                     tran-period,
                     "A",
                     udate,
-                    STRING(ap-pay.vend-no),
+                    "Vendor:" + string(ap-pay.vend-no) + " Check:" + STRING(ap-pay.check-no),
                     "AP").
           
                 ASSIGN 
@@ -1007,7 +1012,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 udate,
-                STRING(ap-pay.vend-no),
+                (IF AVAILABLE ap-pay THEN "Vendor" + string(ap-pay.vend-no) ELSE ""),
                 "AP").
         END.
 
@@ -1032,7 +1037,7 @@ PROCEDURE post-gl :
                     tran-period,
                     "A",
                     udate,
-                    STRING(ap-pay.vend-no),
+                    w-disb.cDesc,
                     "AP").
             END.
         END.
@@ -1046,7 +1051,7 @@ PROCEDURE post-gl :
             tran-period,
             "A",
             udate,
-            STRING(ap-pay.vend-no),
+            (IF AVAIL ap-pay THEN "Vendor:" + string(ap-pay.vend-no) ELSE ""),
             "AP").
 
     END. /* postit */

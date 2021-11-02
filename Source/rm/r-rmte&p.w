@@ -1732,9 +1732,6 @@ PROCEDURE gl-from-work :
     DEFINE INPUT PARAMETER ip-run AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ip-trnum AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE credits AS DECIMAL INIT 0 NO-UNDO.
-    DEFINE VARIABLE debits  AS DECIMAL INIT 0 NO-UNDO. 
-
 
     FIND FIRST period
         WHERE period.company EQ cocode
@@ -1747,29 +1744,21 @@ PROCEDURE gl-from-work :
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
+       
       
             RUN GL_SpCreateGLHist(cocode,
                 work-gl.actnum,
                 "RMPOST",
                 (IF work-gl.job-no NE "" THEN "RM Issue to Job" ELSE "RM Receipt"),
                 v-post-date,
-                debits - credits,
+                work-gl.debits - work-gl.credits,
                 ip-trnum,
                 period.pnum,
                 "A",
                 v-post-date,
-                "",
+                work-gl.cDesc,
                 "RM").  
-            ASSIGN 
-                debits  = 0
-                credits = 0. 
-      
+                  
         END.
     END.
 
@@ -2807,22 +2796,22 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
         DO:
 
             /* Debit RM Asset */
-            FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.inv-asset NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE work-gl THEN 
-            DO:
+                
                 CREATE work-gl.
                 work-gl.actnum = costtype.inv-asset.
             END.
             work-gl.debits = work-gl.debits + v-ext-cost.
-
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+            
             /* Credit RM AP Accrued */
-            FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE work-gl THEN 
-            DO:
+                            
                 CREATE work-gl.
                 work-gl.actnum = costtype.ap-accrued.
             END.
             work-gl.credits = work-gl.credits + v-ext-cost.
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
         END.
 
         ELSE
@@ -2890,6 +2879,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = prod.wip-mat.
                     END.
                     work-gl.debits = work-gl.debits + ld.
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                                    tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
 
                     /* Credit RM Asset */
                     FIND FIRST work-gl
@@ -2908,6 +2899,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = costtype.inv-asset.
                     END.
                     work-gl.credits = work-gl.credits + ld.
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                                    tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
                 END.
             END.
     END.

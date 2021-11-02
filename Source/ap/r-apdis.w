@@ -1070,7 +1070,7 @@ PROCEDURE post-gl :
                     tran-period,
                     "A",
                     tran-date,
-                    "",
+                    (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Check:" + STRING(ap-dis.check-no),
                     "AP").
                 DO :
                     FIND FIRST b-bank WHERE b-bank.actnum = ap-disl.actnum
@@ -1122,7 +1122,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "",
+                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Check:" + STRING(ap-dis.check-no),
                 "AP").
             ASSIGN
                 bank.last-chk = IF lv-chkno-posted >= bank.last-chk THEN lv-chkno-posted

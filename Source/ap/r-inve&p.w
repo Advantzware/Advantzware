@@ -128,6 +128,7 @@ DEF TEMP-TABLE work-gl NO-UNDO
   FIELD actnum  LIKE account.actnum
   FIELD debits  AS DEC
   FIELD credits AS DEC
+  FIELD cDesc   AS CHARACTER
   INDEX actnum actnum.
 
 DEF VAR lv-frt-total AS DEC NO-UNDO.  /* accum total */
@@ -977,7 +978,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " Line: " + STRING(ap-invl.LINE,"9"),
                         "AP").
       ASSIGN
        t1 = t1 + ap-invl.amt
@@ -1069,6 +1070,7 @@ ASSIGN
 
                   work-gl.debits = work-gl.debits -
                                    (fg-rdtlh.qty / 1000 * fg-rdtlh.cost ).
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " ".
 
                   /* Credit WIP Material */
                   FIND FIRST work-gl WHERE work-gl.actnum EQ prod.wip-mat
@@ -1081,6 +1083,7 @@ ASSIGN
 
                   work-gl.credits = work-gl.credits -
                                     (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " ". 
                 END.
               END.  
               /* Balance GL */
@@ -1266,7 +1269,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") ELSE ""),
                         "AP").
     
     ASSIGN
@@ -1283,7 +1286,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") ELSE ""),
                         "AP").
   
   FOR EACH work-gl BREAK BY work-gl.actnum:
@@ -1302,7 +1305,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        string(ap-inv.inv-no),
+                        work-gl.cDesc,
                         "AP").
       
       ASSIGN
