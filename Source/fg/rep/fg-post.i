@@ -150,13 +150,13 @@
             work-gl.actnum = prod.fg-mat.
 
             work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.
-            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + (IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,">>9") ELSE "").            
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + (IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "").            
             /* Credit WIP Material */            
             create work-gl.
             work-gl.actnum = prod.wip-mat.
             
             work-gl.credits = work-gl.credits + w-fg-rctd.ext-cost.
-            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + ( IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,">>9") ELSE "").
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + ( IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "").
           end.  /* if w-fg-rctd.ext-cost */
         end.  
       end.
@@ -221,7 +221,7 @@
           
           
           cDescription = (IF w-fg-rctd.job-no NE "" AND w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "")
-                     + ( IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,">>9") ELSE "").
+                     + ( IF w-fg-rctd.po-no NE "" THEN " Po: " + w-fg-rctd.po-no + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "").
         
       if avail fg-bin then
         run oe/invposty.p (0, fg-bin.i-no, w-fg-rctd.t-qty * -1, fg-bin.pur-uom,

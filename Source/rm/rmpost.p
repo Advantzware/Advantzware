@@ -467,7 +467,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
           END.
           work-gl.debits = work-gl.debits + v-ext-cost.
           work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
           /* Credit RM AP Accrued */
           FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
           IF NOT AVAIL work-gl THEN DO:
@@ -476,7 +476,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
           END.
           work-gl.credits = work-gl.credits + v-ext-cost.
           work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
         END.
 
         ELSE
@@ -543,7 +543,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             END.
             work-gl.debits = work-gl.debits + ld.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
             /* Credit RM Asset */
             FIND FIRST work-gl
                 WHERE work-gl.job     EQ job-hdr.job
@@ -561,7 +561,7 @@ DEF BUFFER b-tt-rctd FOR tt-rctd.
             END.
             work-gl.credits = work-gl.credits + ld.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                            tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
           END.
         END.
       END.

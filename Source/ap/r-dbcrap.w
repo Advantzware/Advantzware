@@ -965,7 +965,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + ap-payl.vend-no + " Invoice:" + STRING(ap-payl.inv-no,">>>>>>9") + " Check:" + STRING(ap-pay.check-no),
+                "Vendor:" + ap-payl.vend-no + " Invoice:" + STRING(ap-payl.inv-no,"9999999") + " Check:" + STRING(ap-pay.check-no),
                 "AP").
         
             ASSIGN

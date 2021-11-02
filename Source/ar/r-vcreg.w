@@ -980,11 +980,11 @@ PROCEDURE post-gl :
              glhist.documentID = "Void Payment Check#:" + STRING(ar-cash.check-no,"999999999999") + " Date: " + STRING(tran-date)
              glhist.sourceDate = tran-date
              lv-rowid       = ROWID(glhist).
-          END.
+         
           glhist.tr-amt = glhist.tr-amt + t1.
 
           RELEASE glhist.
-       END.
+      
 
        create ar-ledger.
        assign

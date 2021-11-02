@@ -1744,7 +1744,6 @@ PROCEDURE gl-from-work :
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-       
       
             RUN GL_SpCreateGLHist(cocode,
                 work-gl.actnum,
@@ -1757,9 +1756,7 @@ PROCEDURE gl-from-work :
                 "A",
                 v-post-date,
                 work-gl.cDesc,
-                "RM").  
-                  
-        END.
+                "RM").      
     END.
 
 END PROCEDURE.
@@ -2799,19 +2796,19 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 
                 CREATE work-gl.
                 work-gl.actnum = costtype.inv-asset.
-            END.
+            
             work-gl.debits = work-gl.debits + v-ext-cost.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
-                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                                         + (IF tt-rctd.po-no NE "" THEN " Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
             
             /* Credit RM AP Accrued */
                             
                 CREATE work-gl.
                 work-gl.actnum = costtype.ap-accrued.
-            END.
+            
             work-gl.credits = work-gl.credits + v-ext-cost.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
-                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                                         + (IF tt-rctd.po-no NE "" THEN " Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
         END.
 
         ELSE
@@ -2880,7 +2877,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                     END.
                     work-gl.debits = work-gl.debits + ld.
                     work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                                    tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                                    tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
 
                     /* Credit RM Asset */
                     FIND FIRST work-gl
@@ -2900,7 +2897,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                     END.
                     work-gl.credits = work-gl.credits + ld.
                     work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                                    tt-rctd.po-no NE "" THEN "PO:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,">>9") ELSE "") + " " .
+                                    tt-rctd.po-no NE "" THEN "Po:" + tt-rctd.po-no + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " .
                 END.
             END.
     END.
@@ -3100,7 +3097,7 @@ FOR EACH work-gl BREAK BY work-gl.actnum:
                        ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
         v-disp-actnum = work-gl.actnum
         v-disp-amt    = work-gl.debits - work-gl.credits.
-
+        
     DISPLAY v-disp-actnum v-dscr udate v-disp-amt
         WITH FRAME gldetail.
     DOWN WITH FRAME gldetail.

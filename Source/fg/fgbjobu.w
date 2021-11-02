@@ -1318,7 +1318,7 @@ PROCEDURE pCreateGLTrans :
     EMPTY TEMP-TABLE work-job.
     IF avail bf-fg-bin then
     DO:
-       cDescription  = IF bf-fg-bin.job-no NE "" THEN "Job: " + bf-fg-bin.job-no + "-" + STRING(bf-fg-bin.job-no2)
+       cDescription  = IF bf-fg-bin.job-no NE "" THEN "Job: " + bf-fg-bin.job-no + "-" + STRING(bf-fg-bin.job-no2,"99")
                         ELSE IF bf-fg-bin.po-no NE "" THEN "PO: " + STRING(bf-fg-bin.po-no) ELSE "" .
 
        run oe/invposty.p (0, bf-fg-bin.i-no, ipdQty * -1, bf-fg-bin.pur-uom,

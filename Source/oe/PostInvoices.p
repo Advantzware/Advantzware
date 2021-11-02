@@ -1530,7 +1530,7 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-glhist.entryType = "A"
             bf-glhist.module    = "AR"
             bf-glhist.posted    =  NO
-            bf-glhist.documentID = ipcDescription
+            bf-glhist.documentID = "Inv: " + substring(ipcDescription,INDEX(ipcDescription,'#') + 1 ,45)
             .
         RELEASE bf-glhist.
     END.

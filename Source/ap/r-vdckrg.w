@@ -940,7 +940,7 @@ PROCEDURE post-gl :
                         w-actnum   = ap-payl.actnum
                         w-amt-paid = ap-payl.amt-paid
                         w-amt-disc = ap-payl.amt-disc
-                        w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " Check: " + STRING(ap-payl.check-no)
+                        w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " Check: " + STRING(ap-payl.check-no)
                         .
                 END.
                 

@@ -1184,7 +1184,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                SUBSTRING(wkdistrib.tr-dscr,INDEX(wkdistrib.tr-dscr,'#') - 3,32),
+                "Inv: " + SUBSTRING(wkdistrib.tr-dscr,INDEX(wkdistrib.tr-dscr,'#') + 1,45),
                 "AR").
 
         END.    /* each wkdistrib */

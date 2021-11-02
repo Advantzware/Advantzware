@@ -1768,7 +1768,7 @@ PROCEDURE create-rec-from-vend-tag :
                work-gl.debits = work-gl.debits + v-ext-cost.
                
                work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
-                               ELSE IF rm-rctd.po-no NE "" THEN "Po: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line,">>9") ELSE "").
+                               ELSE IF rm-rctd.po-no NE "" THEN "Po: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line,"999") ELSE "").
 
                /* Credit RM AP Accrued */
                FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
@@ -1779,7 +1779,7 @@ PROCEDURE create-rec-from-vend-tag :
                work-gl.credits = work-gl.credits + v-ext-cost.
                
                work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
-                               ELSE IF rm-rctd.po-no NE "" THEN "Po: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line,">>9") ELSE "").
+                               ELSE IF rm-rctd.po-no NE "" THEN "Po: " + rm-rctd.po-no + "-" + STRING(rm-rctd.po-line,"999") ELSE "").
            END.
          END.
 

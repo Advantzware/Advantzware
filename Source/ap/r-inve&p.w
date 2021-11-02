@@ -978,7 +978,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " Line: " + STRING(ap-invl.LINE,"9"),
+                        "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " Line: " + STRING(ap-invl.LINE,"99"),
                         "AP").
       ASSIGN
        t1 = t1 + ap-invl.amt
@@ -1070,7 +1070,7 @@ ASSIGN
 
                   work-gl.debits = work-gl.debits -
                                    (fg-rdtlh.qty / 1000 * fg-rdtlh.cost ).
-                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " ".
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " ".
 
                   /* Credit WIP Material */
                   FIND FIRST work-gl WHERE work-gl.actnum EQ prod.wip-mat
@@ -1083,7 +1083,7 @@ ASSIGN
 
                   work-gl.credits = work-gl.credits -
                                     (fg-rdtlh.qty / 1000 * fg-rdtlh.cost).
-                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") + " ". 
+                  work-gl.cDesc = work-gl.cDesc + "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " ". 
                 END.
               END.  
               /* Balance GL */
@@ -1269,7 +1269,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") ELSE ""),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") ELSE ""),
                         "AP").
     
     ASSIGN
@@ -1286,7 +1286,7 @@ ASSIGN
                         tran-period,
                         "A",
                         tran-date,
-                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,">>>>>>9") ELSE ""),
+                        (IF AVAIL ap-inv THEN "Vendor:" + ap-inv.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") ELSE ""),
                         "AP").
   
   FOR EACH work-gl BREAK BY work-gl.actnum:
