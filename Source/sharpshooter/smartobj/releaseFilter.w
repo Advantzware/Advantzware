@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 
 DEFINE VARIABLE lReleasePrintedValidation AS LOGICAL NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE lReleasePostedValidation  AS LOGICAL NO-UNDO INITIAL FALSE.
@@ -273,6 +274,22 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object
+PROCEDURE DisableErrorAlerts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableRelease s-object 
 PROCEDURE DisableRelease :
 /*------------------------------------------------------------------------------
@@ -486,6 +503,13 @@ PROCEDURE pSendError :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
     
     ASSIGN
         cStatusMessage     = ipcStatusMessage

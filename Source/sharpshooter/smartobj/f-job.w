@@ -552,7 +552,7 @@ PROCEDURE pSendError PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     RUN new-state (
-        "error"
+        "job-error"
         ).
 
     ASSIGN

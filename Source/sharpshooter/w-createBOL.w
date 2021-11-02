@@ -1197,7 +1197,8 @@ PROCEDURE pInit :
 
         {methods/run_link.i "RELEASE-SOURCE" "ReleasePrintedValidation" "(TRUE)"}
         {methods/run_link.i "RELEASE-SOURCE" "ReleasePostedValidation" "(TRUE)"}
-
+        {methods/run_link.i "RELEASE-SOURCE" "DisableErrorAlerts"}
+        
         RUN pInvalidRelease.
         
         /* If scan trailer is enabled */

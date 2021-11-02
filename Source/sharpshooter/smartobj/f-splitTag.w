@@ -43,6 +43,9 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -327,6 +330,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetQuantity F-Frame-Win 
 PROCEDURE GetQuantity :
 /*------------------------------------------------------------------------------
@@ -352,6 +373,45 @@ PROCEDURE GetTag :
     DEFINE OUTPUT PARAMETER opoLoadtag AS Inventory.Loadtag NO-UNDO.
     
     {methods/run_link.i "SPLIT-SOURCE" "GetTag" "(OUTPUT opoLoadtag)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "SPLIT-SOURCE" "DisableErrorAlerts"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "split-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -393,6 +453,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "SPLIT-SOURCE" "Set-Focus"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -405,7 +478,9 @@ PROCEDURE state-changed :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
+    RUN new-state ("empty-message").
+        
     CASE p-state:
         WHEN "tag-valid" THEN DO:
             btSplit:SENSITIVE = TRUE.
@@ -413,6 +488,11 @@ PROCEDURE state-changed :
         WHEN "tag-invalid" THEN DO:
             btSplit:SENSITIVE = FALSE.
         END.
+        WHEN "tag-error" THEN DO:
+            {methods/run_link.i "SPLIT-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pSendError.
+        END.        
     END CASE.
 END PROCEDURE.
 

@@ -977,12 +977,18 @@ PROCEDURE pPOTagPrint PRIVATE :
     DEFINE VARIABLE iPOLine            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iQuantity          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cQuantityUOM       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
     
     {methods/run_link.i "PO-SOURCE" "GetPOLineTT" "(OUTPUT TABLE ttPOLine)"}
     
     FOR EACH ttPOLine:
-        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromPO" "(INPUT ttPOLine.company, INPUT ttPOLine.po-no, INPUT ttPOLine.line, INPUT ttPOLine.quantity, INPUT ttPOLine.quantityInSubUnit, INPUT ttPOLine.subUnitsPerUnit, INPUT ttPOLine.pr-qty-uom, INPUT 1)"}
+        {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromPO" "(INPUT ttPOLine.company, INPUT ttPOLine.po-no, INPUT ttPOLine.line, INPUT ttPOLine.quantity, INPUT ttPOLine.quantityInSubUnit, INPUT ttPOLine.subUnitsPerUnit, INPUT ttPOLine.pr-qty-uom, INPUT 1, OUTPUT lError, OUTPUT cMessage)"}
+        IF lError THEN
+            LEAVE.
     END.
+    
+    RUN pStatusMessage(INPUT cMessage, INPUT 3).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1079,8 +1085,7 @@ PROCEDURE pReturnTag :
         DELETE PROCEDURE hdInventoryProcs.
 
         IF lError THEN
-            MESSAGE cMessage
-                VIEW-AS ALERT-BOX ERROR.
+            RUN pStatusMessage (cMessage, 3).
         ELSE
             {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
     END.
@@ -1128,8 +1133,7 @@ PROCEDURE pSplitTag :
             ) NO-ERROR. 
 
         IF NOT lSuccess THEN DO:
-            MESSAGE cMessage 
-                VIEW-AS ALERT-BOX ERROR.
+            RUN pStatusMessage (cMessage, 3). 
         END.    
         ELSE DO:
             {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}

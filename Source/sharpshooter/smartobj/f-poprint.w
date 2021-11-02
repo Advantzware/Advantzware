@@ -694,7 +694,7 @@ PROCEDURE pSendError:
         .
 
     RUN new-state (
-        "error"
+        "po-error"
         ).
 
     ASSIGN

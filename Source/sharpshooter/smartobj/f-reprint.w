@@ -44,6 +44,9 @@ DEFINE VARIABLE oLoadtag AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -259,6 +262,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win
+PROCEDURE GetMessageAndType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag F-Frame-Win 
 PROCEDURE GetTag :
 /*------------------------------------------------------------------------------
@@ -288,10 +312,33 @@ PROCEDURE local-enable :
      /* Code placed here will execute AFTER standard behavior.    */
 
     {methods/run_link.i "TAG-SOURCE" "SetTagType" "(INPUT 'FG')"}
+    {methods/run_link.i "TAG-SOURCE" "DisableErrorAlerts"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win
+PROCEDURE pSendError PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "reprint-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
 PROCEDURE Reset :
@@ -325,6 +372,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win
+PROCEDURE Set-Focus:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -335,12 +398,19 @@ PROCEDURE state-changed :
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
+    RUN new-state ("empty-message").
+    
     CASE p-state:
         WHEN "tag-valid" THEN DO:
             RUN new-state ("create-tag-reprint").    
 
             {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
             {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
+        END.
+        WHEN "tag-error" THEN DO:
+            {methods/run_link.i "TAG-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pSendError.
         END.
     END CASE.
 END PROCEDURE.

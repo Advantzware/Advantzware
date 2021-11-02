@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE exclude-brwCustom
+&SCOPED-DEFINE xlocal-destroy
 
 /* Parameters Definitions ---                                           */
 
@@ -369,6 +370,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {sharpshooter/smartobj/browseNavigate.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -498,9 +500,8 @@ PROCEDURE BuildLoadTagsFromPO :
     DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER   NO-UNDO.      
     DEFINE INPUT  PARAMETER ipcQuantityUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiCopies            AS INTEGER   NO-UNDO.
-
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
     RUN BuildLoadTagsFromPO IN hdLoadTagProcs (
         INPUT  ipcCompany,
@@ -511,18 +512,14 @@ PROCEDURE BuildLoadTagsFromPO :
         INPUT  ipiSubUnitsPerUnit,        
         INPUT  ipcQuantityUOM,
         INPUT  ipiCopies,
-        OUTPUT lError,
-        OUTPUT cMessage,
+        OUTPUT oplError,
+        OUTPUT opcMessage,
         INPUT-OUTPUT TABLE ttLoadTag
         ).
 
     RUN dispatch (
         INPUT "open-query"
         ).
-        
-    IF lError THEN
-        MESSAGE cMessage
-        VIEW-AS ALERT-BOX ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -678,25 +675,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(hdLoadTagProcs) THEN
-        DELETE PROCEDURE hdLoadTagProcs.
-        
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -712,6 +690,28 @@ PROCEDURE local-enable :
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+    
+    RUN setCellColumns NO-ERROR.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,6 +1017,20 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xlocal-destroy B-table-Win 
+PROCEDURE xlocal-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

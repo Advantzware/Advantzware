@@ -14,9 +14,14 @@ USING Progress.Lang.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS system.ConfigLoader:
-    DEFINE PRIVATE VARIABLE cCONFIG_TYPE_JSON        AS CHARACTER NO-UNDO INITIAL "JSON".
-    DEFINE PRIVATE VARIABLE cCONFIG_TYPE_SOURCE_DB   AS CHARACTER NO-UNDO INITIAL "DB".
-    DEFINE PRIVATE VARIABLE cCONFIG_TYPE_SOURCE_FILE AS CHARACTER NO-UNDO INITIAL "FILE".
+    DEFINE PRIVATE TEMP-TABLE ttClass
+       FIELD className     AS CHARACTER 
+       FIELD classInstance AS CLASS Object
+       FIELD configType    AS CHARACTER
+       INDEX className IS PRIMARY UNIQUE className configType
+       .
+    
+    DEFINE PRIVATE VARIABLE cCONFIG_TYPE_JSON AS CHARACTER NO-UNDO INITIAL "JSON".
     
     DEFINE PUBLIC STATIC PROPERTY Instance AS CLASS system.ConfigLoader NO-UNDO
     GET ():
@@ -30,34 +35,36 @@ CLASS system.ConfigLoader:
     
     DESTRUCTOR PUBLIC ConfigLoader():
         Instance = ?.
+        FOR EACH ttClass:
+            IF VALID-OBJECT (ttClass.classInstance) THEN
+                DELETE OBJECT ttClass.classInstance.
+        END.
+        EMPTY TEMP-TABLE ttClass.
     END DESTRUCTOR.   
     
     METHOD PRIVATE system.Config pGetConfig (ipcConfig AS CHARACTER):       
-        DEFINE VARIABLE cConfigType   AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cConfigSource AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE lcConfig      AS LONGCHAR  NO-UNDO.
+        DEFINE VARIABLE cConfigType AS CHARACTER NO-UNDO.
         
-        DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-        DEFINE VARIABLE oObject  AS Object         NO-UNDO.
-        
+        DEFINE BUFFER bf-ttClass FOR ttClass.
+ 
         cConfigType = pGetConfigType(ipcConfig).
-        cConfigSource = pGetConfigSource(ipcConfig).
-        
-        IF pGetConfigType(ipcConfig) EQ cCONFIG_TYPE_JSON THEN DO:
-            IF cConfigSource EQ cCONFIG_TYPE_SOURCE_FILE THEN
-                oObject = NEW system.JSONConfig(pGetJSONConfigFile(ipcConfig)).
-            ELSE IF cConfigSource EQ cCONFIG_TYPE_SOURCE_DB THEN DO:
-                oSetting = NEW system.Setting().
-                
-                lcConfig = oSetting:GetByName(ipcConfig).
 
-                oObject = NEW system.JSONConfig(lcConfig).
-
-                DELETE OBJECT oSetting.            
-            END.
+        FIND FIRST bf-ttClass
+             WHERE bf-ttClass.className  EQ ipcConfig
+               AND bf-ttClass.configType EQ cConfigType
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttClass THEN DO:
+            CREATE bf-ttClass.
+            ASSIGN
+                bf-ttClass.className  = ipcConfig
+                bf-ttClass.configType = cCONFIG_TYPE_JSON
+                .
+            
+            IF pGetConfigType(ipcConfig) EQ cCONFIG_TYPE_JSON THEN
+                bf-ttClass.classInstance = NEW system.JSONConfig(pGetJSONConfigFile(ipcConfig)).
         END.
         
-        RETURN CAST(oObject, system.Config).
+        RETURN CAST(bf-ttClass.classInstance, system.Config).
     END METHOD. 
     
     METHOD PUBLIC system.Config GetConfig (ipcConfig AS CHARACTER):
@@ -81,24 +88,16 @@ CLASS system.ConfigLoader:
 
     METHOD PRIVATE CHARACTER pGetConfigType (ipcConfig AS CHARACTER):
         CASE ipcConfig:
-            WHEN "SSLoadTag" OR
-            WHEN "SSLoadTagJobDesign" OR
-            WHEN "SSLoadTagBOLDesign" OR
-            WHEN "SSLoadTagPODesign" OR
+            WHEN "SSLoadTag" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagJobDesign" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagBOLDesign" THEN
+                RETURN cCONFIG_TYPE_JSON.
+            WHEN "SSLoadTagPODesign" THEN
+                RETURN cCONFIG_TYPE_JSON.
             WHEN "SSLoadTagReprintDesign" THEN
                 RETURN cCONFIG_TYPE_JSON.
-        END CASE.
-    END METHOD. 
-
-    METHOD PRIVATE CHARACTER pGetConfigSource (ipcConfig AS CHARACTER):
-        CASE ipcConfig:
-            WHEN "SSLoadTagJobDesign" THEN
-                RETURN cCONFIG_TYPE_SOURCE_DB. 
-            WHEN "SSLoadTag" OR 
-            WHEN "SSLoadTagBOLDesign" OR
-            WHEN "SSLoadTagPODesign" OR 
-            WHEN "SSLoadTagReprintDesign" THEN
-                RETURN cCONFIG_TYPE_SOURCE_FILE.
         END CASE.
     END METHOD. 
 END CLASS.

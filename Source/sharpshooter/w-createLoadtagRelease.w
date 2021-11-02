@@ -779,11 +779,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Foucs W-Win 
 PROCEDURE Set-Foucs :
 /*------------------------------------------------------------------------------
-  Purpose:     
+  Purpose:     z
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "RELEASE-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,6 +798,9 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -813,6 +816,14 @@ PROCEDURE state-changed :
 
             SESSION:SET-WAIT-STATE ("").
         END.
+        WHEN "release-error" THEN DO:
+            {methods/run_link.i "RELEASE-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+        END.        
+        WHEN "empty-message" THEN DO:
+            RUN pStatusMessage(INPUT "", INPUT 0).
+        END.         
     END CASE. 
 END PROCEDURE.
 

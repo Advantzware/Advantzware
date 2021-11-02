@@ -822,7 +822,7 @@ PROCEDURE state-changed :
 
             SESSION:SET-WAIT-STATE ("").
         END.
-        WHEN "error" THEN DO:
+        WHEN "job-error" THEN DO:
             {methods/run_link.i "JOB-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
             
             RUN pStatusMessage (cStatusMessage, iStatusMessageType).

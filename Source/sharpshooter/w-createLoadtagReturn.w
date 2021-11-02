@@ -649,7 +649,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
     
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "RETURN-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,8 +695,7 @@ PROCEDURE pReturnTag :
         DELETE PROCEDURE hdInventoryProcs.
 
         IF lError THEN
-            MESSAGE cMessage
-                VIEW-AS ALERT-BOX ERROR.
+            RUN pStatusMessage (cMessage, 3).
         ELSE
             {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
     END.
@@ -806,7 +805,7 @@ PROCEDURE Set-Foucs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "RETURN-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,6 +820,9 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -836,6 +838,14 @@ PROCEDURE state-changed :
 
             SESSION:SET-WAIT-STATE ("").
         END.
+        WHEN "return-error" THEN DO:
+            {methods/run_link.i "RETURN-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+        END.        
+        WHEN "empty-message" THEN DO:
+            RUN pStatusMessage(INPUT "", INPUT 0).
+        END.         
     END CASE. 
 END PROCEDURE.
 

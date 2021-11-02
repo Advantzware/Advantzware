@@ -656,7 +656,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
     
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "SPLIT-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,10 +702,8 @@ PROCEDURE pSplitTag :
             OUTPUT TABLE ttItem
             ) NO-ERROR. 
 
-        IF NOT lSuccess THEN DO:
-            MESSAGE cMessage 
-                VIEW-AS ALERT-BOX ERROR.
-        END.    
+        IF NOT lSuccess THEN
+            RUN pStatusMessage(INPUT cMessage, INPUT 3).
         ELSE DO:
             {methods/run_link.i "LOADTAG-SOURCE" "BuildLoadTagsFromTag" "(INPUT cCompany, INPUT cTag, INPUT 1)"}
             FOR EACH ttItem:
@@ -713,9 +711,6 @@ PROCEDURE pSplitTag :
             END.
         END.       
     END.
-    
-    IF VALID-OBJECT(oLoadTag) THEN
-        DELETE OBJECT oLoadTag.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,7 +817,7 @@ PROCEDURE Set-Foucs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "SPLIT-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -837,6 +832,9 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -852,6 +850,14 @@ PROCEDURE state-changed :
 
             SESSION:SET-WAIT-STATE ("").
         END.
+        WHEN "split-error" THEN DO:
+            {methods/run_link.i "SPLIT-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+        END.        
+        WHEN "empty-message" THEN DO:
+            RUN pStatusMessage(INPUT "", INPUT 0).
+        END.                 
     END CASE. 
 END PROCEDURE.
 
