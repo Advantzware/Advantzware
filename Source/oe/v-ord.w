@@ -30,6 +30,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {oe/ordholdstat.i} 
 {oe/oeValidateInc.i}
+{oe\ttInputOrd.i}
 
 /* for oecomm.i */
 DEF NEW SHARED VAR v-upd-comm AS LOG INITIAL YES NO-UNDO.
@@ -188,6 +189,7 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lNewOrderEntry AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -259,6 +261,12 @@ RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "",
                           OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
    llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+   
+RUN sys/ref/nk1look.p (INPUT cocode, "NewOrderEntry", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lNewOrderEntry = logical(cRtnChar) NO-ERROR.   
    
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.   
 
@@ -2222,7 +2230,57 @@ PROCEDURE add-order :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  RUN dispatch ('add-record').
+  DEFINE VARIABLE iSourceID AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cSourceValue AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCustomerPo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lCancel AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lBack AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cPrUom AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iQty AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iQuoteNumber AS INTEGER NO-UNDO.
+  
+  IF lNewOrderEntry THEN
+  DO:
+   EMPTY TEMP-TABLE ttEstItem.
+   EMPTY TEMP-TABLE ttInputOrd.
+   EMPTY TEMP-TABLE ttInputOrdLine.
+   DO WHILE TRUE:
+       RUN oe/dSelOrdType.w(INPUT-OUTPUT iSourceID, INPUT-OUTPUT cSourceType, INPUT-OUTPUT cSourceValue, INPUT-OUTPUT cCustomerPo, INPUT-OUTPUT dPrice, INPUT-OUTPUT cPrUom, INPUT-OUTPUT iQty, INPUT-OUTPUT iQuoteNumber, OUTPUT lCancel) .
+
+       IF lCancel THEN LEAVE.
+      
+       IF cSourceType EQ "Estimate" THEN 
+       DO: 
+           DO WHILE TRUE:
+            RUN oe/dSelEstItem.w(INPUT cSourceValue, INPUT cCustomerPo, INPUT dPrice, INPUT cPrUom, INPUT iQty, INPUT iQuoteNumber, OUTPUT lBack, OUTPUT lCancel, INPUT-OUTPUT TABLE ttEstItem ).
+            IF lCancel THEN LEAVE.
+            IF lBack THEN LEAVE.
+            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel, OUTPUT rwRowid  ).  
+            IF NOT lBack THEN LEAVE.
+            IF lCancel THEN LEAVE.
+           END. 
+           IF NOT lBack THEN LEAVE.
+           IF lCancel THEN LEAVE.
+       END.
+       ELSE IF cSourceType EQ "Customer" THEN
+       DO:                
+            RUN oe/dAddOrder.w(INPUT cSourceType, INPUT cSourceValue, INPUT cCustomerPo, INPUT TABLE ttEstItem BY-reference, OUTPUT lBack, OUTPUT lCancel, OUTPUT rwRowid  ).  
+            IF NOT lBack THEN LEAVE.
+            IF lCancel THEN LEAVE.
+       END.
+       ELSE LEAVE.            
+   END.     
+   IF lCancel THEN RETURN NO-APPLY.  
+   
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+   RUN repo-query1 IN WIDGET-HANDLE(char-hdl) (rwRowid). 
+  
+  
+  END. 
+  ELSE  RUN dispatch ('add-record').  
 
 END PROCEDURE.
 

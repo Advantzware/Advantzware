@@ -514,6 +514,29 @@ PROCEDURE Order_CallCreateReleaseTrigger:
     END.
 END PROCEDURE.
 
+PROCEDURE Order_CreateMiscSurcharge:
+/*------------------------------------------------------------------------------
+ Purpose: 
+ Notes:   
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderPriority AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    RUN pCreateMiscSurcharge (
+            INPUT  ipcCompany,
+            INPUT  ipiOrderID,
+            INPUT  ipcPrepCode,
+            INPUT  ipiOrderPriority,
+            OUTPUT oplError,
+            OUTPUT opcMessage
+            ).
+
+END PROCEDURE.
+
 PROCEDURE Order_GetLinesTotal:
 /*------------------------------------------------------------------------------
  Purpose: Returns Order lines total including freight and tax
@@ -1104,7 +1127,7 @@ PROCEDURE pCreateRelease:
             bf-oe-rel.rel-date = bf-oe-ordl.req-date + 1.
             IF WEEKDAY(bf-oe-rel.rel-date) EQ 7 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 2.
-            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+            ELSE IF WEEKDAY(bf-oe-rel.rel-date) EQ 1 THEN
                 bf-oe-rel.rel-date = bf-oe-rel.rel-date + 1.
         END. /* else */
     END.
