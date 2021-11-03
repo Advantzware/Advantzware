@@ -15,7 +15,7 @@ DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
          
          /* If Old vendor logic then apply this conversion. For new, conversion logic is in Vendor Cost proc */
          RELEASE e-item.
-         IF lNewVendorItemCost AND v-vend-no NE "" THEN
+         IF lNewVendorItemCost THEN
          DO:
              RUN est/getVendorCostinQtyUOM.p(Item.company, 
                  item.i-no, 

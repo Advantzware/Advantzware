@@ -58,7 +58,10 @@ def var v-zone like carr-mtx.del-zone no-undo.
 
 def workfile w2 no-undo
     field cases            as   int format ">9"
-    field cas-cnt          as   int format ">>>>9".
+    field cas-cnt          as   int format ">>>>9"
+    field pallets          as   int format ">>>>9"
+    FIELD partial          AS   INTEGER
+    FIELD lPartal          AS   LOGICAL .
 
 def workfile w3 no-undo
     field ship-i           as   char format "x(60)".
@@ -107,6 +110,10 @@ DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
 
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iPallet        AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+RUN inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -393,8 +400,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
     "<R59><C1>" "<B>  Signature of Receipt </B>" 
-    "<R60><C7>" "Customer ________________________________________                       Carrier _______________________________________" 
-    "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
+    "<R60><C7>" "HMP Shipper__________________________________________                       <C50>Date _______________________________________"
+    "<R61.5><C7>" "Carrier ______________________________________________                      <C50>Date _______________________________________" 
+    "<R63><C7>" "Customer ____________________________________________                       <C50>Date _______________________________________"     
     .
 
   v-printline = v-printline + 14.
@@ -468,6 +476,9 @@ PROCEDURE PrintBarTag:
       iBarCount = 0.
    END.
 END PROCEDURE.
+
+IF VALID-HANDLE(hdInventoryProcs) THEN
+DELETE PROCEDURE hdInventoryProcs.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 

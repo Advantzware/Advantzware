@@ -1,7 +1,9 @@
 /* ---------------------------------------------- oe/rep/bolhenry.i 12/99 FWK */
 /* PRINT Henry BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+   DEFINE VARIABLE iQuantitySubUnitsPerUnit AS INTEGER NO-UNDO. 
+   DEFINE VARIABLE lPartialExist AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE dQuantityPerSubUnit AS DECIMAL NO-UNDO.
 assign
  v-tot-wt    = 0
  v-tot-cases = 0
@@ -32,8 +34,7 @@ for each report where report.term-id eq v-term-id,
     END.
 
   ASSIGN
-   v-tot-pkgs = v-tot-pkgs + oe-boll.cases +
-                if oe-boll.partial gt 0 then 1 else 0
+   v-tot-pkgs = v-tot-pkgs + oe-boll.tot-pallets 
    v-pal-cnt  = oe-boll.qty-case.
 
   FIND FIRST fg-bin
@@ -55,21 +56,40 @@ for each report where report.term-id eq v-term-id,
   {sys/inc/roundup.i v-pal-cnt}
 
   v-tot-palls = v-tot-palls + v-pal-cnt.
-
+  lPartialExist = NO.
   if oe-boll.qty-case ne 0 and oe-boll.cases ne 0 then do:
-    find first w2 where w2.cas-cnt eq oe-boll.qty-case no-error.
+    find first w2 where w2.cas-cnt eq oe-boll.qty-case
+                  AND w2.cases EQ oe-boll.cases no-error.
     if not avail w2 then create w2.
     assign
      w2.cas-cnt = oe-boll.qty-case
-     w2.cases   = w2.cases + oe-boll.cases.
+     w2.cases   = oe-boll.cases.
+     RUN Inventory_GetQuantityOfUnitsForOEBoll IN hdInventoryProcs (rowid(oe-boll), OUTPUT iPallet).        
+     w2.pallets = w2.pallets + iPallet .   
+     
+     RUN Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder IN hdInventoryProcs (oe-boll.company, oe-boll.i-no, oe-boll.job-no, oe-boll.job-no2, oe-boll.loc, oe-boll.loc-bin, oe-boll.tag, oe-boll.ord-no,
+                                                                                    OUTPUT iQuantitySubUnitsPerUnit).
+     ASSIGN                                                                                    
+      dQuantityPerSubUnit  = oe-boll.qty-case 
+      dQuantityPerSubUnit  = MAX(1,dQuantityPerSubUnit)  .
+            
+      IF oe-boll.qty GT (dQuantityPerSubUnit * iQuantitySubUnitsPerUnit) AND oe-boll.partial GT 0 THEN
+      lPartialExist = YES.
+      ELSE lPartialExist = NO.
+           
+      IF lPartialExist THEN
+      w2.pallets = w2.pallets - 1.  
+      w2.lPartal = lPartialExist.
+      w2.partial = oe-boll.partial.      
   end.
 
-  if oe-boll.partial ne 0 then do:
+  if oe-boll.partial ne 0 AND lPartialExist then do:
     find first w2 where w2.cas-cnt eq oe-boll.partial no-error.
     if not avail w2 then create w2.
     assign
      w2.cas-cnt = oe-boll.partial
-     w2.cases   = w2.cases + 1.
+     w2.cases   = w2.cases + 1
+     w2.pallets = w2.pallets + 1.
   end.
     
   find first oe-ordl where oe-ordl.company eq cocode
@@ -129,28 +149,48 @@ for each report where report.term-id eq v-term-id,
                   v-job-po  AT 17 FORM "x(15)" 
                   oe-boll.i-no AT 33 
                   oe-ordl.i-name FORM "x(22)"
-                  w2.cases    AT 71 FORM "->>>9" " @"
-                  w2.cas-cnt    FORM "->>>>>9"
+                  w2.pallets       AT 71 FORM "->>>9" " @"
+                  (w2.cas-cnt * w2.cases) + (IF NOT w2.lPartal THEN w2.partial ELSE 0)    FORM "->>>>>9"
                   SKIP.
-        ELSE PUT {1} 
+        ELSE do: 
+                PUT {1} 
                  oe-ordl.ord-no
                  oe-ordl.part-dscr1 FORM "x(30)" AT 33 
-                 w2.cases  AT 71 FORM "->>>9" " @"
-                 w2.cas-cnt FORM "->>>>>9" SKIP
-                 oe-ordl.part-dscr2 FORM "x(30)" AT 33 SKIP
-                 oe-ordl.part-dscr3 FORM "x(30)" AT 33 SKIP
-                 .
-        v-printline = v-printline + 3.
+                 w2.pallets AT 71 FORM "->>>9" " @"
+                 (w2.cases * w2.cas-cnt) + (IF NOT w2.lPartal THEN w2.partial ELSE 0)  FORM "->>>>>9" SKIP.
+                 IF oe-ordl.part-dscr2 NE "" THEN
+                 do:                    
+                     PUT {1}
+                     oe-ordl.part-dscr2 FORM "x(30)" AT 33 SKIP.
+                     v-printline = v-printline + 1.
+                 END.
+                 IF oe-ordl.part-dscr3 NE "" THEN
+                 do:
+                     PUT {1}
+                     oe-ordl.part-dscr3 FORM "x(30)" AT 33 SKIP.
+                     v-printline = v-printline + 1.                     
+                 END.
+        END.         
+        v-printline = v-printline + 1.
         
         IF LAST(w2.cases * w2.cas-cnt) THEN DO:
           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} 
                 oe-ordl.ord-no
-                oe-ordl.part-dscr1 FORM "x(30)" AT 33 SKIP
-                oe-ordl.part-dscr2 FORM "x(30)" AT 33 SKIP
-                oe-ordl.part-dscr3 FORM "x(30)" AT 33 SKIP
-                .
-            v-printline = v-printline + 3.
+                oe-ordl.part-dscr1 FORM "x(30)" AT 33 SKIP.
+            IF oe-ordl.part-dscr2 NE "" THEN
+            do:
+                PUT {1}
+                oe-ordl.part-dscr2 FORM "x(30)" AT 33 SKIP.
+                v-printline = v-printline + 1.
+            END.
+            IF oe-ordl.part-dscr3 NE "" THEN
+            do:
+                PUT {1}    
+                oe-ordl.part-dscr3 FORM "x(30)" AT 33 SKIP .
+                v-printline = v-printline + 1.
+            END.    
+            v-printline = v-printline + 1.
           END.
 
           PUT {1}
@@ -199,21 +239,36 @@ for each report where report.term-id eq v-term-id,
   END.
   /* end of summary mods */
   ELSE DO:
+     RUN Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder IN hdInventoryProcs (oe-boll.company, oe-boll.i-no, oe-boll.job-no, oe-boll.job-no2, oe-boll.loc, oe-boll.loc-bin, oe-boll.tag, oe-boll.ord-no,
+                                                                                    OUTPUT iQuantitySubUnitsPerUnit).
+                                                                                          
+      lPartialExist =  IF oe-boll.qty - ( MAX(1, iQuantitySubUnitsPerUnit) * ( IF oe-boll.qty-case NE 0 THEN oe-boll.qty-case ELSE 1) )  GT 0 AND oe-boll.partial NE 0 THEN TRUE ELSE FALSE.
+      
      DISPLAY  {1}
           oe-ordl.part-no   WHEN AVAIL oe-ordl 
           oe-boll.po-no 
           oe-boll.i-no 
           oe-ordl.i-name  FORM "x(19)"
-          oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
-          oe-boll.qty-case FORM "->>>>>Z" SKIP          
+          (oe-boll.tot-pallets - (IF lPartialExist THEN 1 ELSE 0)) FORM "->>,>>>" "@" SPACE(0)
+          (oe-boll.cases * oe-boll.qty-case) + (IF NOT lPartialExist THEN w2.partial ELSE 0) FORM "->>>>>Z" SKIP          
           oe-ordl.part-dscr1 AT 33 FORM "x(25)" SPACE(11)
-          v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 "@" SPACE(0)
-          oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
-          oe-ordl.part-dscr2 AT 33 FORM "x(25)" SKIP
-          oe-ordl.part-dscr3 AT 33 FORM "x(25)" SKIP
+          v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 AND lPartialExist "@" SPACE(0)
+          oe-boll.partial   when oe-boll.partial gt 0 AND lPartialExist FORM "->>>>>z"  SKIP          
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid1.
-
+     IF oe-ordl.part-dscr2 NE "" THEN
+     DO:
+         PUT {1}
+         oe-ordl.part-dscr2 AT 33 FORM "x(25)" SKIP.
+         v-printline = v-printline + 1.
+     END.
+     IF oe-ordl.part-dscr3 NE "" THEN
+     DO:
+         PUT {1}
+         oe-ordl.part-dscr3 AT 33 FORM "x(25)" SKIP.
+         v-printline = v-printline + 1.
+     END.
+             
      DISPLAY 
          "====================" AT 69 SKIP
          v-tot-pkgs AT 69 FORM "->>,>>9"  "=" SPACE(0)
@@ -223,7 +278,7 @@ for each report where report.term-id eq v-term-id,
          with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid2.  
 
-     v-printline = v-printline + 9.
+     v-printline = v-printline + 7.
 
      IF v-print-dept THEN
      DO:
