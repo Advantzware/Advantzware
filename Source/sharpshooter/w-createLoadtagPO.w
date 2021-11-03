@@ -660,7 +660,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
     
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    {methods/run_link.i "PO-SOURCE" "Set-Focus"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
