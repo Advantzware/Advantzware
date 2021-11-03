@@ -24,6 +24,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+USING system.SharedConfig.
+
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
@@ -37,7 +39,7 @@ DEFINE INPUT-OUTPUT PARAMETER iopdAvailQty AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -181,7 +183,9 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add New Material */
-    DO:
+    DO:     
+        IF VALID-OBJECT(scInstance) THEN
+        DELETE OBJECT scInstance NO-ERROR.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -241,7 +245,10 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rmItem Dialog-Frame
 ON HELP OF rmItem IN FRAME Dialog-Frame /* Item */
     DO:
-        DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.    
+        DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO. 
+        
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("ShowOnlyRealMat","Yes").
   
         RUN windows/l-item5.w (ipCompany,rmItem:SCREEN-VALUE , OUTPUT cReturnValue).
         IF cReturnValue <> "" THEN 
@@ -255,7 +262,7 @@ ON HELP OF rmItem IN FRAME Dialog-Frame /* Item */
                     dAvailQty:SCREEN-VALUE = STRING(ITEM.q-avail).
             END.
         END.
-  
+        scInstance:DeleteValue(INPUT "ShowOnlyRealMat").
     END.
 
 /* _UIB-CODE-BLOCK-END */

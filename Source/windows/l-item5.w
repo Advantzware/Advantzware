@@ -16,6 +16,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+USING system.SharedConfig.
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -26,6 +28,7 @@ def output parameter op-char-val as cha no-undo. /* recid(item) */
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 DEFINE VARIABLE lCheckPage AS LOGICAL INIT NO NO-UNDO .
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 &scoped-define SORTBY-1 BY item.i-no
 &scoped-define SORTBY-2 BY item.i-name
@@ -34,8 +37,10 @@ DEFINE VARIABLE lCheckPage AS LOGICAL INIT NO NO-UNDO .
 
 &scoped-define IAMWHAT LOOKUP
 
-IF  PROGRAM-NAME(2) MATCHES "*/dJobMat.w*" THEN
-    lCheckPage = YES .    
+ASSIGN
+scInstance  = SharedConfig:instance
+lCheckPage   =  LOGICAL(scInstance:GetValue("ShowOnlyRealMat")) NO-ERROR.         
+IF lCheckPage EQ ? THEN lCheckPage = NO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
