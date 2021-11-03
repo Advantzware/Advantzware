@@ -1438,7 +1438,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " Po:" + STRING(ap-invl.po-no) ,
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " Po:" + STRING(ap-invl.po-no) ,
                 "AP").
       RUN GL_SpCreateGLHist(cocode,
                  tt-ap-invl.actnum,
@@ -1450,7 +1450,7 @@ PROCEDURE post-gl :
                  tran-period,
                  "A",
                  tran-date,
-                 (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + "Invoice:" + STRING(ap-invl.inv-no,"9999999") + " Po:" + STRING(ap-invl.po-no) ,
+                 (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + "Inv:" + STRING(ap-invl.inv-no,"9999999") + " Po:" + STRING(ap-invl.po-no) ,
                  "AP").                     
 
             FIND FIRST po-ordl
@@ -1803,7 +1803,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                 "AP").    
         END.
     END. /* for each ap-inv */
@@ -1824,7 +1824,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                 "AP").
             RUN GL_SpCreateGLHist(cocode,
                 v-frt-acct,
@@ -1836,7 +1836,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                (IF AVAIL vend THEN "Vendor:" + vend.vend-no ELSE "") + " Invoice:" + STRING(ap-inv.inv-no,"9999999"),
+                (IF AVAIL vend THEN "Vendor:" + STRING(vend.vend-no,"x(8)") ELSE "") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
                 "AP").
         END.
 

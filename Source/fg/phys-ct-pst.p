@@ -609,7 +609,7 @@ time_stamp = string(time,"hh:mmam").
     v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
     
     cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
-                   ELSE IF fg-rctd.po-no NE "" THEN "Po: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line,"999") ELSE "".
+                   ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "".
 
     /*Invoicing  - Post Invoicing Transactions - Job Costing*/
     run oe/invposty.p (0, itemfg.i-no, v-adj-qty, v-uom,
@@ -907,7 +907,7 @@ time_stamp = string(time,"hh:mmam").
           v-item-tot = v-item-tot + tt-fg-bin.tot-value.
           
           cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
-                         ELSE IF fg-rctd.po-no NE "" THEN "Po: " + fg-rctd.po-no + "-" + STRING(fg-rctd.po-line,"999") ELSE "". 
+                         ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "". 
 
        /*Invoicing  - Post Invoicing Transactions - Job Costing*/
        run oe/invposty.p (0, tt-fg-bin.i-no, tt-fg-bin.v-adj-qty, tt-fg-bin.v-uom,

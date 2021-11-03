@@ -597,7 +597,7 @@ FOR EACH ar-inv
                              OUTPUT dCostFreight, OUTPUT dCostWarehouse, OUTPUT dCostDeviation, OUTPUT dCostManufacture).
 
           RUN oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
-                             "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4], "Invoice:" + STRING(ar-inv.inv-no,"9999999")).
+                             "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4], "Inv:" + STRING(ar-inv.inv-no,"9999999")).
 
           CREATE tt-report.
           ASSIGN
@@ -783,7 +783,7 @@ FOR EACH ar-inv
                             period.pnum,
                             "A",
                             ar-ledger.tr-date,
-                            "Invoice: " +string(tt-report.key-03),
+                            "Inv: " + string(tt-report.key-03),
                             "AR").
       END. /* last actnum */
     END. /* each work-line */
@@ -808,7 +808,7 @@ FOR EACH ar-inv
                             period.pnum,
                             "A",
                             ar-ledger.tr-date,
-                            "Invoice: " +string(tt-report.key-03),
+                            "Inv: " + string(tt-report.key-03),
                             "AR").
       END. /* last actnum */
     END. /* each work-misc */
@@ -833,7 +833,7 @@ FOR EACH ar-inv
                             period.pnum,
                             "A",
                             ar-ledger.tr-date,
-                            "Invoice: " +string(tt-report.key-03),
+                            "Inv: " + string(tt-report.key-03),
                             "AR").
       END. /* last actnum */
     END. /* each work-tax */
@@ -865,7 +865,7 @@ FOR EACH ar-inv
                         period.pnum,
                         "A",
                         ar-ledger.tr-date,
-                        "Invoice: " + STRING(ar-inv.inv-no,"9999999"),
+                        "Inv: " + STRING(ar-inv.inv-no,"9999999"),
                         "AR").
 
                                            /** POST DISCOUNT TO G/L TRANS **/     
@@ -879,7 +879,7 @@ FOR EACH ar-inv
                         period.pnum,
                         "A",
                         ar-ledger.tr-date,
-                        "Invoice: " + STRING(ar-inv.inv-no,"9999999"),
+                        "Inv: " + STRING(ar-inv.inv-no,"9999999"),
                         "AR").
                                            /** POST CASH TO G/L TRANS **/
     IF v-post-cash NE 0 THEN DO:
@@ -894,7 +894,7 @@ FOR EACH ar-inv
                           period.pnum,
                           "A",
                           ar-ledger.tr-date,
-                          "Invoice: " + STRING(ar-inv.inv-no,"9999999"),
+                          "Inv: " + STRING(ar-inv.inv-no,"9999999"),
                           "AR").
     END.
                                                   /** OFFSET ENTRY TO G/L **/     
@@ -908,7 +908,7 @@ FOR EACH ar-inv
                         period.pnum,
                         "A",
                         ar-ledger.tr-date,
-                        "Invoice: " + STRING(ar-inv.inv-no,"9999999"),
+                        "Inv: " + STRING(ar-inv.inv-no,"9999999"),
                         "AR").
   END.
 END.

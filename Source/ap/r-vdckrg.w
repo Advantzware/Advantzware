@@ -940,7 +940,7 @@ PROCEDURE post-gl :
                         w-actnum   = ap-payl.actnum
                         w-amt-paid = ap-payl.amt-paid
                         w-amt-disc = ap-payl.amt-disc
-                        w-disb.cDesc = "Vendor:" + vend.vend-no + " Invoice:" + STRING(ap-inv.inv-no,"9999999") + " Check: " + STRING(ap-payl.check-no)
+                        w-disb.cDesc = "Vendor:" + string(vend.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999") + " Check: " + STRING(ap-payl.check-no,"999999999999")
                         .
                 END.
                 
@@ -987,7 +987,7 @@ PROCEDURE post-gl :
                     tran-period,
                     "A",
                     udate,
-                    "Vendor:" + string(ap-pay.vend-no) + " Check:" + STRING(ap-pay.check-no),
+                    "Vendor:" + string(ap-pay.vend-no,"x(8)") + " Check:" + STRING(ap-pay.check-no,"999999999999"),
                     "AP").
           
                 ASSIGN 
@@ -1012,7 +1012,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 udate,
-                (IF AVAILABLE ap-pay THEN "Vendor" + string(ap-pay.vend-no) ELSE ""),
+                (IF AVAILABLE ap-pay THEN "Vendor" + string(ap-pay.vend-no,"x(8)") ELSE ""),
                 "AP").
         END.
 
@@ -1051,7 +1051,7 @@ PROCEDURE post-gl :
             tran-period,
             "A",
             udate,
-            (IF AVAIL ap-pay THEN "Vendor:" + string(ap-pay.vend-no) ELSE ""),
+            (IF AVAIL ap-pay THEN "Vendor:" + string(ap-pay.vend-no,"x(8)") ELSE ""),
             "AP").
 
     END. /* postit */
