@@ -1002,6 +1002,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+   
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJobQty W-Win 
+PROCEDURE pGetJobQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiForm     AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiBlank    AS INTEGER   NO-UNDO.
+   DEFINE OUTPUT PARAMETER opiJobQty  AS INTEGER   NO-UNDO.
+   
+   DEFINE BUFFER bf-job-hdr FOR job-hdr.  
+   
+   FOR EACH bf-job-hdr NO-LOCK 
+             WHERE bf-job-hdr.company EQ ipcCompany
+             AND bf-job-hdr.job-no EQ ipcJobNo
+             AND bf-job-hdr.job-no2 EQ ipiJobNo2
+             AND (bf-job-hdr.frm EQ ipiForm OR ipiForm EQ ?)
+             AND (bf-job-hdr.blank-no EQ ipiBlank OR ipiBlank EQ ? ):
+             
+        opiJobQty = opiJobQty + bf-job-hdr.qty .     
+   END.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError W-Win 
 PROCEDURE pJobError :
 /*------------------------------------------------------------------------------
@@ -1031,6 +1063,7 @@ PROCEDURE pJobScan :
     DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iFormNo  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlankNo AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iJobQty  AS INTEGER   NO-UNDO.
     
     {methods/run_link.i "JOB-SOURCE" "GetJob" "(OUTPUT cJobNo, OUTPUT iJobNo2, OUTPUT iFormNo, OUTPUT iBlankNo)"}
 
@@ -1041,7 +1074,7 @@ PROCEDURE pJobScan :
         INPUT iFormNo,
         INPUT iBlankNo
         ) NO-ERROR.
-                     //MESSAGE "sdfhsdkjh " job.job-no VIEW-AS ALERT-BOX ERROR .
+                     
     
     RUN select-page(1).
     DO WITH FRAME {&FRAME-NAME}:
@@ -1062,8 +1095,9 @@ PROCEDURE pJobScan :
                                      ELSE
                                          STRING(job.due-date)
             fiCSR:SCREEN-VALUE     = csrUser_id
-            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99")
-            fiJobQty:SCREEN-VALUE  = job.job-no + "-" + STRING(job.job-no2,"99")
+            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99").
+            RUN pGetJobQty(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, OUTPUT iJobQty). 
+            fiJobQty:SCREEN-VALUE = STRING(iJobQty). 
             .               
        END.
     

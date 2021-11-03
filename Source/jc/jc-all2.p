@@ -18,8 +18,7 @@ DEF VAR li AS INT NO-UNDO.
 
 
 for each job-mat
-    where rowid(job-mat)  eq ip-rowid
-      and job-mat.qty-all gt 0
+    where rowid(job-mat)  eq ip-rowid       
       and job-mat.all-flg,
 
 /*    first b-item                           */

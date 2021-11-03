@@ -426,7 +426,7 @@ PROCEDURE GetItem :
     DO:
         ASSIGN
             opcCompany = job-mat.company
-            opcItemID  = job-mat.i-no
+            opcItemID  = job-mat.rm-i-no
             opcJobNo   = job-mat.job-no
             opiJobNo2  = job-mat.job-no2
             oplAvail   = TRUE
@@ -521,10 +521,7 @@ PROCEDURE pRunAlloc :
         bf-job-mat.all-flg = YES.  
         IF lv-alloc-char BEGINS "alloc" THEN RUN jc/jc-all2.p (ROWID(bf-job-mat), 1).
         ELSE RUN jc/jc-all2.p (ROWID(bf-job-mat), -1).
-        FIND CURRENT bf-job-mat EXCLUSIVE-LOCK.
-        IF bf-job-mat.qty-all EQ 0 AND
-            NOT bf-job-mat.all-flg  THEN bf-job-mat.qty-all = bf-job-mat.qty.
-        FIND CURRENT bf-job-mat NO-LOCK.
+        
         RUN dispatch ("display-fields").
     END.
 
@@ -675,50 +672,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
-PROCEDURE ViewRMInquiry :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    IF NOT AVAILABLE job-mat THEN
-        RETURN.
-        
-    IF NOT VALID-HANDLE(hdRMInquiry) THEN 
-    DO:         
-        RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
-
-        RUN dispatch IN hdRMInquiry (
-            INPUT 'initialize':U
-            ) NO-ERROR.
-        
-        hdRMInquiryWin = hdRMInquiry:CURRENT-WINDOW.
-    END.
-                                                 
-    IF VALID-HANDLE(hdRMInquiry) AND
-        VALID-HANDLE(hdRMInquiryWin) THEN 
-    DO: 
-
-        RUN ScanItem IN hdRMInquiry (
-            INPUT job-mat.company,
-            INPUT "",
-            INPUT "",
-            INPUT job-mat.rm-i-no,
-            INPUT "",
-            INPUT job-mat.job-no,
-            INPUT job-mat.job-no2
-            ) NO-ERROR.            
-
-        IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
-                hdRMInquiryWin:WINDOW-STATE = 3.
-        
-        hdRMInquiryWin:MOVE-TO-TOP().
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-i-no B-table-Win 
 PROCEDURE valid-rm-i-no :
