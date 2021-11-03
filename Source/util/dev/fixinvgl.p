@@ -291,7 +291,7 @@ FOR EACH ar-ledger
                           period.pnum,
                           "A",
                           ar-ledger.tr-date,
-                          "Invoice: " + string(tt-report.key-03),
+                          "Inv: " + string(tt-report.key-03),
                           "AR"). 
          
       end. /* last actnum */
@@ -317,7 +317,7 @@ FOR EACH ar-ledger
                           period.pnum,
                           "A",
                           ar-ledger.tr-date,
-                          "Invoice: " + string(tt-report.key-03),
+                          "Inv: " + string(tt-report.key-03),
                           "AR"). 
       end. /* last actnum */
     end. /* each work-misc */
@@ -342,7 +342,7 @@ FOR EACH ar-ledger
                           period.pnum,
                           "A",
                           ar-ledger.tr-date,
-                          "Invoice: " + string(tt-report.key-03),
+                          "Inv: " + string(tt-report.key-03),
                           "AR"). 
       end. /* last actnum */
     end. /* each work-tax */
