@@ -34,6 +34,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
 
@@ -52,7 +53,11 @@ DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFormattedJobno   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE giFormNo          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE giBlankNo         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE gcEstNo           AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE oJobHeader AS jc.JobHeader NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
@@ -84,7 +89,7 @@ RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btExit ~
-btnFirst btnLast btnNext btnPrevious btnExitText ~
+btnFirst btnLast btnNext btnPrevious btnExitText imJobLookup ~
 btnViewRM btClear btnClearText btCopy btAdd btAllocate btUpdate
 &Scoped-Define DISPLAYED-OBJECTS fiStatusLabel fiStatus fiCreatedLabel ~
 fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage ~
@@ -233,7 +238,7 @@ DEFINE VARIABLE fiLastRunLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Last Run:
      
 DEFINE VARIABLE fiLastJob AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1.43
+     SIZE 23 BY 1.43
      FONT 38 NO-UNDO.
 
 DEFINE VARIABLE fiLastJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
@@ -262,6 +267,10 @@ DEFINE VARIABLE fiJobQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job Qty:"
      VIEW-AS FILL-IN 
      SIZE 19.4 BY 1.38 NO-UNDO.       
 
+DEFINE IMAGE imJobLookup
+     FILENAME "Graphics/32x32/search_new.png":U
+     STRETCH-TO-FIT RETAIN-SHAPE
+     SIZE 6.4 BY 1.52.     
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -283,6 +292,7 @@ DEFINE FRAME F-Main
      fiLastRun AT ROW 7.52 COL 16.6 COLON-ALIGNED NO-LABEL 
      fiLastJobLabel AT ROW 7.52 COL 62.2 NO-LABEL 
      fiLastJob AT ROW 7.52 COL 68.6 COLON-ALIGNED NO-LABEL 
+     imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
      fiAllocatedLabel AT ROW 19.72 COL 2 COLON-ALIGNED NO-LABEL
      fiJobLabel AT ROW 19.72 COL 52 NO-LABEL 
      fiJob AT ROW 19.72 COL 60 COLON-ALIGNED NO-LABEL 
@@ -436,6 +446,10 @@ DO:
      and its descendents to terminate properly on exit. */
   IF VALID-HANDLE(hdJobProcs) THEN
   DELETE PROCEDURE hdJobProcs.
+  
+  IF VALID-OBJECT(scInstance) THEN
+  DELETE OBJECT scInstance NO-ERROR.
+        
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -470,7 +484,15 @@ DO:
    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
    
    RUN pStatusMessage ("", 0).
-   
+                
+   IF NOT AVAIL job THEN
+   DO:
+       FIND FIRST job NO-LOCK
+            WHERE job.company EQ cCompany
+            AND job.job-no EQ  substring(fiJob:SCREEN-VALUE,1,6)
+            AND job.job-no2 EQ  integer(substring(fiJob:SCREEN-VALUE,8,2)) NO-ERROR.       
+   END.
+        
    IF AVAIL job THEN
    RUN pCopyJob IN h_b-job-mat-last-all(job.company, ROWID(job), OUTPUT lComplete) .
    IF lComplete THEN
@@ -651,6 +673,43 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME imJobLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imJobLookup W-Win
+ON MOUSE-SELECT-CLICK OF imJobLookup IN FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    DEFINE VARIABLE cPerJob       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPreJob2      AS INTEGER   NO-UNDO.
+    IF gcEstNo NE "" THEN
+    DO:
+        scInstance = SharedConfig:instance.
+        scInstance:SetValue("ShowOnlyEstimateJob",gcEstNo).
+
+        RUN windows/l-jobpo.w (
+            INPUT  cCompany, 
+            INPUT  fiLastJob:SCREEN-VALUE,  
+            OUTPUT cFoundValue,   
+            OUTPUT recFoundRecID
+            ).
+        
+        IF cFoundValue NE "" THEN do:
+            ASSIGN
+            fiLastJob:SCREEN-VALUE = ENTRY(1,cFoundValue) + "-" + STRING(ENTRY(2,cFoundValue),"99")
+            cPerJob = ENTRY(1,cFoundValue) 
+            iPreJob2 =  INTEGER(ENTRY(2,cFoundValue)).        
+            
+           {methods\run_link.i "LastAll-SOURCE" "OpenQuery" "(cCompany,cPerJob,iPreJob2,giFormNo,giBlankNo)"}
+        END.
+            
+        scInstance:DeleteValue(INPUT "ShowOnlyEstimateJob").  
+    END.                               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -819,7 +878,7 @@ PROCEDURE enable_UI :
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btExit btnFirst btnLast btnNext btAdd btAllocate
          btUpdate btnPrevious btnExitText btCopy  
-         btnViewRM btClear btnClearText 
+         btnViewRM btClear btnClearText imJobLookup
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -977,6 +1036,7 @@ PROCEDURE pGetPrevoiusJob :
    DEFINE OUTPUT PARAMETER opcPreJob   AS CHARACTER NO-UNDO.
    DEFINE OUTPUT PARAMETER opiPreJob2  AS INTEGER   NO-UNDO.
    DEFINE OUTPUT PARAMETER opiLastRun  AS INTEGER   NO-UNDO.
+   DEFINE OUTPUT PARAMETER opcEstNo    AS CHARACTER NO-UNDO.
    
    DEFINE BUFFER bf-job-hdr FOR job-hdr.
    DEFINE BUFFER bf-job FOR job.
@@ -985,16 +1045,25 @@ PROCEDURE pGetPrevoiusJob :
         WHERE bf-job.company EQ ipcCompany
         AND bf-job.job-no EQ ipcJobNo 
         AND bf-job.job-no2 EQ (ipiJobNo2 - 1) NO-ERROR.
+        
+   IF NOT AVAIL bf-job THEN
+      FIND LAST bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+        AND bf-job.est-no EQ job.est-no 
+        AND rowid(bf-job) NE ROWID(job) NO-ERROR.
+   
    IF AVAIL bf-job THEN
    DO:
         ASSIGN
         opcPreJob = bf-job.job-no
-        opiPreJob2 = bf-job.job-no2.
-        FIND LAST job-mch NO-LOCK 
+        opiPreJob2 = bf-job.job-no2
+        opcEstNo = bf-job.est-no.
+        FOR EACH job-mch NO-LOCK 
              WHERE job-mch.company EQ bf-job.company
              AND job-mch.job-no EQ bf-job.job-no
-             AND job-mch.job-no2 EQ bf-job.job-no2 NO-ERROR.
-        opiLastRun = IF AVAIL job-mch THEN job-mch.run-qty ELSE 0.     
+             AND job-mch.job-no2 EQ bf-job.job-no2 :
+            opiLastRun = opiLastRun + (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0).  
+        END.
    END.
    
 END PROCEDURE.
@@ -1095,11 +1164,19 @@ PROCEDURE pJobScan :
                                      ELSE
                                          STRING(job.due-date)
             fiCSR:SCREEN-VALUE     = csrUser_id
-            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99").
-            RUN pGetJobQty(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, OUTPUT iJobQty). 
-            fiJobQty:SCREEN-VALUE = STRING(iJobQty). 
-            .               
+            fiJob:SCREEN-VALUE     = job.job-no + "-" + STRING(job.job-no2,"99").              
        END.
+       ELSE DO:
+            fiJob:SCREEN-VALUE     = cJobNo + "-" + STRING(iJobNo2,"99").
+            fiStatus:SCREEN-VALUE  = "".
+       END.
+       
+       RUN pGetJobQty(INPUT cCompany, INPUT cJobNo, INPUT iJobNo2, INPUT iFormNo, INPUT iBlankNo, OUTPUT iJobQty). 
+       fiJobQty:SCREEN-VALUE = STRING(iJobQty). 
+       assign
+        giFormNo = iFormNo
+        giBlankNo = iBlankNo
+        .               
     
     END.    
     RUN select-page(1).
@@ -1161,12 +1238,14 @@ PROCEDURE pUpdateBrowse :
     DEFINE VARIABLE iPreJob2 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dLastRun AS DECIMAL   NO-UNDO.
 
+    gcEstNo = "".
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
    
     {methods\run_link.i "Record-SOURCE" "OpenQuery" "(ipcCompany,ipcJobNo,ipiJobNo2,ipiFormNo,ipiBlankNo)"}
     
-    RUN pGetPrevoiusJob(ipcCompany, ipcJobNo, ipiJobNo2, OUTPUT cPerJob, OUTPUT iPreJob2, OUTPUT dLastRun).
+    RUN pGetPrevoiusJob(ipcCompany, ipcJobNo, ipiJobNo2, OUTPUT cPerJob, OUTPUT iPreJob2, OUTPUT dLastRun, OUTPUT gcEstNo).
     
     IF cPerJob NE "" THEN
     ASSIGN

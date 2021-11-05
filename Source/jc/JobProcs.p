@@ -613,13 +613,29 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
     IF NOT AVAIL bff-job THEN
     RETURN NO-APPLY.
     
+    RUN spProgressBar ("Running Copy process", 90, 100).
+    FOR EACH bff-job-mat EXCLUSIVE-LOCK
+         WHERE bff-job-mat.company EQ ipcCompany
+         AND bff-job-mat.job-no EQ bff-job.job-no 
+         AND bff-job-mat.job-no NE ""   
+         AND bff-job-mat.job-no2 EQ bff-job.job-no2,
+         FIRST bf-item NO-LOCK WHERE bf-item.company EQ bff-job-mat.company 
+         AND bf-item.i-no    EQ bff-job-mat.rm-i-no 
+         and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0:           
+        
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), - 1).
+         
+         DELETE  bff-job-mat.         
+    END.
+     
     FOR EACH bf-job-mat NO-LOCK
         WHERE bf-job-mat.company EQ ipcCompany
         and bf-job-mat.job-no  EQ ipcJobNo 
         AND bf-job-mat.job-no ne ""   
         AND bf-job-mat.job-no2 EQ ipiJobNo2 
         AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         
-        AND (bf-job-mat.blank-no EQ ipiBlankNo OR ipiBlankNo EQ ?) USE-INDEX seq-idx, 
+        AND (bf-job-mat.blank-no EQ ipiBlankNo OR ipiBlankNo EQ ?) 
+        AND bf-job-mat.qty-all GT 0 USE-INDEX seq-idx, 
         FIRST bf-job       WHERE bf-job.company EQ bf-job-mat.company 
         AND bf-job.job     EQ bf-job-mat.job       
         AND bf-job.job-no  EQ bf-job-mat.job-no         
@@ -627,7 +643,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
         FIRST bf-item NO-LOCK WHERE bf-item.company EQ bf-job-mat.company 
         AND bf-item.i-no    EQ bf-job-mat.rm-i-no 
         and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0 :
-        
+                         
          CREATE bff-job-mat.
          BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
          ASSIGN
@@ -636,21 +652,10 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
               bff-job-mat.job-no2 = bff-job.job-no2.
          oplComplete = YES. 
          
-         FIND FIRST bf-job-hdr NO-LOCK 
-              WHERE bf-job-hdr.company EQ ipcCompany
-              AND bf-job-hdr.job-no EQ bff-job.job-no  
-              AND bf-job-hdr.job-no2 EQ bff-job.job-no2
-              AND bf-job-hdr.frm EQ bf-job-mat.frm NO-ERROR.
-              
-         FIND FIRST job-hdr NO-LOCK 
-              WHERE job-hdr.company EQ ipcCompany
-              AND job-hdr.job-no EQ bf-job-mat.job-no  
-              AND job-hdr.job-no2 EQ bf-job-mat.job-no2
-              AND job-hdr.frm EQ bf-job-mat.frm NO-ERROR.
-         IF AVAIL job-hdr AND AVAIL bf-job-hdr AND bf-job-hdr.qty NE job-hdr.qty THEN
-         bff-job-mat.qty-all = 0.
-    END.
-    
+         bff-job-mat.all-flg = YES.  
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).           
+    END.   
+    RUN spProgressBar (?, ?, 100).
     
 END PROCEDURE.    
 
