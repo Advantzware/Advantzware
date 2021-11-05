@@ -65,7 +65,6 @@ DEFINE VARIABLE cEstimateNo AS CHARACTER NO-UNDO .
 ASSIGN
 scInstance  = SharedConfig:instance
 cEstimateNo   =  STRING(scInstance:GetValue("ShowOnlyEstimateJob")) NO-ERROR.         
-MESSAGE "cEstimateNo " cEstimateNo VIEW-AS ALERT-BOX ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
