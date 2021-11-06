@@ -1259,8 +1259,9 @@ PROCEDURE spCreateSettingUsage:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER TABLE FOR ttSetting.
 
-    DEFINE VARIABLE cStackTrace AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO INITIAL 1.
 
     /* build stack trace */
     DO WHILE TRUE:
@@ -1295,22 +1296,9 @@ PROCEDURE spCreateSettingUsage:
         BUFFER-COPY ttSetting TO ttSettingUsage
             ASSIGN ttSettingUsage.stackTrace = cStackTrace.
     END. // each ttsetting
-
-/*    OUTPUT TO c:\tmp\ttSettingUsage.txt.                     */
-/*    FOR EACH ttSettingUsage                                  */
-/*          BY ttSettingUsage.settingName                      */
-/*          :                                                  */
-/*        EXPORT                                               */
-/*            ttSettingUsage.settingTypeID                     */
-/*            ttSettingUsage.settingName                       */
-/*            ttSettingUsage.scopeTable                        */
-/*            ttSettingUsage.scopeField1                       */
-/*            ttSettingUsage.scopeField2                       */
-/*            ttSettingUsage.scopeField3                       */
-/*            .                                                */
-/*    END.                                                     */
-/*    OUTPUT CLOSE.                                            */
-/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttSettingUsage.txt.*/
+    hSysCtrlUsage = sfGetSysCtrlUsageHandle().
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSettingUsage IN hSysCtrlUsage.
 
 END PROCEDURE.
 	
