@@ -57,6 +57,7 @@ DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lReturnError   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iAvailQty      AS INTEGER   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -82,7 +83,7 @@ DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr item.q-avail job-mat.qty-all job-mat.qty-uom job-mat.all-flg cEmptyColumn   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr getAvailQty() @ iAvailQty job-mat.qty-all job-mat.qty-uom job-mat.all-flg cEmptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table job-mat
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table job-mat
@@ -109,6 +110,14 @@ DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getAvailQty B-table-Win 
+FUNCTION getAvailQty RETURNS INTEGER
+  ( )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
@@ -175,7 +184,7 @@ DEFINE BROWSE br_table
     job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
     item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55 
     job-mat.qty-all COLUMN-LABEL "Allocation" FORMAT "->>,>>9.99<<<<":U WIDTH 27
-    item.q-avail COLUMN-LABEL "Qty Available" FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 29      
+    getAvailQty() @ iAvailQty COLUMN-LABEL "Qty Available" FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 29      
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
     job-mat.all-flg FORMAT "Yes/No":U WIDTH 18 COLUMN-LABEL "Allocated"
     cEmptyColumn COLUMN-LABEL ""          
@@ -697,6 +706,27 @@ PROCEDURE valid-rm-i-no :
 END.
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getAvailQty B-table-Win 
+FUNCTION getAvailQty RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE ITEM THEN DO: 
+       iResult = ITEM.q-onh - job-mat.qty-all.
+    END.
+    RETURN iResult.   /* Function return value. */
+    
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

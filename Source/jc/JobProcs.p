@@ -622,7 +622,8 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
          FIRST bf-item NO-LOCK WHERE bf-item.company EQ bff-job-mat.company 
          AND bf-item.i-no    EQ bff-job-mat.rm-i-no 
          and lookup(bf-item.mat-type,"1,2,3,4,A,B,R,P") GT 0:           
-        
+         
+         IF bff-job-mat.all-flg EQ YES THEN
          RUN jc/jc-all2.p (ROWID(bff-job-mat), - 1).
          
          DELETE  bff-job-mat.         
