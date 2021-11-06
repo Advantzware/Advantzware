@@ -121,6 +121,7 @@ DEFINE VARIABLE lCloseMenu        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lGetMenuSettings  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
@@ -1640,9 +1641,16 @@ PROCEDURE pGetMenuSettings :
     DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE httSetting AS HANDLE NO-UNDO.
        
-    oSetting = NEW system.Setting().
+    IF lGetMenuSettings THEN RETURN.
+    ASSIGN
+        lGetMenuSettings = TRUE
+        oSetting = NEW system.Setting()
+        .
+    oSetting:LoadByCategoryAndProgram("MainMenu").
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",

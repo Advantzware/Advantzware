@@ -73,6 +73,7 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
         INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
 {system/ttPermissions.i}
+{system/ttSetting.i}
 {system/ttSysCtrlUsage.i}
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
@@ -195,6 +196,20 @@ FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetTtSettingUsageHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtSettingUsageHandle Procedure
+FUNCTION sfGetTtSettingUsageHandle RETURNS HANDLE 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserAdmin Procedure
@@ -1231,6 +1246,77 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCreateSettingUsage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSettingUsage Procedure
+PROCEDURE spCreateSettingUsage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER TABLE FOR ttSetting.
+
+    DEFINE VARIABLE cStackTrace AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO INITIAL 1.
+
+    /* build stack trace */
+    DO WHILE TRUE:
+        idx = idx + 1.
+        /* all done with program stack */
+        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE.
+        cStackTrace = cStackTrace + PROGRAM-NAME(idx) + ",".
+    END. /* while true */
+    cStackTrace = TRIM(cStackTrace,",").
+
+    FOR EACH ttSetting:
+        RELEASE ttSettingUsage.
+        IF ttSetting.scopeTable NE "System" AND
+           CAN-FIND(FIRST ttSettingUsage
+                    WHERE ttSettingUsage.settingTypeID EQ ttSetting.settingTypeID
+                      AND ttSettingUsage.settingName   EQ ttSetting.settingName
+                      AND ttSettingUsage.scopeTable    EQ ttSetting.scopeTable
+                      AND ttSettingUsage.scopeField1   EQ ttSetting.scopeField1
+                      AND ttSettingUsage.scopeField2   EQ ttSetting.scopeField2
+                      AND ttSettingUsage.scopeField3   EQ ttSetting.scopeField3) THEN
+        NEXT.
+        FIND FIRST ttSettingUsage
+             WHERE ttSettingUsage.settingTypeID EQ ttSetting.settingTypeID
+               AND ttSettingUsage.settingName   EQ ttSetting.settingName
+               AND ttSettingUsage.scopeTable    EQ "System"
+               AND ttSettingUsage.scopeField1   EQ ""
+               AND ttSettingUsage.scopeField2   EQ ""
+               AND ttSettingUsage.scopeField3   EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE ttSettingUsage THEN
+        CREATE ttSettingUsage.
+        BUFFER-COPY ttSetting TO ttSettingUsage
+            ASSIGN ttSettingUsage.stackTrace = cStackTrace.
+    END. // each ttsetting
+
+/*    OUTPUT TO c:\tmp\ttSettingUsage.txt.                     */
+/*    FOR EACH ttSettingUsage                                  */
+/*          BY ttSettingUsage.settingName                      */
+/*          :                                                  */
+/*        EXPORT                                               */
+/*            ttSettingUsage.settingTypeID                     */
+/*            ttSettingUsage.settingName                       */
+/*            ttSettingUsage.scopeTable                        */
+/*            ttSettingUsage.scopeField1                       */
+/*            ttSettingUsage.scopeField2                       */
+/*            ttSettingUsage.scopeField3                       */
+/*            .                                                */
+/*    END.                                                     */
+/*    OUTPUT CLOSE.                                            */
+/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttSettingUsage.txt.*/
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ENDIF
 
@@ -2700,6 +2786,25 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetTtSettingUsageHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetTtSettingUsageHandle Procedure
+FUNCTION sfGetTtSettingUsageHandle RETURNS HANDLE 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN TEMP-TABLE ttSettingUsage:HANDLE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserAdmin Procedure
@@ -2842,6 +2947,7 @@ FUNCTION sfClearUsage RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttPermissions.
     EMPTY TEMP-TABLE ttSysCtrlUsage.
+    EMPTY TEMP-TABLE ttSettingUsage.
 
     RETURN TRUE.
 
