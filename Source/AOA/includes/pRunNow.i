@@ -18,6 +18,7 @@ PROCEDURE pRunNow:
     DEFINE VARIABLE oSetting    AS system.Setting NO-UNDO.
     
     oSetting = NEW system.Setting().
+    oSetting:LoadByCategoryAndProgram("dAOA").
     IF AVAILABLE {1}dynParamValue THEN DO:
         &IF DEFINED(silentSubmitted) EQ 0 &THEN
         RUN spGetSessionParam ("Company", OUTPUT cCompany).

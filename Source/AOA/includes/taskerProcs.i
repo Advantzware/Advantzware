@@ -29,6 +29,7 @@ PROCEDURE pGetTaskTimeLimit:
     DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
     
     oSetting = NEW system.Setting().
+    oSetting:LoadByCategoryAndProgram("dAOA").
     FOR EACH company NO-LOCK:
         IF oSetting:GetByName("TaskerNotRunning") EQ "YES" THEN DO:
             iEmailConfigID = INTEGER(oSetting:GetByName("TaskerNotRunningEmailID")).
