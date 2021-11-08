@@ -54,6 +54,8 @@ DEFINE VARIABLE cUser    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE oSetting AS system.Setting     NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
@@ -474,11 +476,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_navigateprev , 'NAV-PREV':U , h_b-loadtags ).
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'LOADTAG':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_f-poprint ,
-             h_exit , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags ,
-             h_f-poprint , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-loadtags , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
@@ -656,11 +657,23 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.    
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
     
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
     
     {methods/run_link.i "PO-SOURCE" "Set-Focus"}
+
+    ASSIGN
+        gcShowSettings = oSetting:GetByName("ShowSettings")
+        btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
+        .  
+        
+    IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
+        {methods/run_link.i "Setting-SOURCE" "HideSettings"}        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
