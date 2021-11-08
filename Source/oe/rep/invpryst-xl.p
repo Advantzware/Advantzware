@@ -99,14 +99,23 @@ ASSIGN
     FILE-INFO:FILE-NAME = ls-image1
     ls-full-img1        = FILE-INFO:FULL-PATHNAME + ">".
 
-DEFINE            VARIABLE v-tel              AS cha              FORM "x(30)" NO-UNDO.
-DEFINE            VARIABLE v-fax              AS cha              FORM "x(30)" NO-UNDO.
-DEFINE            VARIABLE v-contact          AS cha              FORM "x(20)" NO-UNDO .
+DEFINE            VARIABLE v-tel              AS CHARACTER        FORM "x(30)" NO-UNDO.
+DEFINE            VARIABLE v-fax              AS CHARACTER        FORM "x(30)" NO-UNDO.
+DEFINE            VARIABLE v-contact          AS CHARACTER        FORM "x(20)" NO-UNDO .
 
-DEFINE            VARIABLE v-comp-add1        AS cha              FORM "x(30)" NO-UNDO.
-DEFINE            VARIABLE v-comp-add2        AS cha              FORM "x(30)" NO-UNDO.
-DEFINE            VARIABLE v-comp-add3        AS cha              FORM "x(30)" NO-UNDO.
-DEFINE            VARIABLE v-comp-add4        AS cha              FORM "x(30)" NO-UNDO.
+DEFINE            VARIABLE v-comp-add1        AS CHARACTER        FORM "x(40)" NO-UNDO.
+DEFINE            VARIABLE v-comp-add2        AS CHARACTER        FORM "x(40)" NO-UNDO.
+DEFINE            VARIABLE v-comp-add3        AS CHARACTER        FORM "x(40)" NO-UNDO.
+DEFINE            VARIABLE v-comp-add4        AS CHARACTER        FORM "x(40)" NO-UNDO.
+DEFINE            VARIABLE v-comp-add5        AS CHARACTER        FORM "x(40)" NO-UNDO.
+
+ASSIGN
+    v-comp-add1 = cInvMessage[1]
+    v-comp-add2 = cInvMessage[2]
+    v-comp-add3 = cInvMessage[3]
+    v-comp-add4 = cInvMessage[4]
+    v-comp-add5 = cInvMessage[5]
+    .
 
 /* vARIABLE FOR EXCEL OUTPUT */
 DEFINE SHARED     VARIABLE LvOutputSelection  AS CHARACTER        NO-UNDO.
@@ -886,7 +895,21 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         v-cell = STRING(inrowcount) + ":99". 
     chExcelApplication:Rows(v-cell):SELECT.
     chExcelApplication:SELECTION:DELETE. 
-
+    
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C1".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = "Remit To: " .
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = v-comp-add1 .
+    END.
+        
     ASSIGN 
         v-cell = "R" + STRING(inrowcount) + "C39".
     chExcelApplication:Goto(v-cell) NO-ERROR.
@@ -896,6 +919,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     ASSIGN 
         inrowcount = inrowcount + 1 .
 
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = v-comp-add2 .
+    END.
+        
     ASSIGN 
         v-cell = "R" + STRING(inrowcount) + "C45".
     chExcelApplication:Goto(v-cell) NO-ERROR.
@@ -954,6 +986,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
      ASSIGN chExcelApplication:ActiveCell:Value = v-t-tax[3].
              
      ASSIGN inrowcount = inrowcount + 1                               */
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = v-comp-add3 .
+    END.
+        
     v-cell = "R" + STRING(inrowcount) + "C45".
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
@@ -964,6 +1005,26 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     chExcelApplication:Goto(v-cell) NO-ERROR.
     ASSIGN 
         chExcelApplication:ActiveCell:Value = (v-subtot-lines + v-inv-freight) /*inv-head.t-inv-rev*/.
+    
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = v-comp-add4 .
+    END.
+    inrowcount = inrowcount + 1.
+    
+    IF ltb_print-message THEN
+    DO:
+        ASSIGN 
+            v-cell = "R" + STRING(inrowcount) + "C4".
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN 
+            chExcelApplication:ActiveCell:Value = v-comp-add5 .
+    END.
+    
 
     chExcelApplication:Goto("R15C1") NO-ERROR.
     OS-DELETE value(v-dir + STRING(inv-head.inv-no) + ".xls").     
