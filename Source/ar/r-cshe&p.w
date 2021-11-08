@@ -746,7 +746,7 @@ ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 &Scoped-define SELF-NAME tran-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
-    DO:
+    DO: 
         ASSIGN {&self-name}.
 
         IF LASTKEY NE -1 THEN 
