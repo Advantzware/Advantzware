@@ -966,6 +966,8 @@ PROCEDURE local-enable :
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
     {methods/run_link.i "JOB-SOURCE" "ValidateSameJobScan" "(FALSE)"}    
     {methods/run_link.i "JOB-SOURCE" "AllowEmptyFormAndBlank"}
+    {methods/run_link.i "JOB-SOURCE" "DisableErrorAlerts"}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
