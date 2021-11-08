@@ -48,6 +48,10 @@ DEFINE VARIABLE ipcRecKey  AS CHARACTER NO-UNDO INIT "0108200300150995".
 
 {CRM/ttCRMContacts.i}
 
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -389,29 +393,18 @@ PROCEDURE pGetCRM :
     DEFINE VARIABLE iRows   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoClientID", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT cClientID, 
-        OUTPUT lFound
-        ).
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcCRMSource AS CHARACTER NO-UNDO.
+    
+    gcCRMSource = oSetting:GetByName("CRMSource").
             
     DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE ttAccounts.
         EMPTY TEMP-TABLE ttCRMContacts.
         
         SESSION:SET-WAIT-STATE("GENERAL").
-        IF cClientID EQ "API" THEN DO:
+        IF gcCRMSource EQ "Hubspot" THEN DO:
             svStatus:SCREEN-VALUE = "Fetching contacts from Hubspot. Please wait...".
             RUN pHubspotCRM (ipcCompany, OUTPUT iRows, OUTPUT lError, OUTPUT cMessage).
             IF lError THEN
