@@ -46,7 +46,11 @@
                  NO-ERROR.
         END.
 
-        cNextPageLinkID = system.SharedConfig:Instance:GetValue("HubSpotNextPageLinkID").
+        FIND FIRST ttArgs
+             WHERE ttArgs.argType  = "ROWID"
+               AND ttArgs.argKey   = "HubSpotNextPageLinkID" NO-ERROR.
+        IF AVAILABLE ttArgs THEN
+            cNextPageLinkID = ttArgs.argValue.
         
         IF cNextPageLinkID EQ "" THEN
             cNextPageLinkID = "0".

@@ -114,15 +114,13 @@ PROCEDURE pHubspotCRM PRIVATE:
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
     
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
     
     RUN spGetSessionParam ("UserID", OUTPUT cUser).
     
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
-    
-    system.SharedConfig:Instance:SetValue ("HubSpotNextPageLinkID", "0").
     
     REPEAT:        
         RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
@@ -132,8 +130,8 @@ PROCEDURE pHubspotCRM PRIVATE:
             INPUT  "",                                     /* Scope ID */
             INPUT  "",                                     /* Scope Type */
             INPUT  "GetAll",                               /* Trigger ID (Mandatory) */
-            INPUT  "Customer",                             /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  "Customer",                             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  "HubSpotNextPageLinkID",                /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  cNextpageLinkID,                        /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
             INPUT  cUser,                                  /* Primary ID for which API is called for (Mandatory) */   
             INPUT  "Get Hubspot contact list",             /* Event's description (Optional) */
             OUTPUT lSuccess,                               /* Success/Failure flag */
@@ -185,11 +183,7 @@ PROCEDURE pHubspotCRM PRIVATE:
 
         IF cNextpageLinkID EQ "" OR cNextPageLinkID EQ "0" OR cNextpageLinkID EQ ? THEN
             LEAVE.
-        
-        system.SharedConfig:Instance:SetValue ("HubSpotNextPageLinkID", cNextpageLinkID).
     END.
-    
-    system.SharedConfig:Instance:SetValue ("HubSpotNextPageLinkID", "0").
     
     DELETE PROCEDURE hdOutboundProcs. 
 
