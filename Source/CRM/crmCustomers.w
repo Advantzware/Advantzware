@@ -252,7 +252,10 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* ZOHO CRM (Customers) */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+    IF VALID-OBJECT (oSetting) THEN
+        DELETE OBJECT oSetting.    
+    
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
