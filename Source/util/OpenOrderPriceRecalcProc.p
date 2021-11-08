@@ -39,6 +39,8 @@ DEFINE VARIABLE dNewPrice    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dPriceChange AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cNewPriceUOM AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dNewPriceInv AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cNewPriceUOMInv AS CHARACTER NO-UNDO.
 
 MAIN-LOOP:
 FOR EACH oe-ordl NO-LOCK
@@ -91,6 +93,16 @@ FOR EACH oe-ordl NO-LOCK
         dPriceChange = 0.
     
     RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
+
+    FIND FIRST inv-line NO-LOCK 
+         WHERE inv-line.company EQ oe-ordl.company
+         AND inv-line.ord-no EQ oe-ordl.ord-no
+         AND inv-line.i-no EQ oe-ordl.i-no 
+         AND inv-line.LINE EQ oe-ordl.LINE NO-ERROR.
+         
+    IF AVAILABLE inv-line AND ipExecute THEN     
+    RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
+    
     dPriceChange = (dNewPrice / oe-ordl.price - 1 ) * 100.
     IF lFound 
         AND oe-ordl.price NE dNewPrice         
