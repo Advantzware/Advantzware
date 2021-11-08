@@ -1350,7 +1350,7 @@ PROCEDURE pCheckInvDatePeriod :
          WHERE bf-period.company EQ cocode
          AND bf-period.pst     LE date(ip-date)
          AND bf-period.pend    GE date(ip-date)
-          AND bf-period.pnum   EQ MONTH(DATE(tran-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
+          AND bf-period.pnum   EQ INTEGER(tran-period:SCREEN-VALUE IN FRAME {&frame-name})
        NO-LOCK NO-ERROR.
              
        IF NOT AVAIL bf-period THEN
