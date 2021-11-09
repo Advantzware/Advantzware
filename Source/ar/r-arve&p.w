@@ -622,7 +622,9 @@ DO:
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Invoice Date */
 DO:
   assign {&self-name}.    
-  {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 1}
+  IF cChar-fld EQ "AU$" THEN DO:
+      {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 1}
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
