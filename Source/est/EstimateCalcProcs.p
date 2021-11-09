@@ -2198,7 +2198,7 @@ PROCEDURE pCalcHeader PRIVATE:
             
             RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
             RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).
-
+            RUN pCalcRMHandlingCharges (BUFFER est, BUFFER ef, BUFFER bf-estCostForm).
                       
         END.  /*Each ef of est*/  
         /* if combo, update the master quantity for per M calculations*/
@@ -2696,6 +2696,75 @@ PROCEDURE pCalcCostTotalsItem PRIVATE:
     ------------------------------------------------------------------------------*/
     {est\EstimateCostTotals.i &TableName=estCostItem}
 
+END PROCEDURE.
+
+PROCEDURE pCalcRMHandlingCharges PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: Calculate the RM handling chg per cwt
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-est           FOR est.
+    DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    
+    DEFINE VARIABLE lPurchasedGood AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE deFGRateFarm   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deRMRateFarm   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deFGRateMFG    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deRMRateMFG    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deTotalRMCost  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deTotalFGCost  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deTmpCost      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deQty          AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-ce-ctrl         FOR ce-ctrl.
+    DEFINE BUFFER bf-item            FOR Item.
+    
+    
+    FIND FIRST bf-ce-ctrl NO-LOCK
+        WHERE bf-ce-ctrl.company = ipbf-est.company 
+        AND bf-ce-ctrl.loc     = ipbf-est.loc NO-ERROR.
+    
+    IF AVAILABLE bf-ce-ctrl THEN
+        ASSIGN 
+            deFGRateMFG  = ce-ctrl.fg-rate
+            deFGRateFarm = ce-ctrl.fg-rate-farm
+            deRMRateMFG  = ce-ctrl.rm-rate
+            deRMRateFarm = ce-ctrl.rm-rate-farm
+            .
+    
+    FIND FIRST bf-estCostBlank NO-LOCK 
+        WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
+          AND bf-estCostBlank.estCostFormID   EQ ipbf-estCostForm.estCostFormID NO-ERROR.
+          
+    IF AVAILABLE bf-estCostBlank THEN
+        ASSIGN
+            lPurchasedGood = bf-estCostBlank.isPurchased
+            deQty = bf-estCostBlank.quantityRequired.
+    
+    FOR EACH bf-estCostMaterial NO-LOCK 
+        WHERE bf-estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID:
+        
+        deTmpCost = 0.
+        
+        FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ  ipbf-estCostForm.company
+            AND bf-item.i-no EQ bf-estCostMaterial.itemID NO-ERROR.
+        
+        IF CAN-DO(gcBoardMatTypes,bf-estCostMaterial.materialType) THEN
+        DO:
+            IF lPurchasedGood THEN 
+                deTmpCost = IF deRMRateFarm NE 0 THEN ((deQty / 100) * deRMRateFarm) ELSE 0.
+            ELSE
+                deTmpCost = IF deRMRateMFG NE 0 THEN ((deQty / 100) * deRMRateMFG) ELSE 0. 
+        END.                
+       
+       deTotalRMCost = deTotalRMCost + deTmpCost.
+                    
+    END. /*Each estCostMaterial */
+    
 END PROCEDURE.
 
 PROCEDURE pCalculateWeightsAndSizes PRIVATE:
