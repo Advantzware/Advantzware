@@ -182,7 +182,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(31.00) SKIP(6.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "ZOHO CRM (Customer Contacts)" WIDGET-ID 100.
+         TITLE "CRM (Customer Contacts)" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -250,7 +250,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttCRMContacts.
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* ZOHO CRM (Customer Contacts) */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* CRM (Customer Contacts) */
 DO:
     IF VALID-OBJECT (oSetting) THEN
         DELETE OBJECT oSetting.
