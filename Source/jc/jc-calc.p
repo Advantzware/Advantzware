@@ -1791,7 +1791,7 @@ PROCEDURE pUpdateJobQty PRIVATE:
         AND oe-ordl.job-no2    EQ job.job-no2
         AND ((oe-ordl.form-no  EQ xeb.form-no AND
         oe-ordl.blank-no EQ xeb.blank-no) OR
-        xeb.est-type EQ 2 OR xeb.est-type EQ 6)
+        ((xeb.est-type EQ 2 OR xeb.est-type EQ 6) AND xeb.form-no EQ 0))
         NO-ERROR.
 
     IF xeb.stock-no EQ "" AND AVAILABLE oe-ordl THEN 
