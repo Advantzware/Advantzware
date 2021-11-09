@@ -5311,8 +5311,8 @@ PROCEDURE reset-est-type :
   END.
   
   
- IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 
-    AND eb.bl-qty EQ eb.yld-qty THEN do:
+ IF op-est-type EQ 4 AND li-form-no EQ 1 AND li-blank-no EQ 1 THEN 
+ DO:
   
    MESSAGE "Change this Tandem/Combo to a Single Estimate Type?" SKIP
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO

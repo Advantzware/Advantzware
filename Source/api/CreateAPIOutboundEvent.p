@@ -18,6 +18,7 @@ DEFINE INPUT  PARAMETER ipcDateTime         AS DATETIME  NO-UNDO.
 DEFINE OUTPUT PARAMETER opiOutboundEventID  AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE lcNotes              AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lcResponseData       AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcRequestFile        AS CHARACTER NO-UNDO.
@@ -45,10 +46,16 @@ IF NOT AVAILABLE APIOutboundEvent THEN DO:
         APIOutboundEvent.requestedBy      = USERID("ASI")        
         .    
 END.
+
+/* There are certain utf-8 characters the database code page "1252" cannot support. Converting to iso8859-1 does the trick */
+/* Refer https://knowledgebase.progress.com/articles/Article/Error-12009-when-using-JsonObject */
+FIX-CODEPAGE(lcResponseData) = "iso8859-1".
+
+lcResponseData = iplcReponseData.
     
 ASSIGN
     lcNotes                          = APIOutboundEvent.notes
-    APIOutboundEvent.responseData    = iplcReponseData
+    APIOutboundEvent.responseData    = lcResponseData
     APIOutboundEvent.callingProgram  = ipcProgramName
     APIOutboundEvent.success         = iplSuccess
     APIOutboundEvent.errorMessage    = ipcMessage

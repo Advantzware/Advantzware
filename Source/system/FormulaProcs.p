@@ -382,7 +382,30 @@ PROCEDURE GetSizeFactor:
     END.            
 END PROCEDURE.
 
-PROCEDURE GetPanelDetailsForEstimate:
+PROCEDURE Formula_GetPanelDetailsForPOScores:
+/*------------------------------------------------------------------------------
+ Purpose: A public method to return Estimate's Alt Design or PO Scores
+ Notes: Fetches panelDetail records for a given Estimate
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
+    
+    
+    RUN GetPanelDetailsForEstimate (
+        INPUT  ipcCompany,
+        INPUT  ipcEstimateID,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
+        OUTPUT TABLE ttPanel
+        ).
+                          
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForEstimate PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Fetches panelDetail records for a given Estimate
  Notes:
@@ -391,13 +414,14 @@ PROCEDURE GetPanelDetailsForEstimate:
     DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelLinkType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
     
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
     
     FIND FIRST bf-panelHeader NO-LOCK
          WHERE bf-panelHeader.company    EQ ipcCompany
-           AND bf-panelHeader.linkType   EQ gcPanelLinkTypeEstimate
+           AND bf-panelHeader.linkType   EQ ipcPanelLinkType
            AND bf-panelHeader.estimateID EQ ipcEstimateID
            AND bf-panelHeader.formNo     EQ ipiFormNo
            AND bf-panelHeader.blankNo    EQ ipiBlankNo
@@ -564,6 +588,7 @@ PROCEDURE GetPanelScoreAndTypeForEstimate:
         INPUT  ipcEstimateID,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
 
@@ -924,6 +949,7 @@ PROCEDURE pBuildPanelDetailsForEstimate PRIVATE:
         INPUT  bf-eb.est-no,
         INPUT  bf-eb.form-no,
         INPUT  bf-eb.blank-no,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
     IF NOT iplRebuild THEN DO:
