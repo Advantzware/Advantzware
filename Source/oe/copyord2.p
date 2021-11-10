@@ -803,6 +803,7 @@ PROCEDURE copyJob :
     DEFINE INPUT PARAMETER ipEstno AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipOrdno AS INT NO-UNDO.
     DEFINE INPUT PARAMETER ipLoc AS CHARACTER NO-UNDO.        
+    DEFINE INPUT PARAMETER iplCalcJob AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE v-job-no       LIKE oe-ord.job-no  NO-UNDO.
     DEFINE VARIABLE v-job-no2      LIKE oe-ord.job-no2 NO-UNDO.
@@ -876,7 +877,7 @@ PROCEDURE copyJob :
             /*IF NOT ipv-qty-mod THEN
                RUN oe/job-qty.p (ROWID(oe-ord), OUTPUT ipv-qty-mod).*/
          
-            IF ipv-qty-mod OR job.stat EQ "P" THEN DO:
+            IF (ipv-qty-mod OR job.stat EQ "P") AND iplCalcJob THEN DO:
               RUN jc/chkrebld.p (RECID(job), OUTPUT choice).     
               IF NOT choice THEN DO:
                 ASSIGN hld-id     = ipFil_id
@@ -1092,7 +1093,7 @@ PROCEDURE copyOrder :
   FOR EACH oe-ordl
       WHERE oe-ordl.company EQ oe-ord.company
         AND oe-ordl.ord-no  EQ oe-ord.ord-no
-      EXCLUSIVE-LOCK:
+      EXCLUSIVE-LOCK BREAK BY oe-ordl.LINE:
     
     CREATE b-oe-ordl.
     BUFFER-COPY oe-ordl EXCEPT rec_key job-no job-no2 ord-no oe-ordl.t-inv-qty oe-ordl.t-ship-qty oe-ordl.po-no-po TO b-oe-ordl
@@ -1132,7 +1133,7 @@ PROCEDURE copyOrder :
     IF oe-ordl.est-no <> "" THEN DO:
         FIND est WHERE est.est-no EQ oe-ordl.est-no NO-LOCK NO-ERROR.
         IF AVAIL(est) THEN do:
-            RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc).
+            RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc, logical(LAST(oe-ordl.LINE))).
             ASSIGN b-oe-ord.job-no = STRING(b-oe-ord.ord-no) .
             IF est.ord-no NE 0 THEN ASSIGN
                 b-oe-ordl.po-no2 = STRING(est.ord-no)
