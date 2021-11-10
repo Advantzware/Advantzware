@@ -344,21 +344,6 @@ ON VALUE-CHANGED OF br_table IN FRAME F-Main
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME job-mat.qty-all
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-mat.qty-all br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF job-mat.qty-all IN BROWSE br_table /* Allocation */
-    DO:
-  
-        IF LASTKEY NE -1 THEN 
-        DO:
-    
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &UNDEFINE SELF-NAME
 

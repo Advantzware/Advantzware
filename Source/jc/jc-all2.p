@@ -17,7 +17,7 @@ def var v-wid       like item.s-wid                                     no-undo.
 DEF VAR li AS INT NO-UNDO.
 
 
-for each job-mat
+for each job-mat EXCLUSIVE-LOCK
     where rowid(job-mat)  eq ip-rowid       
       and job-mat.all-flg,
 
@@ -27,7 +27,7 @@ for each job-mat
 /*      and b-item.i-code  eq "R"            */
 /*    no-lock,                               */
 
-    first job
+    first job  EXCLUSIVE-LOCK
     where job.company eq job-mat.company
       and job.job     eq job-mat.job
       and job.job-no  eq job-mat.job-no
@@ -87,4 +87,5 @@ for each job-mat
 
 /*  FIND CURRENT item NO-LOCK NO-ERROR.*/
 end.
-
+RELEASE job.
+RELEASE job-mat.

@@ -213,8 +213,7 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
     DEFINE BUFFER bf-item FOR ITEM.
     
     FIND FIRST bf-job NO-LOCK
-         WHERE bf-job.company EQ ipcCompany 
-         AND ROWID(bf-job) EQ iprwRowIdJob NO-ERROR.
+         WHERE ROWID(bf-job) EQ iprwRowIdJob NO-ERROR.
     
     IF ipcType EQ "Add" THEN
     DO:
@@ -252,8 +251,7 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
     ELSE IF ipcType EQ "Update" THEN
     DO:
          FIND FIRST bf-job-mat EXCLUSIVE-LOCK
-              WHERE bf-job-mat.company EQ ipcCompany
-              AND ROWID(bf-job-mat) EQ ioprwRowId NO-ERROR.
+              WHERE ROWID(bf-job-mat) EQ ioprwRowId NO-ERROR.
               
          IF avail bf-job-mat THEN     
          ASSIGN            
@@ -607,8 +605,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
     FIND FIRST bff-job NO-LOCK
-         WHERE bff-job.company EQ ipcCompany
-         AND rowid(bff-job) EQ iprwRowIdJob NO-ERROR.
+         WHERE ROWID(bff-job) EQ iprwRowIdJob NO-ERROR.
          
     IF NOT AVAIL bff-job THEN
     RETURN NO-APPLY.
