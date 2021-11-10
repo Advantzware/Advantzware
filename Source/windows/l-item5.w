@@ -16,6 +16,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+USING system.SharedConfig.
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -25,12 +27,20 @@ def output parameter op-char-val as cha no-undo. /* recid(item) */
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+DEFINE VARIABLE lCheckPage AS LOGICAL INIT NO NO-UNDO .
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+
 &scoped-define SORTBY-1 BY item.i-no
 &scoped-define SORTBY-2 BY item.i-name
 &scoped-define fld-name-1 item.i-no
 &scoped-define fld-name-2 item.i-name
 
 &scoped-define IAMWHAT LOOKUP
+
+ASSIGN
+scInstance  = SharedConfig:instance
+lCheckPage   =  LOGICAL(scInstance:GetValue("ShowOnlyRealMat")) NO-ERROR.         
+IF lCheckPage EQ ? THEN lCheckPage = NO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -58,11 +68,11 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
-lookup(item.mat-type,"B,P,1,2,3,4") > 0 NO-LOCK ~
+lookup(item.mat-type,"B,P,1,2,3,4") > 0 and ((lCheckPage and item.i-code EQ 'R') OR NOT lCheckPage)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
-lookup(item.mat-type,"B,P,1,2,3,4") > 0 NO-LOCK ~
+lookup(item.mat-type,"B,P,1,2,3,4") > 0 and ((lCheckPage and item.i-code EQ 'R') OR NOT lCheckPage) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 item
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 item
@@ -188,7 +198,7 @@ ASSIGN
      _TblList          = "ASI.item"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "item.company = ip-company and
-lookup(item.mat-type,""B,P,1,2,3,4"") > 0"
+lookup(item.mat-type,""B,P,1,2,3,4"") > 0" and ((lCheckPage and item.i-code EQ 'R') OR NOT lCheckPage)
      _FldNameList[1]   > ASI.item.i-no
 "item.i-no" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.item.i-name

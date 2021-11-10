@@ -200,6 +200,8 @@ DEF VAR cfrom AS CHAR.
 DEF VAR cMapDrive AS CHAR FORMAT "x(2)" NO-UNDO.
 DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 100 NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
+DEF VAR cOrigPropath AS CHARACTER NO-UNDO.
+DEF VAR cNewPropath  AS CHARACTER NO-UNDO.
 DEF VAR cPassword AS CHAR FORMAT "x(24)" LABEL "Password" NO-UNDO.
 DEF VAR cPatchNo AS CHAR FORMAT "x(8)" NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -1157,15 +1159,12 @@ PROCEDURE ipAssignARInvXNoSeq PRIVATE:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Assigning arInvXNo_seq with last ar-inv x-no.").
 
-    
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
-
     FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
         
     IF AVAIL bf-ar-inv THEN 
         CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
-
 
 END PROCEDURE.
 	
@@ -2083,13 +2082,11 @@ PROCEDURE ipConvertGLTrans:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-        
     RUN ipStatus ("    Convert GLTrans to GLHist...").
     RUN util/ConversionGLTrans.p.
     
     RUN ipStatus ("    Verifying GLHist record data...").
     RUN util/SetGLHistFlag.p.
-
 
 END PROCEDURE.
 	
@@ -2163,7 +2160,6 @@ PROCEDURE ipConvertJcCtrl :
         END.
     END.
 
-       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2222,7 +2218,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
 
     RUN ipStatus ("    Creating panelHeader and panelDetail records.").
 
-    
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     FOR EACH bf-company NO-LOCK: 
@@ -2859,6 +2854,12 @@ PROCEDURE ipDataFix :
     DEF VAR iCurrentVersion AS INT NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
@@ -2938,6 +2939,8 @@ RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
+
+    PROPATH = cOrigPropath.
 
 END PROCEDURE.
 
@@ -3663,6 +3666,7 @@ PROCEDURE ipDataFix210003:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("  Data Fix 210003...").
 
     RUN ipConvertJcCtrl.
@@ -3678,6 +3682,7 @@ PROCEDURE ipDataFix210100:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("  Data Fix 210100...").
 
     RUN ipConvertGLTrans.
@@ -3700,6 +3705,7 @@ PROCEDURE ipDataFix210200:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("  Data Fix 210200...").
 
     RUN ipAssignARInvXNoSeq.
@@ -3717,6 +3723,7 @@ PROCEDURE ipDataFix210300:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("  Data Fix 210300...").
 
     RUN ipRemoveBadApiOutboundRecs.
@@ -3737,6 +3744,7 @@ PROCEDURE ipDataFix210400:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("  Data Fix 210400...").
 
     RUN ipSetOT1Permissions.
@@ -3772,6 +3780,8 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
     RUN ipDeleteAudit.
+    RUN ipRefTableConv.
+
     
 END PROCEDURE.
 
@@ -4299,6 +4309,7 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus ("    Fix Estimate scores").
 
     DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
@@ -4306,7 +4317,7 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
     DEFINE BUFFER bf-company     FOR company.
     DEFINE BUFFER bf-style       FOR style.
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
-        
+
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
     FOR EACH bf-company NO-LOCK:        
@@ -4424,15 +4435,16 @@ PROCEDURE ipFixLocationStorageCost:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus("   Location storage cost conversion").
     
     FOR EACH company NO-LOCK:
         FOR EACH loc NO-LOCK
             WHERE loc.company EQ company.company:
-            IF NOT CAN-FIND(FIRST storageCost WHERE
+            IF NOT CAN-FIND(FIRST storageCost WHERE 
                             storageCost.company EQ loc.company AND
                             storageCost.location EQ loc.loc AND
-                            storageCost.positions EQ 1) THEN DO:
+                            storageCost.position EQ 1) THEN DO.
                 CREATE storageCost.
                 ASSIGN
                     storageCost.company     = loc.company
@@ -4444,11 +4456,12 @@ PROCEDURE ipFixLocationStorageCost:
                     storageCost.stack3High  = loc.storageCost[3]
                     storageCost.stack4High  = loc.storageCost[4]
                     .
-            END.            
-            IF NOT CAN-FIND(FIRST palletSize WHERE
+            END.
+            
+            IF NOT CAN-FIND(FIRST palletSize WHERE 
                             palletSize.company EQ loc.company AND
                             palletSize.location EQ loc.loc AND
-                            palletSize.positions EQ 1) THEN DO:
+                            palletSize.position EQ 1) THEN DO.
                 CREATE palletSize.
                 ASSIGN
                     palletSize.company    = loc.company
@@ -6357,17 +6370,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 2
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipRefTableConv.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 30
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 30
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
@@ -7234,6 +7236,7 @@ PROCEDURE ipSetSystemScope:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    
     DEFINE BUFFER bf-scope FOR scope.
      
     RUN ipStatus ("  Adding System scope for new settings").
@@ -7247,6 +7250,7 @@ PROCEDURE ipSetSystemScope:
             bf-scope.scopeTable = "System"
             .
     END. 
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -7393,8 +7397,8 @@ PROCEDURE ipFixEstimateScores:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    
     RUN ipStatus ("    Fix Estimate scores").
-
 
     RUN util/dev/EstimateScoresFix.p.
     
@@ -7678,6 +7682,7 @@ PROCEDURE ipUpdateSurchargeAccounts:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+        
     RUN ipStatus ("    Updating surcharge accounts").
     RUN util/UpdateSurAccount.p.
 
