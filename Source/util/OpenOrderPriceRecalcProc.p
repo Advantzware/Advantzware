@@ -19,7 +19,8 @@ DEFINE TEMP-TABLE ttOrderLineChange
     FIELD qtyUOM        AS CHARACTER
     FIELD priceOld      AS DECIMAL
     FIELD priceNew      AS DECIMAL
-    FIELD priceUOM      AS CHARACTER
+    FIELD priceUOMOld   AS CHARACTER
+    FIELD priceUOMNew   AS CHARACTER
     FIELD totalPriceOld AS DECIMAL
     FIELD totalPriceNew AS DECIMAL
     FIELD orderStatus   AS CHARACTER
@@ -38,9 +39,13 @@ RUN system\OutputProcs.p PERSISTENT SET hdOutput.
 DEFINE VARIABLE dNewPrice    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dPriceChange AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cNewPriceUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOldPriceUOM AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFoundInv    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dNewPriceInv AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cNewPriceUOMInv AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dOldPrice    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dOldPriceTot AS DECIMAL   NO-UNDO.
 
 MAIN-LOOP:
 FOR EACH oe-ordl NO-LOCK
@@ -90,7 +95,10 @@ FOR EACH oe-ordl NO-LOCK
     ASSIGN 
         i            = i + 1
         dNewPrice    = 0
-        dPriceChange = 0.
+        dPriceChange = 0
+        dOldPrice    = oe-ordl.price
+        cOldPriceUOM = oe-ordl.pr-uom
+        dOldPriceTot = oe-ordl.t-price.
     
     RUN Price_CalculateLinePrice IN hdPrice (ROWID(oe-ordl),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPrice, INPUT-OUTPUT cNewPriceUOM).
 
@@ -101,11 +109,11 @@ FOR EACH oe-ordl NO-LOCK
          AND inv-line.LINE EQ oe-ordl.LINE NO-ERROR.
          
     IF AVAILABLE inv-line AND ipExecute THEN     
-    RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFound, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
+    RUN Price_CalculateLinePrice IN hdPrice (ROWID(inv-line),oe-ordl.i-no,oe-ordl.cust-no,oe-ordl.ship-id,0,ipExecute,OUTPUT lFoundInv, INPUT-OUTPUT dNewPriceInv, INPUT-OUTPUT cNewPriceUOMInv).
     
-    dPriceChange = (dNewPrice / oe-ordl.price - 1 ) * 100.
+    dPriceChange = (dNewPrice / dOldPrice - 1 ) * 100.
     IF lFound 
-        AND oe-ordl.price NE dNewPrice         
+        AND (dOldPrice NE dNewPrice OR NOT ipExecute)         
         THEN 
     DO:
         j = j + 1.
@@ -119,16 +127,25 @@ FOR EACH oe-ordl NO-LOCK
             ttOrderLineChange.orderQty      = oe-ordl.qty
             ttOrderLineChange.shippedQty    = oe-ordl.ship-qty
             ttOrderLineChange.qtyUOM        = "EA"
-            ttOrderLineChange.priceOld      = oe-ordl.price
+            ttOrderLineChange.priceOld      = dOldPrice
             ttOrderLineChange.priceNew      = dNewPrice
-            ttOrderLineChange.priceUOM      = oe-ordl.pr-uom
-            ttOrderLineChange.totalPriceOld = oe-ordl.t-price
-            ttOrderLineChange.totalPriceNew = ROUND(dNewPrice * oe-ordl.qty, 2)
+            ttOrderLineChange.priceUOMOld   = cOldPriceUOM
+            ttOrderLineChange.priceUOMNew   = cNewPriceUOM
+            ttOrderLineChange.totalPriceOld = dOldPriceTot            
             ttOrderLineChange.orderStatus   = oe-ordl.stat
             ttOrderLineChange.orderDate     = oe-ord.ord-date
             ttOrderLineChange.pctChange     = (dNewPrice / oe-ordl.price - 1)
             ttOrderLineChange.note          = IF ttOrderLineChange.pctChange GT .07 AND ttOrderLineChange.pctChange LT .11 THEN "OK - About 9%" ELSE "Review".
         .
+         RUN Conv_CalcTotalPrice (
+            oe-ordl.company,
+            oe-ordl.i-no,
+            oe-ordl.qty,
+            dNewPrice,
+            cNewPriceUOM,
+            oe-ordl.disc,
+            oe-ordl.cas-cnt,
+            OUTPUT ttOrderLineChange.totalPriceNew).
 
     END.
 END.
