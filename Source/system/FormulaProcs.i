@@ -23,6 +23,12 @@ DEFINE TEMP-TABLE ttPanel
     FIELD dPanelSizeFromFormula AS DECIMAL
     FIELD lAddAllowanceToSize   AS LOGICAL
     .
+    
+DEFINE TEMP-TABLE ttScoreLine NO-UNDO
+    FIELD PanelType AS CHARACTER
+    FIELD IsTotal   AS LOGICAL
+    FIELD ScoreLine AS CHARACTER.
+    
 
 /* ********************  Preprocessor Definitions  ******************** */
 

@@ -259,6 +259,57 @@ PROCEDURE Formula_GetReverseGrainAndEstimateTypeForPOLine:
             .    
 END PROCEDURE.
 
+PROCEDURE Formula_ParseDesignScores:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriEBRowId     AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriBoxDgnHdr   AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPrintMetric  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttScoreLine.
+    
+    
+    DEFINE VARIABLE cScoreLine AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    DEFINE BUFFER bf-eb              FOR eb.
+
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE ROWID(bf-eb) = ipriBoxDgnHdr NO-ERROR.
+    
+    IF NOT AVAILABLE bf-eb THEN
+        RETURN.
+    
+    RUN Formula_GetPanelDetailsForPOScores (
+        INPUT  bf-eb.company,
+        INPUT  bf-eb.est-no,
+        INPUT  bf-eb.form-no,
+        INPUT  bf-eb.blank-no,
+        OUTPUT TABLE ttPanel
+        ).
+
+    FIND FIRST bf-box-design-hdr NO-LOCK
+        WHERE ROWID(bf-box-design-hdr) = ipriBoxDgnHdr NO-ERROR.
+    
+    IF NOT AVAILABLE bf-box-design-hdr THEN
+        RETURN.
+        
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, iplPrintMetric, "L", NO).
+    
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, iplPrintMetric, "L", YES).
+    
+    FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
+
+        RUN pCreateScoreLine (bf-box-design-line.wscore, iplPrintMetric, "W", NO).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, iplPrintMetric, "W", YES).
+
+    END.
+
+END PROCEDURE.
+
 PROCEDURE Formula_ReBuildBoxDesignForEstimate:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -1435,6 +1486,100 @@ PROCEDURE pGetScoreAndTypes PRIVATE:
             opcScoreTypes[ttPanel.iPanelNum] = ttPanel.cScoreType
             .
     END.
+END PROCEDURE.
+
+PROCEDURE pCreateScoreLine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplConvertMetric    AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iCnt         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTempVal     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cScrNum      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLine   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSpaceCount  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dTmpScore    AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE cRepChar     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempChar    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewText     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNum         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE deFinalScore AS DECIMAL   NO-UNDO.
+
+
+    ASSIGN 
+        cNewText = ipcScoreTxt.
+
+    DO iCnt = 1 TO LENGTH(ipcScoreTxt):
+        ASSIGN 
+            cTempChar = TRIM(SUBSTRING(ipcScoreTxt, iCnt, 1)).
+
+        IF (cTempChar = "" OR iCnt = LENGTH(ipcScoreTxt)) and cRepChar <> "" Then
+        DO: 
+            IF iCnt = LENGTH(ipcScoreTxt) AND cTempChar <> "" THEN
+                ASSIGN cRepChar = cRepChar + cTempChar.
+
+            ASSIGN 
+                iNum = INTEGER(REPLACE(REPLACE(cRepChar, "[", ""), "]", "")) NO-ERROR.
+
+            IF NOT ERROR-STATUS:ERROR THEN
+            DO:
+                IF ipcPanelType = "W" THEN
+                    FOR EACH ttPanel 
+                        WHERE ttPanel.cPanelType EQ ipcPanelType
+                        AND ttPanel.iPanelNum  LT iNum:
+
+                        ASSIGN 
+                            dTmpScore = DECIMAL(ttPanel.dPanelSize).
+
+                        IF iplTotal THEN
+                            deFinalScore = deFinalScore + dTmpScore.
+                    END.
+
+                FIND FIRST ttPanel 
+                    WHERE ttPanel.cPanelType EQ ipcPanelType
+                    AND ttPanel.iPanelNum  EQ iNum NO-ERROR.
+
+                IF AVAILABLE ttPanel THEN
+                DO:
+
+                    ASSIGN 
+                        dTmpScore   = DECIMAL(ttPanel.dPanelSize).
+
+                     IF iplTotal THEN
+                        deFinalScore = deFinalScore + dTmpScore.
+                    ELSE
+                        deFinalScore  = dTmpScore.
+
+                    cNewText = REPLACE(cNewText, cRepChar, ( IF iplConvertMetric THEN  string(round(deFinalScore,0)) ELSE string(round(deFinalScore,2)))). 
+                END.                        
+
+            END.
+            ASSIGN 
+                cRepChar = "".
+
+        END.
+
+        IF cTempChar <> "" THEN
+            ASSIGN cRepChar = cRepChar + cTempChar.
+
+    END.
+        
+    IF cNewText NE "" THEN
+    DO:
+        CREATE ttScoreLine.
+        ASSIGN 
+            ttScoreLine.PanelType = ipcPanelType
+            ttScoreLine.IsTotal   = iplTotal
+            ttScoreLine.ScoreLine = cNewText.
+    END.
+        
+
 END PROCEDURE.
 
 PROCEDURE pRoundPanelSize PRIVATE:
