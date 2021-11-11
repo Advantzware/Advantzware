@@ -109,25 +109,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR. 
+    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR.
+    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "JOBQTYCUST", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    v-job-cust = LOGICAL(cRtnChar) NO-ERROR. 
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "JOBQTYCUST"
-    NO-LOCK NO-ERROR.
-
-IF NOT AVAILABLE sys-ctrl THEN
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.NAME    = "JOBQTYCUST"
-        sys-ctrl.module  = "JC"
-        sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
-        sys-ctrl.log-fld = NO .
-END.
-
-v-job-cust = sys-ctrl.log-fld.
 s-prt-set-header = NO .
 
 ASSIGN
