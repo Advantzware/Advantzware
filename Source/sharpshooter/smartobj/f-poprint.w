@@ -54,6 +54,8 @@ DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* _UIB-CODE-BLOCK-END */
@@ -69,7 +71,7 @@ RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 &Scoped-define ADM-CONTAINER FRAME
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME BROWSE-2
 
@@ -118,6 +120,11 @@ DEFINE BUTTON btDelete
      LABEL "Delete" 
      SIZE 7.6 BY 1.81 TOOLTIP "Delete currently selected record".
 
+DEFINE BUTTON btnKeyboardPO 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE BUTTON btUpdate 
      IMAGE-UP FILE "Graphics/32x32/pencil.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
@@ -155,9 +162,10 @@ DEFINE BROWSE BROWSE-2
 
 DEFINE FRAME F-Main
      btCreate AT ROW 1.14 COL 109 WIDGET-ID 6
-     btUpdate AT ROW 11.48 COL 136.8 WIDGET-ID 66
+     btnKeyboardPO AT ROW 1.43 COL 67.6 WIDGET-ID 136 NO-TAB-STOP 
      fiPOLine AT ROW 1.48 COL 27 COLON-ALIGNED WIDGET-ID 4
      BROWSE-2 AT ROW 3.52 COL 4.2 WIDGET-ID 200
+     btUpdate AT ROW 11.48 COL 136.8 WIDGET-ID 66
      btDelete AT ROW 3.48 COL 136.8 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -213,10 +221,15 @@ END.
 /* SETTINGS FOR WINDOW F-Frame-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE                                                          */
+   NOT-VISIBLE FRAME-NAME                                               */
 /* BROWSE-TAB BROWSE-2 fiPOLine F-Main */
 /* SETTINGS FOR BUTTON btCreate IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnKeyboardPO IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnKeyboardPO:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR BUTTON btUpdate IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -300,6 +313,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnKeyboardPO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardPO F-Frame-Win
+ON CHOOSE OF btnKeyboardPO IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiPoLine.    
+    
+    oKeyboard:OpenKeyboardOverride (fiPOLine:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btUpdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate F-Frame-Win
 ON CHOOSE OF btUpdate IN FRAME F-Main /* UPDATE */
@@ -340,6 +366,12 @@ END.
 ON ENTRY OF fiPOLine IN FRAME F-Main /* PO and LINE */
 DO:
     SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN DO:
+        oKeyboard:FocusField = SELF.    
+        
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
+    END.          
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,10 +381,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOLine F-Frame-Win
 ON LEAVE OF fiPOLine IN FRAME F-Main /* PO and LINE */
 DO:   
-    IF LASTKEY EQ -1 OR SELF:SCREEN-VALUE EQ "" THEN
-        RETURN.
-
-    RUN pScanPO (SELF:SCREEN-VALUE).
+    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN
+        RUN pScanPO (SELF:SCREEN-VALUE).
     
     SELF:BGCOLOR = 15.
 END.
@@ -493,9 +523,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win
-PROCEDURE GetMessageAndType:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -508,11 +537,9 @@ PROCEDURE GetMessageAndType:
         opiStatusMessageType = iStatusMessageType
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetPOLineTT F-Frame-Win 
 PROCEDURE GetPOLineTT :
@@ -522,6 +549,24 @@ PROCEDURE GetPOLineTT :
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER TABLE FOR ttPOLine.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,6 +656,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit F-Frame-Win 
+PROCEDURE pInit PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    {methods/run_link.i "QTY-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+    
+    RUN Set-Focus.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pScanPO F-Frame-Win 
 PROCEDURE pScanPO :
 /*------------------------------------------------------------------------------
@@ -679,9 +745,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win
-PROCEDURE pSendError:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -702,11 +767,9 @@ PROCEDURE pSendError:
         iStatusMessageType = 0
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
 PROCEDURE Reset :
@@ -755,9 +818,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win
-PROCEDURE Set-Focus:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -765,11 +827,27 @@ PROCEDURE Set-Focus:
     APPLY "ENTRY" TO fiPOLine IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardPO:VISIBLE   = TRUE
+        btnKeyboardPO:SENSITIVE = TRUE
+        .
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :

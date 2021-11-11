@@ -54,16 +54,24 @@ DEFINE VARIABLE cUser    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
  
-DEFINE VARIABLE oLoadTag AS Inventory.Loadtag  NO-UNDO.
-DEFINE VARIABLE oSetting AS system.Setting     NO-UNDO.
+DEFINE VARIABLE oLoadTag  AS Inventory.Loadtag  NO-UNDO.
+DEFINE VARIABLE oSetting  AS system.Setting     NO-UNDO.
+DEFINE VARIABLE oKeyboard AS system.Keyboard    NO-UNDO.
+
+DEFINE VARIABLE glShowKeyboard AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
 oSetting = NEW system.Setting().
+oKeyboard = NEW system.Keyboard().
 
-oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
+oSetting:LoadByCategoryAndProgram("SSCreateLoadTag,Keyboard").
 
-DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
+ASSIGN
+    gcShowSettings = oSetting:GetByName("ShowSettings")
+    glShowKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,7 +92,7 @@ DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btPrint btDelete btJob btPO btRelease ~
 btReturn btReprint btSplit btBOL statusMessage btnExitText btnSettingsText ~
-btnDeleteText btnPrintText rHighlight 
+btnDeleteText btnPrintText btnNumPad rHighlight 
 &Scoped-Define DISPLAYED-OBJECTS statusMessage btnExitText btnSettingsText ~
 btnDeleteText btnPrintText 
 
@@ -130,6 +138,11 @@ DEFINE BUTTON btDelete
 DEFINE BUTTON btJob 
      LABEL "JOB" 
      SIZE 22.4 BY 1.43.
+
+DEFINE BUTTON btnNumPad 
+     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "NumPad" 
+     SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btPO 
      LABEL "PO" 
@@ -180,6 +193,11 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
       VIEW-AS TEXT 
      SIZE 116 BY 1.43 NO-UNDO.
 
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 10 BY 2.38
+     BGCOLOR 12 .
+
 DEFINE RECTANGLE rHighlight
      EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 24.4 BY 1.81
@@ -203,11 +221,13 @@ DEFINE FRAME F-Main
      btnSettingsText AT ROW 32.19 COL 160 COLON-ALIGNED NO-LABEL
      btnDeleteText AT ROW 32.19 COL 2 NO-LABEL
      btnPrintText AT ROW 32.19 COL 187 COLON-ALIGNED NO-LABEL
+     btnNumPad AT ROW 1.91 COL 176 WIDGET-ID 120 NO-TAB-STOP 
+     RECT-2 AT ROW 1.71 COL 175 WIDGET-ID 130
      rHighlight AT ROW 2.43 COL 2 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 208 BY 32.95
+         SIZE 234 BY 33
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -217,7 +237,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 4
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -228,14 +248,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create LoadTag"
-         HEIGHT             = 32.95
-         WIDTH              = 208
+         HEIGHT             = 33
+         WIDTH              = 234
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         SMALL-TITLE        = yes
-         SHOW-IN-TASKBAR    = yes
          CONTROL-BOX        = no
          MIN-BUTTON         = no
          MAX-BUTTON         = no
@@ -271,6 +289,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME Custom                                                    */
 /* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -314,6 +334,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btBOL W-Win
 ON CHOOSE OF btBOL IN FRAME F-Main /* BOL */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(7).
 
     rHighlight:X = SELF:X - 5.    
@@ -338,6 +361,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btJob W-Win
 ON CHOOSE OF btJob IN FRAME F-Main /* JOB */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+        
     RUN select-page(1).
 
     rHighlight:X = SELF:X - 5.    
@@ -370,6 +396,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnNumPad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNumPad W-Win
+ON CHOOSE OF btnNumPad IN FRAME F-Main /* NumPad */
+DO:
+    ASSIGN
+        oKeyboard:DisplayKeyboard = NOT oKeyboard:DisplayKeyboard
+        RECT-2:BGCOLOR = IF oKeyboard:DisplayKeyboard THEN 10 ELSE 12
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnPrintText
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
 ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
@@ -396,6 +436,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPO W-Win
 ON CHOOSE OF btPO IN FRAME F-Main /* PO */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(2).
     
     rHighlight:X = SELF:X - 5.
@@ -423,6 +466,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRelease W-Win
 ON CHOOSE OF btRelease IN FRAME F-Main /* RELEASE */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(3).
 
     rHighlight:X = SELF:X - 5.    
@@ -436,6 +482,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReprint W-Win
 ON CHOOSE OF btReprint IN FRAME F-Main /* RE-PRINT */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(5).
     
     rHighlight:X = SELF:X - 5.    
@@ -449,6 +498,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReturn W-Win
 ON CHOOSE OF btReturn IN FRAME F-Main /* RETURN */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(4).
 
     rHighlight:X = SELF:X - 5.    
@@ -462,6 +514,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSplit W-Win
 ON CHOOSE OF btSplit IN FRAME F-Main /* SPLIT */
 DO:
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:CloseKeyboard().
+
     RUN select-page(6).
 
     rHighlight:X = SELF:X - 5.    
@@ -505,6 +560,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-loadtags-3 ).
+       RUN set-position IN h_b-loadtags-3 ( 24.10 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_b-loadtags-3 ( 7.86 , 199.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -520,19 +583,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_setting ( 32.14 , 181.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.60 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_b-loadtags-3 ).
-       RUN set-position IN h_b-loadtags-3 ( 24.10 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_b-loadtags-3 ( 7.86 , 199.00 ) NO-ERROR.
-
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartObject h_setting. */
-       RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
 
        /* Links to SmartBrowser h_b-loadtags-3. */
        RUN add-link IN adm-broker-hdl ( h_navigatefirst , 'NAV-FIRST':U , h_b-loadtags-3 ).
@@ -541,18 +593,34 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_navigateprev , 'NAV-PREV':U , h_b-loadtags-3 ).
        RUN add-link IN adm-broker-hdl ( h_b-loadtags-3 , 'LOADTAG':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags-3 ,
-             h_setting , 'AFTER':U ).
+       /* Links to SmartObject h_setting. */
+       RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
+
     END. /* Page 0 */
     WHEN 1 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigatenext ).
+       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_navigateprev ).
+       RUN set-position IN h_navigateprev ( 26.95 , 201.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/f-job.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-job ).
-       RUN set-position IN h_f-job ( 4.57 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 15.24 , 203.80 ) */
+       RUN set-position IN h_f-job ( 4.57 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 15.24 , 232.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/navigatefirst.w':U ,
@@ -570,35 +638,19 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_navigatelast ( 30.76 , 201.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigatenext.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigatenext ).
-       RUN set-position IN h_navigatenext ( 28.86 , 201.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/navigateprev.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_navigateprev ).
-       RUN set-position IN h_navigateprev ( 26.95 , 201.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
        /* Links to SmartFrame h_f-job. */
        RUN add-link IN adm-broker-hdl ( h_f-job , 'JOB':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_f-job , 'State':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
+             h_setting , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_f-job ,
+             h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_f-job , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
              h_navigatefirst , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
-             h_navigatelast , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
-             h_navigatenext , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -620,8 +672,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-releasetag ).
-       RUN set-position IN h_f-releasetag ( 4.57 , 71.00 ) NO-ERROR.
-       /* Size in UIB:  ( 11.86 , 60.40 ) */
+       RUN set-position IN h_f-releasetag ( 4.43 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.52 , 65.40 ) */
 
        /* Links to SmartFrame h_f-releasetag. */
        RUN add-link IN adm-broker-hdl ( h_f-releasetag , 'RELEASE':U , THIS-PROCEDURE ).
@@ -634,8 +686,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-return ).
-       RUN set-position IN h_f-return ( 4.57 , 56.00 ) NO-ERROR.
-       /* Size in UIB:  ( 7.05 , 83.80 ) */
+       RUN set-position IN h_f-return ( 4.33 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 7.00 , 126.00 ) */
 
        /* Links to SmartFrame h_f-return. */
        RUN add-link IN adm-broker-hdl ( h_f-return , 'RETURN':U , THIS-PROCEDURE ).
@@ -648,8 +700,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-reprint ).
-       RUN set-position IN h_f-reprint ( 4.57 , 63.60 ) NO-ERROR.
-       /* Size in UIB:  ( 6.48 , 81.60 ) */
+       RUN set-position IN h_f-reprint ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.91 , 88.40 ) */
 
        /* Links to SmartFrame h_f-reprint. */
        RUN add-link IN adm-broker-hdl ( h_f-reprint , 'REPRINT':U , THIS-PROCEDURE ).
@@ -662,8 +714,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-splittag ).
-       RUN set-position IN h_f-splittag ( 4.57 , 71.00 ) NO-ERROR.
-       /* Size in UIB:  ( 6.95 , 81.00 ) */
+       RUN set-position IN h_f-splittag ( 4.33 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 6.95 , 113.60 ) */
 
        /* Links to SmartFrame h_f-splittag. */
        RUN add-link IN adm-broker-hdl ( h_f-splittag , 'SPLIT':U , THIS-PROCEDURE ).
@@ -676,8 +728,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_f-boltag ).
-       RUN set-position IN h_f-boltag ( 4.57 , 73.00 ) NO-ERROR.
-       /* Size in UIB:  ( 11.86 , 61.40 ) */
+       RUN set-position IN h_f-boltag ( 4.57 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 61.40 ) */
 
        /* Links to SmartFrame h_f-boltag. */
        RUN add-link IN adm-broker-hdl ( h_f-boltag , 'BOL':U , THIS-PROCEDURE ).
@@ -752,7 +804,7 @@ PROCEDURE enable_UI :
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btPrint btDelete btJob btPO btRelease btReturn btReprint btSplit btBOL 
          statusMessage btnExitText btnSettingsText btnDeleteText btnPrintText 
-         rHighlight 
+         btnNumPad rHighlight 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -814,6 +866,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win 
+PROCEDURE GetKeyboard :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opoKeyboard AS system.Keyboard NO-UNDO.
+
+    opoKeyboard = oKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSetting W-Win 
 PROCEDURE GetSetting :
 /*------------------------------------------------------------------------------
@@ -824,6 +891,43 @@ PROCEDURE GetSetting :
 
     opoSetting = oSetting.    
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win 
+PROCEDURE Key_Stroke :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcKeyStroke AS CHARACTER NO-UNDO.
+    
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:KeyStroke(ipcKeyStroke).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-OBJECT(oSetting) THEN
+      DELETE OBJECT oSetting.
+  
+  IF VALID-OBJECT(oKeyboard) THEN
+      DELETE OBJECT oKeyboard.
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,11 +1057,16 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
 
+    oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
+    oKeyboard:SetProcedure(THIS-PROCEDURE).
+    oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
+
     ASSIGN
-        gcShowSettings = oSetting:GetByName("ShowSettings")
-        btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
+        btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0
+        btnNumPad:VISIBLE       = glShowKeyboard
+        RECT-2:VISIBLE          = glShowKeyboard
         .  
-        
+    
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
         {methods/run_link.i "Setting-SOURCE" "HideSettings"}        
 END PROCEDURE.
@@ -1158,31 +1267,40 @@ PROCEDURE pWinReSize :
     DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dScreenHeight AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dScreenWidth  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dScreenTop    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dScreenLeft   AS INTEGER NO-UNDO.
 
     SESSION:SET-WAIT-STATE("General").
+    
+    RUN spGetScreenWorkingAreaSize (OUTPUT dScreenWidth, OUTPUT dScreenHeight).
+    RUN spGetScreenStartPosition (OUTPUT dScreenTop, OUTPUT dScreenLeft).
+
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
-            btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
-            btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
-            btnPrintText:COL                   = btPrint:COL - btnPrintText:WIDTH - 1
-            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
-            btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btnExitText:COL                    = dCol - 9
-            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
-            btnSettingsText:COL                = btnPrintText:COL - btnSettingsText:WIDTH - 10            
+            {&WINDOW-NAME}:Y                     = dScreenTop
+            {&WINDOW-NAME}:X                     = dScreenLeft
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = dScreenHeight * 1
+            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = dScreenWidth * 1
+            {&WINDOW-NAME}:HEIGHT                = {&WINDOW-NAME}:VIRTUAL-HEIGHT - 1.22 - 1
+            {&WINDOW-NAME}:WIDTH                 = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT   = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH    = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT           = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH            = {&WINDOW-NAME}:WIDTH
+            btPrint:ROW                          = {&WINDOW-NAME}:HEIGHT - 1.1
+            btPrint:COL                          = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
+            btnPrintText:ROW                     = {&WINDOW-NAME}:HEIGHT - .86
+            btnPrintText:COL                     = btPrint:COL - btnPrintText:WIDTH - 1
+            btDelete:ROW                         = {&WINDOW-NAME}:HEIGHT - 1.1
+            btnDeleteText:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                                 = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                      = dCol - 9
+            btnSettingsText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                  = btnPrintText:COL - btnSettingsText:WIDTH - 10            
             .
 
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.            
@@ -1247,6 +1365,20 @@ PROCEDURE Set-Focus :
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard W-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplShowKeyboard AS LOGICAL NO-UNDO.
+
+    oplShowKeyboard = glShowKeyboard.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

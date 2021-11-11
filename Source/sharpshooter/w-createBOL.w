@@ -257,7 +257,7 @@ DEFINE FRAME F-Main
      btReset AT ROW 4.57 COL 87.2 WIDGET-ID 18
      btnNumPad AT ROW 2.86 COL 160.2 WIDGET-ID 120 NO-TAB-STOP 
      btDelete AT ROW 31.71 COL 17 WIDGET-ID 16 NO-TAB-STOP 
-     btChange AT ROW 2.67 COL 59.2 WIDGET-ID 14 NO-TAB-STOP 
+     btChange AT ROW 2.67 COL 64.4 WIDGET-ID 14 NO-TAB-STOP 
      btPrintBOL AT ROW 31.71 COL 195 WIDGET-ID 12 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
      btnClearText AT ROW 3.62 COL 182 NO-LABEL WIDGET-ID 148
@@ -783,7 +783,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_releasefilter ).
        RUN set-position IN h_releasefilter ( 2.67 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 56.00 ) */
+       /* Size in UIB:  ( 2.05 , 62.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
@@ -923,8 +923,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
-             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              fiTrailerTag:HANDLE IN FRAME F-Main , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-releaseitems ,
@@ -1209,9 +1207,13 @@ PROCEDURE pInit :
         {methods/run_link.i "RELEASE-SOURCE" "ReleasePrintedValidation" "(TRUE)"}
         {methods/run_link.i "RELEASE-SOURCE" "ReleasePostedValidation" "(TRUE)"}
         {methods/run_link.i "RELEASE-SOURCE" "DisableErrorAlerts"}
+        {methods/run_link.i "RELEASE-SOURCE" "SetKeyboard" "(oKeyboard)"}
         
         RUN pInvalidRelease.
         
+        IF glShowKeyboard THEN
+            RUN ShowKeyboard.
+            
         /* If scan trailer is enabled */
         IF gcScanTrailer EQ "Tag" THEN
             btReset:TAB-STOP = FALSE.
@@ -1238,9 +1240,6 @@ PROCEDURE pInValidRelease PRIVATE :
         fiTrailerRelease:SENSITIVE          = FALSE
         fiTrailerTag:SCREEN-VALUE           = ""
         fiTrailerRelease:SCREEN-VALUE       = ""
-        btnKeyboardTag:SENSITIVE            = FALSE
-        btnKeyboardTrailer:SENSITIVE        = FALSE
-        btnKeyboardTrailerRelease:SENSITIVE = TRUE                
         btChange:HIDDEN                     = TRUE
         btChange:SENSITIVE                  = FALSE
         btReset:SENSITIVE                   = FALSE
@@ -1436,9 +1435,6 @@ PROCEDURE pScanReleaseTrailer PRIVATE :
         fiTag:SENSITIVE                     = TRUE
         fiTrailerTag:SENSITIVE              = TRUE
         fiTrailerRelease:SENSITIVE          = FALSE
-        btnKeyboardTrailerRelease:SENSITIVE = FALSE        
-        btnKeyboardTrailer:SENSITIVE        = TRUE
-        btnKeyboardTag:SENSITIVE            = TRUE
         btChange:HIDDEN                     = FALSE
         btChange:SENSITIVE                  = TRUE
         btReset:SENSITIVE                   = TRUE
@@ -1685,6 +1681,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard W-Win
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "RELEASE-SOURCE" "ShowKeyboard"}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

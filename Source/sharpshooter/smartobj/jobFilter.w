@@ -54,6 +54,12 @@ DEFINE VARIABLE lValidateSameJobScan    AS LOGICAL   NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE lValidateJobClosed      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAllowEmptyFormAndBlank AS LOGICAL   NO-UNDO.
 
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
 oJobHeader = NEW JobHeader().
 
 /* _UIB-CODE-BLOCK-END */
@@ -71,8 +77,8 @@ oJobHeader = NEW JobHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imJobLookup cbJobNo2 cbFormNo cbBlankNo ~
-fiJobNo btnJobDetailsText 
+&Scoped-Define ENABLED-OBJECTS imJobLookup btnKeyboardJobNo cbJobNo2 ~
+cbFormNo cbBlankNo fiJobNo btnJobDetailsText 
 &Scoped-Define DISPLAYED-OBJECTS cbJobNo2 cbFormNo cbBlankNo fiJobNoLabel ~
 fiJobNo fiFormNoLabel fiBlankNoLabel btnJobDetailsText 
 
@@ -93,6 +99,11 @@ DEFINE BUTTON btJobDetails
      IMAGE-INSENSITIVE FILE "Graphics/32x32/UDF_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "View Current Job Details".
+
+DEFINE BUTTON btnKeyboardJobNo 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE VARIABLE cbBlankNo AS CHARACTER FORMAT "XX":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -146,6 +157,7 @@ DEFINE IMAGE imJobLookup
 
 DEFINE FRAME F-Main
      btJobDetails AT ROW 1 COL 129.6 WIDGET-ID 160
+     btnKeyboardJobNo AT ROW 1.24 COL 138 WIDGET-ID 136 NO-TAB-STOP 
      cbJobNo2 AT ROW 1.24 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 162
      cbFormNo AT ROW 1.24 COL 72.4 COLON-ALIGNED NO-LABEL WIDGET-ID 164
      cbBlankNo AT ROW 1.24 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 166
@@ -219,6 +231,9 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN btnJobDetailsText IN FRAME F-Main
    ALIGN-L                                                              */
+ASSIGN 
+       btnKeyboardJobNo:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN fiBlankNoLabel IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiFormNoLabel IN FRAME F-Main
@@ -289,6 +304,19 @@ ON MOUSE-SELECT-CLICK OF btnJobDetailsText IN FRAME F-Main
 DO:
     IF btJobDetails:SENSITIVE THEN
     APPLY "CHOOSE":U TO btJobDetails.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnKeyboardJobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardJobNo s-object
+ON CHOOSE OF btnKeyboardJobNo IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiJobNo.    
+    
+    oKeyboard:OpenKeyboardOverride (fiJobNo:HANDLE, "Qwerty"). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,10 +399,9 @@ END.
 
 &Scoped-define SELF-NAME fiJobNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
-ON ANY-KEY OF fiJobNo IN FRAME F-Main
+ON ENTER OF fiJobNo IN FRAME F-Main
 DO:
-    IF KEYLABEL(LASTKEY) EQ "ENTER" THEN
-        APPLY 'LEAVE' TO SELF. 
+    APPLY 'LEAVE' TO SELF. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,11 +411,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON ENTRY OF fiJobNo IN FRAME F-Main
 DO:
-    cJob = SELF:SCREEN-VALUE.  
+    IF VALID-OBJECT (oKeyboard) AND NOT oKeyboard:IsKeyboardOpen() THEN
+        cJob = SELF:SCREEN-VALUE.  
     
     fiJobNo:SET-SELECTION(1, -1).
     
     SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -422,9 +453,12 @@ DO:
         .
     
     /* If last key is not button choose or mouse click event */
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 OR LASTKEY EQ 617 THEN
+    IF (LASTKEY EQ -1 OR LASTKEY EQ 617) AND NOT (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen()) THEN
         RETURN.
 
+    IF SELF:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
     IF SELF:SCREEN-VALUE EQ cJob AND lValidateSameJobScan THEN DO:
         cMessage = "THE JOB '" + cJob + "' IS ALREADY SCANNED. ~n"
                  + "DO YOU WANT SCAN THE SAME JOB AGAIN?".
@@ -648,6 +682,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
+PROCEDURE DisableErrorAlerts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -665,22 +712,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object
-PROCEDURE DisableErrorAlerts:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    lShowErrorAsAlert = FALSE.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob s-object 
 PROCEDURE GetJob :
@@ -1063,9 +1094,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object
-PROCEDURE pSendError:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1093,11 +1123,9 @@ PROCEDURE pSendError:
         iStatusMessageType = 0
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobDetails s-object 
 PROCEDURE pUpdateJobDetails PRIVATE :
@@ -1281,6 +1309,42 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardJobNo:VISIBLE   = TRUE
+        btnKeyboardJobNo:SENSITIVE = TRUE
+        .
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :

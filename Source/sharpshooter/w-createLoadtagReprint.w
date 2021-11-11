@@ -49,6 +49,7 @@ DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glShowKeyboard AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE oSetting  AS system.Setting  NO-UNDO.
 DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
@@ -60,8 +61,12 @@ ASSIGN
     oKeyboard = NEW system.Keyboard()
     .
 
-oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
+oSetting:LoadByCategoryAndProgram("SSCreateLoadTag,Keyboard").
 
+ASSIGN
+    gcShowSettings = oSetting:GetByName("ShowSettings")
+    glShowKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
+    .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -79,8 +84,9 @@ oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btClear btDelete btPrint btnExitText ~
-btnClearText btnSettingsText btnDeleteText statusMessage btnPrintText 
+&Scoped-Define ENABLED-OBJECTS btClear btnNumPad btDelete btPrint ~
+btnExitText btnClearText btnSettingsText btnDeleteText statusMessage ~
+btnPrintText 
 &Scoped-Define DISPLAYED-OBJECTS btnExitText btnClearText btnSettingsText ~
 btnDeleteText statusMessage btnPrintText 
 
@@ -119,6 +125,11 @@ DEFINE BUTTON btDelete
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete currently selected record".
 
+DEFINE BUTTON btnNumPad 
+     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "NumPad" 
+     SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
+
 DEFINE BUTTON btPrint 
      IMAGE-UP FILE "Graphics/32x32/print_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Print" 
@@ -153,11 +164,17 @@ DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MES
       VIEW-AS TEXT 
      SIZE 116 BY 1.43 NO-UNDO.
 
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 10 BY 2.38
+     BGCOLOR 12 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      btClear AT ROW 3.19 COL 199.4 WIDGET-ID 146
+     btnNumPad AT ROW 2.86 COL 94 WIDGET-ID 120 NO-TAB-STOP 
      btDelete AT ROW 14.95 COL 17 WIDGET-ID 62
      btPrint AT ROW 14.95 COL 199 WIDGET-ID 30
      btnExitText AT ROW 1.24 COL 189 COLON-ALIGNED NO-LABEL WIDGET-ID 70
@@ -166,6 +183,7 @@ DEFINE FRAME F-Main
      btnDeleteText AT ROW 15.19 COL 2 NO-LABEL WIDGET-ID 64
      statusMessage AT ROW 15.19 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 66
      btnPrintText AT ROW 15.19 COL 184 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     RECT-2 AT ROW 2.67 COL 93 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -230,6 +248,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnDeleteText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -329,6 +349,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnNumPad
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNumPad W-Win
+ON CHOOSE OF btnNumPad IN FRAME F-Main /* NumPad */
+DO:
+    ASSIGN
+        oKeyboard:DisplayKeyboard = NOT oKeyboard:DisplayKeyboard
+        RECT-2:BGCOLOR = IF oKeyboard:DisplayKeyboard THEN 10 ELSE 12
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnPrintText
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrintText W-Win
 ON MOUSE-SELECT-CLICK OF btnPrintText IN FRAME F-Main
@@ -412,7 +446,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_f-reprint ).
        RUN set-position IN h_f-reprint ( 2.67 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.71 , 81.60 ) */
+       /* Size in UIB:  ( 2.91 , 88.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
@@ -477,10 +511,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_f-reprint ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-loadtags , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
-             h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
@@ -554,8 +588,8 @@ PROCEDURE enable_UI :
   DISPLAY btnExitText btnClearText btnSettingsText btnDeleteText statusMessage 
           btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btClear btDelete btPrint btnExitText btnClearText btnSettingsText 
-         btnDeleteText statusMessage btnPrintText 
+  ENABLE btClear btnNumPad btDelete btPrint btnExitText btnClearText 
+         btnSettingsText btnDeleteText statusMessage btnPrintText 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -712,12 +746,17 @@ PROCEDURE pInit :
     
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
+
+    oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
+    oKeyboard:SetProcedure(THIS-PROCEDURE).
+    oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
     
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
 
     ASSIGN
-        gcShowSettings = oSetting:GetByName("ShowSettings")
-        btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
+        btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0
+        btnNumPad:VISIBLE       = glShowKeyboard
+        RECT-2:VISIBLE          = glShowKeyboard
         .  
         
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
@@ -861,6 +900,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard W-Win
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplShowKeyboard AS LOGICAL NO-UNDO.
+
+    oplShowKeyboard = glShowKeyboard.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

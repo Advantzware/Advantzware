@@ -46,6 +46,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -63,7 +65,7 @@ DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiQuantity 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardQuantity fiQuantity 
 &Scoped-Define DISPLAYED-OBJECTS fiQuantity 
 
 /* Custom List Definitions                                              */
@@ -81,6 +83,11 @@ DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
 DEFINE VARIABLE h_tagfilter AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnKeyboardQuantity 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE BUTTON btSplit 
      LABEL "SPLIT TAG" 
      SIZE 22 BY 1.62.
@@ -95,6 +102,7 @@ DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT "->,>>>,>>>,>>9.99<<<<":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboardQuantity AT ROW 3.91 COL 60.8 WIDGET-ID 136 NO-TAB-STOP 
      fiQuantity AT ROW 4 COL 21.8 COLON-ALIGNED WIDGET-ID 2
      btSplit AT ROW 5.76 COL 23.6 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -153,6 +161,9 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME                                               */
+ASSIGN 
+       btnKeyboardQuantity:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR BUTTON btSplit IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -173,6 +184,19 @@ END.
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnKeyboardQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardQuantity F-Frame-Win
+ON CHOOSE OF btnKeyboardQuantity IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiQuantity.    
+    
+    oKeyboard:OpenKeyboardOverride (fiQuantity:HANDLE, "Numeric"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btSplit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSplit F-Frame-Win
@@ -195,6 +219,9 @@ END.
 ON ENTRY OF fiQuantity IN FRAME F-Main /* QUANTITY */
 DO:
     SELF:BGCOLOR = 30.  
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,15 +278,13 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
        RUN set-position IN h_tagfilter ( 1.48 , 12.80 ) NO-ERROR.
-       /* Size in UIB:  ( 2.29 , 78.00 ) */
+       /* Size in UIB:  ( 2.29 , 85.40 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'SPLIT':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
-             fiQuantity:HANDLE IN FRAME F-Main , 'BEFORE':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -322,7 +347,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiQuantity 
       WITH FRAME F-Main.
-  ENABLE fiQuantity 
+  ENABLE btnKeyboardQuantity fiQuantity 
       WITH FRAME F-Main.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
@@ -391,7 +416,29 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit F-Frame-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
     {methods/run_link.i "SPLIT-SOURCE" "DisableErrorAlerts"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    {methods/run_link.i "SPLIT-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+    
+    RUN Set-Focus.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -461,6 +508,26 @@ PROCEDURE Set-Focus :
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "SPLIT-SOURCE" "Set-Focus"}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "SPLIT-SOURCE" "ShowKeyboard"}
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardQuantity:VISIBLE   = TRUE
+        btnKeyboardQuantity:SENSITIVE = TRUE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -105,11 +105,11 @@ DEFINE BUTTON btCreate
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btCreate AT ROW 1 COL 188 WIDGET-ID 60
+     btCreate AT ROW 1 COL 205 WIDGET-ID 60
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 203.8 BY 15.24
+         SIZE 221.8 BY 15.24
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -138,7 +138,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
          HEIGHT             = 15.24
-         WIDTH              = 203.8.
+         WIDTH              = 222.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -245,15 +245,15 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 1.24 , 8.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 136.60 ) */
+       /* Size in UIB:  ( 2.05 , 143.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/printcopies.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_printcopies ).
-       RUN set-position IN h_printcopies ( 1.24 , 138.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 49.00 ) */
+       RUN set-position IN h_printcopies ( 1.24 , 151.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 52.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/fgfilter.w':U ,
@@ -437,9 +437,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win
-PROCEDURE GetMessageAndType:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -452,11 +451,9 @@ PROCEDURE GetMessageAndType:
         opiStatusMessageType = iStatusMessageType
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
 PROCEDURE local-enable :
@@ -484,14 +481,26 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturnValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}       
     
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+        
+    {methods/run_link.i "JOB-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    {methods/run_link.i "COPIES-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+
     IF NOT VALID-OBJECT(oSetting) THEN
         oSetting = NEW system.Setting().
         
@@ -527,9 +536,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError F-Frame-Win
-PROCEDURE pJobError PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJobError F-Frame-Win 
+PROCEDURE pJobError PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -538,15 +546,12 @@ PROCEDURE pJobError PRIVATE:
     
     RUN pSendError.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win
-PROCEDURE pSendError PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -560,11 +565,9 @@ PROCEDURE pSendError PRIVATE:
         iStatusMessageType = 0
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
 PROCEDURE Reset :
@@ -608,6 +611,21 @@ PROCEDURE Set-Focus :
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    {methods/run_link.i "JOB-SOURCE" "ShowKeyboard"}
+    {methods/run_link.i "COPIES-SOURCE" "ShowKeyboard"}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
