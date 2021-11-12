@@ -1645,12 +1645,11 @@ PROCEDURE pGetMenuSettings :
     
     DEFINE VARIABLE httSetting AS HANDLE NO-UNDO.
        
-    IF lGetMenuSettings THEN RETURN.
-    ASSIGN
-        lGetMenuSettings = TRUE
-        oSetting = NEW system.Setting()
-        .
+    oSetting = NEW system.Setting().
     oSetting:LoadByCategoryAndProgram("MainMenu").
+
+    IF lGetMenuSettings THEN RETURN.
+    lGetMenuSettings = TRUE.
     
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",

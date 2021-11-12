@@ -1,7 +1,7 @@
 /* NK1toSetting.p - rstark - 11.4.2021 */
 
 DEFINE VARIABLE companyContext      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iScopeIDCompany     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iScopeID            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSettingID          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSettingTypeID      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cSettingValue       AS CHARACTER NO-UNDO.
@@ -79,12 +79,25 @@ REPEAT:
              WHERE scope.scopeTable  EQ "Company"
                AND scope.scopeField1 EQ sys-ctrl.company
              NO-ERROR.
-        IF NOT AVAILABLE scope THEN NEXT.
-        iScopeIDCompany = scope.scopeID.
+        IF NOT AVAILABLE scope THEN DO:
+            DO WHILE TRUE:
+                iScopeID = NEXT-VALUE(scopeID_seq).
+                IF NOT CAN-FIND(FIRST scope
+                                WHERE scope.scopeID EQ iScopeID) THEN
+                LEAVE.
+            END. // do while
+            CREATE scope.
+            ASSIGN
+                scope.scopeID     = iScopeID
+                scope.scopeTable  = "Company"
+                scope.scopeField1 = sys-ctrl.company
+                .
+        END. // if not avail
+        iScopeID = scope.scopeID.
         FIND FIRST setting EXCLUSIVE-LOCK
              WHERE setting.settingTypeID EQ settingType.settingTypeID
                AND setting.settingName   EQ settingType.settingName
-               AND setting.scopeID       EQ iScopeIDCompany
+               AND setting.scopeID       EQ iScopeID
              NO-ERROR.
         IF NOT AVAILABLE setting THEN DO:
             DO WHILE TRUE:
@@ -99,7 +112,7 @@ REPEAT:
                 setting.settingID     = iSettingID
                 setting.settingName   = settingType.settingName
                 setting.description   = settingType.description
-                setting.scopeID       = iScopeIDCompany
+                setting.scopeID       = iScopeID
                 .
         END. // not avail
         setting.settingValue = cSettingValue.

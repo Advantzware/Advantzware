@@ -2496,7 +2496,8 @@ PROCEDURE spSetSessionParam:
     DEFINE INPUT PARAMETER ipcSessionValue AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hSysCtrlUsage AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO INITIAL 1.
 
     /* build stack trace */
     DO WHILE TRUE:
