@@ -259,7 +259,7 @@ ON HELP OF rmItem IN FRAME Dialog-Frame /* Item */
                 ASSIGN
                     rmItem:SCREEN-VALUE    = ITEM.i-no
                     cItemDesc:SCREEN-VALUE = ITEM.i-dscr
-                    dAvailQty:SCREEN-VALUE = STRING(ITEM.q-avail).
+                    dAvailQty:SCREEN-VALUE = STRING(ITEM.q-onh - item.q-comm).
             END.
         END.
         scInstance:DeleteValue(INPUT "ShowOnlyRealMat").
