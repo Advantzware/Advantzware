@@ -183,7 +183,10 @@ PROCEDURE pComboBox:
         ophWidget:LIST-ITEM-PAIRS = ipcListItems.
         ELSE
         ophWidget:LIST-ITEMS = ipcListItems.
-        ophWidget:SCREEN-VALUE = ipcValue.
+        ASSIGN
+            ophWidget:INNER-LINES  = ophWidget:NUM-ITEMS
+            ophWidget:SCREEN-VALUE = ipcValue
+            .
     END. /* if valid-handle */
 END PROCEDURE.
 

@@ -245,17 +245,32 @@ END PROCEDURE.
 
 PROCEDURE dynValGenerateTemplate:
     DEFINE VARIABLE cImportFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamHandle AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTypeToInit  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hParamHandle AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hImportProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE rPriContext  AS ROWID     NO-UNDO.
 
     RUN util/ImportProcs.p PERSISTENT SET hImportProcs.
     RUN pImportFileType (OUTPUT cImportFile, OUTPUT cTypeToInit).
     RUN pInitializeType IN hImportProcs (cTypeToInit).
-    RUN spGetSessionParam ("ImportFile", OUTPUT cImportFile).    
     RUN pGenerateTemplate IN hImportProcs (YES, lHelpInTemplate, rPriContext, INPUT-OUTPUT cImportFile).
-    IF cImportFile NE "" THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cImportFile)).
+    IF cImportFile NE "" THEN DO:
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cImportFile)).
+        RUN spGetSessionParam ("ImportFile-Handle", OUTPUT cParamHandle).
+        hParamHandle = WIDGET-HANDLE(cParamHandle).
+        IF VALID-HANDLE(hParamHandle) THEN DO:
+            ASSIGN
+                hParamHandle:SCREEN-VALUE = cImportFile
+                hParamHandle:MODIFIED     = TRUE
+                .
+            APPLY "ENTRY":U TO hParamHandle.
+            APPLY "TAB":U TO hParamHandle.
+        END. // if valid-handle
+        ELSE
+        MESSAGE "Invalid Handle"
+        VIEW-AS ALERT-BOX.
+    END. // if cimportfile
     IF VALID-HANDLE(hImportProcs) THEN
     DELETE PROCEDURE hImportProcs.
 END PROCEDURE.
@@ -272,6 +287,7 @@ PROCEDURE dynValImportFile:
     
     FILE-INFO:FILE-NAME = iphWidget:SCREEN-VALUE.
     IF FILE-INFO:FULL-PATHNAME NE ? OR
+       iphWidget:SCREEN-VALUE  EQ ? OR
        iphWidget:SCREEN-VALUE  EQ "" THEN RETURN "".
     ELSE RETURN fErrorMsg (iphWidget).
 END PROCEDURE.
@@ -279,12 +295,7 @@ END PROCEDURE.
 PROCEDURE dynValImportType:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
-    DEFINE VARIABLE cImportFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTypeToInit AS CHARACTER NO-UNDO.
-
     cImportType = iphWidget:SCREEN-VALUE.
-    RUN pImportFileType (OUTPUT cImportFile, OUTPUT cTypeToInit).
-    RUN spSetSessionParam ("ImportFile", cImportFile).
     RETURN "".
 END PROCEDURE.
 

@@ -40,6 +40,8 @@ PROCEDURE pBusinessLogic:
     RUN util/Validate.p PERSISTENT SET hValidator.
     SESSION:ADD-SUPER-PROCEDURE (hValidator).
 
+    IF cImportType EQ "" OR cImportType EQ ? OR
+       cImportFile EQ "" OR cImportFile EQ ? THEN RETURN.
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN spGetSessionParam ("Location", OUTPUT cLocation).
     RUN pConvertExceltoCSV IN hImportProcs (cImportFile, OUTPUT cImportFile).
