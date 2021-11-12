@@ -175,7 +175,8 @@ FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
     (BUFFER ipbf-eb FOR eb, BUFFER ipbf-job FOR job, INPUT ipcEstType AS CHARACTER, INPUT ipcQtyType AS CHARACTER) FORWARD.
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER) FORWARD.      
+    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER,
+     ipdRunQty AS DECIMAL) FORWARD.      
 
 FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
     (ipcType AS CHARACTER) FORWARD.
@@ -1303,7 +1304,7 @@ PROCEDURE GetOperationStandardsForJobMch:
             
             RUN pBuildMessage("", INPUT-OUTPUT cMessage).
             
-            bf-job-mch.run-qty =  fGetJobMachRunQty(BUFFER bf-eb, bf-job-mch.m-code,bf-job-mch.pass).
+            bf-job-mch.run-qty = fGetJobMachRunQty(BUFFER bf-eb, bf-job-mch.m-code,bf-job-mch.pass,bf-job-mch.run-qty).
         END.
         
         FIND CURRENT bf-job-mch NO-LOCK.
@@ -3906,16 +3907,15 @@ FUNCTION fGetRequiredQty RETURNS DECIMAL PRIVATE
 END.   
 
 FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
-    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER):
+    (BUFFER ipbf-eb FOR eb, ipcMachCode AS CHARACTER, ipiPass AS INTEGER, ipdRunQty AS DECIMAL):
     /*------------------------------------------------------------------------------
     Purpose: 
     Notes:
     ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE dReturnValue  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQtyEach      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cMsgTyp       AS CHARACTER   NO-UNDO.
-    DEFINE VARIABLE cMessageStr   AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE dReturnValue AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyEach     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cMsgTyp      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessageStr  AS CHARACTER NO-UNDO.    
     
     DEFINE BUFFER bf-ttOperation FOR ttOperation.
     
@@ -3929,17 +3929,16 @@ FUNCTION fGetJobMachRunQty RETURNS DECIMAL PRIVATE
         AND bf-ttOperation.pass         EQ MAX(ipiPass , 1) NO-ERROR.
             
    IF AVAILABLE bf-ttOperation THEN
-   DO:
         ASSIGN
             dReturnValue = bf-ttOperation.quantityInAfterSetupWaste
             cMsgTyp      = "Info"
             cMessageStr  = "Run Qty-" + STRING(dReturnValue) +  "| Qty In- " + STRING(bf-ttOperation.quantityIn) + ". Qty Out- " + STRING(bf-ttOperation.quantityOut) + ". Qty MR Waste- " + STRING(bf-ttOperation.quantityInSetupWaste) + ". Qty Run Waste- " + STRING(bf-ttOperation.quantityInRunWaste)
             .
-   END.
    ELSE
         ASSIGN
-            cMsgTyp       = "Error"
+            cMsgTyp      = "Error"
             cMessageStr  = "ttOperation not found for Mach" + ipcMachCode + " F-" + STRING(ipbf-eb.form-no) + " B-" + STRING(MAX(ipbf-eb.blank-no, 1)) + " P-" + STRING(MAX(ipiPass , 1))
+            dReturnValue = ipdRunQty
             .
        
     RUN pBuildTagInfo (cMsgTyp,cMessageStr, "").
