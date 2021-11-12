@@ -22,7 +22,7 @@ DEFINE VARIABLE cSessionValue       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lDynParamValidation AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lHelpInTemplate     AS LOGICAL   NO-UNDO.
 
-{util/ttImport.i SHARED}
+{util/ttImport.i NEW SHARED}
 
 /* **********************  Internal Functions  ************************ */
 
@@ -244,50 +244,18 @@ PROCEDURE dynValFlute:
 END PROCEDURE.
 
 PROCEDURE dynValGenerateTemplate:
-    DEFINE VARIABLE cBase        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFile        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cImportFile  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTypeToInit  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hImportProcs AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE rPriContext  AS ROWID     NO-UNDO.
 
     RUN util/ImportProcs.p PERSISTENT SET hImportProcs.
-    RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    RUN sys\ref\nk1look.p (
-        cCompany,
-        "ImportFolder",
-        "C",
-        NO,
-        NO,
-        "",
-        "", 
-        OUTPUT cFile,
-        OUTPUT lFound).    
-    IF lFound THEN DO:
-        IF cFile EQ "" THEN 
-            cFile = "C:".
-        ASSIGN 
-            cFile = TRIM(cFile)
-            cFile = RIGHT-TRIM(cFile, "\")
-            . 
-    END. // if lfound
-    ASSIGN
-        cTypeToInit = ENTRY(LOOKUP(cImportType,gcTypePrograms),gcTypeList)
-        cBase = REPLACE(cTypeToInit,"ttImport","")
-        cFile = cFile + "\" + cBase + "_"
-              + STRING(YEAR(TODAY)) + "_"
-              + STRING(MONTH(TODAY)) + "_"
-              + STRING(DAY(TODAY)) + "_"
-              + STRING(TIME) + ".csv"
-              .
-    MESSAGE 
-        "cFile:" cFile
-    VIEW-AS ALERT-BOX.
-    RUN pGenerateTemplate IN hImportProcs (YES, lHelpInTemplate, rPriContext, INPUT-OUTPUT cFile).
-    IF cFile NE "" THEN DO:
-/*        fiFileName:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cFile.*/
-        OS-COMMAND NO-WAIT VALUE(SEARCH(cFile)).
-    END.
+    RUN pImportFileType (OUTPUT cImportFile, OUTPUT cTypeToInit).
+    RUN pInitializeType IN hImportProcs (cTypeToInit).
+    RUN spGetSessionParam ("ImportFile", OUTPUT cImportFile).    
+    RUN pGenerateTemplate IN hImportProcs (YES, lHelpInTemplate, rPriContext, INPUT-OUTPUT cImportFile).
+    IF cImportFile NE "" THEN
+    OS-COMMAND NO-WAIT VALUE(SEARCH(cImportFile)).
     IF VALID-HANDLE(hImportProcs) THEN
     DELETE PROCEDURE hImportProcs.
 END PROCEDURE.
@@ -311,7 +279,12 @@ END PROCEDURE.
 PROCEDURE dynValImportType:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
+    DEFINE VARIABLE cImportFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTypeToInit AS CHARACTER NO-UNDO.
+
     cImportType = iphWidget:SCREEN-VALUE.
+    RUN pImportFileType (OUTPUT cImportFile, OUTPUT cTypeToInit).
+    RUN spSetSessionParam ("ImportFile", cImportFile).
     RETURN "".
 END PROCEDURE.
 
@@ -625,4 +598,42 @@ PROCEDURE pGetWidgetByName PRIVATE:
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
     ophWidget = hWidget.
+END PROCEDURE.
+
+PROCEDURE pImportFileType PRIVATE:
+    DEFINE OUTPUT PARAMETER opcImportFile AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTypeToInit AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cBase  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL   NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN sys/ref/nk1look.p (
+        cCompany,
+        "ImportFolder",
+        "C",
+        NO,
+        NO,
+        "",
+        "", 
+        OUTPUT opcImportFile,
+        OUTPUT lFound).    
+    IF lFound THEN DO:
+        IF opcImportFile EQ "" THEN 
+            opcImportFile = "C:".
+        ASSIGN 
+            opcImportFile = TRIM(opcImportFile)
+            opcImportFile = RIGHT-TRIM(opcImportFile, "\")
+            . 
+    END. // if lfound
+    ASSIGN
+        opcTypeToInit = ENTRY(LOOKUP(cImportType,gcTypePrograms),gcTypeList)
+        cBase         = REPLACE(opcTypeToInit,"ttImport","")
+        opcImportFile = opcImportFile + "\" + cBase + "_"
+                      + STRING(YEAR(TODAY)) + "_"
+                      + STRING(MONTH(TODAY)) + "_"
+                      + STRING(DAY(TODAY)) + "_"
+                      + STRING(TIME) + ".csv"
+                      .
+    opcTypeToInit = ENTRY(LOOKUP(cImportType,gcTypePrograms),gcTypeList).
 END PROCEDURE.

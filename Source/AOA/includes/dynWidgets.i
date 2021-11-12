@@ -53,7 +53,7 @@ PROCEDURE pButton:
             ROW = ipdRow
             WIDTH = ipdWidth
             HEIGHT = ipdHeight
-            TOOLTIP = "Click"
+            TOOLTIP = "Click to " + ipcLabel
             SENSITIVE = iplSensitive
             MOVABLE = lMovable
             RESIZABLE = lResizable
