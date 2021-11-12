@@ -60,18 +60,14 @@ DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
-DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO. 
+DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 
-DEFINE TEMP-TABLE ttSessionParam NO-UNDO
-    FIELD sessionParam AS CHARACTER
-    FIELD sessionValue AS CHARACTER
-        INDEX sessionParam IS PRIMARY UNIQUE sessionParam
-        .
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
     FIELD isRunning      AS LOGICAL
         INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
+{system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
 {system/ttSysCtrlUsage.i}
@@ -1535,11 +1531,16 @@ PROCEDURE spDeleteSessionParam:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE NO-UNDO.
+
     FIND FIRST ttSessionParam
          WHERE ttSessionParam.sessionParam EQ ipcSessionParam
          NO-ERROR.
     IF AVAILABLE ttSessionParam THEN
     DELETE ttSessionParam.
+    hSysCtrlUsage = sfGetSysCtrlUsageHandle().
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSessionParams IN hSysCtrlUsage.
 
 END PROCEDURE.
 	
@@ -1738,6 +1739,23 @@ PROCEDURE spGetSessionParam:
          NO-ERROR.
     IF AVAILABLE ttSessionParam THEN
     opcSessionValue = ttSessionParam.sessionValue.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetSessionParams) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSessionParams Procedure
+PROCEDURE spGetSessionParams:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttSessionParam.
 
 END PROCEDURE.
 	
@@ -2477,6 +2495,18 @@ PROCEDURE spSetSessionParam:
     DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSessionValue AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE NO-UNDO.
+
+    /* build stack trace */
+    DO WHILE TRUE:
+        idx = idx + 1.
+        /* all done with program stack */
+        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE.
+        cStackTrace = cStackTrace + PROGRAM-NAME(idx) + ",".
+    END. /* while true */
+    cStackTrace = TRIM(cStackTrace,",").
+
     FIND FIRST ttSessionParam
          WHERE ttSessionParam.sessionParam EQ ipcSessionParam
          NO-ERROR.
@@ -2487,7 +2517,13 @@ PROCEDURE spSetSessionParam:
     IF ttSessionParam.sessionParam EQ "Company" AND
        ttSessionParam.sessionValue NE ipcSessionValue THEN
     RUN pSetCompanyContexts (ipcSessionValue).
-    ttSessionParam.sessionValue = ipcSessionValue.
+    ASSIGN
+        ttSessionParam.sessionValue = ipcSessionValue
+        ttSessionParam.stackTrace   = cStackTrace
+        hSysCtrlUsage               = sfGetSysCtrlUsageHandle()
+        .
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSessionParams IN hSysCtrlUsage.
 
 END PROCEDURE.
 	
