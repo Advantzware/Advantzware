@@ -514,8 +514,14 @@ PROCEDURE pRunAlloc :
         bf-job-mat.qty-all = INTEGER(job-mat.qty-all:SCREEN-VALUE IN BROWSE {&browse-name}).
         bf-job-mat.all-flg = YES.  
         IF lv-alloc-char BEGINS "alloc" THEN RUN jc/jc-all2.p (ROWID(bf-job-mat), 1).
-        ELSE RUN jc/jc-all2.p (ROWID(bf-job-mat), -1).
-        
+        ELSE
+        DO:
+            RUN jc/jc-all2.p (ROWID(bf-job-mat), -1).
+            FIND CURRENT ITEM EXCLUSIVE-LOCK NO-ERROR. 
+            RUN rm/calcqcom.p (ROWID(item), OUTPUT item.q-comm).
+            item.q-avail = item.q-onh + item.q-ono - item.q-comm.
+            FIND CURRENT ITEM NO-LOCK NO-ERROR.
+        END.
         RUN dispatch ("display-fields").
     END.
 
@@ -547,7 +553,7 @@ PROCEDURE pGetMaterial :
             opiBlank      = job-mat.blank-no
             opcRmItem     = job-mat.rm-i-no
             opdAllocation = job-mat.qty-all
-            opdAvailQty   = item.q-avail
+            opdAvailQty   = ITEM.q-onh - item.q-comm
             opcRmItemDesc = item.i-dscr.
     END.
 END PROCEDURE.
@@ -707,7 +713,7 @@ FUNCTION getAvailQty RETURNS INTEGER
     DEFINE VARIABLE iResult AS INTEGER NO-UNDO.
     
     IF AVAILABLE ITEM THEN DO: 
-       iResult = ITEM.q-onh - job-mat.qty-all.
+       iResult = ITEM.q-onh - item.q-comm.
     END.
     RETURN iResult.   /* Function return value. */
     
