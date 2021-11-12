@@ -36,13 +36,10 @@ DEFINE INPUT PARAMETER iprEBRowid AS ROWID NO-UNDO .
 
 {system/FormulaProcs.i}
 
-DEFINE VARIABLE lv-wscore          LIKE box-design-hdr.wscore NO-UNDO.
-DEFINE VARIABLE lv-wcum-score      LIKE box-design-hdr.wcum-score NO-UNDO.
-DEFINE VARIABLE ll-is-3d-displayed AS LOG     NO-UNDO.
-DEFINE VARIABLE v-score-more       AS LOG     NO-UNDO.
-DEFINE VARIABLE v-cur-position     AS INTEGER NO-UNDO.
-DEFINE VARIABLE li-lscore-len      AS INTEGER INIT 80 NO-UNDO.
-DEFINE VARIABLE hdFormulaProcs     AS HANDLE NO-UNDO.
+DEFINE VARIABLE iMaxLengthPanel    AS INTEGER   INIT 80 NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cScoreL            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScoreLTotal       AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,8 +58,8 @@ DEFINE VARIABLE hdFormulaProcs     AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn_right btn_left editor_wcum-score ~
-editor_wscore box-image-2 RECT-40 
+&Scoped-Define ENABLED-OBJECTS btnRebuild btn_right btn_left ~
+editor_wcum-score editor_wscore box-image-2 RECT-40 btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS iDesignIDAlt cDescription cBox-image ~
 clscore clcum-score editor_wcum-score editor_wscore 
 
@@ -81,6 +78,14 @@ clscore clcum-score editor_wcum-score editor_wscore
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCancel 
+     LABEL "Cancel" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnRebuild 
+     LABEL "Rebuild" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON btn_left 
      IMAGE-UP FILE "adm2/image/prev.bmp":U
      LABEL "" 
@@ -139,6 +144,7 @@ DEFINE RECTANGLE RECT-40
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
+     btnRebuild AT ROW 18.14 COL 48.8 WIDGET-ID 4
      iDesignIDAlt AT ROW 1.24 COL 15 COLON-ALIGNED HELP
           "Enter the alternate design number for this style." WIDGET-ID 2
      cDescription AT ROW 1.24 COL 22 COLON-ALIGNED HELP
@@ -159,6 +165,7 @@ DEFINE FRAME D-Dialog
      editor_wcum-score AT ROW 4.81 COL 119 HELP
           "Enter the cumulative width score." NO-LABEL
      editor_wscore AT ROW 4.81 COL 133 NO-LABEL
+     btnCancel AT ROW 18.14 COL 69.4 WIDGET-ID 6
      "Total" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.33 COL 122
      "W Totals   W Score" VIEW-AS TEXT
@@ -167,10 +174,11 @@ DEFINE FRAME D-Dialog
           SIZE 8 BY .62 AT ROW 2.43 COL 122
      box-image-2 AT ROW 4.57 COL 2
      RECT-40 AT ROW 1 COL 1
+     SPACE(0.00) SKIP(2.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
-         TITLE "".
+         TITLE "PO Scores".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -271,14 +279,41 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel D-Dialog
+ON CHOOSE OF btnCancel IN FRAME D-Dialog /* Cancel */
+DO:
+   apply "window-close" to frame {&frame-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRebuild
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRebuild D-Dialog
+ON CHOOSE OF btnRebuild IN FRAME D-Dialog /* Rebuild */
+DO:
+    DO WITH FRAME {&frame-name}:
+    END.
+  
+    RUN pRebuildBox.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_left
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_left D-Dialog
 ON CHOOSE OF btn_left IN FRAME D-Dialog
 DO:
    clscore:SCREEN-VALUE = 
-               SUBSTRING(box-design-hdr.lscore,1,li-lscore-len).
+               SUBSTR(cScoreL,1,iMaxLengthPanel).
    clcum-score:SCREEN-VALUE = 
-               SUBSTRING(box-design-hdr.lcum-score,1,li-lscore-len).
+               SUBSTR(cScoreLTotal,1,iMaxLengthPanel).
+            
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,8 +325,9 @@ END.
 ON CHOOSE OF btn_right IN FRAME D-Dialog
 DO:
   
-  ASSIGN  clscore:SCREEN-VALUE = SUBSTRING(box-design-hdr.lscore,li-lscore-len + 1,li-lscore-len).
-    clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,li-lscore-len + 1,li-lscore-len).
+    ASSIGN  
+        clscore:SCREEN-VALUE     = SUBSTR(cScoreL, iMaxLengthPanel + 1,iMaxLengthPanel)
+        clcum-score:SCREEN-VALUE = SUBSTR(cScoreLTotal, iMaxLengthPanel + 1,iMaxLengthPanel).
 
 END.
 
@@ -341,19 +377,19 @@ ON CURSOR-LEFT OF clscore IN FRAME D-Dialog
 DO:
 
      IF SELF:CURSOR-OFFSET <= 20 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,1,80)
                      .
       END.
       ELSE IF SELF:CURSOR-OFFSET <= 40 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,21,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,21,80)
                      .
       END.
       ELSE IF SELF:CURSOR-OFFSET <= 50 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,41,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,41,80)
                      .
       END.
       ELSE  DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,51,80)
                      .
       END.
     APPLY LASTKEY .
@@ -370,19 +406,19 @@ ON CURSOR-RIGHT OF clscore IN FRAME D-Dialog
 DO:
 
       IF SELF:CURSOR-OFFSET >= 120 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,51,80)
                      .
       END.
       ELSE IF SELF:CURSOR-OFFSET >= 100 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,41,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,41,80)
                      .
       END.
       ELSE IF SELF:CURSOR-OFFSET >= 80 THEN DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,21,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,21,80)
                      .
       END.
       ELSE  DO:
-          clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,80)
+          clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,1,80)
                      .
       END.
 
@@ -398,7 +434,7 @@ END.
 ON END OF clscore IN FRAME D-Dialog
 DO:
     APPLY LASTKEY.
-    clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,li-lscore-len + 1,li-lscore-len).
+    clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,iMaxLengthPanel + 1,iMaxLengthPanel).
     RETURN NO-APPLY.
 END.
 
@@ -410,7 +446,7 @@ END.
 ON HOME OF clscore IN FRAME D-Dialog
 DO:
     APPLY LASTKEY.
-    clcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,1,li-lscore-len).
+    clcum-score:SCREEN-VALUE = SUBSTRING(cScoreLTotal,1,iMaxLengthPanel).
     RETURN NO-APPLY.
 END.
 
@@ -550,7 +586,8 @@ PROCEDURE enable_UI :
   DISPLAY iDesignIDAlt cDescription cBox-image clscore clcum-score 
           editor_wcum-score editor_wscore 
       WITH FRAME D-Dialog.
-  ENABLE btn_right btn_left editor_wcum-score editor_wscore box-image-2 RECT-40 
+  ENABLE btnRebuild btn_right btn_left editor_wcum-score editor_wscore 
+         box-image-2 RECT-40 btnCancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -635,8 +672,10 @@ PROCEDURE pDisplayValue PRIVATE :
                     
                 IF ttScoreLine.PanelType = "L" THEN
                     ASSIGN
-                        clscore:SCREEN-VALUE     = ttScoreLine.ScoreLine
-                        clcum-score:SCREEN-VALUE = ttScoreLine.ScoreLineTotal.
+                        cScoreL                  = ttScoreLine.ScoreLine
+                        cScoreLTotal             = ttScoreLine.ScoreLineTotal
+                        clscore:SCREEN-VALUE     = SUBSTR(cScoreL,1,iMaxLengthPanel)
+                        clcum-score:SCREEN-VALUE = SUBSTR(cScoreLTotal,1,iMaxLengthPanel).
                 ELSE
                     ASSIGN
                         editor_wscore:SCREEN-VALUE     = editor_wscore:SCREEN-VALUE + CHR(10) + ttScoreLine.ScoreLine
@@ -650,6 +689,33 @@ PROCEDURE pDisplayValue PRIVATE :
        
 
 END PROCEDURE.
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRebuildBox D-Dialog
+PROCEDURE pRebuildBox PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    MESSAGE "This process will rebuild and save the PO Scores. Are you sure to proceed?"
+        VIEW-AS ALERT-BOX QUESTION 
+        BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+  
+    IF NOT lChoice THEN
+        RETURN.
+           
+    /* Build panelHeader and paneDetail records for vaiable width */
+    RUN Formula_ReBuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+        INPUT iprEBRowid
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
