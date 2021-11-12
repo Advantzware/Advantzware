@@ -264,8 +264,11 @@ PROCEDURE Formula_ParseDesignScores:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriEBRowId     AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipriBoxDgnHdr   AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID   AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiDesignNo     AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER iplPrintMetric  AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttScoreLine.
     
@@ -275,12 +278,25 @@ PROCEDURE Formula_ParseDesignScores:
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
     DEFINE BUFFER bf-eb              FOR eb.
+    DEFINE BUFFER bf-est             FOR est.
 
+    EMPTY TEMP-TABLE ttPanel.
+    EMPTY TEMP-TABLE ttScoreLine.
     
     FIND FIRST bf-eb NO-LOCK
-        WHERE ROWID(bf-eb) = ipriBoxDgnHdr NO-ERROR.
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no    = ipcEstimateID
+        AND bf-eb.form-no   = ipiFormNo
+        AND bf-eb.blank-no  = ipiBlankNo NO-ERROR.
     
     IF NOT AVAILABLE bf-eb THEN
+        RETURN.
+        
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = ipcCompany
+        AND bf-est.est-no    = ipcEstimateID NO-ERROR.
+    
+    IF NOT AVAILABLE bf-est THEN
         RETURN.
     
     RUN Formula_GetPanelDetailsForPOScores (
@@ -291,20 +307,24 @@ PROCEDURE Formula_ParseDesignScores:
         OUTPUT TABLE ttPanel
         ).
 
+    IF NOT CAN-FIND(FIRST ttPanel) THEN
+        RETURN.
+
     FIND FIRST bf-box-design-hdr NO-LOCK
-        WHERE ROWID(bf-box-design-hdr) = ipriBoxDgnHdr NO-ERROR.
+        WHERE bf-box-design-hdr.company = bf-eb.company
+        AND bf-box-design-hdr.design-no = ipiDesignNo NO-ERROR.
     
     IF NOT AVAILABLE bf-box-design-hdr THEN
         RETURN.
         
-    RUN pCreateScoreLine (bf-box-design-hdr.lscore, iplPrintMetric, "L", NO).
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, iplPrintMetric, bf-est.metric, "L", NO,1).
     
-    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, iplPrintMetric, "L", YES).
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, iplPrintMetric, bf-est.metric, "L", YES,1).
     
     FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
 
-        RUN pCreateScoreLine (bf-box-design-line.wscore, iplPrintMetric, "W", NO).
-        RUN pCreateScoreLine (bf-box-design-line.wcum-score, iplPrintMetric, "W", YES).
+        RUN pCreateScoreLine (bf-box-design-line.wscore, iplPrintMetric, bf-est.metric, "W", NO, bf-box-design-line.line-no).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, iplPrintMetric, bf-est.metric, "W", YES, bf-box-design-line.line-no).
 
     END.
 
@@ -1495,8 +1515,10 @@ PROCEDURE pCreateScoreLine PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplConvertMetric    AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEstMetric       AS LOGICAL NO-UNDO. 
     DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLineNo           AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE iCnt         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cTempVal     AS CHARACTER NO-UNDO. 
@@ -1535,7 +1557,7 @@ PROCEDURE pCreateScoreLine PRIVATE:
                         AND ttPanel.iPanelNum  LT iNum:
 
                         ASSIGN 
-                            dTmpScore = DECIMAL(ttPanel.dPanelSize).
+                            dTmpScore = IF iplConvertMetric AND NOT iplEstMetric THEN (dec(ttPanel.dPanelSize) * 25.4) ELSE DECIMAL(ttPanel.dPanelSize).
 
                         IF iplTotal THEN
                             deFinalScore = deFinalScore + dTmpScore.
@@ -1549,7 +1571,7 @@ PROCEDURE pCreateScoreLine PRIVATE:
                 DO:
 
                     ASSIGN 
-                        dTmpScore   = DECIMAL(ttPanel.dPanelSize).
+                        dTmpScore   = IF iplConvertMetric AND NOT iplEstMetric THEN (dec(ttPanel.dPanelSize) * 25.4) ELSE DECIMAL(ttPanel.dPanelSize).
 
                      IF iplTotal THEN
                         deFinalScore = deFinalScore + dTmpScore.
@@ -1569,16 +1591,24 @@ PROCEDURE pCreateScoreLine PRIVATE:
             ASSIGN cRepChar = cRepChar + cTempChar.
 
     END.
-        
-    IF cNewText NE "" THEN
-    DO:
+    
+    FIND FIRST ttScoreLine
+        WHERE ttScoreLine.PanelType = ipcPanelType
+          AND ttScoreLine.LineNum = ipiLineNo NO-ERROR.
+          
+    IF NOT AVAILABLE ttScoreLine THEN
+    DO: 
         CREATE ttScoreLine.
         ASSIGN 
             ttScoreLine.PanelType = ipcPanelType
-            ttScoreLine.IsTotal   = iplTotal
-            ttScoreLine.ScoreLine = cNewText.
-    END.
-        
+            ttScoreLine.LineNum   = ipiLineNo.
+    END.  
+  
+    IF iplTotal THEN
+        ttScoreLine.ScoreLineTotal = cNewText.
+    ELSE
+        ttScoreLine.ScoreLine      = cNewText.
+            
 
 END PROCEDURE.
 

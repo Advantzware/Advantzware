@@ -61,8 +61,8 @@ DEFINE VARIABLE hdFormulaProcs     AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS iDesignIDAlt cDescription cBox-image clscore ~
-btn_right btn_left editor_wcum-score editor_wscore box-image-2 RECT-40 
+&Scoped-Define ENABLED-OBJECTS btn_right btn_left editor_wcum-score ~
+editor_wscore box-image-2 RECT-40 
 &Scoped-Define DISPLAYED-OBJECTS iDesignIDAlt cDescription cBox-image ~
 clscore clcum-score editor_wcum-score editor_wscore 
 
@@ -90,6 +90,11 @@ DEFINE BUTTON btn_right
      IMAGE-UP FILE "adm2/image/next.bmp":U
      LABEL "" 
      SIZE 4 BY 1.
+
+DEFINE VARIABLE cbox-text LIKE box-design-hdr.box-text
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     SIZE 116 BY 12.62
+     FONT 2 NO-UNDO.
 
 DEFINE VARIABLE editor_wcum-score AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-VERTICAL
@@ -148,9 +153,8 @@ DEFINE FRAME D-Dialog
           "" NO-LABEL FORMAT "x(210)"
           FONT 2
      btn_left AT ROW 3.38 COL 118
-     box-design-hdr.box-text AT ROW 4.57 COL 2 NO-LABEL
-          VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-          SIZE 116 BY 12.62
+     cbox-text AT ROW 4.57 COL 2 HELP
+          "" NO-LABEL
           FONT 2
      editor_wcum-score AT ROW 4.81 COL 119 HELP
           "Enter the cumulative width score." NO-LABEL
@@ -199,23 +203,23 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
-/* SETTINGS FOR EDITOR box-design-hdr.box-text IN FRAME D-Dialog
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       box-design-hdr.box-text:HIDDEN IN FRAME D-Dialog           = TRUE
-       box-design-hdr.box-text:RETURN-INSERTED IN FRAME D-Dialog  = TRUE.
-
 /* SETTINGS FOR FILL-IN cBox-image IN FRAME D-Dialog
-   LIKE = ASI.box-design-hdr.box-image EXP-FORMAT EXP-HELP EXP-SIZE     */
+   NO-ENABLE LIKE = ASI.box-design-hdr.box-image EXP-FORMAT EXP-HELP EXP-SIZE */
+/* SETTINGS FOR EDITOR cbox-text IN FRAME D-Dialog
+   NO-DISPLAY NO-ENABLE LIKE = ASI.box-design-hdr.box-text EXP-SIZE     */
+ASSIGN 
+       cbox-text:HIDDEN IN FRAME D-Dialog           = TRUE
+       cbox-text:RETURN-INSERTED IN FRAME D-Dialog  = TRUE.
+
 /* SETTINGS FOR FILL-IN cDescription IN FRAME D-Dialog
-   1 LIKE = ASI.box-design-hdr.description EXP-HELP EXP-SIZE            */
+   NO-ENABLE 1 LIKE = ASI.box-design-hdr.description EXP-HELP EXP-SIZE  */
 /* SETTINGS FOR FILL-IN clcum-score IN FRAME D-Dialog
    NO-ENABLE ALIGN-L 2 LIKE = ASI.box-design-hdr.lcum-score EXP-LABEL EXP-FORMAT EXP-HELP EXP-SIZE */
 ASSIGN 
        clcum-score:AUTO-RESIZE IN FRAME D-Dialog      = TRUE.
 
 /* SETTINGS FOR FILL-IN clscore IN FRAME D-Dialog
-   ALIGN-L LIKE = ASI.box-design-hdr.lscore EXP-LABEL EXP-FORMAT EXP-HELP EXP-SIZE */
+   NO-ENABLE ALIGN-L LIKE = ASI.box-design-hdr.lscore EXP-LABEL EXP-FORMAT EXP-HELP EXP-SIZE */
 ASSIGN 
        clscore:AUTO-RESIZE IN FRAME D-Dialog      = TRUE.
 
@@ -232,7 +236,7 @@ ASSIGN
        editor_wscore:READ-ONLY IN FRAME D-Dialog        = TRUE.
 
 /* SETTINGS FOR FILL-IN iDesignIDAlt IN FRAME D-Dialog
-   LIKE = ASI.style.designIDAlt EXP-HELP                                */
+   NO-ENABLE LIKE = ASI.style.designIDAlt EXP-HELP EXP-SIZE             */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -257,7 +261,8 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog
 DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-        
+       
+        DELETE PROCEDURE hdFormulaProcs.
         APPLY "END-ERROR":U TO SELF.
 
     END.
@@ -461,10 +466,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
   
     {methods/nowait.i}     
-    DO WITH FRAME {&frame-name}:  
+    DO WITH FRAME {&frame-name}: 
+        IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+            RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+         
         RUN pDisplayValue (INPUT iprStyleRowid, INPUT iprEBRowid).
-       
-        //APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
             
     END.
     
@@ -544,8 +550,7 @@ PROCEDURE enable_UI :
   DISPLAY iDesignIDAlt cDescription cBox-image clscore clcum-score 
           editor_wcum-score editor_wscore 
       WITH FRAME D-Dialog.
-  ENABLE iDesignIDAlt cDescription cBox-image clscore btn_right btn_left 
-         editor_wcum-score editor_wscore box-image-2 RECT-40 
+  ENABLE btn_right btn_left editor_wcum-score editor_wscore box-image-2 RECT-40 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -580,58 +585,68 @@ PROCEDURE pDisplayValue PRIVATE :
     DEFINE INPUT  PARAMETER iprStyleID AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER iprEBID    AS ROWID NO-UNDO.
     
+    DEFINE BUFFER bf-eb  FOR eb.
     
     DO WITH FRAME {&FRAME-NAME}:
-
-        FIND FIRST style NO-LOCK 
-            WHERE ROWID(style) EQ iprStyleID NO-ERROR.
-            
-        IF AVAILABLE style THEN
-        DO:
-            FIND FIRST box-design-hdr NO-LOCK
-                WHERE box-design-hdr.design-no = style.designIDAlt 
-                  AND box-design-hdr.company = style.company NO-ERROR.
-        
-            IF AVAILABLE box-design-hdr THEN
-            DO:
-                ASSIGN
-                    iDesignIDAlt:SCREEN-VALUE = STRING(Style.DesignIDAlt)
-                    cDescription:SCREEN-VALUE = box-design-hdr.Description
-                    cBox-image:SCREEN-VALUE   = box-design-hdr.box-image.
-                
-                IF NOT VALID-HANDLE(hdFormulaProcs) THEN
-                    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
-
-                RUN Formula_ParseDesignScores IN hdFormulaProcs (
-                    INPUT  iprEBID,
-                    INPUT  ROWID(box-design-hdr),
-                    INPUT NO,
-                    OUTPUT TABLE ttScoreLine
-                    ).
-
-                DELETE PROCEDURE hdFormulaProcs.
-            
-                FOR EACH ttScoreLine NO-LOCK:
-                    
-                    IF ttScoreLine.PanelType = "L" THEN
-                    DO:
-                        IF ttScoreLine.IsTotal THEN
-                            clcum-score:SCREEN-VALUE = ttScoreLine.ScoreLine.
-                        ELSE
-                            clscore:SCREEN-VALUE = ttScoreLine.ScoreLine.
-                    END.
-                    ELSE
-                    DO:
-                        IF ttScoreLine.IsTotal THEN
-                            editor_wcum-score:SCREEN-VALUE = ttScoreLine.ScoreLine.
-                        ELSE
-                            editor_wscore:SCREEN-VALUE = ttScoreLine.ScoreLine.
-                    END.
-                END.
-            END.
-           
-        END.
     END.
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE ROWID(bf-eb) = iprEBID No-ERROR.
+    
+    FIND FIRST style NO-LOCK 
+        WHERE ROWID(style) EQ iprStyleID NO-ERROR.
+            
+    IF AVAILABLE bf-eb AND AVAILABLE style THEN
+    DO:
+        RUN Formula_ParseDesignScores IN hdFormulaProcs (
+            INPUT bf-eb.company,
+            INPUT bf-eb.est-no,
+            INPUT bf-eb.form-no,
+            INPUT bf-eb.blank-no,
+            INPUT style.designIDAlt,
+            INPUT NO,
+            OUTPUT TABLE ttScoreLine
+            ).
+            
+        IF NOT CAN-FIND(FIRST ttScoreLine) THEN
+        DO:
+            MESSAGE "PO Scores not found"
+                VIEW-AS ALERT-BOX.
+                
+            RETURN.
+        END.
+        
+        FIND FIRST box-design-hdr NO-LOCK
+            WHERE box-design-hdr.design-no = style.designIDAlt 
+            AND box-design-hdr.company = style.company NO-ERROR.
+        
+        IF AVAILABLE box-design-hdr THEN
+        DO:
+            
+            ASSIGN
+                iDesignIDAlt:SCREEN-VALUE = STRING(Style.DesignIDAlt)
+                cDescription:SCREEN-VALUE = box-design-hdr.Description
+                cBox-image:SCREEN-VALUE   = box-design-hdr.box-image.
+                
+            IF box-design-hdr.box-image NE "" THEN
+                box-image-2:load-image(box-design-hdr.box-image) IN FRAME {&frame-name}.
+            
+            FOR EACH ttScoreLine NO-LOCK:
+                    
+                IF ttScoreLine.PanelType = "L" THEN
+                    ASSIGN
+                        clscore:SCREEN-VALUE     = ttScoreLine.ScoreLine
+                        clcum-score:SCREEN-VALUE = ttScoreLine.ScoreLineTotal.
+                ELSE
+                    ASSIGN
+                        editor_wscore:SCREEN-VALUE     = editor_wscore:SCREEN-VALUE + CHR(10) + ttScoreLine.ScoreLine
+                        editor_wcum-score:SCREEN-VALUE = editor_wcum-score:SCREEN-VALUE + CHR(10) + ttScoreLine.ScoreLineTotal.
+                    
+            END. /* FOR EACH ttScoreLine NO-LOCK */
+           
+        END. /* IF AVAILABLE box-design-hdr THEN  */
+        
+    END. /* IF AVAILABLE bf-eb AND AVAILABLE style THEN */
        
 
 END PROCEDURE.

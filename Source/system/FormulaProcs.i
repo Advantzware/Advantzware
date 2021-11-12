@@ -25,9 +25,11 @@ DEFINE TEMP-TABLE ttPanel
     .
     
 DEFINE TEMP-TABLE ttScoreLine NO-UNDO
-    FIELD PanelType AS CHARACTER
-    FIELD IsTotal   AS LOGICAL
-    FIELD ScoreLine AS CHARACTER.
+    FIELD PanelType      AS CHARACTER
+    FIELD LineNum        AS INTEGER
+    FIELD ScoreLine      AS CHARACTER
+    FIELD ScoreLineTotal AS CHARACTER
+    INDEX idx-Srch PanelType LineNum.
     
 
 /* ********************  Preprocessor Definitions  ******************** */
