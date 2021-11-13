@@ -525,7 +525,10 @@ PROCEDURE pCreateDynParameters :
                 ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
                 ttDynAction.initialValue    = dynParamSetDtl.initialValue
                 .
+            &IF "{&program-id}" NE "dynRun." &THEN
+            IF ttDynAction.action NE ? AND LOOKUP("Session Parameter",ttDynAction.action) NE 0 THEN
             RUN spSetSessionParam (ttDynAction.paramName + "-Handle",STRING(hWidget:HANDLE)).
+            &ENDIF
         END. /* if valid-handle */
         hWidget:HIDDEN = iplLive AND lIsVisible EQ NO.
         hWidget:MOVE-TO-TOP().

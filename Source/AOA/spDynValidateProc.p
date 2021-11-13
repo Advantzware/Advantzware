@@ -267,9 +267,6 @@ PROCEDURE dynValGenerateTemplate:
             APPLY "ENTRY":U TO hParamHandle.
             APPLY "TAB":U TO hParamHandle.
         END. // if valid-handle
-        ELSE
-        MESSAGE "Invalid Handle"
-        VIEW-AS ALERT-BOX.
     END. // if cimportfile
     IF VALID-HANDLE(hImportProcs) THEN
     DELETE PROCEDURE hImportProcs.
