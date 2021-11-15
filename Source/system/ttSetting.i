@@ -1,5 +1,5 @@
 DEFINE {1} TEMP-TABLE ttSetting NO-UNDO 
-    FIELD rec_key         AS CHARACTER FORMAT "X(21)"           LABEL "Record Key"
+    FIELD rec_key         AS CHARACTER FORMAT "X(26)"           LABEL "Record Key"
     FIELD settingTypeID   AS INT64     FORMAT ">>>>>>>>>9"      LABEL "Setting Type ID"
     FIELD settingID       AS INT64     FORMAT ">>>>>>>>>9"      LABEL "Setting ID"
     FIELD settingName     AS CHARACTER FORMAT "X(30)"           LABEL "Name"
@@ -30,4 +30,7 @@ DEFINE {1} TEMP-TABLE ttSetting NO-UNDO
     INDEX settingOrder settingName priorityID DESCENDING inactive programID DESCENDING settingUser DESCENDING   
     INDEX settingType settingTypeID settingID settingUser scopeTable scopeField1 scopeField2 scopeField3
     INDEX recordSource recordSource
+    .
+DEFINE TEMP-TABLE ttSettingUsage NO-UNDO LIKE ttSetting
+    FIELD stackTrace AS CHARACTER
     .
