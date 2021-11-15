@@ -26,30 +26,24 @@ PROCEDURE pGetTaskTimeLimit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    oSetting = NEW system.Setting().
+    oSetting:LoadByCategoryAndProgram("dAOA").
     FOR EACH company NO-LOCK:
-        RUN sys/ref/nk1look.p (
-            company.company,"TaskerNotRunning","L",NO,NO,"","",
-            OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-            ).
-        IF lTaskerNotRunning AND cTaskerNotRunning EQ "YES" THEN DO:
-            RUN sys/ref/nk1look.p (
-                company.company,"TaskerNotRunning","I",NO,NO,"","",
-                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                ).
-            iEmailConfigID = INTEGER(cTaskerNotRunning).
+        IF oSetting:GetByName("TaskerNotRunning") EQ "YES" THEN DO:
+            iEmailConfigID = INTEGER(oSetting:GetByName("TaskerNotRunningEmailID")).
             IF NOT CAN-FIND(FIRST emailConfig
                             WHERE emailConfig.configID EQ iEmailConfigID
                               AND emailConfig.isActive EQ YES) THEN
             NEXT.
-            RUN sys/ref/nk1look.p (
-                company.company,"TaskerNotRunning","D",NO,NO,"","",
-                OUTPUT cTaskerNotRunning,OUTPUT lTaskerNotRunning
-                ).
-            dTaskTimeLimit = DECIMAL(cTaskerNotRunning).
+            dTaskTimeLimit = INTEGER(oSetting:GetByName("TaskerNotRunningTimeLimit")).
             IF dTaskTimeLimit NE 0 THEN
             LEAVE.
         END. /* if true */
     END. /* each company */
+    IF VALID-OBJECT(oSetting) THEN
+    DELETE OBJECT oSetting.
 
 END PROCEDURE.
 
