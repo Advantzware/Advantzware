@@ -14,10 +14,7 @@ DEFINE VARIABLE settingDescription  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingValidValues  AS CHARACTER NO-UNDO.
 
-IF USERID("ASI") EQ "NoSweat" THEN
-INPUT FROM VALUE(SEARCH("Documentation\NK1 to Setting Type Conversion.csv")) NO-ECHO.
-ELSE
-INPUT FROM VALUE(SEARCH("N:\Documentation\NK1 to Setting Type Conversion.csv")) NO-ECHO.
+INPUT FROM VALUE(SEARCH("Documentation/NK1 to Setting Type Conversion.csv")) NO-ECHO.
 IMPORT ^. // header line
 REPEAT:
     IMPORT DELIMITER ","
