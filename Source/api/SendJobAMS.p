@@ -122,6 +122,8 @@ DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueTime                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStartDate                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNotes                        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderQuantity          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderCustomerID        AS CHARACTER NO-UNDO.
     
 /* Job Header Variables*/
 DEFINE VARIABLE iTaskCounter                  AS INTEGER   NO-UNDO.
@@ -474,6 +476,18 @@ DO:
     lcJobsData       = REPLACE(lcJobsData, "$JobPrep$", lcConcatJobPrepData).
     lcJobsData       = REPLACE(lcJobsData, "$JobSetPart$", lcConcatJobSetPartData).
     lcJobsData       = REPLACE(lcJobsData, "$JobLink$", lcConcatJobLinkData).
+
+    FIND FIRST job-hdr
+         WHERE job-hdr.company  EQ job.company
+           AND job-hdr.job      EQ job.job
+           AND job-hdr.job-no   EQ job.job-no
+           AND job-hdr.job-no2  EQ job.job-no2
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN
+        ASSIGN
+            cFirstHeaderQuantity   = STRING(job-hdr.qty)
+            cFirstHeaderCustomerID = job-hdr.cust-no
+            .
         
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
@@ -492,6 +506,9 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStartDate",cJobStartDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Notes",cNotes).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStatus",cJobStatus).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderQuantity", cFirstHeaderQuantity) NO-ERROR.
+
+    RUN pUpdateCustInfo(INPUT job.company, INPUT cFirstHeaderCustomerID, INPUT-OUTPUT lcJobsData).
 
     ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcJobsData).   
 END.                        
