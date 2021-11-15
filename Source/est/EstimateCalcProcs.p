@@ -2065,13 +2065,22 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
 
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
-    RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
-    RUN pBuildProbe(ipiEstCostHeaderID).
+    
+    FIND FIRST bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID = ipiEstCostHeaderID NO-ERROR. 
+        
+    IF AVAILABLE bf-estCostHeader THEN
+    DO:
+        RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
+        RUN pBuildProbe(BUFFER bf-estCostHeader).
+    END.
 
 END PROCEDURE.
 
