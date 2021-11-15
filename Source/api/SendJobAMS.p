@@ -478,7 +478,7 @@ DO:
     lcJobsData       = REPLACE(lcJobsData, "$JobSetPart$", lcConcatJobSetPartData).
     lcJobsData       = REPLACE(lcJobsData, "$JobLink$", lcConcatJobLinkData).
 
-    FIND FIRST job-hdr
+    FIND FIRST job-hdr NO-LOCK
          WHERE job-hdr.company  EQ job.company
            AND job-hdr.job      EQ job.job
            AND job-hdr.job-no   EQ job.job-no
