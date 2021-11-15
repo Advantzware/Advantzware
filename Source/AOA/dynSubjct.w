@@ -4055,6 +4055,7 @@ PROCEDURE pAddColumn :
     DEFINE VARIABLE cUDFID    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hColumn   AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hBuffer   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
 
@@ -4100,8 +4101,9 @@ PROCEDURE pAddColumn :
     ELSE
     IF VALID-HANDLE(hBusinessLogicTable) THEN DO:
         ASSIGN
+            idx       = INTEGER(REPLACE(REPLACE(ext,"[",""),"]",""))
             hBuffer   = hBusinessLogicTable:DEFAULT-BUFFER-HANDLE
-            hColumn   = hBuffer:BUFFER-FIELD(ENTRY(2,ipcFieldName,"."))
+            hColumn   = hBuffer:BUFFER-FIELD(cField)
             cFormat   = hColumn:FORMAT
             cLabel    = hColumn:LABEL
             cDataType = hColumn:DATA-TYPE
@@ -5173,6 +5175,8 @@ PROCEDURE pGetFields :
     DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hColumn    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE kdx        AS INTEGER   NO-UNDO.
 
     DEFINE BUFFER ttSubjectTable FOR ttSubjectTable.
     
@@ -5211,15 +5215,22 @@ PROCEDURE pGetFields :
     IF VALID-HANDLE(hBusinessLogicTable) THEN DO:
         hBuffer = hBusinessLogicTable:DEFAULT-BUFFER-HANDLE.
         DO idx = 1 TO hBuffer:NUM-FIELDS:
-            hColumn = hBuffer:BUFFER-FIELD(idx).
-            IF hColumn:NAME BEGINS "xx" THEN NEXT.
-            CREATE ttField.
             ASSIGN
-                ttField.tableDB    = "ASI"
-                ttField.fieldLabel = hColumn:LABEL
-                ttField.fieldName  = hBusinessLogicTable:NAME + "."
-                                   + hColumn:NAME
-                                   .
+                hColumn = hBuffer:BUFFER-FIELD(idx)
+                jdx     = IF hColumn:EXTENT GT 0 THEN 1 ELSE 0
+                .
+            IF hColumn:NAME BEGINS "xx" THEN NEXT.
+            DO kdx = jdx TO hColumn:EXTENT:
+                CREATE ttField.
+                ASSIGN
+                    ttField.tableDB    = "ASI"
+                    ttField.fieldLabel = hColumn:LABEL
+                                       + IF kdx GT 0 THEN "[" + STRING(kdx) + "]" ELSE ""
+                    ttField.fieldName  = hBusinessLogicTable:NAME + "."
+                                       + hColumn:NAME
+                                       + IF kdx GT 0 THEN "[" + STRING(kdx) + "]" ELSE ""
+                                       .
+            END. // do kdx
         END. /* else, business logic */
     END. /* if valid-handle */
     IF dynSubject.udfGroup NE "" THEN DO:
