@@ -514,10 +514,10 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
-     eb.flute AT ROW 10.52 COL 89 COLON-ALIGNED
+     eb.flute AT ROW 10.52 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     eb.test AT ROW 10.52 COL 103 COLON-ALIGNED
+          SIZE 8.3 BY 1
+     eb.test AT ROW 10.52 COL 103.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
      tab-inout AT ROW 10.52 COL 120 COLON-ALIGNED
