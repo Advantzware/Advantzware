@@ -66,11 +66,14 @@ DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   
 DEFINE VARIABLE gcDeptsForPrinters                   AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                     AS CHARACTER NO-UNDO INITIAL "GL,QS".
 DEFINE VARIABLE gcDeptsForLeafers                    AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
-DEFINE VARIABLE gcDeptsForSheeters                   AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
+DEFINE VARIABLE gcDeptsForSheeters                   AS CHARACTER NO-UNDO INITIAL "RC,RS,CR,GU".
 DEFINE VARIABLE gcDeptsForCoaters                    AS CHARACTER NO-UNDO INITIAL "PR,CT".
 DEFINE VARIABLE glOpRatesSeparate                    AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
 DEFINE VARIABLE glApplyOperationMinimumCharge        AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcBlankMakerOutput                   AS CHARACTER NO-UNDO INITIAL "B".
+DEFINE VARIABLE gcSheetMakerOutput                   AS CHARACTER NO-UNDO INITIAL "S".
+DEFINE VARIABLE gcDeptsForWidthSheeters              AS CHARACTER NO-UNDO INITIAL "GU".
  
 DEFINE VARIABLE glTagDisabled AS LOGICAL NO-UNDO.
 
@@ -200,6 +203,13 @@ FUNCTION fValidMachineLimits RETURNS LOGICAL PRIVATE
 	
 FUNCTION fVerifyLimitsForPrinter RETURNS LOGICAL PRIVATE
     (BUFFER ipbf-mach FOR mach, ipcDept AS CHARACTER) FORWARD.	
+
+FUNCTION fOperations_GetNumout RETURNS INTEGER
+    (ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipiBlankNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiSeq AS INT) FORWARD.
+
+FUNCTION fOperations_GetOutputType RETURNS CHARACTER 
+    (ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiLine AS INT) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
 
@@ -3958,6 +3968,148 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSetType", ipcType).
 		
 END FUNCTION.
+
+FUNCTION fOperations_GetNumout RETURNS INTEGER 
+	(ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipiBlankNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiSeq AS INT):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE iNumOut     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNumOn AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDept       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFormNumOut AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-est    FOR est.
+    DEFINE BUFFER bf-ef     FOR ef.
+    DEFINE BUFFER bf-eb     FOR eb.
+    DEFINE BUFFER bf-est-op FOR est-op.
+    DEFINE BUFFER bf-mach   FOR mach.
+    
+    
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company EQ ipcCompany
+        AND bf-est.est-no  EQ ipcEstimateNo NO-ERROR. 
+    
+    IF NOT AVAILABLE bf-est THEN
+        RETURN 0.
+        
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company EQ bf-est.company
+        AND bf-ef.est-no  EQ bf-est.est-no
+        AND bf-ef.form-no EQ ipiFormNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-ef THEN
+        RETURN 0.
+    
+    FIND FIRST bf-mach NO-LOCK
+        WHERE bf-mach.company = ipcCompany 
+        AND bf-mach.m-code = ipcOperationId NO-ERROR.
+        
+    IF NOT AVAILABLE bf-mach THEN
+        RETURN 0.
+    
+    cDept = bf-mach.dept[1].
+    
+    cOutputType = fOperations_GetOutputType(INPUT bf-ef.company, 
+                                            INPUT bf-ef.est-no, 
+                                            INPUT bf-ef.form-no, 
+                                            INPUT ipcOperationId,
+                                            INPUT ipdQty,
+                                            INPUT ipiseq).
+       
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company EQ bf-est.company
+        AND bf-eb.est-no    EQ bf-est.est-no
+        AND bf-eb.form-no   EQ ipiFormNo:
+               
+        ASSIGN
+            iBlankNumOn = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1) NO-ERROR.
+            
+        IF iBlankNumOn NE 0 THEN
+            iFormNumOut = iFormNumOut + iBlankNumOn.
+    END.
+    
+    IF cOutputType = gcBlankMakerOutput THEN
+        iNumOut = iFormNumOut.
+        
+    ELSE IF cOutputType = gcSheetMakerOutput THEN
+    DO:
+        IF cDept EQ gcDeptsForWidthSheeters THEN
+            iNumOut = bf-ef.n-out-l.
+            
+        ELSE IF cDept = "RC" THEN 
+            iNumOut = bf-ef.n-out.
+            
+        ELSE IF cDept = "CR" THEN 
+            iNumOut = iFormNumOut.
+    END.   
+    ELSE 
+        iNumOut = 1.
+    
+
+    RETURN iNumOut.
+		
+END FUNCTION.
+
+FUNCTION fOperations_GetOutputType RETURNS CHARACTER 
+    (ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiLine AS INT):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cOutputType AS CHARACTER NO-UNDO.
+        
+    DEFINE BUFFER bf-mach FOR mach.
+    DEFINE BUFFER bfCurrent-mach FOR mach.
+    DEFINE BUFFER bf-est-op FOR est-op.
+    
+    FIND FIRST bfCurrent-mach NO-LOCK
+        WHERE bfCurrent-mach.company = ipcCompany 
+        AND bfCurrent-mach.m-code = ipcOperationId NO-ERROR.
+        
+    IF NOT AVAILABLE bfCurrent-mach THEN
+        RETURN "".
+         
+    IF CAN-DO("R,S,A,P", bfCurrent-mach.p-type) THEN 
+    DO:
+        FOR EACH bf-est-op NO-LOCK 
+            WHERE bf-est-op.company EQ ipcCompany
+            AND bf-est-op.est-no    EQ ipcEstimateNo
+            AND bf-est-op.s-num     EQ ipiFormNo
+            AND bf-est-op.qty       EQ ipdQty
+            AND bf-est-op.line      GT ipiLine
+            AND bf-est-op.line      LT 500,
+            FIRST bf-mach NO-LOCK 
+            WHERE bf-mach.company EQ bf-est-op.company
+            AND bf-mach.m-code EQ bf-est-op.m-code 
+            BY bf-est-op.line:
+            
+            IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
+                ASSIGN 
+                    cOutputType   = gcBlankMakerOutput
+                    .
+            LEAVE.
+        END.
+        
+        IF NOT AVAILABLE bf-est-op THEN /*Last Machine*/  
+            ASSIGN 
+                cOutputType   = gcBlankMakerOutput
+                .
+                
+    END. /* IF CAN-DO("R,S,A,P", bf-mach.p-type) THEN */
+        
+    IF cOutputType EQ "" AND CAN-DO(gcDeptsForSheeters, ipcOperationId) THEN 
+    DO: 
+        ASSIGN
+            cOutputType = gcSheetMakerOutput.
+    END.
+    
+    RETURN cOutputType.
+        
+END FUNCTION.
+
 
 FUNCTION fRoundUp RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL):
