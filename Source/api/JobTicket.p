@@ -315,7 +315,7 @@
             
             lcJobHeader = oEstCostHeader:ReplaceAttributes(lcJobHeader, BUFFER estCostHeader:HANDLE).
 
-            RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+            RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
             
             RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
 
@@ -335,7 +335,7 @@
         ioplcRequestData = REPLACE(ioplcRequestData, "$ReportHeader$", lcReportHeader).
         ioplcRequestData = REPLACE(ioplcRequestData, "$ReportFooter$", lcReportFooter).
         
-        RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
         
         ASSIGN
             opcMessage = ""
@@ -455,7 +455,7 @@ PROCEDURE pInsertPageHeaderFooter:
         ELSE
             ioplcRequestData = lcRequestData1 + lcRequestData2.
         
-        RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     END. 
 END PROCEDURE.
 
