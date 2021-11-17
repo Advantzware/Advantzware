@@ -117,6 +117,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dAmountDue        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iRecCount         AS INTEGER   NO-UNDO EXTENT 2.
     
+    cSort2 = IF cAgedBy EQ "Due" THEN "Due Date" ELSE "Invoice Date".
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
           AND company.company LE cEndCompany,
