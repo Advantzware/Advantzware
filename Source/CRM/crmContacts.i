@@ -313,7 +313,7 @@ PROCEDURE pZohoCRM:
         ).
         
     IF cRefreshToken EQ "" THEN
-        RETURN "Refresh Token value is blank. Please update the refresh token in NK1 configuration 'ZohoRefreshToken'".
+        RETURN "Refresh Token value is blank. Please update the refresh token in NK6 configuration 'ZohoRefreshToken'".
         
     RUN Zoho_GetClientID IN hdZohoProcs (
         INPUT  ipcCompany,
@@ -321,7 +321,7 @@ PROCEDURE pZohoCRM:
         ).
         
     IF cClientID EQ "" THEN
-        RETURN "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        RETURN "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
 
     RUN Zoho_GetClientSecret IN hdZohoProcs (
         INPUT  ipcCompany,
@@ -329,7 +329,7 @@ PROCEDURE pZohoCRM:
         ).
         
     IF cClientSecret EQ "" THEN
-        RETURN "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        RETURN "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
     
      RUN Zoho_GetAccessToken IN hdZohoProcs (
          INPUT  cRefreshToken,

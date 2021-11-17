@@ -50,6 +50,9 @@ DEFINE VARIABLE hdZohoProcs   AS HANDLE    NO-UNDO.
 
 RUN CRM\ZohoProcs.p PERSISTENT SET hdZohoProcs.
 
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+oSetting = NEW system.Setting().
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -417,27 +420,26 @@ PROCEDURE pValidateKeys PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveZohoCRM AS LOGICAL NO-UNDO.
     
     IF cClientID EQ "" THEN
-        opcMessage = "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        opcMessage = "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
         
     IF cClientSecret EQ "" THEN
-        opcMessage = "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        opcMessage = "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
 
-    RUN sys/ref/nk1look.p (
-        INPUT cCompany, 
-        INPUT "ZohoRefreshToken", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT cRefreshToken, 
-        OUTPUT lFound
-        ).
-    IF NOT lFound THEN
-        opcMessage = "NK1 configuration 'ZohoRefreshToken' is missing".
+    lActiveZohoCRM = LOGICAL(oSetting:GetByName("ZohoCRM")).
+    
+    IF lActiveZohoCRM THEN DO:
+        cRefreshToken = oSetting:GetByName("ZohoRefreshToken").
+        
+        IF cRefreshToken EQ "" THEN 
+        ASSIGN opcMessage = "NK6 configuration 'ZohoRefreshToken' is missing".
+        
+    END.
+    ELSE 
+    ASSIGN opcMessage = "NK6 configuration 'ZoHoCRM' is inactive".
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

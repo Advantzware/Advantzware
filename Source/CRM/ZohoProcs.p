@@ -20,12 +20,14 @@ USING Progress.Json.ObjectModel.*.
 DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
 DEFINE VARIABLE cTempDir       AS CHARACTER         NO-UNDO.
+DEFINE VARIABLE oSetting       AS system.Setting    NO-UNDO.
 
 RUN FileSys_GetTempDirectory(
     OUTPUT cTempDir
     ).
     
 oModelParser = NEW ObjectModelParser().
+oSetting     = NEW system.Setting().
                
 
 
@@ -52,7 +54,8 @@ PROCEDURE Zoho_UpdateRefreshToken:
     DEFINE VARIABLE cResponse      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cResponseFile  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
+    DEFINE BUFFER bf-settingType FOR settingType.
+    DEFINE BUFFER bf-setting     FOR setting.
     
     ASSIGN
         cResponseFile            = cTempDir + "\zoho_refresh" + STRING(MTIME) + ".txt"
@@ -95,16 +98,24 @@ PROCEDURE Zoho_UpdateRefreshToken:
         NO-ERROR.
 
     IF opcRefreshToken NE "" THEN DO:
-        FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
-             WHERE bf-sys-ctrl.company EQ ipcCompany
-               AND bf-sys-ctrl.name    EQ "ZohoRefreshToken"
+        FIND FIRST bf-settingType EXCLUSIVE-LOCK
+             WHERE bf-settingType.settingName EQ "ZohoRefreshToken"
              NO-ERROR.
-        IF AVAILABLE bf-sys-ctrl THEN
+        IF AVAILABLE bf-settingType THEN DO:
             ASSIGN
-                bf-sys-ctrl.char-fld = opcRefreshToken
-                opcMessage           = "Success"
-                oplSuccess           = TRUE
-                .    
+                bf-settingType.validValues  = opcRefreshToken
+                bf-settingType.defaultValue = opcRefreshToken
+                .
+            FOR EACH bf-setting EXCLUSIVE-LOCK
+                 WHERE bf-setting.settingName EQ bf-settingType.settingName
+                 :
+                ASSIGN
+                    bf-setting.settingValue = opcRefreshToken
+                    opcMessage              = "Success"
+                    oplSuccess              = TRUE
+                    .
+            END. /* FOR EACH bf-setting */     
+        END.  /* IF AVAILABLE bf-settingType */    
     END.
     ELSE
         ASSIGN
@@ -124,19 +135,13 @@ PROCEDURE Zoho_GetRefreshToken:
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcRefreshToken AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveZohoCRM AS LOGICAL NO-UNDO.
 
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoRefreshToken", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcRefreshToken, 
-        OUTPUT lFound
-        ).
+    lActiveZohoCRM = LOGICAL(oSetting:GetByName("ZohoCRM")).
+    
+    IF lActiveZohoCRM THEN
+        opcRefreshToken = oSetting:GetByName("ZohoRefreshToken").
+
 END.
 
 PROCEDURE Zoho_GetClientID:
@@ -148,19 +153,13 @@ PROCEDURE Zoho_GetClientID:
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcClientID AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveZohoCRM AS LOGICAL NO-UNDO.
 
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoClientID", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientID, 
-        OUTPUT lFound
-        ).
+    lActiveZohoCRM = LOGICAL(oSetting:GetByName("ZohoCRM")).
+    
+    IF lActiveZohoCRM THEN
+        opcClientID = oSetting:GetByName("ZohoClientID").
+
 END.
 
 PROCEDURE Zoho_GetClientSecret:
@@ -172,19 +171,13 @@ PROCEDURE Zoho_GetClientSecret:
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcClientSecret AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveZohoCRM AS LOGICAL NO-UNDO.
 
-    RUN sys/ref/nk1look.p (
-        INPUT ipcCompany, 
-        INPUT "ZohoClientSecret", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT opcClientSecret, 
-        OUTPUT lFound
-        ).        
+    lActiveZohoCRM = LOGICAL(oSetting:GetByName("ZohoCRM")).
+    
+    IF lActiveZohoCRM THEN
+        opcClientSecret = oSetting:GetByName("ZohoClientSecret").
+        
 END.
 
 PROCEDURE Zoho_GetAccessToken:
