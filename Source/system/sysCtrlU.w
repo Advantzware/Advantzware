@@ -740,6 +740,8 @@ PROCEDURE pGetSessionParams:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN RETURN.
+    
     RUN spGetSessionParams (OUTPUT TABLE ttSessionParam).
     {&OPEN-QUERY-sessionParams}
 

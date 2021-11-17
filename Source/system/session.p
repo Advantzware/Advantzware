@@ -1291,6 +1291,13 @@ PROCEDURE spCreateSettingUsage:
         CREATE ttSettingUsage.
         BUFFER-COPY ttSetting TO ttSettingUsage
             ASSIGN ttSettingUsage.stackTrace = cStackTrace.
+        IF CAN-FIND(FIRST settingType
+                    WHERE settingType.settingTypeID EQ ttSetting.settingTypeID
+                      AND settingType.isPassword    EQ YES) THEN
+        ASSIGN
+            ttSettingUsage.settingValue = FILL("*",LENGTH(ttSettingUsage.settingValue))
+            ttSettingUsage.defaultValue = FILL("*",LENGTH(ttSettingUsage.defaultValue))
+            .
     END. // each ttsetting
     hSysCtrlUsage = sfGetSysCtrlUsageHandle().
     IF VALID-HANDLE(hSysCtrlUsage) THEN
