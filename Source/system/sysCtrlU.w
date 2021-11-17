@@ -740,9 +740,12 @@ PROCEDURE pGetSessionParams:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF NOT DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN RETURN.
-    
     RUN spGetSessionParams (OUTPUT TABLE ttSessionParam).
+    FOR EACH ttSessionParam
+        WHERE ttSessionParam.sessionParam EQ "Password"
+        :
+        ttSessionParam.sessionValue = FILL("*",LENGTH(ttSessionParam.sessionValue)).
+    END. // each ttsessionparam
     {&OPEN-QUERY-sessionParams}
 
 END PROCEDURE.
