@@ -1121,12 +1121,13 @@ PROCEDURE pFieldValidations :
                 .
             RETURN.
         END.    
-    
-        RUN FileSys_CreateDirectory(
-            INPUT  saveFileFolder:SCREEN-VALUE,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
+        
+        IF INDEX (saveFileFolder:SCREEN-VALUE, "$") EQ 0 THEN 
+            RUN FileSys_CreateDirectory(
+                INPUT  saveFileFolder:SCREEN-VALUE,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
         
         IF NOT oplSuccess THEN
             RETURN.   
