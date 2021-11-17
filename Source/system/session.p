@@ -60,19 +60,16 @@ DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
-DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO. 
+DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
 
-DEFINE TEMP-TABLE ttSessionParam NO-UNDO
-    FIELD sessionParam AS CHARACTER
-    FIELD sessionValue AS CHARACTER
-        INDEX sessionParam IS PRIMARY UNIQUE sessionParam
-        .
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
     FIELD isRunning      AS LOGICAL
         INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
+{system/ttSessionParam.i}
 {system/ttPermissions.i}
+{system/ttSetting.i}
 {system/ttSysCtrlUsage.i}
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
@@ -195,6 +192,20 @@ FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetTtSettingUsageHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtSettingUsageHandle Procedure
+FUNCTION sfGetTtSettingUsageHandle RETURNS HANDLE 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserAdmin Procedure
@@ -1286,6 +1297,65 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCreateSettingUsage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSettingUsage Procedure
+PROCEDURE spCreateSettingUsage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER TABLE FOR ttSetting.
+
+    DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO INITIAL 1.
+
+    /* build stack trace */
+    DO WHILE TRUE:
+        idx = idx + 1.
+        /* all done with program stack */
+        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE.
+        cStackTrace = cStackTrace + PROGRAM-NAME(idx) + ",".
+    END. /* while true */
+    cStackTrace = TRIM(cStackTrace,",").
+
+    FOR EACH ttSetting:
+        RELEASE ttSettingUsage.
+        IF ttSetting.scopeTable NE "System" AND
+           CAN-FIND(FIRST ttSettingUsage
+                    WHERE ttSettingUsage.settingTypeID EQ ttSetting.settingTypeID
+                      AND ttSettingUsage.settingName   EQ ttSetting.settingName
+                      AND ttSettingUsage.scopeTable    EQ ttSetting.scopeTable
+                      AND ttSettingUsage.scopeField1   EQ ttSetting.scopeField1
+                      AND ttSettingUsage.scopeField2   EQ ttSetting.scopeField2
+                      AND ttSettingUsage.scopeField3   EQ ttSetting.scopeField3) THEN
+        NEXT.
+        FIND FIRST ttSettingUsage
+             WHERE ttSettingUsage.settingTypeID EQ ttSetting.settingTypeID
+               AND ttSettingUsage.settingName   EQ ttSetting.settingName
+               AND ttSettingUsage.scopeTable    EQ "System"
+               AND ttSettingUsage.scopeField1   EQ ""
+               AND ttSettingUsage.scopeField2   EQ ""
+               AND ttSettingUsage.scopeField3   EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE ttSettingUsage THEN
+        CREATE ttSettingUsage.
+        BUFFER-COPY ttSetting TO ttSettingUsage
+            ASSIGN ttSettingUsage.stackTrace = cStackTrace.
+    END. // each ttsetting
+    hSysCtrlUsage = sfGetSysCtrlUsageHandle().
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSettingUsage IN hSysCtrlUsage.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSysCtrlUsage Procedure 
@@ -1513,11 +1583,16 @@ PROCEDURE spDeleteSessionParam:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE NO-UNDO.
+
     FIND FIRST ttSessionParam
          WHERE ttSessionParam.sessionParam EQ ipcSessionParam
          NO-ERROR.
     IF AVAILABLE ttSessionParam THEN
     DELETE ttSessionParam.
+    hSysCtrlUsage = sfGetSysCtrlUsageHandle().
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSessionParams IN hSysCtrlUsage.
 
 END PROCEDURE.
 	
@@ -1793,6 +1868,23 @@ PROCEDURE spGetSessionParam:
          NO-ERROR.
     IF AVAILABLE ttSessionParam THEN
     opcSessionValue = ttSessionParam.sessionValue.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetSessionParams) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSessionParams Procedure
+PROCEDURE spGetSessionParams:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttSessionParam.
 
 END PROCEDURE.
 	
@@ -2532,6 +2624,19 @@ PROCEDURE spSetSessionParam:
     DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSessionValue AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO INITIAL 1.
+
+    /* build stack trace */
+    DO WHILE TRUE:
+        idx = idx + 1.
+        /* all done with program stack */
+        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE.
+        cStackTrace = cStackTrace + PROGRAM-NAME(idx) + ",".
+    END. /* while true */
+    cStackTrace = TRIM(cStackTrace,",").
+
     FIND FIRST ttSessionParam
          WHERE ttSessionParam.sessionParam EQ ipcSessionParam
          NO-ERROR.
@@ -2542,7 +2647,13 @@ PROCEDURE spSetSessionParam:
     IF ttSessionParam.sessionParam EQ "Company" AND
        ttSessionParam.sessionValue NE ipcSessionValue THEN
     RUN pSetCompanyContexts (ipcSessionValue).
-    ttSessionParam.sessionValue = ipcSessionValue.
+    ASSIGN
+        ttSessionParam.sessionValue = ipcSessionValue
+        ttSessionParam.stackTrace   = cStackTrace
+        hSysCtrlUsage               = sfGetSysCtrlUsageHandle()
+        .
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSessionParams IN hSysCtrlUsage.
 
 END PROCEDURE.
 	
@@ -2829,6 +2940,25 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetTtSettingUsageHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetTtSettingUsageHandle Procedure
+FUNCTION sfGetTtSettingUsageHandle RETURNS HANDLE 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN TEMP-TABLE ttSettingUsage:HANDLE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserAdmin Procedure
@@ -2971,6 +3101,7 @@ FUNCTION sfClearUsage RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttPermissions.
     EMPTY TEMP-TABLE ttSysCtrlUsage.
+    EMPTY TEMP-TABLE ttSettingUsage.
 
     RETURN TRUE.
 

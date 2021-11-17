@@ -779,6 +779,7 @@ CLASS system.Setting:
            "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).
+        RUN spCreateSettingUsage (TABLE ttSetting).
     END METHOD.
     
     /*------------------------------------------------------------------------------

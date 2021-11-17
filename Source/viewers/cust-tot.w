@@ -702,7 +702,7 @@ PROCEDURE local-display-fields :
 
   RUN Display-Field ("ptd-sales").
     
-  IF cust.AccountType EQ "" THEN DO:
+  IF AVAILABLE cust AND cust.AccountType EQ "" THEN DO:
       ASSIGN 
           cust.accountType:SCREEN-VALUE = "<None>"
           cust.accountType:MODIFIED = FALSE.

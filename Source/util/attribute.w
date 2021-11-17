@@ -1,13 +1,18 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: windows/<table>.w
+  File: windows/attribute.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -31,21 +36,13 @@
 
 CREATE WIDGET-POOL.
 
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_attribute
 /* ***************************  Definitions  ************************** */
-
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
-DEFINE VARIABLE vlSelected          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lv-sys-ctrl-rec-key AS CHARACTER NO-UNDO.
-DEFINE VARIABLE v-att               AS LOG       NO-UNDO.
-
-{methods\defines\phone.i &new="NEW"}
-
-&SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Browse01 h_settingType
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -60,18 +57,9 @@ DEFINE VARIABLE v-att               AS LOG       NO-UNDO.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source
-
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES settingType
-&Scoped-define FIRST-EXTERNAL-TABLE settingType
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR settingType.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -86,15 +74,12 @@ DEFINE QUERY external_tables FOR settingType.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_attribute AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_attribute-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-navlbl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_settingType AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_settingtype-3 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -102,22 +87,15 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 182.8 BY 28.57
-         BGCOLOR 15 .
+         SIZE 165.2 BY 30.95
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 148 ROW 2.91
-         SIZE 35 BY 1.43
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 181 BY 1.91
-         BGCOLOR 15 .
+         AT COL 6 ROW 1
+         SIZE 39 BY 2
+         BGCOLOR 15  WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -125,10 +103,8 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: ASI.settingType
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
-   Other Settings: COMPILE
+   Design Page: 2
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -138,13 +114,13 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Setting Type Maintenance"
-         HEIGHT             = 28.57
-         WIDTH              = 182.8
-         MAX-HEIGHT         = 320
-         MAX-WIDTH          = 320
-         VIRTUAL-HEIGHT     = 320
-         VIRTUAL-WIDTH      = 320
+         TITLE              = "Attribute Maintenance"
+         HEIGHT             = 30.95
+         WIDTH              = 165.2
+         MAX-HEIGHT         = 30.95
+         MAX-WIDTH          = 200
+         VIRTUAL-HEIGHT     = 30.95
+         VIRTUAL-WIDTH      = 200
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -154,12 +130,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -181,46 +151,19 @@ IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
-       FRAME OPTIONS-FRAME:FRAME = FRAME F-Main:HANDLE.
+ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
-
+                                                                        */
 /* SETTINGS FOR FRAME message-frame
                                                                         */
-/* SETTINGS FOR FRAME OPTIONS-FRAME
-                                                                        */
+ASSIGN 
+       FRAME message-frame:HIDDEN           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
-&ANALYZE-RESUME
-
-
-/* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
-/* Query rebuild information for FRAME F-Main
-     _Query            is NOT OPENED
-*/  /* FRAME F-Main */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME message-frame
-/* Query rebuild information for FRAME message-frame
-     _Query            is NOT OPENED
-*/  /* FRAME message-frame */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _QUERY-BLOCK FRAME OPTIONS-FRAME
-/* Query rebuild information for FRAME OPTIONS-FRAME
-     _Query            is NOT OPENED
-*/  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
  
@@ -231,27 +174,26 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Setting Type Maintenance */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
-    DO:
-        /* This case occurs when the user presses the "Esc" key.
-           In a persistently run window, just ignore this.  If we did not, the
-           application would exit. */
-        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-    END.
+ON END-ERROR OF W-Win /* Attribute Maintenance */
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
+  /* This case occurs when the user presses the "Esc" key.
+     In a persistently run window, just ignore this.  If we did not, the
+     application would exit. */
+  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Setting Type Maintenance */
+ON WINDOW-CLOSE OF W-Win /* Attribute Maintenance */
 DO:
-        /* This ADM code must be left here in order for the SmartWindow
-           and its descendents to terminate properly on exit. */
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
-    END.
+  /* This ADM code must be left here in order for the SmartWindow
+     and its descendents to terminate properly on exit. */
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -290,119 +232,93 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.24 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/attach.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 110.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 158.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Setting Type' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Attribute' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 20.95 , 182.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/options.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_options ).
-       RUN set-position IN h_options ( 1.00 , 118.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 55.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/exit.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 1.00 , 174.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 8.00 ) */
-
-       /* Links to SmartObject h_attach. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
+       RUN set-size IN h_folder ( 28.81 , 165.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
-       /* Links to SmartObject h_options. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
-
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
-             h_attach , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
-             h_options , 'AFTER':U ).
+             FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             h_exit , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/export.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 102.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/settingType.w':U ,
+             INPUT  'browsers/attribute.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_settingType ).
-       RUN set-position IN h_settingType ( 4.81 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_settingType ( 24.76 , 181.00 ) NO-ERROR.
+             OUTPUT h_attribute ).
+       RUN set-position IN h_attribute ( 4.81 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_attribute ( 27.14 , 165.00 ) NO-ERROR.
 
-       /* Links to SmartObject h_export. */
-       RUN add-link IN adm-broker-hdl ( h_settingType , 'export-xl':U , h_export ).
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to SmartNavBrowser h_settingType. */
-       RUN add-link IN adm-broker-hdl ( h_settingType , 'Record':U , THIS-PROCEDURE ).
+       /* Links to SmartBrowser h_attribute. */
+       RUN add-link IN adm-broker-hdl ( h_p-navlbl , 'Navigation':U , h_attribute ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_settingType ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_attribute ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/attribute.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_attribute-2 ).
+       RUN set-position IN h_attribute-2 ( 6.48 , 53.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.81 , 59.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-navlbl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = NAV-LABEL,
+                     Right-to-Left = First-On-Left':U ,
+             OUTPUT h_p-navlbl ).
+       RUN set-position IN h_p-navlbl ( 16.00 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_p-navlbl ( 2.14 , 40.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 24.52 , 50.60 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.24 , 82.80 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/settingtype.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_settingtype-3 ).
-       RUN set-position IN h_settingtype-3 ( 5.52 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.10 , 181.00 ) */
+       RUN set-position IN h_p-updsav ( 16.00 , 53.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav ( 2.14 , 64.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_settingtype-3. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_settingtype-3 ).
-       RUN add-link IN adm-broker-hdl ( h_settingType , 'Record':U , h_settingtype-3 ).
+       /* Links to SmartViewer h_attribute-2. */
+       RUN add-link IN adm-broker-hdl ( h_attribute , 'Record':U , h_attribute-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_attribute-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_settingtype-3 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_attribute-2 ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navlbl ,
+             h_attribute-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_p-navlbl , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -427,15 +343,6 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
-
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "settingType"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "settingType"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -478,8 +385,6 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW FRAME OPTIONS-FRAME IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-OPTIONS-FRAME}
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
@@ -491,30 +396,17 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
 
-    DEFINE VARIABLE viCurrPage   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hPgmSecurity AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lResult      AS LOG       NO-UNDO.
-    DEFINE VARIABLE cSysNmae     AS CHARACTER NO-UNDO.
-  
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN GET-ATTRIBUTE('CURRENT-PAGE').
 
-    viCurrPage = INT(RETURN-VALUE).
-                                     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-    IF viCurrPage = 2 THEN 
-    DO:
-        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'getsec-target':U, OUTPUT char-hdl).       
-    END.
 
     /* Code placed here will execute AFTER standard behavior.    */
     {methods/winReSizePgChg.i}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,47 +415,14 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
-      Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
-      Parameters:  <none>
-      Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
-    -------------------------------------------------------------*/
-    APPLY "CLOSE":U TO THIS-PROCEDURE.
+  Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
+  Parameters:  <none>
+  Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
+-------------------------------------------------------------*/
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
    
-    RETURN.
+   RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available W-Win 
-PROCEDURE local-row-available :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .    
-  
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).      
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_att W-Win 
-PROCEDURE Select_att :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    {methods/select_attcust.i rec_key_value header_value 0}
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -577,30 +436,10 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartWindow, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "settingType"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-s-rec_key W-Win 
-PROCEDURE set-s-rec_key :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
-
-    s-rec_key = ip-rec_key.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -609,25 +448,12 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    -------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-changed-proc W-Win 
-PROCEDURE value-changed-proc :
-/*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-  
+-------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
+  DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

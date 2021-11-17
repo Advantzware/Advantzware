@@ -5,9 +5,23 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  ar\b-cash.w
+  File:  browsers/attribute.w
+
+  Description: from BROWSER.W - Basic SmartBrowser Object Template
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -21,23 +35,14 @@
 
 CREATE WIDGET-POOL.
 
-/* ***************************  Definitions  ************************** */
-
 &SCOPED-DEFINE winReSize
-//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
+
+/* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-
-{sys/inc/var.i NEW SHARED}
-
-&SCOPED-DEFINE browse2 ar/j-cash.i
-DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
-DEFINE VARIABLE iTrNo AS INTEGER NO-UNDO.
-DEFINE VARIABLE cGLDate AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -47,42 +52,42 @@ DEFINE VARIABLE cGLDate AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartNavBrowser
+&Scoped-define PROCEDURE-TYPE SmartBrowser
 &Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME Browser-Table
+&Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ar-cash
+&Scoped-define INTERNAL-TABLES attribute
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
-/* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table ar-cash.cust-no ~
-ar-cash.check-no ar-cash.check-date ar-cash.check-amt ~
-getTrNo() @ iTrNo getPeriod() @ iPeriod getDate() @ cGLDate
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH ar-cash WHERE ~{&KEY-PHRASE} ~
-      AND ar-cash.company = g_company NO-LOCK ~
+/* Definitions for BROWSE br_table                                      */
+&Scoped-define FIELDS-IN-QUERY-br_table attribute.attributeName ~
+attribute.dbTableName attribute.dbFieldName 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
+&Scoped-define QUERY-STRING-br_table FOR EACH attribute WHERE ~{&KEY-PHRASE} ~
+      AND attribute.attributeName BEGINS fiName ~
+ AND attribute.dbTableName BEGINS fiTable NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH ar-cash WHERE ~{&KEY-PHRASE} ~
-      AND ar-cash.company = g_company NO-LOCK ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH attribute WHERE ~{&KEY-PHRASE} ~
+      AND attribute.attributeName BEGINS fiName ~
+ AND attribute.dbTableName BEGINS fiTable NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table ar-cash
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table ar-cash
+&Scoped-define TABLES-IN-QUERY-br_table attribute
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table attribute
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS btSearch fiName fiTable br_table 
+&Scoped-Define DISPLAYED-OBJECTS fiName fiTable 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -90,107 +95,109 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTrNo B-table-Win 
-FUNCTION getTrNo RETURNS INTEGER
-  ( /* parameter-definitions */ )  FORWARD.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
+/* Actions: ? adm/support/keyedit.w ? ? ? */
+/* STRUCTURED-DATA
+<KEY-OBJECT>
+&BROWSE-NAME
+</KEY-OBJECT>
+<FOREIGN-KEYS>
+</FOREIGN-KEYS>
+<EXECUTING-CODE>
+**************************
+* Set attributes related to FOREIGN KEYS
+*/
+RUN set-attribute-list (
+    'Keys-Accepted = "",
+     Keys-Supplied = ""':U).
+/**************************
+</EXECUTING-CODE> */   
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getPeriod B-table-Win 
-FUNCTION getPeriod RETURNS INTEGER
-  ( /* parameter-definitions */ )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Advanced Query Options" B-table-Win _INLINE
+/* Actions: ? adm/support/advqedit.w ? ? ? */
+/* STRUCTURED-DATA
+<KEY-OBJECT>
+&BROWSE-NAME
+</KEY-OBJECT>
+<SORTBY-OPTIONS>
+</SORTBY-OPTIONS> 
+<SORTBY-RUN-CODE>
+************************
+* Set attributes related to SORTBY-OPTIONS */
+RUN set-attribute-list (
+    'SortBy-Options = ""':U).
+/************************
+</SORTBY-RUN-CODE> 
+<FILTER-ATTRIBUTES>
+</FILTER-ATTRIBUTES> */   
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getDate B-table-Win 
-FUNCTION getDate RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
+DEFINE BUTTON btSearch 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Search" 
+     SIZE 8 BY 1.91.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
+DEFINE VARIABLE fiName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Attribute Name" 
      VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
+     SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
-
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+DEFINE VARIABLE fiTable AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Table Name" 
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY Browser-Table FOR 
-      ar-cash
-    FIELDS(ar-cash.cust-no
-      ar-cash.check-no
-      ar-cash.check-date
-      ar-cash.check-amt) SCROLLING.
+DEFINE QUERY br_table FOR 
+      attribute SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
-  QUERY Browser-Table NO-LOCK DISPLAY
-      ar-cash.cust-no FORMAT "x(8)":U WIDTH 16.2
-      ar-cash.check-no FORMAT "999999999999":U WIDTH 19.2
-      ar-cash.check-date FORMAT "99/99/9999":U WIDTH 17.2
-      ar-cash.check-amt FORMAT "->>,>>>,>>9.99":U WIDTH 21.2
-      getTrNo() @ iTrNo  COLUMN-LABEL "GL Trans#" FORMAT ">>>>>>>>":U
-      getDate() @ cGLDate COLUMN-LABEL "Posted Date" FORMAT "x(10)":U
-      getPeriod() @ iPeriod  COLUMN-LABEL "GL Period" FORMAT ">>>":U        
+DEFINE BROWSE br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
+  QUERY br_table NO-LOCK DISPLAY
+      attribute.attributeName FORMAT "x(30)":U WIDTH 49.2
+      attribute.dbTableName FORMAT "x(30)":U WIDTH 52.2
+      attribute.dbFieldName FORMAT "x(30)":U WIDTH 46.6
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
-         FONT 2.
+    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 21.38
+         FONT 6.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+     btSearch AT ROW 1 COL 101 WIDGET-ID 8
+     fiName AT ROW 1.48 COL 18 COLON-ALIGNED WIDGET-ID 4
+     fiTable AT ROW 1.48 COL 69 COLON-ALIGNED WIDGET-ID 6
+     br_table AT ROW 2.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 15 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartNavBrowser
+   Type: SmartBrowser
    Allow: Basic,Browse
    Frames: 1
-   Add Fields to: External-Tables
+   Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -209,8 +216,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 145.
+         HEIGHT             = 23.33
+         WIDTH              = 148.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -220,7 +227,6 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser2.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -234,15 +240,11 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB br_table fiTable F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-ASSIGN 
-       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -250,28 +252,20 @@ ASSIGN
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
-/* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.ar-cash"
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
+/* Query rebuild information for BROWSE br_table
+     _TblList          = "ASI.attribute"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED"
-     _Where[1]         = "ASI.ar-cash.company = g_company"
-     _FldNameList[1]   > ASI.ar-cash.cust-no
-"ar-cash.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.ar-cash.check-no
-"ar-cash.check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.ar-cash.check-date
-"ar-cash.check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.ar-cash.check-amt
-"ar-cash.check-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > "_<CALC>"
-"getTrNo() @ iTrNo" "GL Tran#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no          
-     _FldNameList[6]   > "_<CALC>"
-"getDate() @ cGLDate" "Posted Date" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
-    _FldNameList[7]   > "_<CALC>"
-"getPeriod() @ iPeriod" "GL Period" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+     _Where[1]         = "ASI.attribute.attributeName BEGINS fiName
+ AND ASI.attribute.dbTableName BEGINS fiTable"
+     _FldNameList[1]   > ASI.attribute.attributeName
+"attribute.attributeName" ? ? "character" ? ? ? ? ? ? no ? no no "49.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.attribute.dbTableName
+"attribute.dbTableName" ? ? "character" ? ? ? ? ? ? no ? no no "52.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.attribute.dbFieldName
+"attribute.dbFieldName" ? ? "character" ? ? ? ? ? ? no ? no no "46.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
-*/  /* BROWSE Browser-Table */
+*/  /* BROWSE br_table */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
@@ -287,10 +281,10 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME Browser-Table
-&Scoped-define SELF-NAME Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
@@ -300,8 +294,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-LEAVE OF br_table IN FRAME F-Main
 DO:
     /* Do not disable this code or no updates will take place except
      by pressing the Save button on an Update SmartPanel. */
@@ -312,13 +306,45 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-  {methods/template/local/setvalue.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
+ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
+DO:       
+    RUN dispatch ("open-query").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiName
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiName B-table-Win
+ON ENTER OF fiName IN FRAME F-Main /* Attribute Name */
+DO:
+    RUN dispatch ("open-query").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiTable
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTable B-table-Win
+ON ENTER OF fiTable IN FRAME F-Main /* Table Name */
+DO:
+    RUN dispatch ("open-query").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,13 +357,14 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
-
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
 {methods/winReSize.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -385,6 +412,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN setCellColumns NO-ERROR.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -392,13 +438,17 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN fiName fiTable.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    /* Code placed here will execute AFTER standard behavior.    */
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,7 +466,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ar-cash"}
+  {src/adm/template/snd-list.i "attribute"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -446,69 +496,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTrNo B-table-Win 
-FUNCTION getTrNo RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-         
-    IF AVAIL glhist THEN iReturn = glhist.tr-num.
-    RETURN iReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getPeriod B-table-Win 
-FUNCTION getPeriod RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-         
-    IF AVAIL glhist THEN iReturn = glhist.period.
-    RETURN iReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDate B-table-Win 
-FUNCTION getDate RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-                  
-    IF AVAIL glhist THEN cReturn = string(glhist.tr-date).
-    RETURN cReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

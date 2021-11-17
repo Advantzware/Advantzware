@@ -1,5 +1,5 @@
 /* ----------------------------------------------  */
-/*  cecrep/jobtickc20.p  Corrugated factory ticket  for Xprint landscape */
+/*  cecrep/jobPExpress.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
 
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
@@ -109,25 +109,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR. 
+    lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR.
+    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "JOBQTYCUST", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    v-job-cust = LOGICAL(cRtnChar) NO-ERROR. 
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "JOBQTYCUST"
-    NO-LOCK NO-ERROR.
-
-IF NOT AVAILABLE sys-ctrl THEN
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.NAME    = "JOBQTYCUST"
-        sys-ctrl.module  = "JC"
-        sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
-        sys-ctrl.log-fld = NO .
-END.
-
-v-job-cust = sys-ctrl.log-fld.
 s-prt-set-header = NO .
 
 ASSIGN
@@ -348,11 +338,12 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=ItemStart><R+8><#ItemBL>"
             "<=ItemStart><C+44><R+8><#ItemEnd>"
             "<=ItemTR><FROM><LINE#ItemEnd><|1>"
-            "<=ItemStart><R+1><RIGHT=C+5>FG ID: <#FGItemID><RIGHT=C+27>Estimate: <#Estimate>"
+            "<=ItemStart><R+1><RIGHT=C+5>FG ID: <#FGItemID><RIGHT=C+27><P14>Estimate: <P8><#Estimate>"
             "<=ItemStart><R+2><RIGHT=C+5>Name: <#FGItemName>"
             "<=ItemStart><R+3><RIGHT=C+5>Desc1: <#FGItemDesc1>"
             "<=ItemStart><R+4><RIGHT=C+5>Desc2: <#FGItemDesc2>"
             "<=ItemStart><R+5><RIGHT=C+5>Style: <#Style><RIGHT=C+18>Tab: <#TabInOut>"
+            "<=ItemStart><R+5><RIGHT=C+38><B>Joint Material: </B><#JointMaterial>"
             "<=ItemStart><R+6><RIGHT=C+5>Size: <#Size><RIGHT=C+18>CAD#: <#CAD>"
             "<=ItemTR><#OrderStart>"
             "<=OrderStart><C108><#OrderTR>"
@@ -363,7 +354,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
             "<=OrderStart><R+5><RIGHT=C+10>Order Date: <#OrderDate>"
-            "<=OrderStart><R+6><RIGHT=C+10>Due Date: <#OrderDueDate>"
+            "<=OrderStart><R+6><RIGHT=C+10.3><P14>Due Date: <P8><#OrderDueDate>"
             "<=QuantityStart><FROM><RECT#OrderEnd><|1>"
             "<=QuantityStart><R+1><RIGHT=C+10>Job Quantity: <#JobQuantity>"
             "<=QuantityStart><R+2><RIGHT=C+10>Overrun: <#Overrun> "
@@ -493,8 +484,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<B>"
               "<=Style>" IF AVAILABLE xstyle THEN xstyle.style ELSE "" FORMAT "x(15)"
               "<=TabInOut>" IF AVAIL xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAIL xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
+              "<FGColor=Blue>"
+              "<=JointMaterial>" IF AVAIL xeb THEN xeb.adhesive ELSE "" FORMAT "x(10)"
+              "<FGColor=GREEN><P14>"
               "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
-              "</B>"
+              "<FGCOLOR=BLACK></B><P8>"
               "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
@@ -507,9 +501,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
               "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
-              "<FGColor=Blue><B>"
+              "<FGColor=Blue><B><P14>"
               "<=OrderDueDate>"   IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE "" FORMAT "x(15)"
-              "</B><FGColor=Black>"
+              "<P8></B><FGColor=Black>"
               "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 
               "</B>"
@@ -721,7 +715,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
              
-              "<P7><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
+              "<FGCOLOR=RED><P7><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
@@ -734,7 +728,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes4>" v-spec-note[4] FORMAT "x(100)" SKIP
               "<=SpecNotes5>" v-spec-note[5] FORMAT "x(100)" SKIP
               "<=SpecNotes6>" v-spec-note[6] FORMAT "x(100)"  SKIP
-              .
+              "<FGCOLOR=BLACK>".
         
         PAGE.
 

@@ -41,7 +41,9 @@ DEFINE VARIABLE lShowSysCtrlUsage AS LOGICAL NO-UNDO INITIAL YES.
 
 {methods/defines/globdefs.i}
 {system/ttPermissions.i}
+{system/ttSetting.i}
 {system/ttSysCtrlUsage.i}
+{system/ttSessionParam.i}
 {methods/defines/sortByDefs.i}
 
 DEFINE TEMP-TABLE bttSysCtrlUsage NO-UNDO LIKE ttSysCtrlUsage.
@@ -65,7 +67,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES APIOutboundTrigger APIOutbound ttPermissions ~
-ttSysCtrlUsage
+ttSettingUsage ttSysCtrlUsage ttSessionParam
 
 /* Definitions for BROWSE API                                           */
 &Scoped-define FIELDS-IN-QUERY-API APIOutboundTrigger.apiID ~
@@ -104,6 +106,25 @@ APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID ~
 &Scoped-define FIRST-TABLE-IN-QUERY-Permissions ttPermissions
 
 
+/* Definitions for BROWSE sessionParams                                  */
+&Scoped-define FIELDS-IN-QUERY-sessionParams ttSessionParam.sessionParam ttSessionParam.sessionValue   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-sessionParams   
+&Scoped-define SELF-NAME sessionParams
+&Scoped-define QUERY-STRING-sessionParams FOR EACH ttSessionParam  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-sessionParams OPEN QUERY {&SELF-NAME} FOR EACH ttSessionParam  ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-sessionParams ttSessionParam
+&Scoped-define FIRST-TABLE-IN-QUERY-sessionParams ttSessionParam
+
+/* Definitions for BROWSE settingUsage                                  */
+&Scoped-define FIELDS-IN-QUERY-settingUsage ttSettingUsage.settingName ttSettingUsage.description ttSettingUsage.settingValue ttSettingUsage.scopeTable ttSettingUsage.scopeField1 ttSettingUsage.scopeField2 ttSettingUsage.scopeField3 ttSettingUsage.categoryTags ttSettingUsage.defaultValue ttSettingUsage.validValues   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-settingUsage   
+&Scoped-define SELF-NAME settingUsage
+&Scoped-define QUERY-STRING-settingUsage FOR EACH ttSettingUsage  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-settingUsage OPEN QUERY {&SELF-NAME} FOR EACH ttSettingUsage  ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-settingUsage ttSettingUsage
+&Scoped-define FIRST-TABLE-IN-QUERY-settingUsage ttSettingUsage
+
+
 /* Definitions for BROWSE sysCtrlUsage                                  */
 &Scoped-define FIELDS-IN-QUERY-sysCtrlUsage ttSysCtrlUsage.company ttSysCtrlUsage.module ttSysCtrlUsage.name ttSysCtrlUsage.char-fld ttSysCtrlUsage.date-fld ttSysCtrlUsage.dec-fld ttSysCtrlUsage.int-fld ttSysCtrlUsage.log-fld ttSysCtrlUsage.descrip ttSysCtrlUsage.usageNow ttSysCtrlUsage.category ttSysCtrlUsage.cust-vend ttSysCtrlUsage.cust-vend-no ttSysCtrlUsage.seqNo ttSysCtrlUsage.ship-id ttSysCtrlUsage.subCategory ttSysCtrlUsage.sysCtrlID ttSysCtrlUsage.typeCode   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-sysCtrlUsage   
@@ -118,11 +139,13 @@ APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID ~
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
     ~{&OPEN-QUERY-API}~
     ~{&OPEN-QUERY-Permissions}~
-    ~{&OPEN-QUERY-sysCtrlUsage}
+    ~{&OPEN-QUERY-settingUsage}~
+    ~{&OPEN-QUERY-sysCtrlUsage}~
+    ~{&OPEN-QUERY-sessionParams}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS showBrowse btnStackTrace btnClear ~
-sysCtrlUsage Permissions API 
+sysCtrlUsage settingUsage sessionParams Permissions API 
 &Scoped-Define DISPLAYED-OBJECTS showBrowse 
 
 /* Custom List Definitions                                              */
@@ -152,8 +175,10 @@ DEFINE VARIABLE showBrowse AS CHARACTER INITIAL "SysCtrl"
      RADIO-BUTTONS 
           "API Settings", "API",
 "Permissions", "Permissions",
-"SysCtrl Usage", "SysCtrl"
-     SIZE 52 BY .91 NO-UNDO.
+"SysCtrl Usage", "SysCtrl",
+"Configuration Settings", "Settings",
+"Session Parameters", "SessionParams"
+     SIZE 118 BY .91 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -163,6 +188,12 @@ DEFINE QUERY API FOR
 
 DEFINE QUERY Permissions FOR 
       ttPermissions SCROLLING.
+
+DEFINE QUERY sessionParams FOR 
+      ttSessionParam SCROLLING.
+
+DEFINE QUERY settingUsage FOR 
+      ttSettingUsage SCROLLING.
 
 DEFINE QUERY sysCtrlUsage FOR 
       ttSysCtrlUsage SCROLLING.
@@ -197,6 +228,32 @@ ttPermissions.can_update
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 27.62.
 
+DEFINE BROWSE sessionParams
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sessionParams C-Win _FREEFORM
+  QUERY sessionParams DISPLAY
+      ttSessionParam.sessionParam LABEL-BGCOLOR 14
+ttSessionParam.sessionValue LABEL-BGCOLOR 14 FORMAT "x(50)"
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 27.62 ROW-HEIGHT-CHARS .62.
+
+DEFINE BROWSE settingUsage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS settingUsage C-Win _FREEFORM
+  QUERY settingUsage DISPLAY
+      ttSettingUsage.settingName LABEL-BGCOLOR 14
+ttSettingUsage.description LABEL-BGCOLOR 14 FORMAT "x(50)"
+ttSettingUsage.settingValue LABEL-BGCOLOR 14 FORMAT "x(50)"
+ttSettingUsage.scopeTable LABEL-BGCOLOR 14
+ttSettingUsage.scopeField1 LABEL-BGCOLOR 14
+ttSettingUsage.scopeField2 LABEL-BGCOLOR 14
+ttSettingUsage.scopeField3 LABEL-BGCOLOR 14
+ttSettingUsage.categoryTags LABEL-BGCOLOR 14 FORMAT "x(50)"
+ttSettingUsage.defaultValue LABEL-BGCOLOR 14 FORMAT "x(50)"
+ttSettingUsage.validValues
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 27.62 ROW-HEIGHT-CHARS .62.
+
 DEFINE BROWSE sysCtrlUsage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS sysCtrlUsage C-Win _FREEFORM
   QUERY sysCtrlUsage DISPLAY
@@ -227,9 +284,11 @@ ttSysCtrlUsage.typeCode
 
 DEFINE FRAME DEFAULT-FRAME
      showBrowse AT ROW 1 COL 9 NO-LABEL WIDGET-ID 10
-     btnStackTrace AT ROW 1 COL 62 WIDGET-ID 4
-     btnClear AT ROW 1 COL 83 WIDGET-ID 2
+     btnStackTrace AT ROW 1 COL 128 WIDGET-ID 4
+     btnClear AT ROW 1 COL 149 WIDGET-ID 2
      sysCtrlUsage AT ROW 1.95 COL 1 WIDGET-ID 200
+     settingUsage AT ROW 1.95 COL 1
+     sessionParams AT ROW 1.95 COL 1
      Permissions AT ROW 1.95 COL 1 WIDGET-ID 300
      API AT ROW 1.95 COL 1 WIDGET-ID 400
      "Show:" VIEW-AS TEXT
@@ -286,11 +345,21 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 /* BROWSE-TAB sysCtrlUsage btnClear DEFAULT-FRAME */
-/* BROWSE-TAB Permissions sysCtrlUsage DEFAULT-FRAME */
+/* BROWSE-TAB sessionParams sysCtrlUsage DEFAULT-FRAME */
+/* BROWSE-TAB settingUsage sysCtrlUsage DEFAULT-FRAME */
+/* BROWSE-TAB Permissions settingUsage DEFAULT-FRAME */
 /* BROWSE-TAB API Permissions DEFAULT-FRAME */
 ASSIGN 
        Permissions:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
        Permissions:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+ASSIGN 
+       sessionParams:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
+       sessionParams:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+ASSIGN 
+       settingUsage:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
+       settingUsage:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 ASSIGN 
        sysCtrlUsage:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
@@ -339,6 +408,26 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttPermissions
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
      _Query            is OPENED
 */  /* BROWSE Permissions */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sessionParams
+/* Query rebuild information for BROWSE sessionParams
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttSessionParam
+ ~{&SORTBY-PHRASE}.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE sessionParams */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE settingUsage
+/* Query rebuild information for BROWSE settingUsage
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttSettingUsage
+ ~{&SORTBY-PHRASE}.
+     _END_FREEFORM
+     _Query            is OPENED
+*/  /* BROWSE settingUsage */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE sysCtrlUsage
@@ -400,6 +489,7 @@ DO:
     DYNAMIC-FUNCTION("sfClearUsage").
     RUN pGetTtPermissions.
     RUN pGetSysCtrlUsage.
+    RUN pGetSettingUsage.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,8 +500,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnStackTrace C-Win
 ON CHOOSE OF btnStackTrace IN FRAME DEFAULT-FRAME /* View Stack Trace */
 DO:
-    IF AVAILABLE ttSysCtrlUsage THEN
-    RUN system/stackTrace.w (ttSysCtrlUsage.stackTrace).
+    CASE showBrowse:
+        WHEN "Settings" THEN
+            IF AVAILABLE ttSettingUsage THEN
+            RUN system/stackTrace.w (ttSettingUsage.stackTrace).
+        WHEN "SysCtrl" THEN
+            IF AVAILABLE ttSysCtrlUsage THEN
+            RUN system/stackTrace.w (ttSysCtrlUsage.stackTrace).
+        WHEN "SessionParams" THEN
+            IF AVAILABLE ttSessionParam THEN
+            RUN system/stackTrace.w (ttSessionParam.stackTrace).
+    END.
     RETURN NO-APPLY.
 END.
 
@@ -431,17 +530,51 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME settingUsage
+&Scoped-define SELF-NAME settingUsage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL settingUsage C-Win
+ON DEFAULT-ACTION OF settingUsage IN FRAME DEFAULT-FRAME
+DO:
+    APPLY "CHOOSE":U TO btnStackTrace.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sessionParams C-Win
+ON START-SEARCH OF sessionParams IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/startSearch.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL settingUsage C-Win
+ON START-SEARCH OF settingUsage IN FRAME DEFAULT-FRAME
+DO:
+    {AOA/includes/startSearch.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME showBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showBrowse C-Win
 ON VALUE-CHANGED OF showBrowse IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN
         {&SELF-NAME}
-        btnClear:SENSITIVE         = {&SELF-NAME} NE "API"
-        btnStackTrace:SENSITIVE    = {&SELF-NAME} EQ "SysCtrl"
-        BROWSE API:HIDDEN          = {&SELF-NAME} NE "API"
-        BROWSE Permissions:HIDDEN  = {&SELF-NAME} NE "Permissions"
-        BROWSE sysCtrlUsage:HIDDEN = {&SELF-NAME} NE "SysCtrl"
+        btnClear:SENSITIVE          = CAN-DO("Permissions,SysCtrl,Settings",{&SELF-NAME})
+        btnStackTrace:SENSITIVE     = CAN-DO("Settings,SysCtrl,SessionParams",{&SELF-NAME})
+        BROWSE API:HIDDEN           = {&SELF-NAME} NE "API"
+        BROWSE Permissions:HIDDEN   = {&SELF-NAME} NE "Permissions"
+        BROWSE sysCtrlUsage:HIDDEN  = {&SELF-NAME} NE "SysCtrl"
+        BROWSE settingUsage:HIDDEN  = {&SELF-NAME} NE "Settings"
+        BROWSE sessionParams:HIDDEN = {&SELF-NAME} NE "SessionParams"
         .
     RETURN NO-APPLY.
 END.
@@ -486,6 +619,10 @@ END.
 {methods/template/brwcustom2.i 2}
 &Scoped-define sdBrowseName sysCtrlUsage
 {methods/template/brwcustom2.i 3}
+&Scoped-define sdBrowseName settingUsage
+{methods/template/brwcustom2.i 4}
+&Scoped-define sdBrowseName sessionParams
+{methods/template/brwcustom2.i 5}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
@@ -507,6 +644,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DYNAMIC-FUNCTION("sfSetSysCtrlUsageHandle", THIS-PROCEDURE).
   RUN pGetTtPermissions.
   RUN pGetSysCtrlUsage.
+  RUN pGetSettingUsage.
+  RUN pGetSessionParams.
   RUN enable_UI.
   RUN pToggleAPISettingsStatus.
   APPLY "VALUE-CHANGED":U TO showBrowse.
@@ -531,6 +670,21 @@ END.
 {methods/sortByProc.i "pByMnemonic" "ttPermissions.mnemonic"}
 {methods/sortByProc.i "pByPrgmName" "ttPermissions.prgmName"}
 {methods/sortByProc.i "pByPrgTitle" "ttPermissions.prgTitle"}
+
+&Scoped-define sdBrowseName settingUsage
+{methods/sortByProc.i "pBySettingName" "ttSettingUsage.settingName"}
+{methods/sortByProc.i "pByDescription" "ttSettingUsage.description"}
+{methods/sortByProc.i "pBySettingValue" "ttSettingUsage.settingValue"}
+{methods/sortByProc.i "pByScopeTable" "ttSettingUsage.scopeTable"}
+{methods/sortByProc.i "pByScopeField1" "ttSettingUsage.scopeField1"}
+{methods/sortByProc.i "pByScopeField2" "ttSettingUsage.scopeField2"}
+{methods/sortByProc.i "pByScopeField3" "ttSettingUsage.scopeField3"}
+{methods/sortByProc.i "pByCategoryTags" "ttSettingUsage.categoryTags"}
+{methods/sortByProc.i "pByDefaultValue" "ttSettingUsage.defaultValue"}
+
+&Scoped-define sdBrowseName sessionParams
+{methods/sortByProc.i "pBySessionParam" "ttSessionParam.sessionParam"}
+{methods/sortByProc.i "pBySessionValue" "ttSessionParam.sessionValue"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -570,10 +724,70 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY showBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE showBrowse btnStackTrace btnClear sysCtrlUsage Permissions API 
+  ENABLE showBrowse btnStackTrace btnClear sysCtrlUsage settingUsage 
+         sessionParams Permissions API 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSessionParams C-Win
+PROCEDURE pGetSessionParams:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN spGetSessionParams (OUTPUT TABLE ttSessionParam).
+    {&OPEN-QUERY-sessionParams}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingUsage C-Win 
+PROCEDURE pGetSettingUsage :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hSettingUsage AS HANDLE  NO-UNDO EXTENT 2.
+    DEFINE VARIABLE hQuery        AS HANDLE  NO-UNDO EXTENT 2.
+    DEFINE VARIABLE idx           AS INTEGER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttSettingUsage.
+    
+    ASSIGN
+        hSettingUsage[1] = DYNAMIC-FUNCTION("sfGetTtSettingUsageHandle")
+        hSettingUsage[1] = hSettingUsage[1]:DEFAULT-BUFFER-HANDLE
+        hSettingUsage[2] = TEMP-TABLE ttSettingUsage:HANDLE
+        hSettingUsage[2] = hSettingUsage[2]:DEFAULT-BUFFER-HANDLE
+        .    
+    /* scroll returned temp-table records */
+    CREATE QUERY hQuery[1].
+    hQuery[1]:SET-BUFFERS(hSettingUsage[1]:HANDLE).
+    hQuery[1]:QUERY-PREPARE("FOR EACH " + hSettingUsage[1]:NAME).
+    hQuery[1]:QUERY-OPEN.
+
+    CREATE QUERY hQuery[2].
+    hQuery[2]:SET-BUFFERS(hSettingUsage[2]:HANDLE).
+
+    REPEAT:
+        hQuery[1]:GET-NEXT().
+        IF hQuery[1]:QUERY-OFF-END THEN LEAVE.
+        CREATE ttSettingUsage.
+        DO idx = 1 TO hSettingUsage[1]:NUM-FIELDS:
+            hSettingUsage[2]:BUFFER-FIELD(idx):BUFFER-VALUE() = hSettingUsage[1]:BUFFER-FIELD(idx):BUFFER-VALUE(). 
+        END. /* do idx */
+    END. /* repeat */
+    hQuery[1]:QUERY-CLOSE().
+    DELETE OBJECT hQuery[1].
+    
+    {&OPEN-QUERY-settingUsage}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -706,6 +920,28 @@ PROCEDURE pReopenBrowse :
         RUN pByPrgmName.
         WHEN "prgTitle" THEN
         RUN pByPrgTitle.
+        WHEN "settingName" THEN
+        RUN pBySettingName.
+        WHEN "description" THEN
+        RUN pByDescription.
+        WHEN "settingValue" THEN
+        RUN pBySettingValue.
+        WHEN "scopeTable" THEN
+        RUN pByScopeTable.
+        WHEN "scopeField1" THEN
+        RUN pByScopeField1.
+        WHEN "scopeField2" THEN
+        RUN pByScopeField2.
+        WHEN "scopeField3" THEN
+        RUN pByScopeField3.
+        WHEN "categoryTags" THEN
+        RUN pByCategoryTags.
+        WHEN "defaultValue" THEN
+        RUN pByDefaultValue.
+        WHEN "sessionParam" THEN
+        RUN pBySessionParam.
+        WHEN "sessionValue" THEN
+        RUN pBySessionValue.
     END CASE.
     {AOA/includes/pReopenBrowse.i}
     SESSION:SET-WAIT-STATE("").
@@ -730,14 +966,18 @@ PROCEDURE pReSize :
     ASSIGN
         FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
         FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-        FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
-        FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
-        BROWSE API:WIDTH           = FRAME {&FRAME-NAME}:WIDTH
-        BROWSE API:HEIGHT          = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
-        BROWSE Permissions:WIDTH   = FRAME {&FRAME-NAME}:WIDTH
-        BROWSE Permissions:HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
-        BROWSE sysCtrlUsage:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
-        BROWSE sysCtrlUsage:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
+        FRAME {&FRAME-NAME}:WIDTH   = {&WINDOW-NAME}:WIDTH
+        FRAME {&FRAME-NAME}:HEIGHT  = {&WINDOW-NAME}:HEIGHT
+        BROWSE API:WIDTH            = FRAME {&FRAME-NAME}:WIDTH
+        BROWSE API:HEIGHT           = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
+        BROWSE Permissions:WIDTH    = FRAME {&FRAME-NAME}:WIDTH
+        BROWSE Permissions:HEIGHT   = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
+        BROWSE sysCtrlUsage:WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+        BROWSE sysCtrlUsage:HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
+        BROWSE settingUsage:WIDTH   = FRAME {&FRAME-NAME}:WIDTH
+        BROWSE settingUsage:HEIGHT  = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
+        BROWSE sessionParams:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+        BROWSE sessionParams:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - FRAME {&FRAME-NAME}:ROW
         .
     FRAME {&FRAME-NAME}:HIDDEN = NO.
 
