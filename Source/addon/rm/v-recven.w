@@ -766,6 +766,7 @@ ON LEAVE OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
 DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE t-scr-uom AS CHARACTER NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -811,8 +812,14 @@ DO:
              IF lEdDocFound THEN DO:
                  RUN poSearch(NO, OUTPUT lContinue).
              END. 
-             ELSE DO:              
-                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
+             ELSE DO: 
+                 RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
+                                              OUTPUT v-po-no,
+                                              OUTPUT v-po-line,
+                                              OUTPUT v-qty,
+                                              OUTPUT t-scr-uom). 
+             
+/*                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.*/
                  
                  IF NOT ERROR-STATUS:ERROR THEN
                  DO:
@@ -837,12 +844,12 @@ DO:
                     LEAVE.
                  END.
                   
-                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
+/*                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.*/
                  
                  IF NOT ERROR-STATUS:ERROR THEN
                     scr-po-line:SCREEN-VALUE = STRING(v-po-line).
                  
-                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
+/*                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.*/
                  
                  IF NOT ERROR-STATUS:ERROR THEN
                     scr-qty:SCREEN-VALUE = STRING(v-qty).
