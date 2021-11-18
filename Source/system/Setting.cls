@@ -171,6 +171,36 @@ CLASS system.Setting:
         END CASE.
 	END METHOD.
 
+	/*------------------------------------------------------------------------------
+	 Purpose: Returns the scope table and fields for a given scope id
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC CHARACTER pGetScope( 
+	    INPUT  ipiScopeID     AS INT64,
+	    OUTPUT opcScopeTable  AS CHARACTER,
+	    OUTPUT opcScopeField1 AS CHARACTER,
+	    OUTPUT opcScopeField2 AS CHARACTER,
+	    OUTPUT opcScopeField3 AS CHARACTER):
+		
+		DEFINE BUFFER bf-scope FOR scope.
+
+        FIND FIRST bf-scope NO-LOCK
+             WHERE bf-scope.scopeID EQ ipiScopeID
+             NO-ERROR.
+        IF AVAILABLE bf-scope THEN DO:
+            ASSIGN
+                opcScopeTable  = bf-scope.scopeTable
+                opcScopeField1 = bf-scope.scopeField1
+                opcScopeField2 = bf-scope.scopeField2
+                opcScopeField3 = bf-scope.scopeField3
+                .
+            RETURN "".
+        END.
+        ELSE
+            RETURN "Scope ID '" + STRING (ipiScopeID) + "' does not exist".
+	END METHOD.
+
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -866,6 +896,147 @@ CLASS system.Setting:
 
 	END METHOD.
 
+    /*------------------------------------------------------------------------------
+     Purpose: Updates the value of a Company/System scope setting
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC CHARACTER Update(ipcSettingName AS CHARACTER, ipcSettingValue AS CHARACTER):
+
+        DEFINE VARIABLE iScopeID       AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingTypeID AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingID     AS INT64     NO-UNDO.
+        DEFINE VARIABLE cSettingDesc   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeTable    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField1   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField2   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField3   AS CHARACTER NO-UNDO.
+                
+        DEFINE BUFFER bf-setting     FOR setting.
+        DEFINE BUFFER bf-settingType FOR settingType.
+        
+        FIND FIRST bf-settingType NO-LOCK
+             WHERE bf-settingType.settingName EQ ipcSettingName
+             NO-ERROR.
+        IF NOT AVAILABLE bf-settingType THEN
+            RETURN "SettingType Name is not valid".
+
+        ASSIGN
+            iSettingTypeID = bf-settingType.settingTypeID
+            cSettingDesc   = bf-settingType.description
+            .
+                    
+        iScopeID = pCreateScope ("Company", cCompany, "", "").
+        
+        FIND FIRST bf-setting NO-LOCK
+             WHERE bf-setting.settingTypeID EQ bf-settingType.settingTypeID 
+               AND bf-setting.settingName   EQ bf-settingType.settingName
+               AND bf-setting.scopeID       EQ iScopeID
+               AND bf-setting.settingUser   EQ ""
+               AND bf-setting.programID     EQ ""
+             NO-ERROR.
+        IF NOT AVAILABLE bf-setting THEN DO:
+            iScopeID = pCreateScope ("System", "", "", "").
+
+            FIND FIRST bf-setting NO-LOCK
+                 WHERE bf-setting.settingTypeID EQ bf-settingType.settingTypeID 
+                   AND bf-setting.settingName   EQ bf-settingType.settingName
+                   AND bf-setting.scopeID       EQ iScopeID 
+                   AND bf-setting.settingUser   EQ ""
+                   AND bf-setting.programID     EQ ""
+                 NO-ERROR.
+        END.
+        
+        IF AVAILABLE bf-setting THEN
+            ASSIGN
+                iSettingID   = bf-setting.settingID
+                cSettingDesc = bf-setting.description
+                .
+                
+        pGetScope (
+            INPUT  iScopeID,
+            OUTPUT cScopeTable,
+            OUTPUT cScopeField1,
+            OUTPUT cScopeField2,
+            OUTPUT cScopeField3            
+            ).        
+
+        RETURN THIS-OBJECT:Update(
+            iSettingTypeID, 
+            iSettingID,
+            ipcSettingValue, 
+            cSettingDesc, 
+            "",                     /* User */ 
+            "",                     /* Program */
+            FALSE,                  /* Inactive */ 
+            cScopeTable, 
+            cScopeField1, 
+            cScopeField2, 
+            cScopeField3,
+            FALSE,                  /* Save locally */
+            OUTPUT iSettingID
+            ).
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Updates the value of a given scope setting
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC CHARACTER Update(ipcSettingName AS CHARACTER, ipcScopeTable AS CHARACTER, ipcScopeField1 AS CHARACTER, ipcScopeField2 AS CHARACTER, ipcScopeField3 AS CHARACTER, ipcSettingValue  AS CHARACTER):
+
+        DEFINE VARIABLE iScopeID       AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingTypeID AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingID     AS INT64     NO-UNDO.
+        DEFINE VARIABLE cSettingDesc   AS CHARACTER NO-UNDO.
+                
+        DEFINE BUFFER bf-setting     FOR setting.
+        DEFINE BUFFER bf-settingType FOR settingType.
+        
+        FIND FIRST bf-settingType NO-LOCK
+             WHERE bf-settingType.settingName EQ ipcSettingName
+             NO-ERROR.
+        IF NOT AVAILABLE bf-settingType THEN
+            RETURN "SettingType Name is not valid".
+
+        ASSIGN
+            iSettingTypeID = bf-settingType.settingTypeID
+            cSettingDesc   = bf-settingType.description
+            .
+                    
+        iScopeID = pCreateScope (ipcScopeTable, ipcScopeField1, ipcScopeField2, ipcScopeField3).
+        
+        FIND FIRST bf-setting NO-LOCK
+             WHERE bf-setting.settingTypeID EQ bf-settingType.settingTypeID 
+               AND bf-setting.settingName   EQ bf-settingType.settingName
+               AND bf-setting.scopeID       EQ iScopeID
+               AND bf-setting.settingUser   EQ ""
+               AND bf-setting.programID     EQ ""
+             NO-ERROR.
+        
+        IF AVAILABLE bf-setting THEN
+            ASSIGN
+                iSettingID   = bf-setting.settingID
+                cSettingDesc = bf-setting.description
+                .
+                
+        RETURN THIS-OBJECT:Update(
+            iSettingTypeID, 
+            iSettingID,
+            ipcSettingValue, 
+            cSettingDesc, 
+            "",                     /* User */ 
+            "",                     /* Program */
+            FALSE,                  /* Inactive */ 
+            ipcScopeTable, 
+            ipcScopeField1, 
+            ipcScopeField2, 
+            ipcScopeField3,
+            FALSE,                  /* Save locally */
+            OUTPUT iSettingID
+            ).
+    END METHOD.
+        
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:

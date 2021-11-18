@@ -98,24 +98,9 @@ PROCEDURE Zoho_UpdateRefreshToken:
         NO-ERROR.
 
     IF opcRefreshToken NE "" THEN DO:
-        FIND FIRST bf-settingType EXCLUSIVE-LOCK
-             WHERE bf-settingType.settingName EQ "ZohoRefreshToken"
-             NO-ERROR.
-        IF AVAILABLE bf-settingType THEN DO:
-            ASSIGN
-                bf-settingType.validValues  = opcRefreshToken
-                bf-settingType.defaultValue = opcRefreshToken
-                .
-            FOR EACH bf-setting EXCLUSIVE-LOCK
-                 WHERE bf-setting.settingName EQ bf-settingType.settingName
-                 :
-                ASSIGN
-                    bf-setting.settingValue = opcRefreshToken
-                    opcMessage              = "Success"
-                    oplSuccess              = TRUE
-                    .
-            END. /* FOR EACH bf-setting */     
-        END.  /* IF AVAILABLE bf-settingType */    
+        opcMessage = oSetting:Update("ZohoRefreshToken", opcRefreshToken).
+
+        oplSuccess = opcMessage EQ "".
     END.
     ELSE
         ASSIGN
