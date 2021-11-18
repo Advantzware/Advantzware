@@ -86,7 +86,8 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-poscore 
      LABEL "&PO Scores" 
-     SIZE 11.2 BY .95.
+     SIZE 11.2 BY .95
+     FONT 4 .
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -100,7 +101,8 @@ DEFINE FRAME F-Main
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE
+         BGCOLOR 8 FGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */

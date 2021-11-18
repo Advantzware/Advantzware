@@ -929,7 +929,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-estbox ).
-       RUN set-position IN h_p-estbox ( 23.14 , 45.00 ) NO-ERROR.
+       RUN set-position IN h_p-estbox ( 23.14 , 44.50 ) NO-ERROR.
        RUN set-size IN h_p-estbox ( 1.43 , 38.40 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -937,7 +937,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_p-dieimg ).
-       RUN set-position IN h_p-dieimg ( 23.14 , 84.00 ) NO-ERROR.
+       RUN set-position IN h_p-dieimg ( 23.14 , 83.00 ) NO-ERROR.
        RUN set-size IN h_p-dieimg ( 1.43 , 12.20 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -947,7 +947,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-box23d ).
-       RUN set-position IN h_p-box23d ( 23.14 , 96.00 ) NO-ERROR.
+       RUN set-position IN h_p-box23d ( 23.14 , 95.00 ) NO-ERROR.
        RUN set-size IN h_p-box23d ( 1.43 , 30.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -955,7 +955,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pv-grap2 ).
-       RUN set-position IN h_pv-grap2 ( 23.24 , 126.40 ) NO-ERROR.
+       RUN set-position IN h_pv-grap2 ( 23.14 , 125.40 ) NO-ERROR.
        /* Size in UIB:  ( 1.38 , 13.00 ) */
       
        RUN init-object IN THIS-PROCEDURE (
@@ -963,7 +963,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pv-AltDesign ).
-       RUN set-position IN h_pv-AltDesign ( 23.24 , 138.40 ) NO-ERROR.     
+       RUN set-position IN h_pv-AltDesign ( 23.14 , 138.40 ) NO-ERROR.     
      
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/q-boxdes.w':U ,
