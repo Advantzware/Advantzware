@@ -482,7 +482,7 @@ PROCEDURE pRunProcess PRIVATE :
     
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
         
     MESSAGE "Do you want to start the process with the selected parameters?"
         VIEW-AS ALERT-BOX QUESTION
@@ -493,7 +493,9 @@ PROCEDURE pRunProcess PRIVATE :
         RETURN.
     
     SESSION:SET-WAIT-STATE("General"). 
-    STATUS DEFAULT "Processing...".  
+    STATUS DEFAULT "Processing...".
+    
+    cFileName = "OrderLineChanges" + STRING(TIME) + ".csv" .
     
     IF NOT iplExpire THEN    
         RUN FileSys_CreateDirectory(
@@ -511,7 +513,7 @@ PROCEDURE pRunProcess PRIVATE :
                                 INPUT fiBeginingItem:SCREEN-VALUE, 
                                 INPUT fiEndingItem:SCREEN-VALUE, 
                                 INPUT iplExpire, 
-                                INPUT cLocation + "\OrderLineChanges.csv").                 
+                                INPUT cLocation + "\" + cFileName ).                 
     END.    
     
     IF NOT iplExpire THEN DO:         
@@ -520,7 +522,7 @@ PROCEDURE pRunProcess PRIVATE :
             VIEW-AS ALERT-BOX INFORMATION.   
        IF tbOpenFile:CHECKED THEN 
             RUN OS_RunFile(
-                INPUT cLocation + "\OrderLineChanges.csv",
+                INPUT cLocation + "\" + cFileName,
                 OUTPUT lSuccess,
                 OUTPUT cMessage).        
     END.   
