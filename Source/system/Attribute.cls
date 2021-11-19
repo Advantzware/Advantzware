@@ -81,7 +81,7 @@ CLASS system.Attribute:
         IF NOT VALID-HANDLE(ipBufferHandle) THEN
             RETURN iplcRequestData.
         
-        FOR EACH attribute
+        FOR EACH attribute NO-LOCK
             WHERE attribute.dbTableName   EQ ipcSourceTable 
               AND attribute.attributeName NE ?
               AND attribute.dbFieldName   NE "":
