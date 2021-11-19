@@ -304,9 +304,10 @@ CLASS system.UserColumn:
                 NEXT.
 
             ASSIGN
-                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel EQ "" THEN hdBrowseColumn:LABEL ELSE ttUserColumn.colLabel 
-                hdBrowseColumn:VISIBLE      = IF ttUserColumn.colVisible EQ ? THEN TRUE ELSE ttUserColumn.colVisible 
-                hdBrowseColumn:WIDTH-PIXELS = ttUserColumn.colWidth 
+                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel   EQ "" THEN hdBrowseColumn:LABEL  ELSE ttUserColumn.colLabel 
+                hdBrowseColumn:VISIBLE      = IF ttUserColumn.colVisible EQ ?  THEN TRUE ELSE ttUserColumn.colVisible 
+                hdBrowseColumn:WIDTH-PIXELS = IF ttUserColumn.colWidth   EQ 0  OR
+                                                 ttUserColumn.colWidth   EQ ?  THEN hdBrowseColumn:WIDTH-PIXELS ELSE ttUserColumn.colWidth
                 .
             
             /* Sometimes default width is ?, as width is set using format */
