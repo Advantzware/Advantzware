@@ -19,6 +19,11 @@ DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
+DEFINE VARIABLE lActiveVertex            AS LOGICAL         NO-UNDO.
+DEFINE VARIABLE dtVertexAccessTokenDate  AS DATE            NO-UNDO.
+DEFINE VARIABLE iVertexAccessTokenTime   AS INTEGER         NO-UNDO.
+DEFINE VARIABLE oSetting                 AS system.Setting  NO-UNDO.
+
 {system/TaxProcs.i}
 {api/ttAPIOutboundEvent.i}
 
@@ -27,6 +32,7 @@ RUN FileSys_GetTempDirectory (
     ).
     
 oModelParser = NEW ObjectModelParser().
+oSetting     = NEW system.Setting().
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -128,23 +134,20 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
-    FIND FIRST bf-sys-ctrl NO-LOCK
-         WHERE bf-sys-ctrl.company EQ ipcCompany
-           AND bf-sys-ctrl.name    EQ "VertexAccessToken"
-         NO-ERROR.
-    IF AVAILABLE bf-sys-ctrl AND bf-sys-ctrl.date-fld NE ? THEN DO:
+    lActiveVertex = LOGICAL(oSetting:GetByName("Vertex")).
+
+    IF lActiveVertex THEN DO:
+        dtVertexAccessTokenDate = DATE(oSetting:GetByName("VertexAccessTokenDate")).
+        iVertexAccessTokenTime  = INTEGER(oSetting:GetByName("VertexAccessTokenTime")).
         
         /* Convert sys-ctrl date and time into a variable of type datetime-tz with +00:00 time zone */
-        dttzSysCtrlDateTimeTZ = DATETIME-TZ(bf-sys-ctrl.date-fld, bf-sys-ctrl.int-fld * 1000, 0).
+        dttzSysCtrlDateTimeTZ = DATETIME-TZ(dtVertexAccessTokenDate, iVertexAccessTokenTime * 1000, 0).
         
-        IF INTERVAL(dttzCurrentGMTDateTimeTZ, dttzSysCtrlDateTimeTZ, "seconds") LT bf-sys-ctrl.dec-fld THEN DO:
-            ASSIGN
-                oplSuccess     = TRUE
-                opcMessage     = "Success"
-                .
-            RETURN.
-        END.
-    END.
+        ASSIGN
+            oplSuccess     = TRUE
+            opcMessage     = "Success"
+            .
+    END. /* IF lActiveVertex THEN DO: */
     
     FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiID EQ "CalculateTax"
@@ -237,19 +240,14 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
-
-    FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
-         WHERE bf-sys-ctrl.company EQ ipcCompany
-           AND bf-sys-ctrl.name    EQ "VertexAccessToken"
-         NO-ERROR.
-    IF AVAILABLE bf-sys-ctrl THEN
-        ASSIGN
-            bf-sys-ctrl.char-fld = cAccessToken
-            bf-sys-ctrl.date-fld = DATE(dttzCurrentGMTDateTimeTZ) /* Save GMT date */
-            bf-sys-ctrl.int-fld  = TRUNCATE(MTIME(dttzCurrentGMTDateTimeTZ) / 1000, 0) /* Save GMT time */
-            opcMessage           = "Success"
-            oplSuccess           = TRUE
-            .    
+    
+    dtVertexAccessTokenDate = DATE(dttzCurrentGMTDateTimeTZ). /* Save GMT date */
+    iVertexAccessTokenTime  = TRUNCATE(MTIME(dttzCurrentGMTDateTimeTZ) / 1000, 0). /* Save GMT time */
+    
+    oSetting:Update("VertexAccessTokenDate", STRING(dtVertexAccessTokenDate)).
+    oSetting:Update("VertexAccessTokenDate", STRING(iVertexAccessTokenTime)).
+    
+    oplSuccess = opcMessage EQ "".   
         
     FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE bf-APIOutbound THEN
