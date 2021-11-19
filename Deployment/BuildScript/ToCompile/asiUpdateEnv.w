@@ -1226,6 +1226,14 @@ PROCEDURE ipBackupDataFiles :
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
 
+&SCOPED-DEFINE cFile attribute
+
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile AuditTbl
 
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
@@ -4837,6 +4845,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAttributeData C-Win 
+PROCEDURE ipLoadAttributeData :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Attribute data").
+
+    &SCOPED-DEFINE tablename attribute
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
@@ -7451,6 +7485,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadZmessage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
         RUN ipLoadNaicsData IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\attribute.d") <> ? THEN
+        RUN ipLoadAttributeData IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.
