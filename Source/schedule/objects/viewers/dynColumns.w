@@ -1363,7 +1363,10 @@ PROCEDURE getReportLayout :
       :
     reportName:ADD-LAST(rptNames.rptTitle,rptNames.rptName).
   END.
-  reportName:SCREEN-VALUE = 'jobByResource'.
+  ASSIGN
+    selectedReport = 'jobByResource'
+    reportName:SCREEN-VALUE = selectedReport
+    .
 
 END PROCEDURE.
 

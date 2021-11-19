@@ -52,7 +52,7 @@ DEFINE VARIABLE lShowAdvancedFilter AS LOGICAL NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btSearch RECT-1 RECT-7 fisearch ~
-fiSettingName cbCategory cbSettingType btAdvancedFilter 
+fiSettingName cbCategory btAdvancedFilter cbSettingType 
 &Scoped-Define DISPLAYED-OBJECTS fisearch fiSettingName cbCategory 
 
 /* Custom List Definitions                                              */
@@ -122,8 +122,8 @@ DEFINE FRAME F-Main
      fisearch AT ROW 1.33 COL 16 COLON-ALIGNED WIDGET-ID 46
      fiSettingName AT ROW 3.33 COL 10.4 WIDGET-ID 2
      cbCategory AT ROW 3.38 COL 94 COLON-ALIGNED WIDGET-ID 14
-     cbSettingType AT ROW 3.38 COL 154 COLON-ALIGNED WIDGET-ID 42
      btAdvancedFilter AT ROW 1 COL 122.8 WIDGET-ID 48
+     cbSettingType AT ROW 3.38 COL 154 COLON-ALIGNED WIDGET-ID 42
      RECT-1 AT ROW 2.86 COL 9.4 WIDGET-ID 18
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 50
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -246,6 +246,17 @@ END.
 ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
 DO:
     RUN new-state ("Search").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fisearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fisearch s-object
+ON ENTER OF fisearch IN FRAME F-Main /* Search */
+DO:
+    APPLY "CHOOSE":U TO btSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

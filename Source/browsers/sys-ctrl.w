@@ -71,7 +71,8 @@ CREATE WIDGET-POOL.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table sys-ctrl.name sys-ctrl.descrip ~
 sys-ctrl.module sys-ctrl.int-fld sys-ctrl.dec-fld sys-ctrl.char-fld ~
-sys-ctrl.date-fld sys-ctrl.log-fld sys-ctrl.securityLevelUser 
+sys-ctrl.date-fld sys-ctrl.log-fld sys-ctrl.securityLevelUser ~
+sys-ctrl.isActive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH sys-ctrl WHERE ~{&KEY-PHRASE} ~
       AND sys-ctrl.company = g_company NO-LOCK ~
@@ -155,6 +156,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       sys-ctrl.securityLevelUser COLUMN-LABEL "Security!Level" FORMAT ">>>9":U
             LABEL-BGCOLOR 14
+      sys-ctrl.isActive FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 195 BY 18.1
@@ -279,6 +281,8 @@ ASSIGN
 "log-fld" "Logical!Value" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.sys-ctrl.securityLevelUser
 "securityLevelUser" "Security!Level" ">>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.sys-ctrl.isActive
+"isActive" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -365,6 +369,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -231,6 +231,34 @@ PROCEDURE Formula_GetFormulaFromttPanel:
         .        
 END PROCEDURE.
 
+PROCEDURE Formula_GetReverseGrainAndEstimateTypeForPOLine:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriPOOrdl      AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcReverseGrain AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEstimateType AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-eb      FOR eb.
+    DEFINE BUFFER bf-ef      FOR ef.
+    
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
+         NO-ERROR.
+    IF NOT AVAILABLE bf-po-ordl THEN
+        RETURN.
+        
+    RUN pGetBuffersForPOLine (BUFFER bf-po-ordl, BUFFER bf-eb, BUFFER bf-ef).
+    
+    IF AVAILABLE bf-ef THEN
+        ASSIGN
+            opcReverseGrain = bf-ef.xgrain
+            opiEstimateType = bf-ef.est-type
+            .    
+END PROCEDURE.
+
 PROCEDURE Formula_ReBuildBoxDesignForEstimate:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -354,7 +382,30 @@ PROCEDURE GetSizeFactor:
     END.            
 END PROCEDURE.
 
-PROCEDURE GetPanelDetailsForEstimate:
+PROCEDURE Formula_GetPanelDetailsForPOScores:
+/*------------------------------------------------------------------------------
+ Purpose: A public method to return Estimate's Alt Design or PO Scores
+ Notes: Fetches panelDetail records for a given Estimate
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
+    
+    
+    RUN GetPanelDetailsForEstimate (
+        INPUT  ipcCompany,
+        INPUT  ipcEstimateID,
+        INPUT  ipiFormNo,
+        INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
+        OUTPUT TABLE ttPanel
+        ).
+                          
+END PROCEDURE.
+
+PROCEDURE GetPanelDetailsForEstimate PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Fetches panelDetail records for a given Estimate
  Notes:
@@ -363,13 +414,14 @@ PROCEDURE GetPanelDetailsForEstimate:
     DEFINE INPUT  PARAMETER ipcEstimateID AS CHARACTE  NO-UNDO.
     DEFINE INPUT  PARAMETER ipiFormNo     AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelLinkType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE         FOR ttPanel.    
     
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
     
     FIND FIRST bf-panelHeader NO-LOCK
          WHERE bf-panelHeader.company    EQ ipcCompany
-           AND bf-panelHeader.linkType   EQ gcPanelLinkTypeEstimate
+           AND bf-panelHeader.linkType   EQ ipcPanelLinkType
            AND bf-panelHeader.estimateID EQ ipcEstimateID
            AND bf-panelHeader.formNo     EQ ipiFormNo
            AND bf-panelHeader.blankNo    EQ ipiBlankNo
@@ -536,6 +588,7 @@ PROCEDURE GetPanelScoreAndTypeForEstimate:
         INPUT  ipcEstimateID,
         INPUT  ipiFormNo,
         INPUT  ipiBlankNo,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
 
@@ -896,6 +949,7 @@ PROCEDURE pBuildPanelDetailsForEstimate PRIVATE:
         INPUT  bf-eb.est-no,
         INPUT  bf-eb.form-no,
         INPUT  bf-eb.blank-no,
+        INPUT gcPanelLinkTypeEstimate,
         OUTPUT TABLE ttPanel
         ).
     IF NOT iplRebuild THEN DO:
@@ -1061,22 +1115,11 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
     DEFINE INPUT  PARAMETER ipcPanelTypes AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttPanel.
 
-    DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lPOFarmOutScores AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE riEb             AS ROWID     NO-UNDO.
-    
     DEFINE VARIABLE lRebuild AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-eb      FOR eb.
     DEFINE BUFFER bf-ef      FOR ef.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    DEFINE BUFFER bf-job     FOR job.
-    DEFINE BUFFER bf-est-qty FOR est-qty.
-    DEFINE BUFFER bf-job-mat FOR job-mat.
-    DEFINE BUFFER bf-item    FOR item.
-    DEFINE BUFFER bf-est     FOR est.
     DEFINE BUFFER bf-style   FOR style.
     
     FIND FIRST bf-po-ordl NO-LOCK
@@ -1112,101 +1155,7 @@ PROCEDURE pBuildPanelDetailsForPO PRIVATE:
             RETURN.
     END.
     
-    RUN sys/ref/nk1look.p (
-        INPUT bf-po-ordl.company, /* Company Code */ 
-        INPUT "POFarmOutScores",  /* sys-ctrl name */
-        INPUT "L",                /* Output return value */
-        INPUT NO,                 /* Use ship-to */
-        INPUT NO,                 /* ship-to vendor */
-        INPUT "",                 /* ship-to vendor value */
-        INPUT "",                 /* shi-id value */
-        OUTPUT cReturnChar, 
-        OUTPUT lRecFound
-        ).
-    lPOFarmOutScores = cReturnChar EQ "YES".
-    
-    IF bf-po-ordl.i-no NE "" AND NOT bf-po-ordl.item-type AND lPOFarmOutScores THEN DO:
-        FIND FIRST bf-itemfg NO-LOCK
-             WHERE bf-itemfg.company EQ bf-po-ordl.company
-               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR.
-        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN DO:            
-            FOR LAST bf-est-qty NO-LOCK
-                WHERE bf-est-qty.company EQ bf-po-ordl.company
-                  AND bf-est-qty.est-no  EQ bf-itemfg.est-no 
-                USE-INDEX est-qty,
-                FIRST bf-ef NO-LOCK
-                WHERE bf-ef.company EQ bf-est-qty.company 
-                  AND bf-ef.est-no  EQ bf-est-qty.est-no 
-                  AND bf-ef.eqty    EQ bf-est-qty.eqty 
-                USE-INDEX est-qty,
-                FIRST bf-eb NO-LOCK 
-                WHERE bf-eb.company  EQ bf-ef.company
-                  AND bf-eb.est-no   EQ bf-ef.est-no 
-                  AND bf-eb.stock-no EQ bf-po-ordl.i-no
-                  AND bf-eb.eqty     EQ bf-ef.eqty 
-                USE-INDEX est-qty:
-                riEb = ROWID(bf-eb).
-            END.
-            
-            IF riEb NE ? THEN
-                FIND FIRST bf-eb NO-LOCK
-                     WHERE ROWID(bf-eb) EQ riEb
-                     NO-ERROR.  
-        END.
-    END.
-
-    IF bf-po-ordl.i-no NE "" AND bf-po-ordl.item-type THEN DO:
-        FIND FIRST bf-item NO-LOCK
-             WHERE bf-item.company EQ bf-po-ordl.company
-               AND bf-item.i-no    EQ bf-po-ordl.i-no
-             NO-ERROR.
-        IF AVAILABLE bf-item AND LOOKUP(bf-item.mat-type, "B,P") EQ 0 THEN
-            NEXT.
-            
-        IF bf-po-ordl.job-no NE "" THEN
-            FIND FIRST bf-job-mat NO-LOCK 
-                 WHERE bf-job-mat.company    EQ bf-po-ordl.company
-                   AND bf-job-mat.rm-i-no    EQ bf-po-ordl.i-no
-                   AND bf-job-mat.job-no     EQ STRING(FILL(" ",6 - LENGTH(TRIM(bf-po-ordl.job-no)))) + TRIM(bf-po-ordl.job-no)
-                   AND bf-job-mat.job-no2    EQ bf-po-ordl.job-no2
-                   AND bf-job-mat.i-no       EQ bf-po-ordl.i-no
-                   AND ((bf-job-mat.frm      EQ bf-po-ordl.s-num AND bf-po-ordl.s-num NE 0) OR
-                         bf-po-ordl.s-num    EQ 0 OR 
-                         bf-po-ordl.s-num    EQ ?)
-                   AND ((bf-job-mat.blank-no EQ bf-po-ordl.b-num AND bf-po-ordl.b-num NE 0) OR
-                         bf-po-ordl.b-num    EQ 0)
-                 USE-INDEX i-no 
-                 NO-ERROR.
-
-        IF AVAILABLE bf-job-mat THEN
-            FIND FIRST bf-job NO-LOCK 
-                 WHERE bf-job.company EQ bf-job-mat.company
-                   AND bf-job.job     EQ bf-job-mat.job
-                   AND bf-job.job-no  EQ bf-job-mat.job-no
-                   AND bf-job.job-no2 EQ bf-job-mat.job-no2
-                 NO-ERROR.
-                 
-        IF AVAILABLE bf-job THEN
-            FIND FIRST bf-est NO-LOCK
-                 WHERE bf-est.company EQ bf-job.company
-                   AND bf-est.est-no  EQ bf-job.est-no
-                 NO-ERROR.
-                 
-        IF AVAILABLE bf-est THEN
-            FIND FIRST bf-ef NO-LOCK 
-                 WHERE bf-ef.company EQ bf-est.company
-                   AND bf-ef.est-no  EQ bf-est.est-no
-                   AND bf-ef.form-no EQ bf-job-mat.frm
-                 NO-ERROR.
-                
-        IF AVAILABLE bf-ef THEN
-            FIND FIRST bf-eb NO-LOCK
-                 WHERE bf-eb.company EQ bf-ef.company
-                   AND bf-eb.est-no  EQ bf-ef.est-no
-                   AND bf-eb.form-no EQ bf-ef.form-no
-                 NO-ERROR.
-    END.     
+    RUN pGetBuffersForPOLine (BUFFER bf-po-ordl, BUFFER bf-eb, BUFFER bf-ef).
     
     IF AVAILABLE bf-eb THEN DO:
         EMPTY TEMP-TABLE ttPanel.
@@ -1308,6 +1257,131 @@ PROCEDURE pDeletePanelDetail PRIVATE:
         WHERE bf-panelDetail.panelHeaderID EQ ipiPanelHeaderID:
         DELETE bf-panelDetail.
     END.    
+END PROCEDURE.
+
+PROCEDURE pGetBuffersForPOLine:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ordl FOR po-ordl.
+    DEFINE PARAMETER BUFFER opbf-eb      FOR eb.
+    DEFINE PARAMETER BUFFER opbf-ef      FOR ef.
+    
+    DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPOFarmOutScores AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE riEb             AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE lRebuild AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-est-qty FOR est-qty.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-est     FOR est.
+    DEFINE BUFFER bf-style   FOR style.
+    
+    IF NOT AVAILABLE ipbf-po-ordl THEN
+        RETURN.
+          
+    RUN sys/ref/nk1look.p (
+        INPUT ipbf-po-ordl.company, /* Company Code */ 
+        INPUT "POFarmOutScores",  /* sys-ctrl name */
+        INPUT "L",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound
+        ).
+    lPOFarmOutScores = cReturnChar EQ "YES".
+    
+    IF ipbf-po-ordl.i-no NE "" AND NOT ipbf-po-ordl.item-type AND lPOFarmOutScores THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipbf-po-ordl.company
+               AND bf-itemfg.i-no    EQ ipbf-po-ordl.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN DO:            
+            FOR LAST bf-est-qty NO-LOCK
+                WHERE bf-est-qty.company EQ ipbf-po-ordl.company
+                  AND bf-est-qty.est-no  EQ bf-itemfg.est-no 
+                USE-INDEX est-qty,
+                FIRST opbf-ef NO-LOCK
+                WHERE opbf-ef.company EQ bf-est-qty.company 
+                  AND opbf-ef.est-no  EQ bf-est-qty.est-no 
+                  AND opbf-ef.eqty    EQ bf-est-qty.eqty 
+                USE-INDEX est-qty,
+                FIRST opbf-eb NO-LOCK 
+                WHERE opbf-eb.company  EQ opbf-ef.company
+                  AND opbf-eb.est-no   EQ opbf-ef.est-no 
+                  AND opbf-eb.stock-no EQ ipbf-po-ordl.i-no
+                  AND opbf-eb.eqty     EQ opbf-ef.eqty 
+                USE-INDEX est-qty:
+                riEb = ROWID(opbf-eb).
+            END.
+            
+            IF riEb NE ? THEN
+                FIND FIRST opbf-eb NO-LOCK
+                     WHERE ROWID(opbf-eb) EQ riEb
+                     NO-ERROR.  
+        END.
+    END.
+
+    IF ipbf-po-ordl.i-no NE "" AND ipbf-po-ordl.item-type THEN DO:
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipbf-po-ordl.company
+               AND bf-item.i-no    EQ ipbf-po-ordl.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-item AND LOOKUP(bf-item.mat-type, "B,P") EQ 0 THEN
+            NEXT.
+            
+        IF ipbf-po-ordl.job-no NE "" THEN
+            FIND FIRST bf-job-mat NO-LOCK 
+                 WHERE bf-job-mat.company    EQ ipbf-po-ordl.company
+                   AND bf-job-mat.rm-i-no    EQ ipbf-po-ordl.i-no
+                   AND bf-job-mat.job-no     EQ STRING(FILL(" ",6 - LENGTH(TRIM(ipbf-po-ordl.job-no)))) + TRIM(ipbf-po-ordl.job-no)
+                   AND bf-job-mat.job-no2    EQ ipbf-po-ordl.job-no2
+                   AND bf-job-mat.i-no       EQ ipbf-po-ordl.i-no
+                   AND ((bf-job-mat.frm      EQ ipbf-po-ordl.s-num AND ipbf-po-ordl.s-num NE 0) OR
+                         ipbf-po-ordl.s-num    EQ 0 OR 
+                         ipbf-po-ordl.s-num    EQ ?)
+                   AND ((bf-job-mat.blank-no EQ ipbf-po-ordl.b-num AND ipbf-po-ordl.b-num NE 0) OR
+                         ipbf-po-ordl.b-num    EQ 0)
+                 USE-INDEX i-no 
+                 NO-ERROR.
+
+        IF AVAILABLE bf-job-mat THEN
+            FIND FIRST bf-job NO-LOCK 
+                 WHERE bf-job.company EQ bf-job-mat.company
+                   AND bf-job.job     EQ bf-job-mat.job
+                   AND bf-job.job-no  EQ bf-job-mat.job-no
+                   AND bf-job.job-no2 EQ bf-job-mat.job-no2
+                 NO-ERROR.
+                 
+        IF AVAILABLE bf-job THEN
+            FIND FIRST bf-est NO-LOCK
+                 WHERE bf-est.company EQ bf-job.company
+                   AND bf-est.est-no  EQ bf-job.est-no
+                 NO-ERROR.
+                 
+        IF AVAILABLE bf-est THEN
+            FIND FIRST opbf-ef NO-LOCK 
+                 WHERE opbf-ef.company EQ bf-est.company
+                   AND opbf-ef.est-no  EQ bf-est.est-no
+                   AND opbf-ef.form-no EQ bf-job-mat.frm
+                 NO-ERROR.
+                
+        IF AVAILABLE opbf-ef THEN
+            FIND FIRST opbf-eb NO-LOCK
+                 WHERE opbf-eb.company EQ opbf-ef.company
+                   AND opbf-eb.est-no  EQ opbf-ef.est-no
+                   AND opbf-eb.form-no EQ opbf-ef.form-no
+                 NO-ERROR.
+    END.     
+
 END PROCEDURE.
 
 PROCEDURE pGetRounded16ths PRIVATE:

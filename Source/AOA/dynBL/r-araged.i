@@ -23,7 +23,7 @@ FOR EACH ar-cash ~
       AND ar-cash.posted      EQ YES ~
     USE-INDEX ar-cash, ~
     EACH ar-cashl ~
-    FIELDS(check-no c-no posted inv-no company voided ~
+    FIELDS(check-no c-no posted inv-no company voided voidDate ~
            cust-no memo amt-disc amt-paid on-account rec_key) ~
     NO-LOCK ~
     WHERE ar-cashl.c-no   EQ ar-cash.c-no ~
@@ -68,24 +68,24 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dDiscAmt          AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cvType            AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE lFirstCust        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iD                AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDays             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx               AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dCustT            AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dCustTPri         AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dCustTFc          AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dSManT            AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dSManTPri         AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dSManTFc          AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dGrandT           AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dGrandTPri        AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dGrandTFc         AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE arClassT          AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE arClassTPri       AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE arClassTFc        AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dCustT            AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dCustTPri         AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dCustTFc          AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dSManT            AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dSManTPri         AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dSManTFc          AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dGrandT           AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dGrandTPri        AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dGrandTFc         AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE arClassT          AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE arClassTPri       AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE arClassTFc        AS DECIMAL   NO-UNDO EXTENT 9.
     DEFINE VARIABLE iCurrentTrendDays AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dCurrT            AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dCurrTPri         AS DECIMAL   NO-UNDO EXTENT 6.
-    DEFINE VARIABLE dCurrTFc          AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dCurrT            AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dCurrTPri         AS DECIMAL   NO-UNDO EXTENT 9.
+    DEFINE VARIABLE dCurrTFc          AS DECIMAL   NO-UNDO EXTENT 9.
     DEFINE VARIABLE s                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dAg               AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dAmt              AS DECIMAL   NO-UNDO.
@@ -98,12 +98,12 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dT1Fc             AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cM2               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cM3               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dUnapp            AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE dUnapp            AS DECIMAL   NO-UNDO EXTENT 9.
     DEFINE VARIABLE lFirstUnapp       AS LOGICAL   NO-UNDO INITIAL YES.
     DEFINE VARIABLE cDiscType         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSalesRep         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iInt              AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dDec              AS DECIMAL   NO-UNDO EXTENT 5.
+    DEFINE VARIABLE dDec              AS DECIMAL   NO-UNDO EXTENT 8.
     DEFINE VARIABLE lValidCust        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lMultCurr         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cInvoiceNote      AS CHARACTER NO-UNDO.
@@ -270,7 +270,7 @@ PROCEDURE pBusinessLogic:
             END. /* each ar-invl */    
             ASSIGN
                 dAg    = dAmt
-                iD     = dtAsofDate - ( IF cSort2 EQ "Due Date" THEN ar-inv.due-date ELSE ar-inv.inv-date)
+                iDays  = dtAsofDate - (IF cSort2 EQ "Due Date" THEN ar-inv.due-date ELSE ar-inv.inv-date)
                 idx    = idx + 1
                 cvType = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN"
                 .    
@@ -338,16 +338,19 @@ PROCEDURE pBusinessLogic:
                     END. /* if cType */
                     lFirstCust = NO.
                 END. /* if lFirstCust */    
-                IF iD GE iPeriodDays4 THEN iInt = 5.
-                ELSE IF iD GE iPeriodDays3 THEN iInt = 4.
-                ELSE IF iD GE iPeriodDays2 THEN iInt = 3.
-                ELSE IF iD GE iPeriodDays1 THEN iInt = 2.
+                IF iPeriodDays7 NE 0 AND iDays GE iPeriodDays7 THEN iInt = 8.
+                ELSE IF iPeriodDays6 NE 0 AND iDays GE iPeriodDays6 THEN iInt = 7.
+                ELSE IF iPeriodDays5 NE 0 AND iDays GE iPeriodDays5 THEN iInt = 6.
+                ELSE IF iPeriodDays4 NE 0 AND iDays GE iPeriodDays4 THEN iInt = 5.
+                ELSE IF iPeriodDays3 NE 0 AND iDays GE iPeriodDays3 THEN iInt = 4.
+                ELSE IF iPeriodDays2 NE 0 AND iDays GE iPeriodDays2 THEN iInt = 3.
+                ELSE IF iPeriodDays1 NE 0 AND iDays GE iPeriodDays1 THEN iInt = 2.
                 ELSE iInt = 1.    
                 ASSIGN
                     dCustT[iInt] = dCustT[iInt] + dAg
                     dDec         = 0
                     dDec[iInt]   = dAg
-                    dCustT[6]    = dCustT[6] + dAmountDue
+                    dCustT[9]    = dCustT[9] + dAmountDue
                     .    
                 IF lSeparateFinanceCharges THEN DO:
                     IF cvType NE "FC" THEN dCustTPri[iInt] = dCustTPri[iInt] + dAg.
@@ -356,40 +359,45 @@ PROCEDURE pBusinessLogic:
                 IF cType EQ "Detail" THEN DO:
                     CREATE ttAgedReceivables.
                     ASSIGN
-                        ttAgedReceivables.custNo      = cust.cust-no
-                        ttAgedReceivables.custName    = cust.name
-                        ttAgedReceivables.contact     = cust.contact
-                        ttAgedReceivables.salesRep    = cSalesRep
-                        ttAgedReceivables.terms       = IF AVAILABLE terms THEN terms.dscr ELSE ""
-                        ttAgedReceivables.address1    = cust.addr[1] 
-                        ttAgedReceivables.address2    = cust.addr[2] 
-                        ttAgedReceivables.city        = cust.city    
-                        ttAgedReceivables.state       = cust.state   
-                        ttAgedReceivables.zip         = cust.zip     
-                        ttAgedReceivables.creditLimit = cust.cr-lim  
-                        ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") + STRING(cust.phone,"xxx-xxxx")) 
-                        ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx")) 
-                        ttAgedReceivables.checkMemo   = "0"                          
-                        ttAgedReceivables.daysOld     = iD                            
-                        ttAgedReceivables.vType       = cvType                       
-                        ttAgedReceivables.invoiceNo   = ar-inv.inv-no                
-                        ttAgedReceivables.invoiceDate = ar-inv.inv-date              
-                        ttAgedReceivables.amount      = dAmt                          
-                        ttAgedReceivables.vCurrent    = dDec[1]                     
-                        ttAgedReceivables.adtp        = cust.avg-pay                 
-                        ttAgedReceivables.td          = iCurrentTrendDays         
-                        ttAgedReceivables.periodDay1  = dDec[2]                     
-                        ttAgedReceivables.periodDay2  = dDec[3]                     
-                        ttAgedReceivables.periodDay3  = dDec[4]    
-                        ttAgedReceivables.periodDay4  = dDec[5]
-                        ttAgedReceivables.custPoNo    = cPoNo                        
-                        ttAgedReceivables.jobNo       = cJobStr
-                        ttAgedReceivables.totalDue    = dAmountDue
-                        ttAgedReceivables.arClass     = tt-cust.classID
-                        ttAgedReceivables.invoiceNote = ""                           
-                        ttAgedReceivables.collNote    = ""
-                        ttAgedReceivables.xxSort1     = tt-cust.sorter
-                        ttAgedReceivables.xxSort2     = tt-inv.sorter
+                        ttAgedReceivables.custNo          = cust.cust-no
+                        ttAgedReceivables.custName        = cust.name
+                        ttAgedReceivables.contact         = cust.contact
+                        ttAgedReceivables.salesRep        = cSalesRep
+                        ttAgedReceivables.terms           = IF AVAILABLE terms THEN terms.dscr ELSE ""
+                        ttAgedReceivables.address1        = cust.addr[1] 
+                        ttAgedReceivables.address2        = cust.addr[2] 
+                        ttAgedReceivables.city            = cust.city    
+                        ttAgedReceivables.state           = cust.state   
+                        ttAgedReceivables.zip             = cust.zip     
+                        ttAgedReceivables.creditLimit     = cust.cr-lim  
+                        ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") + STRING(cust.phone,"xxx-xxxx")) 
+                        ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx")) 
+                        ttAgedReceivables.checkMemo       = "0"                          
+                        ttAgedReceivables.daysOld         = iDays                         
+                        ttAgedReceivables.vType           = cvType                       
+                        ttAgedReceivables.invoiceNo       = ar-inv.inv-no                
+                        ttAgedReceivables.invoiceDate     = ar-inv.inv-date              
+                        ttAgedReceivables.amount          = dAmt                          
+                        ttAgedReceivables.vCurrent        = dDec[1]                     
+                        ttAgedReceivables.adtp            = cust.avg-pay                 
+                        ttAgedReceivables.td              = iCurrentTrendDays         
+                        ttAgedReceivables.periodDay1      = dDec[2]                     
+                        ttAgedReceivables.periodDay2      = dDec[3]                     
+                        ttAgedReceivables.periodDay3      = dDec[4]    
+                        ttAgedReceivables.periodDay4      = dDec[5]
+                        ttAgedReceivables.periodDay5      = dDec[6]
+                        ttAgedReceivables.periodDay6      = dDec[7]
+                        ttAgedReceivables.periodDay7      = dDec[8]
+                        ttAgedReceivables.custPoNo        = cPoNo                        
+                        ttAgedReceivables.jobNo           = cJobStr
+                        ttAgedReceivables.totalDue        = dAmountDue
+                        ttAgedReceivables.arClass         = cust.classID
+                        ttAgedReceivables.dueDate         = ar-inv.due-date
+                        ttAgedReceivables.daysFromDueDate = dtAsofDate - ar-inv.due-date
+                        ttAgedReceivables.invoiceNote     = ""                           
+                        ttAgedReceivables.collNote        = ""
+                        ttAgedReceivables.xxSort1         = tt-cust.sorter
+                        ttAgedReceivables.xxSort2         = tt-inv.sorter
                         .                        
                     FOR EACH notes NO-LOCK
                         WHERE notes.rec_key   EQ ar-inv.rec_key
@@ -484,39 +492,44 @@ PROCEDURE pBusinessLogic:
                             IF cDiscType EQ "DISC" THEN DO:
                                 CREATE ttAgedReceivables.
                                 ASSIGN
-                                    ttAgedReceivables.custNo      = cust.cust-no
-                                    ttAgedReceivables.custName    = cust.name
-                                    ttAgedReceivables.contact     = cust.contact
-                                    ttAgedReceivables.salesRep    = cSalesRep
-                                    ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
-                                    ttAgedReceivables.address1    = cust.addr[1]
-                                    ttAgedReceivables.address2    = cust.addr[2]
-                                    ttAgedReceivables.city        = cust.city
-                                    ttAgedReceivables.state       = cust.state
-                                    ttAgedReceivables.zip         = cust.zip
-                                    ttAgedReceivables.creditLimit = cust.cr-lim
-                                    ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
-                                    ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
-                                    ttAgedReceivables.checkMemo   = STRING(ar-cashl.check-no)
-                                    ttAgedReceivables.daysOld     = 0  
-                                    ttAgedReceivables.vType       = cvType
-                                    ttAgedReceivables.invoiceNo   = ar-cashl.inv-no
-                                    ttAgedReceivables.invoiceDate = ar-cashl.inv-date
-                                    ttAgedReceivables.amount      = dCreditDebitAmt
-                                    ttAgedReceivables.vCurrent    = 0
-                                    ttAgedReceivables.adtp        = cust.avg-pay
-                                    ttAgedReceivables.td          = iCurrentTrendDays
-                                    ttAgedReceivables.periodDay1  = 0
-                                    ttAgedReceivables.periodDay2  = 0
-                                    ttAgedReceivables.periodDay3  = 0
-                                    ttAgedReceivables.periodDay4  = 0
-                                    ttAgedReceivables.custPoNo    = cPoNo
-                                    ttAgedReceivables.jobNo       = cJobStr
-                                    ttAgedReceivables.arClass     = tt-cust.classID
-                                    ttAgedReceivables.invoiceNote = ""
-                                    ttAgedReceivables.collNote    = ""
-                                    ttAgedReceivables.xxSort1     = tt-cust.sorter
-                                    ttAgedReceivables.xxSort2     = tt-inv.sorter
+                                    ttAgedReceivables.custNo          = cust.cust-no
+                                    ttAgedReceivables.custName        = cust.name
+                                    ttAgedReceivables.contact         = cust.contact
+                                    ttAgedReceivables.salesRep        = cSalesRep
+                                    ttAgedReceivables.terms           = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
+                                    ttAgedReceivables.address1        = cust.addr[1]
+                                    ttAgedReceivables.address2        = cust.addr[2]
+                                    ttAgedReceivables.city            = cust.city
+                                    ttAgedReceivables.state           = cust.state
+                                    ttAgedReceivables.zip             = cust.zip
+                                    ttAgedReceivables.creditLimit     = cust.cr-lim
+                                    ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
+                                    ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
+                                    ttAgedReceivables.checkMemo       = STRING(ar-cashl.check-no)
+                                    ttAgedReceivables.daysOld         = 0  
+                                    ttAgedReceivables.vType           = cvType
+                                    ttAgedReceivables.invoiceNo       = ar-cashl.inv-no
+                                    ttAgedReceivables.invoiceDate     = ar-cashl.inv-date
+                                    ttAgedReceivables.amount          = dCreditDebitAmt
+                                    ttAgedReceivables.vCurrent        = 0
+                                    ttAgedReceivables.adtp            = cust.avg-pay
+                                    ttAgedReceivables.td              = iCurrentTrendDays
+                                    ttAgedReceivables.periodDay1      = 0
+                                    ttAgedReceivables.periodDay2      = 0
+                                    ttAgedReceivables.periodDay3      = 0
+                                    ttAgedReceivables.periodDay4      = 0
+                                    ttAgedReceivables.periodDay5      = 0
+                                    ttAgedReceivables.periodDay6      = 0
+                                    ttAgedReceivables.periodDay7      = 0
+                                    ttAgedReceivables.custPoNo        = cPoNo
+                                    ttAgedReceivables.jobNo           = cJobStr
+                                    ttAgedReceivables.arClass         = cust.classID
+                                    ttAgedReceivables.dueDate         = ?
+                                    ttAgedReceivables.daysFromDueDate = 0
+                                    ttAgedReceivables.invoiceNote     = ""
+                                    ttAgedReceivables.collNote        = ""
+                                    ttAgedReceivables.xxSort1         = tt-cust.sorter
+                                    ttAgedReceivables.xxSort2         = tt-inv.sorter
                                     .
                                 FOR EACH notes NO-LOCK
                                     WHERE notes.rec_key   EQ ar-inv.rec_key
@@ -528,39 +541,44 @@ PROCEDURE pBusinessLogic:
                             END.  /* v-disc-type */    
                             CREATE ttAgedReceivables.
                             ASSIGN
-                                ttAgedReceivables.custNo      = cust.cust-no
-                                ttAgedReceivables.custName    = cust.name
-                                ttAgedReceivables.contact     = cust.contact
-                                ttAgedReceivables.salesRep    = cSalesRep
-                                ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
-                                ttAgedReceivables.address1    = cust.addr[1]
-                                ttAgedReceivables.address2    = cust.addr[2]
-                                ttAgedReceivables.city        = cust.city
-                                ttAgedReceivables.state       = cust.state
-                                ttAgedReceivables.zip         = cust.zip
-                                ttAgedReceivables.creditLimit = cust.cr-lim
-                                ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
-                                ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
-                                ttAgedReceivables.checkMemo   = STRING(ar-cashl.check-no)
-                                ttAgedReceivables.daysOld     = 0
-                                ttAgedReceivables.vType       = cvType
-                                ttAgedReceivables.invoiceNo   = ar-cashl.inv-no
-                                ttAgedReceivables.invoiceDate = ar-cashl.inv-date
-                                ttAgedReceivables.amount      = dDiscAmt
-                                ttAgedReceivables.vCurrent    = 0
-                                ttAgedReceivables.adtp        = cust.avg-pay
-                                ttAgedReceivables.td          = iCurrentTrendDays
-                                ttAgedReceivables.periodDay1  = 0
-                                ttAgedReceivables.periodDay2  = 0
-                                ttAgedReceivables.periodDay3  = 0
-                                ttAgedReceivables.periodDay4  = 0
-                                ttAgedReceivables.custPoNo    = cPoNo
-                                ttAgedReceivables.jobNo       = cJobStr
-                                ttAgedReceivables.arClass     = tt-cust.classID
-                                ttAgedReceivables.invoiceNote = ""
-                                ttAgedReceivables.collNote    = ""
-                                ttAgedReceivables.xxSort1     = tt-cust.sorter
-                                ttAgedReceivables.xxSort2     = tt-inv.sorter
+                                ttAgedReceivables.custNo          = cust.cust-no
+                                ttAgedReceivables.custName        = cust.name
+                                ttAgedReceivables.contact         = cust.contact
+                                ttAgedReceivables.salesRep        = cSalesRep
+                                ttAgedReceivables.terms           = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
+                                ttAgedReceivables.address1        = cust.addr[1]
+                                ttAgedReceivables.address2        = cust.addr[2]
+                                ttAgedReceivables.city            = cust.city
+                                ttAgedReceivables.state           = cust.state
+                                ttAgedReceivables.zip             = cust.zip
+                                ttAgedReceivables.creditLimit     = cust.cr-lim
+                                ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
+                                ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
+                                ttAgedReceivables.checkMemo       = STRING(ar-cashl.check-no)
+                                ttAgedReceivables.daysOld         = 0
+                                ttAgedReceivables.vType           = cvType
+                                ttAgedReceivables.invoiceNo       = ar-cashl.inv-no
+                                ttAgedReceivables.invoiceDate     = ar-cashl.inv-date
+                                ttAgedReceivables.amount          = dDiscAmt
+                                ttAgedReceivables.vCurrent        = 0
+                                ttAgedReceivables.adtp            = cust.avg-pay
+                                ttAgedReceivables.td              = iCurrentTrendDays
+                                ttAgedReceivables.periodDay1      = 0
+                                ttAgedReceivables.periodDay2      = 0
+                                ttAgedReceivables.periodDay3      = 0
+                                ttAgedReceivables.periodDay4      = 0
+                                ttAgedReceivables.periodDay5      = 0
+                                ttAgedReceivables.periodDay6      = 0
+                                ttAgedReceivables.periodDay7      = 0
+                                ttAgedReceivables.custPoNo        = cPoNo
+                                ttAgedReceivables.jobNo           = cJobStr
+                                ttAgedReceivables.arClass         = cust.classID
+                                ttAgedReceivables.dueDate         = ?
+                                ttAgedReceivables.daysFromDueDate = 0
+                                ttAgedReceivables.invoiceNote     = ""
+                                ttAgedReceivables.collNote        = ""
+                                ttAgedReceivables.xxSort1         = tt-cust.sorter
+                                ttAgedReceivables.xxSort2         = tt-inv.sorter
                                 .                    
                             FOR EACH notes NO-LOCK
                                 WHERE notes.rec_key   EQ ar-inv.rec_key
@@ -592,39 +610,44 @@ PROCEDURE pBusinessLogic:
                         IF cType EQ "Detail" THEN DO:
                             CREATE ttAgedReceivables.
                             ASSIGN
-                                ttAgedReceivables.custNo      = cust.cust-no
-                                ttAgedReceivables.custName    = cust.name
-                                ttAgedReceivables.contact     = cust.contact
-                                ttAgedReceivables.salesRep    = cSalesRep
-                                ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
-                                ttAgedReceivables.address1    = cust.addr[1]
-                                ttAgedReceivables.address2    = cust.addr[2]
-                                ttAgedReceivables.city        = cust.city
-                                ttAgedReceivables.state       = cust.state
-                                ttAgedReceivables.zip         = cust.zip
-                                ttAgedReceivables.creditLimit = cust.cr-lim
-                                ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
-                                ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
-                                ttAgedReceivables.checkMemo   = STRING(ar-cashl.check-no)
-                                ttAgedReceivables.daysOld     = 0
-                                ttAgedReceivables.vType       = cvType
-                                ttAgedReceivables.invoiceNo   = ar-cashl.inv-no
-                                ttAgedReceivables.invoiceDate = dtInvoiceDate
-                                ttAgedReceivables.amount      = dCreditDebitAmt
-                                ttAgedReceivables.vCurrent    = 0
-                                ttAgedReceivables.adtp        = cust.avg-pay
-                                ttAgedReceivables.td          = iCurrentTrendDays
-                                ttAgedReceivables.periodDay1  = 0
-                                ttAgedReceivables.periodDay2  = 0
-                                ttAgedReceivables.periodDay3  = 0
-                                ttAgedReceivables.periodDay4  = 0
-                                ttAgedReceivables.custPoNo    = cPoNo
-                                ttAgedReceivables.jobNo       = cJobStr
-                                ttAgedReceivables.arClass     = tt-cust.classID
-                                ttAgedReceivables.invoiceNote = ""
-                                ttAgedReceivables.collNote    = ""
-                                ttAgedReceivables.xxSort1     = tt-cust.sorter
-                                ttAgedReceivables.xxSort2     = tt-inv.sorter
+                                ttAgedReceivables.custNo          = cust.cust-no
+                                ttAgedReceivables.custName        = cust.name
+                                ttAgedReceivables.contact         = cust.contact
+                                ttAgedReceivables.salesRep        = cSalesRep
+                                ttAgedReceivables.terms           = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
+                                ttAgedReceivables.address1        = cust.addr[1]
+                                ttAgedReceivables.address2        = cust.addr[2]
+                                ttAgedReceivables.city            = cust.city
+                                ttAgedReceivables.state           = cust.state
+                                ttAgedReceivables.zip             = cust.zip
+                                ttAgedReceivables.creditLimit     = cust.cr-lim
+                                ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
+                                ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
+                                ttAgedReceivables.checkMemo       = STRING(ar-cashl.check-no)
+                                ttAgedReceivables.daysOld         = 0
+                                ttAgedReceivables.vType           = cvType
+                                ttAgedReceivables.invoiceNo       = ar-cashl.inv-no
+                                ttAgedReceivables.invoiceDate     = dtInvoiceDate
+                                ttAgedReceivables.amount          = dCreditDebitAmt
+                                ttAgedReceivables.vCurrent        = 0
+                                ttAgedReceivables.adtp            = cust.avg-pay
+                                ttAgedReceivables.td              = iCurrentTrendDays
+                                ttAgedReceivables.periodDay1      = 0
+                                ttAgedReceivables.periodDay2      = 0
+                                ttAgedReceivables.periodDay3      = 0
+                                ttAgedReceivables.periodDay4      = 0
+                                ttAgedReceivables.periodDay5      = 0
+                                ttAgedReceivables.periodDay6      = 0
+                                ttAgedReceivables.periodDay7      = 0
+                                ttAgedReceivables.custPoNo        = cPoNo
+                                ttAgedReceivables.jobNo           = cJobStr
+                                ttAgedReceivables.arClass         = cust.classID
+                                ttAgedReceivables.dueDate         = ?
+                                ttAgedReceivables.daysFromDueDate = 0
+                                ttAgedReceivables.invoiceNote     = ""
+                                ttAgedReceivables.collNote        = ""
+                                ttAgedReceivables.xxSort1         = tt-cust.sorter
+                                ttAgedReceivables.xxSort2         = tt-inv.sorter
                                 .
                             FOR EACH notes NO-LOCK
                                 WHERE notes.rec_key   EQ ar-inv.rec_key
@@ -661,18 +684,18 @@ PROCEDURE pBusinessLogic:
                 dCreditDebitAmt = ar-cashl.amt-paid * -1
                 dDiscAmt        = ar-cashl.amt-disc * -1
                 .
-            iD = dtAsofDate - ar-cash.check-date.
+            iDays = dtAsofDate - ar-cash.check-date.
         
-            IF iD GE iPeriodDays4 THEN
-            dUnapp[5] = dUnapp[5] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iD GE iPeriodDays3 AND iD LT iPeriodDays4 THEN
-                    dUnapp[4] = dUnapp[4] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iD GE iPeriodDays2 AND iD LT iPeriodDays3 THEN 
-                    dUnapp[3] = dUnapp[3] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iD GE iPeriodDays1 AND iD LT iPeriodDays2 THEN 
-                    dUnapp[2] = dUnapp[2] + dCreditDebitAmt - dDiscAmt.         
-            ELSE IF iD LT iPeriodDays1 THEN 
-                    dUnapp[1] = dUnapp[1] + dCreditDebitAmt - dDiscAmt.
+            IF iPeriodDays7 NE 0 AND iDays GE iPeriodDays7 THEN iInt = 8.
+            ELSE IF iPeriodDays6 NE 0 AND iDays GE iPeriodDays6 THEN iInt = 7.
+            ELSE IF iPeriodDays5 NE 0 AND iDays GE iPeriodDays5 THEN iInt = 6.
+            ELSE IF iPeriodDays4 NE 0 AND iDays GE iPeriodDays4 THEN iInt = 5.
+            ELSE IF iPeriodDays3 NE 0 AND iDays GE iPeriodDays3 THEN iInt = 4.
+            ELSE IF iPeriodDays2 NE 0 AND iDays GE iPeriodDays2 THEN iInt = 3.
+            ELSE IF iPeriodDays1 NE 0 AND iDays GE iPeriodDays1 THEN iInt = 2.
+            ELSE iInt = 1.    
+
+            dUnapp[iInt] = dUnapp[iInt] + dCreditDebitAmt - dDiscAmt.
         END. /* for each ar-cashl record */
     
         lFirstUnapp = YES.
@@ -756,42 +779,50 @@ PROCEDURE pBusinessLogic:
                 IF cType EQ "Detail" THEN DO:
                     CREATE ttAgedReceivables.
                     ASSIGN
-                        ttAgedReceivables.custNo      = cust.cust-no 
-                        ttAgedReceivables.custName    = cust.name                                                  
-                        ttAgedReceivables.contact     = cust.contact                                               
-                        ttAgedReceivables.salesRep    = cSalesRep                                                     
-                        ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""             
-                        ttAgedReceivables.address1    = cust.addr[1]                                               
-                        ttAgedReceivables.address2    = cust.addr[2]                                               
-                        ttAgedReceivables.city        = cust.city                                                  
-                        ttAgedReceivables.state       = cust.state                                                 
-                        ttAgedReceivables.zip         = cust.zip                                                   
-                        ttAgedReceivables.creditLimit = cust.cr-lim                                                
-                        ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
-                        ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))  
-                        ttAgedReceivables.checkMemo   = STRING(ar-cashl.check-no)                                                             
-                        ttAgedReceivables.daysOld     = 0                                                                                     
-                        ttAgedReceivables.vType       = cvType                                                                                
-                        ttAgedReceivables.invoiceNo   = 0
-                        ttAgedReceivables.invoiceDate = dtInvoiceDate                                                                          
-                        ttAgedReceivables.amount      = dCreditDebitAmt + dDiscAmt                                                              
-                        ttAgedReceivables.vCurrent    = dUnapp[1]                                                                              
-                        ttAgedReceivables.adtp        = cust.avg-pay                                                                          
-                        ttAgedReceivables.td          = iCurrentTrendDays                                                                  
-                        ttAgedReceivables.periodDay1  = dUnapp[2]                                                                              
-                        ttAgedReceivables.periodDay2  = dUnapp[3]                                                                              
-                        ttAgedReceivables.periodDay3  = dUnapp[4]                                                                              
-                        ttAgedReceivables.periodDay4  = dUnapp[5]
-                        ttAgedReceivables.custPoNo    = cPoNo                                                                                 
-                        ttAgedReceivables.jobNo       = cJobStr
-                        ttAgedReceivables.arClass     = tt-cust.classID                                                                       
-                        ttAgedReceivables.invoiceNote = cInvoiceNote
-                        ttAgedReceivables.collNote    = ""
-                        ttAgedReceivables.xxSort1     = tt-cust.sorter
-                        ttAgedReceivables.xxSort2     = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
+                        ttAgedReceivables.custNo          = cust.cust-no 
+                        ttAgedReceivables.custName        = cust.name                                                  
+                        ttAgedReceivables.contact         = cust.contact                                               
+                        ttAgedReceivables.salesRep        = cSalesRep                                                     
+                        ttAgedReceivables.terms           = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""             
+                        ttAgedReceivables.address1        = cust.addr[1]                                               
+                        ttAgedReceivables.address2        = cust.addr[2]                                               
+                        ttAgedReceivables.city            = cust.city                                                  
+                        ttAgedReceivables.state           = cust.state                                                 
+                        ttAgedReceivables.zip             = cust.zip                                                   
+                        ttAgedReceivables.creditLimit     = cust.cr-lim                                                
+                        ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
+                        ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))  
+                        ttAgedReceivables.checkMemo       = STRING(ar-cashl.check-no)                                                             
+                        ttAgedReceivables.daysOld         = 0                                                                                     
+                        ttAgedReceivables.vType           = cvType                                                                                
+                        ttAgedReceivables.invoiceNo       = 0
+                        ttAgedReceivables.invoiceDate     = dtInvoiceDate                                                                          
+                        ttAgedReceivables.amount          = dCreditDebitAmt + dDiscAmt                                                              
+                        ttAgedReceivables.vCurrent        = dUnapp[1]                                                                              
+                        ttAgedReceivables.adtp            = cust.avg-pay                                                                          
+                        ttAgedReceivables.td              = iCurrentTrendDays                                                                  
+                        ttAgedReceivables.periodDay1      = dUnapp[2]                                                                              
+                        ttAgedReceivables.periodDay2      = dUnapp[3]                                                                              
+                        ttAgedReceivables.periodDay3      = dUnapp[4]                                                                              
+                        ttAgedReceivables.periodDay4      = dUnapp[5]
+                        ttAgedReceivables.periodDay5      = dUnapp[6]
+                        ttAgedReceivables.periodDay6      = dUnapp[7]
+                        ttAgedReceivables.periodDay7      = dUnapp[8]
+                        ttAgedReceivables.custPoNo        = cPoNo                                                                                 
+                        ttAgedReceivables.jobNo           = cJobStr
+                        ttAgedReceivables.arClass         = cust.classID                                                                       
+                        ttAgedReceivables.dueDate         = ?
+                        ttAgedReceivables.daysFromDueDate = 0
+                        ttAgedReceivables.invoiceNote     = cInvoiceNote
+                        ttAgedReceivables.collNote        = ""
+                        ttAgedReceivables.xxSort1         = tt-cust.sorter
+                        ttAgedReceivables.xxSort2         = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
                         . 
                 END. /*IF cType EQ "Detail" THEN DO */            
                 ASSIGN
+                    dCustT[9] = dCustT[9] + dUnapp[9]
+                    dCustT[8] = dCustT[8] + dUnapp[8]
+                    dCustT[7] = dCustT[7] + dUnapp[7]
                     dCustT[6] = dCustT[6] + dUnapp[6]
                     dCustT[5] = dCustT[5] + dUnapp[5]
                     dCustT[4] = dCustT[4] + dUnapp[4]
@@ -801,6 +832,8 @@ PROCEDURE pBusinessLogic:
                     .        
                 IF lSeparateFinanceCharges THEN
                 ASSIGN
+                    dCustTPri[8] = dCustTPri[8] + dUnapp[8]
+                    dCustTPri[7] = dCustTPri[7] + dUnapp[7]
                     dCustTPri[6] = dCustTPri[6] + dUnapp[6]
                     dCustTPri[5] = dCustTPri[5] + dUnapp[5]
                     dCustTPri[4] = dCustTPri[4] + dUnapp[4]
@@ -834,45 +867,50 @@ PROCEDURE pBusinessLogic:
                 IF cType EQ "Detail" THEN DO:
                     CREATE ttAgedReceivables.
                     ASSIGN
-                        ttAgedReceivables.custNo      = cust.cust-no
-                        ttAgedReceivables.custName    = cust.name
-                        ttAgedReceivables.contact     = cust.contact
-                        ttAgedReceivables.salesRep    = cSalesRep
-                        ttAgedReceivables.terms       = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
-                        ttAgedReceivables.address1    = cust.addr[1]
-                        ttAgedReceivables.address2    = cust.addr[2]
-                        ttAgedReceivables.city        = cust.city
-                        ttAgedReceivables.state       = cust.state
-                        ttAgedReceivables.zip         = cust.zip
-                        ttAgedReceivables.creditLimit = cust.cr-lim
-                        ttAgedReceivables.phone       = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
-                        ttAgedReceivables.fax         = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
-                        ttAgedReceivables.checkMemo   = STRING(ar-cashl.check-no)
-                        ttAgedReceivables.daysOld     = 0
-                        ttAgedReceivables.vType       = cvType
-                        ttAgedReceivables.invoiceNo   = 0
-                        ttAgedReceivables.invoiceDate = dtInvoiceDate
-                        ttAgedReceivables.amount      = dCreditDebitAmt + dDiscAmt
-                        ttAgedReceivables.vCurrent    = 0
-                        ttAgedReceivables.adtp        = cust.avg-pay
-                        ttAgedReceivables.td          = iCurrentTrendDays
-                        ttAgedReceivables.periodDay1  = 0
-                        ttAgedReceivables.periodDay2  = 0 
-                        ttAgedReceivables.periodDay3  = 0
-                        ttAgedReceivables.periodDay4  = 0
-                        ttAgedReceivables.custPoNo    = cPoNo
-                        ttAgedReceivables.jobNo       = cJobStr
-                        ttAgedReceivables.arClass     = tt-cust.classID
-                        ttAgedReceivables.invoiceNote = cInvoiceNote
-                        ttAgedReceivables.collNote    = ""
-                        ttAgedReceivables.xxSort1     = tt-cust.sorter
-                        ttAgedReceivables.xxSort2     = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
+                        ttAgedReceivables.custNo          = cust.cust-no
+                        ttAgedReceivables.custName        = cust.name
+                        ttAgedReceivables.contact         = cust.contact
+                        ttAgedReceivables.salesRep        = cSalesRep
+                        ttAgedReceivables.terms           = IF AVAILABLE terms THEN STRING(terms.dscr) ELSE ""
+                        ttAgedReceivables.address1        = cust.addr[1]
+                        ttAgedReceivables.address2        = cust.addr[2]
+                        ttAgedReceivables.city            = cust.city
+                        ttAgedReceivables.state           = cust.state
+                        ttAgedReceivables.zip             = cust.zip
+                        ttAgedReceivables.creditLimit     = cust.cr-lim
+                        ttAgedReceivables.phone           = TRIM(STRING(cust.area-code,"(xxx)") +  STRING(cust.phone,"xxx-xxxx")) 
+                        ttAgedReceivables.fax             = TRIM(STRING(SUBSTRING(cust.fax,1,3),"(xxx)") + STRING(SUBSTRING(cust.fax,4,7),"xxx-xxxx"))
+                        ttAgedReceivables.checkMemo       = STRING(ar-cashl.check-no)
+                        ttAgedReceivables.daysOld         = 0
+                        ttAgedReceivables.vType           = cvType
+                        ttAgedReceivables.invoiceNo       = 0
+                        ttAgedReceivables.invoiceDate     = dtInvoiceDate
+                        ttAgedReceivables.amount          = dCreditDebitAmt + dDiscAmt
+                        ttAgedReceivables.vCurrent        = 0
+                        ttAgedReceivables.adtp            = cust.avg-pay
+                        ttAgedReceivables.td              = iCurrentTrendDays
+                        ttAgedReceivables.periodDay1      = 0
+                        ttAgedReceivables.periodDay2      = 0 
+                        ttAgedReceivables.periodDay3      = 0
+                        ttAgedReceivables.periodDay4      = 0
+                        ttAgedReceivables.periodDay5      = 0
+                        ttAgedReceivables.periodDay6      = 0
+                        ttAgedReceivables.periodDay7      = 0
+                        ttAgedReceivables.custPoNo        = cPoNo
+                        ttAgedReceivables.jobNo           = cJobStr
+                        ttAgedReceivables.arClass         = cust.classID
+                        ttAgedReceivables.dueDate         = ?
+                        ttAgedReceivables.daysFromDueDate = 0
+                        ttAgedReceivables.invoiceNote     = cInvoiceNote
+                        ttAgedReceivables.collNote        = ""
+                        ttAgedReceivables.xxSort1         = tt-cust.sorter
+                        ttAgedReceivables.xxSort2         = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
                         . 
                 END. /* if cType eq "Detail" */
             END. /* else do: */
         END. /* each ar-cashl */
     
-        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5].
+        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5] + dCustT[6] + dCustT[7] + dCustT[8].
         
         IF NOT lFirstCust OR dC1 NE 0 THEN DO:
             IF cType EQ "Detail" THEN DO:
@@ -888,12 +926,15 @@ PROCEDURE pBusinessLogic:
                     dCustT[4],
                     dCustT[5],
                     dCustT[6],
+                    dCustT[7],
+                    dCustT[8],
+                    dCustT[9],
                     tt-cust.sorter
                     ).
                 IF lSeparateFinanceCharges THEN DO:
                     ASSIGN
-                        dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4] + dCustTPri[5]
-                        dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4]  + dCustTFc[5].
+                        dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4] + dCustTPri[5] + dCustTPri[6] + dCustTPri[7] + dCustTPri[8]
+                        dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4]  + dCustTFc[5]  + dCustTFc[6]  + dCustTFc[7]  + dCustTFc[8].
                     RUN AgedReceivablesCreateTotals (
                         "",
                         "",
@@ -905,6 +946,9 @@ PROCEDURE pBusinessLogic:
                         dCustTPri[3],
                         dCustTPri[4],
                         dCustTPri[5],
+                        dCustTPri[6],
+                        dCustTPri[7],
+                        dCustTPri[8],
                         0,
                         tt-cust.sorter
                         ).
@@ -919,6 +963,9 @@ PROCEDURE pBusinessLogic:
                         dCustTFc[3],
                         dCustTFc[4],
                         dCustTFc[5],
+                        dCustTFc[6],
+                        dCustTFc[7],
+                        dCustTFc[8],
                         0,
                         tt-cust.sorter
                         ).
@@ -937,11 +984,14 @@ PROCEDURE pBusinessLogic:
                     dCustT[4],
                     dCustT[5],
                     dCustT[6],
+                    dCustT[7],
+                    dCustT[8],
+                    dCustT[9],
                     tt-cust.sorter
                     ).
             END. /* if cType eq "Summary" */
                    
-            DO i = 1 TO 6:
+            DO i = 1 TO EXTENT(dCustT):
                 ASSIGN
                     dSManT[i]   = dSManT[i]   + dCustT[i]
                     arClassT[i] = arClassT[i] + dCustT[i]
@@ -960,7 +1010,7 @@ PROCEDURE pBusinessLogic:
         END. /* if not lFirstCust */
         
         IF LAST-OF(tt-cust.sorter) THEN DO:
-            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5].
+            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5] + dSManT[6] + dSManT[7] + dSManT[8].
             IF cSort1 EQ "Name" THEN DO:
                 IF cType NE "Totals Only" THEN
                 RUN AgedReceivablesCreateTotals (
@@ -975,10 +1025,13 @@ PROCEDURE pBusinessLogic:
                     dSManT[4],
                     dSManT[5],
                     dSManT[6],
+                    dSManT[7],
+                    dSManT[8],
+                    dSManT[9],
                     tt-cust.sorter
                     ).
             END. /* sort by customer no */
-            DO i = 1 TO 6:
+            DO i = 1 TO EXTENT(dSManTFc):
                 ASSIGN
                     dCurrT[i]    = dCurrT[i]    + dSManT[i]
                     dCurrTPri[i] = dCurrTPri[i] + dSManTPri[i]
@@ -993,7 +1046,6 @@ PROCEDURE pBusinessLogic:
         IF LAST-OF(tt-cust.curr-code) THEN DO:
             IF lMultCurr THEN DO:
                 dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4].
-/*                IF cType NE "Totals Only" THEN*/
                 RUN AgedReceivablesCreateTotals (
                     cust.cust-no,
                     cust.name,
@@ -1006,6 +1058,9 @@ PROCEDURE pBusinessLogic:
                     dCurrT[4],
                     dCurrT[5],
                     dCurrT[6],
+                    dCurrT[7],
+                    dCurrT[8],
+                    dCurrT[9],
                     tt-cust.sorter
                     ).
                 RUN AgedReceivablesCreateTotals (
@@ -1018,12 +1073,15 @@ PROCEDURE pBusinessLogic:
                     (IF dC1 NE 0 THEN (dCurrT[2] / dC1) * 100 ELSE 0),
                     (IF dC1 NE 0 THEN (dCurrT[3] / dC1) * 100 ELSE 0),
                     (IF dC1 NE 0 THEN (dCurrT[4] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[5] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[6] / dC1) * 100 ELSE 0),
+                    (IF dC1 NE 0 THEN (dCurrT[7] / dC1) * 100 ELSE 0),
                     0,
                     0,
                     tt-cust.sorter
                     ).
             END. /* IF lMultCurr */
-            DO i = 1 TO 6:
+            DO i = 1 TO EXTENT(dCurrT):
                 ASSIGN
                     dGrandT[i] = dGrandT[i] + dCurrT[i]
                     dCurrT[i]  = 0
@@ -1046,7 +1104,7 @@ PROCEDURE pBusinessLogic:
             .
     END. /* each tt-cust */
     
-    dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4] + dGrandT[5].
+    dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4] + dGrandT[5] + dGrandT[6] + dGrandT[7] + dGrandT[8].
     
     IF AVAILABLE tt-cust THEN DO:
         RUN AgedReceivablesCreateTotals (
@@ -1061,6 +1119,9 @@ PROCEDURE pBusinessLogic:
             dGrandT[4],
             dGrandT[5],
             dGrandT[6],
+            dGrandT[7],
+            dGrandT[8],
+            dGrandT[9],
             tt-cust.sorter
             ).
         RUN AgedReceivablesCreateTotals (
@@ -1074,14 +1135,17 @@ PROCEDURE pBusinessLogic:
             (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
             (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
             (IF dT1 NE 0 THEN (dGrandT[5] / dT1) * 100 ELSE 0),
+            (IF dT1 NE 0 THEN (dGrandT[6] / dT1) * 100 ELSE 0),
+            (IF dT1 NE 0 THEN (dGrandT[7] / dT1) * 100 ELSE 0),
+            (IF dT1 NE 0 THEN (dGrandT[8] / dT1) * 100 ELSE 0),
             0,
             tt-cust.sorter
             ).
         
         IF lSeparateFinanceCharges THEN DO:
             ASSIGN
-                dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4] + dGrandTPri[5]
-                dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]  + dGrandTFc[5]
+                dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4] + dGrandTPri[5] + dGrandTPri[6] + dGrandTPri[7] + dGrandTPri[8]
+                dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]  + dGrandTFc[5]  + dGrandTFc[6]  + dGrandTFc[7]  + dGrandTFc[8]
                 .
             RUN AgedReceivablesCreateTotals (
                 "",
@@ -1094,6 +1158,9 @@ PROCEDURE pBusinessLogic:
                 dGrandTPri[3],
                 dGrandTPri[4],
                 dGrandTPri[5],
+                dGrandTPri[6],
+                dGrandTPri[7],
+                dGrandTPri[8],
                 0,
                 tt-cust.sorter
                 ).
@@ -1108,6 +1175,9 @@ PROCEDURE pBusinessLogic:
                 dGrandTFc[3],
                 dGrandTFc[4],
                 dGrandTFc[5],
+                dGrandTFc[6],
+                dGrandTFc[7],
+                dGrandTFc[8],
                 0,
                 tt-cust.sorter
                 ).
@@ -1126,6 +1196,9 @@ PROCEDURE AgedReceivablesCreateTotals:
     DEFINE INPUT PARAMETER ipdTotPeriod2     AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdTotPeriod3     AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdTotPeriod4     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod5     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod6     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod7     AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipdAmountDue      AS DECIMAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipcSort           AS CHARACTER NO-UNDO.
 
@@ -1141,6 +1214,9 @@ PROCEDURE AgedReceivablesCreateTotals:
         ttAgedReceivablesTotals.totPeriodDay2  = ipdTotPeriod2
         ttAgedReceivablesTotals.totPeriodDay3  = ipdTotPeriod3
         ttAgedReceivablesTotals.totPeriodDay4  = ipdTotPeriod4
+        ttAgedReceivablesTotals.totPeriodDay5  = ipdTotPeriod5
+        ttAgedReceivablesTotals.totPeriodDay6  = ipdTotPeriod6
+        ttAgedReceivablesTotals.totPeriodDay7  = ipdTotPeriod7
         ttAgedReceivablesTotals.totalDue       = ipdAmountDue
         ttAgedReceivablesTotals.xxSort         = ipcSort
         . 

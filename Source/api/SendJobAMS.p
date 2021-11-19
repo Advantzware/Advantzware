@@ -122,6 +122,9 @@ DEFINE VARIABLE cJobDueDate                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobDueTime                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobStartDate                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cNotes                        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderQuantity          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderCustomerID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstHeaderCustomerName      AS CHARACTER NO-UNDO.
     
 /* Job Header Variables*/
 DEFINE VARIABLE iTaskCounter                  AS INTEGER   NO-UNDO.
@@ -474,6 +477,27 @@ DO:
     lcJobsData       = REPLACE(lcJobsData, "$JobPrep$", lcConcatJobPrepData).
     lcJobsData       = REPLACE(lcJobsData, "$JobSetPart$", lcConcatJobSetPartData).
     lcJobsData       = REPLACE(lcJobsData, "$JobLink$", lcConcatJobLinkData).
+
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company  EQ job.company
+           AND job-hdr.job      EQ job.job
+           AND job-hdr.job-no   EQ job.job-no
+           AND job-hdr.job-no2  EQ job.job-no2
+         NO-ERROR.
+    IF AVAILABLE job-hdr THEN
+        ASSIGN
+            cFirstHeaderQuantity   = STRING(job-hdr.qty)
+            cFirstHeaderCustomerID = job-hdr.cust-no
+            .
+    
+    IF cFirstHeaderCustomerID NE "" THEN DO:
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ job.company
+               AND cust.cust-no EQ cFirstHeaderCustomerID
+             NO-ERROR.
+        IF AVAILABLE cust THEN
+            cFirstHeaderCustomerName = cust.name.
+    END.
         
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Company",cCompany).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobNumber1",cJobNo).
@@ -492,6 +516,9 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStartDate",cJobStartDate).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "Notes",cNotes).
     RUN updateRequestData(INPUT-OUTPUT lcJobsData, "JobStatus",cJobStatus).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderQuantity", cFirstHeaderQuantity).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderCustomerID", cFirstHeaderCustomerID).
+    RUN updateRequestData(INPUT-OUTPUT lcJobsData, "FirstHeaderCustomerName", cFirstHeaderCustomerName).
 
     ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcJobsData).   
 END.                        
@@ -851,7 +878,7 @@ PROCEDURE pCreateMaterials PRIVATE:
             cMRQuantity             = TRIM(STRING(job-mat.qty-mr,">>>>9.99<<<<"))
             cWasteQuantity          = TRIM(STRING(job-mat.qty-wst,">>>>9.99<<<<"))
             cDepth                  = TRIM(STRING(job-mat.dep,">,>>9.99<<<<"))
-            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>9"))
+            cPONumber               = TRIM(STRING(job-mat.po-no,">>>>>>>9"))
             cCrossGrain             = IF job-mat.xGrain = "N" THEN "NO" ELSE IF job-mat.xGrain = "S" THEN "(S)heet"
                                                 ELSE IF job-mat.xGrain = "B" THEN "(B)lank" ELSE job-mat.xgrain
             .
@@ -1013,6 +1040,7 @@ PROCEDURE pProcessAMSData PRIVATE:
 
     RUN pCreateParts(
         BUFFER ipbf-job,
+        INPUT  lIsSet,
         INPUT  lIsNewCalculationMethod
         ).
         
@@ -1053,9 +1081,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
     
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-        
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If there is a Combo Form (multiple blanks out of one sheet/form), we need to add a “Combo Form” 
@@ -1088,9 +1116,9 @@ PROCEDURE pProcessAMSData PRIVATE:
         END.
 
         ttPart.taskIDs = TRIM(ttPart.taskIDs, ",").
-
-        IF NOT lTaskAvailable THEN
-            DELETE ttPart.
+        /* Commenting the code to delete the parts without task, as AMS now allows us to send parts without a task */
+/*        IF NOT lTaskAvailable THEN*/
+/*            DELETE ttPart.        */
     END.
 
     /* If the job is for a Set, we need to make the assumption that the last operation on the 
@@ -1255,7 +1283,8 @@ PROCEDURE pCreateParts PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-job FOR job.    
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.  
+    DEFINE INPUT  PARAMETER iplIsSet                  AS LOGICAL NO-UNDO.  
     DEFINE INPUT  PARAMETER iplIsNewCalculationMethod AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr-APIOutboundDetail FOR APIOutboundDetail.
@@ -1290,7 +1319,7 @@ PROCEDURE pCreateParts PRIVATE:
            AND bf-combo-APIOutboundDetail.parentID      EQ "JobHeader"
          NO-ERROR.
                                    
-    IF NOT iplIsNewCalculationMethod THEN DO:                    
+    IF NOT iplIsNewCalculationMethod AND iplIsSet THEN DO:                    
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company  EQ ipbf-job.company
                AND job-hdr.job      EQ ipbf-job.job

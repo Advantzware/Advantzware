@@ -1634,7 +1634,11 @@ DO:
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
-    end.                                     
+    end.  
+    IF cust.state:MODIFIED THEN
+    DO:
+         RUN pNewCountry.
+    END.
     {&methods/lValidateError.i NO}
 END.
 
@@ -2387,7 +2391,9 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/cust.i}
   IF cust.date-field[2] EQ TODAY THEN
-      cust.date-field[2] = ?.
+      cust.date-field[2] = ?.       
+  FIND FIRST company NO-LOCK WHERE company.company EQ cocode NO-ERROR.     
+  cust.fax-country = company.countryCode.
   DO WITH FRAME {&FRAME-NAME}:
 
      if adm-new-record and adm-adding-record THEN /*adding, not copying*/
@@ -2401,7 +2407,7 @@ PROCEDURE local-create-record :
         cbMatrixPrecision:SCREEN-VALUE = STRING(cust.matrixPrecision)
         cbMatrixRounding:SCREEN-VALUE  = STRING(cust.matrixRounding)
         cbMatrixPrecision
-        cbMatrixRounding
+        cbMatrixRounding        
         .
      END.
   END.
@@ -2807,6 +2813,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.
+        
+    IF VALID-HANDLE (hdCustomerProcs) THEN
+            DELETE PROCEDURE hdCustomerProcs.        
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
 PROCEDURE reftable-values :
 /*------------------------------------------------------------------------------
@@ -2890,6 +2918,27 @@ PROCEDURE pGetInterCompanyBilling :
       INPUT YES /* use cust not vendor */, ipcCustomer /* cust */, "" /* ship-to*/,
       OUTPUT cReturn, OUTPUT lRecFound).
   oplReturnValue = LOGICAL(cReturn) NO-ERROR.       
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewCountry V-table-Win 
+PROCEDURE pNewCountry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+      FIND FIRST statecod NO-LOCK
+           WHERE statecod.statecod EQ cust.state:SCREEN-VALUE NO-ERROR.
+      IF AVAIL statecod THEN
+      DO:
+         cust.fax-country:SCREEN-VALUE = statecod.countryCode. 
+      END.
+  END.            
 
 END PROCEDURE.
 

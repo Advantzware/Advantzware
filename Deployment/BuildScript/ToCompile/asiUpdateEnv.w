@@ -200,6 +200,8 @@ DEF VAR cfrom AS CHAR.
 DEF VAR cMapDrive AS CHAR FORMAT "x(2)" NO-UNDO.
 DEF VAR cMsgStr AS CHAR FORMAT "x(80)" EXTENT 100 NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
+DEF VAR cOrigPropath AS CHARACTER NO-UNDO.
+DEF VAR cNewPropath  AS CHARACTER NO-UNDO.
 DEF VAR cPassword AS CHAR FORMAT "x(24)" LABEL "Password" NO-UNDO.
 DEF VAR cPatchNo AS CHAR FORMAT "x(8)" NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -245,7 +247,6 @@ DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lUpdUsr AS LOG NO-UNDO.
 DEF VAR lValidDB AS LOG NO-UNDO.
-DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR timestring AS CHAR NO-UNDO.
 DEF VAR tslogin-cha AS CHAR NO-UNDO.
 DEF VAR v1 AS CHAR FORMAT "x(15)" NO-UNDO.
@@ -255,6 +256,9 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
+DEF VAR cOrigPropath   AS CHARACTER NO-UNDO.
+DEF VAR cNewPropath    AS CHARACTER NO-UNDO.
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1155,24 +1159,12 @@ PROCEDURE ipAssignARInvXNoSeq PRIVATE:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Assigning arInvXNo_seq with last ar-inv x-no.").
 
-    DEFINE VARIABLE cOrigPropath AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewPropath  AS CHARACTER NO-UNDO.
-    
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     FIND LAST bf-ar-inv USE-INDEX x-no NO-LOCK NO-ERROR.
         
     IF AVAIL bf-ar-inv THEN 
         CURRENT-VALUE(arInvXNo_Seq) = bf-ar-inv.x-no.
-
-    ASSIGN 
-        PROPATH = cOrigPropath.
 
 END PROCEDURE.
 	
@@ -2090,22 +2082,11 @@ PROCEDURE ipConvertGLTrans:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-        
     RUN ipStatus ("    Convert GLTrans to GLHist...").
     RUN util/ConversionGLTrans.p.
     
     RUN ipStatus ("    Verifying GLHist record data...").
     RUN util/SetGLHistFlag.p.
-
-    ASSIGN 
-        PROPATH = cOrigPropath.     
 
 END PROCEDURE.
 	
@@ -2132,14 +2113,6 @@ PROCEDURE ipConvertJcCtrl :
     DEFINE BUFFER bf-materialType FOR materialType.
 
     RUN ipStatus ("    Creating materialType records.").
-
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
 
     FOR EACH bf-company NO-LOCK:
         FOR EACH bf-mat NO-LOCK:
@@ -2187,9 +2160,6 @@ PROCEDURE ipConvertJcCtrl :
         END.
     END.
 
-    ASSIGN 
-        PROPATH = cOrigPropath.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2238,9 +2208,7 @@ PROCEDURE ipConvertPolScore PRIVATE:
     DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
-    
+
     DEFINE BUFFER bf-reftable1   FOR reftable.
     DEFINE BUFFER bf-reftable2   FOR reftable.
     DEFINE BUFFER bf-po-ordl     FOR po-ordl.
@@ -2250,12 +2218,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
 
     RUN ipStatus ("    Creating panelHeader and panelDetail records.").
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-    
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
     
     FOR EACH bf-company NO-LOCK: 
@@ -2371,7 +2333,6 @@ PROCEDURE ipConvertPolScore PRIVATE:
     
     DELETE PROCEDURE hdFormulaProcs.
 
-    PROPATH = cOrigPropath.
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2557,8 +2518,6 @@ PROCEDURE ipConvertVendorCosts:
     RUN ipStatus ("    Converting vendor cost records").
 
     DEF VAR iVendCostItemID AS INT64 NO-UNDO.
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
@@ -2567,11 +2526,6 @@ PROCEDURE ipConvertVendorCosts:
     DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-    
         IF NOT VALID-HANDLE(hSession) THEN DO:
             RUN system/session.p PERSISTENT SET hSession.
             SESSION:ADD-SUPER-PROCEDURE (hSession).
@@ -2607,8 +2561,6 @@ PROCEDURE ipConvertVendorCosts:
                             OUTPUT cMessage).
     END.
     
-    ASSIGN 
-        PROPATH = cOrigPropath.
     DELETE OBJECT hVendCostProcs.        
     
 END PROCEDURE.
@@ -2627,8 +2579,6 @@ PROCEDURE ipConvQtyPerSet :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Converting QtyPerSet records...").
 
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     DEF VAR dQtyPerSet AS DECIMAL NO-UNDO.
     DEF VAR iCount AS INTEGER NO-UNDO.
@@ -2904,6 +2854,12 @@ PROCEDURE ipDataFix :
     DEF VAR iCurrentVersion AS INT NO-UNDO.
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
 
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
+
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
@@ -2983,6 +2939,8 @@ RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
+
+    PROPATH = cOrigPropath.
 
 END PROCEDURE.
 
@@ -3708,8 +3666,6 @@ PROCEDURE ipDataFix210003:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Data Fix 210003...").
 
@@ -3726,8 +3682,6 @@ PROCEDURE ipDataFix210100:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Data Fix 210100...").
 
@@ -3751,8 +3705,6 @@ PROCEDURE ipDataFix210200:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Data Fix 210200...").
 
@@ -3771,8 +3723,6 @@ PROCEDURE ipDataFix210300:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Data Fix 210300...").
 
@@ -3794,8 +3744,6 @@ PROCEDURE ipDataFix210400:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
 
     RUN ipStatus ("  Data Fix 210400...").
 
@@ -3803,6 +3751,7 @@ PROCEDURE ipDataFix210400:
     RUN ipFixFoldingEstimateScores.
     RUN ipFixLocationStorageCost.
     RUN ipSetSystemScope.
+
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -3823,6 +3772,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadDAOAData.
     RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
+    RUN ipLoadSettingType.
     RUN ipSetCueCards.
     RUN ipCleanTemplates.
     RUN ipLoadEstCostData.
@@ -3830,6 +3780,8 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetDepartmentRequired.
     RUN ipAddDbmsFonts.
     RUN ipDeleteAudit.
+    RUN ipRefTableConv.
+
     
 END PROCEDURE.
 
@@ -4357,8 +4309,6 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
 
     RUN ipStatus ("    Fix Estimate scores").
 
@@ -4367,7 +4317,7 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
     DEFINE BUFFER bf-company     FOR company.
     DEFINE BUFFER bf-style       FOR style.
     DEFINE BUFFER bf-panelHeader FOR panelHeader.
-        
+
     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
     FOR EACH bf-company NO-LOCK:        
@@ -4386,16 +4336,8 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
         END.   
     END.
     
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     DELETE PROCEDURE hdFormulaProcs.
     
-    PROPATH = cOrigPropath.    
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -4493,31 +4435,42 @@ PROCEDURE ipFixLocationStorageCost:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+
     RUN ipStatus("   Location storage cost conversion").
     
     FOR EACH company NO-LOCK:
         FOR EACH loc NO-LOCK
             WHERE loc.company EQ company.company:
-            CREATE storageCost.
-            ASSIGN
-                storageCost.company     = loc.company
-                storageCost.location    = loc.loc
-                storageCost.positions   = 1
-                storageCost.handlingFee = loc.handlingCost
-                storageCost.stack1High  = loc.storageCost[1]
-                storageCost.stack2High  = loc.storageCost[2]
-                storageCost.stack3High  = loc.storageCost[3]
-                storageCost.stack4High  = loc.storageCost[4]
-                .
+            IF NOT CAN-FIND(FIRST storageCost WHERE 
+                            storageCost.company EQ loc.company AND
+                            storageCost.location EQ loc.loc AND
+                            storageCost.position EQ 1) THEN DO.
+                CREATE storageCost.
+                ASSIGN
+                    storageCost.company     = loc.company
+                    storageCost.location    = loc.loc
+                    storageCost.positions   = 1
+                    storageCost.handlingFee = loc.handlingCost
+                    storageCost.stack1High  = loc.storageCost[1]
+                    storageCost.stack2High  = loc.storageCost[2]
+                    storageCost.stack3High  = loc.storageCost[3]
+                    storageCost.stack4High  = loc.storageCost[4]
+                    .
+            END.
             
-            CREATE palletSize.
-            ASSIGN
-                palletSize.company    = loc.company
-                palletSize.location   = loc.loc
-                palletSize.positions  = 1
-                palletSize.upToWidth  = 9999.99
-                palletSize.upToLength = 9999.99
-                .
+            IF NOT CAN-FIND(FIRST palletSize WHERE 
+                            palletSize.company EQ loc.company AND
+                            palletSize.location EQ loc.loc AND
+                            palletSize.position EQ 1) THEN DO.
+                CREATE palletSize.
+                ASSIGN
+                    palletSize.company    = loc.company
+                    palletSize.location   = loc.loc
+                    palletSize.positions  = 1
+                    palletSize.upToWidth  = 9999.99
+                    palletSize.upToLength = 9999.99
+                    .
+            END.
         END.
     END.
 
@@ -5981,6 +5934,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadSettingType C-Win 
+PROCEDURE ipLoadSettingType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Setting Type Records").
+
+    &SCOPED-DEFINE tablename settingType
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadTranslation C-Win 
 PROCEDURE ipLoadTranslation :
 /*------------------------------------------------------------------------------
@@ -6278,8 +6259,13 @@ PROCEDURE ipProcessAll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
     RUN ipStatus ("Beginning Patch Application").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
     ASSIGN
         SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
         SELF:SENSITIVE = FALSE
@@ -6384,17 +6370,6 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 2
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
-    IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
-        RUN ipRefTableConv.
-        IF lSuccess EQ TRUE THEN ASSIGN 
-            iopiStatus = iopiStatus + 30
-            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-        ELSE RETURN.
-    END.
-    ELSE ASSIGN 
-        iopiStatus = iopiStatus + 30
-        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
-    
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
@@ -6418,6 +6393,9 @@ PROCEDURE ipProcessAll :
         fiFromVer:{&SV} = fiToVer:{&SV}
         oplSuccess = TRUE.
         
+    ASSIGN 
+        PROPATH = cOrigPropath.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6430,8 +6408,9 @@ PROCEDURE ipRefTableConv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER recalc-mr FOR reftable.
+
     DEF VAR cThisElement AS CHAR NO-UNDO.
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
@@ -6440,15 +6419,10 @@ PROCEDURE ipRefTableConv :
     RUN ipStatus ("Converting Reftable records...").
 
     ASSIGN
-        lSuccess = FALSE 
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
+        lSuccess = FALSE.
     RUN ipStatus ("   ReftableConvert for " + fiEnvironment:{&SV}).
     RUN 
         VALUE(SEARCH("util\dev\RefTableConvert.r")).
-    ASSIGN
-        PROPATH = cOrigPropath.
 
     /* Ticket 25507 */
     RUN ipStatus ("   Ticket 25507 reftable = blank").
@@ -6510,6 +6484,25 @@ PROCEDURE ipRefTableConv :
             END.
         END.   
     END.  /*FOR EACH reftable1*/  
+    
+    /* Ticket 103950 ConvertMRReftableToEstField.p */
+    FOR EACH bf-est EXCLUSIVE-LOCK:
+        FIND FIRST recalc-mr EXCLUSIVE-LOCK
+             WHERE recalc-mr.reftable EQ "est.recalc-mr"
+             AND recalc-mr.company  EQ bf-est.company
+             AND recalc-mr.loc      EQ bf-est.loc
+             AND recalc-mr.code     EQ TRIM(bf-est.est-no)
+          NO-ERROR.
+         IF AVAILABLE recalc-mr THEN 
+         DO:
+           ASSIGN
+              bf-est.recalc-mr              =  recalc-mr.val[1] EQ 1
+              bf-est.allFormsInk            =  recalc-mr.val[2] EQ 1
+              bf-est.calcBoardCostFromBlank =  recalc-mr.val[3] EQ 1  .
+           DELETE recalc-mr.
+         END. 
+    END.
+    RELEASE bf-est.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -6873,9 +6866,6 @@ PROCEDURE ipResetCostGroups:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Reset Cost Groups and Categories").
 
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
     DISABLE TRIGGERS FOR LOAD OF estCostCategory.
     DISABLE TRIGGERS FOR LOAD OF estCostGroup.
     DISABLE TRIGGERS FOR LOAD OF estCostGroupLevel.
@@ -6890,16 +6880,8 @@ PROCEDURE ipResetCostGroups:
         DELETE estCostGroupLevel.
     END.
     
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-        
     RUN est/ResetCostGroupsAndCategories.p.   
     
-    ASSIGN 
-        PROPATH = cOrigPropath.     
-
 
 END PROCEDURE.
 	
@@ -6987,7 +6969,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "McjlwjaffvkbBCti".
+            tempUser._Password = ENCODE("Boxco2020!").
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -6996,7 +6978,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = "McjlwjaffvkbBCti".
+            _User._Password = ENCODE("Boxco2020!").
     END.
 
     RELEASE _user.
@@ -7254,6 +7236,7 @@ PROCEDURE ipSetSystemScope:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    
     DEFINE BUFFER bf-scope FOR scope.
      
     RUN ipStatus ("  Adding System scope for new settings").
@@ -7267,6 +7250,7 @@ PROCEDURE ipSetSystemScope:
             bf-scope.scopeTable = "System"
             .
     END. 
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -7413,21 +7397,11 @@ PROCEDURE ipFixEstimateScores:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cOrigPropath   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewPropath    AS CHARACTER NO-UNDO.
     
     RUN ipStatus ("    Fix Estimate scores").
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
-
     RUN util/dev/EstimateScoresFix.p.
     
-    PROPATH = cOrigPropath.    
-
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -7708,19 +7682,9 @@ PROCEDURE ipUpdateSurchargeAccounts:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
         
     RUN ipStatus ("    Updating surcharge accounts").
     RUN util/UpdateSurAccount.p.
-
-    ASSIGN 
-        PROPATH = cOrigPropath.     
 
 END PROCEDURE.
 	
@@ -7963,15 +7927,6 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-job-mch FOR job-mch.
     
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath.
-        
-
     DEFINE VARIABLE lReSequence AS LOGICAL NO-UNDO.
     
     FOR EACH job NO-LOCK:
@@ -7995,9 +7950,6 @@ PROCEDURE ipJobMchSequenceFix PRIVATE:
         IF lResequence THEN
             RUN ipUpdateJobMchLines(BUFFER job).
     END.
-
-    ASSIGN 
-        PROPATH = cOrigPropath.     
 
 END PROCEDURE.
 	

@@ -44,15 +44,25 @@ def var v-hdr as char format "x(15)" initial "" no-undo.
 def var v-ino-job as char format "x(15)" initial "" no-undo.
 def var v-change-ord as char format "x(35)" initial "" no-undo.
 DEF VAR v-sig-image AS CHAR NO-UNDO.
-DEF var v-dept-note AS cha FORM "x(80)" EXTENT 50 NO-UNDO.
+DEF var v-dept-note   AS CHARACTER FORM "x(80)" EXTENT 50 NO-UNDO.
 
-DEF VAR v-inst-lines AS INT NO-UNDO.
-DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
+DEF VAR v-inst-lines  AS INTEGER   NO-UNDO.
+DEF VAR v-inst        AS CHARACTER FORM "x(80)" EXTENT 4 NO-UNDO.
 
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR v-signature AS cha FORM "x(100)" NO-UNDO.
+DEF VAR ls-image1     AS CHARACTER NO-UNDO.
+DEF VAR ls-full-img1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
+DEF VAR v-signature   AS CHARACTER FORM "x(100)" NO-UNDO.
+
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms1.jpg" .
+    cTermsImage1 = FILE-INFO:FULL-PATHNAME + ">" .
+    
+ ASSIGN
+    FILE-INFO:FILE-NAME = ".\CustFiles\Images\3cTerms2.jpg" .
+    cTermsImage2 = FILE-INFO:FULL-PATHNAME + ">" .
 
 DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
@@ -439,7 +449,7 @@ assign
                    v-printline = v-printline + 1.
         END.
 
-        run po/po-ordls.p (recid(po-ordl)).
+        
             
         {po/poprints.i}
             
@@ -602,9 +612,21 @@ assign
        "<R60><C1>AUTHORIZED BY: ________________________________"
        v-signature
        SKIP.
+       
+   PUT "<FArial><R63.2><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions"").  Essentra Packaging disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Supplier and the same shall not be binding upon Essentra Packaging, regardless of when submitted.  Supplier’s acceptance of the sales/purchases described herein" SKIP
+    "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Supplier's delivery of goods or" SKIP
+    "<C2.5><R-0.3>" "acceptance of payment made by Essentra Packaging for the sales or purchases described herein."
+    "<P9>".
 
 v-printline = v-printline + 6.
 IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
+
+PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage1 SKIP .
+                        PAGE.
+
+PUT UNFORMATTED "<R1><C1><R65><C110><IMAGE#1=" cTermsImage2 SKIP .
+                        PAGE. 
 
 end. /* for each po-ord record */.
 

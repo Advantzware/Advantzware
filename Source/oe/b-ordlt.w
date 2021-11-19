@@ -139,6 +139,7 @@ RUN methods/prgsecur.p
      
 RUN api/outboundProcs.p PERSISTENT SET hdOutboundProcs.
 RUN oe/OrderProcs.p     PERSISTENT SET hdOrderProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -300,7 +301,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-ordl.line FORMAT ">>99":U WIDTH 6 LABEL-BGCOLOR 14
       oe-ordl.est-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
-      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14  WIDTH 21 
+      oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -322,7 +323,7 @@ DEFINE BROWSE Browser-Table
       dueDateChangeUser() @ oe-ordl.spare-char-5 COLUMN-LABEL "Due Dt Usr" FORMAT "x(12)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 12.14
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 11.19
          FONT 2.
 
 
@@ -331,16 +332,16 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     auto_find AT ROW 13.38 COL 69 COLON-ALIGNED HELP
+     auto_find AT ROW 12.43 COL 69 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 13.38 COL 132 HELP
+     Btn_Clear_Find AT ROW 12.43 COL 132 HELP
           "CLEAR AUTO FIND Value"
-     browse-order AT ROW 13.43 COL 7 HELP
-          "Select Browser Sort Order" NO-LABELS
-     fi_sortby AT ROW 14.81 COL 19 COLON-ALIGNED NO-LABELS WIDGET-ID 2
+     browse-order AT ROW 12.48 COL 7 HELP
+          "Select Browser Sort Order" NO-LABEL
+     fi_sortby AT ROW 13.86 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 13.38 COL 2
-     RECT-4 AT ROW 13.14 COL 1
+          SIZE 4 BY 1 AT ROW 12.43 COL 2
+     RECT-4 AT ROW 12.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -374,7 +375,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.48
+         HEIGHT             = 13.86
          WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -400,7 +401,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -432,7 +433,7 @@ ASI.oe-ordl.line LT 99999999"
      _FldNameList[2]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" ? "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-ordl.qty
 "oe-ordl.qty" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ordl.i-name
@@ -591,6 +592,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1568,6 +1570,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-max B-table-Win 
+PROCEDURE get-max :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+/* This will display "PDC" records - Promise Date change */
+    RUN dispatch ('initialize').                           
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-rowid2 B-table-Win 
 PROCEDURE get-rowid2 :
 /*------------------------------------------------------------------------------
@@ -2045,21 +2062,6 @@ IF AVAILABLE oe-ordl THEN
   RUN windows/datenote.w (INPUT oe-ordl.rec_key, INPUT PROGRAM-NAME(1), "PDC,DDC", "P,D" ).
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-max B-table-Win 
-PROCEDURE get-max :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-/* This will display "PDC" records - Promise Date change */
-    RUN dispatch ('initialize').                           
-   
-END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

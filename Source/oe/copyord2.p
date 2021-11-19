@@ -803,7 +803,9 @@ PROCEDURE copyJob :
     DEFINE INPUT PARAMETER ipEstno AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipOrdno AS INT NO-UNDO.
     DEFINE INPUT PARAMETER ipLoc AS CHARACTER NO-UNDO.        
-    
+    DEFINE INPUT PARAMETER iplCalcJob AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOrderHeaderEstimate AS CHARACTER NO-UNDO.
+        
     DEFINE VARIABLE v-job-no       LIKE oe-ord.job-no  NO-UNDO.
     DEFINE VARIABLE v-job-no2      LIKE oe-ord.job-no2 NO-UNDO.
     DEFINE VARIABLE v-prod-cat     AS CHARACTER      NO-UNDO.
@@ -831,6 +833,9 @@ PROCEDURE copyJob :
                          INPUT-OUTPUT v-job-no2,
                          INPUT v-prod-cat,
                          FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno)).
+   
+   IF ipcOrderHeaderEstimate NE "" THEN
+    v-job-no2 = 0.
          
     IF v-job-no EQ "" THEN
       v-job-no = FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno).
@@ -864,19 +869,18 @@ PROCEDURE copyJob :
               FIND CURRENT job NO-ERROR.
               IF AVAIL job THEN DELETE job.
             END.
-         
-          IF NOT AVAIL job THEN DO:
+                      
+          
             RUN create-ord-job (ipFrmCompany,ipToCompany,ipEstno,ipOrdno,v-job-no,v-job-no2,ipLoc,OUTPUT lv-job-recid).
-            FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.
-          END.        
-
+            FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.              
+                  
           ipv-qty-mod = YES.
-
+          
           IF AVAIL job AND INDEX("HWPRL",job.stat) NE 0 THEN DO:
             /*IF NOT ipv-qty-mod THEN
                RUN oe/job-qty.p (ROWID(oe-ord), OUTPUT ipv-qty-mod).*/
          
-            IF ipv-qty-mod OR job.stat EQ "P" THEN DO:
+            IF (ipv-qty-mod OR job.stat EQ "P") AND (iplCalcJob OR ipcOrderHeaderEstimate EQ "") THEN DO:
               RUN jc/chkrebld.p (RECID(job), OUTPUT choice).     
               IF NOT choice THEN DO:
                 ASSIGN hld-id     = ipFil_id
@@ -1092,10 +1096,10 @@ PROCEDURE copyOrder :
   FOR EACH oe-ordl
       WHERE oe-ordl.company EQ oe-ord.company
         AND oe-ordl.ord-no  EQ oe-ord.ord-no
-      EXCLUSIVE-LOCK:
+      EXCLUSIVE-LOCK BREAK BY oe-ordl.LINE:
     
     CREATE b-oe-ordl.
-    BUFFER-COPY oe-ordl EXCEPT rec_key job-no job-no2 ord-no oe-ordl.t-inv-qty oe-ordl.t-ship-qty oe-ordl.po-no-po TO b-oe-ordl
+    BUFFER-COPY oe-ordl EXCEPT rec_key job-no job-no2 ord-no vend-no oe-ordl.t-inv-qty oe-ordl.t-ship-qty oe-ordl.po-no-po TO b-oe-ordl
     ASSIGN
      b-oe-ordl.company   = b-oe-ord.company
      b-oe-ordl.ord-no    = b-oe-ord.ord-no  
@@ -1129,11 +1133,14 @@ PROCEDURE copyOrder :
     ASSIGN
       ipFil_id    = RECID(oe-ordl).
 
-    IF oe-ordl.est-no <> "" THEN DO:
-        FIND est WHERE est.est-no EQ oe-ordl.est-no NO-LOCK NO-ERROR.
-        IF AVAIL(est) THEN do:
-            RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc).
-            ASSIGN b-oe-ord.job-no = STRING(b-oe-ord.ord-no) .
+    IF oe-ordl.est-no <> "" THEN DO:   
+        FIND FIRST est NO-LOCK
+             WHERE est.company EQ ipToCompany
+             AND trim(est.est-no) EQ trim(n-est-no) NO-ERROR.
+        IF AVAIL(est) THEN do:     
+            RUN copyJob (ipFromCompany,ipToCompany,n-est-no,b-oe-ord.ord-no,b-oe-ord.loc, logical(LAST(oe-ordl.LINE)), b-oe-ord.est-no ).
+            IF b-oe-ord.est-no NE "" THEN
+            ASSIGN b-oe-ord.job-no = STRING(b-oe-ord.ord-no).                   
             IF est.ord-no NE 0 THEN ASSIGN
                 b-oe-ordl.po-no2 = STRING(est.ord-no)
                 b-oe-ord.pord-no = est.ord-no  .
@@ -1353,6 +1360,7 @@ PROCEDURE create-ord-job :
   ASSIGN  v-item-chk = oe-ordl.i-no .
 
   DEF BUFFER v-ord-job-hdr FOR job-hdr.
+  DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
   DEFINE VARIABLE v-job-job LIKE job.job     NO-UNDO.
   DEFINE VARIABLE v-job-no  LIKE job.job-no  NO-UNDO.
@@ -1390,32 +1398,32 @@ PROCEDURE create-ord-job :
          job.stat       = "P"
          job.orderType  = oe-ord.type
          op-recid       = RECID(job).
-
-  FOR EACH oe-ordl WHERE oe-ordl.company EQ ipToCompany
-                     AND oe-ordl.ord-no  EQ ipOrdno EXCLUSIVE:
+               
+  FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company EQ ipToCompany
+                     AND bf-oe-ordl.ord-no  EQ ipOrdno EXCLUSIVE:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ ipToCompany
-            AND job-hdr.job-no  EQ oe-ord.job-no
-            AND job-hdr.job-no2 EQ oe-ord.job-no2
+            AND job-hdr.job-no  EQ v-job-no
+            AND job-hdr.job-no2 EQ v-job-no2
             AND job-hdr.ord-no  EQ ipOrdno
-            AND job-hdr.i-no    EQ oe-ordl.i-no
+            AND job-hdr.i-no    EQ bf-oe-ordl.i-no
           NO-ERROR.
 
       IF NOT AVAIL job-hdr THEN DO:
-         FIND FIRST itemfg WHERE itemfg.company EQ oe-ordl.company
-                             AND itemfg.i-no    EQ oe-ordl.i-no
+         FIND FIRST itemfg WHERE itemfg.company EQ bf-oe-ordl.company
+                             AND itemfg.i-no    EQ bf-oe-ordl.i-no
                              NO-LOCK NO-ERROR.   
          
          CREATE job-hdr.
          ASSIGN job-hdr.company      = ipToCompany
                 job-hdr.loc          = ipLoc
                 job-hdr.est-no       = ipEstno
-                job-hdr.i-no         = oe-ordl.i-no
-                job-hdr.qty          = oe-ordl.qty 
-                job-hdr.cust-no      = oe-ordl.cust-no
-                job-hdr.ord-no       = oe-ordl.ord-no
-                job-hdr.po-no        = oe-ordl.po-no
-                job-hdr.blank-no     = oe-ordl.blank-no 
+                job-hdr.i-no         = bf-oe-ordl.i-no
+                job-hdr.qty          = bf-oe-ordl.qty 
+                job-hdr.cust-no      = bf-oe-ordl.cust-no
+                job-hdr.ord-no       = bf-oe-ordl.ord-no
+                job-hdr.po-no        = bf-oe-ordl.po-no
+                job-hdr.blank-no     = bf-oe-ordl.blank-no 
                 job-hdr.due-date     = oe-ord.due-date .
 
          IF AVAIL itemfg THEN
@@ -1445,18 +1453,13 @@ PROCEDURE create-ord-job :
              job-hdr.job-no2 = job.job-no2             
              .
       IF ipFrmCompany NE ipToCompany THEN
-          oe-ordl.est-no  = job-hdr.est-no.
-        /* task 07311410 */
-          IF AVAIL b-sys-ctrl AND b-sys-ctrl.char-fld = "Order#" AND oe-ordl.i-no  EQ v-item-chk THEN
+          bf-oe-ordl.est-no  = job-hdr.est-no.
+        
+          IF bf-oe-ordl.i-no  EQ v-item-chk THEN
           ASSIGN
-             oe-ordl.job-no  = job-hdr.job-no
-             oe-ordl.job-no2 = job-hdr.job-no2
-             oe-ordl.j-no    = job-hdr.j-no .
-          IF AVAIL b-sys-ctrl AND b-sys-ctrl.char-fld NE "Order#"  THEN
-          ASSIGN
-             oe-ordl.job-no  = job-hdr.job-no
-             oe-ordl.job-no2 = job-hdr.job-no2
-             oe-ordl.j-no    = job-hdr.j-no .
+             bf-oe-ordl.job-no  = job-hdr.job-no
+             bf-oe-ordl.job-no2 = job-hdr.job-no2
+             bf-oe-ordl.j-no    = job-hdr.j-no .          
           
       FIND CURRENT job-hdr NO-LOCK.
   END. /* each oe-ordl */

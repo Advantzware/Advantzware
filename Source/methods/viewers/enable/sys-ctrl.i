@@ -3,4 +3,9 @@
 &IF '{&post-enable}' NE '' &THEN
     RUN {&post-enable}.
 &ENDIF
-sys-ctrl.isPassword:SENSITIVE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfIsUserSuperAdmin").
+DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+        sys-ctrl.isPassword:SENSITIVE = lSuperAdmin
+        sys-ctrl.isActive:SENSITIVE   = lSuperAdmin
+        .
+END.

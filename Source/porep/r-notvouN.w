@@ -1576,13 +1576,13 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ttReceipt.company,                                  /* Company Code (Mandatory) */
         INPUT  ttReceipt.loc,                                      /* Location Code (Mandatory) */
-        INPUT  "SendReceipt",                                      /* API ID (Mandatory) */
+        INPUT  "SendReceipts",                                     /* API ID (Mandatory) */
         INPUT  "",                                                 /* Scope ID */
         INPUT  "",                                                 /* Scoped Type */
-        INPUT  "UpdateReceipt",                                    /* Trigger ID (Mandatory) */
+        INPUT  "POReceipt",                                        /* Trigger ID (Mandatory) */
         INPUT  "TTReceiptHandle",                                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(TEMP-TABLE ttReceipt:HANDLE),                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-        INPUT  "RMPost",                                           /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "PO Receipts Not Vouchered",                        /* Primary ID for which API is called for (Mandatory) */   
         INPUT  "Triggered from RM Post",                           /* Event's description (Optional) */
         OUTPUT lSuccess,                                           /* Success/Failure flag */
         OUTPUT cMessage                                            /* Status message */
@@ -1814,26 +1814,19 @@ PROCEDURE run-report :
                         temp-po-rec.cost-each  = v-cost
                         temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
  
-                    FIND FIRST ttReceipt
-                         WHERE ttReceipt.poID   EQ po-ordl.po-no
-                           AND ttReceipt.poLine EQ po-ordl.line
-                         NO-ERROR.
-                    IF NOT AVAILABLE ttReceipt THEN DO:
-                         CREATE ttReceipt.
-                         ASSIGN
-                             iCount                 = iCount + 1
-                             ttReceipt.lineID       = iCount
-                             ttReceipt.company      = po-ordl.company
-                             ttReceipt.location     = po-ord.loc
-                             ttReceipt.poID         = po-ordl.po-no
-                             ttReceipt.poLine       = po-ordl.line
-                             ttReceipt.itemID       = po-ordl.i-no
-                             ttReceipt.itemName     = IF po-ordl.i-name EQ "" THEN po-ordl.i-no ELSE po-ordl.i-name
-                             ttReceipt.quantityUOM  = po-ordl.pr-uom
-                             .
-                    END.
-                    
-                    ttReceipt.quantity = ttReceipt.quantity + temp-po-rec.qty-to-inv.
+                     CREATE ttReceipt.
+                     ASSIGN
+                         iCount                 = iCount + 1
+                         ttReceipt.lineID       = iCount
+                         ttReceipt.company      = po-ordl.company
+                         ttReceipt.location     = po-ord.loc
+                         ttReceipt.poID         = po-ordl.po-no
+                         ttReceipt.poLine       = po-ordl.line
+                         ttReceipt.itemID       = po-ordl.i-no
+                         ttReceipt.itemName     = IF po-ordl.i-name EQ "" THEN po-ordl.i-no ELSE po-ordl.i-name
+                         ttReceipt.quantityUOM  = po-ordl.pr-uom
+                         ttReceipt.quantity     = temp-po-rec.qty-to-inv
+                         .
                                       
                     RELEASE temp-po-rec.
                 END.
@@ -2416,26 +2409,19 @@ END.
 END.  /* For each po-ordl */
 
 FOR EACH temp-po-rec:
-    FIND FIRST ttReceipt
-         WHERE ttReceipt.poID   EQ temp-po-rec.po-no
-           AND ttReceipt.poLine EQ temp-po-rec.po-line
-         NO-ERROR.
-    IF NOT AVAILABLE ttReceipt THEN DO:
-         CREATE ttReceipt.
-         ASSIGN
-             iCount                 = iCount + 1
-             ttReceipt.lineID       = iCount
-             ttReceipt.company      = cocode
-             ttReceipt.location     = temp-po-rec.whse
-             ttReceipt.poID         = temp-po-rec.po-no
-             ttReceipt.poLine       = temp-po-rec.po-line
-             ttReceipt.itemID       = temp-po-rec.item-no
-             ttReceipt.itemName     = IF temp-po-rec.descr EQ "" THEN temp-po-rec.item-no ELSE temp-po-rec.descr
-             ttReceipt.quantityUOM  = temp-po-rec.qty-uom
-             .
-    END.
-    
-    ttReceipt.quantity = ttReceipt.quantity + temp-po-rec.qty-to-inv.
+    CREATE ttReceipt.
+    ASSIGN
+        iCount                 = iCount + 1
+        ttReceipt.lineID       = iCount
+        ttReceipt.company      = cocode
+        ttReceipt.location     = temp-po-rec.whse
+        ttReceipt.poID         = temp-po-rec.po-no
+        ttReceipt.poLine       = temp-po-rec.po-line
+        ttReceipt.itemID       = temp-po-rec.item-no
+        ttReceipt.itemName     = IF temp-po-rec.descr EQ "" THEN temp-po-rec.item-no ELSE temp-po-rec.descr
+        ttReceipt.quantityUOM  = temp-po-rec.qty-uom
+        ttReceipt.quantity     = temp-po-rec.qty-to-inv
+        .
 END.
 
 IF rd_sort = "Vendor" THEN

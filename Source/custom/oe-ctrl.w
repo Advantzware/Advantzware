@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 DEF VAR giCurrOrd AS INT NO-UNDO.
 DEF VARIABLE lNewOrderEntry AS LOGICAL NO-UNDO.
-DEFIN VARIABLE cRtnChar AS LOGICAL NO-UNDO.
+DEFIN VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFIN VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "NewOrderEntry", "L" /* Logical */, NO /* check by cust */, 

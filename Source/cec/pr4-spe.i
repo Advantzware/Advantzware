@@ -15,7 +15,7 @@ DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
          
          /* If Old vendor logic then apply this conversion. For new, conversion logic is in Vendor Cost proc */
          RELEASE e-item.
-         IF lNewVendorItemCost AND v-vend-no NE "" THEN
+         IF lNewVendorItemCost THEN
          DO:
              RUN est/getVendorCostinQtyUOM.p(Item.company, 
                  item.i-no, 
@@ -26,6 +26,10 @@ DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
                  xeb.blank-no,
                  s-qty[i],
                  item.cons-uom,
+                 item.s-len, 
+                 item.s-wid, 
+                 item.s-dep,
+                 item.basis-w,
                  OUTPUT dCostQtyUOM,
                  OUTPUT dSetupCostQtyUOM,
                  OUTPUT s-cost[i]).         

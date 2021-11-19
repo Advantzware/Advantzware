@@ -816,7 +816,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-oeqtys ).
-       RUN set-position IN h_v-oeqtys ( 20.05 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-oeqtys ( 19.05 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.86 , 152.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

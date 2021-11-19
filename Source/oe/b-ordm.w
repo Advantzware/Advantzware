@@ -695,7 +695,7 @@ PROCEDURE create-invoice :
                                  THEN shipto.tax-code ELSE oe-ord.tax-gr
          inv-head.tot-ord      = 0
          inv-head.inv-no       = 0
-         inv-head.stat         = ""
+         inv-head.stat         = IF cust.inv-meth EQ ? THEN "H" ELSE ""
          inv-head.deleted      = NO
          inv-head.posted       = NO
          inv-head.inv-date     = TODAY

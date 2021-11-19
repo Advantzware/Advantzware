@@ -2598,6 +2598,7 @@ PROCEDURE VendCost_GetBestCost:
     DEFINE OUTPUT PARAMETER opdBestCostSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcBestCostVendorID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdBestCostDeviation AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdBestCostTotal AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -2620,6 +2621,7 @@ PROCEDURE VendCost_GetBestCost:
             opcBestCostVendorID  = ttVendItemCost.vendorID 
             opcBestCostVendorUOM = ttVendItemCost.vendorUOM
             opdBestCostDeviation = ttVendItemCost.costDeviation
+            opdBestCostTotal     = ttVendItemCost.costTotal
             .
         LEAVE.
     END. 
@@ -2635,6 +2637,7 @@ PROCEDURE VendCost_GetBestCost:
                 opcBestCostVendorID  = ttVendItemCost.vendorID 
                 opcBestCostVendorUOM = ttVendItemCost.vendorUOM
                 opdBestCostDeviation = ttVendItemCost.costDeviation
+                opdBestCostTotal     = ttVendItemCost.costTotal
                 .
             LEAVE.
         END.         

@@ -466,7 +466,7 @@ v-printline = 0.
                v-printline = v-printline + 1.
 
          len-score = "".   
-         run po/po-ordls.p (recid(po-ordl)).
+         
          {po/poprints.i}       
             
            end.

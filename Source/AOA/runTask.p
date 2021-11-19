@@ -82,7 +82,7 @@ IF AVAILABLE dynParamValue THEN DO:
                                 taskEmail.body       = IF AVAILABLE emailConfig AND emailConfig.body NE "" THEN
                                                        emailConfig.body ELSE "AOA Task Result Attached"
                                 taskEmail.attachment = ENTRY(idx,cJasperFile)
-                                taskEmail.recipients = IF cRecipient NE "" THEN ENTRY(idx,cRecipient) ELSE Task.recipients
+                                taskEmail.recipients = IF cRecipient NE "" THEN ENTRY(idx,cRecipient,"|") ELSE Task.recipients
                                 taskEmail.mustExist  = YES
                                 taskEmail.rec_key    = Task.rec_key
                                 .

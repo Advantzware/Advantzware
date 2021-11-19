@@ -89,23 +89,24 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE QUERY external_tables FOR style, flute.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS style.dscr style.type style.design-no ~
-style.royalty style.dim-tk style.dim-pan5 style.dim-fit style.material[1] ~
-style.material[2] style.material[3] style.material[4] style.material[5] ~
-style.material[6] style.material[7] style.qty-per-set style.spare-char-5 ~
-style.dim-df style.m-code[1] style.m-code[2] style.m-code[3] ~
-style.m-code[4] style.m-code[5] style.m-code[6] style.m-code[7] 
+style.designIDAlt style.dim-tk style.dim-pan5 style.dim-fit ~
+style.material[1] style.material[2] style.material[3] style.material[4] ~
+style.material[5] style.material[6] style.material[7] style.spare-char-5 ~
+style.qty-per-set style.dim-df style.m-code[1] style.m-code[2] ~
+style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
+style.m-code[7] style.royalty 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-7 RECT-8 RECT-9 
 &Scoped-Define DISPLAYED-FIELDS style.style style.dscr style.type ~
-style.design-no style.royalty flute.code style.dim-tk style.dim-pan5 ~
+style.design-no style.designIDAlt flute.code style.dim-tk style.dim-pan5 ~
 style.dim-fit style.material[1] style.material[2] style.material[3] ~
 style.material[4] style.material[5] style.material[6] style.material[7] ~
-style.qty-per-set style.spare-char-5 style.dim-df style.m-code[1] ~
+style.spare-char-5 style.qty-per-set style.dim-df style.m-code[1] ~
 style.m-code[2] style.m-code[3] style.m-code[4] style.m-code[5] ~
 style.m-code[6] style.m-code[7] style.m-dscr[1] style.m-dscr[2] ~
 style.m-dscr[3] style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] ~
-style.m-dscr[7] 
+style.m-dscr[7] style.royalty 
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
@@ -208,7 +209,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 9.29.
+     SIZE 40 BY 8.57.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -218,7 +219,6 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiPOBlankWidthScore AT ROW 13.24 COL 27 COLON-ALIGNED WIDGET-ID 8 NO-TAB-STOP 
      style.style AT ROW 1.48 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -232,13 +232,14 @@ DEFINE FRAME F-Main
           LABEL "Type" FORMAT "!"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
+     fiPOBlankWidthScore AT ROW 13.24 COL 27 COLON-ALIGNED WIDGET-ID 8 NO-TAB-STOP 
      style.design-no AT ROW 1.48 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     style.royalty AT ROW 1.48 COL 108 COLON-ALIGNED
-          LABEL "Markup$"
+     style.designIDAlt AT ROW 1.48 COL 112 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Alt. Design #"
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
+          SIZE 7 BY 1
      flute.code AT ROW 1.48 COL 130 COLON-ALIGNED
           LABEL "Flute"
           VIEW-AS FILL-IN 
@@ -298,16 +299,16 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     style.qty-per-set AT ROW 10.29 COL 63 COLON-ALIGNED
-          LABEL "Qty/Set" FORMAT "->>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 11.24 COL 63 COLON-ALIGNED WIDGET-ID 6
+     style.spare-char-5 AT ROW 10.29 COL 63 COLON-ALIGNED WIDGET-ID 6
           LABEL "Packing Code"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     style.qty-per-set AT ROW 11.71 COL 63 COLON-ALIGNED
+          LABEL "Qty/Set" FORMAT "->>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -315,7 +316,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     style.dim-df AT ROW 12.43 COL 63 COLON-ALIGNED HELP
+     style.dim-df AT ROW 12.81 COL 63 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "# Slots" FORMAT ">9"
           VIEW-AS FILL-IN 
@@ -384,6 +385,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
+     style.royalty AT ROW 10.71 COL 108.2 COLON-ALIGNED
+          LABEL "Markup$"
+          VIEW-AS FILL-IN 
+          SIZE 9.2 BY 1
+          BGCOLOR 15 
      "  Default Material Codes" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 2.91 COL 52
           FGCOLOR 9 
@@ -460,6 +466,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN flute.code IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN style.designIDAlt IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.dim-df IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN style.dim-fit IN FRAME F-Main
@@ -571,6 +579,10 @@ DO:
              RUN windows/l-boxdes.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
              IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).    
         END.
+        WHEN 'designIDAlt' THEN DO:
+             RUN windows/l-boxdes.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).    
+        END.
         WHEN 'code' THEN DO:
            RUN windows/l-flute.w (style.company,OUTPUT char-val).
            IF char-val <> "" THEN 
@@ -601,7 +613,7 @@ DO:
                          ELSE lv-ind = "".  
                          IF AVAILABLE style AND style.type:SCREEN-VALUE EQ "f" THEN DO: /* foam */
                             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
-                            style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).
+                            style.material[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
                             APPLY "ENTRY":U TO style.material[1].
                          END. /* if foam */
                          ELSE DO:
@@ -740,6 +752,25 @@ END.
 ON LEAVE OF style.design-no IN FRAME F-Main /* Design # */
 DO:    
     {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST box-design-hdr WHERE /*box-design-hdr.company = style.company */
+                     box-design-hdr.design-no = int(SELF:screen-value))
+     THEN DO:
+        MESSAGE "Invalid Box Design Number. Try help." VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+     END.                  
+     {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.designIDAlt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.designIDAlt V-table-Win
+ON LEAVE OF style.designIDAlt IN FRAME F-Main /* Alt. Design # */
+DO:
+  {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
        NOT CAN-FIND(FIRST box-design-hdr WHERE /*box-design-hdr.company = style.company */
                      box-design-hdr.design-no = int(SELF:screen-value))
@@ -1952,6 +1983,13 @@ PROCEDURE local-update-record :
      THEN DO:
         MESSAGE "Invalid Box Design Number. Try help." VIEW-AS ALERT-BOX.
         APPLY "entry" TO style.design-no .
+        RETURN NO-APPLY.
+     END.
+     
+     IF NOT CAN-FIND(FIRST box-design-hdr WHERE box-design-hdr.design-no = int(style.designIDAlt:screen-value))
+     THEN DO:
+        MESSAGE "Invalid Alt. Design #. Try help." VIEW-AS ALERT-BOX.
+        APPLY "entry" TO style.designIDAlt .
         RETURN NO-APPLY.
      END.                  
      /* style.material validation */

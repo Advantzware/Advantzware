@@ -514,10 +514,10 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
-     eb.flute AT ROW 10.52 COL 89 COLON-ALIGNED
+     eb.flute AT ROW 10.52 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     eb.test AT ROW 10.52 COL 103 COLON-ALIGNED
+          SIZE 8.3 BY 1
+     eb.test AT ROW 10.52 COL 103.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
      tab-inout AT ROW 10.52 COL 120 COLON-ALIGNED
@@ -941,11 +941,11 @@ DO:
            if avail style then lv-ind = style.industry.
            else lv-ind = "".  
            if avail style and style.type = "f" then DO: /* foam */
-             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+             RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).  
              IF char-val NE "" THEN DO:
                ASSIGN
-                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val)
-                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "i-name", char-val)
+                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val)
+                    ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                     .       
                APPLY "ENTRY":U TO lw-focus.
              END.

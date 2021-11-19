@@ -577,7 +577,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         END.
         ASSIGN 
             cPoHeadNotesKiwi = cPoNotes
-            cPoNotes         = REPLACE(cPoNotes, "~n", "")
+            cPoNotes         = REPLACE(cPoNotes, CHR(10)," ")
+            cPoNotes         = REPLACE(cPoNotes, CHR(13)," ")
             .
         
         cPoNotesHRMS = cPoNotes.
@@ -715,7 +716,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 dCostInMSF                  = po-ordl.cost
                 dQuantityInSF               = po-ordl.ord-qty
                 cTotalLineCost              = STRING(po-ordl.t-cost)
-                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"999999")
+                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
@@ -1036,8 +1037,12 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             ASSIGN 
                 cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotes
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
-                cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
-                cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
+                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
+                                    cPoLineNotes
+                                ELSE
+                                    cPoNotesHRMS + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN

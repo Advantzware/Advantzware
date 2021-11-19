@@ -1194,6 +1194,27 @@ PROCEDURE pCallOutboundAPI PRIVATE :
             OUTPUT lSuccess,                   /* Success/Failure flag */
             OUTPUT cMessage                    /* Status message */
             ).
+
+        ASSIGN  
+            cAPIId       = "SendJobAMS"
+            cPrimaryID   = ipbf-job.job-no + "-" + STRING(ipbf-job.job-no2)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-ticket.w for Job: " + cPrimaryID
+            .
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipbf-job.company,           /* Company Code (Mandatory) */
+            INPUT  ipbf-job.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                     /* API ID (Mandatory) */
+            INPUT  "",                         /* Scope ID */
+            INPUT  "",                         /* Scope Type */
+            INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-job)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).
+            
         /* Reset context at the end of API calls to clear temp-table 
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs. 
