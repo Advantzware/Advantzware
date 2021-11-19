@@ -496,8 +496,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Receipt Date */
     DO:
-        ASSIGN {&self-name}.
-        {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 2}
+        ASSIGN {&self-name}.          
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,7 +521,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DEFINE VARIABLE lv-post AS LOG NO-UNDO.
 
 
-        RUN check-date.
+        RUN check-date(YES).
         IF v-invalid THEN RETURN NO-APPLY.
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -644,8 +643,7 @@ ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Receipt Date */
     DO:
-        ASSIGN {&self-name}.
-       {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 2}
+        ASSIGN {&self-name}.         
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -746,12 +744,12 @@ ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 &Scoped-define SELF-NAME tran-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
-    DO:
+    DO: 
         ASSIGN {&self-name}.
 
         IF LASTKEY NE -1 THEN 
         DO:
-            RUN check-date.
+            RUN check-date(NO).
             IF v-invalid THEN RETURN NO-APPLY.
         END.
     END.
@@ -825,7 +823,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN
                 tran-date:SCREEN-VALUE = STRING(TODAY)
                 tran-date              = TODAY.
-            RUN check-date.
+            RUN check-date(NO).
         END.
 
         ELSE
@@ -853,13 +851,14 @@ PROCEDURE check-date :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplCheck AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DO WITH FRAME {&frame-name}:
         v-invalid = NO.
 
         RUN GL_CheckModClosePeriod(INPUT cocode, INPUT DATE(tran-date), INPUT "AR", OUTPUT cMessage, OUTPUT lSuccess ) .  
-        IF NOT lSuccess THEN 
+        IF NOT lSuccess AND iplCheck THEN 
         DO:
             MESSAGE cMessage VIEW-AS ALERT-BOX INFORMATION.
             v-invalid = YES.
@@ -871,7 +870,10 @@ PROCEDURE check-date :
             AND period.pend    GE tran-date
             NO-LOCK NO-ERROR.
         IF AVAILABLE period THEN tran-period:SCREEN-VALUE = STRING(period.pnum).
-        
+        IF NOT iplCheck AND AVAILABLE period THEN
+        ASSIGN
+            begin_date:SCREEN-VALUE = STRING(period.pst)
+            end_date:SCREEN-VALUE = STRING(period.pend).
     END.
 END PROCEDURE.
 
@@ -1468,7 +1470,7 @@ PROCEDURE run-report :
     ASSIGN
         str-tit  = coname + " - " + loname
         str-tit2 = "CASH RECEIPTS  -  EDIT REGISTER " + string(xtrnum)
-        str-tit3 = "Period " + string(tran-period,"99") + " - " + string(tran-date) 
+        str-tit3 = "Period " + string(tran-period,"99") + " - " + string(tran-date,"99/99/9999") 
         x        = (112 - length(str-tit)) / 2
         str-tit  = FILL(" ",x) + str-tit
         x        = (114 - length(str-tit2)) / 2
@@ -1497,7 +1499,7 @@ PROCEDURE run-report :
     END.
 
     ASSIGN
-        str-tit3 = "Period " + string(tran-period,"99") + " " + string(tran-date) + " - " +
+        str-tit3 = "Period " + string(tran-period,"99") + " " + string(tran-date,"99/99/9999") + " - " +
               "Summary by Account".
     x = (132 - length(str-tit3)) / 2.
     str-tit3 = FILL(" ",x) + str-tit3.
@@ -1537,7 +1539,7 @@ PROCEDURE run-report :
 
         archk = ar-cash.check-no.
 
-        PUT ar-cash.check-date AT 41        SPACE(1)
+        PUT ar-cash.check-date FORMAT "99/99/9999" AT 41        SPACE(1)
             ar-cash.cust-no                 SPACE(1)
             archk                           SPACE(1)
             ar-cashl.line   FORMAT ">>>>"   SPACE(1)
@@ -1577,7 +1579,7 @@ PROCEDURE run-report :
 
         archk = ar-cash.check-no.
 
-        PUT ar-cash.check-date AT 41        SPACE(1)
+        PUT ar-cash.check-date FORMAT "99/99/9999" AT 41        SPACE(1)
             ar-cash.cust-no                 SPACE(1)
             archk                           SPACE(1)
             0               FORMAT ">>>>"   SPACE(1)

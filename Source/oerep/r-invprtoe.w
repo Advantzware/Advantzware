@@ -2496,7 +2496,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN tb_qty-all:HIDDEN = NO .
         ELSE tb_qty-all:HIDDEN = YES .
          
-        IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" OR v-print-fmt EQ "ColoniaX" OR v-print-fmt EQ "ColonialLot#" THEN
+        IF v-print-fmt EQ "Badger" OR v-print-fmt EQ "Henry" OR v-print-fmt EQ "ColoniaX" OR v-print-fmt EQ "ColonialLot#" OR v-print-fmt EQ "PrystupExcel" THEN
             ASSIGN btnInvoiceMessage:HIDDEN    = NO
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES

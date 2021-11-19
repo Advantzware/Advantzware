@@ -34,6 +34,7 @@ def {1} shared var grand-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99".
 def {1} shared var grand-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99".
 def {1} shared var v-s-class     like cust.classID.
 def {1} shared var v-e-class     like cust.classID init "99".
+DEF {1} SHARED VAR lIncludeGLTotal AS LOG NO-UNDO.
 
 def {1} shared stream s-temp.
 

@@ -1,0 +1,62 @@
+{"ttAttribute": [
+  {
+    "dbFieldName": "ord-no",
+    "dbFieldExtent": 0,
+    "attributeName": "Order#"
+  },
+  {
+    "dbFieldName": "stat",
+    "dbFieldExtent": 0,
+    "attributeName": "OrderLineStatus"
+  },
+  {
+    "dbFieldName": "style",
+    "dbFieldExtent": 0,
+    "attributeName": "StyleCode"
+  },
+  {
+    "dbFieldName": "t-freight",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalFreight"
+  },
+  {
+    "dbFieldName": "t-inv-qty",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalInvoiced"
+  },
+  {
+    "dbFieldName": "t-inv-weight",
+    "dbFieldExtent": 0,
+    "attributeName": "TotalInvoiceWeight"
+  },
+  {
+    "dbFieldName": "i-dscr",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemDescription"
+  },
+  {
+    "dbFieldName": "i-name",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemName"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "ItemID"
+  },  
+  {
+    "dbFieldName": "line",
+    "dbFieldExtent": 0,
+    "attributeName": "Line"
+  },
+  {
+    "dbFieldName": "over-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "OverrunPercent"
+  },
+  {
+    "dbFieldName": "under-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "UnderrunPercent"
+  }  
+]}
