@@ -2670,7 +2670,7 @@ PROCEDURE create-job :
   DEF VAR li-j-no AS INT NO-UNDO.
   DEFINE BUFFER bf-oe-rel FOR oe-rel.
   /* === from oe/oe-ord1.p  ============= */
-                  MESSAGE "create jobbb ofrom ord file " VIEW-AS ALERT-BOX ERROR .
+                  
   FIND LAST job WHERE job.company EQ cocode NO-LOCK NO-ERROR.
   v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
   ASSIGN

@@ -469,7 +469,9 @@ ON HELP OF FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS CHARACTER NO-UNDO. 
   DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+  DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
   lw-focus = FOCUS.
 
@@ -481,15 +483,33 @@ DO:
           IF AVAILABLE eb THEN lw-focus:SCREEN-VALUE = eb.est-no.
         END.                
       END. 
-      WHEN "loc" THEN DO:
-        RUN windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN 
-           ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+      WHEN "loc" THEN DO:          
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ). 
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.loc:SCREEN-VALUE = cFoundValue.
       END.
-      WHEN "shipFromLocation" THEN DO:
-        RUN windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-        IF char-val <> "" THEN 
-           ASSIGN job.shipFromLocation:SCREEN-VALUE = ENTRY(1,char-val).
+      WHEN "shipFromLocation" THEN DO:           
+        RUN system/openLookup.p (
+                  INPUT  g_company, 
+                  INPUT  "",  /* Lookup ID */
+                  INPUT  150,  /* Subject ID */
+                  INPUT  "",  /* User ID */
+                  INPUT  0,   /* Param Value ID */
+                  OUTPUT cFieldsValue, 
+                  OUTPUT cFoundValue, 
+                  OUTPUT recFoundRecID
+                  ).         
+        IF cFoundValue <> "" THEN 
+           ASSIGN job.shipFromLocation:SCREEN-VALUE = cFoundValue.
       END.        
       WHEN "reason" THEN DO:
             RUN windows/l-rejjob.w (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
