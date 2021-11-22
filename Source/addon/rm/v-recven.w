@@ -816,8 +816,7 @@ DO:
                  RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
                                               OUTPUT v-po-no,
                                               OUTPUT v-po-line,
-                                              OUTPUT v-qty,
-                                              OUTPUT t-scr-uom). 
+                                              OUTPUT v-qty). 
              
 /*                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.*/
                  

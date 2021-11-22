@@ -13,21 +13,65 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE INPUT PARAMETER ip-tagno      AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcTagno     AS CHARACTER NO-UNDO.
 
-DEFINE OUTPUT PARAMETER op-iPOnumber AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-iPOline   AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-iQuantity AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-iUOM      AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiPOnumber AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiPOline   AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiQuantity AS INTEGER NO-UNDO.
+/*DEFINE OUTPUT PARAMETER opiUOM      AS CHARACTER NO-UNDO.*/
+
+DEFINE VARIABLE cParseMask     AS CHARACTER NO-UNDO INIT "PPPPPPPPLLLQQQQQ". /*will be retrieved from sys-ctrl later*/
+DEFINE VARIABLE cParseMasklist AS CHARACTER NO-UNDO INIT "P,L,Q".  
+
+DEFINE TEMP-TABLE ttParseVal NO-UNDO
+    FIELD cValueFor AS CHARACTER
+    FIELD iStartPos AS INTEGER
+    FIELD iStrlength  AS INTEGER .
+  
+DEFINE VARIABLE iIncrement AS INTEGER   NO-UNDO.
+DEFINE VARIABLE ctemp      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iPsize     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLsize     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iQsize     AS INTEGER   NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-DEFINE VARIABLE a AS CHARACTER NO-UNDO INIT "PPPPPPPPLLLQQQQQ". /*will be retrieved from sys-ctrl later*/
 
-ASSIGN
-    op-iPOnumber = SUBSTRING(ip-tagno,INDEX(a,"P"),R-INDEX(a,"P"))
-    op-iPOline   = SUBSTRING(ip-tagno,INDEX(a,"L"),(R-INDEX(a,"L") - LENGTH(op-iPOnumber)))
-    op-iQuantity = SUBSTRING(ip-tagno,INDEX(a,"Q"),(R-INDEX(a,"Q") - (LENGTH(op-iPOnumber) + LENGTH(op-iPOline))))
-    op-iUOM      = SUBSTRING(ip-tagno,LENGTH(a),LENGTH(ip-tagno)).
+DO iIncrement = 1 TO LENGTH(cParseMask ):
+    ctemp = SUBSTRING(cParseMask ,iIncrement,1).
+    CASE ctemp:
+        WHEN "P" THEN
+            iPsize = iPsize + 1.
+        WHEN "L" THEN
+            iLsize = iLsize + 1.
+        WHEN "Q" THEN 
+            iQsize = iQsize + 1.
+    END CASE.
+END.
+
+DO iIncrement = 1 TO NUM-ENTRIES(cParseMaskList):
+    CREATE ttParseVal.
+    ASSIGN 
+        ttParseVal.cValueFor = ENTRY(iIncrement,cParseMaskList)
+        ttParseVal.iStartPos = INDEX(cParseMask,ENTRY(iIncrement,cParseMaskList)).
+           
+    IF ttParseVal.cValueFor = "P" THEN 
+        ttParseVal.iStrlength = iPsize.
+    ELSE IF ttParseVal.cValueFor = "L" THEN
+        ttParseVal.iStrlength = iLsize.
+    ELSE IF ttParseVal.cValueFor = "Q" THEN
+        ttParseVal.iStrlength = iQsize.
+END.
+
+FOR EACH ttParseVal:
+    CASE ttParseVal.cValueFor:
+        WHEN "P" THEN 
+            opiPOnumber = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+        WHEN "L" THEN 
+            opiPOline   = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+        WHEN "Q" THEN
+            opiQuantity = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+    END CASE.
+END.
