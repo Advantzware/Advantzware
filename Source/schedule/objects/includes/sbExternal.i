@@ -169,7 +169,10 @@ RUN {&objects}/sbNotes.w.
 &ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
 RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
-RUN {&objects}/sbStatus.w.
+DEFINE VARIABLE hsbStatus AS HANDLE NO-UNDO.
+
+RUN {&objects}/sbStatus.w PERSISTENT SET hsbStatus.
+RUN dispatch IN hsbStatus ("initialize":U).
 &ELSEIF '{&sbExternal}' EQ 'sbHTML' &THEN
 RUN {&objects}/sbHTML.p (g_company, 0, YES, NO, YES, "Capacity HTML Page").
 &ENDIF
