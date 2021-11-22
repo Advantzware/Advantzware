@@ -1033,6 +1033,10 @@ CLASS system.Setting:
             DECIMAL(ipcSettingValue) NO-ERROR.
         IF bf-settingType.dataType EQ "Date" THEN
             DATE(ipcSettingValue) NO-ERROR.
+        IF bf-settingType.dataType EQ "DateTime" THEN
+            DATETIME(ipcSettingValue) NO-ERROR.
+        IF bf-settingType.dataType EQ "DateTime-TZ" THEN
+            DATETIME-TZ(ipcSettingValue) NO-ERROR.
         IF bf-settingType.dataType EQ "Logical" THEN
             LOGICAL(ipcSettingValue) NO-ERROR.
                                                 

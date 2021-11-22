@@ -202,12 +202,10 @@ ELSE DO:
          NO-ERROR.
 
     RUN pGetDefaultTaxClass (
-        INPUT  cCompany,
         OUTPUT cDefaultTaxClass
         ).
 
     RUN pGetFreightTaxClass (
-        INPUT  cCompany,
         OUTPUT cFreightTaxClass
         ).
     
@@ -1351,20 +1349,14 @@ PROCEDURE pGetDefaultTaxClass PRIVATE:
      Purpose: Returns the default tax class from NK6 setting VertexTaxClass
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcDefaultTaxClass AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lActiveVertex AS LOGICAL NO-UNDO.
     
     IF cDefaultTaxClass NE "" THEN DO:
         opcDefaultTaxClass = cDefaultTaxClass.
         RETURN.
     END.
     
-    lActiveVertex = LOGICAL(oSetting:GetByName("Vertex")).
-
-    IF lActiveVertex THEN
-        cDefaultTaxClass = oSetting:GetByName("VertexTaxClassDefault").
+    cDefaultTaxClass = oSetting:GetByName("VertexTaxClassDefault").
     
     opcDefaultTaxClass = cDefaultTaxClass.  
 END PROCEDURE.
@@ -1374,14 +1366,8 @@ PROCEDURE pGetFreightTaxClass PRIVATE:
      Purpose: Returns the freight tax class from NK6 setting VertexFreightTaxClass
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFreightTaxClass AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lActiveVertex AS LOGICAL NO-UNDO.
-    
-    lActiveVertex = LOGICAL(oSetting:GetByName("Vertex")).
-
-    IF lActiveVertex THEN
-        opcFreightTaxClass = oSetting:GetByName("VertexTaxClassDefault").
+    opcFreightTaxClass = oSetting:GetByName("VertexFreightTaxClass").
         
 END PROCEDURE.
