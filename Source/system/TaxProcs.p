@@ -22,6 +22,9 @@ DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
 DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE lVertex          AS LOGICAL   NO-UNDO INITIAL ?.
+
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -183,16 +186,11 @@ PROCEDURE pIsVertexActive PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplActive AS LOGICAL NO-UNDO.
-
-    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
     
-    oSetting = NEW system.Setting().
+    IF NOT VALID-OBJECT (oSetting) THEN
+        oSetting = NEW system.Setting().
 
     oplActive = LOGICAL(oSetting:GetByName("Vertex")) NO-ERROR.
-    
-    FINALLY:
-        DELETE OBJECT oSetting.	
-    END FINALLY.
 END PROCEDURE.
 
 PROCEDURE pPopulateTaxAccount PRIVATE:
