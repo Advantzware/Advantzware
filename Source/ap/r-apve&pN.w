@@ -183,9 +183,11 @@ RUN methods/prgsecur.p
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_vend end_vend ~
-begin_date end_date begin_user end_user tb_sort rd-dest btn-ok btn-cancel 
+begin_date end_date begin_user end_user tbBypassDate tb_sort rd-dest btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_vend end_vend ~
-begin_date end_date begin_user end_user lbl_sort tb_sort rd-dest 
+begin_date end_date begin_user end_user tbBypassDate lbl_sort tb_sort ~
+rd-dest 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -290,6 +292,11 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 9.05.
 
+DEFINE VARIABLE tbBypassDate AS LOGICAL INITIAL no 
+     LABEL "Bypass Date Validation" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
      LABEL "Print G/L Account Description?" 
      VIEW-AS TOGGLE-BOX
@@ -318,6 +325,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning User ID"
      end_user AT ROW 7.19 COL 71 COLON-ALIGNED HELP
           "Enter Ending User ID"
+     tbBypassDate AT ROW 8.14 COL 32 WIDGET-ID 2
      lbl_sort AT ROW 9.1 COL 30 COLON-ALIGNED NO-LABEL
      tb_sort AT ROW 9.1 COL 62
      lines-per-page AT ROW 11.24 COL 87 COLON-ALIGNED
@@ -558,20 +566,22 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO: 
   DEF VAR lv-post AS LOG NO-UNDO.
 
-  run check-date.
-  if v-invalid then return no-apply. 
-  
-  RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  
-  RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
-
-  IF lv-fgpost-dir THEN DO:
-  RUN check-inv-date(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  RUN check-inv-date(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
+  IF NOT tbBypassDate:CHECKED THEN DO:
+      run check-date.
+      if v-invalid then return no-apply. 
+      
+      RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply. 
+      
+      RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply.
+    
+      IF lv-fgpost-dir THEN DO:
+      RUN check-inv-date(begin_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply. 
+      RUN check-inv-date(end_date:SCREEN-VALUE).
+      if v-invalid-inv then return no-apply.
+      END.
   END.
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -1195,10 +1205,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tran-date tran-period begin_vend end_vend begin_date end_date 
-          begin_user end_user lbl_sort tb_sort rd-dest 
+          begin_user end_user tbBypassDate lbl_sort tb_sort rd-dest 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date begin_vend end_vend begin_date end_date 
-         begin_user end_user tb_sort rd-dest btn-ok btn-cancel 
+         begin_user end_user tbBypassDate tb_sort rd-dest btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
