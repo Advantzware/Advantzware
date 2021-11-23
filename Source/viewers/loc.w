@@ -655,7 +655,8 @@ PROCEDURE local-create-record :
         location.locationCode = loc.loc:SCREEN-VALUE IN FRAME {&frame-name}
         loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
         location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        loc.addrRecKey        = location.rec_key.
+        loc.addrRecKey        = location.rec_key
+        location.company      = loc.company.
 
         
 END PROCEDURE.
@@ -736,6 +737,8 @@ PROCEDURE local-update-record :
     /* ============== end of validations ==================*/
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+  
+  IF location.company EQ "" THEN location.company = loc.company.
 
     /* Code placed here will execute AFTER standard behavior.    */
     IF lCheckBinMessage THEN DO:

@@ -34,6 +34,7 @@ FIND FIRST loc NO-LOCK
 FIND FIRST location NO-LOCK
     WHERE location.locationCode EQ loc.loc
     AND location.rec_key EQ loc.addrRecKey 
+    AND location.company EQ loc.company
     NO-ERROR. 
 
 FOR EACH ap-inv FIELD(loc)
