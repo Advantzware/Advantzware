@@ -380,6 +380,14 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("avail oe-rel " + STRING(AVAILABLE(oe-rel))).
     IF NOT AVAILABLE oe-rel THEN 
         RETURN.
+    
+    /* Ensure that warehouse for inventory assignment is the ship-from for the BOL */
+    /* Since the order was created, it could have been changed from the original's ship-to/ship-from */
+    FIND CURRENT oe-rel EXCLUSIVE NO-ERROR.    
+    IF AVAIL oe-rel THEN ASSIGN 
+        oe-rel.spare-char-1 = xoe-boll.loc.
+    FIND CURRENT oe-rel NO-LOCK NO-ERROR.
+            
     FIND FIRST oe-relh NO-LOCK
         WHERE oe-relh.r-no EQ xoe-boll.r-no 
         NO-ERROR.
@@ -401,7 +409,7 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("RowID: " + STRING(ROWID(xoe-boll))).
     fDebugMsg("lSelectTags: " + STRING(lSelectTags)).
     fDebugMsg("oe-rel.spare-char-1: " + oe-rel.spare-char-1).     
-    RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
+    RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, xoe-boll.loc /*oe-rel.spare-char-1*/ /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
     fDebugMsg("end fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
     hBufOeRell = hTToe-rel:DEFAULT-BUFFER-HANDLE.
