@@ -632,8 +632,17 @@ PROCEDURE pDisplayValue PRIVATE :
     
     FIND FIRST style NO-LOCK 
         WHERE ROWID(style) EQ iprStyleID NO-ERROR.
+        
+        
+    IF NOT AVAILABLE style OR style.formula[20] EQ "" THEN
+    DO:
+        MESSAGE "PO Scores width Formula not setup on Style"
+            VIEW-AS ALERT-BOX.
+                
+        RETURN.
+    END. 
             
-    IF AVAILABLE bf-eb AND AVAILABLE style THEN
+    IF AVAILABLE bf-eb THEN
     DO:
         RUN Formula_ParseDesignScores IN hdFormulaProcs (
             INPUT bf-eb.company,
@@ -685,7 +694,7 @@ PROCEDURE pDisplayValue PRIVATE :
            
         END. /* IF AVAILABLE box-design-hdr THEN  */
         
-    END. /* IF AVAILABLE bf-eb AND AVAILABLE style THEN */
+    END. /* IF AVAILABLE bf-eb THEN */
        
 
 END PROCEDURE.
