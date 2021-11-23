@@ -273,8 +273,13 @@ PROCEDURE Formula_ParseDesignScores:
     DEFINE OUTPUT PARAMETER TABLE FOR ttScoreLine.
     
     
-    DEFINE VARIABLE cScoreLine AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE cScoreLine  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSizeFactor AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSizeFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCecScrnLog AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCurrentSizeFormat AS CHARACTER NO-UNDO INIT "Decimal".
+    
+    
     DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
     DEFINE BUFFER bf-box-design-line FOR box-design-line.
     DEFINE BUFFER bf-eb              FOR eb.
@@ -309,6 +314,21 @@ PROCEDURE Formula_ParseDesignScores:
 
     IF NOT CAN-FIND(FIRST ttPanel) THEN
         RETURN.
+    
+    RUN GetSizeFactor (
+        INPUT  bf-eb.company,
+        OUTPUT dSizeFactor,
+        OUTPUT cSizeFormat,
+        OUTPUT lCecScrnLog
+        ). 
+    
+    IF cCurrentSizeFormat NE cSizeFormat THEN
+        RUN SwitchPanelSizeFormatForttPanel (
+            INPUT cCurrentSizeFormat,
+            INPUT cSizeFormat,
+            INPUT-OUTPUT TABLE ttPanel
+            ). 
+
 
     FIND FIRST bf-box-design-hdr NO-LOCK
         WHERE bf-box-design-hdr.company = bf-eb.company
@@ -316,15 +336,18 @@ PROCEDURE Formula_ParseDesignScores:
     
     IF NOT AVAILABLE bf-box-design-hdr THEN
         RETURN.
-        
-    RUN pCreateScoreLine (bf-box-design-hdr.lscore, iplPrintMetric, bf-est.metric, "L", NO,1).
     
-    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, iplPrintMetric, bf-est.metric, "L", YES,1).
+    IF iplPrintMetric AND NOT bf-est.metric THEN
+        RUN pConvertIntoMetricSizeForttPanel (INPUT-OUTPUT TABLE ttPanel).
+       
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, "L", NO,1).
+    
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, "L", YES,1).
     
     FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
 
-        RUN pCreateScoreLine (bf-box-design-line.wscore, iplPrintMetric, bf-est.metric, "W", NO, bf-box-design-line.line-no).
-        RUN pCreateScoreLine (bf-box-design-line.wcum-score, iplPrintMetric, bf-est.metric, "W", YES, bf-box-design-line.line-no).
+        RUN pCreateScoreLine (bf-box-design-line.wscore, "W", NO, bf-box-design-line.line-no).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, "W", YES, bf-box-design-line.line-no).
 
     END.
 
@@ -1514,8 +1537,6 @@ PROCEDURE pCreateScoreLine PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplConvertMetric    AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER iplEstMetric       AS LOGICAL NO-UNDO. 
     DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER ipiLineNo           AS INTEGER NO-UNDO.
@@ -1557,7 +1578,8 @@ PROCEDURE pCreateScoreLine PRIVATE:
                         AND ttPanel.iPanelNum  LT iNum:
 
                         ASSIGN 
-                            dTmpScore = IF iplConvertMetric AND NOT iplEstMetric THEN (dec(ttPanel.dPanelSize) * 25.4) ELSE DECIMAL(ttPanel.dPanelSize).
+                            dTmpScore = ttPanel.dPanelSize.
+
 
                         IF iplTotal THEN
                             deFinalScore = deFinalScore + dTmpScore.
@@ -1571,14 +1593,14 @@ PROCEDURE pCreateScoreLine PRIVATE:
                 DO:
 
                     ASSIGN 
-                        dTmpScore   = IF iplConvertMetric AND NOT iplEstMetric THEN (dec(ttPanel.dPanelSize) * 25.4) ELSE DECIMAL(ttPanel.dPanelSize).
+                        dTmpScore   = ttPanel.dPanelSize.
 
                      IF iplTotal THEN
                         deFinalScore = deFinalScore + dTmpScore.
                     ELSE
                         deFinalScore  = dTmpScore.
-
-                    cNewText = REPLACE(cNewText, cRepChar, ( IF iplConvertMetric THEN  string(round(deFinalScore,0)) ELSE string(round(deFinalScore,2)))). 
+                        
+                    cNewText = REPLACE(cNewText, cRepChar, string(deFinalScore)) . 
                 END.                        
 
             END.
@@ -2223,6 +2245,19 @@ PROCEDURE SwitchPanelSizeFormatForttPanel:
             OUTPUT ttPanel.dScoringAllowance
             ).
     END.
+END PROCEDURE.
+
+PROCEDURE pConvertIntoMetricSizeForttPanel PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Comverts the dimensions into Metric Numbers
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE                 FOR ttPanel.
+
+    FOR EACH ttPanel:
+        ttPanel.dPanelSize =  ROUND(ttPanel.dPanelSize * 25.4, 0).
+    END.
+
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForEstimate:

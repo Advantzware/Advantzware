@@ -48,7 +48,7 @@ PROCEDURE testParseDesignScores:
     DEFINE VARIABLE iprEBID             AS ROWID     NO-UNDO .
     DEFINE VARIABLE iprbox-design-hdrID AS ROWID     NO-UNDO.
     DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INIT "001".
-    DEFINE VARIABLE cEstimateNo         AS CHARACTER NO-UNDO INIT "  103214".
+    DEFINE VARIABLE cEstimateNo         AS CHARACTER NO-UNDO INIT "  103243".
     DEFINE VARIABLE iFormNo             AS INTEGER   NO-UNDO INIT 1.
     DEFINE VARIABLE iBlankNo            AS INTEGER   NO-UNDO INIT 1.
     
@@ -75,8 +75,11 @@ PROCEDURE testParseDesignScores:
        
         IF AVAILABLE box-design-hdr THEN
             RUN Formula_ParseDesignScores IN hdFormulaProcs (
-                INPUT  ROWID(bf-EB),
-                INPUT  ROWID(box-design-hdr),
+                INPUT bf-eb.company,
+                INPUT bf-eb.est-no,
+                INPUT bf-eb.form-no,
+                INPUT bf-eb.blank-no,
+                INPUT style.designIDAlt,
                 INPUT NO,
                 OUTPUT TABLE ttScoreLine
                 ).
