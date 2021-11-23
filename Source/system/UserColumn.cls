@@ -312,7 +312,8 @@ CLASS system.UserColumn:
             
             /* Sometimes default width is ?, as width is set using format */
             FIND FIRST ttDefaultUserColumn 
-                 WHERE ttDefaultUserColumn.colName EQ cColumnName
+                 WHERE ttDefaultUserColumn.colTable EQ hdBrowseColumn:TABLE
+                   AND ttDefaultUserColumn.colName  EQ hdBrowseColumn:NAME
                  NO-ERROR.
             IF AVAILABLE ttDefaultUserColumn AND ttDefaultUserColumn.colWidth EQ ? THEN
                 ttDefaultUserColumn.colWidth = hdBrowseColumn:WIDTH-PIXELS.
