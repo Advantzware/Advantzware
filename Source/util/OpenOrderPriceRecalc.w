@@ -519,16 +519,17 @@ PROCEDURE pRunProcess PRIVATE :
     IF NOT iplExpire THEN DO:         
         MESSAGE "Simulation Completed." SKIP
             "Check " + TRIM(cLocation) + " directory for the CSV file."
-            VIEW-AS ALERT-BOX INFORMATION.   
-       IF tbOpenFile:CHECKED THEN 
+            VIEW-AS ALERT-BOX INFORMATION.               
+    END.   
+    ELSE 
+        MESSAGE "Process Completed"
+            VIEW-AS ALERT-BOX INFORMATION.
+            
+    IF tbOpenFile:CHECKED THEN 
             RUN OS_RunFile(
                 INPUT cLocation + "\" + cFileName,
                 OUTPUT lSuccess,
                 OUTPUT cMessage).        
-    END.   
-    ELSE 
-        MESSAGE "Process Completed"
-            VIEW-AS ALERT-BOX INFORMATION.  
     
     pfSetDirectory().  
          
