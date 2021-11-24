@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btn-graph 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn-poscore 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -84,8 +84,8 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-graph 
-     LABEL "&Graphic" 
+DEFINE BUTTON btn-poscore 
+     LABEL "&PO Scores" 
      SIZE 11.2 BY .95
      FONT 4 .
 
@@ -97,11 +97,11 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btn-graph AT ROW 1.24 COL 2
+     btn-poscore AT ROW 1.24 COL 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+         AT COL 1 ROW 1 SCROLLABLE
          BGCOLOR 8 FGCOLOR 0 .
 
 
@@ -160,7 +160,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       btn-graph:PRIVATE-DATA IN FRAME F-Main     = 
+       btn-poscore:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -182,15 +182,15 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btn-graph
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-graph V-table-Win
-ON CHOOSE OF btn-graph IN FRAME F-Main /* Graphic */
+&Scoped-define SELF-NAME btn-poscore
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-poscore V-table-Win
+ON CHOOSE OF btn-poscore IN FRAME F-Main /* PO Scores */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
 
-    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"graph-target",OUTPUT char-hdl).
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"poscore-target",OUTPUT char-hdl). 
     IF valid-handle(widget-handle(char-hdl))
-           THEN RUN update-fgitem-img IN WIDGET-HANDLE(char-hdl).
+           THEN RUN display-alt-design-box IN WIDGET-HANDLE(char-hdl).
 
 END.
 
