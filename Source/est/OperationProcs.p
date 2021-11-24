@@ -204,9 +204,6 @@ FUNCTION fValidMachineLimits RETURNS LOGICAL PRIVATE
 FUNCTION fVerifyLimitsForPrinter RETURNS LOGICAL PRIVATE
     (BUFFER ipbf-mach FOR mach, ipcDept AS CHARACTER) FORWARD.	
 
-FUNCTION fOperations_GetOutputType RETURNS CHARACTER 
-    (ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiLine AS INT) FORWARD.
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -261,12 +258,13 @@ PROCEDURE Operations_GetNumout:
     
     cDept = bf-mach.dept[1].
     
-    cOutputType = fOperations_GetOutputType(INPUT bf-ef.company, 
+    RUN Operations_GetOutputType(INPUT bf-ef.company, 
                                             INPUT bf-ef.est-no, 
                                             INPUT bf-ef.form-no, 
                                             INPUT ipcOperationId,
                                             INPUT ipdEstQty,
-                                            INPUT ipiseq).
+                                            INPUT ipiseq,
+                                            OUTPUT cOutputType).
      
     FOR EACH bf-eb NO-LOCK
         WHERE bf-eb.company EQ bf-est.company
@@ -298,6 +296,79 @@ PROCEDURE Operations_GetNumout:
     ASSIGN opiNumOut = iNumOut.
     
 END PROCEDURE.
+
+PROCEDURE Operations_GetOutputType:
+    /*------------------------------------------------------------------------------
+     Purpose: Check Output type for Operations
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcEstimateNo   AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcOperationId  AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipiLine         AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcOutputType   AS CHARACTER NO-UNDO.
+    
+       
+    DEFINE VARIABLE cOutputType  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lLastMachine AS LOGICAL   NO-UNDO.
+    
+        
+    DEFINE BUFFER bf-mach        FOR mach.
+    DEFINE BUFFER bfCurrent-mach FOR mach.
+    DEFINE BUFFER bf-est-op      FOR est-op.
+    
+    FIND FIRST bfCurrent-mach NO-LOCK
+        WHERE bfCurrent-mach.company = ipcCompany 
+        AND bfCurrent-mach.m-code = ipcOperationId NO-ERROR.
+        
+    IF NOT AVAILABLE bfCurrent-mach THEN
+        RETURN "".
+         
+    IF CAN-DO("R,S,A,P", bfCurrent-mach.p-type) THEN 
+    DO:
+        /* Verify it's Last machine before a blank fed. Check the Subsequent machine is blank fed */
+        FOR EACH bf-est-op NO-LOCK 
+            WHERE bf-est-op.company EQ ipcCompany
+            AND bf-est-op.est-no    EQ ipcEstimateNo
+            AND bf-est-op.s-num     EQ ipiFormNo
+            AND bf-est-op.qty       EQ ipdQty
+            AND bf-est-op.line      GT ipiLine
+            AND bf-est-op.line      LT 500,
+            FIRST bf-mach NO-LOCK 
+            WHERE bf-mach.company EQ bf-est-op.company
+            AND bf-mach.m-code EQ bf-est-op.m-code 
+            BY bf-est-op.line:
+            
+            IF bf-mach.p-type EQ "B" THEN  
+                ASSIGN 
+                    cOutputType   = gcBlankMakerOutput
+                    .
+            LEAVE.
+        END.
+        
+        /* Check if this Est-OP is the Last Machine in the Routings*/  
+        IF NOT AVAILABLE bf-est-op THEN 
+            ASSIGN 
+                lLastMachine = YES.
+                
+    END. /* IF CAN-DO("R,S,A,P", bf-mach.p-type) THEN */
+        
+    IF cOutputType EQ "" AND CAN-DO(gcDeptsForSheeters, bfCurrent-mach.dept[1]) THEN 
+        ASSIGN
+            cOutputType = gcSheetMakerOutput.
+    
+    IF cOutputType EQ "" AND lLastMachine = YES THEN 
+        ASSIGN
+            cOutputType = gcBlankMakerOutput.
+            
+            
+    opcOutputType = cOutputType.
+        
+END PROCEDURE.
+
 
 PROCEDURE BuildEstimateRouting:
 /*------------------------------------------------------------------------------
@@ -4050,58 +4121,6 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
 
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSetType", ipcType).
 		
-END FUNCTION.
-
-FUNCTION fOperations_GetOutputType RETURNS CHARACTER 
-    (ipcCompany AS CHAR, ipcEstimateNo AS CHAR, ipiFormNo AS INT, ipcOperationId AS CHAR, ipdQty AS DECIMAL, ipiLine AS INT):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    DEFINE VARIABLE cOutputType AS CHARACTER NO-UNDO.
-        
-    DEFINE BUFFER bf-mach FOR mach.
-    DEFINE BUFFER bfCurrent-mach FOR mach.
-    DEFINE BUFFER bf-est-op FOR est-op.
-    
-    FIND FIRST bfCurrent-mach NO-LOCK
-        WHERE bfCurrent-mach.company = ipcCompany 
-        AND bfCurrent-mach.m-code = ipcOperationId NO-ERROR.
-        
-    IF NOT AVAILABLE bfCurrent-mach THEN
-        RETURN "".
-         
-    IF CAN-DO("R,S,A,P", bfCurrent-mach.p-type) THEN 
-    DO:
-        FOR EACH bf-est-op NO-LOCK 
-            WHERE bf-est-op.company EQ ipcCompany
-            AND bf-est-op.est-no    EQ ipcEstimateNo
-            AND bf-est-op.s-num     EQ ipiFormNo
-            AND bf-est-op.qty       EQ ipdQty
-            AND bf-est-op.line      GT ipiLine
-            AND bf-est-op.line      LT 500,
-            FIRST bf-mach NO-LOCK 
-            WHERE bf-mach.company EQ bf-est-op.company
-            AND bf-mach.m-code EQ bf-est-op.m-code 
-            BY bf-est-op.line:
-            
-            IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
-                ASSIGN 
-                    cOutputType   = gcBlankMakerOutput
-                    .
-            LEAVE.
-        END.
-                
-    END. /* IF CAN-DO("R,S,A,P", bf-mach.p-type) THEN */
-        
-    IF cOutputType EQ "" AND CAN-DO(gcDeptsForSheeters, bfCurrent-mach.dept[1]) THEN 
-    DO: 
-        ASSIGN
-            cOutputType = gcSheetMakerOutput.
-    END.
-    
-    RETURN cOutputType.
-        
 END FUNCTION.
 
 
