@@ -705,7 +705,7 @@ PROCEDURE local-destroy :
     IF VALID-OBJECT (oSetting) THEN
         DELETE OBJECT oSetting.
         
-    IF VALID-OBJECT (hdInventoryProcs) THEN
+    IF VALID-HANDLE (hdInventoryProcs) THEN
         DELETE OBJECT hdInventoryProcs.    
         
     /* Dispatch standard ADM method.                             */
