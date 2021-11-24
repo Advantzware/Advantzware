@@ -34,6 +34,20 @@ oSetting     = NEW system.Setting().
 /* **********************  Internal Procedures  *********************** */
 
 
+PROCEDURE Zoho_SetSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoSetting AS system.Setting NO-UNDO.
+    
+    IF VALID-OBJECT (ipoSetting) THEN DO:
+        DELETE OBJECT oSetting.
+        oSetting = ipoSetting.
+    END.
+
+END PROCEDURE.
+
 PROCEDURE Zoho_UpdateRefreshToken:
 /*------------------------------------------------------------------------------
  Purpose:
