@@ -2668,9 +2668,9 @@ PROCEDURE create-job :
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE job.job-no2 NO-UNDO.
   DEF VAR li-j-no AS INT NO-UNDO.
-
+  DEFINE BUFFER bf-oe-rel FOR oe-rel.
   /* === from oe/oe-ord1.p  ============= */
-
+                  
   FIND LAST job WHERE job.company EQ cocode NO-LOCK NO-ERROR.
   v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
   ASSIGN
@@ -2693,10 +2693,11 @@ PROCEDURE create-job :
          job.job-no2    = v-job-no2
          job.stat       = "P"
          job.ordertype  = oe-ord.type
-         op-recid = RECID(job).
+         op-recid = RECID(job)
+         job.shipFromLocation = locode.
 
   FOR EACH oe-ordl WHERE oe-ordl.company EQ oe-ord.company
-                     AND oe-ordl.ord-no  EQ oe-ord.ord-no exclusive:
+                     AND oe-ordl.ord-no  EQ oe-ord.ord-no EXCLUSIVE BREAK BY oe-ordl.i-no:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
             AND job-hdr.job-no  EQ oe-ord.job-no
@@ -2752,9 +2753,22 @@ PROCEDURE create-job :
             oe-ordl.j-no = job-hdr.j-no.
 
         FIND CURRENT job-hdr NO-LOCK.
+        IF FIRST(oe-ordl.i-no) THEN
+        DO:          
+            FIND FIRST bf-oe-rel NO-LOCK 
+                 WHERE bf-oe-rel.company EQ cocode
+                 AND bf-oe-rel.ord-no = oe-ordl.ord-no
+                 AND bf-oe-rel.i-no = oe-ordl.i-no
+                 AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
+        
+            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
+            ASSIGN
+            job.shipFromLocation = bf-oe-rel.spare-char-1
+            job-hdr.loc          = bf-oe-rel.spare-char-1.
+        END.
     END.
     IF oe-ord.stat EQ "H" THEN 
-      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
+      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").       
   FIND CURRENT job NO-LOCK.
 
 END PROCEDURE.
@@ -3535,7 +3549,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   END.
 
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
+  IF AVAILABLE itemfg THEN
+  run fg/fg-reset.p (recid(itemfg)).
  
   FOR EACH oe-ordm
     WHERE oe-ordm.company EQ oe-ord.company

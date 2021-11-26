@@ -51,8 +51,8 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Rcpt Btn_Inquiry Btn_Issues ~
-Btn_jobreturns Btn_Transfers Btn_Move Btn_Adjust-3 Btn_Delete Btn_Post ~
-Btn_scan-vend Btn_Close 
+Btn_Allocate Btn_jobreturns Btn_Transfers Btn_Move Btn_Adjust-3 Btn_Delete ~
+Btn_Post Btn_scan-vend Btn_Close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -68,6 +68,11 @@ Btn_scan-vend Btn_Close
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Adjust-3 
      LABEL "&Count Materials" 
+     SIZE 40 BY 1.52
+     FONT 6.
+
+DEFINE BUTTON Btn_Allocate 
+     LABEL "&Allocated Material" 
      SIZE 40 BY 1.52
      FONT 6.
 
@@ -123,24 +128,25 @@ DEFINE BUTTON Btn_Transfers
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 44 BY 18.57.
+     SIZE 43 BY 20.24.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn_Rcpt AT ROW 1.24 COL 3
-     Btn_Inquiry AT ROW 2.86 COL 3 WIDGET-ID 4
-     Btn_Issues AT ROW 4.48 COL 3
-     Btn_jobreturns AT ROW 6.14 COL 3
-     Btn_Transfers AT ROW 7.81 COL 3
-     Btn_Move AT ROW 9.48 COL 3
-     Btn_Adjust-3 AT ROW 11.14 COL 3
-     Btn_Delete AT ROW 12.81 COL 3
-     Btn_Post AT ROW 14.48 COL 3
-     Btn_scan-vend AT ROW 16.14 COL 3 WIDGET-ID 2
-     Btn_Close AT ROW 17.81 COL 3
-     RECT-1 AT ROW 1 COL 1
+     Btn_Rcpt AT ROW 1.24 COL 3.4
+     Btn_Inquiry AT ROW 2.86 COL 3.4 WIDGET-ID 4
+     Btn_Issues AT ROW 4.48 COL 3.4
+     Btn_Allocate AT ROW 6.14 COL 3.4 WIDGET-ID 6
+     Btn_jobreturns AT ROW 7.86 COL 3.4
+     Btn_Transfers AT ROW 9.52 COL 3.4
+     Btn_Move AT ROW 11.19 COL 3.4
+     Btn_Adjust-3 AT ROW 12.86 COL 3.4
+     Btn_Delete AT ROW 14.52 COL 3.4
+     Btn_Post AT ROW 16.19 COL 3.4
+     Btn_scan-vend AT ROW 17.86 COL 3.4 WIDGET-ID 2
+     Btn_Close AT ROW 19.52 COL 3.4
+     RECT-1 AT ROW 1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -172,7 +178,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 18.67
+         HEIGHT             = 20.57
          WIDTH              = 44.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -224,6 +230,17 @@ ASSIGN
 ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* Count Materials */
 DO:
   RUN addon/rm/w-phycnt.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Allocate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Allocate s-object
+ON CHOOSE OF Btn_Allocate IN FRAME F-Main /* Allocated Material */
+DO:
+    RUN sharpshooter/w-jobAllocated.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2065,13 +2065,22 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
 
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
-    RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
-    RUN pBuildProbe(ipiEstCostHeaderID).
+    
+    FIND FIRST bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID = ipiEstCostHeaderID NO-ERROR. 
+        
+    IF AVAILABLE bf-estCostHeader THEN
+    DO:
+        RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
+        RUN pBuildProbe(BUFFER bf-estCostHeader).
+    END.
 
 END PROCEDURE.
 
@@ -3603,6 +3612,26 @@ PROCEDURE pProcessOperations PRIVATE:
         END.
     END.
     EMPTY TEMP-TABLE ttEstBlank.
+    
+    FOR EACH estCostBlank NO-LOCK 
+        WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
+            
+            
+        IF NOT CAN-FIND (FIRST ttEstBlank
+            WHERE ttEstBlank.estCostBlankID EQ estCostBlank.estCostBlankID) THEN
+        DO:
+            CREATE ttEstBlank.
+            ASSIGN 
+                ttEstBlank.estCostBlankID   = estCostBlank.estCostBlankID
+                ttEstBlank.estCostFormID    = estCostBlank.estCostFormID
+                ttEstBlank.dQtyInOut        = estCostBlank.quantityRequired
+                ttEstBlank.iOut             = estCostBlank.numOut
+                .
+        END.
+        
+    END.
+    
     /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-estCostHeader.company
@@ -3617,31 +3646,17 @@ PROCEDURE pProcessOperations PRIVATE:
     DO:
         /*REFACTOR to calculate quantities for combos*/        
         IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
-        DO:  /*Calculate for Combo*/
-            FIND FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostBlank.blankNo EQ est-op.b-num
+        DO:  
+            /*Calculate for Combo*/
+            FIND FIRST ttEstBlank
+                WHERE ttEstBlank.estCostBlankID EQ bf-estCostOperation.estCostBlankID
                 NO-ERROR.
-            IF AVAILABLE estCostBlank THEN 
-            DO:
-                FIND FIRST ttEstBlank
-                    WHERE ttEstBlank.estCostBlankID EQ estCostBlank.estCostBlankID
-                    NO-ERROR.
-                IF NOT AVAILABLE ttEstBlank THEN 
-                DO:
-                    CREATE ttEstBlank.
-                    ASSIGN 
-                        ttEstBlank.estCostBlankID = estCostBlank.estCostBlankID
-                        ttEstBlank.estCostFormID  = estCostBlank.estCostFormID
-                        ttEstBlank.iOut           = estCostBlank.numOut.
-                END.
-                IF NOT ttEstBlank.lOutputInitialized THEN 
-                    ASSIGN 
-                        ttEstBlank.dQtyInOut          = estCostBlank.quantityRequired
-                        ttEstBlank.lOutputInitialized = YES
-                        .
-            END. /*estCostBlank Avail*/
+                
+            IF AVAILABLE ttEstBlank AND NOT ttEstBlank.lOutputInitialized THEN 
+                ASSIGN 
+                    ttEstBlank.lOutputInitialized = YES
+                    .
+            
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                 INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
         END. /*BlankNo not 0*/

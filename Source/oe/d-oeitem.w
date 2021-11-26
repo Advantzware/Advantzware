@@ -4903,7 +4903,8 @@ PROCEDURE create-job :
     DEFINE VARIABLE li-j-no    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-i        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-prod-cat AS CHARACTER NO-UNDO.
-
+    DEFINE BUFFER bf-oe-rel FOR oe-rel.
+        
     /* === from oe/oe-ord1.p  ============= */
     IF NOT AVAILABLE oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -4986,6 +4987,7 @@ PROCEDURE create-job :
         job.ordertype  = oe-ord.type
         job.csrUser_id = IF AVAILABLE oe-ord THEN oe-ord.csrUser_id ELSE ""
         op-recid       = RECID(job) 
+        job.shipFromLocation = locode
         .
 
     FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
@@ -5037,7 +5039,18 @@ PROCEDURE create-job :
         
     IF oe-ord.stat EQ "H" THEN
         RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
-     
+        
+    FIND FIRST bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ cocode
+         AND bf-oe-rel.ord-no EQ oe-ordl.ord-no
+         AND bf-oe-rel.i-no EQ oe-ordl.i-no
+         AND bf-oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
+                  
+    IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
+    ASSIGN
+    job.shipFromLocation = bf-oe-rel.spare-char-1
+    job-hdr.loc          = bf-oe-rel.spare-char-1.
+           
     RELEASE job.
     RELEASE job-hdr.
 END PROCEDURE.

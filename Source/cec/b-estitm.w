@@ -246,7 +246,9 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.	
 DEFINE VARIABLE hdQuoteProcs  AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
@@ -5831,6 +5833,9 @@ PROCEDURE local-assign-record :
            NOT ll-new-record       AND
            NOT ll-tandem))THEN
        RUN set-yld-qty (ROWID(eb)).      
+       
+    RUN pUpdatePOScores.
+          
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5954,6 +5959,8 @@ PROCEDURE local-copy-record :
       RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
   END.
       /* Code placed here will execute AFTER standard behavior.    */
+      
+  RUN pUpdatePOScores.    
 
 END PROCEDURE.
 
@@ -6158,6 +6165,36 @@ PROCEDURE local-delete-record :
       END.
     END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+        
+    IF VALID-HANDLE(hdCustomerProcs) THEN
+        DELETE PROCEDURE hdCustomerProcs.
+        
+    IF VALID-HANDLE(hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.
+        
+    IF VALID-HANDLE(hdQuoteProcs) THEN
+        DELETE PROCEDURE hdQuoteProcs.    
+       
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -7193,6 +7230,33 @@ PROCEDURE pValidSalesRep PRIVATE:
     END.                                         
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdatePOScores B-table-Win 
+PROCEDURE pUpdatePOScores :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-style FOR style.
+
+
+    FIND FIRST bf-style NO-LOCK
+        WHERE bf-style.company EQ eb.company
+        AND bf-style.style   EQ eb.style
+        NO-ERROR.
+        
+    IF AVAILABLE bf-style AND bf-style.formula[20] NE "" THEN 
+    DO:
+        RUN Formula_ReBuildAndSavePanelDetailsForEstimate IN hdFormulaProcs (
+            INPUT ROWID(eb)
+            ).
+    END.
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

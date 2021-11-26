@@ -8,6 +8,8 @@ DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 &Scoped-define sysCtrlIncludeOnly
 {sys/ref/sys-ctrl.i}
 
+{util/ttImport.i}
+
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION sfGetUserControlFieldValue RETURNS CHARACTER PRIVATE
@@ -95,6 +97,20 @@ END PROCEDURE.
 PROCEDURE dynInitFormFormat:
     cSessionValue = str-init[LOOKUP("INVPRINT",name-fld-list)].
     RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitImportType:
+    DEFINE VARIABLE cTypes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
+
+    DO idx = 1 TO NUM-ENTRIES(gcTypeLabels):
+        cTypes = cTypes
+               + ENTRY(idx,gcTypeLabels) + ","
+               + ENTRY(idx,gcTypePrograms) + ","
+               .
+    END.
+    cTypes = TRIM(cTypes,",").
+    RETURN cTypes.
 END PROCEDURE.
 
 PROCEDURE dynInitItemType:

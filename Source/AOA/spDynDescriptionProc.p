@@ -341,6 +341,16 @@ PROCEDURE dynDescripVendorType:
     iphWidgetTo:SCREEN-VALUE = ventype.dscr.
 END PROCEDURE.
 
+PROCEDURE dynImportFile:
+    DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE cImportFile AS CHARACTER NO-UNDO.
+
+    RUN spGetSessionParam ("ImportFile", OUTPUT cImportFile).
+    iphWidgetTo:SCREEN-VALUE = cImportFile.
+END PROCEDURE.
+
 PROCEDURE dynInitDBFieldList:
     DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.

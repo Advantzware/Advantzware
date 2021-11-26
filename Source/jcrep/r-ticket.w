@@ -845,6 +845,10 @@ ON WINDOW-CLOSE OF C-Win /* Job Ticket */
         /* This event will close the window and terminate the procedure.  */
         IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
             RUN CleanUp. 
+
+        IF VALID-HANDLE (hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+                
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -912,7 +916,11 @@ ON LEAVE OF begin_job2 IN FRAME FRAME-A /* - */
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
         IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
-            RUN CleanUp. 
+            RUN CleanUp.
+
+        IF VALID-HANDLE (hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+                     
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -3346,7 +3354,7 @@ PROCEDURE pRunFormatValueChanged :
             OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
             OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
             (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20" OR lv-format-c = "AtlanticBox"
-            OR lv-format-c = "PkgAtlanta" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr" OR lv-format-c = "Valley20")) THEN
+            OR lv-format-c = "PkgAtlanta" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr" OR lv-format-c = "Valley20" OR lv-format-c = "PExpress")) THEN
             ASSIGN 
                 tb_prt-mch:SENSITIVE     = YES
                 tb_prt-shipto:SENSITIVE  = YES
@@ -3413,7 +3421,7 @@ PROCEDURE pRunFormatValueChanged :
         IF NOT tb_prt-set-header:SENSITIVE THEN
             tb_prt-set-header:SCREEN-VALUE = "no".
                    
-        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,PreCorr,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
+        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,PreCorr,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell,PExpress") > 0 THEN
             ASSIGN tb_fgimage:SENSITIVE      = NO
                 tb_fgimage:SCREEN-VALUE   = "yes" 
                 tb_box:SENSITIVE          = NO

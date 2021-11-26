@@ -25,6 +25,8 @@
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
+USING system.SharedConfig.
+
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE yellowColumnsName l-jobno
@@ -57,6 +59,13 @@ DEFINE VARIABLE custPart AS CHARACTER NO-UNDO.
 
 &scoped-define IAMWHAT LOOKUP
 
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cEstimateNo AS CHARACTER NO-UNDO .
+
+ASSIGN
+scInstance  = SharedConfig:instance
+cEstimateNo   =  STRING(scInstance:GetValue("ShowOnlyEstimateJob")) NO-ERROR.         
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -83,10 +92,10 @@ DEFINE VARIABLE custPart AS CHARACTER NO-UNDO.
 job-hdr.i-no job-hdr.est-no job-hdr.ftick-prnt custPart() @ custPart 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
-      AND job-hdr.company = ip-company NO-LOCK ~
+      AND job-hdr.company = ip-company and (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH job-hdr WHERE ~{&KEY-PHRASE} ~
-      AND job-hdr.company = ip-company NO-LOCK ~
+      AND job-hdr.company = ip-company and (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-hdr
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 job-hdr
@@ -241,7 +250,7 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-1
      _TblList          = "ASI.job-hdr"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.job-hdr.company = ip-company"
+     _Where[1]         = "ASI.job-hdr.company = ip-company and (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")"
      _FldNameList[1]   > ASI.job-hdr.job-no
 "job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" ""
      _FldNameList[2]   > ASI.job-hdr.job-no2
@@ -330,6 +339,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
+                AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
                 AND TRIM(job-hdr.job-no) BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
@@ -354,6 +364,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
+                AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
                 AND TRIM(job-hdr.i-no) BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
@@ -417,6 +428,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
+                AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
                 AND TRIM(job-hdr.job-no) BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
@@ -455,6 +467,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
+                AND (job-hdr.est-no eq cEstimateNo or cEstimateNo EQ "")
                 AND TRIM(job-hdr.job-no) BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
