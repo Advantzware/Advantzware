@@ -696,7 +696,7 @@ find first company where company.company eq cocode no-lock no-error.
         END.
 
       
-      PUT "<R52><C1><#10><P12><B> Comments: <P10>Due to the current volatile materials market, pricing on this order is subject to change. </B> "
+      PUT "<R52><C1><#10><P10><B>Comments: Due to the current volatile materials market, pricing on this order is subject to change. </B> "
         "<R53><C1>" v-billinst[1] 
         "<R54><C1>" v-billinst[2] 
         "<R55><C1>" v-billinst[3] 
