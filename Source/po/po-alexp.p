@@ -319,7 +319,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* TYPE */
     put "X".
     
-    do i = 1 to 12:    
+    do i = 1 to 17:    
       /* SCORE1 to 12 */
       if lScoreAvailable then
         put "02"
