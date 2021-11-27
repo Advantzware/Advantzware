@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -31,6 +29,9 @@ def var v-outfile as char extent 4 no-undo.
 def var v-mach as char extent 4 no-undo.
 def var v-line as char no-undo.
 def var v-char as char no-undo.
+
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 {sys/inc/alliance.i}
 
@@ -294,30 +295,36 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put skip.
 
     /* SCORES RECORD */
-
-    run po/po-ordls.p (recid(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}    
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END.  
     
     /* TYPE */
     put "X".
     
     do i = 1 to 12:    
       /* SCORE1 to 12 */
-      if avail b-ref1 then
+      if lScoreAvailable then
         put "02"
-            trunc(b-ref1.val[i],0)                          format "9999"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100  format "99".
-            
-      else put "00000000".
-    end.
-    
-    do i = 1 to 5:     
-      /* SCORE13 to 17 */
-      if avail b-ref2 then
-        put "02"
-            trunc(b-ref2.val[i],0)                          format "9999"
-            (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100  format "99".
+            trunc(lv-val[i],0)                      format "9999"
+            (lv-val[i] - trunc(lv-val[i],0)) * 100  format "99".
             
       else put "00000000".
     end.
