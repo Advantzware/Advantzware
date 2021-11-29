@@ -2799,7 +2799,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
             
             work-gl.debits = work-gl.debits + v-ext-cost.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
-                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " NO-ERROR.
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                         + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
             
             /* Credit RM AP Accrued */
                             
@@ -2808,7 +2809,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
             
             work-gl.credits = work-gl.credits + v-ext-cost.
             work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
-                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " NO-ERROR.
+                                         + (IF tt-rctd.po-no NE "" THEN " PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                         + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
         END.
 
         ELSE
@@ -2877,7 +2879,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                     END.
                     work-gl.debits = work-gl.debits + ld.
                     work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " NO-ERROR.
+                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                    + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
 
                     /* Credit RM Asset */
                     FIND FIRST work-gl
@@ -2897,7 +2900,8 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                     END.
                     work-gl.credits = work-gl.credits + ld.
                     work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
-                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " NO-ERROR.
+                                    tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                                    + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
                 END.
             END.
     END.
