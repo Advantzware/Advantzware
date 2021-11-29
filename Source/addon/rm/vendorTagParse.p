@@ -18,15 +18,17 @@ DEFINE INPUT PARAMETER ipcTagno     AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiPOnumber AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiPOline   AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiQuantity AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcErrorStr AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcErrtype  AS CHARACTER NO-UNDO. //will be retried from the sys control Ignore,Warning and Error
 /*DEFINE OUTPUT PARAMETER opiUOM      AS CHARACTER NO-UNDO.*/
 
-DEFINE VARIABLE cParseMask     AS CHARACTER NO-UNDO INIT "PPPPPPPPLLLQQQQQ". /*will be retrieved from sys-ctrl later*/
+DEFINE VARIABLE cParseMask     AS CHARACTER NO-UNDO INIT "PPPPPPLLLQQQQQ". /*will be retrieved from sys-ctrl later*/
 DEFINE VARIABLE cParseMasklist AS CHARACTER NO-UNDO INIT "P,L,Q".  
 
 DEFINE TEMP-TABLE ttParseVal NO-UNDO
-    FIELD cValueFor AS CHARACTER
-    FIELD iStartPos AS INTEGER
-    FIELD iStrlength  AS INTEGER .
+    FIELD cValueFor  AS CHARACTER
+    FIELD iStartPos  AS INTEGER
+    FIELD iStrlength AS INTEGER .
   
 DEFINE VARIABLE iIncrement AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ctemp      AS CHARACTER NO-UNDO.
@@ -38,6 +40,15 @@ DEFINE VARIABLE iQsize     AS INTEGER   NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
+
+opcErrtype = "I".
+
+IF LENGTH(cParseMask) <> LENGTH(ipcTagno) AND opcErrtype <> "I" THEN 
+DO:
+        opcErrorStr = "Vendor tag length must be " + STRING(LENGTH(cParseMask)).
+        IF opcErrtype = "Error" THEN 
+            RETURN.
+END.
 
 DO iIncrement = 1 TO LENGTH(cParseMask ):
     ctemp = SUBSTRING(cParseMask ,iIncrement,1).

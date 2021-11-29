@@ -767,6 +767,8 @@ DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
    DEFINE VARIABLE t-scr-uom AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cErrStr   AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cErrType  AS CHARACTER NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -816,10 +818,29 @@ DO:
                  RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
                                               OUTPUT v-po-no,
                                               OUTPUT v-po-line,
-                                              OUTPUT v-qty). 
+                                              OUTPUT v-qty,
+                                              OUTPUT cErrStr,
+                                              OUTPUT cErrType). 
              
 /*                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.*/
-                 
+                 IF cErrStr <> "" AND cErrType = "Error" THEN
+                 DO:
+                    MESSAGE 
+                        cErrStr
+                        VIEW-AS ALERT-BOX ERROR.
+                     APPLY "entry" TO SELF.
+                     RETURN NO-APPLY.
+                 END.
+                 ELSE IF cErrStr <> "" AND cErrType = "Warning" THEN 
+                    MESSAGE 
+                        cErrStr
+                        VIEW-AS ALERT-BOX WARNING.
+                 /*Assign in case of both warning and non-prompt*/
+                 ASSIGN
+                     begin_po-no:SCREEN-VALUE = STRING(v-po-no) 
+                     scr-po-line:SCREEN-VALUE = STRING(v-po-line)
+                     scr-qty:SCREEN-VALUE     = STRING(v-qty).
+             /*     
                  IF NOT ERROR-STATUS:ERROR THEN
                  DO:
                     IF NOT CAN-FIND(FIRST po-ord WHERE
@@ -842,16 +863,16 @@ DO:
                        END.
                     LEAVE.
                  END.
-                  
+                  */
 /*                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.*/
                  
-                 IF NOT ERROR-STATUS:ERROR THEN
-                    scr-po-line:SCREEN-VALUE = STRING(v-po-line).
+/*                 IF NOT ERROR-STATUS:ERROR THEN
+                    scr-po-line:SCREEN-VALUE = STRING(v-po-line). */
                  
 /*                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.*/
                  
-                 IF NOT ERROR-STATUS:ERROR THEN
-                    scr-qty:SCREEN-VALUE = STRING(v-qty).
+/*                 IF NOT ERROR-STATUS:ERROR THEN
+                    scr-qty:SCREEN-VALUE = STRING(v-qty). */
                 
                  RUN poSearch(YES, OUTPUT lContinue).
                  IF NOT lContinue THEN DO:
