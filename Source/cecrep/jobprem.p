@@ -1149,7 +1149,7 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
         FILE-INFO:FILE-NAME = bf-box-design-hdr.box-image.
      
         PUT unformatted 
-            "<C1><#30><R+25><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+            "<C1><#30><R+15><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
     END.
     
     PUT UNFORMATTED "<=30>" SKIP.
