@@ -55,13 +55,8 @@ DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
  
 DEFINE VARIABLE oLoadTag AS Inventory.Loadtag  NO-UNDO.
-DEFINE VARIABLE oSetting AS system.Setting     NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
-    
-oSetting = NEW system.Setting().
-
-oSetting:LoadByCategoryAndProgram("SSCreateLoadTag").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -797,21 +792,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSetting W-Win 
-PROCEDURE GetSetting :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
-
-    opoSetting = oSetting.    
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -856,8 +836,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (INPUT oSetting).    
+    RUN windows/setting-dialog.w.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -929,6 +908,7 @@ PROCEDURE pInit :
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
     
+    RUN spSetSettingContext ("SSCreateLoadTag").
 
     DO WITH FRAME {&FRAME-NAME}:
     END.

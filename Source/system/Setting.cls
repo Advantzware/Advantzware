@@ -25,7 +25,7 @@ CLASS system.Setting:
     DEFINE VARIABLE cScopeTypeWithoutContextList AS CHARACTER NO-UNDO INITIAL "System,Company".
     DEFINE VARIABLE cSearchFieldListSettingType  AS CHARACTER NO-UNDO INITIAL "settingName,settingTypeDesc,defaultValue".
     DEFINE VARIABLE cSearchFieldListSetting      AS CHARACTER NO-UNDO INITIAL "scopeTable,scopeField1,scopeField2,scopeField3,settingUser,inactive".
-
+    DEFINE VARIABLE cCategoryTags                AS CHARACTER NO-UNDO.
                        
     {system/ttSetting.i}
  
@@ -40,33 +40,21 @@ CLASS system.Setting:
 	CONSTRUCTOR PUBLIC Setting (  ):
 		SUPER ().
 		
-		DEFINE BUFFER bf-prgrms FOR prgrms.
-        DEFINE BUFFER bf-users  FOR users.
-        
-		RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
-		RUN spGetSessionParam (INPUT "UserID", OUTPUT cUser).
-
-        ASSIGN
-            CurrentProgram = PROGRAM-NAME(2)
-            CurrentProgram = SUBSTRING(CurrentProgram,1,INDEX(CurrentProgram,"."))
-            CurrentProgram = ENTRY(NUM-ENTRIES(CurrentProgram," "),CurrentProgram," ")
-            CurrentProgram = SUBSTR(CurrentProgram, R-INDEX(CurrentProgram, "/") + 1)
-            CurrentProgram = SUBSTR(CurrentProgram, R-INDEX(CurrentProgram, "\") + 1)
-            .
-        
-        FIND FIRST bf-prgrms NO-LOCK 
-             WHERE bf-prgrms.prgmname EQ CurrentProgram 
-             NO-ERROR.
-        IF AVAILABLE bf-prgrms THEN
-            CurrentProgramHotkey = bf-prgrms.mnemonic.
-
-        FIND FIRST bf-users NO-LOCK
-             WHERE bf-users.user_id EQ cUser
-             NO-ERROR.
-        IF AVAILABLE bf-users THEN
-            iUserSecurityLevel = bf-users.securityLevel.            
+		pSetContext (PROGRAM-NAME(2), "").
 	END CONSTRUCTOR.
 
+    CONSTRUCTOR PUBLIC Setting ( ipcProgramName AS CHARACTER ):
+        SUPER ().
+
+        pSetContext (ipcProgramName, "").        
+    END CONSTRUCTOR.
+
+    CONSTRUCTOR PUBLIC Setting ( ipcProgramName AS CHARACTER, ipcCategoryTags AS CHARACTER ):
+        SUPER ().
+
+        pSetContext (ipcProgramName, ipcCategoryTags).        
+    END CONSTRUCTOR.
+    
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
@@ -112,6 +100,26 @@ CLASS system.Setting:
 	METHOD PUBLIC INTEGER GetSecurityLevel(  ):
 		
 		RETURN iUserSecurityLevel.
+
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC LOGICAL HasProgramContext( INPUT ipcSettingName AS CHARACTER ):
+		
+		DEFINE VARIABLE lHasProgramContext AS LOGICAL NO-UNDO.
+        
+        DEFINE BUFFER bf-setting FOR setting.
+        
+		FIND FIRST bf-setting NO-LOCK
+		     WHERE bf-setting.settingName EQ ipcSettingName
+		       AND bf-setting.programID   NE ""
+		       AND bf-setting.inActive    EQ FALSE
+		     NO-ERROR.
+		lHasProgramContext = AVAILABLE bf-setting. 
 
 	END METHOD.
 
@@ -169,6 +177,92 @@ CLASS system.Setting:
             OTHERWISE
                 RETURN 0.
         END CASE.
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose: Returns the scope table and fields for a given scope id
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC CHARACTER pGetScope( 
+	    INPUT  ipiScopeID     AS INT64,
+	    OUTPUT opcScopeTable  AS CHARACTER,
+	    OUTPUT opcScopeField1 AS CHARACTER,
+	    OUTPUT opcScopeField2 AS CHARACTER,
+	    OUTPUT opcScopeField3 AS CHARACTER):
+		
+		DEFINE BUFFER bf-scope FOR scope.
+
+        FIND FIRST bf-scope NO-LOCK
+             WHERE bf-scope.scopeID EQ ipiScopeID
+             NO-ERROR.
+        IF AVAILABLE bf-scope THEN DO:
+            ASSIGN
+                opcScopeTable  = bf-scope.scopeTable
+                opcScopeField1 = bf-scope.scopeField1
+                opcScopeField2 = bf-scope.scopeField2
+                opcScopeField3 = bf-scope.scopeField3
+                .
+            RETURN "".
+        END.
+        ELSE
+            RETURN "Scope ID '" + STRING (ipiScopeID) + "' does not exist".
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID pSetContext( ipcProgramName AS CHARACTER, ipcCategoryTags AS CHARACTER ):
+		
+        RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
+        RUN spGetSessionParam (INPUT "UserID", OUTPUT cUser).
+        
+        pSetCurrentProgram(ipcProgramName).
+        pSetUserSecurityLevel().
+        
+        cCategoryTags = ipcCategoryTags.
+    END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID pSetCurrentProgram( ipcProgramName AS CHARACTER ):
+        DEFINE BUFFER bf-prgrms FOR prgrms.
+
+        ASSIGN
+            CurrentProgram = ipcProgramName
+            CurrentProgram = SUBSTRING(CurrentProgram,1,INDEX(CurrentProgram,"."))
+            CurrentProgram = ENTRY(NUM-ENTRIES(CurrentProgram," "),CurrentProgram," ")
+            CurrentProgram = SUBSTR(CurrentProgram, R-INDEX(CurrentProgram, "/") + 1)
+            CurrentProgram = SUBSTR(CurrentProgram, R-INDEX(CurrentProgram, "\") + 1)
+            .
+        
+        FIND FIRST bf-prgrms NO-LOCK 
+             WHERE bf-prgrms.prgmname EQ CurrentProgram 
+             NO-ERROR.
+        IF AVAILABLE bf-prgrms THEN
+            CurrentProgramHotkey = bf-prgrms.mnemonic.
+        ELSE
+            CurrentProgram = ipcProgramName.
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID pSetUserSecurityLevel(  ):
+        DEFINE BUFFER bf-users  FOR users.
+
+        FIND FIRST bf-users NO-LOCK
+             WHERE bf-users.user_id EQ cUser
+             NO-ERROR.
+        IF AVAILABLE bf-users THEN
+            iUserSecurityLevel = bf-users.securityLevel.            
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -347,7 +441,25 @@ CLASS system.Setting:
              NO-ERROR.
         
         IF AVAILABLE bf-settingType THEN
-            RETURN bf-settingType.defaultValue.    		
+            RETURN bf-settingType.defaultValue. 
+        
+        FINALLY:
+            /* Meant to be created in pGetByScope if a setting is available */
+            IF NOT AVAILABLE ttSetting AND AVAILABLE bf-settingType THEN DO:
+                CREATE ttSetting.
+                ASSIGN
+                    ttSetting.settingTypeID = bf-settingType.settingTypeID
+                    ttSetting.settingName   = bf-settingType.settingName
+                    .
+                
+                Refresh(BUFFER ttSetting).
+                
+            END.            		
+            
+            RUN spCreateSettingUsageRecord (TEMP-TABLE ttSetting:DEFAULT-BUFFER-HANDLE).
+                        
+            RELEASE ttSetting.            
+        END FINALLY.
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -377,8 +489,20 @@ CLASS system.Setting:
         END.
 
         IF AVAILABLE ttSetting THEN DO:
-            opcValue = ttSetting.settingValue.
-            RETURN TRUE.
+            FIND FIRST bf-setting NO-LOCK
+                 WHERE bf-setting.settingID EQ ttSetting.settingID
+                 NO-ERROR.
+            /* If any of the scopeID, setting value or inactive are modified in between then refresh the ttSetting record and fetch record from setting table instead */
+            IF AVAILABLE bf-setting AND (ttSetting.scopeID NE bf-setting.scopeID OR ttSetting.settingValue NE bf-setting.settingValue OR ttSetting.inActive NE ttSetting.inactive) THEN
+                Refresh(BUFFER ttSetting).
+            ELSE IF NOT AVAILABLE bf-setting THEN DO:
+                /* Delete ttSetting record as database record is deleted */
+                DELETE ttSetting.
+            END. 
+            ELSE DO:
+                opcValue = ttSetting.settingValue.
+                RETURN TRUE.
+            END.
         END.
                                              
         IF ipcScopeTable NE "" THEN
@@ -408,6 +532,19 @@ CLASS system.Setting:
         END.
         
         RETURN FALSE.
+        
+        FINALLY:
+            IF NOT AVAILABLE ttSetting AND AVAILABLE bf-setting THEN DO:
+                CREATE ttSetting.
+                ASSIGN
+                    ttSetting.settingID     = bf-setting.settingID
+                    ttSetting.settingTypeID = bf-setting.settingTypeID
+                    ttSetting.settingName   = bf-setting.settingName
+                    .
+                
+                Refresh(BUFFER ttSetting).
+            END.
+        END FINALLY.
     END METHOD.
     
 	/*------------------------------------------------------------------------------
@@ -756,6 +893,8 @@ CLASS system.Setting:
            "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).
+
+        cCategoryTags = ipcCategory.
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -779,6 +918,9 @@ CLASS system.Setting:
            "",    /* Record Source */
            OUTPUT TABLE ttSetting
            ).
+
+        cCategoryTags = ipcCategory.
+                   
         RUN spCreateSettingUsage (TABLE ttSetting).
     END METHOD.
     
@@ -866,6 +1008,178 @@ CLASS system.Setting:
 
 	END METHOD.
 
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID Reload(  ):
+		IF cCategoryTags NE "" THEN
+		    LoadByCategoryAndProgram(cCategoryTags).
+
+	END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Updates the value of a Company/System scope setting
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC CHARACTER Update(ipcSettingName AS CHARACTER, ipcSettingValue AS CHARACTER):
+
+        DEFINE VARIABLE iScopeID       AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingTypeID AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingID     AS INT64     NO-UNDO.
+        DEFINE VARIABLE cSettingDesc   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeTable    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField1   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField2   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cScopeField3   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cSettingUser   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cProgramHotkey AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lInactive      AS LOGICAL   NO-UNDO.
+                        
+        DEFINE BUFFER bf-setting     FOR setting.
+        DEFINE BUFFER bf-settingType FOR settingType.
+        
+        FIND FIRST bf-settingType NO-LOCK
+             WHERE bf-settingType.settingName EQ ipcSettingName
+             NO-ERROR.
+        IF NOT AVAILABLE bf-settingType THEN
+            RETURN "SettingType Name is not valid".
+
+        ASSIGN
+            iSettingTypeID = bf-settingType.settingTypeID
+            cSettingDesc   = bf-settingType.description
+            .
+                    
+        iScopeID = pCreateScope ("Company", cCompany, "", ""). 
+
+        FOR EACH bf-setting NO-LOCK
+            WHERE bf-setting.settingName  EQ ipcSettingName
+              AND bf-setting.scopeID      EQ iScopeID
+              AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
+              AND (bf-setting.settingUser EQ cUser OR bf-setting.settingUser EQ "")
+            BY bf-setting.programID DESCENDING
+            BY bf-setting.settingUser DESCENDING:
+            LEAVE. 
+        END.
+                           
+        IF NOT AVAILABLE bf-setting THEN DO:
+            iScopeID = pCreateScope ("System", "", "", "").
+    
+            FOR EACH bf-setting NO-LOCK
+                WHERE bf-setting.settingName  EQ ipcSettingName
+                  AND bf-setting.scopeID      EQ iScopeID
+                  AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
+                  AND (bf-setting.settingUser EQ cUser OR bf-setting.settingUser EQ "")
+                BY bf-setting.programID DESCENDING
+                BY bf-setting.settingUser DESCENDING:
+                LEAVE. 
+            END.        
+        END.
+
+        IF AVAILABLE bf-setting THEN
+            ASSIGN
+                iSettingID     = bf-setting.settingID
+                cSettingDesc   = bf-setting.description
+                iScopeID       = bf-setting.scopeID
+                cSettingUser   = bf-setting.settingUser
+                cProgramHotkey = bf-setting.programID
+                lInactive      = bf-setting.inActive
+                .
+                
+        pGetScope (
+            INPUT  iScopeID,
+            OUTPUT cScopeTable,
+            OUTPUT cScopeField1,
+            OUTPUT cScopeField2,
+            OUTPUT cScopeField3            
+            ).        
+
+        RETURN THIS-OBJECT:Update(
+            iSettingTypeID, 
+            iSettingID,
+            ipcSettingValue, 
+            cSettingDesc, 
+            cSettingUser, 
+            cProgramHotKey,
+            lInactive, 
+            cScopeTable, 
+            cScopeField1, 
+            cScopeField2, 
+            cScopeField3,
+            FALSE,                  /* Save locally */
+            OUTPUT iSettingID
+            ).
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Updates the value of a given scope setting
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC CHARACTER Update(ipcSettingName AS CHARACTER, ipcScopeTable AS CHARACTER, ipcScopeField1 AS CHARACTER, ipcScopeField2 AS CHARACTER, ipcScopeField3 AS CHARACTER, ipcSettingValue  AS CHARACTER):
+
+        DEFINE VARIABLE iScopeID       AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingTypeID AS INT64     NO-UNDO.
+        DEFINE VARIABLE iSettingID     AS INT64     NO-UNDO.
+        DEFINE VARIABLE cSettingDesc   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cSettingUser   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cProgramHotkey AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lInactive      AS LOGICAL   NO-UNDO.
+                
+        DEFINE BUFFER bf-setting     FOR setting.
+        DEFINE BUFFER bf-settingType FOR settingType.
+        
+        FIND FIRST bf-settingType NO-LOCK
+             WHERE bf-settingType.settingName EQ ipcSettingName
+             NO-ERROR.
+        IF NOT AVAILABLE bf-settingType THEN
+            RETURN "SettingType Name is not valid".
+
+        ASSIGN
+            iSettingTypeID = bf-settingType.settingTypeID
+            cSettingDesc   = bf-settingType.description
+            .
+                    
+        iScopeID = pCreateScope (ipcScopeTable, ipcScopeField1, ipcScopeField2, ipcScopeField3).
+        
+        FOR EACH bf-setting NO-LOCK
+            WHERE bf-setting.settingName  EQ ipcSettingName
+              AND bf-setting.scopeID      EQ iScopeID
+              AND (bf-setting.programID   EQ CurrentProgramHotkey OR bf-setting.programID EQ "")
+              AND (bf-setting.settingUser EQ cUser OR bf-setting.settingUser EQ "")
+            BY bf-setting.programID DESCENDING
+            BY bf-setting.settingUser DESCENDING:
+            LEAVE. 
+        END.
+        
+        IF AVAILABLE bf-setting THEN
+            ASSIGN
+                iSettingID     = bf-setting.settingID
+                cSettingDesc   = bf-setting.description
+                cSettingUser   = bf-setting.settingUser
+                cProgramHotkey = bf-setting.programID
+                lInactive      = bf-setting.inActive
+                .
+                
+        RETURN THIS-OBJECT:Update(
+            iSettingTypeID, 
+            iSettingID,
+            ipcSettingValue, 
+            cSettingDesc, 
+            cSettingUser, 
+            cProgramHotKey,
+            lInactive, 
+            ipcScopeTable, 
+            ipcScopeField1, 
+            ipcScopeField2, 
+            ipcScopeField3,
+            FALSE,                  /* Save locally */
+            OUTPUT iSettingID
+            ).
+    END METHOD.
+        
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:

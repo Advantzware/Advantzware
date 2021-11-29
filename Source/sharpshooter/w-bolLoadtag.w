@@ -46,12 +46,6 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oSetting  AS system.Setting NO-UNDO.
-
-oSetting  = NEW system.Setting().
-
-oSetting:LoadByCategoryAndProgram("SSPrintBOLTag").
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -622,8 +616,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
+    RUN windows/setting-dialog.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,8 +677,10 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    gcShowSettings = oSetting:GetByName("ShowSettings").
+
+    RUN spSetSettingContext ("SSPrintBOLTag").
+
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).        
 
     btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0.
         

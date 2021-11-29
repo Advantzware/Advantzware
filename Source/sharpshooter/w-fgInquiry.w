@@ -80,14 +80,11 @@ DEFINE VARIABLE hdFGProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcShowAdjustQuantity  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
 DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
 
-oSetting  = NEW system.Setting().
 oKeyboard = NEW system.Keyboard().
-
-oSetting:LoadByCategoryAndProgram("SSFGInquiry").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1422,9 +1419,6 @@ PROCEDURE local-destroy :
     IF VALID-HANDLE(hdFGProcs) THEN
         DELETE PROCEDURE hdFGProcs.
 
-    IF VALID-OBJECT (oSetting) THEN
-        DELETE OBJECT oSetting.
-
     IF VALID-OBJECT (oKeyboard) THEN
         DELETE OBJECT oKeyboard.
               
@@ -1482,8 +1476,7 @@ PROCEDURE OpenSetting :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
+    RUN windows/setting-dialog.w.
 
 END PROCEDURE.
 
@@ -1527,6 +1520,8 @@ PROCEDURE pInit :
     RUN spGetSessionParam ("Location", OUTPUT cLoc).
     RUN pStatusMessage ("", 0).
     
+    RUN spSetSettingContext ("SSFGInquiry").
+    
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany
          NO-ERROR .
@@ -1534,12 +1529,12 @@ PROCEDURE pInit :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLoc.
+
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
+    RUN spGetSettingByName ("ShowAdjustQuantity", OUTPUT gcShowAdjustQuantity).
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).    
     
-    ASSIGN
-        glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-        gcShowSettings        = oSetting:GetByName("ShowSettings")
-        gcShowAdjustQuantity  = oSetting:GetByName("ShowAdjustQuantity")
-        .
+    glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
 
     ASSIGN        
         btnKeyboardItem:VISIBLE     = glShowVirtualKeyboard
