@@ -639,6 +639,46 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCommon_CurrencyExcRate) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_CurrentCurrencyExcRate Procedure 
+PROCEDURE spCommon_CurrentCurrencyExcRate :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBaseCurrCode AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdtDate        AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdExchangeRate AS DECIMAL   NO-UNDO.
+     
+    FIND FIRST currency NO-LOCK
+         WHERE currency.company   EQ ipcCompany
+         AND currency.c-code      EQ ipcBaseCurrCode         
+         NO-ERROR.        
+    
+    IF AVAIL currency THEN
+    DO:
+        MAIN-LOOP:
+        FOR EACH exchangeRate NO-LOCK
+            WHERE exchangeRate.company EQ ipcCompany
+            AND exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode             
+            BREAK BY exchangeRate.asOfDate DESC :
+             IF exchangeRate.exchangeRate GT 0 then
+             do:
+                opdExchangeRate = exchangeRate.exchangeRate.
+                opdtDate = exchangeRate.asOfDate.
+                LEAVE MAIN-LOOP.
+             END.
+        END.    
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCommon_GetGMTTime) = 0 &THEN
 
