@@ -2126,6 +2126,8 @@ PROCEDURE pCreateNewRel :
     DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE dtDateRule AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcRelDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
      IF glShipNotesExpanded THEN do:
          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
@@ -2272,11 +2274,25 @@ PROCEDURE pCreateNewRel :
     oe-rel.rel-date = oe-ord.last-date.
     ELSE IF oereleas-cha EQ "Due Date" THEN
          oe-rel.rel-date = oe-ordl.req-date.
-    ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
-         oe-rel.rel-date = oe-ordl.req-date
-                         - (IF AVAILABLE shipto THEN INTEGER(shipto.del-time)
-                            ELSE 0)
-                         .        
+    ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN DO:
+             IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN DO:
+                 RUN oe/dueDateCalc.p (
+                     oe-rel.cust-no,
+                     oe-rel.rel-date,
+                     DATE(oe-rel.spare-char-4),
+                     "RelDate",
+                     ROWID(oe-rel),
+                     OUTPUT dCalcRelDate,
+                     OUTPUT dCalcPromDate
+                     ).    
+                 oe-rel.rel-date = dCalcRelDate.
+             END.
+             ELSE
+             oe-rel.rel-date = oe-ordl.req-date
+                             - (IF AVAILABLE shipto THEN INTEGER(shipto.del-time)
+                                ELSE 0)
+                             .        
+         END.
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
                 oe-ord.company,
