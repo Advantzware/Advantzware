@@ -1,4 +1,3 @@
- 
  /*------------------------------------------------------------------------
     File        : system.UserColumn.cls
     Purpose     : 
@@ -226,7 +225,9 @@ CLASS system.UserColumn:
 	METHOD PUBLIC VOID RestoreDefaults( ):
         DEFINE VARIABLE cColumnName AS CHARACTER NO-UNDO.
         
-		FOR EACH ttDefaultUserColumn:
+		FOR EACH ttDefaultUserColumn
+		      BY ttDefaultUserColumn.colPosition
+		    :
             cColumnName = (IF ttDefaultUserColumn.colTable EQ ? THEN "" ELSE ttDefaultUserColumn.colTable + ".") + ttDefaultUserColumn.colName.
 
 		    FIND FIRST ttUserColumn
@@ -291,7 +292,7 @@ CLASS system.UserColumn:
         
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
             hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn).
-            
+
             IF NOT VALID-HANDLE (hdBrowseColumn) THEN
                 NEXT.
             
@@ -304,7 +305,7 @@ CLASS system.UserColumn:
                 NEXT.
 
             ASSIGN
-                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel   EQ "" THEN hdBrowseColumn:LABEL  ELSE ttUserColumn.colLabel 
+                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel   EQ "" THEN hdBrowseColumn:LABEL ELSE ttUserColumn.colLabel 
                 hdBrowseColumn:VISIBLE      = IF ttUserColumn.colVisible EQ ?  THEN TRUE ELSE ttUserColumn.colVisible 
                 hdBrowseColumn:WIDTH-PIXELS = IF ttUserColumn.colWidth   EQ 0  OR
                                                  ttUserColumn.colWidth   EQ ?  THEN hdBrowseColumn:WIDTH-PIXELS ELSE ttUserColumn.colWidth
@@ -315,12 +316,15 @@ CLASS system.UserColumn:
                  WHERE ttDefaultUserColumn.colTable EQ hdBrowseColumn:TABLE
                    AND ttDefaultUserColumn.colName  EQ hdBrowseColumn:NAME
                  NO-ERROR.
+
             IF AVAILABLE ttDefaultUserColumn AND ttDefaultUserColumn.colWidth EQ ? THEN
                 ttDefaultUserColumn.colWidth = hdBrowseColumn:WIDTH-PIXELS.
                             
-            IF ttUserColumn.colPosition NE ? THEN
-                BrowseHandle:MOVE-COLUMN(iColumn,ttUserColumn.colPosition).                
-        END.		
+            IF ttUserColumn.colPosition NE ? AND iColumn NE ttUserColumn.colPosition THEN DO:
+                BrowseHandle:MOVE-COLUMN(iColumn,ttUserColumn.colPosition).
+                iColumn = iColumn - 1.
+            END.
+        END.
 	END METHOD.    
 
     METHOD PUBLIC VOID SetUserColumnFromBrowse( ):
