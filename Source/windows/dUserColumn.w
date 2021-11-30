@@ -97,8 +97,8 @@ ttUserColumn.colWidth
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-2 btMoveUp btMoveDown btRestore ~
-btSave 
+&Scoped-Define ENABLED-OBJECTS btMoveDown btMoveUp btRestore btSave ~
+BROWSE-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -114,25 +114,25 @@ btSave
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btMoveDown 
-     IMAGE-UP FILE "Graphics/32x32/next.png":U
+     IMAGE-UP FILE "Graphics/32x32/next.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Down" 
      SIZE 7.4 BY 1.76 TOOLTIP "Move Down"
      FONT 5.
 
 DEFINE BUTTON btMoveUp 
-     IMAGE-UP FILE "Graphics/32x32/previous.png":U
+     IMAGE-UP FILE "Graphics/32x32/previous.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Up" 
      SIZE 7.4 BY 1.76 TOOLTIP "Move Up"
      FONT 5.
 
 DEFINE BUTTON btRestore 
-     IMAGE-UP FILE "Graphics/32x32/back_white.png":U
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Restore Defaults" 
      SIZE 7.4 BY 1.76 TOOLTIP "Restore Defaults"
      FONT 5.
 
 DEFINE BUTTON btSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save and Close" 
      SIZE 7.4 BY 1.76 TOOLTIP "Save and Close".
 
@@ -164,12 +164,12 @@ DEFINE BROWSE BROWSE-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     BROWSE-2 AT ROW 1 COL 1 WIDGET-ID 200
-     btMoveUp AT ROW 1 COL 97 WIDGET-ID 2
      btMoveDown AT ROW 4.33 COL 97 WIDGET-ID 4
+     btMoveUp AT ROW 2.19 COL 97 WIDGET-ID 2
      btRestore AT ROW 9.57 COL 97 WIDGET-ID 6
      btSave AT ROW 12.67 COL 97 WIDGET-ID 8
-     SPACE(1.19) SKIP(0.14)
+     BROWSE-2 AT ROW 1 COL 1 WIDGET-ID 200
+     SPACE(10.59) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 21 FGCOLOR 15 FONT 5
@@ -393,7 +393,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE BROWSE-2 btMoveUp btMoveDown btRestore btSave 
+  ENABLE btMoveDown btMoveUp btRestore btSave BROWSE-2 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
