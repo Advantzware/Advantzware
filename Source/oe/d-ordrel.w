@@ -1229,26 +1229,41 @@ ON LEAVE OF tt-report.price IN FRAME Dialog-Frame /* Sell Price */
 &Scoped-define SELF-NAME tt-report.prom-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.prom-date Dialog-Frame
 ON LEAVE OF tt-report.prom-date IN FRAME Dialog-Frame /* Due Date */
+DO:    
+    DEFINE VARIABLE dCalcRelDate  AS DATE    NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE    NO-UNDO.
+
+    IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
+    RUN new-due-date.
+        
+    IF LASTKEY NE -1 AND oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
     DO:
-    
-        IF oeDateAuto-log AND oeDateAuto-char EQ "Colonial" THEN 
-            RUN new-due-date.
-            
-        IF LASTKEY NE -1 AND oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
-        DO:
         {custom/pastDatePrompt.i SELF:SCREEN-VALUE} 
 
-            RUN valid-colonial-date NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        RUN valid-colonial-date NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-            IF INDEX("AB",lv-stat) GT 0 THEN 
-            DO: 
-                IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
-                ELSE APPLY "choose" TO Btn_OK.  /*RUN dispatch ("update-record").*/
-            END.
+        IF oereleas-cha EQ "DueDateLessTransitDays" THEN
+        DO:
+            RUN oe/dueDateCalc.p (
+                oe-rel.cust-no,
+                tt-report.stat:SCREEN-VALUE,
+                tt-report.prom-date:SCREEN-VALUE,
+                "RelDate",
+                ROWID(oe-rel),
+                OUTPUT dCalcRelDate,
+                OUTPUT dCalcPromDate
+                ).    
+            tt-report.stat:SCREEN-VALUE = STRING(dCalcRelDate,"99/99/9999").
+        END.
 
+        IF INDEX("AB",lv-stat) GT 0 THEN 
+        DO: 
+            IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
+            ELSE APPLY "choose" TO Btn_OK.  /*RUN dispatch ("update-record").*/
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1444,54 +1459,52 @@ ON HELP OF tt-report.prom-date IN FRAME Dialog-Frame /* due Date */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat Dialog-Frame
 ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
-    DO:
-        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-        IF NOT ll-skip THEN 
-        DO:
+DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    IF NOT ll-skip THEN 
+    DO:  
+        IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 1 THEN
+            tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
+                STRING(YEAR(TODAY),"9999").
 
-  
-            IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 1 THEN
+        ELSE
+            IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 90 THEN
                 tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-                    STRING(YEAR(TODAY),"9999").
-
+                    STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 2000,"9999").
             ELSE
-                IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LT 90 THEN
+                IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LE 99 THEN
                     tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-                        STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 2000,"9999").
+                        STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 1900,"9999").
 
-                ELSE
-                    IF INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) LE 99 THEN
-                        tt-report.stat:SCREEN-VALUE = SUBSTR(tt-report.stat:SCREEN-VALUE,1,6) +
-                            STRING(INT(SUBSTR(tt-report.stat:SCREEN-VALUE,7,4)) + 1900,"9999").
+        IF LASTKEY NE -1 THEN 
+        DO:
+           RUN pValid-Release-Date(cocode,
+                           oe-ordl.ord-no,
+                           Date(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+                           OUTPUT lReturnError) .
+           IF lReturnError THEN RETURN NO-APPLY.
+          
+            {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
 
-            IF LASTKEY NE -1 THEN 
+            RUN valid-key-02 NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+            IF NOT(oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN 
             DO:
-               RUN pValid-Release-Date(cocode,
-                               oe-ordl.ord-no,
-                               Date(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
-                               OUTPUT lReturnError) .
-               IF lReturnError THEN RETURN NO-APPLY.
-              
-    {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
-
-                RUN valid-key-02 NO-ERROR.
-                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-                IF NOT(oeDateAuto-log AND OeDateAuto-Char = "Colonial") THEN 
-                DO:
-                    IF INDEX("AB",lv-stat) GT 0 THEN 
-                    DO: 
-                        IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
-                        ELSE APPLY "choose" TO Btn_OK.  /*RUN dispatch ("update-record").*/
-                    END.
-                    ELSE 
-                    DO: 
-                        APPLY "entry" TO tt-report.po-no.
-                        RETURN NO-APPLY.
-                    END.
+                IF INDEX("AB",lv-stat) GT 0 THEN 
+                DO: 
+                    IF KEYFUNCTION(LASTKEY) EQ "BACK-TAB" THEN RETURN NO-APPLY.
+                    ELSE APPLY "choose" TO Btn_OK.  /*RUN dispatch ("update-record").*/
+                END.
+                ELSE 
+                DO: 
+                    APPLY "entry" TO tt-report.po-no.
+                    RETURN NO-APPLY.
                 END.
             END.
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2256,11 +2269,14 @@ PROCEDURE pCreateNewRel :
             oe-rel.ship-id      = v-ship-id.                                                                                                              .
 
     IF oereleas-cha EQ "LastShip" THEN
-        oe-rel.rel-date = oe-ord.last-date.
+    oe-rel.rel-date = oe-ord.last-date.
     ELSE IF oereleas-cha EQ "Due Date" THEN
-            oe-rel.rel-date = oe-ordl.req-date.
+         oe-rel.rel-date = oe-ordl.req-date.
     ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
-        oe-rel.rel-date = oe-ordl.req-date - (IF AVAIL shipto THEN shipto.del-time ELSE 0).        
+         oe-rel.rel-date = oe-ordl.req-date
+                         - (IF AVAILABLE shipto THEN INTEGER(shipto.del-time)
+                            ELSE 0)
+                         .        
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
                 oe-ord.company,
@@ -2294,8 +2310,7 @@ PROCEDURE pCreateNewRel :
         
         /* stores oe-rel due date */
         IF lfirstReleaseofItem THEN 
-            oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
-      
+            oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".      
                                   
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
 

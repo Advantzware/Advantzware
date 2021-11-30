@@ -3464,39 +3464,33 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON LEAVE OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF SELF:modified AND oe-ordl.line > 1 THEN 
-        DO:
-            MESSAGE "Change all promise dates on order? " 
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-            IF ll-ans THEN lv-change-prom-date = YES.
-            ELSE lv-change-prom-date = NO.
-        END.
-
-
-        IF SELF:MODIFIED AND oeDateAuto-log THEN 
-        DO:
-    
-            IF NOT cDueManualChanged THEN 
-            DO:      
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "PromiseDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
-            END.
-
-            /* Used to update due-date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "prom-date".
-        END.
-
+    IF SELF:modified AND oe-ordl.line GT 1 THEN DO:
+        MESSAGE "Change all promise dates on order? " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF ll-ans THEN lv-change-prom-date = YES.
+        ELSE lv-change-prom-date = NO.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:    
+        IF NOT cDueManualChanged THEN DO:      
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "PromiseDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).
+            oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
+        END.
+        /* Used to update due-date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "prom-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3505,8 +3499,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON VALUE-CHANGED OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        cPromManualChanged = YES.
-    END.
+    cPromManualChanged = YES.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3597,35 +3591,31 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.req-date d-oeitem
 ON LEAVE OF oe-ordl.req-date IN FRAME d-oeitem /* Due Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN validate-due-date NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        END.
-        IF SELF:MODIFIED AND oeDateAuto-log  THEN 
-        DO:
-            IF NOT cPromManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-    
-                oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
-            END.
-
-            /* Used to set date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "req-date".
-
-        END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN validate-due-date NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:
+        IF NOT cPromManualChanged THEN DO:
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "DueDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).    
+            oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
+        END.
+        /* Used to set date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "req-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
