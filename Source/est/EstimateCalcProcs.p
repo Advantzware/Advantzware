@@ -3552,7 +3552,7 @@ PROCEDURE pProcessOperations PRIVATE:
             ASSIGN 
                 ttEstBlank.estCostBlankID   = estCostBlank.estCostBlankID
                 ttEstBlank.estCostFormID    = estCostBlank.estCostFormID
-                ttEstBlank.dQtyInOut        = estCostBlank.quantityRequired
+                ttEstBlank.dQtyInOut        = IF estCostBlank.priceBasedOnYield THEN estCostBlank.quantityYielded ELSE estCostBlank.quantityRequired
                 ttEstBlank.iOut             = estCostBlank.numOut
                 .
         END.
