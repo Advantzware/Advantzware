@@ -36,6 +36,20 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
+
+{custom/gcompany.i}
+{custom/getcmpny.i}
+{custom/gloc.i}
+{custom/getloc.i}
+
+{sys/inc/var.i new shared}
+
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
+
 DEF TEMP-TABLE ttBolList
     FIELD iBolNo AS INT.
     
@@ -61,9 +75,9 @@ DEF TEMP-TABLE ttBolList
 &Scoped-define FRAME-NAME gDialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Cancel fiCompany fiCustomer ~
-tbOnHold 
-&Scoped-Define DISPLAYED-OBJECTS eInstructions fiCompany fiCustomer ~
+&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Cancel fiFromCustomer ~
+fiToCustomer tbOnHold 
+&Scoped-Define DISPLAYED-OBJECTS eInstructions fiFromCustomer fiToCustomer ~
 tbOnHold fiStatus 
 
 /* Custom List Definitions                                              */
@@ -91,20 +105,19 @@ DEFINE VARIABLE eInstructions AS CHARACTER INITIAL "Instructions from Main Block
      VIEW-AS EDITOR
      SIZE 83 BY 2.86 NO-UNDO.
 
-DEFINE VARIABLE fiCompany AS CHARACTER FORMAT "X(256)":U INITIAL "001" 
-     LABEL "Company" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiCustomer AS CHARACTER FORMAT "X(256)":U INITIAL "DSG" 
-     LABEL "Customer No." 
+DEFINE VARIABLE fiFromCustomer AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Customer Begin" 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Status" 
      VIEW-AS FILL-IN 
-     SIZE 91 BY 1 NO-UNDO.
+     SIZE 86 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiToCustomer AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzz" 
+     LABEL "End" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tbOnHold AS LOGICAL INITIAL yes 
      LABEL "Include BOLs on HOLD?" 
@@ -118,11 +131,11 @@ DEFINE FRAME gDialog
      eInstructions AT ROW 1.48 COL 6 NO-LABEL WIDGET-ID 10
      Btn_OK AT ROW 1.48 COL 93
      Btn_Cancel AT ROW 3.14 COL 93
-     fiCompany AT ROW 4.57 COL 14 COLON-ALIGNED WIDGET-ID 12
-     fiCustomer AT ROW 5.76 COL 14 COLON-ALIGNED WIDGET-ID 14
-     tbOnHold AT ROW 6.95 COL 16 WIDGET-ID 6
-     fiStatus AT ROW 8.14 COL 14 COLON-ALIGNED WIDGET-ID 8
-     SPACE(3.79) SKIP(0.61)
+     fiFromCustomer AT ROW 5.05 COL 21 COLON-ALIGNED WIDGET-ID 14
+     fiToCustomer AT ROW 5.05 COL 51 COLON-ALIGNED WIDGET-ID 16
+     tbOnHold AT ROW 6.48 COL 23 WIDGET-ID 6
+     fiStatus AT ROW 7.67 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     SPACE(18.79) SKIP(0.03)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Remove BOL Tags"
@@ -208,8 +221,9 @@ DO:
     DISABLE TRIGGERS FOR LOAD OF oe-boll.
 
     FOR EACH oe-bolh NO-LOCK
-        WHERE oe-bolh.company EQ fiCompany:SCREEN-VALUE 
-        AND oe-bolh.cust-no EQ fiCustomer:SCREEN-VALUE 
+        WHERE oe-bolh.company EQ cocode 
+        AND oe-bolh.cust-no GE fiFromCustomer:SCREEN-VALUE 
+        AND oe-bolh.cust-no LE fiToCustomer:SCREEN-VALUE 
         AND oe-bolh.posted EQ NO:
         
         /* Exclude On Hold BOLs if option chosen */                
@@ -230,6 +244,24 @@ DO:
         "Process complete." 
         VIEW-AS ALERT-BOX.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiFromCustomer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromCustomer gDialog
+ON HELP OF fiFromCustomer IN FRAME gDialog /* Customer Begin */
+OR HELP OF fiToCustomer IN FRAME gDialog
+DO:
+   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+   
+   RUN system/openlookup.p (g_company, "cust-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN {&SELF-NAME}:SCREEN-VALUE = cMainField.
+          RETURN NO-APPLY. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,9 +327,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY eInstructions fiCompany fiCustomer tbOnHold fiStatus 
+  DISPLAY eInstructions fiFromCustomer fiToCustomer tbOnHold fiStatus 
       WITH FRAME gDialog.
-  ENABLE Btn_OK Btn_Cancel fiCompany fiCustomer tbOnHold 
+  ENABLE Btn_OK Btn_Cancel fiFromCustomer fiToCustomer tbOnHold 
       WITH FRAME gDialog.
   VIEW FRAME gDialog.
   {&OPEN-BROWSERS-IN-QUERY-gDialog}
