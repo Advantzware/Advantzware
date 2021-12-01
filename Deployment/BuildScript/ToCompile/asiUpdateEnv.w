@@ -256,8 +256,6 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
-DEF VAR cOrigPropath   AS CHARACTER NO-UNDO.
-DEF VAR cNewPropath    AS CHARACTER NO-UNDO.
     
 
 /* _UIB-CODE-BLOCK-END */
