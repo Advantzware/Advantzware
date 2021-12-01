@@ -3464,39 +3464,33 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON LEAVE OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF SELF:modified AND oe-ordl.line > 1 THEN 
-        DO:
-            MESSAGE "Change all promise dates on order? " 
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-            IF ll-ans THEN lv-change-prom-date = YES.
-            ELSE lv-change-prom-date = NO.
-        END.
-
-
-        IF SELF:MODIFIED AND oeDateAuto-log THEN 
-        DO:
-    
-            IF NOT cDueManualChanged THEN 
-            DO:      
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "PromiseDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
-            END.
-
-            /* Used to update due-date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "prom-date".
-        END.
-
+    IF SELF:modified AND oe-ordl.line GT 1 THEN DO:
+        MESSAGE "Change all promise dates on order? " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF ll-ans THEN lv-change-prom-date = YES.
+        ELSE lv-change-prom-date = NO.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:    
+        IF NOT cDueManualChanged THEN DO:      
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "PromiseDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).
+            oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
+        END.
+        /* Used to update due-date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "prom-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3505,8 +3499,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON VALUE-CHANGED OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        cPromManualChanged = YES.
-    END.
+    cPromManualChanged = YES.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3597,35 +3591,31 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.req-date d-oeitem
 ON LEAVE OF oe-ordl.req-date IN FRAME d-oeitem /* Due Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN validate-due-date NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        END.
-        IF SELF:MODIFIED AND oeDateAuto-log  THEN 
-        DO:
-            IF NOT cPromManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-    
-                oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
-            END.
-
-            /* Used to set date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "req-date".
-
-        END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN validate-due-date NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:
+        IF NOT cPromManualChanged THEN DO:
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "DueDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).    
+            oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
+        END.
+        /* Used to set date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "req-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -12827,11 +12817,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
       Purpose:  
         Notes:  
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opRelDate AS DATE  NO-UNDO.
-    DEFINE VARIABLE rShipTo   AS ROWID NO-UNDO.
+    DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+    DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+    DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
     DEFINE BUFFER bf-shipto FOR shipto.    
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     DEFINE BUFFER bf-oe-rel FOR oe-rel.
+
     FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
     RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
     FIND bf-shipto WHERE ROWID(bf-shipto) EQ rShipTo NO-LOCK NO-ERROR.
@@ -12846,7 +12840,27 @@ FUNCTION get-colonial-rel-date RETURNS DATE
         ELSE IF oereleas-cha EQ "Due Date" THEN
                 opRelDate = oe-ordl.req-date.
             ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
-                    opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
+                     IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN DO:
+                        RUN oe/dueDateCalc.p (
+                            bf-oe-ord.cust-no,
+                            bf-oe-rel.rel-date,
+                            DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+                            "RelDate",
+                            ROWID(bf-oe-rel),
+                            OUTPUT dCalcRelDate,
+                            OUTPUT dCalcPromDate
+                            ).
+                         opRelDate = dCalcRelDate.
+                         IF opRelDate EQ oe-ordl.prom-date THEN
+                         DO TRANSACTION:
+                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+                             oe-ordl.prom-date = dCalcPromDate.
+                             FIND CURRENT oe-ordl NO-LOCK.
+                         END.
+                     END.
+                     ELSE
+                     opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
                 ELSE /*DueDate+1Day*/
                 DO:
                     opRelDate = oe-ordl.req-date + 1.
