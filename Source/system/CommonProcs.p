@@ -609,6 +609,8 @@ PROCEDURE spCommon_CurrencyExcRate :
     DEFINE INPUT  PARAMETER ipcRateCurrCode AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtDate        AS DATE      NO-UNDO.
     DEFINE OUTPUT PARAMETER opdExchangeRate AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-exchangeRate FOR exchangeRate.
      
     FIND FIRST currency NO-LOCK
          WHERE currency.company   EQ ipcCompany
@@ -626,21 +628,30 @@ PROCEDURE spCommon_CurrencyExcRate :
             AND exchangeRate.rateCurrencyCode EQ ipcRateCurrCode             
             BREAK BY exchangeRate.asOfDate:
              
-             IF FIRST(exchangeRate.asOfDate) AND  ipdtDate LT exchangeRate.asOfDate THEN
-             DO:
+            IF FIRST(exchangeRate.asOfDate) AND  ipdtDate LT exchangeRate.asOfDate THEN
+            DO:
                  LEAVE MAIN-LOOP.
-             END.
-                        
-             IF exchangeRate.exchangeRate GT 0 AND ipdtDate LE exchangeRate.asOfDate then
-             do:
-                opdExchangeRate = exchangeRate.exchangeRate.
-                LEAVE MAIN-LOOP.
-             END. 
+            END.
              
-             IF last(exchangeRate.asOfDate) THEN
-             DO:
+            IF exchangeRate.exchangeRate GT 0 AND ipdtDate GE exchangeRate.asOfDate  THEN
+            do: 
                 opdExchangeRate = exchangeRate.exchangeRate. 
-             END.   
+                
+                MAIN-LOOP2:
+                FOR EACH bf-exchangeRate NO-LOCK
+                    WHERE bf-exchangeRate.company EQ ipcCompany
+                    AND bf-exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode
+                    AND bf-exchangeRate.rateCurrencyCode EQ ipcRateCurrCode
+                    AND bf-exchangeRate.asOfDate GT exchangeRate.asOfDate                  
+                    BREAK BY bf-exchangeRate.asOfDate:                     
+                    
+                    IF  bf-exchangeRate.asOfDate GT  ipdtDate THEN 
+                    NEXT MAIN-LOOP2.                 
+                    
+                    opdExchangeRate = bf-exchangeRate.exchangeRate.
+                
+                END. 
+            END.               
         END.    
     END.
 END PROCEDURE.
