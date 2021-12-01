@@ -101,7 +101,7 @@ RUN sys/ref/nk1look.p (
 IF llRecFound THEN
 oeDateAuto-chr = lcNk1Value NO-ERROR.
 
-IF oeDateAuto-chr EQ "Colonial" THEN DO:
+IF oeDateAuto-log AND oeDateAuto-chr EQ "Colonial" THEN DO:
     FIND FIRST shipto NO-LOCK
          WHERE shipto.company EQ oe-rel.company
            AND shipto.cust-no EQ oe-rel.cust-no

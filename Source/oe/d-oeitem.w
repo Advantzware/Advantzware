@@ -12817,11 +12817,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
       Purpose:  
         Notes:  
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opRelDate AS DATE  NO-UNDO.
-    DEFINE VARIABLE rShipTo   AS ROWID NO-UNDO.
+    DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+    DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+    DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
     DEFINE BUFFER bf-shipto FOR shipto.    
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     DEFINE BUFFER bf-oe-rel FOR oe-rel.
+
     FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
     RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
     FIND bf-shipto WHERE ROWID(bf-shipto) EQ rShipTo NO-LOCK NO-ERROR.
@@ -12836,7 +12840,27 @@ FUNCTION get-colonial-rel-date RETURNS DATE
         ELSE IF oereleas-cha EQ "Due Date" THEN
                 opRelDate = oe-ordl.req-date.
             ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
-                    opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
+                     IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN DO:
+                        RUN oe/dueDateCalc.p (
+                            bf-oe-ord.cust-no,
+                            bf-oe-rel.rel-date,
+                            DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+                            "RelDate",
+                            ROWID(bf-oe-rel),
+                            OUTPUT dCalcRelDate,
+                            OUTPUT dCalcPromDate
+                            ).
+                         opRelDate = dCalcRelDate.
+                         IF opRelDate EQ oe-ordl.prom-date THEN
+                         DO TRANSACTION:
+                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+                             oe-ordl.prom-date = dCalcPromDate.
+                             FIND CURRENT oe-ordl NO-LOCK.
+                         END.
+                     END.
+                     ELSE
+                     opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
                 ELSE /*DueDate+1Day*/
                 DO:
                     opRelDate = oe-ordl.req-date + 1.

@@ -2279,7 +2279,7 @@ PROCEDURE pCreateNewRel :
                  RUN oe/dueDateCalc.p (
                      oe-rel.cust-no,
                      oe-rel.rel-date,
-                     DATE(oe-rel.spare-char-4),
+                     DATE(ENTRY(1,oe-rel.spare-char-4)),
                      "RelDate",
                      ROWID(oe-rel),
                      OUTPUT dCalcRelDate,
