@@ -623,13 +623,24 @@ PROCEDURE spCommon_CurrencyExcRate :
         FOR EACH exchangeRate NO-LOCK
             WHERE exchangeRate.company EQ ipcCompany
             AND exchangeRate.baseCurrencyCode EQ ipcBaseCurrCode
-            AND exchangeRate.rateCurrencyCode EQ ipcRateCurrCode
-            AND ASI.exchangeRate.asOfDate EQ ipdtDate:
-             IF exchangeRate.exchangeRate GT 0 then
+            AND exchangeRate.rateCurrencyCode EQ ipcRateCurrCode             
+            BREAK BY exchangeRate.asOfDate:
+             
+             IF FIRST(exchangeRate.asOfDate) AND  ipdtDate LT exchangeRate.asOfDate THEN
+             DO:
+                 LEAVE MAIN-LOOP.
+             END.
+                        
+             IF exchangeRate.exchangeRate GT 0 AND ipdtDate LE exchangeRate.asOfDate then
              do:
                 opdExchangeRate = exchangeRate.exchangeRate.
                 LEAVE MAIN-LOOP.
-             END.
+             END. 
+             
+             IF last(exchangeRate.asOfDate) THEN
+             DO:
+                opdExchangeRate = exchangeRate.exchangeRate. 
+             END.   
         END.    
     END.
 END PROCEDURE.
