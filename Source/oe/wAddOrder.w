@@ -477,7 +477,7 @@ ON CHOOSE OF btNext IN FRAME F-Main /* Next */
         RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
         ASSIGN 
             adm-current-page = INTEGER(RETURN-VALUE).
-   
+                
         IF adm-current-page EQ 1 THEN
         DO:
             IF fiCustPo:HIDDEN IN FRAME {&FRAME-NAME} EQ YES THEN
@@ -490,10 +490,15 @@ ON CHOOSE OF btNext IN FRAME F-Main /* Next */
                 IF lError THEN RETURN NO-APPLY .
             END.
             ELSE IF orderType.orderTypeSource EQ "Estimate" THEN
-                DO:   
-                    RUN valid-est-no(OUTPUT lError) NO-ERROR.
-                    IF lError THEN RETURN NO-APPLY .
-                END.
+            DO:   
+                RUN valid-est-no(OUTPUT lError) NO-ERROR.
+                IF lError THEN RETURN NO-APPLY .
+            END.
+            ELSE IF orderType.orderTypeSource EQ "Order" THEN
+            DO:   
+                RUN valid-ord-no(OUTPUT lError) NO-ERROR.
+                IF lError THEN RETURN NO-APPLY .
+            END.    
         
             RUN valid-po-no(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
@@ -796,7 +801,7 @@ ON HELP OF fiOrderSource IN FRAME F-Main /* Source */
                             OUTPUT recVal
                             ). 
                         ASSIGN
-                            fiOrderSource:screen-value = chFile  .                         
+                            fiOrderSource:screen-value = STRING(lookupField)  .                         
                     END.
         APPLY "entry" TO fiOrderSource IN FRAME {&FRAME-NAME}.      
     END.
@@ -1102,7 +1107,15 @@ PROCEDURE local-change-page :
             WHEN 2 THEN 
                 DO:
                     RUN pStatusMessage ("", 0).
-                    RUN pBuildTable IN h_b-sel-estitem( INPUT fiOrderSource:SCREEN-VALUE , INPUT fiCustPo:SCREEN-VALUE, INPUT dPrice, INPUT cPrUom, INPUT iQty, INPUT iQuoteNumber, INPUT-OUTPUT TABLE ttEstItem  ). 
+                    IF orderType.orderTypeSource EQ "Estimate" THEN 
+                    DO:
+                        RUN pBuildTable IN h_b-sel-estitem( INPUT fiOrderSource:SCREEN-VALUE , INPUT fiCustPo:SCREEN-VALUE, INPUT dPrice, INPUT cPrUom, INPUT iQty, INPUT iQuoteNumber, INPUT-OUTPUT TABLE ttEstItem  ). 
+                    END.
+                    ELSE IF orderType.orderTypeSource EQ "Order" THEN
+                    DO:
+                       RUN pBuildTableForReOrder IN h_b-sel-estitem( INPUT fiOrderSource:SCREEN-VALUE , INPUT-OUTPUT TABLE ttEstItem  ).  
+                    END.
+                    
                     FIND FIRST bf-ttEstItem NO-LOCK 
                         WHERE TRIM(bf-ttEstItem.estNo) EQ trim(fiOrderSource:SCREEN-VALUE) NO-ERROR .
              
@@ -1596,7 +1609,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ord-no W-Win 
+PROCEDURE valid-ord-no :
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:  
+        IF fiOrderSource:SCREEN-VALUE NE "" THEN 
+        DO:
+            FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cCompany
+                AND oe-ord.ord-no  EQ INTEGER(fiOrderSource:SCREEN-VALUE)
+                NO-ERROR.
+            IF NOT AVAILABLE oe-ord THEN 
+            DO:                                 
+                RUN pStatusMessage ("Invalid Order, try help...", 3).
+                fiOrderSource:BGCOLOR = 12.
+                APPLY "entry" TO fiOrderSource.
+                oplOutError = YES.
+                RETURN.
+            END.             
+      
+        END.  
+    END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-no W-Win 
 PROCEDURE valid-po-no :

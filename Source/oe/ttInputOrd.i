@@ -51,6 +51,7 @@ DEFINE TEMP-TABLE ttEstItem
            FIELD estPriceMatrix AS LOGICAL LABEL "Price Matrix"
            FIELD estShipId AS CHARACTER   
            FIELD estRowid AS ROWID 
+           FIELD ordNo AS INTEGER
            FIELD isSelected AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .
 
 

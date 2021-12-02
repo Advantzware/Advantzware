@@ -731,6 +731,121 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTableForReOrder B-table-Win 
+PROCEDURE pBuildTableForReOrder:
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+            ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcSourceValue AS CHARACTER NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstItem.
+
+    DEFINE VARIABLE lTaxable           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iLevel             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lMatrixExists      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQtyDistinctMatch  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQtyWithinRange    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMatrixMatchDetail AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttEstItem FOR ttEstItem.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    
+        FIND FIRST bf-ttEstItem NO-LOCK 
+            WHERE bf-ttEstItem.ordNo EQ INTEGER(ipcSourceValue) NO-ERROR .                        
+               
+       // giQuoteNumber = ipiQuoteNumber .
+        IF AVAILABLE bf-ttEstItem THEN 
+        DO: 
+            {&open-query-{&browse-name}}
+            RETURN.
+        END.
+              
+        FIND FIRST oe-ord NO-LOCK
+            WHERE oe-ord.company EQ cCompany
+            AND oe-ord.ord-no  EQ INTEGER(ipcSourceValue)
+            NO-ERROR.
+     
+        IF AVAILABLE oe-ord THEN
+        DO:            
+            EMPTY TEMP-TABLE ttEstItem .
+            iLine = 0.   
+            FOR EACH oe-ordl NO-LOCK
+                WHERE oe-ordl.company EQ cCompany
+                AND oe-ordl.ord-no EQ oe-ord.ord-no:
+                iLine = iLine + 1.
+                            
+                CREATE ttEstItem.
+                ASSIGN
+                    ttEstItem.company   = cCompany
+                    ttEstItem.estLine   = iLine
+                    ttEstItem.estCust   = oe-ordl.cust-no
+                    ttEstItem.estShipId = oe-ordl.ship-id
+                    ttEstItem.estItem   = oe-ordl.i-no
+                    ttEstItem.estPart   = oe-ordl.part-no
+                    ttEstItem.estDesc   = oe-ordl.part-dscr1
+                    ttEstItem.estQty    = oe-ordl.qty
+                    ttEstItem.estQtyUom = "EA"
+                    ttEstItem.estTotal  = 0  
+                    ttEstItem.estRowid  = ROWID(oe-ordl) 
+                    ttEstItem.estNo     = oe-ordl.est-no
+                    ttEstItem.ordNo     = oe-ordl.ord-no
+                    .
+                  
+                FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ oe-ordl.company
+                    AND itemfg.i-no    EQ oe-ordl.i-no
+                    NO-ERROR.
+     
+               /* IF AVAILABLE itemfg THEN 
+                DO:                      
+                    RUN Price_GetPriceMatrixLevel(cCompany, eb.stock-no, eb.cust-no, eb.ship-id, eb.eqty, OUTPUT iLevel).
+                    ASSIGN               
+                        ttEstItem.estPriceMatrix = IF iLevel NE 0 THEN YES ELSE NO
+                        ttEstItem.estPrUom       = itemfg.sell-uom
+                        ttEstItem.estPo          = ipcCustomerPo
+                        ttEstItem.estPrice       = itemfg.sell-price 
+                        . 
+                END. 
+                
+                IF ipiQuoteNumber GT 0 THEN
+                DO:
+                    ASSIGN
+                        ttEstItem.estQty    = ipiQty
+                        ttEstItem.estQtyUom = "EA" 
+                        ttEstItem.estPrUom  = ipcPrUom
+                        ttEstItem.estPrice  = ipdPrice
+                        ttEstItem.estQuote  = ipiQuoteNumber.
+                END.
+                ELSE 
+                DO:
+                    RUN Price_GetPriceMatrixPrice (cCompany, ttEstItem.estItem, eb.cust-no, eb.ship-id, ttEstItem.estQty, 0,
+                        OUTPUT lMatrixExists, OUTPUT cMatrixMatchDetail, INPUT-OUTPUT ttEstItem.estPrice, INPUT-OUTPUT ttEstItem.estPrUom,
+                        OUTPUT lQtyDistinctMatch, OUTPUT lQtyWithinRange).
+                END.
+             
+                
+                RUN Conv_CalcTotalPrice(eb.company,            
+                    ttEstItem.estItem,
+                    DECIMAL(ttEstItem.estQty),
+                    DECIMAL(ttEstItem.estPrice),
+                    ttEstItem.estPrUom,
+                    0,
+                    0,    
+                    OUTPUT ttEstItem.estTotal).               
+            END.  */
+            
+          END.   
+          
+        END.
+        {&open-query-{&browse-name}}  
+    END.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
