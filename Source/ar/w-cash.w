@@ -669,6 +669,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-line-button W-Win 
+PROCEDURE disable-line-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+RUN set-buttons IN h_p-cashl("disable-all").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-line-button W-Win 
+PROCEDURE enable-line-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipAction AS CHARACTER NO-UNDO.
+MESSAGE "ipAction" ipAction VIEW-AS ALERT-BOX ERROR .
+RUN set-buttons IN h_p-cashl(ipAction).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_add W-Win 
 PROCEDURE select_add :
 /*------------------------------------------------------------------------------
