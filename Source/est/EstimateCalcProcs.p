@@ -18,6 +18,7 @@
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghOperation                           AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -1004,6 +1005,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     DEFINE           BUFFER bf-mach               FOR mach.
     DEFINE           BUFFER bf-est-op             FOR est-op.
 
+    DEFINE VARIABLE cOutputType AS CHARACTER NO-UNDO.
+    
     FIND FIRST bf-mach NO-LOCK 
         WHERE bf-mach.company EQ ipbf-est-op.company
         AND bf-mach.m-code EQ ipbf-est-op.m-code
@@ -1064,43 +1067,32 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.isPrinter = YES.
         IF fIsDepartment(gcDeptsForCoaters, opbf-estCostOperation.departmentID) THEN  
             opbf-estCostOperation.isCoater = YES.
-        IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID) THEN 
-        DO: 
-            ASSIGN
-                opbf-estCostOperation.isNetSheetMaker = YES
-                opbf-estCostOperation.outputType      = "S".
-        END.
+        
         IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
         IF fIsDepartment(gcDeptsForLeafers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isLeafer = YES.
         
-        IF CAN-DO("R,S,A,P",opbf-estCostOperation.feedType) THEN 
-        DO:
-            FOR EACH bf-est-op NO-LOCK 
-                WHERE bf-est-op.company EQ ipbf-est-op.company
-                AND bf-est-op.est-no EQ ipbf-est-op.est-no
-                AND bf-est-op.s-num EQ ipbf-est-op.s-num
-                AND bf-est-op.qty EQ ipbf-est-op.qty
-                AND bf-est-op.line GT ipbf-est-op.line
-                AND bf-est-op.line LT 500,
-                FIRST bf-mach NO-LOCK 
-                WHERE bf-mach.company EQ bf-est-op.company
-                AND bf-mach.m-code EQ bf-est-op.m-code 
-                BY bf-est-op.line:
-                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
-                    ASSIGN 
-                        opbf-estCostOperation.isBlankMaker = YES
-                        opbf-estCostOperation.outputType   = "B"
-                        .
-                LEAVE.
-            END.
-            IF NOT AVAILABLE bf-est-op THEN /*Last Machine*/  
-                ASSIGN 
-                    opbf-estCostOperation.isBlankMaker = YES
-                    opbf-estCostOperation.outputType   = "B"
-                    .
-        END.
+        IF VALID-HANDLE(ghOperation) THEN
+            RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
+                INPUT ipbf-est-op.est-no, 
+                INPUT ipbf-est-op.s-num, 
+                INPUT ipbf-est-op.m-code,
+                INPUT ipbf-est-op.qty,
+                INPUT ipbf-est-op.line,
+                OUTPUT cOutputType).
+        
+        IF cOutputType = "B" THEN
+            ASSIGN 
+                opbf-estCostOperation.isBlankMaker = YES
+                opbf-estCostOperation.outputType   = "B"
+                .
+                
+        ELSE IF cOutputType = "S" THEN
+            ASSIGN
+                opbf-estCostOperation.isNetSheetMaker = YES
+                opbf-estCostOperation.outputType      = "S".
+                
         
         opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
@@ -2065,13 +2057,22 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
 
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
-    RUN pCopyHeaderCostsToSetItem(ipiEstCostHeaderID).
-    RUN pBuildProbe(ipiEstCostHeaderID).
+    
+    FIND FIRST bf-estCostHeader NO-LOCK
+        WHERE bf-estCostHeader.estCostHeaderID = ipiEstCostHeaderID NO-ERROR. 
+        
+    IF AVAILABLE bf-estCostHeader THEN
+    DO:
+        RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
+        RUN pBuildProbe(BUFFER bf-estCostHeader).
+    END.
 
 END PROCEDURE.
 
@@ -2089,7 +2090,9 @@ PROCEDURE pCalcEstimate PRIVATE:
     DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
     
-    RUN pSetGlobalSettings(ipcCompany).  
+    RUN pSetGlobalSettings(ipcCompany). 
+    RUN est\OperationProcs.p PERSISTENT SET ghOperation.
+     
     IF iplPurge THEN 
         RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
         
@@ -2100,6 +2103,8 @@ PROCEDURE pCalcEstimate PRIVATE:
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
     
+    IF VALID-HANDLE(ghOperation) THEN
+        DELETE PROCEDURE ghOperation.
 
 END PROCEDURE.
 
@@ -3534,6 +3539,26 @@ PROCEDURE pProcessOperations PRIVATE:
         END.
     END.
     EMPTY TEMP-TABLE ttEstBlank.
+    
+    FOR EACH estCostBlank NO-LOCK 
+        WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
+            
+            
+        IF NOT CAN-FIND (FIRST ttEstBlank
+            WHERE ttEstBlank.estCostBlankID EQ estCostBlank.estCostBlankID) THEN
+        DO:
+            CREATE ttEstBlank.
+            ASSIGN 
+                ttEstBlank.estCostBlankID   = estCostBlank.estCostBlankID
+                ttEstBlank.estCostFormID    = estCostBlank.estCostFormID
+                ttEstBlank.dQtyInOut        = estCostBlank.quantityRequired
+                ttEstBlank.iOut             = estCostBlank.numOut
+                .
+        END.
+        
+    END.
+    
     /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-estCostHeader.company
@@ -3548,31 +3573,17 @@ PROCEDURE pProcessOperations PRIVATE:
     DO:
         /*REFACTOR to calculate quantities for combos*/        
         IF est-op.b-num NE 0 AND bf-estCostOperation.feedType EQ "B" THEN
-        DO:  /*Calculate for Combo*/
-            FIND FIRST estCostBlank NO-LOCK 
-                WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-                AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND estCostBlank.blankNo EQ est-op.b-num
+        DO:  
+            /*Calculate for Combo*/
+            FIND FIRST ttEstBlank
+                WHERE ttEstBlank.estCostBlankID EQ bf-estCostOperation.estCostBlankID
                 NO-ERROR.
-            IF AVAILABLE estCostBlank THEN 
-            DO:
-                FIND FIRST ttEstBlank
-                    WHERE ttEstBlank.estCostBlankID EQ estCostBlank.estCostBlankID
-                    NO-ERROR.
-                IF NOT AVAILABLE ttEstBlank THEN 
-                DO:
-                    CREATE ttEstBlank.
-                    ASSIGN 
-                        ttEstBlank.estCostBlankID = estCostBlank.estCostBlankID
-                        ttEstBlank.estCostFormID  = estCostBlank.estCostFormID
-                        ttEstBlank.iOut           = estCostBlank.numOut.
-                END.
-                IF NOT ttEstBlank.lOutputInitialized THEN 
-                    ASSIGN 
-                        ttEstBlank.dQtyInOut          = estCostBlank.quantityRequired
-                        ttEstBlank.lOutputInitialized = YES
-                        .
-            END. /*estCostBlank Avail*/
+                
+            IF AVAILABLE ttEstBlank AND NOT ttEstBlank.lOutputInitialized THEN 
+                ASSIGN 
+                    ttEstBlank.lOutputInitialized = YES
+                    .
+            
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                 INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
         END. /*BlankNo not 0*/

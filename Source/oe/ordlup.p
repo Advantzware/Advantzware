@@ -21,6 +21,7 @@ DEFINE        VARIABLE v-run-from-steps2 AS LOG     NO-UNDO.
 DEFINE        VARIABLE K_FRAC            AS DECIMAL INIT 6.25 NO-UNDO.
 
 DEFINE BUFFER xitemfg FOR itemfg.
+DEFINE BUFFER bf-oe-rel FOR oe-rel.
 
 {ce/print4a.i shared}
 
@@ -91,7 +92,8 @@ DO:
                 job.est-no  = oe-ordl.est-no /* wfk - 02281301 */
                 job.job-no  = oe-ordl.job-no
                 job.job-no2 = oe-ordl.job-no2
-                job.stat    = "P".
+                job.stat    = "P"
+                job.shipFromLocation = locode.
         END.
 
         CREATE job-hdr.
@@ -156,6 +158,18 @@ DO:
         job-hdr.std-lab-cost +
         job-hdr.std-fix-cost +
         job-hdr.std-var-cost.
+        
+        FIND FIRST bf-oe-rel NO-LOCK 
+             WHERE bf-oe-rel.company EQ cocode
+             AND bf-oe-rel.ord-no = oe-ordl.ord-no
+             AND bf-oe-rel.i-no = oe-ordl.i-no
+             AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
+        
+            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN DO:
+                IF AVAILABLE job THEN
+                job.shipFromLocation = bf-oe-rel.spare-char-1.
+                job-hdr.loc          = bf-oe-rel.spare-char-1.
+            END.
 END.   /* if oe-ordl.est-no ne "" */   /*DAR*/
 
 FIND FIRST itemfg EXCLUSIVE-LOCK

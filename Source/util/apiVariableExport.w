@@ -224,7 +224,7 @@ DO:
     INPUT FROM VALUE(fiSourcePath:SCREEN-VALUE + "/api/" + cbAPI:SCREEN-VALUE + ".p").
     REPEAT:
         IMPORT UNFORMATTED cLine.
-        IF INDEX(cLine, "updateRequestData") GT 0 THEN 
+        IF INDEX(cLine, " updateRequestData") GT 0 THEN 
         DO:
             ASSIGN
                 cSegment  = ENTRY(2, cLine, "(")
@@ -240,6 +240,7 @@ DO:
                 cVariable = ENTRY(2, cLine, "(")
                 cVariable = ENTRY(2, cVariable, ",")
                 cVariable = TRIM(TRIM(cVariable),'"')
+                NO-ERROR
                 .
             
             IF NOT CAN-FIND(FIRST ttVariable 

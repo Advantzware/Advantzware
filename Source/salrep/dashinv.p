@@ -88,15 +88,17 @@ DEF VAR v-days-this-month AS INT NO-UNDO.
 ASSIGN
   v-this-month = MONTH(ip-as-of-date)
   v-days-this-month = DAY(ip-as-of-date).
+  
+RUN InitializeExcel.
 IF NOT VALID-HANDLE(chExcelApplication) THEN DO:
     MESSAGE 
       "Microsoft Excel is required.  This report is unable to be executed."
     VIEW-AS ALERT-BOX ERROR.
     RETURN.
 END.
-run InitializeExcel.
-run MainLoop.
-run Cleanup.
+
+RUN MainLoop.
+RUN Cleanup.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

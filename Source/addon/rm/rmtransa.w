@@ -74,7 +74,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 46.2 BY 18.76.
+         SIZE 49.2 BY 20.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -94,11 +94,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Material Menu"
-         HEIGHT             = 18.76
-         WIDTH              = 46.2
-         MAX-HEIGHT         = 22.91
+         HEIGHT             = 20.52
+         WIDTH              = 45.4
+         MAX-HEIGHT         = 32.91
          MAX-WIDTH          = 86.4
-         VIRTUAL-HEIGHT     = 22.91
+         VIRTUAL-HEIGHT     = 32.91
          VIRTUAL-WIDTH      = 86.4
          RESIZE             = no
          SCROLL-BARS        = no
@@ -205,8 +205,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_option ).
-       RUN set-position IN h_option ( 1.00 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.57 , 44.00 ) */
+    RUN set-position IN h_option ( 1.00 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 20.24 , 44.00 ) */
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 0 */

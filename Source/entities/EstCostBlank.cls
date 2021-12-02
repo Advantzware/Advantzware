@@ -101,8 +101,6 @@ CLASS entities.EstCostBlank INHERITS entities.Entity:
 		
 		oEstCostMaterial = NEW entities.EstCostMaterial().
 
-        LoadAttributes ().
-
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

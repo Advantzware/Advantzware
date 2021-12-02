@@ -247,7 +247,6 @@ DEF VAR lSuccess AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lUpdUsr AS LOG NO-UNDO.
 DEF VAR lValidDB AS LOG NO-UNDO.
-DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR timestring AS CHAR NO-UNDO.
 DEF VAR tslogin-cha AS CHAR NO-UNDO.
 DEF VAR v1 AS CHAR FORMAT "x(15)" NO-UNDO.
@@ -257,6 +256,7 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1223,6 +1223,14 @@ PROCEDURE ipBackupDataFiles :
     RUN ipStatus ("  Backing up data files").
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
+
+&SCOPED-DEFINE cFile attribute
+
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile AuditTbl
 
@@ -4310,11 +4318,6 @@ PROCEDURE ipFixFoldingEstimateScores PRIVATE:
 
     RUN ipStatus ("    Fix Estimate scores").
 
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Override," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH      = cNewPropath
-        .
     DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
     
     DEFINE BUFFER bf-company     FOR company.
@@ -4840,6 +4843,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAttributeData C-Win 
+PROCEDURE ipLoadAttributeData :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Attribute data").
+
+    &SCOPED-DEFINE tablename attribute
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
@@ -6262,8 +6291,13 @@ PROCEDURE ipProcessAll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
     RUN ipStatus ("Beginning Patch Application").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH      = cNewPropath
+        .
     ASSIGN
         SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
         SELF:SENSITIVE = FALSE
@@ -6391,6 +6425,9 @@ PROCEDURE ipProcessAll :
         fiFromVer:{&SV} = fiToVer:{&SV}
         oplSuccess = TRUE.
         
+    ASSIGN 
+        PROPATH = cOrigPropath.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6406,8 +6443,6 @@ PROCEDURE ipRefTableConv :
     DEFINE BUFFER bf-est FOR est.
     DEFINE BUFFER recalc-mr FOR reftable.
 
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
     DEF VAR cThisElement AS CHAR NO-UNDO.
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
@@ -7448,6 +7483,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadZmessage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
         RUN ipLoadNaicsData IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\attribute.d") <> ? THEN
+        RUN ipLoadAttributeData IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

@@ -1,5 +1,12 @@
 # advantzware.pf    Parameter file to start the Advantzware system in client-server mode
 #
+# Client Connection Parameters
+-B 250000           # Blocks in Database Buffers
+-hash 75000         # Hash Table Entries
+-ipver IPv4         # Internet Protocal Version
+-Mf 10              # Delayed BI File Write
+-sw                 # SESSION:SUPPRESS-WARNINGS
+#
 # Client Performance Parameters
 -Bt 20000           # Temptable buffer size (10,10,50000)
 -D 1000             # Directory Size (nbr compiled proc entries)
@@ -10,13 +17,12 @@
 -q                  # Quick Request
 -rereadnolock
 -s 2048             # Stack size (9,40,5M)
+-stsh 5             # Stash Area
 -T c:\tmp           # Temp file directory
 -TB 31              # Speed sort (1,2,31)
--tmpbsize 8
 -TM 32              # Merge number (1,5,32)
-
-# Product Type Parameters
-#-rx
+-tmpbsize 8         # TempTable Database Block Size
+#
 # ABL Parameters
 -h 20               # Number of databases
 -nb 255             # Max nested blocks
@@ -24,8 +30,6 @@
 -rand 2             # Random number generator
 -strictEntityResolution 0	#required for Premier, ok for others
 # Internationalization Parameters
-#-cpstream ISO8859-1 # Stream codepage
-#-cpstream IBM850    # Stream codepage
 -d mdy              # Date format
 -yy 1950            # Year cutover for century
 -debugalert

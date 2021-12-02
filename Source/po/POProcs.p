@@ -336,6 +336,9 @@ PROCEDURE PO_GetLineScoresAndTypes:
     DEFINE VARIABLE hdFormulaProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cSizeFormat    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReverseGrain  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEstimateType  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cPanelType     AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-po-ordl   FOR po-ordl.
     
@@ -353,11 +356,22 @@ PROCEDURE PO_GetLineScoresAndTypes:
         INPUT ROWID(bf-po-ordl)
         ).
     
+    RUN Formula_GetReverseGrainAndEstimateTypeForPOLine IN hdFormulaProcs (
+        INPUT  ROWID(bf-po-ordl),
+        OUTPUT cReverseGrain,
+        OUTPUT iEstimateType
+        ).
+    
+    cPanelType = IF (cReverseGrain EQ "S" AND iEstimateType GE 5) OR cReverseGrain EQ "B" THEN
+                     "L"
+                 ELSE
+                     "W".
+                     
     RUN GetPanelScoreAndTypeForPO IN hdFormulaProcs (
         INPUT  bf-po-ordl.company,
         INPUT  bf-po-ordl.po-no,
         INPUT  bf-po-ordl.line,
-        INPUT  IF bf-po-ordl.spare-char-1 EQ "LENGTH" THEN "L" ELSE "W",
+        INPUT  cPanelType,
         OUTPUT opdScores,
         OUTPUT opcScoreTypes
         ).

@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : ImportProcs.i
     Purpose     : 
@@ -6,29 +5,26 @@
     Syntax      :
 
     Description : Common code to build the ImportMap file for a supplied ImportType.
-Import temp-table is primary argument
+                  Import temp-table is primary argument
 
     Author(s)   : BV
     Created     : Tue Mar 13 22:48:01 EDT 2018
     Notes       :
   ----------------------------------------------------------------------*/
 
-
 /* **********************  Internal Procedures  *********************** */
-
 
 PROCEDURE pAssignValueC:
 /*------------------------------------------------------------------------------
  Purpose: Centralizes all calls to test for ignore blanks - character fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcValueToAssign AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcValueAssigned AS CHARACTER NO-UNDO.
-
-IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
-    iopcValueAssigned = ipcValueToAssign. 
-
+    DEFINE INPUT PARAMETER ipcValueToAssign AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcValueAssigned AS CHARACTER NO-UNDO.
+    
+    IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
+        iopcValueAssigned = ipcValueToAssign. 
 
 END PROCEDURE.
 
@@ -37,26 +33,26 @@ PROCEDURE pAssignValueD:
  Purpose: Centralizes all calls to test for ignore blanks - decimal fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipdValueToAssign AS DECIMAL  NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopdValueAssigned AS DECIMAL NO-UNDO.
-
-IF ipdValueToAssign NE 0 OR NOT iplIgnoreBlanks THEN 
-    iopdValueAssigned = ipdValueToAssign. 
-
+    DEFINE INPUT PARAMETER ipdValueToAssign AS DECIMAL  NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdValueAssigned AS DECIMAL NO-UNDO.
+    
+    IF ipdValueToAssign NE 0 OR NOT iplIgnoreBlanks THEN 
+        iopdValueAssigned = ipdValueToAssign. 
 
 END PROCEDURE.
+
 PROCEDURE pAssignValueDate:
 /*------------------------------------------------------------------------------
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipdtValueToAssign AS DATETIME NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopdtValueAssigned AS DATETIME NO-UNDO.
-
-IF ipdtValueToAssign NE ? OR NOT iplIgnoreBlanks THEN 
-    iopdtValueAssigned = ipdtValueToAssign. 
+    DEFINE INPUT PARAMETER ipdtValueToAssign AS DATETIME NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdtValueAssigned AS DATETIME NO-UNDO.
+    
+    IF ipdtValueToAssign NE ? OR NOT iplIgnoreBlanks THEN 
+        iopdtValueAssigned = ipdtValueToAssign. 
 
 END PROCEDURE.
 
@@ -65,12 +61,12 @@ PROCEDURE pAssignValueCToDt:
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipdtValueToAssign AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopdtValueAssigned AS DATE NO-UNDO.
-
-IF ipdtValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
-    iopdtValueAssigned = date(ipdtValueToAssign) . 
+    DEFINE INPUT PARAMETER ipdtValueToAssign AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdtValueAssigned AS DATE NO-UNDO.
+    
+    IF ipdtValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
+        iopdtValueAssigned = DATE(ipdtValueToAssign) . 
 
 END PROCEDURE.
 
@@ -79,12 +75,12 @@ PROCEDURE pAssignValueI:
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipiValueToAssign AS INTEGER NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopiValueAssigned AS INTEGER NO-UNDO.
-
-IF ipiValueToAssign NE 0 OR NOT iplIgnoreBlanks THEN 
-    iopiValueAssigned = ipiValueToAssign. 
+    DEFINE INPUT PARAMETER ipiValueToAssign AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiValueAssigned AS INTEGER NO-UNDO.
+    
+    IF ipiValueToAssign NE 0 OR NOT iplIgnoreBlanks THEN 
+        iopiValueAssigned = ipiValueToAssign. 
 
 END PROCEDURE.
 
@@ -93,26 +89,26 @@ PROCEDURE pAssignValueCToL:
  Purpose: Centralizes all calls to test for ignore blanks - integer fields
  Notes:
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcValueToAssign AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcValueForTrue AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER ioplValueAssigned AS LOGICAL NO-UNDO.
-
-DEFINE VARIABLE cValuesForTrue AS CHARACTER NO-UNDO INITIAL "YES,Y,TRUE,T,ON".
-
-IF NOT CAN-DO(cValuesForTrue,ipcValueForTrue) THEN
-    cValuesForTrue = cValuesForTrue + "," + ipcValueForTrue.
-
-IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
-    ioplValueAssigned = LOOKUP(ipcValueToAssign, cValuesForTrue) GT 0.
+    DEFINE INPUT PARAMETER ipcValueToAssign AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValueForTrue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplValueAssigned AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cValuesForTrue AS CHARACTER NO-UNDO INITIAL "YES,Y,TRUE,T,ON".
+    
+    IF NOT CAN-DO(cValuesForTrue,ipcValueForTrue) THEN
+        cValuesForTrue = cValuesForTrue + "," + ipcValueForTrue.
+    
+    IF ipcValueToAssign NE "" OR NOT iplIgnoreBlanks THEN 
+        ioplValueAssigned = LOOKUP(ipcValueToAssign, cValuesForTrue) GT 0.
     
 END PROCEDURE.
 
 PROCEDURE pInitialize:
-    /*------------------------------------------------------------------------------
-     Purpose: Initializes the specific Column Mapping for Estimates   
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Initializes the specific Column Mapping for Estimates   
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLoadFile AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
@@ -176,10 +172,10 @@ PROCEDURE pInitialize:
 END PROCEDURE.
 
 PROCEDURE pAddRecord:
-    /*------------------------------------------------------------------------------
-     Purpose: Accepts a Data Array, validates it and adds a temp-table record
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Accepts a Data Array, validates it and adds a temp-table record
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcData AS CHARACTER NO-UNDO EXTENT.
@@ -256,10 +252,10 @@ PROCEDURE pAddRecord:
 END PROCEDURE.
 
 PROCEDURE pProcessImport:
-    /*------------------------------------------------------------------------------
-     Purpose: Processes the temp-table already loaded and returns counts
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Processes the temp-table already loaded and returns counts
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiUpdated AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiAdded AS INTEGER NO-UNDO.
@@ -275,13 +271,11 @@ PROCEDURE pProcessImport:
 END PROCEDURE.
 
 PROCEDURE pExportData:
-    /*------------------------------------------------------------------------------
-     Purpose:  Runs the Export Data Program
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:  Runs the Export Data Program
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriContext AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER iopcFile AS CHARACTER NO-UNDO.
 
-
 END PROCEDURE.
-

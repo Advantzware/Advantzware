@@ -161,6 +161,7 @@
 "" "j1" "Update / Enter A/R Invoices" yes 12/12/22 "ASI"
 "" "j2" "Write AR Credit/Debit Memos" yes 12/12/22 "ASI"
 "" "j3" "Cash Receipts Processing" yes 12/12/22 "ASI"
+"" "Jasper" "Scheduler AOA" yes 12/12/22 "ASI"
 "" "jc-ctrl." "Job Cost Control" yes 12/12/22 "ASI"
 "" "jc-purge." "Purge Jobs" yes 12/12/22 "ASI"
 "" "jf" "File Maintenance for Customers" yes 12/12/22 "ASI"

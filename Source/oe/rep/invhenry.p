@@ -845,16 +845,13 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
          IF i EQ 1 THEN 
          cCurrency = "EUR" .
          ELSE IF i EQ 2 THEN
-         cCurrency = "CAN".
-         ELSE
          cCurrency = "GBP".
-         FIND FIRST currency NO-LOCK
-              WHERE currency.company   EQ cust.company
-              AND currency.c-code      EQ cCurrency               
-              AND currency.ex-rate     GT 0
-              NO-ERROR.
-             
-           dExchangeRate[i] = IF AVAILABLE currency THEN currency.ex-rate ELSE 1.   
+         
+         RUN spCommon_CurrencyExcRate( INPUT cust.company,
+                                       INPUT cCurrency,
+                                       INPUT "USD",
+                                       INPUT inv-head.inv-date,
+                                       OUTPUT dExchangeRate[i]).          
         END.     
     END.  
 
@@ -865,7 +862,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                        fill(" ",4) + ":" + ( IF cust.fax-country EQ "USA" OR cust.fax-country EQ ""  THEN
                        string(v-t-tax[i],"->>>>,>>9.99") ELSE 
                        STRING(fill(" ",2) + string(v-t-tax[i] * dExchangeRate[1],"->>>>,>>9.99") + fill(" ",2) + string(v-t-tax[i] * dExchangeRate[2] ,"->>>>,>>9.99") 
-                       + fill(" ",2) + string(v-t-tax[i] * dExchangeRate[3],"->>>>,>>9.99")))) ELSE "".
+                       + fill(" ",2) + string(v-t-tax[i],"->>>>,>>9.99")))) ELSE "".
     END.
     v-inv-freight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
     
@@ -891,16 +888,17 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
             "<=8><R+6> " v-bot-lab[5] 
             "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" .
          ELSE 
-           PUT "<R56><p9><C42><#8><FROM><R+9><C+41.4><RECT> " 
-            "<=8> Sales      :          ERU           CAD           GBP"
-            "<=8><R+1> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "$->,>>>,>>9.99" (v-subtot-lines * dExchangeRate[3]) FORM "£->,>>>,>>9.99"
-            "<=8><R+2> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[3])  FORMAT "->>,>>>,>>9.99"
-            "<=8><R+3> " v-bot-lab[1] 
-            "<=8><R+4> " v-bot-lab[2] 
-            "<=8><R+5> " v-bot-lab[3] 
-            "<=8><R+6> " v-bot-lab[4] 
-            "<=8><R+7> " v-bot-lab[5] 
-            "<=8><R+8> Grand Total:" (inv-head.t-inv-rev * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[2]) FORM "$->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[3]) FORM "£->,>>>,>>9.99" "<p10>" .
+           PUT "<R56><p9><C42><#8><FROM><R+10><C+41.4><RECT> " 
+            "<=8> Sales      :          EUR           GBP           USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
+            "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
+            "<=8><R+4> " v-bot-lab[1] 
+            "<=8><R+5> " v-bot-lab[2] 
+            "<=8><R+6> " v-bot-lab[3] 
+            "<=8><R+7> " v-bot-lab[4] 
+            "<=8><R+8> " v-bot-lab[5] 
+            "<=8><R+9> Grand Total:" (inv-head.t-inv-rev * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[2]) FORM "£->,>>>,>>9.99" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" "<p10>" .
     END.   
     ELSE do:
         IF cust.fax-country EQ "USA" OR cust.fax-country EQ "" THEN
@@ -912,14 +910,15 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
             "<=8><R+4> " v-bot-lab[3] 
             "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" .
          ELSE
-         PUT "<R56><p9><C42><#8><FROM><R+7><C+41.4><RECT> " 
-            "<=8> Sales      :           ERU           CAD           GBP" 
-            "<=8><R+1> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "$->,>>>,>>9.99" (v-subtot-lines * dExchangeRate[3]) FORM "£->,>>>,>>9.99"
-            "<=8><R+2> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[3])  FORMAT "->>,>>>,>>9.99"
-            "<=8><R+3> " v-bot-lab[1] 
-            "<=8><R+4> " v-bot-lab[2] 
-            "<=8><R+5> " v-bot-lab[3] 
-            "<=8><R+6> Grand Total:" (inv-head.t-inv-rev * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[2]) FORM "$->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[3]) FORM "£->,>>>,>>9.99" "<p10>" .
+         PUT "<R56><p9><C42><#8><FROM><R+8><C+41.4><RECT> " 
+            "<=8> Sales      :           EUR           GBP           USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
+            "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
+            "<=8><R+4> " v-bot-lab[1] 
+            "<=8><R+5> " v-bot-lab[2] 
+            "<=8><R+6> " v-bot-lab[3] 
+            "<=8><R+7> Grand Total:" (inv-head.t-inv-rev * dExchangeRate[1]) FORM "€->,>>>,>>9.99" (inv-head.t-inv-rev * dExchangeRate[2]) FORM "£->,>>>,>>9.99" inv-head.t-inv-rev FORM "$->,>>>,>>9.99" "<p10>" .
     END.
     ASSIGN
        v-printline = v-printline + 6

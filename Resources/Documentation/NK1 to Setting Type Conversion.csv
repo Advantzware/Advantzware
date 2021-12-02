@@ -1,0 +1,71 @@
+Current NK1,Data Type,Setting Type Name,Data Type,Description,Valid Values,Default Value,Company,Category Tags
+ASIHelpService,Character,ASIHelpService,Character,ASI Help Service URL,-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL',-WSDL 'http:\\34.203.15.64/asihelpServices/helpmaintenance.asmx?WSDL',No,MainMenu
+BitMap,Description,MainMenuImage,Character,Main Menu Default Image,,,Yes,MainMenu
+DynTaskTicker,Logical,DynTaskTicker,Logical,Dynamic Task Ticker Active,"YES,NO",NO,No,"MainMenu,dAOA"
+DynTaskTicker,Integer,DynTaskTickerMinutes,Integer,Dynamic Task Ticker Minutes,,0,No,"MainMenu,dAOA"
+FGBOLTransferPost,Logical,BOLTransferAutoPost,Logical,Setting to YES to active Auto Post of Transfers,"YES,NO",NO,Yes,"CreateTransfer,PrintBOL"
+MenuLink1,Logical,MenuLink1,Logical,Menu Line #1 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink1,Character,MenuLink1Image,Character,Menu Line #1 Image,,,Yes,MainMenu
+MenuLink1,Integer,MenuLink1Transparent,Logical,Menu Line #1 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink1,Integer,MenuLink1StretchToFit,Logical,Menu Line #1 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink1,Description,MenuLink1URL,Character,Menu Line #1 URL,,,Yes,MainMenu
+MenuLink2,Logical,MenuLink2,Logical,Menu Line #2 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink2,Character,MenuLink2Image,Character,Menu Line #2 Image,,,Yes,MainMenu
+MenuLink2,Integer,MenuLink2Transparent,Logical,Menu Line #2 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink2,Integer,MenuLink2StretchToFit,Logical,Menu Line #2 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink2,Description,MenuLink2URL,Character,Menu Line #2 URL,,,Yes,MainMenu
+MenuLink3,Logical,MenuLink3,Logical,Menu Line #3 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink3,Character,MenuLink3Image,Character,Menu Line #3 Image,,,Yes,MainMenu
+MenuLink3,Integer,MenuLink3Transparent,Logical,Menu Line #3 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink3,Integer,MenuLink3StretchToFit,Logical,Menu Line #3 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink3,Description,MenuLink3URL,Character,Menu Line #3 URL,,,Yes,MainMenu
+MenuLink4,Logical,MenuLink4,Logical,Menu Line #4 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink4,Character,MenuLink4Image,Character,Menu Line #4 Image,,,Yes,MainMenu
+MenuLink4,Integer,MenuLink4Transparent,Logical,Menu Line #4 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink4,Integer,MenuLink4StretchToFit,Logical,Menu Line #4 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink4,Description,MenuLink4URL,Character,Menu Line #4 URL,,,Yes,MainMenu
+MenuLink5,Logical,MenuLink5,Logical,Menu Line #5 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink5,Character,MenuLink5Image,Character,Menu Line #5 Image,,,Yes,MainMenu
+MenuLink5,Integer,MenuLink5Transparent,Logical,Menu Line #5 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink5,Integer,MenuLink5StretchToFit,Logical,Menu Line #5 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink5,Description,MenuLink5URL,Character,Menu Line #5 URL,,,Yes,MainMenu
+MenuLink6,Logical,MenuLink6,Logical,Menu Line #6 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink6,Character,MenuLink6Image,Character,Menu Line #6 Image,,,Yes,MainMenu
+MenuLink6,Integer,MenuLink6Transparent,Logical,Menu Line #6 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink6,Integer,MenuLink6StretchToFit,Logical,Menu Line #6 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink6,Description,MenuLink6URL,Character,Menu Line #6 URL,,,Yes,MainMenu
+MenuLink7,Logical,MenuLink7,Logical,Menu Line #7 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink7,Character,MenuLink7Image,Character,Menu Line #7 Image,,,Yes,MainMenu
+MenuLink7,Integer,MenuLink7Transparent,Logical,Menu Line #7 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink7,Integer,MenuLink7StretchToFit,Logical,Menu Line #7 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink7,Description,MenuLink7URL,Character,Menu Line #7 URL,,,Yes,MainMenu
+MenuLink8,Logical,MenuLink8,Logical,Menu Line #8 Active,"YES,NO",NO,Yes,MainMenu
+MenuLink8,Character,MenuLink8Image,Character,Menu Line #8 Image,,,Yes,MainMenu
+MenuLink8,Integer,MenuLink8Transparent,Logical,Menu Line #8 Transparent Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink8,Integer,MenuLink8StretchToFit,Logical,Menu Line #8 Stretch To Fit Attribute,"YES,NO",NO,Yes,MainMenu
+MenuLink8,Description,MenuLink8URL,Character,Menu Line #8 URL,,,Yes,MainMenu
+MenuLinkASI,Logical,MenuLinkASI,Logical,Main Menu ASI Active,"YES,NO",YES,No,MainMenu
+MenuLinkASI,Character,MenuLinkASIImage,Character,Main Menu ASI Image,Graphics\asiicon.ico,Graphics\asiicon.ico,No,MainMenu
+MenuLinkASI,Integer,MenuLinkASITransparent,Logical,Main Menu ASI Transparent Attribute,"YES,NO",YES,No,MainMenu
+MenuLinkASI,Description,MenuLinkASIURL,Character,Main Menu ASI URL,http://www.advantzware.com,http://www.advantzware.com,No,MainMenu
+MenuLinkUpgrade,Description,MenuLinkUpgrade,Character,Menu Link Upgrade URL,https://helpsvr.advantzware.com/patches/asiUpdate.html,https://helpsvr.advantzware.com/patches/asiUpdate.html,No,MainMenu
+MenuLinkZoHo,Logical,MenuLinkZoHo,Logical,Main Menu Link to ASI ZoHo Active,"YES,NO",YES,No,MainMenu
+MenuLinkZoHo,Character,MenuLinkZoHoImage,Character,Main Menu Link to ASI ZoHo Image,Graphics\32x32\question.ico,Graphics\32x32\question.ico,No,MainMenu
+MenuLinkZoHo,Integer,MenuLinkZoHoTransparent,Logical,Main Menu Link to ASI ZoHo Transparent Attribute,"YES,NO",YES,No,MainMenu
+MenuLinkZoHo,Description,MenuLinkZoHoURL,Character,Main Menu Link to ASI ZoHo URL,https://desk.zoho.com/portal/advantzware/signin,https://desk.zoho.com/portal/advantzware/signin,No,MainMenu
+TaskerNotRunning,Logical,TaskerNotRunning,Logical,Tasker Not Running Active,"YES,NO",NO,No,"MainMenu,dAOA"
+TaskerNotRunning,Integer,TaskerNotRunningEmailID,Integer,Tasker Not Running Email Configuration ID,,0,No,"MainMenu,dAOA"
+TaskerNotRunning,Decimal,TaskerNotRunningTimeLimit,Integer,Tasker Not Running Time Limit,,0,No,"MainMenu,dAOA"
+VertexAccessToken,Logical,Vertex,Logical,Vertex Active,"YES,NO",NO,Yes,Vertex
+VertexAccessToken,Date,VertexAccessTokenDate,Date,Vertex API Access Token Date,,,Yes,Vertex
+VertexAccessToken,Integer,VertexAccessTokenTime,Integer,Vertex API Access Token Time,,,Yes,Vertex
+VertexAPIKey,Character,VertexAPIKey,Character,Vertex API Key,,,Yes,Vertex
+VertexAPIPassword,Character,VertexAPIPassword,Character,Vertex API Password,,,Yes,Vertex
+VertexClientID,Character,VertexClientID,Character,Vertex Client ID,,,Yes,Vertex
+VertexClientSecret,Character,VertexClientSecret,Character,Vertex Client Secret,,,Yes,Vertex
+VertexFreightTaxClass,Character,VertexFreightTaxClass,Character,Vertex Freight Tax Class,Freight,Freight,Yes,Vertex
+VertexTaxClassDefault,Character,VertexTaxClassDefault,Character,Vertex Tax Class Default,,,Yes,Vertex
+ZohoClientID,Logical,ZohoCRM,Logical,ZoHo CRM Active,"YES,NO",NO,No,ZoHoCRM
+ZohoClientID,Character,ZohoClientID,Character,ZoHo Client ID,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,No,ZoHoCRM
+ZohoClientSecret,Character,ZohoClientSecret,Character,ZoHo Client Secret,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,No,ZoHoCRM
+ZohoRefreshToken,Character,ZohoRefreshToken,Character,ZoHo Refresh Token,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,No,ZoHoCRM

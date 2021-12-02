@@ -1434,6 +1434,8 @@ PROCEDURE pClose:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iBuffer AS INTEGER NO-UNDO.
+    
     IF VALID-HANDLE(h_query) THEN DO:
         IF h_query:IS-OPEN THEN
         h_query:QUERY-CLOSE().
@@ -1460,6 +1462,11 @@ PROCEDURE pClose:
     
     IF VALID-HANDLE(hDynCalcField) THEN
     DELETE OBJECT hDynCalcField.
+
+    DO iBuffer = 1 TO EXTENT(h_buffer):
+        IF VALID-HANDLE(h_buffer[iBuffer]) THEN
+            DELETE OBJECT h_buffer[iBuffer].
+    END.    
       
 END PROCEDURE.
 	

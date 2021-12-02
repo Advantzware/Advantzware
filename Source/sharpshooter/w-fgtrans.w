@@ -1102,6 +1102,18 @@ PROCEDURE pLocationScan PRIVATE :
         cCurrentWarehouse = oFGBin:GetValue("Warehouse")
         cCurrentLocation  = oFGBin:GetValue("Location")
         .
+
+    EMPTY TEMP-TABLE work-gl.
+    EMPTY TEMP-TABLE work-gl-c.
+    EMPTY TEMP-TABLE w-work-gl.
+    EMPTY TEMP-TABLE work-job.
+    EMPTY TEMP-TABLE tmp-work-job.
+    EMPTY TEMP-TABLE w-inv-line.
+    EMPTY TEMP-TABLE w-ord-misc.
+    
+    FOR EACH w-job:
+        DELETE w-job.    
+    END.
     
     IF cCurrentWarehouse EQ ipcWarehouse AND cCurrentLocation EQ ipcLocation THEN
         ASSIGN
@@ -1322,7 +1334,19 @@ PROCEDURE pTagScan PRIVATE :
             iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
             iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
             .
+
+        EMPTY TEMP-TABLE work-gl.
+        EMPTY TEMP-TABLE work-gl-c.
+        EMPTY TEMP-TABLE w-work-gl.
+        EMPTY TEMP-TABLE work-job.
+        EMPTY TEMP-TABLE tmp-work-job.
+        EMPTY TEMP-TABLE w-inv-line.
+        EMPTY TEMP-TABLE w-ord-misc.
         
+        FOR EACH w-job:
+            DELETE w-job.    
+        END.
+                
         RUN api\inbound\CreateInventoryReceipt.p (
             INPUT        cCompany, 
             INPUT        ipcTag,

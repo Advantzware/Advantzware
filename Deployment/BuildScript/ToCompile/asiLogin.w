@@ -837,13 +837,12 @@ PROCEDURE ipChangeEnvironment :
             preProPath = cTop + "," +
                          cTop + "asiObjects.pl," +
                          cTop + "asigraphics.pl," +
-                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
                          cTop + cEnvProgramsDir + "\Addon" + "," +
-                         cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
                 PROPATH = preProPath + origPropath.      
         RETURN.
@@ -879,13 +878,12 @@ PROCEDURE ipChangeEnvironment :
             preProPath = cTop + "," +
                          cTop + "asiObjects.pl," +
                          cTop + "asigraphics.pl," +
-                         cTop + "asiDataDigger.pl," +
                          cTop + cEnvCustomerDir + "," +
                          cTop + cEnvOverrideDir + "," +
                          cTop + cEnvProgramsDir + "," +
                          cTop + cEnvProgramsDir + "\Addon" + "," +
-                         cTop + cEnvResourceDir + "," +
                          cTop + cEnvCustFiles + "," +
+                         cTop + cEnvResourceDir + "," +
                          cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ","
                 PROPATH = preProPath + origPropath.
         IF NUM-ENTRIES(cDbValidList) EQ 1 THEN DO:
