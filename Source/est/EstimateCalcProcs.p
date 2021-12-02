@@ -857,6 +857,40 @@ PROCEDURE pAddEstMisc PRIVATE:
         .
 END PROCEDURE.
 
+PROCEDURE pAddEstMiscForBoardFreight PRIVATE:
+
+ /*------------------------------------------------------------------------------
+     Purpose: given a freight charge on Board, add an EstMisc record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
+    DEFINE INPUT  PARAMETER ipcCostType      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostDesc      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCostperUOM    AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCostTotal     AS DECIMAL NO-UNDO.
+
+    DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE           BUFFER bf-prep          FOR prep.
+
+    IF ipdCostTotal GT 0 THEN 
+    DO:
+        RUN pAddEstMisc(BUFFER ipbf-estCostForm, BUFFER bf-estCostMisc).
+
+        ASSIGN 
+            bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
+            bf-estCostMisc.formNo                = ipbf-estCostForm.formNo  
+            bf-estCostMisc.blankNo               = 0  
+            bf-estCostMisc.costDescription       = ipcCostDesc
+            bf-estCostMisc.costType              = ipcCostType
+            bf-estCostMisc.costUOM               = "CWT"
+            bf-estCostMisc.costPerUOM            = ipdCostperUOM
+            bf-estCostMisc.costSetup             = 0
+            bf-estCostMisc.costTotal             = ipdCostTotal
+            .
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pAddEstMiscForForm PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given a form buffer and other key fields, add an EstMisc record
@@ -2050,6 +2084,82 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCalcFreightForBoard PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Determine the Freight charges for Board Material
+     Notes: This cost is processing for Single/combo estimates but not being included in case of Item-BOM setup.
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    DEFINE BUFFER bf-ef                   FOR ef. 
+    DEFINE BUFFER bf-estCostForm          FOR estCostForm. 
+    DEFINE BUFFER bf-estCostBlank         FOR estCostBlank. 
+    DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
+    DEFINE BUFFER bf-estCostItem          FOR estCostItem. 
+    DEFINE BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
+      
+    
+    
+    DEFINE VARIABLE deBrdFrght   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deWeightMSF AS DECIMAL NO-UNDO.
+   
+   
+    FIND FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
+        NO-ERROR.
+    
+    IF NOT AVAILABLE bf-estCostHeader THEN 
+        RETURN.
+     
+    FOR EACH bf-estCostForm NO-LOCK
+        WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
+        FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = bf-estCostForm.company
+        AND bf-ef.est-no  = bf-estCostForm.estimateNo
+        AND bf-ef.form-no = bf-estCostForm.formNo 
+        AND bf-ef.fr-msh  NE 0:
+            
+        ASSIGN
+            deWeightMSF = 0
+            deBrdFrght  = 0.
+            
+        FOR EACH bf-estCostBlank NO-LOCK 
+            WHERE bf-estCostBlank.estCostFormID EQ bf-estCostForm.estCostFormID,
+            FIRST bf-estCostItem NO-LOCK 
+            WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
+                
+            IF NOT CAN-FIND (FIRST bfBoard-estCostMaterial 
+                WHERE bfBoard-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+                AND bfBoard-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID
+                AND bfBoard-estCostMaterial.estCostBlankID  EQ bf-estCostBlank.estCostBlankID
+                AND bfBoard-estCostMaterial.isPrimarySubstrate) THEN
+                NEXT.
+     
+            deWeightMSF = bf-estCostItem.weightNet.
+            LEAVE.
+        
+        END.
+        
+        IF bf-ef.fr-uom EQ "MSH" THEN
+            deBrdFrght = (bf-estCostForm.grossQtyRequiredTotal / 1000) * bf-ef.fr-msh.
+
+        ELSE IF bf-ef.fr-uom EQ "MSF" THEN
+            deBrdFrght = deWeightMSF * bf-ef.fr-msh.
+
+        ELSE IF bf-ef.fr-uom EQ "TON" THEN
+            deBrdFrght = (deWeightMSF / 2000) * bf-ef.fr-msh.
+
+        ELSE IF bf-ef.fr-uom EQ "CWT" THEN
+            deBrdFrght = (deWeightMSF  / 100 ) * bf-ef.fr-msh.
+            
+        IF deBrdFrght NE 0 THEN
+            RUN pAddEstMiscForBoardFreight (BUFFER bf-estCostForm, "FrtBrd", "Freight in Board Cost",bf-ef.fr-msh, deBrdFrght).
+    
+    END.
+    
+    
+END PROCEDURE.
+
 PROCEDURE pCalcHeaderCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Calculates all costs for the cost header based on operations and materials
@@ -2219,6 +2329,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
+        RUN pCalcFreightForBoard(bf-estCostHeader.estCostHeaderID).
         RUN pBuildPriceRelatedCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildCostSummary(bf-estCostHeader.estCostHeaderID).
         RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
