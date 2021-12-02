@@ -2646,7 +2646,10 @@ DO:
                 asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
             ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
                     asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-          
+                   
+            IF btnViewDetail:LABEL EQ "Close Detail" THEN
+            RUN pViewDetail ("Locations"). 
+            
         END.
     END.
 
