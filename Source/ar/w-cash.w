@@ -691,7 +691,7 @@ PROCEDURE enable-line-button :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipAction AS CHARACTER NO-UNDO.
-MESSAGE "ipAction" ipAction VIEW-AS ALERT-BOX ERROR .
+
 RUN set-buttons IN h_p-cashl(ipAction).
 END PROCEDURE.
 
