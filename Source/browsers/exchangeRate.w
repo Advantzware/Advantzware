@@ -185,7 +185,8 @@ DEFINE BROWSE br_table
       exchangeRate.baseCurrencyCode FORMAT "x(3)":U WIDTH 33.2
       exchangeRate.rateCurrencyCode FORMAT "x(3)":U WIDTH 38.2
       exchangeRate.asOfDate FORMAT "99/99/9999":U WIDTH 20.2
-      exchangeRate.exchangeRate FORMAT "->>,>>9.99<<<<<":U WIDTH 27.2
+      exchangeRate.exchangeRate FORMAT "->>>,>>>,>>>,>>>,>>9.99<<<<<":U
+            WIDTH 40.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 139 BY 9.67
@@ -283,7 +284,7 @@ ASSIGN
      _FldNameList[3]   > ASI.exchangeRate.asOfDate
 "exchangeRate.asOfDate" ? "99/99/9999" "date" ? ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.exchangeRate.exchangeRate
-"exchangeRate.exchangeRate" ? ? "decimal" ? ? ? ? ? ? no ? no no "27.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"exchangeRate.exchangeRate" ? "->>>,>>>,>>>,>>>,>>9.99<<<<<" "decimal" ? ? ? ? ? ? no ? no no "40.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
