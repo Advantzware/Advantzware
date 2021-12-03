@@ -121,7 +121,6 @@ DEFINE VARIABLE lCloseMenu        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lGetMenuSettings  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
@@ -1648,9 +1647,6 @@ PROCEDURE pGetMenuSettings :
     oSetting = NEW system.Setting().
     oSetting:LoadByCategoryAndProgram("MainMenu").
 
-    IF lGetMenuSettings THEN RETURN.
-    lGetMenuSettings = TRUE.
-    
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lFound
@@ -2616,12 +2612,6 @@ PROCEDURE Set-Comp_Loc :
     RUN spSetSessionParam ("Location", g_loc).
     DYNAMIC-FUNCTION("sfClearUsage").
     RUN pGetMenuSettings.
-/*    RUN sys/ref/nk1look.p (                 */
-/*        g_company,"BitMap","DS",NO,NO,"","",*/
-/*        OUTPUT cBitMap,OUTPUT lFound        */
-/*        ).                                  */
-/*    IF lFound AND cBitMap NE "" THEN        */
-/*    boxes:LOAD-IMAGE(cBitMap).              */
 
 END PROCEDURE.
 
