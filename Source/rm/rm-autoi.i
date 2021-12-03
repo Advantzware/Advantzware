@@ -527,7 +527,9 @@ PROCEDURE pre-post:
             work-gl.actnum = costtype.inv-asset.
           END.
           work-gl.debits = work-gl.debits + v-ext-cost.
-
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + STRING(tt-rctd.po-no) + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
           /* Credit RM AP Accrued */
           FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
           IF NOT AVAIL work-gl THEN DO:
@@ -535,6 +537,9 @@ PROCEDURE pre-post:
             work-gl.actnum = costtype.ap-accrued.
           END.
           work-gl.credits = work-gl.credits + v-ext-cost.
+          work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " "
+                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR .
         END.
 
         ELSE
@@ -600,7 +605,9 @@ PROCEDURE pre-post:
                work-gl.actnum  = prod.wip-mat.
             END.
             work-gl.debits = work-gl.debits + ld.
-
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR .
             /* Credit RM Asset */
             FIND FIRST work-gl
                 WHERE work-gl.job     EQ job-hdr.job
@@ -617,6 +624,9 @@ PROCEDURE pre-post:
                work-gl.actnum  = costtype.inv-asset.
             END.
             work-gl.credits = work-gl.credits + ld.
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                          tt-rctd.po-no NE "" THEN "PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
+                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
           END.
         END.
       END.
@@ -1093,7 +1103,7 @@ PROCEDURE gl-from-work:
                          period.pnum,
                          "A",
                          v-post-date,
-                         "",
+                         work-gl.cDesc,
                          "RM"). 
        assign
         debits  = 0
