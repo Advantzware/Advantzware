@@ -79,7 +79,7 @@ cInputParameters = IF ipdtAsOfDate EQ ? THEN
                    ELSE
                        STRING (ipdtAsOfDate).
 
-cInputParameters = "," + ipcBaseCurrency + "," + ipcExchangeRateCurrencies.
+cInputParameters = cInputParameters + "," + ipcBaseCurrency + "," + ipcExchangeRateCurrencies.
                        
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
