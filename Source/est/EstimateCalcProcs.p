@@ -954,11 +954,15 @@ PROCEDURE pAddEstMiscForHandling PRIVATE:
             bf-estCostMisc.blankNo               = 0  
             bf-estCostMisc.costDescription       = ipcCostDesc
             bf-estCostMisc.costType              = ipcCostType
+            bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
+            bf-estCostMisc.SIMON                 = "I"
             bf-estCostMisc.costUOM               = "CWT"
             bf-estCostMisc.costPerUOM            = ipdCostperUOM
             bf-estCostMisc.costSetup             = 0
-            bf-estCostMisc.costTotal             = ipdCostTotal
+            bf-estCostMisc.costTotalBeforeProfit = ipdCostTotal
             .
+            
+        RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-estCostForm).
     END.
 
 END PROCEDURE.
@@ -2755,57 +2759,95 @@ PROCEDURE pCalcEstHandlingCharges PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     DEFINE INPUT  PARAMETER iplPurchased      AS LOGICAL NO-UNDO.
     
-    DEFINE BUFFER bf-estCostForm   FOR estCostForm.
-    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostForm          FOR estCostForm.
+    DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
+    DEFINE BUFFER bf-ef                   FOR ef.
+    DEFINE BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
     
-    DEFINE VARIABLE deRMHandlingCost            AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE deFGHandlingCost            AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE deHandlingCost              AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dApplicableRMHandlingRate   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dApplicableFGHandlingRate   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dApplicableHandlingPct      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE deRMHandlingCost          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deFGHandlingCost          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deHandlingCost            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableRMHandlingRate AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableFGHandlingRate AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dApplicableHandlingPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBrdWtInCUOM              AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWtInSrcUOM               AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE cSrcUOM                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dNetWtInCUOM              AS DECIMAL NO-UNDO.
     
     
     FOR FIRST bf-estCostHeader NO-LOCK 
         WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID,
         FIRST bf-estCostForm NO-LOCK 
-            WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID:
+        WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
+        FIRST bf-ef NO-LOCK
+        WHERE bf-ef.company = bf-estCostForm.company
+        AND bf-ef.est-no  = bf-estCostForm.estimateNo
+        AND bf-ef.form-no = bf-estCostForm.formNo:
             
         IF iplPurchased THEN
             ASSIGN 
-                dApplicableRMHandlingRate = bf-estCostHeader.handlingRatePerCWTRMFarmPct
+                dApplicableRMHandlingRate = bf-estCostHeader.handlingRatePerCWTRMFarmPct 
                 dApplicableFGHandlingRate = bf-estCostHeader.handlingRatePerCWTFGFarmPct
-                dApplicableHandlingPct    = bf-estCostHeader.handlingChargePct
+                dApplicableHandlingPct    = bf-estCostHeader.handlingChargeFarmPct
                 .
         ELSE
             ASSIGN 
                 dApplicableRMHandlingRate = bf-estCostHeader.handlingRatePerCWTRMPct
                 dApplicableFGHandlingRate = bf-estCostHeader.handlingRatePerCWTFGPct
-                dApplicableHandlingPct    = bf-estCostHeader.handlingChargeFarmPct
+                dApplicableHandlingPct    = bf-estCostHeader.handlingChargePct
                 .
        
+        FIND FIRST bfBoard-estCostMaterial NO-LOCK
+            WHERE bfBoard-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+            AND bfBoard-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID
+            AND bfBoard-estCostMaterial.ItemId = bf-ef.board
+            AND bfBoard-estCostMaterial.isPrimarySubstrate No-ERROR.
+            
+        IF AVAILABLE bfBoard-estCostMaterial THEN
+        DO:
+            ASSIGN
+                dWtInSrcUOM = bf-estCostForm.grossQtyRequiredTotalWeight 
+                cSrcUOM     = bf-estCostForm.grossQtyRequiredTotalWeightUOM.
+                
+            RUN pConvertQuantityFromUOMToUOM(bfBoard-estCostMaterial.company, bfBoard-estCostMaterial.itemID, "RM", cSrcUOM, "CWT", 
+                bfBoard-estCostMaterial.basisWeight, bfBoard-estCostMaterial.dimLength, bfBoard-estCostMaterial.dimWidth, bfBoard-estCostMaterial.dimDepth, 
+                dWtInSrcUOM, OUTPUT dBrdWtInCUOM).
+                
+        END.
+        
+        
+        IF bf-estCostHeader.weightNet NE 0 THEN
+        DO:
+            ASSIGN
+                dWtInSrcUOM = bf-estCostHeader.weightNet
+                cSrcUOM     = bf-estCostHeader.weightUOM.
+                
+            RUN pConvertQuantityFromUOMToUOM(bf-estCostHeader.company, "", "RM", cSrcUOM, "CWT", 
+                0, 0, 0, 0, 
+                dWtInSrcUOM, OUTPUT dNetWtInCUOM).
+        
+        END.
+        
         IF dApplicableRMHandlingRate NE 0 THEN
         DO:    
-            deRMHandlingCost = (bf-estCostHeader.weightNet * dApplicableRMHandlingRate).
+            deRMHandlingCost = (dBrdWtInCUOM * dApplicableRMHandlingRate).
             
-            IF deRMHandlingCost NE 0 THEN 
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, deRMHandlingCost).
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, deRMHandlingCost).
         END.
             
         IF dApplicableFGHandlingRate NE 0 THEN 
         DO:   
-            deFGHandlingCost = (bf-estCostHeader.weightNet * dApplicableFGHandlingRate).
+            deFGHandlingCost = (dNetWtInCUOM * dApplicableFGHandlingRate).
             
-            IF deFGHandlingCost NE 0 THEN 
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, deFGHandlingCost).
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, deFGHandlingCost).
         END.
         
         IF dApplicableHandlingPct NE 0 THEN
         DO:
             deHandlingCost = (bf-estCostForm.costTotalMaterial * dApplicableHandlingPct).
             
-            IF deHandlingCost NE 0 THEN 
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Handling Charge",dApplicableHandlingPct, deHandlingCost). 
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Handling Charge",dApplicableHandlingPct, deHandlingCost). 
         END.
         
     END.
@@ -3728,12 +3770,13 @@ PROCEDURE pProcessOperations PRIVATE:
     END.
                     
 END. /*Each est-op*/
-ASSIGN 
-    ipbf-estCostForm.grossQtyRequiredSetupWaste = dQtyInOutSetupWaste
-    ipbf-estCostForm.grossQtyRequiredRunWaste   = dQtyInOutRunWaste
-    ipbf-estCostForm.grossQtyRequiredNoWaste    = dQtyInOut - (dQtyInOutSetupWaste + dQtyInOutRunWaste)
-    ipbf-estCostForm.grossQtyRequiredTotal      = dQtyInOut
-    .
+IF dQtyInOut NE 0 THEN
+    ASSIGN 
+        ipbf-estCostForm.grossQtyRequiredSetupWaste = dQtyInOutSetupWaste
+        ipbf-estCostForm.grossQtyRequiredRunWaste   = dQtyInOutRunWaste
+        ipbf-estCostForm.grossQtyRequiredNoWaste    = dQtyInOut - (dQtyInOutSetupWaste + dQtyInOutRunWaste)
+        ipbf-estCostForm.grossQtyRequiredTotal      = dQtyInOut
+        .
             
 END PROCEDURE.
 
@@ -4275,7 +4318,7 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
         ipbf-estCostHeader.warehouseMarkupPct          = bf-ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
-        ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate  /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
         
         
@@ -4289,9 +4332,9 @@ PROCEDURE pBuildHeader PRIVATE:
         /*        ipbf-estCostHeader.addToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/*/
         /*        ipbf-estCostHeader.addToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/*/
         ipbf-estCostHeader.foldPct                     = bf-ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */            
-        ipbf-estCostHeader.handlingRatePerCWTFGPct     = bf-ce-ctrl.fg-rate / 100  /*ld-fg-rate*/
-        ipbf-estCostHeader.handlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm / 100
-        ipbf-estCostHeader.handlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm / 100
+        ipbf-estCostHeader.handlingRatePerCWTFGPct     = bf-ce-ctrl.fg-rate  /*ld-fg-rate*/
+        ipbf-estCostHeader.handlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm 
+        ipbf-estCostHeader.handlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
