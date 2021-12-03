@@ -136,7 +136,7 @@ DEFINE FRAME F-Main
      exchangeRate.asOfDate AT ROW 3.76 COL 29.6 COLON-ALIGNED WIDGET-ID 2 FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     exchangeRate.exchangeRate AT ROW 4.95 COL 29.6 COLON-ALIGNED WIDGET-ID 6 FORMAT "->>,>>,>>,>>,>>,>>,>>9.99<<<<<"
+     exchangeRate.exchangeRate AT ROW 4.95 COL 29.6 COLON-ALIGNED WIDGET-ID 6 FORMAT "->>>,>>>,>>>,>>>,>>9.99<<<<<"
           VIEW-AS FILL-IN 
           SIZE 36.4 BY 1
      RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 10
