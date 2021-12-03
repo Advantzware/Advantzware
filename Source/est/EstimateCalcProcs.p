@@ -2019,8 +2019,6 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
         END. /*Each blank*/
     END. /*Not unitized*/ 
     RUN pCalcCostTotals(ipiEstCostHeaderID, 0, NO).
-    
-    RUN pCalcFreightForBoard(ipiEstCostHeaderID).
         
 END PROCEDURE.
 
@@ -2091,7 +2089,7 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pCalcFreightForBoard PRIVATE:
+PROCEDURE pBuildFreightForBoardCost PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Determine the Freight charges for Board Material
      Notes: This cost is processing for Single/combo estimates but not being included in case of Item-BOM setup.
@@ -2489,6 +2487,8 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pBuildFreightForBoardCost(ipiEstCostHeaderID).
     
     /*Process Operations*/
     FOR EACH estCostOperation NO-LOCK 
