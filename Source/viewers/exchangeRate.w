@@ -136,9 +136,9 @@ DEFINE FRAME F-Main
      exchangeRate.asOfDate AT ROW 3.76 COL 29.6 COLON-ALIGNED WIDGET-ID 2 FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     exchangeRate.exchangeRate AT ROW 4.95 COL 29.6 COLON-ALIGNED WIDGET-ID 6  FORMAT "->>,>>9.99<<<<<"
+     exchangeRate.exchangeRate AT ROW 4.95 COL 29.6 COLON-ALIGNED WIDGET-ID 6 FORMAT "->>,>>,>>,>>,>>,>>,>>9.99<<<<<"
           VIEW-AS FILL-IN 
-          SIZE 23 BY 1
+          SIZE 36.4 BY 1
      RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -203,10 +203,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN exchangeRate.asOfDate IN FRAME F-Main
    EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN exchangeRate.exchangeRate IN FRAME F-Main
-   EXP-FORMAT                                                           */   
 /* SETTINGS FOR FILL-IN exchangeRate.baseCurrencyCode IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN exchangeRate.exchangeRate IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
