@@ -2020,6 +2020,8 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
     END. /*Not unitized*/ 
     RUN pCalcCostTotals(ipiEstCostHeaderID, 0, NO).
     
+    RUN pCalcFreightForBoard(ipiEstCostHeaderID).
+        
 END PROCEDURE.
 
 PROCEDURE pBuildPriceRelatedCostDetails PRIVATE:
@@ -2101,8 +2103,6 @@ PROCEDURE pCalcFreightForBoard PRIVATE:
     DEFINE BUFFER bf-estCostBlank         FOR estCostBlank. 
     DEFINE BUFFER bf-estCostHeader        FOR estCostHeader.
     DEFINE BUFFER bf-estCostItem          FOR estCostItem. 
-    DEFINE BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
-      
     
     
     DEFINE VARIABLE deBrdFrght      AS DECIMAL   NO-UNDO.
@@ -2112,15 +2112,9 @@ PROCEDURE pCalcFreightForBoard PRIVATE:
     DEFINE VARIABLE cPerMSheetUOM   AS CHARACTER NO-UNDO INIT "MSH".
     
    
-   
-    FIND FIRST bf-estCostHeader NO-LOCK 
-        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
-        NO-ERROR.
-    
-    IF NOT AVAILABLE bf-estCostHeader THEN 
-        RETURN.
-     
-    FOR EACH bf-estCostForm NO-LOCK
+    FOR FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID,
+        EACH bf-estCostForm NO-LOCK
         WHERE bf-estCostForm.estCostHeaderID EQ ipiEstCostHeaderID,
         FIRST bf-ef NO-LOCK
         WHERE bf-ef.company = bf-estCostForm.company
@@ -2132,13 +2126,7 @@ PROCEDURE pCalcFreightForBoard PRIVATE:
             dWeigthInCUOM = 0
             deBrdFrght  = 0.
         
-        FIND FIRST bfBoard-estCostMaterial NO-LOCK
-            WHERE bfBoard-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
-            AND bfBoard-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID
-            AND bfBoard-estCostMaterial.ItemId = bf-ef.board
-            AND bfBoard-estCostMaterial.isPrimarySubstrate No-Error.
-        
-        IF AVAILABLE bfBoard-estCostMaterial THEN
+        IF bf-ef.fr-uom NE "" THEN
         DO: 
         
             IF bf-ef.fr-uom = bf-estCostForm.grossQtyRequiredTotalAreaUOM THEN
@@ -2153,10 +2141,10 @@ PROCEDURE pCalcFreightForBoard PRIVATE:
                 IF bf-ef.fr-uom = cPerMSheetUOM THEN
                     ASSIGN
                         dWeigthInSrcUOM = bf-estCostForm.grossQtyRequiredTotal 
-                        cSrcUOM         = bfBoard-estCostMaterial.quantityUOM.
+                        cSrcUOM         = "EA".
                 
-                RUN pConvertQuantityFromUOMToUOM(bfBoard-estCostMaterial.company, bfBoard-estCostMaterial.itemID, "RM", cSrcUOM, bf-ef.fr-uom, 
-                    bfBoard-estCostMaterial.basisWeight, bfBoard-estCostMaterial.dimLength, bfBoard-estCostMaterial.dimWidth, bfBoard-estCostMaterial.dimDepth, 
+                RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, bf-ef.fr-uom, 
+                    bf-estCostForm.basisWeight, bf-estCostForm.grossLength, bf-estCostForm.grossWidth, bf-estCostForm.grossDepth, 
                     dWeigthInSrcUOM, OUTPUT dWeigthInCUOM).
             END.
         END. 
@@ -2340,7 +2328,6 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
-        RUN pCalcFreightForBoard(bf-estCostHeader.estCostHeaderID).
         RUN pBuildPriceRelatedCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildCostSummary(bf-estCostHeader.estCostHeaderID).
         RUN pCopyHeaderCostsToSetItem(BUFFER bf-estCostHeader).
