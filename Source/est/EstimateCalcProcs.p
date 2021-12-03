@@ -1731,7 +1731,9 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
                 RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mLabProfit","Misc Labor - Profit - COGS",
                     ipbf-estCostMisc.profitTotal,0).                    
             END.
-        WHEN "MMatI" THEN  
+        WHEN "MMatI" OR
+        WHEN "MRMI" OR
+        WHEN "MFGI" THEN  
             DO:  /*MiscMatIncluded*/
                 RUN pAddCostDetailForMisc(BUFFER ipbf-estCostMisc, "mMatCost","Misc Material - Cost - COGS",
                     ipbf-estCostMisc.costTotalBeforeProfit,0).
