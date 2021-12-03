@@ -216,7 +216,8 @@ CLASS API.APIHandler:
 	END METHOD.
 
 	/*------------------------------------------------------------------------------
-	 Purpose:
+	 Purpose: cURL fails when there are & in URL. Escaping with ^ can fix this issue. But fails with HttpClient method. 
+	          Removing carats in URL should fix this. 
 	 Notes:
 	------------------------------------------------------------------------------*/
 
