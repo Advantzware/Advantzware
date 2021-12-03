@@ -125,6 +125,8 @@ CLASS API.APIHandler:
                 
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
         
+        ipcURL = pReplaceExceptionalCharacters(ipcURL).
+        
         oClient:BaseAddress = NEW System.Uri(ipcURL).
         oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).
 
@@ -147,6 +149,8 @@ CLASS API.APIHandler:
         DEFINE VARIABLE oContent AS HttpContent NO-UNDO.
                 
         DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO. 
+        
+        ipcURL = pReplaceExceptionalCharacters(ipcURL).
         
         oClient:BaseAddress = NEW System.Uri(ipcURL).
 
@@ -181,6 +185,8 @@ CLASS API.APIHandler:
         
 		DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.	
 		
+		ipcURL = pReplaceExceptionalCharacters(ipcURL).
+		
 		oClient:BaseAddress = NEW System.Uri(ipcURL).
 		oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).       
         
@@ -207,6 +213,17 @@ CLASS API.APIHandler:
         END.
         
 		RETURN lcResponseData.
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PRIVATE CHARACTER pReplaceExceptionalCharacters( ipcURL AS CHARACTER ):
+		
+		RETURN REPLACE(ipcURL, "^&", "&").
+
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

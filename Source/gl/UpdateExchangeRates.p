@@ -136,7 +136,7 @@ IF AVAILABLE bf-APIOutboundEvent THEN DO:
     IF NOT bf-APIOutboundEvent.success THEN DO:
         ASSIGN
             oplError   = TRUE
-            opcMessage = "API failed to fetch a exchange rates"
+            opcMessage = "API failed to fetch exchange rates"
             .
         RETURN.    
     END.
