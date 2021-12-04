@@ -457,9 +457,16 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE VARIABLE lIsComp      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lNoMake      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRule        AS LOGICAL   NO-UNDO EXTENT 5.
+    DEFINE VARIABLE lLog         AS LOGICAL   NO-UNDO INITIAL NO.
+
+    IF lLog AND USERID("ASI") NE "asi" THEN
+    llog = NO.
     
-/*    OUTPUT TO c:\tmp\GreenBar.txt.*/
+    IF lLog THEN
+    OUTPUT TO c:\tmp\GreenBar.txt.
+
     EMPTY TEMP-TABLE ttJobItem.
+
     FOR EACH job-hdr NO-LOCK  /*Go through all job-hdrs*/
         WHERE job-hdr.company EQ ipcCompany
           AND job-hdr.cust-no GE ipcCustStart
@@ -580,17 +587,18 @@ PROCEDURE pBuildJobItem PRIVATE:
             .
         IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
 
-/*        EXPORT                                           */
-/*            "Cust:" job-hdr.cust-no                      */
-/*            "Job:" job-hdr.job-no                        */
-/*            "dQtyOnHand:" dQtyOnHand                     */
-/*            "dQtyInv:" dQtyInv                           */
-/*            "dQtyOrd:" dQtyOrd                           */
-/*            "dQtyProd:" dQtyProd                         */
-/*            "Rules:" lRule                               */
-/*            "Job Close:" job.close-date job.opened       */
-/*            "Order Close:" oe-ord.closeDate oe-ord.opened*/
-/*            .                                            */
+        IF lLog THEN
+        EXPORT
+            "Cust:" job-hdr.cust-no
+            "Job:" job-hdr.job-no
+            "dQtyOnHand:" dQtyOnHand
+            "dQtyInv:" dQtyInv
+            "dQtyOrd:" dQtyOrd
+            "dQtyProd:" dQtyProd
+            "Rules:" lRule
+            "Job Close:" job.close-date job.opened
+            "Order Close:" oe-ord.closeDate oe-ord.opened
+            .
 
         RUN pAddJobItem (
             job-hdr.company,
@@ -696,8 +704,10 @@ PROCEDURE pBuildJobItem PRIVATE:
                     1
                     ).
     END.
-/*    OUTPUT CLOSE.                                      */
-/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\GreenBar.txt.*/
+    IF lLog THEN DO:
+        OUTPUT CLOSE.
+        OS-COMMAND NO-WAIT notepad.exe c:\tmp\GreenBar.txt.
+    END. // if log
 
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
