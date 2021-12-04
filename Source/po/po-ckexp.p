@@ -11,8 +11,6 @@ def input parameter v-format as char no-undo.
 
 def buffer xjob-mat for job-mat.
 def buffer xitem for item.
-def buffer b-ref1  for reftable.
-def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -35,6 +33,9 @@ def var v-outfile as char extent 4 no-undo.
 def var v-mach as char extent 4 no-undo.
 def var v-line as char no-undo.
 DEF VAR li AS INT NO-UNDO.
+
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 &SCOPED-DEFINE for-each-po-ordl                       ~
 FOR EACH po-ordl                                      ~
@@ -312,24 +313,41 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* RIWILC */
     put " " format "x".
 
-    run po/po-ordls.p (recid(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END. 
 
     do i = 1 to 12:
-      if avail b-ref1 then do:
+      if lScoreAvailable then do:
 
         /* RISC[i]W */
-        put trunc(b-ref1.val[i],0) format "999".
+        put trunc(lv-val[i],0) format "999".
 
         /* RISC[i]N */
-        put (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100 format "99".
+        put (lv-val[i] - trunc(lv-val[i],0)) * 100 format "99".
 
         /* RISC[i]D */
         put 16 format "99".
 
         /* RISC[i]T */
-        put substr(b-ref1.dscr,i,1) format "x".
+        put lv-typ[i] format "x".
       end.
             
       else put "0000000 ".
