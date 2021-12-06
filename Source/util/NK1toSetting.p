@@ -12,9 +12,10 @@ DEFINE VARIABLE settingDataType     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingDefaultValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingDescription  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE settingPassword     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingValidValues  AS CHARACTER NO-UNDO.
 
-INPUT FROM VALUE(SEARCH("Documentation/NK1 to Setting Type Conversion.csv")) NO-ECHO.
+INPUT FROM VALUE(SEARCH("Documentation/NK1toSetting.csv")) NO-ECHO.
 IMPORT ^. // header line
 REPEAT:
     IMPORT DELIMITER ","
@@ -27,6 +28,7 @@ REPEAT:
         settingDefaultValue
         companyContext
         settingCategoryTags
+        settingPassword
         .
     FIND FIRST settingType NO-LOCK
          WHERE settingType.settingName EQ settingName
@@ -41,17 +43,19 @@ REPEAT:
         CREATE settingType.
         ASSIGN
             settingType.settingTypeID = iSettingTypeID
-            settingType.settingName   = settingName
-            settingType.description   = settingDescription
-            settingType.dataType      = settingDataType
-            settingType.validValues   = settingValidValues
-            settingType.defaultValue  = settingDefaultValue
-            settingType.categoryTags  = settingCategoryTags
+            settingType.settingName   = REPLACE(settingName,"|",",")
+            settingType.description   = REPLACE(settingDescription,"|",",")
+            settingType.dataType      = REPLACE(settingDataType,"|",",")
+            settingType.validValues   = REPLACE(settingValidValues,"|",",")
+            settingType.defaultValue  = REPLACE(settingDefaultValue,"|",",")
+            settingType.categoryTags  = REPLACE(settingCategoryTags,"|",",")
+            settingType.isPassword    = settingPassword EQ "Yes"
             .
     END. // not can-find
     IF companyContext THEN
     FOR EACH sys-ctrl NO-LOCK
-        WHERE sys-ctrl.name EQ nk1Name
+        WHERE sys-ctrl.name     EQ nk1Name
+          AND sys-ctrl.isActive EQ YES
         :
         CASE nk1DataType:
             WHEN "Character" THEN
