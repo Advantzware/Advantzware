@@ -2104,9 +2104,9 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
     DEFINE BUFFER bf-estCostItem          FOR estCostItem. 
     
     
-    DEFINE VARIABLE deBrdFrght      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dWeigthInCUOM   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dWeigthInSrcUOM AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE dBoardFreight   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInCUOM   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInSrcUOM AS DECIMAL   NO-UNDO. 
     DEFINE VARIABLE cSrcUOM         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPerMSheetUOM   AS CHARACTER NO-UNDO INIT "MSH".
     
@@ -2122,37 +2122,22 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
         AND bf-ef.fr-msh  NE 0:
             
         ASSIGN
-            dWeigthInCUOM = 0
-            deBrdFrght  = 0.
+            dQuantityInCUOM   = 0
+            dBoardFreight     = 0
+            dQuantityInSrcUOM = (IF bf-ef.fr-uom = cPerMSheetUOM THEN bf-estCostForm.grossQtyRequiredTotal ELSE bf-estCostForm.grossQtyRequiredTotalArea)
+            cSrcUOM           = (IF bf-ef.fr-uom = cPerMSheetUOM THEN "EA" ELSE bf-estCostForm.grossQtyRequiredTotalAreaUOM).
+            
         
         IF bf-ef.fr-uom NE "" THEN
-        DO: 
+            RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, bf-ef.fr-uom, 
+                bf-estCostForm.basisWeight, bf-estCostForm.grossLength, bf-estCostForm.grossWidth, bf-estCostForm.grossDepth, 
+                dQuantityInSrcUOM, OUTPUT dQuantityInCUOM).
         
-            IF bf-ef.fr-uom = bf-estCostForm.grossQtyRequiredTotalAreaUOM THEN
-                dWeigthInCUOM = bf-estCostForm.grossQtyRequiredTotalArea.
-        
-            ELSE
-            DO: 
-                ASSIGN
-                    dWeigthInSrcUOM = bf-estCostForm.grossQtyRequiredTotalWeight 
-                    cSrcUOM         = bf-estCostForm.grossQtyRequiredTotalWeightUOM. 
-    
-                IF bf-ef.fr-uom = cPerMSheetUOM THEN
-                    ASSIGN
-                        dWeigthInSrcUOM = bf-estCostForm.grossQtyRequiredTotal 
-                        cSrcUOM         = "EA".
-                
-                RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, bf-ef.fr-uom, 
-                    bf-estCostForm.basisWeight, bf-estCostForm.grossLength, bf-estCostForm.grossWidth, bf-estCostForm.grossDepth, 
-                    dWeigthInSrcUOM, OUTPUT dWeigthInCUOM).
-            END.
-        END. 
-        
-        IF dWeigthInCUOM NE 0 THEN
-            deBrdFrght = dWeigthInCUOM *  bf-ef.fr-msh. 
+        IF dQuantityInCUOM NE 0 THEN
+            dBoardFreight = dQuantityInCUOM *  bf-ef.fr-msh. 
                     
-        IF deBrdFrght NE 0 THEN
-           RUN pAddEstMiscForBoardFreight (BUFFER bf-estCostForm, "FrtBrd", "Freight in Board Cost",bf-ef.fr-msh, bf-ef.fr-uom, deBrdFrght).
+        IF dBoardFreight NE 0 THEN
+           RUN pAddEstMiscForBoardFreight (BUFFER bf-estCostForm, "FrtBrd", "Freight in Board Cost",bf-ef.fr-msh, bf-ef.fr-uom, dBoardFreight).
     
     END.
     
@@ -2324,6 +2309,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
+        RUN pBuildFreightForBoardCost(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2488,8 +2474,6 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    
-    RUN pBuildFreightForBoardCost(ipiEstCostHeaderID).
     
     /*Process Operations*/
     FOR EACH estCostOperation NO-LOCK 
