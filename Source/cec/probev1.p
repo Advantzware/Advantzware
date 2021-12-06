@@ -24,6 +24,10 @@ def shared frame probe.
 DEF SHARED FRAME probe-peach.
 DEF VAR cerunc-dec AS DEC NO-UNDO.
 
+DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+DEFINE BUFFER bf-estCostForm FOR estCostForm.
+DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+
 {cec/probe.f}
 
 FIND FIRST sys-ctrl WHERE
@@ -41,6 +45,7 @@ assign
  voverall = round(probe.sell-price / probe.bsf,2)
  vtot-msf = probe.gshQtyInSF / 1000 .
  dFGPricePerMsf =  round(probe.sell-price * ( probe.est-qty / 1000) / vtot-msf,2) .
+ dTotalContribution = probe.sell-price - probe.boardCostPerM - probe.freight .
 
 IF sys-ctrl.char-fld NE "PEACHTRE" THEN
 DO:
@@ -97,19 +102,37 @@ DO:
 END.
 ELSE
 DO:
+   FIND FIRST bf-estCostHeader NO-LOCK 
+    WHERE bf-estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2)
+    NO-ERROR.
+    IF AVAIL bf-estCostHeader THEN
+        FIND FIRST bf-estCostForm NO-LOCK 
+            WHERE bf-estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+            AND bf-estCostForm.formNo NE 0
+            NO-ERROR.
+        IF AVAIL bf-estCostHeader THEN
+            FOR EACH bf-estCostOperation NO-LOCK 
+                    WHERE bf-estCostOperation.estCostFormID EQ bf-estCostForm.estCostFormID
+                    BY bf-estCostOperation.sequenceOfOperation:
+                    
+                    dTotalhoursSetup = dTotalhoursSetup + bf-estCostOperation.hoursSetup.
+                    dTotalhoursRun = dTotalhoursRun + bf-estCostOperation.hoursRun .
+            END.
 
-   IF probe.manHoursTotal GT 0 THEN 
-        dContPerManHr =  probe.boardContributionTotal / probe.manHoursTotal.
+   ASSIGN dTotalHour = dTotalhoursSetup + dTotalhoursRun .
+   
+   IF dTotalHour GT 0 THEN 
+        dContPerHr =  dTotalContribution / dTotalHour.
    ELSE 
-        dContPerManHr = probe.boardContributionTotal .
+        dContPerHr = dTotalContribution .
    
    IF cerunc-dec EQ 0 THEN
       display probe.est-qty
               probe.freight
 	          probe.boardCostPerM
 	          probe.boardCostPct
-	          probe.boardContributionTotal 
-	          dContPerManHr
+	          dTotalContribution
+              dContPerHr
               probe.sell-price
               dFGPricePerMsf @ voverall
 	          probe.gsh-qty format ">>>>>9"
@@ -120,8 +143,8 @@ DO:
            probe.freight
 	       probe.boardCostPerM
 	       probe.boardCostPct
-	       probe.boardContributionTotal 
-	       dContPerManHr
+	       dTotalContribution
+           dContPerHr
            probe.sell-price
            dFGPricePerMsf @ voverall
 	       probe.gsh-qty format ">>>>>9"
