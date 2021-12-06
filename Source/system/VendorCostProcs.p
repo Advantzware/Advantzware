@@ -216,39 +216,39 @@ PROCEDURE VendCost_BuildVendItemCostWithAdders:
 
     cItemAdderList = ipcadderlist + "," + ipcitemid.
 
-    do iCount = 1 to num-entries(cItemAdderList):
-        for each venditemcost NO-LOCK 
-            where vendItemCost.company EQ ipcCompany 
-            and venditemcost.itemtype = ipcItemType 
-            and venditemcost.itemid = entry(iCount,cItemAdderList):
-            create ttItemAvail.
-            assign 
+    DO iCount = 1 TO NUM-ENTRIES(cItemAdderList):
+        FOR EACH venditemcost NO-LOCK 
+            WHERE vendItemCost.company EQ ipcCompany 
+            AND venditemcost.itemtype = ipcItemType 
+            AND venditemcost.itemid = entry(iCount,cItemAdderList):
+            CREATE ttItemAvail.
+            ASSIGN 
                 ttItemAvail.vendorid = venditemcost.vendorid
                 ttitemAvail.ItemID = venditemcost.itemID.
-        end.
-    end.
+        END.
+    END.
 
     /*Get the common vedors for both item and adders*/
-    do iCount = 1 to num-entries(cItemAdderList):
-        for each ttItemAvail:
-            if can-find(first venditemcost where vendItemCost.company EQ ipcCompany 
-                        and venditemcost.itemtype = ipcItemType and itemid = entry(iCount,ipcAdderList) 
-                        and venditemcost.vendorid = ttItemAvail.vendorid) then
+    DO iCount = 1 TO NUM-ENTRIES(cItemAdderList):
+        FOR EACH ttItemAvail:
+            IF CAN-FIND(FIRST venditemcost WHERE vendItemCost.company EQ ipcCompany 
+                AND venditemcost.itemtype = ipcItemType AND itemid = entry(iCount,ipcAdderList) 
+                AND venditemcost.vendorid = ttItemAvail.vendorid) THEN
                 ttItemAvail.vendCount = ttItemAvail.vendCount + 1.
-        end.
-    end.
+        END.
+    END.
     /*Common vendors across item and adders*/
-    for each ttItemAvail where vendcount = num-entries(ipcadderlist) break by ttitemavail.vendorid :
-        if first-of(ttItemAvail.vendorid) then
+    FOR EACH ttItemAvail WHERE vendcount = num-entries(ipcadderlist) BREAK BY ttitemavail.vendorid :
+        IF FIRST-OF(ttItemAvail.vendorid) THEN
             cVendorList = cVendorList + "," + ttItemAvail.vendorid.
-    end. 
+    END. 
 
     EMPTY TEMP-TABLE ttVendItemCost.
     IF ipcAdderList <> "" THEN
     DO:
-    for each ttItemAvail where vendcount = num-entries(cItemAdderList) - 1 break by ttitemavail.itemid :
-        if first-of(ttItemAvail.itemid) then
-        do: 
+        FOR EACH ttItemAvail WHERE vendcount = num-entries(cItemAdderList) - 1 BREAK BY ttitemavail.itemid :
+            IF FIRST-OF(ttItemAvail.itemid) THEN
+            DO: 
             FOR EACH bf-vendItemCost NO-LOCK  
                 WHERE bf-vendItemCost.company EQ ipcCompany
                 AND bf-vendItemCost.itemID EQ ttItemAvail.itemID

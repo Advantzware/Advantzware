@@ -54,10 +54,10 @@ DEFINE TEMP-TABLE ttVendItemCostFC LIKE vendItemCost
     FIELD reasonNotValid AS CHARACTER
     .
     
-define temp-table ttItemAvail
-    field ItemID as char
-    field vendorID as char
-    field vendCount as int.
+DEFINE TEMP-TABLE ttItemAvail
+    FIELD ItemID    AS CHARACTER
+    FIELD vendorID  AS CHARACTER
+    FIELD vendCount AS INTEGER.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
