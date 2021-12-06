@@ -99,10 +99,11 @@ PROCEDURE BuildVendItemCosts:
     
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
     
+    
     EMPTY TEMP-TABLE ttVendItemCost.    
     IF LOOKUP(ipcScope,gcScopeList) EQ 0 THEN 
         ipcScope = gcScopeDefault.
-    
+
     CASE ipcScope:
         WHEN gcScopeAll THEN  
             DO:  /*All*/
@@ -145,8 +146,9 @@ PROCEDURE BuildVendItemCosts:
                         ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
                 END.
             END. /*RM Standard*/
-        WHEN gcScopeRMOverride THEN 
+        WHEN gcScopeRMOverride OR WHEN gcScopeFGEstimated THEN 
             DO:  /*RM Estimate Override*/
+
                 FOR EACH bf-vendItemCost NO-LOCK  
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
@@ -158,8 +160,9 @@ PROCEDURE BuildVendItemCosts:
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
                     :
-                    RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
-                        ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
+
+                        RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                                ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage). 
                 END.
                 IF NOT CAN-FIND(FIRST ttVendItemCost) AND ipcItemID NE "" THEN  /*Find with out estimate*/ 
                     FOR EACH bf-vendItemCost NO-LOCK  
@@ -171,43 +174,206 @@ PROCEDURE BuildVendItemCosts:
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
                         :
-                        RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
-                            ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
+
+                                RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                                    ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).  
                     END.
             END. /*RM Estimated Override*/    
-        WHEN gcScopeFGEstimated THEN 
-            DO:  /*FG when in Estimate*/
-                FOR EACH bf-vendItemCost NO-LOCK  
-                    WHERE bf-vendItemCost.company EQ ipcCompany
-                    AND bf-vendItemCost.itemID EQ ipcItemID
-                    AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND bf-vendItemCost.estimateNo EQ ipcEstimateNo
-                    AND bf-vendItemCost.formNo EQ ipiFormNo
-                    AND bf-vendItemCost.blankNo EQ ipiBlankNo
-                    AND bf-vendItemCost.effectiveDate LE TODAY
-                    AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
-                    AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
-                    :
-                    RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
-                        ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
-                END.
-                IF NOT CAN-FIND(FIRST ttVendItemCost) AND ipcItemID NE "" THEN  /*Find with out estimate*/ 
-                    FOR EACH bf-vendItemCost NO-LOCK  
-                        WHERE bf-vendItemCost.company EQ ipcCompany
-                        AND bf-vendItemCost.itemID EQ ipcItemID
-                        AND bf-vendItemCost.itemType EQ ipcItemType
-                        AND bf-vendItemCost.effectiveDate LE TODAY
-                        AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
-                        AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
-                        :
-                        RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
-                            ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
-                    END.
-            END.  /*FG When in Estimate*/
        
     END CASE.
    
 END PROCEDURE.
+
+PROCEDURE VendCost_BuildVendItemCostWithAdders:
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo             AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength          AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAdderList          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttVendItemCost.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dCostPerVendorUOM AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cItemAdderList    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorList       AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost  FOR vendItemCost.
+    DEFINE BUFFER bf1-vendItemCost FOR vendItemCost.
+
+    cItemAdderList = ipcadderlist + "," + ipcitemid.
+
+    do iCount = 1 to num-entries(cItemAdderList):
+        for each venditemcost NO-LOCK 
+            where vendItemCost.company EQ ipcCompany 
+            and venditemcost.itemtype = ipcItemType 
+            and venditemcost.itemid = entry(iCount,cItemAdderList):
+            create ttItemAvail.
+            assign 
+                ttItemAvail.vendorid = venditemcost.vendorid
+                ttitemAvail.ItemID = venditemcost.itemID.
+        end.
+    end.
+
+    /*Get the common vedors for both item and adders*/
+    do iCount = 1 to num-entries(cItemAdderList):
+        for each ttItemAvail:
+            if can-find(first venditemcost where vendItemCost.company EQ ipcCompany 
+                        and venditemcost.itemtype = ipcItemType and itemid = entry(iCount,ipcAdderList) 
+                        and venditemcost.vendorid = ttItemAvail.vendorid) then
+                ttItemAvail.vendCount = ttItemAvail.vendCount + 1.
+        end.
+    end.
+    /*Common vendors across item and adders*/
+    for each ttItemAvail where vendcount = num-entries(ipcadderlist) break by ttitemavail.vendorid :
+        if first-of(ttItemAvail.vendorid) then
+            cVendorList = cVendorList + "," + ttItemAvail.vendorid.
+    end. 
+
+    EMPTY TEMP-TABLE ttVendItemCost.
+    IF ipcAdderList <> "" THEN
+    DO:
+    for each ttItemAvail where vendcount = num-entries(cItemAdderList) - 1 break by ttitemavail.itemid :
+        if first-of(ttItemAvail.itemid) then
+        do: 
+            FOR EACH bf-vendItemCost NO-LOCK  
+                WHERE bf-vendItemCost.company EQ ipcCompany
+                AND bf-vendItemCost.itemID EQ ttItemAvail.itemID
+                AND bf-vendItemCost.itemType EQ ipcItemType
+                AND bf-vendItemCost.estimateNo EQ ipcEstimateNo
+                AND bf-vendItemCost.formNo EQ ipiFormNo
+                AND bf-vendItemCost.blankNo EQ ipiBlankNo
+                AND bf-vendItemCost.effectiveDate LE TODAY
+                AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
+                AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+                :
+                IF CAN-DO(cVendorList,bf-vendItemCost.vendorID) THEN 
+                DO:
+                    FIND FIRST ttVendItemCost WHERE ttVendItemCost.vendorID = bf-vendItemCost.vendorID NO-ERROR.
+                            
+                    IF NOT AVAILABLE ttVendItemCost THEN
+                        RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                            ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage). 
+                    ELSE
+                    DO:
+                        RUN pGetCostPerVendorUOM(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                            ipdBasisWeight, ipcBasisWeightUOM, OUTPUT dCostPerVendorUOM).
+                        ttVendItemCost.costPerVendorUOM = ttVendItemCost.costPerVendorUOM + dCostPerVendorUOM. //Add here the logic to get the cost as per paddttvenditemcost
+                    END.
+                END.
+            END.
+            END. /*first of tt*/
+        END. /*for each tt*/ 
+            IF NOT CAN-FIND(FIRST ttVendItemCost) AND ipcItemID NE "" THEN  /*Find with out estimate*/ 
+                for each ttItemAvail where vendcount = num-entries(cItemAdderList) - 1 break by ttitemavail.itemid :
+                    if first-of(ttItemAvail.itemid) then
+                    do:
+                FOR EACH bf-vendItemCost NO-LOCK  
+                    WHERE bf-vendItemCost.company EQ ipcCompany
+                    AND bf-vendItemCost.itemID EQ ttItemAvail.itemID
+                    AND bf-vendItemCost.itemType EQ ipcItemType
+                    AND bf-vendItemCost.estimateNo EQ ""
+                    AND bf-vendItemCost.effectiveDate LE TODAY
+                    AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
+                    AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+                    :
+                    
+                    IF CAN-DO(cVendorList,bf-vendItemCost.vendorID) THEN 
+                    DO: 
+                        FIND FIRST ttVendItemCost WHERE ttVendItemCost.vendorID = bf-vendItemCost.vendorID NO-ERROR.
+                            
+                        IF NOT AVAILABLE ttVendItemCost THEN
+                            RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                                ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage). 
+                        ELSE
+                        DO:
+                            RUN pGetCostPerVendorUOM(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                                ipdBasisWeight, ipcBasisWeightUOM, OUTPUT dCostPerVendorUOM).
+                            ttVendItemCost.costPerVendorUOM = ttVendItemCost.costPerVendorUOM + dCostPerVendorUOM. //Add here the logic to get the cost as per paddttvenditemcost
+                        END.
+                    END.
+                END.
+                END. /*first of tt*/
+            END. /*for each tt*/
+    END. /*end if ipcAdderList <> ""*/
+    ELSE 
+    DO:
+        FOR EACH bf-vendItemCost NO-LOCK  
+            WHERE bf-vendItemCost.company EQ ipcCompany
+            AND bf-vendItemCost.itemID EQ ipcItemID
+            AND bf-vendItemCost.itemType EQ ipcItemType
+            AND bf-vendItemCost.estimateNo EQ ipcEstimateNo
+            AND bf-vendItemCost.formNo EQ ipiFormNo
+            AND bf-vendItemCost.blankNo EQ ipiBlankNo
+            AND bf-vendItemCost.effectiveDate LE TODAY
+            AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
+            AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+            :
+
+            RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage). 
+        END.
+        IF NOT CAN-FIND(FIRST ttVendItemCost) AND ipcItemID NE "" THEN  /*Find with out estimate*/ 
+            FOR EACH bf-vendItemCost NO-LOCK  
+                WHERE bf-vendItemCost.company EQ ipcCompany
+                AND bf-vendItemCost.itemID EQ ipcItemID
+                AND bf-vendItemCost.itemType EQ ipcItemType
+                AND bf-vendItemCost.estimateNo EQ ""
+                AND bf-vendItemCost.effectiveDate LE TODAY
+                AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
+                AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+                :
+
+                RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                    ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).  
+            END.
+    END.
+    
+          
+
+END PROCEDURE.
+
+PROCEDURE getcostPerVendorUOM PRIVATE:
+    DEFINE INPUT PARAMETER ipcVendItemCostID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityInVendorUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER opdCostPerVendorUOM AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    //DEFINE INPUT PARAMETER ipcVendItemCostID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iVendCostLevelID AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetCostLevel(ipcVendItemCostID, ipdQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+    IF iVendCostLevelID NE 0 THEN 
+        FIND FIRST bf-vendItemCostLevel NO-LOCK 
+            WHERE bf-vendItemCostLevel.vendItemCostLevelID EQ iVendCostLevelID
+            NO-ERROR.
+    IF AVAILABLE bf-vendItemCostLevel THEN        
+        dCostPerUOM    = bf-vendItemCostLevel.costPerUOM.
+            
+/*    RUN pGetUpchargeCostsForVendItemCost(BUFFER ipbf-vendItemCost, ipdDimLength, ipdDimWidth, ipcDimUOM,*/
+/*        OUTPUT dCostPerUOMUpcharge, OUTPUT lError, INPUT-OUTPUT cMessage).                              */
+            
+    opdCostPerVendorUOM = dCostPerUOM + dCostPerUOMUpcharge.
+END.
 
 PROCEDURE CopyVendItemCost:
     /*------------------------------------------------------------------------------
@@ -1380,6 +1546,112 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
                 ttVendItemCost.reasonNotValid = opcMessage
                 .
     END.
+
+END PROCEDURE.
+
+PROCEDURE pGetCostPerVendorUOM PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Adds TT Vend Item Cost given vendItemCost buffer and inputs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE OUTPUT PARAMETER opdCostPerVendorUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE oplError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE opcMessage AS CHARACTER NO-UNDO.
+    
+    CREATE ttVendItemCostFC.
+    BUFFER-COPY ipbf-vendItemCost TO ttVendItemCostFC.
+    ASSIGN 
+        ttVendItemCostFC.isExpired                 = ipbf-vendItemCost.expirationDate LT TODAY AND ipbf-vendItemCost.expirationDate NE ? AND ipbf-vendItemCost.expirationDate NE 01/01/0001
+        ttVendItemCostFC.isNotEffective            = ipbf-vendItemCost.effectiveDate GT TODAY
+        ttVendItemCostFC.quantityTarget            = ipdQuantity
+        ttVendItemCostFC.quantityTargetInVendorUOM = ipdQuantity
+        ttVendItemCostFC.quantityTargetUOM         = ipcQuantityUOM
+        ttVendItemCostFC.dimLengthInVendorDimUOM   = ipdDimLength
+        ttVendItemCostFC.dimWidthInVendorDimUOM    = ipdDimWidth
+        ttVendItemCostFC.dimDepthInVendorDimUOM    = ipdDimDepth
+        .
+    IF ttVendItemCostFC.isExpired  THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + "Expired,".
+    IF ttVendItemCostFC.isNotEffective  THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + "Not Yet Effective,".
+        
+    IF ttVendItemCostFC.quantityTargetUOM NE ttVendItemCostFC.vendorUOM THEN
+        RUN pConvertQuantity(ipbf-vendItemCost.company, ipbf-vendItemCost.itemID, ipbf-vendItemCost.itemType, ipdQuantity, ttVendItemCostFC.quantityTargetUOM, ttVendItemCostFC.vendorUOM, 
+            ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+            OUTPUT ttVendItemCostFC.quantityTargetInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+    IF ipcDimUOM NE ipbf-vendItemCost.dimUOM THEN 
+    DO:
+        RUN pConvertDim(ipbf-vendItemCost.company, ipdDimLength, ipcDimUOM, ipbf-vendItemCost.dimUOM,
+            OUTPUT ttVendItemCostFC.dimLengthInVendorDimUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        IF NOT oplError THEN 
+            RUN pConvertDim(ipbf-vendItemCost.company, ipdDimWidth, ipcDimUOM, ipbf-vendItemCost.dimUOM, 
+                OUTPUT ttVendItemCostFC.dimWidthInVendorDimUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        IF NOT oplError THEN 
+            RUN pConvertDim(ipbf-vendItemCost.company, ipdDimDepth, ipcDimUOM, ipbf-vendItemCost.dimUOM,
+                OUTPUT ttVendItemCostFC.dimDepthInVendorDimUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        IF oplError THEN RETURN.
+    END.
+    IF ttVendItemCostFC.quantityMaximumOrder NE 0 AND ttVendItemCostFC.quantityMaximumOrder LT ttVendItemCostFC.quantityTargetInVendorUOM THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Order Quantity of " + STRING(ttVendItemCostFC.quantityTargetInVendorUOM) + 
+            " greater than maximum order quantity of " + STRING(ttVendItemCostFC.quantityMaximumOrder) + 
+            " " + ttVendItemCostFC.vendorUOM + ",".                 
+    IF ttVendItemCostFC.quantityMinimumOrder GT ttVendItemCostFC.quantityTargetInVendorUOM THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Order Quantity of " + STRING(ttVendItemCostFC.quantityTargetInVendorUOM) + 
+            " less than minimum order quantity of " + STRING(ttVendItemCostFC.quantityMinimumOrder) + 
+            " " + ttVendItemCostFC.vendorUOM + ",".
+    IF ttVendItemCostFC.dimLengthInVendorDimUOM LT ttVendItemCostFC.dimLengthMinimum THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Item length of " + STRING(ttVendItemCostFC.dimLengthInVendorDimUOM) + 
+            " less than minimum length of " + STRING(ttVendItemCostFC.dimLengthMinimum) + 
+            " " + ttVendItemCostFC.dimUOM + ",".
+    IF ttVendItemCostFC.dimLengthMaximum NE 0 AND ttVendItemCostFC.dimLengthInVendorDimUOM GT ttVendItemCostFC.dimLengthMaximum THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Item length of " + STRING(ttVendItemCostFC.dimLengthInVendorDimUOM) + 
+            " less than maximum length of " + STRING(ttVendItemCostFC.dimLengthMaximum) + 
+            " " + ttVendItemCostFC.dimUOM + ",".
+    IF ttVendItemCostFC.dimWidthInVendorDimUOM LT ttVendItemCostFC.dimWidthMinimum THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Item width of " + STRING(ttVendItemCostFC.dimWidthInVendorDimUOM) + 
+            " less than minimum width of " + STRING(ttVendItemCostFC.dimWidthMinimum) + 
+            " " + ttVendItemCostFC.dimUOM + ",".
+    IF ttVendItemCostFC.dimLengthMaximum NE 0 AND ttVendItemCostFC.dimWidthInVendorDimUOM GT ttVendItemCostFC.dimWidthMaximum THEN 
+        ttVendItemCostFC.reasonNotValid = ttVendItemCostFC.reasonNotValid + 
+            "Item width of " + STRING(ttVendItemCostFC.dimWidthInVendorDimUOM) + 
+            " less than maximum width of " + STRING(ttVendItemCostFC.dimWidthMaximum) + 
+            " " + ttVendItemCostFC.dimUOM + ",".
+    ttVendItemCostFC.reasonNotValid = TRIM(TRIM(ttVendItemCostFC.reasonNotValid,",")).
+    IF ttVendItemCostFC.reasonNotValid EQ "" THEN 
+        ttVendItemCostFC.isValid = YES.
+    IF ttVendItemCostFC.isValid THEN 
+    DO:
+        opcMessage = "".
+        RUN pGetVendorCosts(BUFFER ipbf-vendItemCost, ttVendItemCostFC.quantityTargetInVendorUOM, 
+            ttVendItemCostFC.dimLengthInVendorDimUOM, ttVendItemCostFC.dimWidthInVendorDimUOM, ttVendItemCostFC.dimUOM, 
+            OUTPUT ttVendItemCostFC.costPerVendorUOM, OUTPUT ttVendItemCostFC.costSetup, OUTPUT ttVendItemCostFC.costPerVendorUOMUpcharge, OUTPUT ttVendItemCostFC.costPerVendorUOMBase, 
+            OUTPUT ttVendItemCostFC.costTotal, OUTPUT ttVendItemCostFC.isSelected,
+            OUTPUT ttVendItemCostFC.leadDays, OUTPUT ttVendItemCostFC.costDeviation,
+            OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        IF oplError THEN 
+            ASSIGN 
+                ttVendItemCostFC.isValid        = NO 
+                ttVendItemCostFC.reasonNotValid = opcMessage
+                .
+    END.
+    opdCostPerVendorUOM = ttVendItemCostFC.costPerVendorUOM.
+    
+    EMPTY TEMP-TABLE ttVendItemCostFC.
 
 END PROCEDURE.
 
