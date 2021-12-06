@@ -64,15 +64,23 @@ DEFINE VARIABLE sessionInstance     AS system.SessionConfig NO-UNDO.
 DEFINE VARIABLE oSetting            AS system.Setting       NO-UNDO.
 DEFINE VARIABLE hdBrokerHandle      AS HANDLE               NO-UNDO.
  
+DEFINE VARIABLE cProgramName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCategoryTags AS CHARACTER NO-UNDO.
+
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
     FIELD isRunning      AS LOGICAL
         INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
 
+DEFINE TEMP-TABLE ttProgramTag NO-UNDO
+    FIELD programName     AS CHARACTER 
+    FIELD categoryTags    AS CHARACTER
+    INDEX programName IS PRIMARY UNIQUE programName
+    .
+
 DEFINE TEMP-TABLE ttSettingObject NO-UNDO
     FIELD programName   AS CHARACTER
-    FIELD appName       AS CHARACTER
     FIELD programHandle AS HANDLE
     FIELD programType   AS CHARACTER
     FIELD settingObject AS Object
@@ -123,6 +131,20 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fGetProgramType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetProgramType Procedure
+FUNCTION fGetProgramType RETURNS CHARACTER 
+  ( INPUT iphdSourceProc AS HANDLE ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
@@ -451,6 +473,20 @@ FOR EACH ttSuperProcedure
     RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
     SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
 END. /* each ttSuperProcedure */
+
+INPUT FROM VALUE(SEARCH("ProgramTagsList.dat")) NO-ECHO.
+IMPORT ^.
+REPEAT:
+    IMPORT cProgramName cCategoryTags.
+    IF cProgramName NE "" AND cCategoryTags NE "" THEN DO:
+        CREATE ttProgramTag.
+        ASSIGN
+            ttProgramTag.programName  = cProgramName
+            ttProgramTag.categoryTags = cCategoryTags
+            .
+    END.
+END. /* repeat */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2244,41 +2280,24 @@ PROCEDURE spSetSettingContext:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcApplication AS CHARACTER NO-UNDO.
-    
     DEFINE VARIABLE cProgramName  AS CHARACTER      NO-UNDO.
     DEFINE VARIABLE oSetting      AS system.Setting NO-UNDO.
     DEFINE VARIABLE hdSourceProc  AS HANDLE         NO-UNDO.
     DEFINE VARIABLE cCategoryTags AS CHARACTER      NO-UNDO.
     
-    hdSourceProc = SOURCE-PROCEDURE.
-    
-    cProgramName = hdSourceProc:NAME.
+    ASSIGN
+        hdSourceProc = SOURCE-PROCEDURE
+        cProgramName = hdSourceProc:NAME
+        .
     
     FIND FIRST ttSettingObject
          WHERE ttSettingObject.programName EQ cProgramName 
          NO-ERROR.
     IF AVAILABLE ttSettingObject THEN DO:
-        IF ttSettingObject.appName NE ipcApplication THEN
-            MESSAGE "Settings for program '" + cProgramName + "' are already loaded with '" ttSettingObject.appName + "'" SKIP
-                "Please add necessary category tags in session.p instead of creating multiple setting objects" 
-                VIEW-AS ALERT-BOX ERROR.
-        
         ttSettingObject.programHandle = hdSourceProc.
         
         IF VALID-HANDLE (hdSourceProc) THEN
-            ttSettingObject.programType = IF hdSourceProc:SINGLE-RUN THEN
-                                              "PROCEDURE"
-                                          ELSE IF LOOKUP("containr-identifier",hdSourceProc:INTERNAL-ENTRIES) GT 0 THEN
-                                              "SMART-WINDOW"
-                                          ELSE IF VALID-HANDLE (hdSourceProc:CURRENT-WINDOW) THEN
-                                              "WINDOW"
-                                          ELSE IF hdSourceProc:PERSISTENT AND LOOKUP (STRING(hdSourceProc), SESSION:SUPER-PROCEDURES) GT 0 THEN
-                                              "SUPER-PROCEDURE"
-                                          ELSE IF hdSourceProc:PERSISTENT THEN
-                                              "PERSISTENT"
-                                          ELSE
-                                              "".
+            ttSettingObject.programType = fGetProgramType(hdSourceProc).
                                                       
         oSetting = CAST(ttSettingObject.settingObject, system.Setting).
              
@@ -2288,37 +2307,23 @@ PROCEDURE spSetSettingContext:
         CREATE ttSettingObject.
         ASSIGN
             ttSettingObject.programName   = cProgramName
-            ttSettingObject.appName       = ipcApplication
             ttSettingObject.programHandle = hdSourceProc
             .
         
         IF VALID-HANDLE (hdSourceProc) THEN
-            ttSettingObject.programType = IF hdSourceProc:SINGLE-RUN THEN
-                                              "PROCEDURE"
-                                          ELSE IF LOOKUP("containr-identifier",hdSourceProc:INTERNAL-ENTRIES) GT 0 THEN /* All adm smart windows has this procedure */
-                                              "SMART-WINDOW"
-                                          ELSE IF VALID-HANDLE (hdSourceProc:CURRENT-WINDOW) THEN
-                                              "WINDOW"
-                                          ELSE IF hdSourceProc:PERSISTENT AND LOOKUP (STRING(hdSourceProc), SESSION:SUPER-PROCEDURES) GT 0 THEN
-                                              "SUPER-PROCEDURE"
-                                          ELSE IF hdSourceProc:PERSISTENT THEN
-                                              "PERSISTENT"
-                                          ELSE
-                                              "". 
+            ttSettingObject.programType = fGetProgramType(hdSourceProc). 
     END.
 
-    CASE ipcApplication:
-        WHEN "SSCreateBOL" THEN
-            cCategoryTags = "SSCreateBOL".
-        WHEN "SSPrintBOLTag" THEN
-            cCategoryTags = "SSPrintBOLTag".
-        WHEN "SSCreateLoadTag" THEN
-            cCategoryTags = "SSCreateLoadTag".
-        WHEN "SSFGInquiry" THEN
-            cCategoryTags = "SSFGInquiry".
-        WHEN "SSFGReceiveTransfer" THEN
-            cCategoryTags = "SSFGReceiveTransfer".
-    END CASE.
+    ASSIGN
+        cProgramName = SUBSTRING(cProgramName,1,INDEX(cProgramName,"."))
+        cProgramName = REPLACE(cProgramName, "\", "/")
+        .
+    
+    FIND FIRST ttProgramTag
+         WHERE ttProgramTag.programName EQ cProgramName
+         NO-ERROR.
+    IF AVAILABLE ttProgramTag THEN
+        cCategoryTags = ttProgramTag.categoryTags.
     
     oSetting = NEW system.Setting(cProgramName, cCategoryTags).
     
@@ -3271,6 +3276,41 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fGetProgramType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetProgramType Procedure
+FUNCTION fGetProgramType RETURNS CHARACTER 
+  ( INPUT iphdSourceProc AS HANDLE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cProcedureType AS CHARACTER NO-UNDO.
+
+    cProcedureType = IF iphdSourceProc:SINGLE-RUN THEN
+                         "PROCEDURE"
+                     ELSE IF LOOKUP("containr-identifier",iphdSourceProc:INTERNAL-ENTRIES) GT 0 THEN
+                         "SMART-WINDOW"
+                     ELSE IF VALID-HANDLE (iphdSourceProc:CURRENT-WINDOW) THEN
+                         "WINDOW"
+                     ELSE IF iphdSourceProc:PERSISTENT AND LOOKUP (STRING(iphdSourceProc), SESSION:SUPER-PROCEDURES) GT 0 THEN
+                         "SUPER-PROCEDURE"
+                     ELSE IF iphdSourceProc:PERSISTENT THEN
+                         "PERSISTENT"
+                     ELSE
+                         "".
+                         
+	RETURN cProcedureType.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 

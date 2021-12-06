@@ -908,7 +908,7 @@ PROCEDURE pInit :
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
     
-    RUN spSetSettingContext ("SSCreateLoadTag").
+    RUN spSetSettingContext.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.

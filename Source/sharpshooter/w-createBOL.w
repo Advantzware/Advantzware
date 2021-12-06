@@ -1142,7 +1142,7 @@ PROCEDURE pInit :
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
 
-    RUN spSetSettingContext ("SSCreateBOL").
+    RUN spSetSettingContext.
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN spGetSessionParam ("Company", OUTPUT cCompany).

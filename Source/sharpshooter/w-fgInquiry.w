@@ -1520,7 +1520,7 @@ PROCEDURE pInit :
     RUN spGetSessionParam ("Location", OUTPUT cLoc).
     RUN pStatusMessage ("", 0).
     
-    RUN spSetSettingContext ("SSFGInquiry").
+    RUN spSetSettingContext.
     
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ cCompany

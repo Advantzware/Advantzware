@@ -678,7 +678,7 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    RUN spSetSettingContext ("SSPrintBOLTag").
+    RUN spSetSettingContext.
 
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).        
 

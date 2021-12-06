@@ -327,7 +327,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   
-  RUN spSetSettingContext ("CRM,ZohoCRM").
+  RUN spSetSettingContext.
   
   RUN pGetCRM.
   IF RETURN-VALUE NE "" THEN RETURN.

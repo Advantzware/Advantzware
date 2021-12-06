@@ -1655,7 +1655,7 @@ PROCEDURE pGetMenuSettings :
     
     DEFINE VARIABLE httSetting AS HANDLE NO-UNDO.
     
-    RUN spSetSettingContext ("MainMenu").   
+    RUN spSetSettingContext.   
 
     IF lGetMenuSettings THEN RETURN.
     lGetMenuSettings = TRUE.

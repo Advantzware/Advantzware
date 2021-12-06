@@ -327,7 +327,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   
-  RUN spSetSettingContext ("CRM,ZohoCRM").
+  RUN spSetSettingContext.
   
   RUN pGetCRM.
   IF RETURN-VALUE NE "" THEN RETURN.
@@ -412,7 +412,7 @@ PROCEDURE pGetCRM :
         END.
         ELSE DO:
             svStatus:SCREEN-VALUE = "Retreiving ZOHO CRM ...".
-            RUN pZohoCRM (ipcCompany, OUTPUT iRows).
+            RUN pZohoCRM (ipcCompany, INPUT ipcRecKey, OUTPUT iRows).
             IF RETURN-VALUE NE "" THEN DO:
                 MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
                 RETURN RETURN-VALUE.

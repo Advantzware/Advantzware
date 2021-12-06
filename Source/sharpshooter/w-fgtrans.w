@@ -969,7 +969,7 @@ PROCEDURE pInit PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    RUN spSetSettingContext ("SSFGReceiveTransfer").
+    RUN spSetSettingContext.
     
     RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
