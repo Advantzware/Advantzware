@@ -5988,6 +5988,9 @@ PROCEDURE ipLoadSettingType :
         IMPORT {&tablename}.
     END.
     INPUT CLOSE.
+    
+    IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
+        RUN VALUE (SEARCH("util/nk1ToSetting.r")).
         
 END PROCEDURE.
 
