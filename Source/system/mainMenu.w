@@ -126,14 +126,14 @@ DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserExit         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lViewTaskResults  AS LOGICAL   NO-UNDO INITIAL ?.
-DEFINE VARIABLE oSetting          AS system.Setting NO-UNDO.
+DEFINE VARIABLE cSettingValue     AS CHARACTER NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
     g_company  = ""
     g_loc      = ""
     .
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,YES).
+RUN Get_Procedure IN Persistent-Handle ("comp_loc.", OUTPUT run-proc, YES).
 IF g_company EQ "" OR g_loc EQ "" THEN DO:
     MESSAGE "No Company and/or Location found for your login ID." SKIP
         "Please Contact System's Administrator." VIEW-AS ALERT-BOX INFORMATION.
@@ -763,7 +763,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("popups.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1134,7 +1134,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Advantzware_Version MAINMENU
 ON CHOOSE OF MENU-ITEM m_Advantzware_Version /* Advantzware Version */
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("about.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("about.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1178,7 +1178,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
 ON CHOOSE OF MENU-ITEM m_SysCtrl_Usage /* SysCtrl Usage */
 DO:
-    RUN Get_Procedure IN Persistent-Handle ("sysCtrlU.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("sysCtrlU.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1301,8 +1301,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pMenuSize.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "{&parentName}", YES, 1).
     {system/runCueCard.i}
-    IF oSetting:GetByName("DynTaskTicker") EQ "YES" THEN
-    iTickerInterval = INTEGER(oSetting:GetByName("DynTaskTickerMinutes")).
+    
+    RUN spGetSettingByName ("DynTaskTicker", OUTPUT cSettingValue).
+        
+    IF cSettingValue EQ "YES" THEN DO:
+        RUN spGetSettingByName ("DynTaskTickerMinutes", OUTPUT cSettingValue).
+        iTickerInterval = INTEGER (cSettingValue) NO-ERROR.    
+    END.
+    
 /*    IF iTickerInterval EQ 0 THEN*/
 /*    iTickerInterval = 1.        */
     RUN spGetSessionParam ("PSTimer", OUTPUT cDebug).
@@ -1358,9 +1364,12 @@ PROCEDURE CtrlFramePSTimerTick :
     FIND FIRST config NO-LOCK.
     cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
     IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN DO:
+        
+        RUN spGetSettingByName ("TaskerNotRunningMinutes", OUTPUT cSettingValue).
+        
         ASSIGN
             cStatusDefault = "Task Monitor Currently Not Running"
-            iConfigID = INTEGER(oSetting:GetByName("TaskerNotRunningMinutes"))
+            iConfigID = INTEGER(cSettingValue)
             .
         IF CAN-FIND(FIRST emailConfig
                     WHERE emailConfig.configID EQ iConfigID
@@ -1374,7 +1383,9 @@ PROCEDURE CtrlFramePSTimerTick :
                 emailConfig.notified = YES.
             END. /* do trans */
             IF NOT LOCKED emailConfig THEN DO:
-                IF oSetting:GetByName("TaskerNotRunning") EQ "YES" THEN
+                RUN spGetSettingByName ("TaskerNotRunning", OUTPUT cSettingValue).
+                
+                IF cSettingValue EQ "YES" THEN
                 RUN spSendEmail (
                     iConfigID,       /* emailConfig.ConfigID */
                     "",              /* Override for Email RecipientsinTo */
@@ -1537,10 +1548,9 @@ PROCEDURE pCheckUpgradeAdvantzware :
     DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
 
     IF lAdmin THEN DO:
-        ASSIGN
-            cHelpService = oSetting:GetByName("ASIHelpService")
-            upgradeLink  = oSetting:GetByName("MenuLinkUpgrade")
-            .
+        RUN spGetSettingByName ("ASIHelpService", OUTPUT cHelpService).
+        RUN spGetSettingByName ("MenuLinkUpgrade", OUTPUT upgradeLink).
+        
         IF upgradeLink EQ "" THEN ASSIGN 
             upgradeLink = "https://helpsvr.advantzware.com/patches/asiUpdate.html".
         CREATE SERVER hWebService.
@@ -1643,9 +1653,8 @@ PROCEDURE pGetMenuSettings :
     DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO.
     
     DEFINE VARIABLE httSetting AS HANDLE NO-UNDO.
-       
-    oSetting = NEW system.Setting().
-    oSetting:LoadByCategoryAndProgram("MainMenu").
+    
+    RUN spSetSettingContext.   
 
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
@@ -1685,16 +1694,22 @@ PROCEDURE pGetMenuSettings :
         menuLink-7:LOAD-IMAGE(?).
         menuLink-8:LOAD-IMAGE(?).
         boxes:LOAD-IMAGE(?).
-        cMainMenuImage = oSetting:GetByName("MainMenuImage").
-        IF SEARCH(cMainMenuImage) NE ? THEN
+        
+        RUN spGetSettingByName ("MainMenuImage", OUTPUT cMainMenuImage).
+
+        MESSAGE 
+        "cMainMenuImage:" cMainMenuImage
+        VIEW-AS ALERT-BOX.        
         boxes:LOAD-IMAGE(cMainMenuImage) NO-ERROR.
-        IF oSetting:GetByName("MenuLinkASI") EQ "YES" THEN DO:
-            ASSIGN
-                cNK1Value[1] = oSetting:GetByName("MenuLinkASIImage")
-                cNK1Value[2] = oSetting:GetByName("MenuLinkASIURL")
-                cNK1Value[3] = oSetting:GetByName("MenuLinkASITransparent")
-                cNK1Value[4] = oSetting:GetByName("MenuLinkASIStretchToFit")
-                .
+        
+        RUN spGetSettingByName ("MenuLinkASI", OUTPUT cSettingValue).
+        
+        IF cSettingValue EQ "YES" THEN DO:
+            RUN spGetSettingByName ("MenuLinkASIImage", OUTPUT cNK1Value[1]).
+            RUN spGetSettingByName ("MenuLinkASIURL", OUTPUT cNK1Value[2]).
+            RUN spGetSettingByName ("MenuLinkASITransparent", OUTPUT cNK1Value[3]).
+            RUN spGetSettingByName ("MenuLinkASIStretchToFit", OUTPUT cNK1Value[4]).
+            
             IF SEARCH(cNK1Value[1]) NE ? AND
                cNK1Value[2] NE "" THEN DO:
                 ASSIGN
@@ -1708,13 +1723,14 @@ PROCEDURE pGetMenuSettings :
             END. /* if avail */
         END. // MenuLinkASI
 
-        IF oSetting:GetByName("MenuLinkZoHo") EQ "YES" THEN DO:
-            ASSIGN
-                cNK1Value[1] = oSetting:GetByName("MenuLinkZoHoImage")
-                cNK1Value[2] = oSetting:GetByName("MenuLinkZoHoURL")
-                cNK1Value[3] = oSetting:GetByName("MenuLinkZoHoTransparent")
-                cNK1Value[4] = oSetting:GetByName("MenuLinkZoHoStretchToFit")
-                .
+        RUN spGetSettingByName ("MenuLinkZoHo", OUTPUT cSettingValue).
+        
+        IF cSettingValue EQ "YES" THEN DO:
+            RUN spGetSettingByName ("MenuLinkZoHoImage", OUTPUT cNK1Value[1]).
+            RUN spGetSettingByName ("MenuLinkZoHoURL", OUTPUT cNK1Value[2]).
+            RUN spGetSettingByName ("MenuLinkZoHoTransparent", OUTPUT cNK1Value[3]).
+            RUN spGetSettingByName ("MenuLinkZoHoStretchToFit", OUTPUT cNK1Value[4]).
+
             IF SEARCH(cNK1Value[1]) NE ? AND
                cNK1Value[2] NE "" THEN DO:
                 ASSIGN
@@ -1743,13 +1759,14 @@ PROCEDURE pGetMenuSettings :
                                   + "    Set Menu Size"
                                   .
         DO idx = 1 TO EXTENT(hMenuLink):
-            IF oSetting:GetByName("MenuLink" + STRING(idx)) EQ "YES" THEN DO:
-                ASSIGN
-                    cNK1Value[1] = oSetting:GetByName("MenuLink" + STRING(idx) + "Image")
-                    cNK1Value[2] = oSetting:GetByName("MenuLink" + STRING(idx) + "URL")
-                    cNK1Value[3] = oSetting:GetByName("MenuLink" + STRING(idx) + "Transparent")
-                    cNK1Value[4] = oSetting:GetByName("MenuLink" + STRING(idx) + "StretchToFit")
-                    .
+            RUN spGetSettingByName ("MenuLink" + STRING(idx), OUTPUT cSettingValue).
+            
+            IF cSettingValue EQ "YES" THEN DO:
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "Image", OUTPUT cNK1Value[1]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "URL", OUTPUT cNK1Value[2]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "Transparent", OUTPUT cNK1Value[3]).
+                RUN spGetSettingByName ("MenuLink" + STRING(idx) + "StretchToFit", OUTPUT cNK1Value[4]).
+
                 IF SEARCH(cNK1Value[1]) NE ? AND
                    cNK1Value[2] NE "" THEN DO:
                     ASSIGN
