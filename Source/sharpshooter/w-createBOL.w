@@ -59,24 +59,22 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE gcScanTrailer                AS CHARACTER NO-UNDO INITIAL "None".
 DEFINE VARIABLE gcSSBOLPrint                 AS CHARACTER NO-UNDO INITIAL "DoNotPrint".
 DEFINE VARIABLE gcSSReleaseTrailerValidation AS CHARACTER NO-UNDO INITIAL "Error".
-DEFINE VARIABLE glShowKeyboard               AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE glShowVirtualKeyboard        AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE gcShowVirtualKeyboard        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcShowFGItemInquiry          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcShowSettings               AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
 DEFINE VARIABLE oLoadTag  AS Inventory.LoadTag     NO-UNDO.
 DEFINE VARIABLE oKeyboard AS system.Keyboard       NO-UNDO.
 DEFINE VARIABLE oReleaseHeader AS oe.ReleaseHeader NO-UNDO.
 DEFINE VARIABLE oTrailer       AS ar.Truck         NO-UNDO.
 
 ASSIGN
-    oSetting  = NEW system.Setting()
     oLoadTag  = NEW Inventory.LoadTag()
     oKeyboard = NEW system.Keyboard()
     oTrailer  = NEW ar.Truck()
     .
 
-oSetting:LoadByCategoryAndProgram("SSCreateBOL").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1040,21 +1038,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSettings W-Win 
-PROCEDURE GetSettings :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
-    
-    IF VALID-OBJECT (oSetting) THEN
-        opoSetting = oSetting.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win 
 PROCEDURE Key_Stroke :
 /*------------------------------------------------------------------------------
@@ -1081,9 +1064,6 @@ PROCEDURE local-destroy :
   IF VALID-OBJECT(oLoadTag) THEN
       DELETE OBJECT oLoadTag.
 
-  IF VALID-OBJECT(oSetting) THEN
-      DELETE OBJECT oSetting.
-  
   IF VALID-OBJECT(oKeyboard) THEN
       DELETE OBJECT oKeyboard.
 
@@ -1146,8 +1126,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
+    RUN windows/setting-dialog.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1162,6 +1141,8 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+
+    RUN spSetSettingContext.
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
@@ -1178,24 +1159,26 @@ PROCEDURE pInit :
         oKeyboard:SetProcedure(THIS-PROCEDURE).
         oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
         
+        RUN spGetSettingByName ("SSCreateBOLScanTrailer", OUTPUT gcScanTrailer).
+        RUN spGetSettingByName ("SSCreateBOLPrint", OUTPUT gcSSBOLPrint).
+        RUN spGetSettingByName ("SSCreateBOLTrailerValidation", OUTPUT gcSSReleaseTrailerValidation).
+        RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
+        RUN spGetSettingByName ("ShowFGItemInquiry", OUTPUT gcShowFGItemInquiry).
+        RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).
+                        
         ASSIGN
-            gcScanTrailer                     = oSetting:GetByName("SSCreateBOLScanTrailer")                      
-            gcSSBOLPrint                      = oSetting:GetByName("SSCreateBOLPrint")
-            gcSSReleaseTrailerValidation      = oSetting:GetByName("SSCreateBOLTrailerValidation")
-            glShowKeyboard                    = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-            gcShowFGItemInquiry               = oSetting:GetByName("ShowFGItemInquiry")
-            gcShowSettings                    = oSetting:GetByName("ShowSettings")
             lShowTrailerTag                   = gcScanTrailer EQ "Tag" OR gcScanTrailer EQ "Both"
             lShowTrailerRelease               = gcScanTrailer EQ "Release" OR gcScanTrailer EQ "Both"
             fiTrailerTag:VISIBLE              = lShowTrailerTag
             fiTrailerRelease:VISIBLE          = lShowTrailerRelease
             fiTagTrailerMessage:VISIBLE       = lShowTrailerTag AND lShowTrailerRelease
             fiTrailerRelease:SENSITIVE        = FALSE
-            btnKeyboardTrailerRelease:VISIBLE = fiTrailerRelease:VISIBLE AND glShowKeyboard
-            btnKeyboardTrailer:VISIBLE        = fiTrailerTag:VISIBLE AND glShowKeyboard
-            btnKeyboardTag:VISIBLE            = glShowKeyboard
-            btnNumPad:VISIBLE                 = glShowKeyboard
-            RECT-2:VISIBLE                    = glShowKeyboard
+            glShowVirtualKeyboard             = LOGICAL (gcShowVirtualKeyboard)
+            btnKeyboardTrailerRelease:VISIBLE = fiTrailerRelease:VISIBLE AND glShowVirtualKeyboard
+            btnKeyboardTrailer:VISIBLE        = fiTrailerTag:VISIBLE AND glShowVirtualKeyboard
+            btnKeyboardTag:VISIBLE            = glShowVirtualKeyboard
+            btnNumPad:VISIBLE                 = glShowVirtualKeyboard
+            RECT-2:VISIBLE                    = glShowVirtualKeyboard
             btnViewInquiryText:VISIBLE        = INDEX(gcShowFGItemInquiry, "Text") GT 0
             btnSettingsText:VISIBLE           = INDEX(gcShowSettings, "Text") GT 0
             .  

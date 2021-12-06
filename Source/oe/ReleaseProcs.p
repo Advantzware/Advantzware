@@ -16,10 +16,6 @@
 {sharpshooter/ttReleaseItem.i}
 {sharpshooter/ttReleaseTag.i}
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -876,19 +872,5 @@ PROCEDURE pGetReleaseQuantity PRIVATE:
           AND (bf-oe-rell.po-no  EQ ipcCustomerPO OR ipcCustomerPO EQ ""):
         opdReleaseQuantity = opdReleaseQuantity + bf-oe-rell.qty.
     END.
-END PROCEDURE.
-
-PROCEDURE SetSetting:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
-    
-    IF VALID-OBJECT (ipoSetting) THEN DO:
-        DELETE OBJECT oSetting.
-        oSetting = ipoSetting.
-    END.
-
 END PROCEDURE.
 
