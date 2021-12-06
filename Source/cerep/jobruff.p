@@ -958,7 +958,7 @@ FOR EACH ef
            AND bff-eb.form-no EQ 0
            AND bff-eb.est-type EQ 2 :
                         
-           lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+           lAssembled = IF (bff-eb.set-is-assembled EQ YES OR bff-eb.set-is-assembled EQ ? ) THEN YES ELSE NO .
            cSetFGItem = bff-eb.stock-no  .
            lPrintSetHeader = TRUE.
            RUN pPrintData(ROWID(bff-eb)).
@@ -1037,6 +1037,7 @@ END PROCEDURE.
 
 PROCEDURE pPrintData:
        DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+       DEFINE VARIABLE iDisplayQty AS INTEGER NO-UNDO.
        FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR. 
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
@@ -1082,7 +1083,19 @@ PROCEDURE pPrintData:
                         AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
                         AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
                         NO-ERROR .    
-                END.    
+                END.
+                
+                iDisplayQty = IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty . 
+                   
+                IF lAssembled AND bf-eb.est-type EQ 2 THEN
+                DO:
+                    FIND FIRST fg-set NO-LOCK
+                         WHERE fg-set.company EQ bf-eb.company
+                         AND fg-set.set-no EQ cSetFgItem
+                         AND fg-set.part-no EQ bf-eb.stock-no NO-ERROR.
+                    IF AVAILABLE fg-set THEN
+                      iDisplayQty =  iDisplayQty * fg-set.qtyPerSet.                        
+                END.                                         
                                                          
                 PUT "<C1.5>" STRING(string(iCount) + "." ) FORMAT "x(2)" 
                     "<C4>"  bf-eb.stock-no FORMAT "x(15)"
@@ -1091,7 +1104,7 @@ PROCEDURE pPrintData:
                     "<C51>" bf-eb.form-no FORMAT ">9"
                     "<C55>" bf-eb.blank-no FORMAT ">9"
                     "<C59>" bf-eb.num-up FORMAT ">>>"
-                    "<C64>" (IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty) FORMAT ">>>>>>>>"
+                    "<C64>" iDisplayQty FORMAT ">>>>>>>>"
                     "<C72>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.over-pct ELSE v-over-pct) FORMAT ">>>>%"
                     "<C77>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.under-pct ELSE dUnderPct) FORMAT ">>>>%" SKIP.
                 iCount = iCount + 1 .
