@@ -42,10 +42,11 @@ REPEAT:
         END. // do while
         CREATE settingType.
         ASSIGN
+            settingDescription        = REPLACE(settingDescription,","," ")
             settingType.settingTypeID = iSettingTypeID
-            settingType.settingName   = REPLACE(settingName,"|",",")
+            settingType.settingName   = settingName
             settingType.description   = REPLACE(settingDescription,"|",",")
-            settingType.dataType      = REPLACE(settingDataType,"|",",")
+            settingType.dataType      = settingDataType
             settingType.validValues   = REPLACE(settingValidValues,"|",",")
             settingType.defaultValue  = REPLACE(settingDefaultValue,"|",",")
             settingType.categoryTags  = REPLACE(settingCategoryTags,"|",",")
@@ -53,7 +54,7 @@ REPEAT:
             .
     END. // not can-find
     IF companyContext THEN
-    FOR EACH sys-ctrl NO-LOCK
+    FOR EACH sys-ctrl EXCLUSIVE-LOCK
         WHERE sys-ctrl.name     EQ nk1Name
           AND sys-ctrl.isActive EQ YES
         :
@@ -116,7 +117,10 @@ REPEAT:
                 setting.scopeID       = iScopeID
                 .
         END. // not avail
-        setting.settingValue = cSettingValue.
+        ASSIGN
+            setting.settingValue = cSettingValue
+            sys-ctrl.isActive    = NO
+            .
     END. // each sys-ctrl
 END. // repeat
 INPUT CLOSE.
