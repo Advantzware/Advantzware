@@ -47,9 +47,6 @@ DEF VAR li-ava AS INT NO-UNDO.
 DEF VAR li-reo AS INT NO-UNDO.
 
 DEFINE VARIABLE cDisplayFGLocationSummary AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
 
 {sys/inc/oereordr.i}
 
@@ -614,7 +611,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  cDisplayFGLocationSummary = oSetting:GetByName("DisplayFGLocationSummary").
+  RUN spGetSettingByName("DisplayFGLocationSummary", OUTPUT cDisplayFGLocationSummary).
 
 END PROCEDURE.
 

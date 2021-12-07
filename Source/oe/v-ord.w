@@ -6579,7 +6579,7 @@ IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
 
-  MESSAGE "Order has been Invoice, no deletion allowed..."
+  MESSAGE "This Order has been Invoiced, It cannot be deleted, but can be purged by the Administrator."
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 

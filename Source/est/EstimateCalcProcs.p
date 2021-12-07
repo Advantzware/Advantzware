@@ -4166,7 +4166,7 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
         ipbf-estCostHeader.warehouseMarkupPct          = bf-ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
-        ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.handlingRateRMPerCWT        = bf-ce-ctrl.rm-rate /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
         
         
@@ -4180,9 +4180,9 @@ PROCEDURE pBuildHeader PRIVATE:
         /*        ipbf-estCostHeader.addToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/*/
         /*        ipbf-estCostHeader.addToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/*/
         ipbf-estCostHeader.foldPct                     = bf-ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */            
-        ipbf-estCostHeader.handlingRatePerCWTFGPct     = bf-ce-ctrl.fg-rate / 100  /*ld-fg-rate*/
-        ipbf-estCostHeader.handlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm / 100
-        ipbf-estCostHeader.handlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm / 100
+        ipbf-estCostHeader.handlingRateFGPerCWT        = bf-ce-ctrl.fg-rate   /*ld-fg-rate*/
+        ipbf-estCostHeader.handlingRateRMFarmPerCWT    = bf-ce-ctrl.rm-rate-farm 
+        ipbf-estCostHeader.handlingRateFGFarmPerCWT    = bf-ce-ctrl.fg-rate-farm 
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
