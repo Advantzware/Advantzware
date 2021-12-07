@@ -81,12 +81,12 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_chk-no end_chk-no ~
-begin_vend end_vend begin_date end_date tb_ap-only sl_avail sl_selected ~
-Btn_Def Btn_Add Btn_Remove btn_Up btn_down fi_file tb_OpenCSV tbAutoClose ~
-btn-ok btn-cancel 
+begin_vend end_vend begin_date end_date tb_IncludeCleared tb_ap-only sl_avail ~
+sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down fi_file tb_OpenCSV ~
+tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_chk-no end_chk-no begin_vend ~
-end_vend begin_date end_date tb_ap-only sl_avail sl_selected fi_file ~
-tb_OpenCSV tbAutoClose 
+end_vend begin_date end_date tb_IncludeCleared tb_ap-only sl_avail ~
+sl_selected fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -215,6 +215,11 @@ DEFINE VARIABLE tb_excel    AS LOGICAL   INITIAL YES
     VIEW-AS TOGGLE-BOX
     SIZE 21 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_IncludeCleared AS LOGICAL INITIAL yes 
+     LABEL "Include Cleared" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19.8 BY .81 NO-UNDO.
+     
 DEFINE VARIABLE tb_OpenCSV  AS LOGICAL   INITIAL YES 
     LABEL "Open CSV?" 
     VIEW-AS TOGGLE-BOX
@@ -236,7 +241,8 @@ DEFINE FRAME rd-fgexp
     "Enter Beginning Delivery Zone" WIDGET-ID 146
     end_date AT ROW 5.38 COL 73.6 COLON-ALIGNED HELP
     "Enter Ending Delivery Zone" WIDGET-ID 148
-    tb_ap-only AT ROW 6.95 COL 69 RIGHT-ALIGNED WIDGET-ID 150
+    tb_IncludeCleared AT ROW 6.95 COL 45.6 RIGHT-ALIGNED WIDGET-ID 152
+    tb_ap-only AT ROW 6.95 COL 76.8 RIGHT-ALIGNED WIDGET-ID 150
     sl_avail AT ROW 10.14 COL 5 NO-LABELS WIDGET-ID 26
     sl_selected AT ROW 10.14 COL 67 NO-LABELS WIDGET-ID 28
     Btn_Def AT ROW 10.29 COL 44.4 HELP
@@ -325,6 +331,12 @@ ASSIGN
     tb_excel:HIDDEN IN FRAME rd-fgexp       = TRUE
     tb_excel:PRIVATE-DATA IN FRAME rd-fgexp = "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_IncludeCleared IN FRAME rd-fgexp
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_IncludeCleared:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+                
 /* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME rd-fgexp
    ALIGN-R                                                              */
 ASSIGN 
@@ -704,6 +716,17 @@ ON VALUE-CHANGED OF tb_excel IN FRAME rd-fgexp /* Export To Excel? */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_IncludeCleared
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_IncludeCleared rd-fgexp
+ON VALUE-CHANGED OF tb_IncludeCleared IN FRAME rd-fgexp /* Include Cleared */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_OpenCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV rd-fgexp
 ON VALUE-CHANGED OF tb_OpenCSV IN FRAME rd-fgexp /* Open CSV? */
@@ -911,12 +934,13 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY begin_chk-no end_chk-no begin_vend end_vend begin_date end_date 
-        tb_ap-only sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose 
+        tb_IncludeCleared tb_ap-only sl_avail sl_selected fi_file tb_OpenCSV 
+        tbAutoClose 
         WITH FRAME rd-fgexp.
     ENABLE RECT-6 RECT-7 RECT-8 begin_chk-no end_chk-no begin_vend end_vend 
-        begin_date end_date tb_ap-only sl_avail sl_selected Btn_Def Btn_Add 
-        Btn_Remove btn_Up btn_down fi_file tb_OpenCSV tbAutoClose btn-ok 
-        btn-cancel 
+        begin_date end_date tb_IncludeCleared tb_ap-only sl_avail sl_selected 
+        Btn_Def Btn_Add Btn_Remove btn_Up btn_down fi_file tb_OpenCSV 
+        tbAutoClose btn-ok btn-cancel 
         WITH FRAME rd-fgexp.
     VIEW FRAME rd-fgexp.
     {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -1005,7 +1029,7 @@ PROCEDURE run-report :
 
     RUN ap/reconcil.p .
 
-    FOR EACH reconcile WHERE reconcile.tt-cleared EQ NO
+    FOR EACH reconcile WHERE (reconcile.tt-cleared EQ NO OR tb_IncludeCleared)
         AND reconcile.tt-number GE begin_chk-no
         AND reconcile.tt-number LE end_chk-no
         AND (reconcile.tt-date GE begin_date OR begin_date EQ ?)

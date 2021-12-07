@@ -240,7 +240,7 @@ FORMAT HEADER
     "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
     "<C45>Job/Head Specification" 
     "<C84>Date:"  v-today  SKIP
-    "<P16><C30>Job #:"  "<B>" STRING(v-job-no) "</B>" 
+    "<P16><C29>Head ID:"  "<B>" STRING(v-job-no) "</B>" 
     "<C47>Machine: " "<B>" cJobMachCode "</B>"
     "<C68>Cycles: " "<B>" cCycleValue "</B>"
     "<P10><C84>Due Date:"  v-due-date   SKIP(1)
@@ -357,8 +357,6 @@ FOR EACH job-hdr NO-LOCK
            VIEW FRAME head.
         END.
         
-        PUT "<R-4><UNITS=INCHES><C3><FROM><C25><r+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-            STRING(STRING(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99"))  FORMAT "x(10)" ">" SKIP .
         v-printline = 5 .
         IF v-format EQ "Fibre" THEN VIEW FRAME bott.
 
@@ -1056,7 +1054,7 @@ PROCEDURE pGetPrintLabel1:
     END.
     ELSE DO:
        ASSIGN
-         opcJobLabel      = "Job #: "
+         opcJobLabel      = "Head ID: "
          opcMachineLabel  = "Machine: "
          opcCycles        = "Cycles: "
          opcFurnish       = "Furnish: "

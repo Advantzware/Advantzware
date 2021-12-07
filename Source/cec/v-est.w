@@ -856,8 +856,8 @@ DO:
                 OUTPUT cFoundValue, 
                 OUTPUT recFoundRecID
                 ).
-             IF cFoundValue <> "" AND cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
-                lw-focus:SCREEN-VALUE = cFoundValue.
+             IF cFoundValue <> "" AND cFoundValue NE eb.sman:SCREEN-VALUE THEN DO:
+                eb.sman:SCREEN-VALUE = cFoundValue.
                 RUN new-sman.
               APPLY "ENTRY":U TO eb.sman . 
              END.          
@@ -893,7 +893,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-stylec.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
-              assign lw-focus:screen-value =  entry(1,char-val)
+              assign eb.style:screen-value =  entry(1,char-val)
                      style_dscr:screen-value = entry(2,char-val) 
                   /*   ef.board:screen-value in frame {&frame-name} = if ef.board:screen-value = "" then entry(3,char-val)  else ef.board:screen-value /* style.material[1] */
                   */  
@@ -922,14 +922,14 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-flute.w (cocode,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.flute:screen-value =  entry(1,char-val).
            APPLY "ENTRY":U TO eb.flute .   
        end.
        when "test" then do:
            ls-cur-val = eb.flute:screen-value.
            run windows/l-test.w (cocode,locode,ls-cur-val,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.test:screen-value =  entry(1,char-val).
            APPLY "ENTRY":U TO eb.test .   
        end.
        when "Board" then do:
@@ -944,7 +944,7 @@ DO:
              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).  
              IF char-val NE "" THEN DO:
                ASSIGN
-                    lw-focus:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val)
+                    ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val)
                     ef.brd-dscr:SCREEN-VALUE IN FRAME {&frame-name} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val)
                     .       
                APPLY "ENTRY":U TO lw-focus.
@@ -1022,18 +1022,18 @@ DO:
        when "upc-no" then do:     
            run windows/l-itemfu.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.upc-no:screen-value = entry(1,char-val).
        end.
        when "spc-no" then do:
            run windows/l-itemfs.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.spc-no:screen-value = entry(1,char-val).
        end.  
        when "ship-id" then do:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-shipto.w (cocode,locode,eb.cust-no:screen-value,ls-cur-val, output char-val).
            if char-val <> "" then DO:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.ship-id:screen-value =  ENTRY(1,char-val).
               RUN display-shipto.
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
@@ -1048,12 +1048,12 @@ DO:
        end.  /* ship-id*/
        WHEN "adhesive" THEN DO:
            RUN windows/l-item.w (cocode,"","G,S,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
-           IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
        WHEN "loc" THEN DO:
          run windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, output char-val).
          if char-val <> "" then 
-            assign lw-focus:SCREEN-VALUE = entry(1,char-val).
+            assign eb.loc:SCREEN-VALUE = entry(1,char-val).
        END.
        when "csrUser_id" then do:
          run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).

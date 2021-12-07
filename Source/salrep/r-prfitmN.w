@@ -81,12 +81,12 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
                            "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
-                           "Style,Flute,Test,Length,Width,Depth,BOL#,Order#,PO Number"
+                           "Style,Flute,Test,Length,Width,Depth,BOL#,Order#,PO Number,Sold To Name"
     cFieldListToSelect = "cust,inv,ino,cust-part,cat,qty-shp,i-sq,ttl-msf,msf," +
                             "unt-prc,uom,brdcst-m,ordcst-m,invcst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
-                            "styl,flut,tst,lnth,wdth,dpth,bol-no,ord-no,po-no"
-    cFieldLength       = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6,10,8,15"
-    cFieldType         = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c,i,c," + "c,c,c,i,i,i,i,i,c" 
+                            "styl,flut,tst,lnth,wdth,dpth,bol-no,ord-no,po-no,cSoldToName"
+    cFieldLength       = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6,10,8,15,30"
+    cFieldType         = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c,i,c," + "c,c,c,i,i,i,i,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1609,6 +1609,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE iBolNo          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iOrdNo          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cPoNo           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSoldToName     AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE lv-r-no         LIKE oe-retl.r-no NO-UNDO.
     DEFINE VARIABLE lv-type         AS CHARACTER NO-UNDO.

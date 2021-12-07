@@ -49,14 +49,14 @@ DEFINE VARIABLE oJobHeader          AS jc.JobHeader       NO-UNDO.
 DEFINE VARIABLE oItemFG             AS fg.ItemFG          NO-UNDO.
 DEFINE VARIABLE oCustomer           AS Inventory.Customer NO-UNDO.
 DEFINE VARIABLE oLoadTag            AS Inventory.Loadtag  NO-UNDO.
-DEFINE VARIABLE oSetting            AS system.Setting     NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
-DEFINE VARIABLE glAutoCreateLoadtagOnJobScan AS LOGICAL NO-UNDO.
-DEFINE VARIABLE glAutoPrintLoadtagOnJobScan  AS LOGICAL NO-UNDO.
-DEFINE VARIABLE giDefaultPrintCopies         AS INTEGER NO-UNDO INITIAL 1.
-DEFINE VARIABLE giNK1PrintCopies             AS INTEGER NO-UNDO INITIAL 1.
+DEFINE VARIABLE cSettingValue                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glAutoCreateLoadtagOnJobScan AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glAutoPrintLoadtagOnJobScan  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE giDefaultPrintCopies         AS INTEGER   NO-UNDO INITIAL 1.
+DEFINE VARIABLE giNK1PrintCopies             AS INTEGER   NO-UNDO INITIAL 1.
 
 oCustomer = NEW Inventory.Customer().
 
@@ -466,18 +466,17 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
+
+    RUN spGetSettingByName ("AutoCreateLoadtagOnJobScan", OUTPUT cSettingValue).
+    glAutoCreateLoadtagOnJobScan = LOGICAL (cSettingValue).
     
-    {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}       
+    RUN spGetSettingByName ("AutoPrintLoadtagOnJobScan", OUTPUT cSettingValue).
+    glAutoPrintLoadtagOnJobScan = LOGICAL (cSettingValue).
     
-    IF NOT VALID-OBJECT(oSetting) THEN
-        oSetting = NEW system.Setting().
+    RUN spGetSettingByName ("DefaultPrintCopies", OUTPUT cSettingValue).
+    giDefaultPrintCopies = INTEGER (cSettingValue).
         
-    ASSIGN
-        glAutoCreateLoadtagOnJobScan = LOGICAL(oSetting:GetByName("AutoCreateLoadtagOnJobScan"))
-        glAutoPrintLoadtagOnJobScan  = LOGICAL(oSetting:GetByName("AutoPrintLoadtagOnJobScan"))  
-        giDefaultPrintCopies         = INTEGER(oSetting:GetByName("DefaultPrintCopies"))
-        btCreate:HIDDEN              = glAutoCreateLoadtagOnJobScan
-        .
+    btCreate:HIDDEN = glAutoCreateLoadtagOnJobScan.
     
     RUN sys/ref/nk1look.p (
         INPUT  cCompany,           /* Company Code */ 

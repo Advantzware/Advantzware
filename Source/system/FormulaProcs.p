@@ -259,6 +259,100 @@ PROCEDURE Formula_GetReverseGrainAndEstimateTypeForPOLine:
             .    
 END PROCEDURE.
 
+PROCEDURE Formula_ParseDesignScores:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateID   AS CHARACTE  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiDesignNo     AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPrintMetric  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttScoreLine.
+    
+    
+    DEFINE VARIABLE cScoreLine  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dSizeFactor AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSizeFormat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCecScrnLog AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCurrentSizeFormat AS CHARACTER NO-UNDO INIT "Decimal".
+    
+    
+    DEFINE BUFFER bf-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    DEFINE BUFFER bf-eb              FOR eb.
+    DEFINE BUFFER bf-est             FOR est.
+
+    EMPTY TEMP-TABLE ttPanel.
+    EMPTY TEMP-TABLE ttScoreLine.
+    
+    FIND FIRST bf-eb NO-LOCK
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no    = ipcEstimateID
+        AND bf-eb.form-no   = ipiFormNo
+        AND bf-eb.blank-no  = ipiBlankNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-eb THEN
+        RETURN.
+        
+    FIND FIRST bf-est NO-LOCK
+        WHERE bf-est.company = ipcCompany
+        AND bf-est.est-no    = ipcEstimateID NO-ERROR.
+    
+    IF NOT AVAILABLE bf-est THEN
+        RETURN.
+    
+    RUN Formula_GetPanelDetailsForPOScores (
+        INPUT  bf-eb.company,
+        INPUT  bf-eb.est-no,
+        INPUT  bf-eb.form-no,
+        INPUT  bf-eb.blank-no,
+        OUTPUT TABLE ttPanel
+        ).
+
+    IF NOT CAN-FIND(FIRST ttPanel) THEN
+        RETURN.
+    
+    RUN GetSizeFactor (
+        INPUT  bf-eb.company,
+        OUTPUT dSizeFactor,
+        OUTPUT cSizeFormat,
+        OUTPUT lCecScrnLog
+        ). 
+    
+    IF cCurrentSizeFormat NE cSizeFormat THEN
+        RUN SwitchPanelSizeFormatForttPanel (
+            INPUT cCurrentSizeFormat,
+            INPUT cSizeFormat,
+            INPUT-OUTPUT TABLE ttPanel
+            ). 
+
+
+    FIND FIRST bf-box-design-hdr NO-LOCK
+        WHERE bf-box-design-hdr.company = bf-eb.company
+        AND bf-box-design-hdr.design-no = ipiDesignNo NO-ERROR.
+    
+    IF NOT AVAILABLE bf-box-design-hdr THEN
+        RETURN.
+    
+    IF iplPrintMetric AND NOT bf-est.metric THEN
+        RUN pConvertIntoMetricSizeForttPanel (INPUT-OUTPUT TABLE ttPanel).
+       
+    RUN pCreateScoreLine (bf-box-design-hdr.lscore, "L", NO,1).
+    
+    RUN pCreateScoreLine (bf-box-design-hdr.lcum-score, "L", YES,1).
+    
+    FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
+
+        RUN pCreateScoreLine (bf-box-design-line.wscore, "W", NO, bf-box-design-line.line-no).
+        RUN pCreateScoreLine (bf-box-design-line.wcum-score, "W", YES, bf-box-design-line.line-no).
+
+    END.
+
+END PROCEDURE.
+
 PROCEDURE Formula_ReBuildBoxDesignForEstimate:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -1437,6 +1531,109 @@ PROCEDURE pGetScoreAndTypes PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE pCreateScoreLine PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLineNo           AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iCnt         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTempVal     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cScrNum      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLine   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSpaceCount  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dTmpScore    AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE cRepChar     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempChar    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewText     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNum         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE deFinalScore AS DECIMAL   NO-UNDO.
+
+
+    ASSIGN 
+        cNewText = ipcScoreTxt.
+
+    DO iCnt = 1 TO LENGTH(ipcScoreTxt):
+        ASSIGN 
+            cTempChar = TRIM(SUBSTRING(ipcScoreTxt, iCnt, 1)).
+
+        IF (cTempChar = "" OR iCnt = LENGTH(ipcScoreTxt)) and cRepChar <> "" Then
+        DO: 
+            IF iCnt = LENGTH(ipcScoreTxt) AND cTempChar <> "" THEN
+                ASSIGN cRepChar = cRepChar + cTempChar.
+
+            ASSIGN 
+                iNum = INTEGER(REPLACE(REPLACE(cRepChar, "[", ""), "]", "")) NO-ERROR.
+
+            IF NOT ERROR-STATUS:ERROR THEN
+            DO:
+                IF ipcPanelType = "W" THEN
+                    FOR EACH ttPanel 
+                        WHERE ttPanel.cPanelType EQ ipcPanelType
+                        AND ttPanel.iPanelNum  LT iNum:
+
+                        ASSIGN 
+                            dTmpScore = ttPanel.dPanelSize.
+
+
+                        IF iplTotal THEN
+                            deFinalScore = deFinalScore + dTmpScore.
+                    END.
+
+                FIND FIRST ttPanel 
+                    WHERE ttPanel.cPanelType EQ ipcPanelType
+                    AND ttPanel.iPanelNum  EQ iNum NO-ERROR.
+
+                IF AVAILABLE ttPanel THEN
+                DO:
+
+                    ASSIGN 
+                        dTmpScore   = ttPanel.dPanelSize.
+
+                     IF iplTotal THEN
+                        deFinalScore = deFinalScore + dTmpScore.
+                    ELSE
+                        deFinalScore  = dTmpScore.
+                        
+                    cNewText = REPLACE(cNewText, cRepChar, string(deFinalScore)) . 
+                END.                        
+
+            END.
+            ASSIGN 
+                cRepChar = "".
+
+        END.
+
+        IF cTempChar <> "" THEN
+            ASSIGN cRepChar = cRepChar + cTempChar.
+
+    END.
+    
+    FIND FIRST ttScoreLine
+        WHERE ttScoreLine.PanelType = ipcPanelType
+          AND ttScoreLine.LineNum = ipiLineNo NO-ERROR.
+          
+    IF NOT AVAILABLE ttScoreLine THEN
+    DO: 
+        CREATE ttScoreLine.
+        ASSIGN 
+            ttScoreLine.PanelType = ipcPanelType
+            ttScoreLine.LineNum   = ipiLineNo.
+    END.  
+  
+    IF iplTotal THEN
+        ttScoreLine.ScoreLineTotal = cNewText.
+    ELSE
+        ttScoreLine.ScoreLine      = cNewText.
+            
+
+END PROCEDURE.
+
 PROCEDURE pRoundPanelSize PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2048,6 +2245,19 @@ PROCEDURE SwitchPanelSizeFormatForttPanel:
             OUTPUT ttPanel.dScoringAllowance
             ).
     END.
+END PROCEDURE.
+
+PROCEDURE pConvertIntoMetricSizeForttPanel PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Comverts the dimensions into Metric Numbers
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE                 FOR ttPanel.
+
+    FOR EACH ttPanel:
+        ttPanel.dPanelSize =  ROUND(ttPanel.dPanelSize * 25.4, 0).
+    END.
+
 END PROCEDURE.
 
 PROCEDURE UpdatePanelDetailsForEstimate:

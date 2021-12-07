@@ -103,7 +103,7 @@ DEF VAR v-shipto-fedx AS CHAR NO-UNDO.
 DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 DEF VAR v-print-barTag AS LOG NO-UNDO.
-
+DEFINE VARIABLE iPageLineCount AS INTEGER NO-UNDO.
 
 ASSIGN
   ls-image1 = "images\Soule.jpg"

@@ -50,8 +50,6 @@ CREATE WIDGET-POOL.
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
        FIELD tag-no AS CHARACTER.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
@@ -750,9 +748,6 @@ PROCEDURE pInit PRIVATE :
     RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
     
     {methods/run_link.i "CONTAINER-SOURCE" "GetDesignConfig" "(OUTPUT oSSLoadTagDesignConfig)"}
-    {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}
-    
-    RUN SetSetting IN hdLoadTagProcs (oSetting).
     
     IF VALID-OBJECT(oSSLoadTagDesignConfig) THEN DO:
         hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.

@@ -145,20 +145,18 @@
              avail prod         and  
              prod.fg-mat ne ""  and
              prod.wip-mat ne "" then do:                          
-            /* Debit FG Material */
-            find first work-gl where work-gl.actnum eq prod.fg-mat no-lock no-error.      
-            if not avail work-gl then do:
-              create work-gl.
-              work-gl.actnum = prod.fg-mat.
-            end.
-            work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.             
-            /* Credit WIP Material */
-            find first work-gl where work-gl.actnum eq prod.wip-mat no-lock no-error.      
-            if not avail work-gl then do:
-              create work-gl.
-              work-gl.actnum = prod.wip-mat.
-            end.
+            /* Debit FG Material */            
+            create work-gl.
+            work-gl.actnum = prod.fg-mat.
+
+            work-gl.debits = work-gl.debits + w-fg-rctd.ext-cost.
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + (IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.            
+            /* Credit WIP Material */            
+            create work-gl.
+            work-gl.actnum = prod.wip-mat.
+            
             work-gl.credits = work-gl.credits + w-fg-rctd.ext-cost.
+            work-gl.cDesc  = work-gl.cDesc + (IF w-fg-rctd.job-no NE "" and w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "") + ( IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.
           end.  /* if w-fg-rctd.ext-cost */
         end.  
       end.
@@ -220,11 +218,16 @@
             and fg-bin.loc-bin eq w-fg-rctd.loc-bin
             and fg-bin.tag     eq w-fg-rctd.tag
           no-lock no-error.
+          
+          
+          cDescription = (IF w-fg-rctd.job-no NE "" AND w-fg-rctd.job-no NE "0" THEN "Job: " + w-fg-rctd.job-no + "-" + STRING(w-fg-rctd.job-no2,"99") ELSE "")
+                     + ( IF w-fg-rctd.po-no NE "" THEN " PO: " + STRING(w-fg-rctd.po-no,"999999") + "-" + STRING(w-fg-rctd.po-line,"999") ELSE "") 
+                     + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom NO-ERROR.
         
       if avail fg-bin then
         run oe/invposty.p (0, fg-bin.i-no, w-fg-rctd.t-qty * -1, fg-bin.pur-uom,
                            fg-bin.std-lab-cost, fg-bin.std-fix-cost,
-                           fg-bin.std-var-cost, fg-bin.std-mat-cost).
+                           fg-bin.std-var-cost, fg-bin.std-mat-cost, cDescription).
     end.
 
     /*procedure code was originally here*/

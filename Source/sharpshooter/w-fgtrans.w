@@ -47,14 +47,10 @@ CREATE WIDGET-POOL.
 {fg/fg-post3.i NEW}
 {methods/template/brwcustomdef.i}
 
-DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
-
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE oSetting         AS system.Setting    NO-UNDO.
 DEFINE VARIABLE oLoadTag         AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE oFGBin           AS fg.FGBin          NO-UNDO.
 DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
@@ -65,19 +61,19 @@ DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE gcLocationSource AS CHARACTER NO-UNDO INITIAL "LoadTag".
-DEFINE VARIABLE glCloseJob       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glAutoPost       AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE gcLocationSource      AS CHARACTER NO-UNDO INITIAL "LoadTag".
+DEFINE VARIABLE glCloseJob            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glAutoPost            AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
 
 ASSIGN
     oLoadTag  = NEW Inventory.LoadTag()
     oKeyboard = NEW system.Keyboard()
     oFGBin   = NEW fg.FGBin()
     oItemFG  = NEW fg.ItemFG()
-    oSetting = NEW system.Setting()
     .
-
-oSetting:LoadByCategoryAndProgram("SSFGReceiveTransfer").
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -896,9 +892,6 @@ PROCEDURE local-destroy :
   IF VALID-OBJECT(oLoadTag) THEN
       DELETE OBJECT oLoadTag.
 
-  IF VALID-OBJECT(oSetting) THEN
-      DELETE OBJECT oSetting.
-  
   IF VALID-OBJECT(oKeyboard) THEN
       DELETE OBJECT oKeyboard.
 
@@ -961,8 +954,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
+    RUN windows/setting-dialog.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -977,11 +969,13 @@ PROCEDURE pInit PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    ASSIGN
-        glShowVirtualKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-        gcShowSettings        = oSetting:GetByName("ShowSettings")
-        .
-
+    RUN spSetSettingContext.
+    
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
+    
+    glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
+    
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
     oKeyboard:SetProcedure(THIS-PROCEDURE).
     oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
@@ -1102,6 +1096,18 @@ PROCEDURE pLocationScan PRIVATE :
         cCurrentWarehouse = oFGBin:GetValue("Warehouse")
         cCurrentLocation  = oFGBin:GetValue("Location")
         .
+
+    EMPTY TEMP-TABLE work-gl.
+    EMPTY TEMP-TABLE work-gl-c.
+    EMPTY TEMP-TABLE w-work-gl.
+    EMPTY TEMP-TABLE work-job.
+    EMPTY TEMP-TABLE tmp-work-job.
+    EMPTY TEMP-TABLE w-inv-line.
+    EMPTY TEMP-TABLE w-ord-misc.
+    
+    FOR EACH w-job:
+        DELETE w-job.    
+    END.
     
     IF cCurrentWarehouse EQ ipcWarehouse AND cCurrentLocation EQ ipcLocation THEN
         ASSIGN
@@ -1322,7 +1328,19 @@ PROCEDURE pTagScan PRIVATE :
             iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
             iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
             .
+
+        EMPTY TEMP-TABLE work-gl.
+        EMPTY TEMP-TABLE work-gl-c.
+        EMPTY TEMP-TABLE w-work-gl.
+        EMPTY TEMP-TABLE work-job.
+        EMPTY TEMP-TABLE tmp-work-job.
+        EMPTY TEMP-TABLE w-inv-line.
+        EMPTY TEMP-TABLE w-ord-misc.
         
+        FOR EACH w-job:
+            DELETE w-job.    
+        END.
+                
         RUN api\inbound\CreateInventoryReceipt.p (
             INPUT        cCompany, 
             INPUT        ipcTag,

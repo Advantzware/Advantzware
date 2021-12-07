@@ -46,10 +46,6 @@ DEFINE VARIABLE gcBOLQtyPopup AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdReleaseProcs AS HANDLE NO-UNDO.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 {sharpshooter/ttReleaseTag.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,11 +645,7 @@ PROCEDURE pInit PRIVATE :
     
     RUN oe/ReleaseProcs.p PERSISTENT SET hdReleaseProcs.
     
-    {methods/run_link.i "CONTAINER-SOURCE" "GetSettings" "(OUTPUT oSetting)"}
-    IF NOT VALID-OBJECT (oSetting) THEN
-        oSetting = NEW system.Setting().    
-    
-    gcBOLQtyPopup = oSetting:GetByName("SSBOLQuantitySelection").
+    RUN spGetSettingByName("SSBOLQuantitySelection", OUTPUT gcBOLQtyPopup).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

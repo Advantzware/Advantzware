@@ -11,8 +11,6 @@ DEF INPUT PARAM v-format AS CHAR NO-UNDO.
 
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem    FOR item.
-DEF BUFFER b-ref1   FOR reftable.
-DEF BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 
@@ -31,6 +29,9 @@ DEF VAR v-mach AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR v-char AS CHAR NO-UNDO.
 DEF VAR ll-scored AS LOG NO-UNDO.
+
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-score NO-UNDO FIELD tt-seq AS INT
                                 FIELD tt-scor AS DEC
@@ -310,33 +311,38 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
     PUT UNFORMATTED
         "</addoncodes>".
 
-    RUN po/po-ordls.p (RECID(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END. 
 
     EMPTY TEMP-TABLE tt-score.   
     
-    IF AVAIL b-ref1 THEN
-    DO i = 1 TO 12:
-      IF b-ref1.val[i] NE 0 THEN DO:
+    IF lScoreAvailable THEN
+    DO i = 1 TO 20:
+      IF lv-val[i] NE 0 THEN DO:
         CREATE tt-score.
         ASSIGN
          tt-seq  = i
-         tt-type = SUBSTR(b-ref1.dscr,i,1)
-         tt-scor = TRUNC(b-ref1.val[i],0) +
-                   ((b-ref1.val[i] - TRUNC(b-ref1.val[i],0)) * 6.25).
-      END.
-    END.
-
-    IF AVAIL b-ref2 THEN
-    DO i = 1 TO 8:
-      IF b-ref2.val[i] NE 0 THEN DO:
-        CREATE tt-score.
-        ASSIGN
-         tt-seq  = 12 + i
-         tt-type = SUBSTR(b-ref2.dscr,i,1)
-         tt-scor = TRUNC(b-ref2.val[i],0) +
-                   ((b-ref2.val[i] - TRUNC(b-ref2.val[i],0)) * 6.25).
+         tt-type = lv-typ[i]
+         tt-scor = TRUNC(lv-val[i],0) +
+                   ((lv-val[i] - TRUNC(lv-val[i],0)) * 6.25).
       END.
     END.
 
