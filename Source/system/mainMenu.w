@@ -1696,14 +1696,9 @@ PROCEDURE pGetMenuSettings :
         boxes:LOAD-IMAGE(?).
         
         RUN spGetSettingByName ("MainMenuImage", OUTPUT cMainMenuImage).
-
-        MESSAGE 
-        "cMainMenuImage:" cMainMenuImage
-        VIEW-AS ALERT-BOX.        
         boxes:LOAD-IMAGE(cMainMenuImage) NO-ERROR.
         
-        RUN spGetSettingByName ("MenuLinkASI", OUTPUT cSettingValue).
-        
+        RUN spGetSettingByName ("MenuLinkASI", OUTPUT cSettingValue).        
         IF cSettingValue EQ "YES" THEN DO:
             RUN spGetSettingByName ("MenuLinkASIImage", OUTPUT cNK1Value[1]).
             RUN spGetSettingByName ("MenuLinkASIURL", OUTPUT cNK1Value[2]).
