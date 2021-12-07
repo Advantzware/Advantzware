@@ -3404,14 +3404,17 @@ PROCEDURE component-qty-check :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iprRctdRow AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE li-max-qty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE ll         AS LOG     NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
     FIND bf-fg-rctd WHERE ROWID(bf-fg-rctd) EQ iprRctdRow 
         EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAILABLE bf-fg-rctd THEN
-        RETURN ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN do:
+        oplReturnError = YES.
+        RETURN.
+    END.    
 
     IF itemfg.isaset                                                        AND
         (itemfg.alloc EQ NO                OR
@@ -3466,7 +3469,8 @@ PROCEDURE component-qty-check :
                 ASSIGN
                     gvcSkippedJob  = bf-fg-rctd.job-no + "-" + STRING(bf-fg-rctd.job-no2)
                     gvcSkippedItem = itemfg.i-no.
-                RETURN ERROR. 
+                oplReturnError = YES.    
+                RETURN . 
             END.
 
         END. /* if over qty */
@@ -3577,6 +3581,7 @@ PROCEDURE create-loadtag :
     DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
   
     DEFINE VARIABLE dRFIDTag              AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lReturnError          AS LOGICAL   NO-UNDO.
     /*   DEF BUFFER bf-eb FOR eb. */
     DEFINE BUFFER bf-itemfg FOR itemfg.
 
@@ -3823,15 +3828,13 @@ PROCEDURE create-loadtag :
             /* WFK - check here is qty avail for components is sufficient, so */
             /*       it can be changed before updating the PO line            */     
             IF NOT fgSetRec-Int EQ 1 THEN
-                RUN component-qty-check (INPUT ROWID(fg-rctd)) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN 
+                RUN component-qty-check (INPUT ROWID(fg-rctd), OUTPUT lReturnError) NO-ERROR.
+            IF lReturnError THEN 
             DO:
                 /* User chose not to create the tag with a lower qty */
                 /* so remove created record                          */
                 IF AVAIL(fg-rctd) THEN
-                    DELETE fg-rctd.
-
-                RETURN ERROR.
+                    DELETE fg-rctd.                
             END.
 
 

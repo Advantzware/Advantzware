@@ -567,7 +567,7 @@ DO:
                               AND job.job-no  EQ job-hdr.job-no
                               AND job.job-no2 EQ job-hdr.job-no2
                               AND job.opened EQ YES
-                              AND (job.loc EQ cLocation OR cLocation EQ "*All")
+                              AND (job.loc EQ cLocation OR job.shipFromLocation EQ cLocation OR cLocation EQ "*All")
                               )
              NO-ERROR.
         IF AVAILABLE job-hdr THEN

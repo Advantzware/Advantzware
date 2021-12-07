@@ -1252,7 +1252,7 @@ PROCEDURE post-gl :
                         ttGLTrans.jrnl    = "CASHR"
                         ttGLTrans.tr-dscr = cust.cust-no + " " +
                                              STRING(ar-cash.check-no,"999999999999") +
-                                             " Inv# " + STRING(ar-cashl.inv-no)
+                                             " Inv: " + STRING(ar-cashl.inv-no)
                         ttGLTrans.tr-date = tran-date
                         ttGLTrans.tr-amt  = ar-cashl.amt-paid - ar-cashl.amt-disc
                         ttGLTrans.period  = tran-period
@@ -1271,7 +1271,7 @@ PROCEDURE post-gl :
                             ttGLTrans.jrnl    = "CRDIS"
                             ttGLTrans.tr-dscr = cust.cust-no + " " +
                                            STRING(ar-cash.check-no,"999999999999") +
-                                           " Inv# " + STRING(ar-cashl.inv-no)
+                                           " Inv: " + STRING(ar-cashl.inv-no)
                             ttGLTrans.tr-date = tran-date
                             ttGLTrans.tr-amt  = ar-cashl.amt-disc
                             ttGLTrans.period  = tran-period

@@ -35,6 +35,7 @@ DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEFINE VARIABLE cDescription    AS CHARACTER NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
@@ -1000,7 +1001,7 @@ PROCEDURE fg-post:
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-job.cDesc,
                              "FG").
         END. /* each work-job */
     END.
@@ -1144,9 +1145,6 @@ PROCEDURE gl-from-work:
     DEF INPUT PARAM ip-run AS INT NO-UNDO.
     DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
 
-    DEF VAR credits AS DEC INIT 0 NO-UNDO.
-    DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
     FIND FIRST period
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1158,29 +1156,20 @@ PROCEDURE gl-from-work:
         OR (ip-run EQ 2 AND work-gl.job-no EQ "")
         BREAK BY work-gl.actnum:
 
-        ASSIGN
-            debits  = debits  + work-gl.debits
-            credits = credits + work-gl.credits.
-
-        IF LAST-OF(work-gl.actnum) THEN 
-        DO:
           RUN GL_SpCreateGLHist(cocode,
                              work-gl.actnum,
                              "FGPOST",
                              (IF work-gl.job-no NE "" THEN "FG Receipt from Job"
                                                       ELSE "FG Receipt from PO"),
                              v-post-date,
-                             (debits - credits),
+                             (work-gl.debits - work-gl.credits),
                              ip-trnum,
                              period.pnum,
                              "A",
                              v-post-date,
-                             "",
+                             work-gl.cDesc,
                              "FG").
-          ASSIGN
-             debits          = 0
-             credits         = 0.
-        END.
+
     END.
 
 

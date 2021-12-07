@@ -846,13 +846,12 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
          cCurrency = "EUR" .
          ELSE IF i EQ 2 THEN
          cCurrency = "GBP".
-         FIND FIRST currency NO-LOCK
-              WHERE currency.company   EQ cust.company
-              AND currency.c-code      EQ cCurrency               
-              AND currency.ex-rate     GT 0
-              NO-ERROR.
-             
-           dExchangeRate[i] = IF AVAILABLE currency THEN currency.ex-rate ELSE 1.   
+         
+         RUN spCommon_CurrencyExcRate( INPUT cust.company,
+                                       INPUT cCurrency,
+                                       INPUT "USD",
+                                       INPUT inv-head.inv-date,
+                                       OUTPUT dExchangeRate[i]).          
         END.     
     END.  
 

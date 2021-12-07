@@ -845,6 +845,10 @@ ON WINDOW-CLOSE OF C-Win /* Job Ticket */
         /* This event will close the window and terminate the procedure.  */
         IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
             RUN CleanUp. 
+
+        IF VALID-HANDLE (hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+                
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -912,7 +916,11 @@ ON LEAVE OF begin_job2 IN FRAME FRAME-A /* - */
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
         IF lv-format-f = 'Indiana-XL' AND tb_fold:CHECKED IN FRAME {&FRAME-NAME} THEN
-            RUN CleanUp. 
+            RUN CleanUp.
+
+        IF VALID-HANDLE (hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+                     
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

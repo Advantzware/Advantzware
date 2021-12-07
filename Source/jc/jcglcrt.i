@@ -12,7 +12,8 @@ if {2} ne 0 or {3} ne 0 then do:
      work-gl{4}.job      = job-hdr.job
      work-gl{4}.job-no   = job-hdr.job-no
      work-gl{4}.job-no2  = job-hdr.job-no2
-     work-gl{4}.actnum   = {1}.
+     work-gl{4}.actnum   = {1}
+     work-gl.cDesc       = "Job: " + job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + " Cost $" + string(w-fg-rctd.std-cost) + " / " + w-fg-rctd.cost-uom  .
   end.
 
   if ({2} eq ? or {3} eq ? or work-gl{4}.actnum eq "") and

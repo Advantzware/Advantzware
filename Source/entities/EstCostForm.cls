@@ -100,7 +100,6 @@ CLASS entities.EstCostForm INHERITS entities.Entity:
 	METHOD PRIVATE VOID pInit(  ):
 		oEstCostBlank = NEW entities.EstCostBlank().
 		
-        LoadAttributes ().
 	END METHOD.
 
 	/*------------------------------------------------------------------------------
