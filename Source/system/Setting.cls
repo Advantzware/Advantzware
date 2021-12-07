@@ -315,7 +315,6 @@ CLASS system.Setting:
 
 	METHOD PUBLIC CHARACTER GetByName( ipcSettingName AS CHARACTER ):
 		
-		RUN spGetSessionParam (INPUT "Company", OUTPUT cCompany).
 		RETURN pGet( 
 		   ipcSettingName,
 		   "Company",    /* Scope Table */
@@ -1018,6 +1017,15 @@ CLASS system.Setting:
 		IF cCategoryTags NE "" THEN
 		    LoadByCategoryAndProgram(cCategoryTags).
 
+	END METHOD.
+
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID SetCompany( ipcCompany AS CHARACTER ):
+		cCompany = ipcCompany.
 	END METHOD.
 
     /*------------------------------------------------------------------------------
