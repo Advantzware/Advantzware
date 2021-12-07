@@ -1306,7 +1306,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         
     IF cSettingValue EQ "YES" THEN DO:
         RUN spGetSettingByName ("DynTaskTickerMinutes", OUTPUT cSettingValue).
-        iTickerInterval = INTEGER (cSettingValue) NO-ERROR.    
+
+iTickerInterval = INTEGER (cSettingValue) NO-ERROR.    
     END.
     
 /*    IF iTickerInterval EQ 0 THEN*/

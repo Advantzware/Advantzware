@@ -483,7 +483,7 @@
        WHEN "Soule" THEN  /* btr */ 
            ASSIGN v-program = "oe/rep/bolsoule.p" 
                   is-xprint-form = YES 
-                  lines-per-page = 62.
+                  lines-per-page = 80.
 
          WHEN "SouleMed" THEN  /* btr */ 
            ASSIGN v-program = "oe/rep/bolsolmed.p" 

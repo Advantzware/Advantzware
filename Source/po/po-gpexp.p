@@ -11,8 +11,6 @@ DEFINE INPUT PARAMETER v-format AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER xjob-mat FOR job-mat. 
 DEFINE BUFFER xitem    FOR item.
-DEFINE BUFFER b-ref1   FOR reftable.
-DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
 
@@ -35,6 +33,9 @@ DEFINE STREAM sOut.
 DEFINE VARIABLE cInLn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseNew AS LOG NO-UNDO.
 DEFINE VARIABLE cShipToChar AS CHAR NO-UNDO.
+
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-score NO-UNDO 
     FIELD tt-seq  AS INTEGER
@@ -377,35 +378,39 @@ IF gp-log AND gp-dir NE "" THEN
           
             END. /* do i = 1 to 6 */
 
-            RUN po/po-ordls.p (RECID(po-ordl)).
-    
-            {po/po-ordls.i}
-
+            RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+            
+            RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+                INPUT  po-ordl.company,
+                INPUT  po-ordl.po-no,
+                INPUT  po-ordl.line,
+                OUTPUT lv-val,
+                OUTPUT lv-typ
+                ).
+            
+            DELETE PROCEDURE hdPOProcs.  
+            
+            lScoreAvailable = FALSE.
+            
+            DO iIndex = 1 TO EXTENT(lv-val):
+                IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+                    lScoreAvailable = TRUE.
+                    LEAVE.
+                END.
+            END. 
+            
             EMPTY TEMP-TABLE tt-score.   
     
-            IF AVAILABLE b-ref1 THEN
-            DO i = 1 TO 12:
-                IF b-ref1.val[i] NE 0 THEN 
+            IF lScoreAvailable THEN
+            DO i = 1 TO 20:
+                IF lv-val[i] NE 0 THEN 
                 DO:
                     CREATE tt-score.
                     ASSIGN
                         tt-seq  = i
-                        tt-type = SUBSTR(b-ref1.dscr,i,1)
-                        tt-scor = TRUNC(b-ref1.val[i],0) +
-                   ((b-ref1.val[i] - TRUNC(b-ref1.val[i],0)) * 6.25).
-                END.
-            END.
-
-            IF AVAILABLE b-ref2 THEN
-            DO i = 1 TO 8:
-                IF b-ref2.val[i] NE 0 THEN 
-                DO:
-                    CREATE tt-score.
-                    ASSIGN
-                        tt-seq  = 12 + i
-                        tt-type = SUBSTR(b-ref2.dscr,i,1)
-                        tt-scor = TRUNC(b-ref2.val[i],0) +
-                   ((b-ref2.val[i] - TRUNC(b-ref2.val[i],0)) * 6.25).
+                        tt-type = lv-typ[i]
+                        tt-scor = TRUNC(lv-val[i],0) +
+                   ((lv-val[i] - TRUNC(lv-val[i],0)) * 6.25).
                 END.
             END.
 

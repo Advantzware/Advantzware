@@ -63,4 +63,4 @@
                        ELSE  PUT "<FArial><=5><R+1> Line#  Part# / FG#                          PO#                         Description / Components                      Units       Qty/Unit   P/C    Weight  <FCourier New>" SKIP(1).
             .
 
-            v-printline = v-printline + 16.
+            iPageLineCount = iPageLineCount + 16.
