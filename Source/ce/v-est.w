@@ -737,7 +737,7 @@ DO:
                 OUTPUT recFoundRecID
                 ).
              IF cFoundValue <> "" and cFoundValue NE lw-focus:SCREEN-VALUE THEN DO:
-                lw-focus:SCREEN-VALUE = cFoundValue.
+                eb.sman:SCREEN-VALUE = cFoundValue.
                 RUN new-sman.
              end.          
         end.
@@ -772,7 +772,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-stylef.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" AND lw-focus:SCREEN-VALUE NE entry(1,char-val) then do:
-              lw-focus:screen-value =  entry(1,char-val).
+              eb.style:screen-value =  entry(1,char-val).
               RUN new-style.        
            end.
       end.
@@ -816,7 +816,7 @@ DO:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.cust-no:screen-value =  ENTRY(1,char-val).
               RUN csr-display .
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = lw-focus:screen-value
@@ -839,19 +839,19 @@ DO:
        when "cad-no" then do:
            run windows/l-itemfc.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.cad-no:screen-value = entry(1,char-val).
        end.
        when "upc-no" then do:     
            run windows/l-itemfu.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.upc-no:screen-value = entry(1,char-val).
        end.
 
        when "ship-id" then do:
            ls-cur-val = lw-focus:screen-value.
            run windows/l-shipto.w (cocode,locode,eb.cust-no:screen-value,ls-cur-val, output char-val).
            if char-val <> "" then DO:
-              lw-focus:screen-value =  ENTRY(1,char-val).
+              eb.ship-id:screen-value =  ENTRY(1,char-val).
               RUN display-shipto.
               find first shipto where shipto.company = cocode
                                   and shipto.cust-no = eb.cust-no:screen-value
@@ -868,11 +868,11 @@ DO:
        when "spc-no" then do:
            run windows/l-itemfs.w  (cocode,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
-              lw-focus:screen-value = entry(1,char-val).
+              eb.spc-no:screen-value = entry(1,char-val).
        end.  
        WHEN "adhesive" THEN DO:
            RUN windows/l-item.w (cocode,"","G,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
-           IF char-val <> "" THEN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
        WHEN "cad-image"THEN DO:
            APPLY "choose" TO btnDieLookup.

@@ -18,6 +18,7 @@
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE ghOperation                           AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
@@ -1041,6 +1042,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     DEFINE           BUFFER bf-mach               FOR mach.
     DEFINE           BUFFER bf-est-op             FOR est-op.
 
+    DEFINE VARIABLE cOutputType AS CHARACTER NO-UNDO.
+    
     FIND FIRST bf-mach NO-LOCK 
         WHERE bf-mach.company EQ ipbf-est-op.company
         AND bf-mach.m-code EQ ipbf-est-op.m-code
@@ -1101,43 +1104,32 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.isPrinter = YES.
         IF fIsDepartment(gcDeptsForCoaters, opbf-estCostOperation.departmentID) THEN  
             opbf-estCostOperation.isCoater = YES.
-        IF fIsDepartment(gcDeptsForSheeters, opbf-estCostOperation.departmentID) THEN 
-        DO: 
-            ASSIGN
-                opbf-estCostOperation.isNetSheetMaker = YES
-                opbf-estCostOperation.outputType      = "S".
-        END.
+        
         IF fIsDepartment(gcDeptsForGluers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
         IF fIsDepartment(gcDeptsForLeafers, opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isLeafer = YES.
         
-        IF CAN-DO("R,S,A,P",opbf-estCostOperation.feedType) THEN 
-        DO:
-            FOR EACH bf-est-op NO-LOCK 
-                WHERE bf-est-op.company EQ ipbf-est-op.company
-                AND bf-est-op.est-no EQ ipbf-est-op.est-no
-                AND bf-est-op.s-num EQ ipbf-est-op.s-num
-                AND bf-est-op.qty EQ ipbf-est-op.qty
-                AND bf-est-op.line GT ipbf-est-op.line
-                AND bf-est-op.line LT 500,
-                FIRST bf-mach NO-LOCK 
-                WHERE bf-mach.company EQ bf-est-op.company
-                AND bf-mach.m-code EQ bf-est-op.m-code 
-                BY bf-est-op.line:
-                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
-                    ASSIGN 
-                        opbf-estCostOperation.isBlankMaker = YES
-                        opbf-estCostOperation.outputType   = "B"
-                        .
-                LEAVE.
-            END.
-            IF NOT AVAILABLE bf-est-op THEN /*Last Machine*/  
-                ASSIGN 
-                    opbf-estCostOperation.isBlankMaker = YES
-                    opbf-estCostOperation.outputType   = "B"
-                    .
-        END.
+        IF VALID-HANDLE(ghOperation) THEN
+            RUN Operations_GetOutputType IN ghOperation( INPUT ipbf-est-op.company, 
+                INPUT ipbf-est-op.est-no, 
+                INPUT ipbf-est-op.s-num, 
+                INPUT ipbf-est-op.m-code,
+                INPUT ipbf-est-op.qty,
+                INPUT ipbf-est-op.line,
+                OUTPUT cOutputType).
+        
+        IF cOutputType = "B" THEN
+            ASSIGN 
+                opbf-estCostOperation.isBlankMaker = YES
+                opbf-estCostOperation.outputType   = "B"
+                .
+                
+        ELSE IF cOutputType = "S" THEN
+            ASSIGN
+                opbf-estCostOperation.isNetSheetMaker = YES
+                opbf-estCostOperation.outputType      = "S".
+                
         
         opbf-estCostOperation.numOutForOperation = 1.
         IF opbf-estCostOperation.isNetSheetMaker THEN 
@@ -2266,7 +2258,9 @@ PROCEDURE pCalcEstimate PRIVATE:
     DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
     
-    RUN pSetGlobalSettings(ipcCompany).  
+    RUN pSetGlobalSettings(ipcCompany). 
+    RUN est\OperationProcs.p PERSISTENT SET ghOperation.
+     
     IF iplPurge THEN 
         RUN pPurgeCalculation(ipcCompany, ipcEstimateNo, ipcJobNo, ipiJobNo2).
         
@@ -2277,6 +2271,8 @@ PROCEDURE pCalcEstimate PRIVATE:
     IF iplPrompt THEN 
         RUN pPromptForCalculationChanges.
     
+    IF VALID-HANDLE(ghOperation) THEN
+        DELETE PROCEDURE ghOperation.
 
 END PROCEDURE.
 
@@ -3727,7 +3723,7 @@ PROCEDURE pProcessOperations PRIVATE:
             ASSIGN 
                 ttEstBlank.estCostBlankID   = estCostBlank.estCostBlankID
                 ttEstBlank.estCostFormID    = estCostBlank.estCostFormID
-                ttEstBlank.dQtyInOut        = estCostBlank.quantityRequired
+                ttEstBlank.dQtyInOut        = IF estCostBlank.priceBasedOnYield THEN estCostBlank.quantityYielded ELSE estCostBlank.quantityRequired
                 ttEstBlank.iOut             = estCostBlank.numOut
                 .
         END.
@@ -4342,7 +4338,7 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.marginPct                   = bf-ce-ctrl.prof-mrkup
         ipbf-estCostHeader.warehouseMarkupPct          = bf-ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
         ipbf-estCostHeader.handlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
-        ipbf-estCostHeader.handlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate  /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+        ipbf-estCostHeader.handlingRateRMPerCWT        = bf-ce-ctrl.rm-rate /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
         
         
         
@@ -4356,9 +4352,9 @@ PROCEDURE pBuildHeader PRIVATE:
         /*        ipbf-estCostHeader.addToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/*/
         /*        ipbf-estCostHeader.addToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/*/
         ipbf-estCostHeader.foldPct                     = bf-ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */            
-        ipbf-estCostHeader.handlingRatePerCWTFGPct     = bf-ce-ctrl.fg-rate  /*ld-fg-rate*/
-        ipbf-estCostHeader.handlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm 
-        ipbf-estCostHeader.handlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm
+        ipbf-estCostHeader.handlingRateFGPerCWT        = bf-ce-ctrl.fg-rate   /*ld-fg-rate*/
+        ipbf-estCostHeader.handlingRateRMFarmPerCWT    = bf-ce-ctrl.rm-rate-farm 
+        ipbf-estCostHeader.handlingRateFGFarmPerCWT    = bf-ce-ctrl.fg-rate-farm 
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     

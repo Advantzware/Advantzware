@@ -28,9 +28,6 @@ DEFINE VARIABLE gcBOLLoadTagOutputPath                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCreateTagsForEmptyBOLLineTags        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateTagForPartial                  AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
-
 {oerep/ttLoadTag.i}
 {api/ttAPIOutboundEvent.i}
 {fg/fullset.i NEW}
@@ -72,6 +69,8 @@ FUNCTION fGetNextTTLoadTagRecordID RETURNS INTEGER PRIVATE
 
 FUNCTION fReplaceQuotes RETURNS CHARACTER PRIVATE
     ( INPUT ipcField AS CHARACTER ) FORWARD.
+
+RUN pUpdateConfig.
 
 PROCEDURE BuildLoadTagsFromBOL:
 /*------------------------------------------------------------------------------
@@ -2039,28 +2038,50 @@ PROCEDURE pUpdateConfig PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName("LoadTag", OUTPUT gcLoadTag).
+    RUN spGetSettingByName("LoadTagOutputFile", OUTPUT gcLoadTagOutputFile).
+    RUN spGetSettingByName("LoadTagOutputFilePath", OUTPUT gcLoadTagOutputPath).
+    RUN spGetSettingByName("LoadTagOutputFilePath", OUTPUT gcBOLLoadTagOutputFile).
+    RUN spGetSettingByName("BOLLoadTagOutputFilePath", OUTPUT gcBOLLoadTagOutputPath).
 
-    IF VALID-OBJECT(oSetting) THEN
-        ASSIGN
-            glUpdateLoadTagSSCC                    = LOGICAL(oSetting:GetByName("UpdateLoadTagSSCC"))
-            glUpdateLocBinFromItemFG               = LOGICAL(oSetting:GetByName("UpdateLocBinFromItemFG"))
-            glUpdateLocBinFromFGBin                = LOGICAL(oSetting:GetByName("UpdateLocBinFromFGBin"))
-            glCreateFGReceipts                     = LOGICAL(oSetting:GetByName("CreateFGReceipts"))
-            glCheckClosedStatus                    = LOGICAL(oSetting:GetByName("CheckClosedStatus"))
-            glUpdateSetWithMaxQuantity             = LOGICAL(oSetting:GetByName("UpdateSetWithMaxQuantity"))
-            glCreateRFIDTag                        = LOGICAL(oSetting:GetByName("CreateRFIDTag"))
-            glCreateComponenetTagsForSetHeaderItem = LOGICAL(oSetting:GetByName("CreateComponenetTagsForSetHeaderItem"))
-            glAutoPrint                            = LOGICAL(oSetting:GetByName("AutoPrint"))
-            glCreateTagsForEmptyBOLLineTags        = LOGICAL(oSetting:GetByName("CreateTagsForEmptyBOLLineTags"))
-            glCreateTagForPartial                  = LOGICAL(oSetting:GetByName("CreateTagForPartial"))
-            giFGSetRec                             = INTEGER(oSetting:GetByName("FGSetRec"))
-            gcLoadTag                              = STRING(oSetting:GetByName("LoadTag"))
-            gcLoadTagOutputFile                    = STRING(oSetting:GetByName("LoadTagOutputFile"))
-            gcLoadTagOutputPath                    = STRING(oSetting:GetByName("LoadTagOutputFilePath"))
-            gcBOLLoadTagOutputFile                 = STRING(oSetting:GetByName("BOLLoadTagOutputFile"))
-            gcBOLLoadTagOutputPath                 = STRING(oSetting:GetByName("BOLLoadTagOutputFilePath"))
-            NO-ERROR.
+    RUN spGetSettingByName("UpdateLoadTagSSCC", OUTPUT cSettingValue).
+    glUpdateLoadTagSSCC = LOGICAL (cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName("UpdateLocBinFromItemFG", OUTPUT cSettingValue).
+    glUpdateLocBinFromItemFG = LOGICAL (cSettingValue) NO-ERROR.
 
+    RUN spGetSettingByName("UpdateLocBinFromFGBin", OUTPUT cSettingValue).
+    glUpdateLocBinFromFGBin = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateFGReceipts", OUTPUT cSettingValue).
+    glCreateFGReceipts = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CheckClosedStatus", OUTPUT cSettingValue).
+    glCheckClosedStatus = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("UpdateSetWithMaxQuantity", OUTPUT cSettingValue).
+    glUpdateSetWithMaxQuantity = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateRFIDTag", OUTPUT cSettingValue).
+    glCreateRFIDTag = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateComponenetTagsForSetHeaderItem", OUTPUT cSettingValue).
+    glCreateComponenetTagsForSetHeaderItem = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("AutoPrint", OUTPUT cSettingValue).
+    glAutoPrint = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateTagsForEmptyBOLLineTags", OUTPUT cSettingValue).
+    glCreateTagsForEmptyBOLLineTags = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateTagForPartial", OUTPUT cSettingValue).
+    glCreateTagForPartial = LOGICAL (cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("FGSetRec", OUTPUT cSettingValue).
+    giFGSetRec = INTEGER (cSettingValue) NO-ERROR.
+    
 END PROCEDURE.
 
 PROCEDURE pUpdateTTLoadTagFGBinDetails PRIVATE:
@@ -3426,23 +3447,6 @@ PROCEDURE pUpdateTTLoadTagOrderDetails:
     END.
 END PROCEDURE.
 
-
-PROCEDURE SetSetting:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
-
-    IF VALID-OBJECT(ipoSetting) THEN DO:
-        IF VALID-OBJECT(oSetting) THEN
-            DELETE OBJECT oSetting.
-
-        oSetting = ipoSetting.
-    END.
-    
-    RUN pUpdateConfig.
-END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
