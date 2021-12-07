@@ -1783,18 +1783,18 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
     DEFINE BUFFER bf-estCostMaterial      FOR estCostMaterial.
     
     
-    DEFINE VARIABLE deRMHandlingCost          AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE deFGHandlingCost          AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE deHandlingCost            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dRMHandlingCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFGHandlingCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dHandlingCost             AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dApplicableRMHandlingRate AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dApplicableFGHandlingRate AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dApplicableHandlingPct    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dBrdWtInCUOM              AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dWtInSrcUOM               AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE deCostTotalMaterial       AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE dBoardWeightInCUOM        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWeightInSrcUOM           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostTotalMaterial        AS DECIMAL   NO-UNDO. 
     DEFINE VARIABLE cSrcUOM                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dNetWtInCUOM              AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lFirstBlank               AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dNetWeightInCUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lFirstBlank               AS LOGICAL   NO-UNDO.
     
     
     FOR FIRST bf-estCostHeader NO-LOCK 
@@ -1807,10 +1807,10 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
         AND bf-ef.form-no = bf-estCostForm.formNo:
         
         ASSIGN
-            deFGHandlingCost          = 0
-            deRMHandlingCost          = 0 
-            deHandlingCost            = 0 
-            deCostTotalMaterial       = 0
+            dFGHandlingCost           = 0
+            dRMHandlingCost           = 0 
+            dHandlingCost             = 0 
+            dCostTotalMaterial        = 0
             lFirstBlank               = Yes
             dApplicableFGHandlingRate = 0
             dApplicableRMHandlingRate = 0
@@ -1823,21 +1823,23 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
             WHERE bf-estCostItem.estCostItemID EQ bf-estCostBlank.estCostItemID:
                 
             IF bf-estCostBlank.isPurchased THEN
-                dApplicableFGHandlingRate = bf-estCostHeader.handlingRatePerCWTFGFarmPct.
+                dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGFarmPerCWT.
             ELSE
-                dApplicableFGHandlingRate = bf-estCostHeader.handlingRatePerCWTFGPct.
+                dApplicableFGHandlingRate = bf-estCostHeader.handlingRateFGPerCWT.
                 
             
             ASSIGN
-                dWtInSrcUOM = bf-estCostItem.weightNet
-                cSrcUOM     = bf-estCostItem.weightUOM.
+                dWeightInSrcUOM = bf-estCostItem.weightNet
+                cSrcUOM         = bf-estCostItem.weightUOM.
                 
             RUN pConvertQuantityFromUOMToUOM(bf-estCostItem.company, bf-estCostItem.itemID, "RM", cSrcUOM, "CWT", 
-                bf-estCostForm.basisWeight, bf-estCostItem.dimLength, bf-estCostItem.dimWidth, bf-estCostItem.dimDepth, 
-                dWtInSrcUOM, OUTPUT dNetWtInCUOM).
+                0, bf-estCostItem.dimLength, bf-estCostItem.dimWidth, bf-estCostItem.dimDepth, 
+                dWeightInSrcUOM, OUTPUT dNetWeightInCUOM).
                 
+            
+            /* calculate the FG handling charge using Net weight. From the blank item, we can get FG Net weights by form. */
             IF dApplicableFGHandlingRate NE 0 THEN 
-                deFGHandlingCost = deFGHandlingCost + (dNetWtInCUOM * dApplicableFGHandlingRate).    
+                dFGHandlingCost = dFGHandlingCost + (dNetWeightInCUOM * dApplicableFGHandlingRate).    
             
             /* Set Form Level fields based upon first blank values. is there a more accurate way to find find primary Blank */
             IF lFirstBlank = YES THEN
@@ -1846,49 +1848,51 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
                 
                 IF bf-estCostBlank.isPurchased THEN
                     ASSIGN 
-                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRatePerCWTRMFarmPct 
+                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRateRMFarmPerCWT 
                         dApplicableHandlingPct    = bf-estCostHeader.handlingChargeFarmPct
                         .
                 ELSE
                     ASSIGN 
-                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRatePerCWTRMPct
+                        dApplicableRMHandlingRate = bf-estCostHeader.handlingRateRMPerCWT
                         dApplicableHandlingPct    = bf-estCostHeader.handlingChargePct.
             END.
                 
         END. /* FOR EACH bf-estCostBlank NO-LOCK */ 
         
         ASSIGN
-            dWtInSrcUOM = bf-estCostForm.grossQtyRequiredTotalWeight 
+            dWeightInSrcUOM = bf-estCostForm.grossQtyRequiredTotalWeight 
             cSrcUOM     = bf-estCostForm.grossQtyRequiredTotalWeightUOM.
                 
-        RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, "CWT", 
-            bf-estCostForm.basisWeight, bf-estCostForm.grossLength, bf-estCostForm.grossWidth, bf-estCostForm.grossDepth, 
-            dWtInSrcUOM, OUTPUT dBrdWtInCUOM).    
-                
+            
+        RUN pConvertQuantityFromUOMToUOM(bf-estCostForm.company, bf-ef.board, "RM", cSrcUOM, "CWT", 0, 0, 0, 0, 
+            dWeightInSrcUOM, OUTPUT dBoardWeightInCUOM).
+         
+        /* calculate the RM handling charge, per form based on form Gross Weight */
         IF dApplicableRMHandlingRate NE 0 THEN
         DO:    
-            deRMHandlingCost = (dBrdWtInCUOM * dApplicableRMHandlingRate).
+            dRMHandlingCost = (dBoardWeightInCUOM * dApplicableRMHandlingRate).
             
-            IF deRMHandlingCost NE 0 THEN
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, deRMHandlingCost).
+            IF dRMHandlingCost NE 0 THEN
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, dRMHandlingCost).
         END.
         
-        IF deFGHandlingCost NE 0 THEN 
-            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, deFGHandlingCost).
+        IF dFGHandlingCost NE 0 THEN 
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, dFGHandlingCost).
         
         
+        /* Calculate the Handling percentage as a percentage of all material based costs */
         FOR EACH bf-estCostMaterial NO-LOCK 
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID:
                 
-                deCostTotalMaterial = deCostTotalMaterial + bf-estCostMaterial.costTotalNoWaste.
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMaterial.costTotalNoWaste.
         END.
         
         IF dApplicableHandlingPct NE 0 THEN
         DO:
-            deHandlingCost = (deCostTotalMaterial * dApplicableHandlingPct).
+            dHandlingCost = (dCostTotalMaterial * dApplicableHandlingPct).
             
-            IF deHandlingCost NE 0 THEN
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Handling Charge",dApplicableHandlingPct, deHandlingCost). 
+            IF dHandlingCost NE 0 THEN
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Handling Charge",dApplicableHandlingPct, dHandlingCost). 
         END.
         
         
@@ -2383,6 +2387,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalculateWeightsAndSizes(bf-estCostHeader.estCostHeaderID).
         RUN pProcessPacking(BUFFER bf-estCostHeader).
         RUN pProcessEstMaterial(BUFFER bf-estCostHeader).
+        RUN pBuildEstHandlingCharges(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(bf-estCostHeader.estCostHeaderID).
         RUN pBuildFreightCostDetails(bf-estCostHeader.estCostHeaderID).
@@ -2559,9 +2564,6 @@ PROCEDURE pBuildFactoryCostDetails PRIVATE:
         RUN pBuildCostDetailForMaterial(BUFFER estCostMaterial).                  
                     
     END. /*Each estCostMaterial for estHeader*/
-    
-    /* Create Misc records for Handling Charges */
-    RUN pBuildEstHandlingCharges(ipiEstCostHeaderID).
     
     FOR EACH estCostMisc NO-LOCK 
         WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
