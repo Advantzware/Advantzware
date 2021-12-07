@@ -922,7 +922,18 @@ PROCEDURE pSetCompanyContexts PRIVATE:
     sessionInstance:SetValue("CompanyCity",bf-company.city).
     sessionInstance:SetValue("CompanyState",bf-company.state).
     sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
-           
+
+    /* Delete existing setting objects. This will remove any records loaded in the temp-table */
+    FOR EACH ttSettingObject:
+        IF VALID-OBJECT (ttSettingObject.settingObject) THEN
+            DELETE OBJECT ttSettingObject.settingObject.
+
+        DELETE ttSettingObject.
+    END.
+    
+    /* Set the company in the session's setting object */
+    IF VALID-OBJECT (oSetting) THEN
+        oSetting:SetCompany(ipcCompany).           
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
