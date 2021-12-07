@@ -83,8 +83,7 @@ PROCEDURE Zoho_UpdateRefreshToken:
     END.
     
     COPY-LOB FILE cResponseFile TO cResponse.
-MESSAGE STRING(cResponse)
-VIEW-AS ALERT-BOX.
+
     IF cResponse EQ "" THEN 
         RETURN.
    
