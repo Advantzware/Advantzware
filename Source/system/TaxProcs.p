@@ -23,8 +23,6 @@ DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE lVertex          AS LOGICAL   NO-UNDO INITIAL ?.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -187,10 +185,11 @@ PROCEDURE pIsVertexActive PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplActive AS LOGICAL NO-UNDO.
     
-    IF NOT VALID-OBJECT (oSetting) THEN
-        oSetting = NEW system.Setting().
-
-    oplActive = LOGICAL(oSetting:GetByName("Vertex")) NO-ERROR.
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("Vertex", OUTPUT cSettingValue).
+    
+    oplActive = cSettingValue EQ "YES".
 END PROCEDURE.
 
 PROCEDURE pPopulateTaxAccount PRIVATE:
@@ -933,7 +932,8 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */    
 
     FINALLY:
-        DELETE PROCEDURE hdVertexProcs.    
+        IF VALID-HANDLE (hdVertexProcs) THEN
+            DELETE PROCEDURE hdVertexProcs.    
     END FINALLY.    
 END PROCEDURE.
 
@@ -1013,7 +1013,8 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
     
     FINALLY:
-        DELETE PROCEDURE hdVertexProcs.    
+        IF VALID-HANDLE (hdVertexProcs) THEN 
+            DELETE PROCEDURE hdVertexProcs.    
     END FINALLY. 
 END PROCEDURE.
 

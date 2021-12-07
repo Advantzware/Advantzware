@@ -86,9 +86,7 @@ DEFINE VARIABLE cCompanyCity    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyState   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyZip     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cLineLocation   AS CHARACTER        NO-UNDO.
-DEFINE VARIABLE oSetting        AS system.Setting   NO-UNDO.
-oSetting = NEW system.Setting().
+DEFINE VARIABLE cLineLocation AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
@@ -1356,7 +1354,7 @@ PROCEDURE pGetDefaultTaxClass PRIVATE:
         RETURN.
     END.
     
-    cDefaultTaxClass = oSetting:GetByName("VertexTaxClassDefault").
+    RUN spGetSettingByName ("VertexTaxClassDefault", OUTPUT cDefaultTaxClass).
     
     opcDefaultTaxClass = cDefaultTaxClass.  
 END PROCEDURE.
@@ -1368,6 +1366,5 @@ PROCEDURE pGetFreightTaxClass PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcFreightTaxClass AS CHARACTER NO-UNDO.
     
-    opcFreightTaxClass = oSetting:GetByName("VertexFreightTaxClass").
-        
+    RUN spGetSettingByName ("VertexFreightTaxClass", OUTPUT opcFreightTaxClass).
 END PROCEDURE.

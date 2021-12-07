@@ -19,8 +19,6 @@ DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
 {system/TaxProcs.i}
 {api/ttAPIOutboundEvent.i}
 
@@ -29,7 +27,6 @@ RUN FileSys_GetTempDirectory (
     ).
     
 oModelParser = NEW ObjectModelParser().
-oSetting     = NEW system.Setting().
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -112,6 +109,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cSettingValue   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dttzServerDateTimeTZ              AS DATETIME-TZ NO-UNDO.    
     DEFINE VARIABLE dttzCurrentGMTDateTimeTZ          AS DATETIME-TZ NO-UNDO.
@@ -132,11 +130,12 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
-    ASSIGN
-        dtVertexAccessTokenDateTimeTZ     = DATETIME-TZ(oSetting:GetByName("VertexAccessTokenDateTime")).
-        iVertexAccessTokenRefreshInterval = INTEGER(oSetting:GetByName("VertexAccessTokenRefreshInterval"))
-        NO-ERROR.
-         
+    RUN spGetSettingByName ("VertexAccessTokenDateTime", OUTPUT cSettingValue).
+    dtVertexAccessTokenDateTimeTZ = DATETIME-TZ(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("VertexAccessTokenRefreshInterval", OUTPUT cSettingValue).
+    iVertexAccessTokenRefreshInterval = INTEGER (cSettingValue) NO-ERROR.
+             
     IF INTERVAL(dttzCurrentGMTDateTimeTZ, dtVertexAccessTokenDateTimeTZ, "seconds") LT iVertexAccessTokenRefreshInterval THEN DO:
         ASSIGN
             oplSuccess     = TRUE
@@ -237,7 +236,9 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
     
-    opcMessage = oSetting:Update("VertexAccessToken", cAccessToken).
+    RUN spSetSettingByName ("VertexAccessToken", cAccessToken).
+    
+    opcMessage = RETURN-VALUE.
     IF opcMessage NE "" THEN DO:
         ASSIGN
             opcMessage = "Error while updating VertexAccessToken setting. '" + opcMessage + "'"
@@ -245,7 +246,10 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             .
     END.
     
-    opcMessage = oSetting:Update("VertexAccessTokenDateTime", STRING(dttzCurrentGMTDateTimeTZ)).
+    RUN spSetSettingByName ("VertexAccessTokenDateTime", STRING(dttzCurrentGMTDateTimeTZ)).
+    
+    opcMessage = RETURN-VALUE.
+    
     IF opcMessage NE "" THEN DO:
         ASSIGN
             opcMessage = "Error while updating VertexAccessTokenDateTime setting. '" + opcMessage + "'"

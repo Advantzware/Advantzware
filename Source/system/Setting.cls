@@ -1356,7 +1356,21 @@ CLASS system.Setting:
                                                 
         IF ERROR-STATUS:ERROR THEN
              RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Value has to be " + STRING(bf-settingType.dataType EQ "Integer", "an/a") + "'" + bf-settingType.dataType + "'".
-             
+
+        IF bf-settingType.dataType EQ "Integer" OR bf-settingType.dataType EQ "Decimal" THEN DO:
+            IF bf-settingType.validValueMin NE "" THEN DO:
+                INTEGER(bf-settingType.validValueMin) NO-ERROR.
+                IF NOT ERROR-STATUS:ERROR AND INTEGER(ipcSettingValue) LT INTEGER(bf-settingType.validValueMin) THEN
+                    RETURN "Setting Value '" + ipcSettingValue + "' has to be more than '" + bf-settingType.validValueMin + "'".
+            END.
+
+            IF bf-settingType.validValueMax NE "" THEN DO:
+                INTEGER(bf-settingType.validValueMax) NO-ERROR.
+                IF NOT ERROR-STATUS:ERROR AND INTEGER(ipcSettingValue) GT INTEGER(bf-settingType.validValueMin) THEN
+                    RETURN "Setting Value '" + ipcSettingValue + "' has to be less than '" + bf-settingType.validValueMax + "'".
+            END.
+        END.
+                     
         IF ipcScopeTable EQ "Company" THEN DO:
             FIND FIRST bf-company NO-LOCK
                  WHERE bf-company.company EQ ipcScopeField1
