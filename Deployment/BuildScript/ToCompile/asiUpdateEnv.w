@@ -2862,7 +2862,7 @@ PROCEDURE ipDataFix :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," + PROPATH
         PROPATH      = cNewPropath
         .
 
@@ -5988,6 +5988,9 @@ PROCEDURE ipLoadSettingType :
         IMPORT {&tablename}.
     END.
     INPUT CLOSE.
+    
+    IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
+        RUN VALUE (SEARCH("util/nk1ToSetting.r")).
         
 END PROCEDURE.
 
