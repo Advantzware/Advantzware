@@ -1318,6 +1318,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE str-tit4       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-line       AS cha       FORM "x(300)" NO-UNDO.
+    DEFINE VARIABLE dtPerStartDate   AS DATE      NO-UNDO.
 
     {sys/form/r-top5DL3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1332,6 +1333,10 @@ PROCEDURE run-report :
         AND period.pst     LE tran-date
         AND period.pend    GE tran-date
         NO-LOCK NO-ERROR.
+    IF AVAILABLE period THEN
+         dtPerStartDate = period.pst.
+    ELSE ASSIGN
+         dtPerStartDate = tran-date.    
 
     ASSIGN
         str-tit2 = "Current Month General Ledger Detail"
@@ -1417,8 +1422,19 @@ PROCEDURE run-report :
 
         {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}
 
-        RUN gl/gl-open1.p (RECID(account), vyear, tran-date, tran-period,
-            OUTPUT open-amt).
+        /*RUN gl/gl-open1.p (RECID(account), vyear, tran-date, tran-period,
+            OUTPUT open-amt).*/
+            
+        RUN GL_GetAccountOpenBal(ROWID(account),tran-date, OUTPUT open-amt). 
+        
+        FOR EACH glhist FIELDS(tr-amt) NO-LOCK
+            WHERE glhist.company EQ account.company
+            AND glhist.actnum  EQ account.actnum
+            AND glhist.tr-date GE dtPerStartDate
+            AND glhist.tr-date LT tran-date
+            AND (glhist.jrnl   NE "AUTODIST" ):
+            open-amt = open-amt + glhist.tr-amt.
+        END.
 
         FIND FIRST glhist NO-LOCK
             WHERE glhist.company EQ cocode
