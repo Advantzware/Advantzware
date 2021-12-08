@@ -44,6 +44,12 @@ File: TaskResults/Carrier.20210902.29447.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.
 0 "Message" yes 15 0 "Submitted Run Now Request is Available
 
 File: TaskResults/Carrier.20210902.29448.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29463 "Mike" "202109022946307958510"
+0 "Message" yes 16 0 "Submitted Run Now Request is Available
+
+File: TaskResults/InvoiceForm.20210928.73864.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 73870 "nosweat" "202109287387008077950"
+0 "Message" yes 17 0 "Submitted Run Now Request is Available
+
+File: TaskResults/InvoiceForm.20210928.75825.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 75832 "nosweat" "202109287583208078173"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.
