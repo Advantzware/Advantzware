@@ -15,6 +15,8 @@
 /* ***************************  Definitions  ************************** */
 
 {est/ttEstCost.i}
+{est/ttEstSysConfig.i}
+   
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
@@ -2091,6 +2093,7 @@ PROCEDURE pCalcEstimate PRIVATE:
     DEFINE OUTPUT PARAMETER opiEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pSetGlobalSettings(ipcCompany). 
+    RUN pBuildSystemData(ipcCompany). 
     RUN est\OperationProcs.p PERSISTENT SET ghOperation.
      
     IF iplPurge THEN 
@@ -2119,9 +2122,6 @@ PROCEDURE pCalcHeader PRIVATE:
     DEFINE BUFFER bf-estCostBlank      FOR estCostBlank.
     DEFINE BUFFER bf-estCostMaterial   FOR estCostMaterial.
     DEFINE BUFFER bf-estCostOperation  FOR estCostOperation.
-    DEFINE BUFFER bf-estCostGroupLevel FOR estCostGroupLevel.
-    DEFINE BUFFER bf-estCostGroup      FOR estCostGroup.
-    DEFINE BUFFER bf-estCostCategory   FOR estCostCategory.
     DEFINE BUFFER bf-estCostHeader     FOR estCostHeader.
     
     DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
@@ -2887,6 +2887,16 @@ PROCEDURE pCopyHeaderCostsToSetItem PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pGetEstCostCategoryTT PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Return the temp-table for EstCostCategory
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostCategory. 
+
+END PROCEDURE.
+
+
 PROCEDURE pGetLayerDividerDepth PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper around reftable for retrieving the depth for layer pad
@@ -2921,12 +2931,12 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostDetail   FOR estCostDetail.
-    DEFINE PARAMETER BUFFER ipbf-estCostCategory FOR estCostCategory.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostCategory FOR ttEstCostCategory.
     DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-estCostHeader   FOR estCostHeader.
     
-    RUN pCalcCostTotalsHeader(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostCategory, ipbf-estCostDetail.costTotal).
-    RUN pCalcCostTotalsForm(BUFFER ipbf-estCostForm, BUFFER ipbf-estCostCategory, ipbf-estCostDetail.costTotal).
+    RUN pCalcCostTotalsHeader(BUFFER ipbf-estCostHeader, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
+    RUN pCalcCostTotalsForm(BUFFER ipbf-estCostForm, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
         
     FIND FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostDetail.estCostHeaderID
@@ -2940,7 +2950,7 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
             AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
             NO-ERROR.
         IF AVAILABLE estCostItem THEN 
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-estCostCategory, ipbf-estCostDetail.costTotal).
+            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal).
     END.
     ELSE /*Divide up the Form-level Costs into each item*/
         FOR EACH estCostBlank NO-LOCK
@@ -2949,7 +2959,7 @@ PROCEDURE pCalcTotalsForCostDetail PRIVATE:
             FIRST estCostItem NO-LOCK  
             WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
             AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-estCostCategory, ipbf-estCostDetail.costTotal * estCostBlank.pctOfForm).
+            RUN pCalcCostTotalsItem(BUFFER estCostItem, BUFFER ipbf-ttEstCostCategory, ipbf-estCostDetail.costTotal * estCostBlank.pctOfForm).
         END.
 
 END PROCEDURE.
@@ -3092,6 +3102,20 @@ PROCEDURE pGetStrapping PRIVATE:
             
     END.
 
+END PROCEDURE.
+
+PROCEDURE pBuildSystemData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Populates the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    RUN Estimate_GetSystemDataForEstimate(INPUT ipcCompany,
+        OUTPUT TABLE ttEstCostCategory,
+        OUTPUT TABLE ttEstCostGroup,
+        OUTPUT TABLE ttEstCostGroupLevel). 
+       
 END PROCEDURE.
 
 PROCEDURE pProcessAdders PRIVATE:
@@ -3686,6 +3710,10 @@ PROCEDURE pCalcCostTotals PRIVATE:
     
     DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
     
+    
+        
+    RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
+    
     FOR EACH bf-estCostDetail EXCLUSIVE-LOCK
         WHERE bf-estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
         AND (iplFullReset OR NOT bf-estCostDetail.hasBeenProcessed)
@@ -3695,10 +3723,10 @@ PROCEDURE pCalcCostTotals PRIVATE:
         FIRST estCostForm NO-LOCK
         WHERE estCostForm.estCostHeaderID EQ bf-estCostDetail.estCostHeaderID
         AND estCostForm.estCostFormID EQ bf-estCostDetail.estCostFormID, 
-        FIRST estCostCategory NO-LOCK 
-        WHERE estCostCategory.estCostCategoryID EQ bf-estCostDetail.estCostCategoryID 
+        FIRST ttEstCostCategory NO-LOCK 
+        WHERE ttEstCostCategory.estCostCategoryID EQ bf-estCostDetail.estCostCategoryID 
         :
-        RUN pCalcTotalsForCostDetail(BUFFER bf-estCostDetail, BUFFER estCostCategory, BUFFER estCostForm, BUFFER estCostHeader).
+        RUN pCalcTotalsForCostDetail(BUFFER bf-estCostDetail, BUFFER ttEstCostCategory, BUFFER estCostForm, BUFFER estCostHeader).
         bf-estCostDetail.hasBeenProcessed = YES.
     END.        
     RELEASE bf-estCostDetail.
@@ -3714,6 +3742,9 @@ PROCEDURE pBuildCostSummary PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     
+    
+    RUN pGetEstCostCategoryTT(OUTPUT TABLE ttEstCostCategory).
+    
     FOR EACH estCostDetail NO-LOCK
         WHERE estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID, 
         FIRST estCostHeader NO-LOCK 
@@ -3721,11 +3752,11 @@ PROCEDURE pBuildCostSummary PRIVATE:
         FIRST estCostForm NO-LOCK
         WHERE estCostForm.estCostHeaderID EQ estCostDetail.estCostHeaderID
         AND estCostForm.estCostFormID EQ estCostDetail.estCostFormID, 
-        FIRST estCostCategory NO-LOCK 
-        WHERE estCostCategory.estCostCategoryID EQ estCostDetail.estCostCategoryID
+        FIRST ttEstCostCategory NO-LOCK 
+        WHERE ttEstCostCategory.estCostCategoryID EQ estCostDetail.estCostCategoryID
         :
-        RUN pAddCostSummary(estCostHeader.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostHeader.quantityMaster / 1000).
-        RUN pAddCostSummary(estCostForm.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostForm.quantityFGOnForm / 1000).
+        RUN pAddCostSummary(estCostHeader.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostHeader.quantityMaster / 1000).
+        RUN pAddCostSummary(estCostForm.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostForm.quantityFGOnForm / 1000).
         
         FIND FIRST estCostBlank NO-LOCK 
             WHERE estCostBlank.estCostHeaderID EQ estCostDetail.estCostHeaderID
@@ -3739,7 +3770,7 @@ PROCEDURE pBuildCostSummary PRIVATE:
                 AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID
                 NO-ERROR.
             IF AVAILABLE estCostItem THEN 
-                RUN pAddCostSummary(estCostItem.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostItem.quantityRequired / 1000).
+                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostItem.quantityRequired / 1000).
            
         END.
         ELSE /*Divide up the Form-level Costs into each item*/
@@ -3749,7 +3780,7 @@ PROCEDURE pBuildCostSummary PRIVATE:
                 FIRST estCostItem NO-LOCK  
                 WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
                 AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID :
-                RUN pAddCostSummary(estCostItem.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal * estCostBlank.pctOfForm, estCostItem.quantityRequired / 1000).
+                RUN pAddCostSummary(estCostItem.rec_key, ttEstCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal * estCostBlank.pctOfForm, estCostItem.quantityRequired / 1000).
            
             END.
         
