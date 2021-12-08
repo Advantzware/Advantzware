@@ -2862,7 +2862,7 @@ PROCEDURE ipDataFix :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," + PROPATH
         PROPATH      = cNewPropath
         .
 
