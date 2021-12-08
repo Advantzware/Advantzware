@@ -21,7 +21,6 @@ DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
 DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
 DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
-DEFINE VARIABLE lVertex          AS LOGICAL   NO-UNDO INITIAL ?.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -176,20 +175,6 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
                 opdTaxTotal                  = opdTaxTotal + dLineTax
                 .
     END.
-END PROCEDURE.
-
-PROCEDURE pIsVertexActive PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplActive AS LOGICAL NO-UNDO.
-    
-    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
-    
-    RUN spGetSettingByName ("Vertex", OUTPUT cSettingValue).
-    
-    oplActive = cSettingValue EQ "YES".
 END PROCEDURE.
 
 PROCEDURE pPopulateTaxAccount PRIVATE:
@@ -872,10 +857,11 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
 
+    DEFINE VARIABLE hdVertexProcs AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
     FIND FIRST bf-inv-head NO-LOCK 
@@ -903,17 +889,6 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         RETURN.
     END.
 
-    IF lVertex EQ ? THEN
-        RUN pIsVertexActive(OUTPUT lVertex).
-
-    IF NOT lVertex THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "NK6 setting 'Vertex' is not active"
-            .
-        RETURN.    
-    END.
-
     RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
     
     RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
@@ -930,11 +905,8 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT opcMessage    
         ).
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */    
-
-    FINALLY:
-        IF VALID-HANDLE (hdVertexProcs) THEN
-            DELETE PROCEDURE hdVertexProcs.    
-    END FINALLY.    
+    
+    DELETE PROCEDURE hdVertexProcs.    
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -954,9 +926,9 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
+    
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
     FIND FIRST bf-ar-inv NO-LOCK 
@@ -983,18 +955,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
             .
         RETURN.
     END.
-
-    IF lVertex EQ ? THEN
-        RUN pIsVertexActive(OUTPUT lVertex).
-
-    IF NOT lVertex THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "NK6 setting 'Vertex' is not active"
-            .
-        RETURN.    
-    END.
-        
+    
     RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
     
     RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
@@ -1012,10 +973,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         ).
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
     
-    FINALLY:
-        IF VALID-HANDLE (hdVertexProcs) THEN 
-            DELETE PROCEDURE hdVertexProcs.    
-    END FINALLY. 
+    DELETE PROCEDURE hdVertexProcs.
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
