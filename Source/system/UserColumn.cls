@@ -292,6 +292,13 @@ CLASS system.UserColumn:
         DEFINE VARIABLE hdBrowseColumn AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
         
+        DEFINE VARIABLE iCurrentColPositionList AS INTEGER   NO-UNDO EXTENT.
+        DEFINE VARIABLE cCurrentColNameList     AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE iIndex                  AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE iPosition               AS INTEGER   NO-UNDO.
+        
+        EXTENT (iCurrentColPositionList) = BrowseHandle:NUM-COLUMNS.
+        
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
             hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn) NO-ERROR.
 
@@ -300,7 +307,12 @@ CLASS system.UserColumn:
             
             cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME
                         + (IF hdBrowseColumn:INDEX GT 0 THEN "[" + STRING(hdBrowseColumn:INDEX) + "]" ELSE "").
-            
+
+            ASSIGN
+                iCurrentColPositionList[iColumn] = iColumn
+                cCurrentColNameList              = cCurrentColNameList + "," + cColumnName
+                .
+                                        
             FIND FIRST ttUserColumn 
                  WHERE ttUserColumn.colName EQ cColumnName
                  NO-ERROR.
@@ -322,10 +334,38 @@ CLASS system.UserColumn:
 
             IF AVAILABLE ttDefaultUserColumn AND ttDefaultUserColumn.colWidth EQ ? THEN
                 ttDefaultUserColumn.colWidth = hdBrowseColumn:WIDTH-PIXELS.
-                            
-            IF ttUserColumn.colPosition NE ? AND iColumn NE ttUserColumn.colPosition THEN DO:
-                BrowseHandle:MOVE-COLUMN(iColumn,ttUserColumn.colPosition).
-                iColumn = iColumn - 1.
+        END.
+    
+        cCurrentColNameList = TRIM(cCurrentColNameList,",").
+        
+        /* The below is to move the columns to the set position  */             
+        FOR EACH ttUserColumn
+            BY ttUserColumn.colPosition:
+            iIndex = LOOKUP (ttUserColumn.colName, cCurrentColNameList).
+            IF iIndex GT 0 THEN DO:
+                iPosition = iCurrentColPositionList[iIndex].
+
+                IF iPosition GT 0 AND ttUserColumn.colPosition NE iPosition THEN DO:
+                    /* Move columns */
+                    BrowseHandle:MOVE-COLUMN(iPosition,ttUserColumn.colPosition).
+                                        
+                    /* The following code is to ensure once a column is moved we need to refetch all the columns in the order of the position */
+                    cCurrentColNameList = "".
+
+                    DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
+                        hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn) NO-ERROR.
+
+                        cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME
+                                    + (IF hdBrowseColumn:INDEX GT 0 THEN "[" + STRING(hdBrowseColumn:INDEX) + "]" ELSE "").
+
+                        ASSIGN
+                            iCurrentColPositionList[iColumn] = iColumn
+                            cCurrentColNameList              = cCurrentColNameList + "," + cColumnName
+                            .
+                    END.
+
+                    cCurrentColNameList = TRIM(cCurrentColNameList,",").
+                END. 
             END.
         END.
 	END METHOD.    
