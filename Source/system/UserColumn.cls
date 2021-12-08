@@ -289,12 +289,16 @@ CLASS system.UserColumn:
         DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
         DEFINE VARIABLE hdBrowseColumn AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
-        
+        DEFINE VARIABLE hBufferField AS HANDLE NO-UNDO.
+        DEFINE VARIABLE iNumExtents AS INT NO-UNDO.
+                
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
-            hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn).
-
+            ASSIGN 
+                hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn) NO-ERROR.
             IF NOT VALID-HANDLE (hdBrowseColumn) THEN
                 NEXT.
+            hBufferField = hdBrowseColumn:BUFFER-FIELD.
+            iNumExtents = IF VALID-HANDLE(hBufferField) AND hBufferField:EXTENT GT 1 THEN hBufferField:EXTENT ELSE 1.
             
             cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME.
             
@@ -305,12 +309,13 @@ CLASS system.UserColumn:
                 NEXT.
 
             ASSIGN
-                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel   EQ "" THEN hdBrowseColumn:LABEL ELSE ttUserColumn.colLabel 
+                hdBrowseColumn:LABEL        = IF ttUserColumn.colLabel   EQ "" THEN hdBrowseColumn:LABEL ELSE 
+                                              IF iNumExtents GT 1 THEN hdBrowseColumn:LABEL ELSE ttUserColumn.colLabel 
                 hdBrowseColumn:VISIBLE      = IF ttUserColumn.colVisible EQ ?  THEN TRUE ELSE ttUserColumn.colVisible 
                 hdBrowseColumn:WIDTH-PIXELS = IF ttUserColumn.colWidth   EQ 0  OR
                                                  ttUserColumn.colWidth   EQ ?  THEN hdBrowseColumn:WIDTH-PIXELS ELSE ttUserColumn.colWidth
                 .
-            
+                        
             /* Sometimes default width is ?, as width is set using format */
             FIND FIRST ttDefaultUserColumn 
                  WHERE ttDefaultUserColumn.colTable EQ hdBrowseColumn:TABLE
@@ -319,10 +324,20 @@ CLASS system.UserColumn:
 
             IF AVAILABLE ttDefaultUserColumn AND ttDefaultUserColumn.colWidth EQ ? THEN
                 ttDefaultUserColumn.colWidth = hdBrowseColumn:WIDTH-PIXELS.
-                            
-            IF ttUserColumn.colPosition NE ? AND iColumn NE ttUserColumn.colPosition THEN DO:
+       END.
+       
+       FOR EACH ttUserColumn:
+            columnloop:
+            DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
+                hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn).
+                IF NOT VALID-HANDLE (hdBrowseColumn) THEN
+                    NEXT columnLoop.
+                cColumnName = (IF hdBrowseColumn:TABLE EQ ? THEN "" ELSE hdBrowseColumn:TABLE + ".") + hdBrowseColumn:NAME.
+                IF ttUserColumn.colName NE cColumnName 
+                OR iNumExtents GT 1 THEN 
+                    NEXT columnLoop.
                 BrowseHandle:MOVE-COLUMN(iColumn,ttUserColumn.colPosition).
-                iColumn = iColumn - 1.
+                iColumn = IF iNumExtents GT 1 THEN iColumn + iNumExtents + 1 ELSE iColumn + 1.
             END.
         END.
 	END METHOD.    
