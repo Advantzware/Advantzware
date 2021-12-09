@@ -933,17 +933,8 @@ END.
 
       {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}
         
-    RUN GL_GetAccountOpenBal(ROWID(account),tran-date, OUTPUT open-amt). 
+    RUN GL_GetAccountOpenBal(ROWID(account),dtPerStartDate, OUTPUT open-amt). 
     
-    FOR EACH glhist FIELDS(tr-amt) NO-LOCK
-            WHERE glhist.company EQ account.company
-            AND glhist.actnum  EQ account.actnum
-            AND glhist.tr-date GE dtPerStartDate
-            AND glhist.tr-date LT tran-date
-            AND (glhist.jrnl   NE "AUTODIST" ):
-            open-amt = open-amt + glhist.tr-amt.
-    END.
-
     find first glhist no-lock
         where glhist.company eq cocode
           and glhist.actnum  eq account.actnum
