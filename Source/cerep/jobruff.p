@@ -1084,7 +1084,20 @@ PROCEDURE pPrintData:
                         AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
                         NO-ERROR .    
                 END.
-                
+                ELSE DO:
+                  FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ bf-eb.company
+                        AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no                         
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
+                        AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
+                        NO-ERROR .   
+                  FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ bf-eb.company
+                        AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no                         
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
+                        NO-ERROR .      
+                END.
+                    
                 iDisplayQty = IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty . 
                    
                 IF lAssembled AND bf-eb.est-type EQ 2 THEN
