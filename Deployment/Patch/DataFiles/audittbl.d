@@ -38,6 +38,7 @@
 "asi2corr" no no no no no no no no 0 0
 "asinotes" no no no no no no no no 0 0
 "attach" no no no no no no no no 0 0
+"attribute" no no no no no no no no 0 0
 "audit" no no no no no no no no 0 0
 "bank" no no no no no no no no 0 0
 "bolh" no no no no no no no no 0 0
@@ -164,6 +165,7 @@
 "estPacking" no no no no no no no no 0 0
 "estRelease" no no no no no no no no 0 0
 "exchange" no no no no no no no no 0 0
+"exchangeRate" no no no no no no no no 0 0
 "expiration" no no no no no no no no 0 0
 "fa-control" no no no no no no no no 0 0
 "fa-control-d" no no no no no no no no 0 0

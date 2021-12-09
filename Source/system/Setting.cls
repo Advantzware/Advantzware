@@ -1019,6 +1019,15 @@ CLASS system.Setting:
 
 	END METHOD.
 
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID SetCompany( ipcCompany AS CHARACTER ):
+		cCompany = ipcCompany.
+	END METHOD.
+
     /*------------------------------------------------------------------------------
      Purpose: Updates the value of a Company/System scope setting
      Notes:
