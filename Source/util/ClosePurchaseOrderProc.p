@@ -30,42 +30,32 @@ DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.    
 DEFINE VARIABLE cStatusDesc  AS CHARACTER NO-UNDO.
 
-RUN system\OutputProcs.p PERSISTENT SET hdOutput.
-
-{sys/inc/var.i new shared }
+RUN system\OutputProcs.p PERSISTENT SET hdOutput.  
 
 DEFINE BUFFER bf-po-ord  FOR po-ord.
-DEFINE BUFFER bf-po-ordl FOR po-ordl.
-
-ASSIGN
-    cocode = ipcCompany.
+DEFINE BUFFER bf-po-ordl FOR po-ordl. 
     
 MAIN-LOOP:
-FOR EACH bf-po-ord EXCLUSIVE-LOCK
-    WHERE bf-po-ord.company EQ cocode
+FOR EACH bf-po-ord NO-LOCK
+    WHERE bf-po-ord.company EQ ipcCompany
     AND bf-po-ord.po-no   GE ipiBeginPo
     AND bf-po-ord.po-no   LE ipiEndPo
     AND bf-po-ord.po-date GE ipcBeginDate
     AND bf-po-ord.po-date LE ipcEndDate
     AND bf-po-ord.stat    NE "C" 
     :         
-    FOR EACH bf-po-ordl EXCLUSIVE-LOCK 
+    FOR EACH bf-po-ordl NO-LOCK 
         WHERE bf-po-ordl.company EQ bf-po-ord.company 
         AND bf-po-ordl.po-no   EQ bf-po-ord.po-no:  
-          
-        IF ipcQtyUsed EQ "N" THEN
-        DO:
-              
-        END.
-        ELSE IF ipcQtyUsed EQ "F" THEN
+                
+        IF ipcQtyUsed EQ "F" THEN
         DO:
            IF bf-po-ordl.t-rec-qty LT bf-po-ordl.ord-qty THEN NEXT MAIN-LOOP.
               
         END.
         ELSE IF ipcQtyUsed EQ "I" THEN
         DO:
-            IF bf-po-ordl.t-rec-qty LT bf-po-ordl.ord-qty THEN NEXT MAIN-LOOP.
-            IF bf-po-ordl.t-inv-qty LT bf-po-ordl.t-rec-qty THEN NEXT MAIN-LOOP.
+            IF bf-po-ordl.t-rec-qty LT bf-po-ordl.ord-qty OR bf-po-ordl.t-inv-qty LT bf-po-ordl.t-rec-qty THEN NEXT MAIN-LOOP.          
         END.
                   
                   
@@ -91,26 +81,34 @@ FOR EACH bf-po-ord EXCLUSIVE-LOCK
         ttPoLineChange.poLineStatus    = cStatusDesc.
             
         RUN oe/getStatusDesc.p( INPUT "C", OUTPUT cStatusDesc) .
-            
-        ttPoLineChange.poStatusNew     = cStatusDesc.
-        ttPoLineChange.poLineStatusNew = cStatusDesc.            
+        ASSIGN
+            ttPoLineChange.poStatusNew     = cStatusDesc
+            ttPoLineChange.poLineStatusNew = cStatusDesc.            
                               
         IF ipExecute THEN
-        DO:
-            bf-po-ordl.stat = "C".
-            ttPoLineChange.note = "PO# status changed to closed" .
+        DO: 
+           DO TRANSACTION:
+                FIND CURRENT bf-po-ordl EXCLUSIVE-LOCK NO-ERROR.
+                bf-po-ordl.stat = "C".
+                ttPoLineChange.note = "PO# status changed to closed" .
+                FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.
+           END. 
         END.        
        
     END. /*bf-oe-rel*/
     
     IF ipExecute THEN
     DO:
-        bf-po-ord.stat = "C".             
+        DO TRANSACTION:
+          FIND CURRENT bf-po-ord EXCLUSIVE-LOCK NO-ERROR.
+          bf-po-ord.stat = "C".  
+          FIND CURRENT bf-po-ord NO-LOCK NO-ERROR.
+        END.   
     END.
    
 END.
-
-RELEASE bf-po-ord.
-RELEASE bf-po-ordl.
-
+        
 RUN Output_TempTableToCSV IN hdOutput (TEMP-TABLE ttPoLineChange:HANDLE, ipFilePath ,YES,YES, OUTPUT lError, OUTPUT cMessage).
+
+IF VALID-HANDLE(hdOutput) THEN
+    DELETE OBJECT hdOutput.

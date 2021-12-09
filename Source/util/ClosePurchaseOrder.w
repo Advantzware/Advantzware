@@ -282,52 +282,6 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME DEFAULT-FRAME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
-ON HELP OF FRAME DEFAULT-FRAME
-DO:
-        DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
-    
-        CASE FOCUS:NAME :
-            WHEN "begin_po"  THEN 
-                DO:
-                    RUN system/openLookup.p (
-                        INPUT  cocode, 
-                        INPUT  "",  /* Lookup ID */
-                        INPUT  36,  /* Subject ID */
-                        INPUT  "",  /* User ID */
-                        INPUT  0,   /* Param Value ID */
-                        OUTPUT cFieldsValue, 
-                        OUTPUT cFoundValue, 
-                        OUTPUT recFoundRecID
-                        ).   
-                    IF cFoundValue <> "" THEN 
-                        ASSIGN begin_po:SCREEN-VALUE = cFoundValue.         
-                END.
-            WHEN "end_po" THEN    
-                DO:
-                    RUN system/openLookup.p (
-                        INPUT  cocode, 
-                        INPUT  "",  /* Lookup ID */
-                        INPUT  36,  /* Subject ID */
-                        INPUT  "",  /* User ID */
-                        INPUT  0,   /* Param Value ID */
-                        OUTPUT cFieldsValue, 
-                        OUTPUT cFoundValue, 
-                        OUTPUT recFoundRecID
-                        ).   
-                    IF cFoundValue <> "" THEN 
-                        ASSIGN end_po:SCREEN-VALUE = cFoundValue.         
-                END.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME begin_po-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_po-date C-Win
 ON LEAVE OF begin_po-date IN FRAME DEFAULT-FRAME /* Beginning Release Date */
