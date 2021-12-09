@@ -116,7 +116,15 @@ FUNCTION fRuleFail RETURN LOGICAL PRIVATE
         iplRule4 = FALSE
         iplRule5 = FALSE
         .
-
+    ELSE
+    // if rule 2 only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ TRUE AND
+       iplRule3 EQ FALSE AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE THEN
+    iplRule2 = FALSE.
+    ELSE
     // if rule 3 only, fail
     IF iplRule1 EQ FALSE AND
        iplRule2 EQ FALSE AND
@@ -124,7 +132,7 @@ FUNCTION fRuleFail RETURN LOGICAL PRIVATE
        iplRule4 EQ FALSE AND
        iplRule5 EQ FALSE THEN
     iplRule3 = FALSE.
-
+    ELSE
     // if rule 2 & 3 with No Prod Qty, fail
     IF iplRule1 EQ FALSE AND
        iplRule2 EQ TRUE  AND
