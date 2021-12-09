@@ -215,10 +215,6 @@ DEFINE VARIABLE li-bal                    AS INTEGER        NO-UNDO.
 DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER      NO-UNDO.
 DEFINE VARIABLE cFGDefaultQtyDisplay      AS CHARACTER      NO-UNDO.
 
-DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -2646,7 +2642,10 @@ DO:
                 asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
             ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
                     asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-          
+                   
+            IF btnViewDetail:LABEL EQ "Close Detail" THEN
+            RUN pViewDetail ("Locations"). 
+            
         END.
     END.
 
@@ -4184,7 +4183,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                 asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME}  = NO.
 
-        cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
+        RUN spGetSettingByName("DisplayFGLocationDetails", OUTPUT cDisplayFGLocationDetails).
+
         IF cDisplayFGLocationDetails EQ ? THEN
             cDisplayFGLocationDetails = "NO".
         IF cDisplayFGLocationDetails NE "NO" THEN 

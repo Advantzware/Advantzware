@@ -11,14 +11,17 @@ It will list the API, the segment and field name." 900
 This is designed to allow read only access." 1000
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "ArtiosTester.r" "CE" "EC" "Artios Tester" "To test the loading of an ARD file to validate the data in the file and generate a JPEG file for attaching to an estimate." 900
+"attribute.r" "API" "NA1" "Attribute table maintenance" "This utility allows to maintain the attribute information mapped to a database table field" 900
 "AuditPurge.r" "AH" "NS5" "Purge Audit History" "Prompts for date range to purge audit history records through this date.  Will delete data used for Auditing and increase performance of audit history inquiries." 999
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
 "autoCloseOrder.r" "OE" "OC" "Auto Close Order" "Close orders automatically based on a parameter settings used." 800
 "BOLweight.r" "OP" "OS1" "Fix Bill of Lading Weight per Line" "Update Bill of Lading weight for each line item on the bill of lading for a user selected range of Bill of Lading numbers.  The weight per 100 cartons in the I-F-1 finished goods file is used to update the weight for each bill of lading line.   " 900
 "BuildFluteMatrix.r" "CE" "" "Restore Flute Stacking Matrix that were Deleted" "Utility to Export and restore stack matrix table for pallets, which have deleted stacking patterns defined on their matric." 900
 "CalculateEstimates.r" "EC" "" "Calculate Estimates and Create Quotes" "Calculate Estimates and Create Quotes" 900
+"changeLocation.r" "IF4" "IF4" "Change Location" "Change Location Util " 900
 "chgapchk.r" "AP" "VC" "Change AP Check Number" "Change check number utility that will allow the change of check numbers in A/P, A/P Checks, Disbursements for a posted check to correct numbering." 900
 "chgorduser.r" "OP" "OU1" "Update Replace User ID on all Orders" "Updated orders to replace the user id on the orders from the old user id to the new user id.  OPtion for open orders only or all orders." 900
+"ClearBOLTags.r" "UTIL" "" "Remove Tags from BOLs for a customer" "" 1000
 "CloseOrderTester.r" "OE" "OU6" "Close Order Tester" "Tests orders to see why they are in current state" 900
 "colorchg.r" "00" "" "Advantzware Color Changer" "Utility to change the default color palette for colors in the system." 1000
 "Consolidatexfer.r" "FG" "IF1" "Consolidate Transferred Tags" "For any FG item, all transfers will be consolidated into as few transfer transactions as possible for that item." 900
@@ -44,7 +47,7 @@ This is designed to allow read only access." 1000
 "def-rm-item.r" "RM" "MF1" "Update Raw Material Inventory Fields" "Allows a mass update of misc fields based on Estimate/Real/Both items by material type.  Set Cycle, Product code, lead time, warehouse, etc." 900
 "DEFE-I-V.r" "RM" "MF1" "Set Board Vendor sheet Limits to 999" "No Prompt!.  Sets all e-item sheet limits to 0 and 999.999 for all RM items by type." 1000
 "Del-prmtx.r" "OE" "OF3" "Price Matrix Delete Multiple Item" "Price Matrix Delete Multiple Item" 900
-"delAllFgRctd.r" "FG" "IU1" "Delete Unposted FG transactions" "Utility is used to delete FG transactions before they are posted.  Asks type and clears all transactions within the date range specified." 900
+"delAllFgRctd.r" "FG" "IU1" "Update/Delete Unposted FG transactions" "Utility is used to Update/delete FG transactions before they are posted.  Asks type and clears all transactions within the date range specified." 900
 "delapchk.r" "AP" "" "Purge AP Checks" "Purge AP checks and related payment details.  User enters bank number, then range of check numbers to purge." 900
 "delDupOrds.r" "OE" "OW" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers based on a customer and order date.  Can search to find or delete duplicates." 900
 "delnotes.r" "FG" "IF" "Delete Finished Goods Spec Notes  (Drop Down)" "Allows for mass delete of spec codes from a range of FG item numbers." 900
@@ -160,6 +163,7 @@ It also provides for the ability to change the date of a BOL." 900
 Will be deleted after 16.15.00 release." 1000
 "oepostgl.r" "OP" "OB4" "Post OE Invoices to G/L" "Post OE Invoices to G/L accounts." 900
 "ohshiped.r" "FG" "IF1" "Show FG Tag # Shipped and Also On Hand Qty" "Based on item number rangt, set tag number that shippe and alsoupdate quntity on hand." 900
+"OpenOrderPriceRecalc.r" "UTIL" "" "Open Order Price Recalc" "" 900
 "OrderSurchargeTester.r" "OE" "NM" "Order Surcharge Tester" "Enter the order details to see which surcharges should be applied." 900
 "ordPurge.r" "OE" "" "Purge Orders Utility" "Utility to purge orders from the system.  Prompts for a date to include to purge orders up to a date, a range of order numbers to purge and the ability to purge related invoices and create a recovery file or not." 900
 "palletissues.r" "SA" "NR" "Update the number of pallets" "Updates the quantity and cost of the pallets on a job if the cost or quantity per pallet are changed." 900
@@ -195,7 +199,7 @@ Used to clear load tags from the load tag file." 1000
 "RebuildRecalcJobs.r" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity.
 
 NK1 (JobBuildVersion Integer Value) should be set to not prompt before running it" 1000
-"reCalcFGItemQty.w" "FG" "IF1" "Compare FG Quanitity for recalc" "This utility compares the FG item quantities to those that will result if the recalc quantities is run to find any variation.  The purpose is to see if any FG item is not balanced." 900
+"reCalcFGItemQty.w" "FG" "IF1" "Compare FG Quantity for recalc" "This utility compares the FG item quantities to those that will result if the recalc quantities is run to find any variation.  The purpose is to see if any FG item is not balanced." 900
 "recalcJobs.r" "SA" "NR" "Recalc Jobs" "Utility to recalculate job standard costs with updates to the estimated rates in the machine files for jobs that have not started production (No production quantity)." 900
 "reopenyr.r" "GL" "" "Reopen year after closing" "Re-opens last year after closing and resets balances.
 
@@ -255,6 +259,7 @@ If no invoice, it will set BOL to unposted as well as all lines." 900
 " 900
 "UpdateEstNo.r" "CE" "NR" "Update Estimate Number" "Prompt for estimate number and allows a new number to be assigned." 900
 "Updateimagepath.r" "CE" "E" "Update Attachments Disk Drive or Folder" "Update attachment path for CAD dor Die in a range of estimates." 900
+"UpdateOrder.r" "OE" "OU1" "UpdateOrder to Update Release Date and Release" "UpdateOrder to Update Release Date and Release Orders by Range" 900
 "UpdateShiptoZones.r" "AR" "AF1" "Update Shipto Zones" "Update ship from warehouse, carrier and delivery zone for a range of customers." 900
 "UpdateStatus.r" "OE" "NM" "Update Status based on line items" "This utility will update the status of Jobs, Orders, Releases and Purchase Orders based on the lines and the calculation of if the record should have a closed status." 900
 "UpdBinPO.r" "FG" "IF1" "Update Vendor PO# on I-F-1 Bin/Jobs Tab" "Update bins with a vendor PO# for a range of item numbers." 900

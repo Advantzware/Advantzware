@@ -6,7 +6,7 @@
 6 "Machine" "System" "Machine" "Character" "x(6)" "Fill-In" "" "" 1 10 0 "" "dynValMachine" "" "NO:ENABLE,YES:DISABLE" "allMachines" "201902266057502670026"
 7 "Shift" "System" "Shift" "Character" "X" "Fill-In" "" "" 1 4 0 "" "" "" "NO:ENABLE,YES:DISABLE" "allShifts" "201902266178502670067"
 8 "AuditID" "System" "Audit ID" "Integer" ">>>>>>9" "Fill-In" "" "" 1 16 0 "" "" "" ? "" "201903286306903436840"
-9 "Fill-In Character" "System" "Generic Fill In" "Character" "x(30)" "Fill-In" "" "" 1 40 0 "" "" "" ? "" "201904237166903445831"
+9 "Fill-In Character" "System" "Generic Fill In" "Character" "x(256)" "Fill-In" "" "" 1 40 0 "" "" "" ? "" "201904237166903445831"
 11 "Radio-Set Character" "System" "Radio Set" "Character" "x(8)" "Radio-Set" "First,1,Second,2,Third,3" "1" 1 31 0 "" "" "" "HORIZONTAL" "" "201906100102103524205"
 12 "Toggle-Box" "System" "Toggle Box" "Logical" "yes/no" "Toggle-Box" "" "no" 1 40 0 "" "" "" ? "" "201906100159803524218"
 13 "Combo-Box Character" "System" "Combo Box" "Character" "x(256)" "Combo-Box" "" "" 1 20 10 "" "" "" ? "" "201906175536603524466"
@@ -54,3 +54,4 @@
 56 "InvoiceID" "System" "Invoice ID" "Integer" ">>>>>>>9" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202107163546507787476"
 58 "Company" "System" "Company" "Character" "x(3)" "Combo-Box" "" "" 1 10 5 "dynInitCompanyList" "" "" ? "" "202107285207907825775"
 59 "Selection-List" "System" "Selection List" "Character" "x(30)" "Selection-List" "" "" 1 14 10 "dynInitNK1AutoPDC" "" "" ? "" "202108207471607910289"
+60 "Button" "System" "Button" "Character" "" "Button" "" "" 1 14 0 "" "" "" ? "" "202111108044708194139"
