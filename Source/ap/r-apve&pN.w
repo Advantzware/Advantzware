@@ -888,12 +888,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&frame-name}:
         {custom/usrprint.i}
-        RUN sys/ref/nk1look.p (
-            g_company,"APSecure","L",NO,NO,"","",
-            OUTPUT cAPSecure,OUTPUT lAPSecure
-            ).
-        lAPSecure = cAPSecure EQ "YES".
-        IF lAPSecure THEN
+           
+        IF NOT lAPSecure THEN
             ASSIGN
                 begin_user:SCREEN-VALUE = USERID("ASI")
                 end_user:SCREEN-VALUE   = USERID("ASI")

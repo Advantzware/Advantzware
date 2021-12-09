@@ -1,0 +1,3 @@
+$linefeed$IT1*$LineNumber$*$ItemQuantity$*$ItemUOM$*$ItemPrice$**BP*$BuyerPart$*PO*$PoNum$~
+CTP*$LineTotal|->>>>>>9.99|DEC-INT|$~
+PID*F****$ItemName$~$linefeed$

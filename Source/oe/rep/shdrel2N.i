@@ -728,6 +728,4 @@ END.
 
   IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.

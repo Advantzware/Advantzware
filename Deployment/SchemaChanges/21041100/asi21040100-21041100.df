@@ -1,0 +1,197 @@
+ADD TABLE "attribute"
+  AREA "Data"
+  LABEL "Attribute"
+  DUMP-NAME "attribute"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\attribute.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\attribute.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\attribute.p" CRC "?" 
+
+ADD FIELD "dbFieldName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Field Name"
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "dbFieldExtent" OF "attribute" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Field Extent"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "attributeName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Name"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "dbTableName" OF "attribute" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "rec_key" OF "attribute" AS character 
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 52
+  ORDER 50
+
+ADD INDEX "attributeName" ON "attribute" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "dbTableName" ASCENDING 
+  INDEX-FIELD "dbFieldName" ASCENDING 
+  INDEX-FIELD "dbFieldExtent" ASCENDING 
+  INDEX-FIELD "attributeName" ASCENDING 
+
+ADD INDEX "dbFieldTable" ON "attribute" 
+  AREA "Index"
+  INDEX-FIELD "dbTableName" ASCENDING 
+
+ADD INDEX "rec_key" ON "attribute" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "exchangeRate"
+  AREA "Data"
+  LABEL "Exchange Rate"
+  DUMP-NAME "exchangerate"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/exchangeRate.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/exchangeRate.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/exchangeRate.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "exchangeRate" AS character 
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 52
+  ORDER 10
+
+ADD FIELD "company" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  ORDER 20
+
+ADD FIELD "baseCurrencyCode" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Base Currency Code"
+  POSITION 4
+  MAX-WIDTH 6
+  ORDER 30
+
+ADD FIELD "rateCurrencyCode" OF "exchangeRate" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Exchange Currency Code"
+  POSITION 5
+  MAX-WIDTH 6
+  ORDER 40
+
+ADD FIELD "asOfDate" OF "exchangeRate" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "As Of Date"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "exchangeRate" OF "exchangeRate" AS decimal 
+  FORMAT "->>,>>9.99<<<<<"
+  INITIAL "0"
+  LABEL "Exchange Rate"
+  POSITION 7
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 60
+
+ADD INDEX "rateCurrencyCode" ON "exchangeRate" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "baseCurrencyCode" ASCENDING 
+  INDEX-FIELD "rateCurrencyCode" ASCENDING 
+  INDEX-FIELD "asOfDate" DESCENDING 
+
+ADD INDEX "baseCurrencyCode" ON "exchangeRate" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "baseCurrencyCode" ASCENDING 
+
+ADD INDEX "rec_key" ON "exchangeRate" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE FIELD "invoiceMessage1" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage2" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage3" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage4" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+UPDATE FIELD "invoiceMessage5" OF "ar-ctrl"
+  FORMAT "x(60)"
+
+ADD FIELD "countryCode" OF "company" AS character
+  FORMAT "x(3)"
+  POSITION 43
+  INITIAL ""
+  LABEL "Country Code"
+  ORDER 490
+  MAX-WIDTH 6
+
+ADD FIELD "caseCount" OF "item" AS integer
+  FORMAT ">>>>>9"
+  POSITION 107
+  INITIAL "0"
+  LABEL "Case Count"
+  ORDER 1060
+  MAX-WIDTH 4
+
+ADD FIELD "shipFromLocation" OF "job" AS character
+  FORMAT "x(5)"
+  POSITION 70
+  INITIAL ""
+  LABEL "Ship From Location"
+  ORDER 690
+  MAX-WIDTH 10
+
+UPDATE FIELD "po-no-po" OF "oe-ordl"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "isActive" OF "sys-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 47
+  INITIAL "yes"
+  HELP "Toggle Active On/Off"
+  LABEL "Active"
+  ORDER 460
+  MAX-WIDTH 1
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004341

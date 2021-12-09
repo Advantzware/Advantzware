@@ -26,25 +26,26 @@ PROCEDURE pGetTaskTimeLimit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    DEFINE VARIABLE gcTaskerNotRunning          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcTaskerNotRunningEmailID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE gcTaskerNotRunningTimeLimit AS CHARACTER NO-UNDO.
     
-    oSetting = NEW system.Setting().
-    oSetting:LoadByCategoryAndProgram("dAOA").
+    RUN spGetSettingByName ("TaskerNotRunning", OUTPUT gcTaskerNotRunning).
+    RUN spGetSettingByName ("TaskerNotRunningEmailID", OUTPUT gcTaskerNotRunningEmailID).
+    RUN spGetSettingByName ("TaskerNotRunningTimeLimit", OUTPUT gcTaskerNotRunningTimeLimit).
+    
     FOR EACH company NO-LOCK:
-        IF oSetting:GetByName("TaskerNotRunning") EQ "YES" THEN DO:
-            iEmailConfigID = INTEGER(oSetting:GetByName("TaskerNotRunningEmailID")).
+        IF gcTaskerNotRunning EQ "YES" THEN DO:
+            iEmailConfigID = INTEGER(gcTaskerNotRunningEmailID).
             IF NOT CAN-FIND(FIRST emailConfig
                             WHERE emailConfig.configID EQ iEmailConfigID
                               AND emailConfig.isActive EQ YES) THEN
             NEXT.
-            dTaskTimeLimit = INTEGER(oSetting:GetByName("TaskerNotRunningTimeLimit")).
+            dTaskTimeLimit = INTEGER(gcTaskerNotRunningTimeLimit).
             IF dTaskTimeLimit NE 0 THEN
             LEAVE.
         END. /* if true */
     END. /* each company */
-    IF VALID-OBJECT(oSetting) THEN
-    DELETE OBJECT oSetting.
-
 END PROCEDURE.
 
 PROCEDURE pHTMLFooter :

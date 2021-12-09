@@ -46,10 +46,6 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 
 {CRM/ttCRMCustomers.i}
 
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -252,9 +248,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* CRM (Customers) */
 DO:
-    IF VALID-OBJECT (oSetting) THEN
-        DELETE OBJECT oSetting.    
-    
     APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -333,6 +326,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  
+  RUN spSetSettingContext.
+  
   RUN pGetCRM.
   IF RETURN-VALUE NE "" THEN RETURN.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -400,7 +396,7 @@ PROCEDURE pGetCRM :
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcCRMSource AS CHARACTER NO-UNDO.
     
-    gcCRMSource = oSetting:GetByName("CRMSource").
+    RUN spGetSettingByName("CRMSource", OUTPUT gcCRMSource).
                   
     DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE ttCRMCustomers.
