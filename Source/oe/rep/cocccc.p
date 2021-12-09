@@ -507,6 +507,11 @@ FOR EACH report
                gchWorkSheet:Range("A37"):VALUE = "Customer Drawing Rev" .
                gchWorkSheet:Range("B37"):VALUE = STRING(oe-ordl.customField) .
            END.
+           
+           IF cCertFormat EQ "CCC2" THEN DO: 
+               gchWorkSheet:Range("A38"):VALUE = "Spec#:" .
+               gchWorkSheet:Range("B38"):VALUE = STRING(oe-ordl.part-dscr2) .
+           END.
 
         /*Get Notes*/
         iNoteLine = 1.
