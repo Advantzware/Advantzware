@@ -651,11 +651,6 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/loc.i}
-    ASSIGN 
-        location.locationCode = loc.loc:SCREEN-VALUE IN FRAME {&frame-name}
-        loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        loc.addrRecKey        = location.rec_key.
 
         
 END PROCEDURE.

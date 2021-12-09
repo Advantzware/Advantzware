@@ -534,9 +534,12 @@ PROCEDURE local-add-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN 
+        location.company      = loc.company
+        location.locationCode = loc.loc
+        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+        loc.addrRecKey        = location.rec_key.
         
-        
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
