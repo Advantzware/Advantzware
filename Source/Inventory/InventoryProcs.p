@@ -523,6 +523,26 @@ PROCEDURE Inventory_GetQuantityOfUnitsForBinAndOrder:
         
 END PROCEDURE.
 
+PROCEDURE Inventory_GetQuantityOfSubUnitsPerUnitFromBinAndOrder:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given bin and order inputs, return a recalculation of the # 
+     of Units (Pallets).
+     Notes:
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobID2 AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+          
+     RUN pGetQuantityOfSubUnitsPerUnitFromBinAndOrder(ipcCompany, ipcItemID, ipcJobID, ipiJobID2, ipcLocationID, ipcBin, ipcTag, ipiOrderID,
+         OUTPUT opiQuantitySubUnitsPerUnit).  
+END PROCEDURE.        
+
 PROCEDURE pBuildRMHistory PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Builds temp-table from rm-rcpth and rm-rdtlh records for given criteria
@@ -3585,7 +3605,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
                                            "A",
                                            ipdtPostingDate,
-                                           "",
+                                           (IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "Job:" + ttRawMaterialsGLTransToPost.jobNo + "-" + STRING(ttRawMaterialsGLTransToPost.jobNo2,"99") ELSE ""),
                                            "RM").   
                        ASSIGN 
                         dDebitsTotal = 0

@@ -10,7 +10,10 @@ DEF {1} SHARED TEMP-TABLE reconcile NO-UNDO
                     FIELD tt-bank       LIKE ap-pay.bank-code
                     FIELD tt-vend       AS   CHAR
                     FIELD tt-name       LIKE vend.name
-                    FIELD tt-cleared    LIKE ap-pay.cleared.
+                    FIELD tt-cleared    LIKE ap-pay.cleared
+                    INDEX tt-rowid tt-rowid
+                    INDEX tt-type tt-type tt-number                    
+                    .
 
 DEF {1} SHARED TEMP-TABLE tt-cash NO-UNDO
                     FIELD tt-trnum      LIKE ar-ledger.tr-num

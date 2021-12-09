@@ -14,11 +14,11 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE {1} {2} TEMP-TABLE ttImportData
-    FIELD cData       AS CHARACTER EXTENT 200
+    FIELD cData       AS CHARACTER EXTENT 200       LABEL "Column"
     FIELD lHeader     AS LOGICAL
-    FIELD lValid      AS LOGICAL 
-    FIELD cImportNote AS CHARACTER
-    FIELD iCount      AS INTEGER  
+    FIELD lValid      AS LOGICAL   FORMAT "Yes/No"  LABEL "Valid"
+    FIELD cImportNote AS CHARACTER FORMAT "x(50)"   LABEL "Reason"
+    FIELD iCount      AS INTEGER   FORMAT ">>>>>>9" LABEL "Record"
     FIELD cAction     AS CHARACTER
     .
     

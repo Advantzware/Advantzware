@@ -35,6 +35,13 @@ DEF VAR v-setup LIKE e-item-vend.setup NO-UNDO.
 DEF VAR b-wt-tot LIKE b-wt NO-UNDO.
 DEF VAR ll-unitize AS LOG NO-UNDO.
 DEF VAR ld-rm-rate AS DEC NO-UNDO.
+DEFINE VARIABLE dSetupCostQtyUOM  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCostQtyUOM       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dDimLength       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dDimWidth        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dDimDepth        AS DECIMAL NO-UNDO.
+
+
 
 find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 
@@ -111,14 +118,47 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
 
    v-setup = 0.
 
+   ASSIGN
+       dDimLength = IF xeb.cas-len NE 0 THEN xeb.cas-len ELSE item.case-l
+       dDimWidth  = IF xeb.cas-wid NE 0 THEN xeb.cas-wid ELSE item.case-w
+       dDimDepth  = IF xeb.cas-dep NE 0 THEN xeb.cas-dep ELSE item.case-d     
+       .
+        
    IF xeb.casNoCharge THEN cas.cost = 0.
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 1}
-
-     ASSIGN
-      cas.cost = (cas.cost * cas.qty) + lv-setup-1
-      v-setup  = lv-setup-1.
+     
+       IF lNewVendorItemCost THEN
+       DO:
+           RUN est/getVendorCostinQtyUOM.p(Item.company, 
+               item.i-no, 
+               "RM", 
+               v-vend-no,
+               xeb.est-no,
+               xeb.form-no,
+               xeb.blank-no,
+               cas.qty,
+               "EA",
+               dDimLength, 
+               dDimWidth, 
+               dDimDepth,
+               item.basis-w,
+               OUTPUT dCostQtyUOM,
+               OUTPUT dSetupCostQtyUOM,
+               OUTPUT cas.cost).
+               
+           v-setup = dSetupCostQtyUOM. 
+                 
+       END.
+       ELSE
+       DO:
+           {est/matcost.i cas.t-qty cas.cost 1}
+            
+           ASSIGN
+               cas.cost = (cas.cost * cas.qty) + lv-setup-1
+               v-setup  = lv-setup-1.
+       END.
+     
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */
@@ -212,16 +252,12 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    FOR EACH xcas WHERE xcas.typ EQ 2 AND xcas.ino EQ cas.ino:
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
-
-   FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
-
-   b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
-                                                    ELSE item.cons-uom.
-
-   IF b-uom EQ "M" THEN
-     ASSIGN
-      cas.qty   = cas.qty / 1000
-      cas.t-qty = cas.t-qty / 1000.
+   
+   ASSIGN
+       dDimLength = IF xeb.cas-len NE 0 THEN xeb.cas-len ELSE item.case-l
+       dDimWidth  = IF xeb.cas-wid NE 0 THEN xeb.cas-wid ELSE item.case-w
+       dDimDepth  = IF xeb.cas-dep NE 0 THEN xeb.cas-dep ELSE item.case-d     
+       .
 
    v-setup = 0.
 
@@ -229,11 +265,47 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
       
    ELSE DO:
-     {est/matcost.i cas.t-qty cas.cost 2}
-
-     ASSIGN
-      cas.cost = (cas.cost * cas.qty) + lv-setup-2
-      v-setup  = lv-setup-2.
+       
+       IF lNewVendorItemCost THEN
+       DO:
+           RUN est/getVendorCostinQtyUOM.p(Item.company, 
+               item.i-no, 
+               "RM", 
+               v-vend-no,
+               xeb.est-no,
+               xeb.form-no,
+               xeb.blank-no,
+               cas.qty,
+               "EA",
+               dDimLength, 
+               dDimWidth, 
+               dDimDepth,
+               item.basis-w,
+               OUTPUT dCostQtyUOM,
+               OUTPUT dSetupCostQtyUOM,
+               OUTPUT cas.cost). 
+               
+           v-setup  = dSetupCostQtyUOM.        
+       END.
+       ELSE
+       DO:
+       
+           FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
+    
+           b-uom = IF AVAIL e-item AND e-item.std-uom NE "" THEN e-item.std-uom
+           ELSE item.cons-uom.
+    
+           IF b-uom EQ "M" THEN
+               ASSIGN
+                   cas.qty   = cas.qty / 1000
+                   cas.t-qty = cas.t-qty / 1000.
+            
+         {est/matcost.i cas.t-qty cas.cost 2}
+    
+         ASSIGN
+          cas.cost = (cas.cost * cas.qty) + lv-setup-2
+          v-setup  = lv-setup-2.
+       END.
    END.
 
    /* cosm was set to tot # blanks this item; set to cost now */

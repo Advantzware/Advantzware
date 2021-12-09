@@ -133,7 +133,8 @@ DEFINE BUFFER bf-period FOR period.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_inv end_inv ~
-begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose btn-ok btn-cancel 
+begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_inv end_inv ~
 begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose 
 
@@ -148,145 +149,145 @@ begin_date end_date tb_sort tb_ton tb_export rd-dest tbAutoClose
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Invoice Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_inv      AS INTEGER   FORMAT ">>>>>>>>>" INITIAL 0 
-    LABEL "Beginning Invoice#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0 
+     LABEL "Beginning Invoice#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Invoice Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_inv        AS INTEGER   FORMAT ">>>>>>>>>" INITIAL 999999999 
-    LABEL "Ending Invoice#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 999999999 
+     LABEL "Ending Invoice#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-date      AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Post Date" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Post Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tran-period    AS INTEGER   FORMAT ">>":U INITIAL 0 
-    LABEL "Period" 
-    VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 0 
+     LABEL "Period" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2
-    SIZE 17.2 BY 3.81 NO-UNDO.
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2
+     SIZE 17.2 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 4.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 4.33.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 10.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 10.
 
-DEFINE VARIABLE tb_export    AS LOGICAL INITIAL NO 
-    LABEL "Export/FTP  Invoices?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 23 BY 1 NO-UNDO.
-    
-DEFINE VARIABLE tbAutoClose  AS LOGICAL   INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.    
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_sort      AS LOGICAL INITIAL YES 
-    LABEL "Sort by Customer Name?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_export AS LOGICAL INITIAL no 
+     LABEL "Export/FTP  Invoices?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_ton       AS LOGICAL INITIAL NO 
-    LABEL "Print $/Ton?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE tb_sort AS LOGICAL INITIAL yes 
+     LABEL "Sort by Customer Name?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
+     LABEL "Print $/Ton?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17 BY .95 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    tran-date AT ROW 2.43 COL 43 COLON-ALIGNED
-    tran-period AT ROW 3.62 COL 43 COLON-ALIGNED
-    begin_inv AT ROW 5.29 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Invoice Number"
-    end_inv AT ROW 5.29 COL 72 COLON-ALIGNED HELP
-    "Enter Ending Invoice Number"
-    begin_date AT ROW 6.24 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Invoice Date"
-    end_date AT ROW 6.24 COL 72 COLON-ALIGNED HELP
-    "Enter Ending Invoice Date"
-    tb_sort AT ROW 7.91 COL 37
-    tb_ton AT ROW 8.86 COL 37
-    tb_export AT ROW 9.76 COL 37
-    lv-font-no AT ROW 12.14 COL 37 COLON-ALIGNED
-    lv-ornt AT ROW 12.19 COL 47 NO-LABELS
-    lines-per-page AT ROW 12.19 COL 90 COLON-ALIGNED
-    rd-dest AT ROW 12.29 COL 4.8 NO-LABELS
-    lv-font-name AT ROW 13.24 COL 31.8 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 15.1 COL 31.4
-    btn-ok AT ROW 17.3 COL 31.2
-    btn-cancel AT ROW 17.3 COL 52.6
-    tbAutoClose AT ROW 16.4 COL 31.4 WIDGET-ID 64
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.05 COL 4
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19 BY .62 AT ROW 11.48 COL 4
-    RECT-6 AT ROW 11.91 COL 3
-    RECT-7 AT ROW 1.48 COL 3
+     tran-date AT ROW 2.43 COL 43 COLON-ALIGNED
+     tran-period AT ROW 3.62 COL 43 COLON-ALIGNED
+     begin_inv AT ROW 5.29 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Invoice Number"
+     end_inv AT ROW 5.29 COL 72 COLON-ALIGNED HELP
+          "Enter Ending Invoice Number"
+     begin_date AT ROW 6.24 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Invoice Date"
+     end_date AT ROW 6.24 COL 72 COLON-ALIGNED HELP
+          "Enter Ending Invoice Date"
+     tb_sort AT ROW 7.91 COL 37
+     tb_ton AT ROW 8.86 COL 37
+     tb_export AT ROW 9.76 COL 37
+     lv-font-no AT ROW 12.14 COL 37 COLON-ALIGNED
+     lv-ornt AT ROW 12.19 COL 47 NO-LABEL
+     lines-per-page AT ROW 12.19 COL 90 COLON-ALIGNED
+     rd-dest AT ROW 12.29 COL 4.8 NO-LABEL
+     lv-font-name AT ROW 13.24 COL 31.8 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 15.1 COL 31.4
+     tbAutoClose AT ROW 16.38 COL 31.4 WIDGET-ID 64
+     btn-ok AT ROW 17.29 COL 31.2
+     btn-cancel AT ROW 17.29 COL 52.6
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 11.48 COL 4
+     RECT-6 AT ROW 11.91 COL 3
+     RECT-7 AT ROW 1.48 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 100.8 BY 18
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 100.8 BY 18
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -303,30 +304,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "A/R Invoice Edit/Posting Register"
-        HEIGHT             = 17.86
-        WIDTH              = 97.6
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "A/R Invoice Edit/Posting Register"
+         HEIGHT             = 17.86
+         WIDTH              = 97.6
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -341,65 +342,75 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_inv:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_inv:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    tb_export:HIDDEN IN FRAME FRAME-A       = TRUE
-    tb_export:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_export:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_export:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_sort:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_ton:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_ton:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    tran-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tran-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -422,7 +433,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* A/R Invoice Edit/Posting Register */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -436,7 +447,7 @@ ON END-ERROR OF C-Win /* A/R Invoice Edit/Posting Register */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
-    DO:
+DO:
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
             INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
             OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
@@ -456,7 +467,9 @@ ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Invoice Date */
 DO:
   assign {&self-name}.      
+  IF cChar-fld EQ "AU4" THEN DO:
    {ar/checkPeriod.i begin_date tran-date:SCREEN-VALUE 1}
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,7 +479,7 @@ END.
 &Scoped-define SELF-NAME begin_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv C-Win
 ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -477,7 +490,7 @@ ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
             INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
             OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
@@ -494,16 +507,18 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DEFINE VARIABLE lv-post AS LOG NO-UNDO.
   
   run check-date.
   if v-invalid then return no-apply.  
   
-  {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}
   
-  {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}  
-
+  if cChar-fld eq "AU4" then do:
+    {ar/checkPeriod.i begin_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}
+    {ar/checkPeriod.i end_date:SCREEN-VALUE tran-date:SCREEN-VALUE 1}  
+  END. 
+  
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -607,7 +622,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Invoice Date */
 DO:
   assign {&self-name}.    
-  {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 1}
+  IF cChar-fld EQ "AU4" THEN DO:
+      {ar/checkPeriod.i end_date tran-date:SCREEN-VALUE 1}
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,7 +634,7 @@ END.
 &Scoped-define SELF-NAME end_inv
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv C-Win
 ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -628,7 +645,7 @@ ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -639,7 +656,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -654,7 +671,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -665,7 +682,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -675,7 +692,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
         ASSIGN 
             lines-per-page = 68.
@@ -689,7 +706,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -700,7 +717,7 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_export
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_export C-Win
 ON VALUE-CHANGED OF tb_export IN FRAME FRAME-A /* Export/FTP  Invoices? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -711,7 +728,7 @@ ON VALUE-CHANGED OF tb_export IN FRAME FRAME-A /* Export/FTP  Invoices? */
 &Scoped-define SELF-NAME tb_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sort C-Win
 ON VALUE-CHANGED OF tb_sort IN FRAME FRAME-A /* Sort by Customer Name? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -722,7 +739,7 @@ ON VALUE-CHANGED OF tb_sort IN FRAME FRAME-A /* Sort by Customer Name? */
 &Scoped-define SELF-NAME tb_ton
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ton C-Win
 ON VALUE-CHANGED OF tb_ton IN FRAME FRAME-A /* Print $/Ton? */
-    DO:
+DO:
         IF {&self-name}:SCREEN-VALUE EQ "Yes" THEN
             lv-ornt:SCREEN-VALUE = "L".
     END.
@@ -734,7 +751,7 @@ ON VALUE-CHANGED OF tb_ton IN FRAME FRAME-A /* Print $/Ton? */
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -745,7 +762,7 @@ ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 &Scoped-define SELF-NAME tran-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
 
         IF LASTKEY NE -1 THEN 
@@ -762,7 +779,7 @@ ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 &Scoped-define SELF-NAME tran-period
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -871,7 +888,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date C-Win 
 PROCEDURE check-date :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -903,7 +920,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clear-ar C-Win 
 PROCEDURE clear-ar :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -924,7 +941,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copy-report-to-audit-dir C-Win 
 PROCEDURE copy-report-to-audit-dir :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -957,18 +974,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -976,23 +993,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY tran-date tran-period begin_inv end_inv begin_date end_date tb_sort 
-        tb_ton tb_export rd-dest tbAutoClose
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 tran-date begin_inv end_inv begin_date end_date tb_sort 
-        tb_ton tb_export rd-dest tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY tran-date tran-period begin_inv end_inv begin_date end_date tb_sort 
+          tb_ton tb_export rd-dest tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 tran-date begin_inv end_inv begin_date end_date tb_sort 
+         tb_ton tb_export rd-dest tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1000,7 +1017,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init-proc C-Win 
 PROCEDURE init-proc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1083,7 +1100,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1112,7 +1129,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1126,7 +1143,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1139,7 +1156,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateInvoiceLineTax C-Win 
 PROCEDURE pCreateInvoiceLineTax PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1162,7 +1179,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1184,7 +1201,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "",
+                "Inv: " + SUBSTRING(wkdistrib.tr-dscr,INDEX(wkdistrib.tr-dscr,'#') + 1,45),
                 "AR").
 
         END.    /* each wkdistrib */
@@ -1198,7 +1215,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-inv C-Win 
 PROCEDURE post-inv :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1336,8 +1353,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win
-PROCEDURE pPostSalesTax PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win 
+PROCEDURE pPostSalesTax PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1370,7 +1387,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQuoteSalesTax C-Win 
 PROCEDURE pQuoteSalesTax PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1403,7 +1420,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win 
 PROCEDURE pRunApiOutboundTrigger :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1452,7 +1469,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
+/* ---------------------------------------------------- oe/invpost.p 10/94 gb */
     /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
     /* -------------------------------------------------------------------------- */
 
@@ -1485,6 +1502,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE num-recs   LIKE wkdistrib.recs NO-UNDO.
     DEFINE VARIABLE tot-debit  LIKE wkdistrib.amount NO-UNDO.
     DEFINE VARIABLE tot-credit LIKE wkdistrib.amount NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
 
     {sys/form/r-top3w.f}
 
@@ -1619,12 +1637,13 @@ PROCEDURE run-report :
                 AND currency.ex-rate     GT 0
                 NO-ERROR.        
         xar-acct = STRING(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
-        {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
+        cDescription = "HEADER".
+        {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES cDescription }
 
         IF AVAILABLE currency THEN 
         DO:
             ld-gl-amt = (ar-inv.gross * currency.ex-rate) - ar-inv.gross.
-            {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES "HEADER"}
+            {sys/inc/gldstsum.i currency.ar-ast-acct ld-gl-amt YES cDescription}
         END.
 
         FOR EACH ar-invl NO-LOCK WHERE ar-invl.x-no EQ ar-inv.x-no
@@ -1641,7 +1660,8 @@ PROCEDURE run-report :
             ld-gl-amt = ar-invl.amt * -1 *
                 (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
 
-            {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO "LINE"}
+            cDescription = "LINE " + string(ar-invl.LINE).
+            {sys/inc/gldstsum.i ar-invl.actnum ld-gl-amt NO cDescription }
 
             ASSIGN
                 ld-tons[1] = IF ar-invl.t-weight NE 0 THEN ar-invl.t-weight
@@ -1681,7 +1701,8 @@ PROCEDURE run-report :
             ld-gl-amt = ar-inv.freight * -1 *
                 (IF AVAILABLE currency THEN currency.ex-rate ELSE 1).
 
-            {sys/inc/gldstsum.i xar-freight ld-gl-amt NO "FREIGHT"}
+            cDescription = "FREIGHT".
+            {sys/inc/gldstsum.i xar-freight ld-gl-amt NO cDescription}
         END.
 
         IF ar-inv.tax-amt NE 0 THEN 
@@ -1720,7 +1741,8 @@ PROCEDURE run-report :
                 IF AVAILABLE currency THEN 
                     ld-gl-amt = ld-gl-amt * currency.ex-rate.
 
-                {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
+                cDescription = "TAX".
+                {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO cDescription}
             END.
         END.
 
@@ -2025,7 +2047,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2099,7 +2121,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE undo-trnum C-Win 
 PROCEDURE undo-trnum :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

@@ -16,9 +16,13 @@
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDynParamValidation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cImportType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSessionParam       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSessionValue       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lDynParamValidation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lHelpInTemplate     AS LOGICAL   NO-UNDO.
+
+{util/ttImport.i NEW SHARED}
 
 /* **********************  Internal Functions  ************************ */
 
@@ -47,6 +51,14 @@ lDynParamValidation = cDynParamValidation EQ "YES".
 
 /* all validate procedures should run this procedure, else RETURN "" */
 
+PROCEDURE dynValReturn:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER iplReturn AS LOGICAL NO-UNDO.
+    
+    IF iplReturn THEN RETURN "".
+    ELSE RETURN fErrorMsg (iphWidget).
+END PROCEDURE.
+
 PROCEDURE dynValARClass:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
 
@@ -56,14 +68,6 @@ PROCEDURE dynValARClass:
         CAN-FIND(FIRST arClass
                  WHERE arClass.classID EQ INTEGER(iphWidget:SCREEN-VALUE))
         ).
-END PROCEDURE.
-
-PROCEDURE dynValReturn:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
-    DEFINE INPUT PARAMETER iplReturn AS LOGICAL NO-UNDO.
-    
-    IF iplReturn THEN RETURN "".
-    ELSE RETURN fErrorMsg (iphWidget).
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
@@ -237,6 +241,59 @@ PROCEDURE dynValFlute:
                  WHERE flute.company EQ cCompany
                    AND flute.code    EQ iphWidget:SCREEN-VALUE)
         ).
+END PROCEDURE.
+
+PROCEDURE dynValGenerateTemplate:
+    DEFINE VARIABLE cImportFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamHandle AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTypeToInit  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hParamHandle AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hImportProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE rPriContext  AS ROWID     NO-UNDO.
+
+    RUN util/ImportProcs.p PERSISTENT SET hImportProcs.
+    RUN pImportFileType (OUTPUT cImportFile, OUTPUT cTypeToInit).
+    RUN pInitializeType IN hImportProcs (cTypeToInit).
+    RUN pGenerateTemplate IN hImportProcs (YES, lHelpInTemplate, rPriContext, INPUT-OUTPUT cImportFile).
+    IF cImportFile NE "" THEN DO:
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cImportFile)).
+        RUN spGetSessionParam ("ImportFile-Handle", OUTPUT cParamHandle).
+        hParamHandle = WIDGET-HANDLE(cParamHandle).
+        IF VALID-HANDLE(hParamHandle) THEN DO:
+            ASSIGN
+                hParamHandle:SCREEN-VALUE = cImportFile
+                hParamHandle:MODIFIED     = TRUE
+                .
+            APPLY "ENTRY":U TO hParamHandle.
+            APPLY "TAB":U TO hParamHandle.
+        END. // if valid-handle
+    END. // if cimportfile
+    IF VALID-HANDLE(hImportProcs) THEN
+    DELETE PROCEDURE hImportProcs.
+END PROCEDURE.
+
+PROCEDURE dynValHelpInTemplate:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    lHelpInTemplate = LOGICAL(iphWidget:SCREEN-VALUE).
+    RETURN "".
+END PROCEDURE.
+
+PROCEDURE dynValImportFile:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    FILE-INFO:FILE-NAME = iphWidget:SCREEN-VALUE.
+    IF FILE-INFO:FULL-PATHNAME NE ? OR
+       iphWidget:SCREEN-VALUE  EQ ? OR
+       iphWidget:SCREEN-VALUE  EQ "" THEN RETURN "".
+    ELSE RETURN fErrorMsg (iphWidget).
+END PROCEDURE.
+
+PROCEDURE dynValImportType:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    cImportType = iphWidget:SCREEN-VALUE.
+    RETURN "".
 END PROCEDURE.
 
 PROCEDURE dynValJobCode:
@@ -549,4 +606,42 @@ PROCEDURE pGetWidgetByName PRIVATE:
         hWidget = hWidget:NEXT-SIBLING.
     END. /* do while */
     ophWidget = hWidget.
+END PROCEDURE.
+
+PROCEDURE pImportFileType PRIVATE:
+    DEFINE OUTPUT PARAMETER opcImportFile AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTypeToInit AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cBase  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL   NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN sys/ref/nk1look.p (
+        cCompany,
+        "ImportFolder",
+        "C",
+        NO,
+        NO,
+        "",
+        "", 
+        OUTPUT opcImportFile,
+        OUTPUT lFound).    
+    IF lFound THEN DO:
+        IF opcImportFile EQ "" THEN 
+            opcImportFile = "C:".
+        ASSIGN 
+            opcImportFile = TRIM(opcImportFile)
+            opcImportFile = RIGHT-TRIM(opcImportFile, "\")
+            . 
+    END. // if lfound
+    ASSIGN
+        opcTypeToInit = ENTRY(LOOKUP(cImportType,gcTypePrograms),gcTypeList)
+        cBase         = REPLACE(opcTypeToInit,"ttImport","")
+        opcImportFile = opcImportFile + "\" + cBase + "_"
+                      + STRING(YEAR(TODAY)) + "_"
+                      + STRING(MONTH(TODAY)) + "_"
+                      + STRING(DAY(TODAY)) + "_"
+                      + STRING(TIME) + ".csv"
+                      .
+    opcTypeToInit = ENTRY(LOOKUP(cImportType,gcTypePrograms),gcTypeList).
 END PROCEDURE.

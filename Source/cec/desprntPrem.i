@@ -352,7 +352,7 @@ for each ef
 
      FILE-INFO:FILE-NAME = box-design-hdr.box-image.
      
-     PUT unformatted "<C1><#30><R+25><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+     PUT unformatted "<C1><#30><R+15><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
     
      PUT UNFORMATTED "<=30>" SKIP. 
      FOR EACH box-design-line OF box-design-hdr NO-LOCK: 

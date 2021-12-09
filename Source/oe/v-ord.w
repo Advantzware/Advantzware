@@ -97,6 +97,8 @@ DEF VAR llAutoAddItems AS LOGICAL NO-UNDO.
 DEF VAR llCreateFromEst AS LOGICAL NO-UNDO.
 DEF VAR oeDateAuto-log AS LOG NO-UNDO.
 DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
+DEF VAR oeReleas-log AS LOG NO-UNDO.
+DEF VAR oeReleas-char AS CHAR NO-UNDO.
 
 DEFINE VARIABLE OEPOReqDate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
@@ -199,6 +201,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 OEPO#Xfer-log = LOGICAL(cRtnChar) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -206,17 +213,23 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
-
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-char = cRtnChar NO-ERROR. 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -2668,9 +2681,9 @@ PROCEDURE create-job :
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE job.job-no2 NO-UNDO.
   DEF VAR li-j-no AS INT NO-UNDO.
-
+  DEFINE BUFFER bf-oe-rel FOR oe-rel.
   /* === from oe/oe-ord1.p  ============= */
-
+                  
   FIND LAST job WHERE job.company EQ cocode NO-LOCK NO-ERROR.
   v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
   ASSIGN
@@ -2693,10 +2706,11 @@ PROCEDURE create-job :
          job.job-no2    = v-job-no2
          job.stat       = "P"
          job.ordertype  = oe-ord.type
-         op-recid = RECID(job).
+         op-recid = RECID(job)
+         job.shipFromLocation = locode.
 
   FOR EACH oe-ordl WHERE oe-ordl.company EQ oe-ord.company
-                     AND oe-ordl.ord-no  EQ oe-ord.ord-no exclusive:
+                     AND oe-ordl.ord-no  EQ oe-ord.ord-no EXCLUSIVE BREAK BY oe-ordl.i-no:
       FIND FIRST job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
             AND job-hdr.job-no  EQ oe-ord.job-no
@@ -2752,9 +2766,22 @@ PROCEDURE create-job :
             oe-ordl.j-no = job-hdr.j-no.
 
         FIND CURRENT job-hdr NO-LOCK.
+        IF FIRST(oe-ordl.i-no) THEN
+        DO:          
+            FIND FIRST bf-oe-rel NO-LOCK 
+                 WHERE bf-oe-rel.company EQ cocode
+                 AND bf-oe-rel.ord-no = oe-ordl.ord-no
+                 AND bf-oe-rel.i-no = oe-ordl.i-no
+                 AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
+        
+            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
+            ASSIGN
+            job.shipFromLocation = bf-oe-rel.spare-char-1
+            job-hdr.loc          = bf-oe-rel.spare-char-1.
+        END.
     END.
     IF oe-ord.stat EQ "H" THEN 
-      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
+      RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").       
   FIND CURRENT job NO-LOCK.
 
 END PROCEDURE.
@@ -3535,7 +3562,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   END.
 
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
+  IF AVAILABLE itemfg THEN
+  run fg/fg-reset.p (recid(itemfg)).
  
   FOR EACH oe-ordm
     WHERE oe-ordm.company EQ oe-ord.company
@@ -6551,7 +6579,7 @@ IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
 
-  MESSAGE "Order has been Invoice, no deletion allowed..."
+  MESSAGE "This Order has been Invoiced, It cannot be deleted, but can be purged by the Administrator."
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 
@@ -7928,11 +7956,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR opRelDate AS DATE NO-UNDO.
-  DEF VAR rShipTo AS ROWID NO-UNDO.
+  DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+  DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+  DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+  DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
   DEF BUFFER bf-shipto FOR shipto.    
   DEF BUFFER bf-oe-ord FOR oe-ord.
   DEF BUFFER bf-oe-rel FOR oe-rel.
+
   opRelDate = ?.
   FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
   RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
@@ -7943,12 +7975,23 @@ FUNCTION get-colonial-rel-date RETURNS DATE
 
   /* order header due-date - dock appt days, adjusted for weekends */
   IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN
+     IF oeReleas-log AND oeReleas-char EQ "DueDateLessTransitDays" THEN DO:
+         RUN oe/dueDateCalc.p (
+             bf-oe-rel.cust-no,
+             bf-oe-rel.rel-date,
+             DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+             "RelDate",
+             ROWID(bf-oe-rel),
+             OUTPUT dCalcRelDate,
+             OUTPUT dCalcPromDate
+             ).    
+         opRelDate = dCalcRelDate.
+     END.
+     ELSE
      opRelDate = get-date(bf-oe-ord.due-date, bf-shipto.spare-int-2, "-").
   RETURN opRelDate.
-
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -37,14 +37,18 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
 
-&scoped-define SORTBY-1 BY ap-inv.inv-no 
-&scoped-define SORTBY-2 BY ap-inv.inv-date
-&scoped-define fld-name-1  ap-inv.inv-no
-&scoped-define fld-name-2  ap-inv.inv-date
+&scoped-define SORTBY-1 BY tt-ap-inv.inv-no 
+&scoped-define SORTBY-2 BY tt-ap-inv.inv-date
+&scoped-define fld-name-1  tt-ap-inv.inv-no
+&scoped-define fld-name-2  tt-ap-inv.inv-date
 &SCOPED-DEFINE datatype-1 STRING
 &SCOPED-DEFINE datatype-2 DATE
 
 &scoped-define IAMWHAT LOOKUP
+
+DEFINE TEMP-TABLE tt-ap-inv LIKE ap-inv 
+                  FIELD rwRowid AS ROWID
+                  FIELD reRowid AS RECID. 
 
 {ap/l-apinv1.i}
 
@@ -64,29 +68,29 @@ def var lv-type-dscr as cha no-undo.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ap-inv
+&Scoped-define INTERNAL-TABLES tt-ap-inv
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ap-inv.vend-no ap-inv.inv-no ~
-ap-inv.inv-date ap-inv.net ap-inv.paid ap-inv.due 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-ap-inv.vend-no tt-ap-inv.inv-no ~
+tt-ap-inv.inv-date tt-ap-inv.net tt-ap-inv.paid tt-ap-inv.due 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ap-inv WHERE ~{&KEY-PHRASE} ~
-      AND ap-inv.company eq ip-company ~
-and ap-inv.vend-no eq ip-vend-no ~
-and ap-inv.posted  eq yes ~
-and ap-inv.due     ne 0 NO-LOCK ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-ap-inv WHERE ~{&KEY-PHRASE} ~
+      AND tt-ap-inv.company eq ip-company ~
+and tt-ap-inv.vend-no eq ip-vend-no ~
+and tt-ap-inv.posted  eq yes ~
+and tt-ap-inv.due     ne 0 NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH ap-inv WHERE ~{&KEY-PHRASE} ~
-      AND ap-inv.company eq ip-company ~
-and ap-inv.vend-no eq ip-vend-no ~
-and ap-inv.posted  eq yes ~
-and ap-inv.due     ne 0 NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH tt-ap-inv WHERE ~{&KEY-PHRASE} ~
+      AND tt-ap-inv.company eq ip-company ~
+and tt-ap-inv.vend-no eq ip-vend-no ~
+and tt-ap-inv.posted  eq yes ~
+and tt-ap-inv.due     ne 0 NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 ap-inv
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ap-inv
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-ap-inv
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-ap-inv
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -150,19 +154,19 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      ap-inv SCROLLING.
+      tt-ap-inv SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ap-inv.vend-no FORMAT "x(8)":U
-      ap-inv.inv-no FORMAT "x(20)":U
-      ap-inv.inv-date FORMAT "99/99/9999":U
-      ap-inv.net FORMAT "->,>>>,>>9.99":U
-      ap-inv.paid FORMAT "->,>>>,>>9.99":U
-      ap-inv.due COLUMN-LABEL "Due" FORMAT "->,>>>,>>9.99":U
+      tt-ap-inv.vend-no FORMAT "x(8)":U
+      tt-ap-inv.inv-no FORMAT "x(20)":U
+      tt-ap-inv.inv-date FORMAT "99/99/9999":U
+      tt-ap-inv.net FORMAT "->,>>>,>>9.99":U
+      tt-ap-inv.paid FORMAT "->,>>>,>>9.99":U
+      tt-ap-inv.due COLUMN-LABEL "Due" FORMAT "->,>>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 105 BY 11.19
@@ -219,19 +223,19 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.ap-inv"
+     _TblList          = "ASI.tt-ap-inv"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.ap-inv.company eq ip-company
-and ap-inv.vend-no eq ip-vend-no
-and ap-inv.posted  eq yes
-and ap-inv.due     ne 0"
-     _FldNameList[1]   = ASI.ap-inv.vend-no
-     _FldNameList[2]   = ASI.ap-inv.inv-no
-     _FldNameList[3]   = ASI.ap-inv.inv-date
-     _FldNameList[4]   = ASI.ap-inv.net
-     _FldNameList[5]   = ASI.ap-inv.paid
-     _FldNameList[6]   > ASI.ap-inv.due
-"ap-inv.due" "Due" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _Where[1]         = "ASI.tt-ap-inv.company eq ip-company
+and tt-ap-inv.vend-no eq ip-vend-no
+and tt-ap-inv.posted  eq yes
+and tt-ap-inv.due     ne 0"
+     _FldNameList[1]   = ASI.tt-ap-inv.vend-no
+     _FldNameList[2]   = ASI.tt-ap-inv.inv-no
+     _FldNameList[3]   = ASI.tt-ap-inv.inv-date
+     _FldNameList[4]   = ASI.tt-ap-inv.net
+     _FldNameList[5]   = ASI.tt-ap-inv.paid
+     _FldNameList[6]   > ASI.tt-ap-inv.due
+"tt-ap-inv.due" "Due" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -291,14 +295,14 @@ DO:
   DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
     {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
 
-    IF AVAIL ap-inv THEN DO:
+    IF AVAIL tt-ap-inv THEN DO:
       IF li EQ 1 THEN
         ASSIGN
-         op-char-val = ap-inv.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}
-         op-rec-val  = RECID(ap-inv).
+         op-char-val = tt-ap-inv.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}
+         op-rec-val  = tt-ap-inv.reRowid.
 
       CREATE w-ap-sel.
-      w-ap-sel.ap-inv-rowid = ROWID(ap-inv).
+      w-ap-sel.ap-inv-rowid = tt-ap-inv.rwRowid.
     END.
   END.
 
@@ -393,7 +397,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
-*/  
+*/
+  RUN pBuildTempTable.
   RUN enable_UI.
   {custom/lookpos.i &lookup-file = "job-hdr" &lookup-field = "job-no" }
   APPLY "value-changed" TO rd-sort IN FRAME {&FRAME-NAME}.
@@ -443,6 +448,35 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTempTable Dialog-Frame 
+PROCEDURE pBuildTempTable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    FOR EACH ap-inv NO-LOCK
+        WHERE ap-inv.company eq ip-company 
+        AND ap-inv.vend-no eq ip-vend-no 
+        AND ap-inv.posted  eq YES 
+        AND ap-inv.due     ne 0 
+        AND NOT CAN-FIND(FIRST ap-sel
+                         WHERE ap-sel.company EQ ap-inv.company
+                           AND ap-sel.vend-no EQ ap-inv.vend-no
+                           AND ap-sel.inv-no  EQ ap-inv.inv-no):
+        CREATE tt-ap-inv.
+        BUFFER-COPY ap-inv TO tt-ap-inv.
+        ASSIGN
+           tt-ap-inv.rwRowid = ROWID(ap-inv)
+           tt-ap-inv.reRowid = RECID(ap-inv).
+     END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

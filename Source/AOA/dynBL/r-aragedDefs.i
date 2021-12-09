@@ -10,6 +10,7 @@
 DEFINE TEMP-TABLE tt-cust NO-UNDO
     FIELD curr-code LIKE cust.curr-code
     FIELD sorter    LIKE cust.cust-no
+    FIELD classID   AS   INTEGER
     FIELD row-id    AS   ROWID
         INDEX tt-cust curr-code sorter
         .

@@ -246,7 +246,7 @@ DEFINE BROWSE br_table
       job-mch.dept COLUMN-LABEL "Dept" FORMAT "x(2)":U WIDTH 4
       display-i-name () @ job-mch.i-name
       job-mch.mr-hr COLUMN-LABEL "MRHrs" FORMAT ">>9.99":U WIDTH 9
-      job-mch.mr-waste COLUMN-LABEL "MRWst" FORMAT ">>>9":U WIDTH 6
+      job-mch.mr-waste COLUMN-LABEL "MRWst" FORMAT ">>>>>9":U WIDTH 9
       job-mch.run-hr COLUMN-LABEL "RunHrs" FORMAT ">>>,>>9.99":U
             WIDTH 9
       job-mch.speed FORMAT ">,>>>,>>9":U WIDTH 8
@@ -407,7 +407,7 @@ use-index line-idx"
      _FldNameList[10]   > ASI.job-mch.mr-hr
 "job-mch.mr-hr" "MRHrs" ? "decimal" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-mch.mr-waste
-"job-mch.mr-waste" "MRWst" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mch.mr-waste" "MRWst" ? "integer" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.job-mch.run-hr
 "job-mch.run-hr" "RunHrs" ">>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.job-mch.speed

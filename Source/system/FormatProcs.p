@@ -283,8 +283,8 @@ PROCEDURE Format_Time:
         h  - Displays hours of the time in trimmed leading zero format ( Eg. 3600 - 1)
         mm - Displays minutes of the time in two digits ( Eg. 3660 - 01)
         m  - Displays minutes of the time in trimmed leading zero format ( Eg. 3660 - 1)
-        hh - Displays seconds of the time in two digits ( Eg. 3661 - 01)
-        h  - Displays seconds of the time in trimmed leading zero format ( Eg. 3661 - 1)
+        ss - Displays seconds of the time in two digits ( Eg. 3661 - 01)
+        s  - Displays seconds of the time in trimmed leading zero format ( Eg. 3661 - 1)
         am - Displays time in 12 hour format         
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipiTime       AS INTEGER   NO-UNDO.
@@ -356,7 +356,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Replaces the given key field with the value in the request data
  Notes: Below is the format for the key field to enter a format or data type in configuration.
-        $keyfield|format|datatype|alignmentstype|trim|$
+        $keyfield|format|datatype|alignmentstype|function|$
         Eg. $poID|>>>>>>>9|INT|$, $poNotes|X(30)|$, $poData|YYYYMMDD|DATE|$, $poID|>>>>>>>9|INT|L|$,
             $poID|>>>>>>>9|INT||TRIM|$
 ------------------------------------------------------------------------------*/
@@ -373,12 +373,20 @@ PROCEDURE pUpdateRequestData PRIVATE:
     DEFINE VARIABLE cNextChar         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionText     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunction         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTrim             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatAvail      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFormatTypeAvail  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lAlignmentAvail   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lTrimAvail        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFunctionAvail    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cIfValue          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIfTrueValue      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cIfFalseValue     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIsNullValue      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lHasQuote         AS LOGICAL   NO-UNDO.
     
     ASSIGN
         cFieldValuePrefix = "$"
@@ -386,7 +394,10 @@ PROCEDURE pUpdateRequestData PRIVATE:
         .
 
     IF ipcValue EQ ? THEN
-        ipcValue = "".    
+        ASSIGN
+            ipcValue     = ""
+            lIsNullValue = TRUE
+            .    
 
     cTargetString = ipcValue.
 
@@ -398,7 +409,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
     /* Replaces the key field with value in request data */
     ioplcRequestData = REPLACE(ioplcRequestData, cFieldValuePrefix + ipcField + cFieldValueSuffix, cTargetString).
     
-    cTargetString = "".
+    cTargetString = ipcValue.
     
     /* If the key field is available with a specific format or data type for conversion */
     DO WHILE ioplcRequestData MATCHES "*" + cFieldValuePrefix + ipcField + "|*|" + cFieldValueSuffix + "*":
@@ -408,7 +419,8 @@ PROCEDURE pUpdateRequestData PRIVATE:
             cFormatType     = ""
             cAlignmentStyle = ""
             cSourceString   = ""
-            cTrim           = ""
+            cFunction       = ""
+            cFunctionValue  = ""
             cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
             .
         
@@ -416,7 +428,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
             lFormatAvail     = FALSE
             lFormatTypeAvail = FALSE
             lAlignmentAvail  = FALSE
-            lTrimAvail       = FALSE
+            lFunctionAvail   = FALSE
             .
             
         /* If $ do nothing, as it would have been already replaced */
@@ -481,24 +493,65 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 
             iIndex = iIndex + 1.    
             
-            /* If the next character after the alignment is not $, then trim exist */
+            lHasQuote = FALSE.
+            
+            /* If the next character after the alignment is not $, then a function exist */
             IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
                 DO WHILE TRUE:
-                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" AND NOT lHasQuote THEN
                         LEAVE.
+                    
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ '"' THEN
+                        lHasQuote = NOT lHasQuote.
   
                     ASSIGN
-                        cTrim  = cTrim + SUBSTRING(ioplcRequestData,iIndex,1)
-                        iIndex = iIndex + 1
+                        cFunctionValue = cFunctionValue + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex         = iIndex + 1
                         .
                 END.
                 
-                lTrimAvail = TRUE.
+                lFunctionAvail = TRUE.
             END.                    
         END.    
         ELSE
             cFormat = ?.    
+        
+        ASSIGN
+            cFunction     = ""
+            cFunctionText = ""
+            .
+        
+        IF cFunctionValue NE "" THEN DO:
+            ASSIGN
+                cFunction     = SUBSTRING(cFunctionValue, 1, INDEX(cFunctionValue, "[") - 1)
+                cFunctionText = REPLACE(SUBSTRING(cFunctionValue, INDEX(cFunctionValue, '[') + 1), ']', '') 
+                NO-ERROR.
 
+            IF cFunction EQ "IF" THEN DO:
+                ASSIGN
+                    cIfValue      = ENTRY(1, cFunctionText)
+                    cIfTrueValue  = ENTRY(2, cFunctionText)
+                    cIfFalseValue = ENTRY(3, cFunctionText)
+                    cIfValue      = REPLACE(cIfValue, '"', '')
+                    cIfValue      = REPLACE(cIfValue, "'", "")
+                    cIfTrueValue  = REPLACE(cIfTrueValue, '"', '')
+                    cIfTrueValue  = REPLACE(cIfTrueValue, "'", "")
+                    cIfFalseValue = REPLACE(cIfFalseValue, '"', '')
+                    cIfFalseValue = REPLACE(cIfFalseValue, "'", "")
+                    NO-ERROR.
+
+                IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
+                    cFunctionText = cIfTrueValue.
+                ELSE
+                    cFunctionText = cIfFalseValue.
+                    
+                ASSIGN
+                    cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
+                    cTargetString  = cFunctionText
+                    .
+            END.
+        END.
+        
         IF cFormatType NE "" THEN DO:
             /* To convert a decimal value into integer without losing the original value */
             /* Decimal places will be rounded to Progress standard */
@@ -543,7 +596,10 @@ PROCEDURE pUpdateRequestData PRIVATE:
                     .
         END.
         ELSE
-            cTargetString = STRING(ipcValue,cFormat).
+            cTargetString = IF cFormat EQ "" THEN
+                                cTargetString
+                            ELSE
+                                STRING(cTargetString,cFormat).
 
         IF cFormatType BEGINS "INT" OR cFormatType BEGINS "DEC" THEN DO:
             IF cAlignmentStyle EQ "L" THEN
@@ -552,8 +608,8 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
         END.
 
-        /* If trim format exists them trim the target string */
-        IF cTrim EQ "TRIM" THEN
+        /* If a function exists */
+        IF cFunction EQ "TRIM" THEN
             cTargetString = TRIM(cTargetString).
         
         IF lFormatAvail THEN        
@@ -566,8 +622,8 @@ PROCEDURE pUpdateRequestData PRIVATE:
         IF lAlignmentAvail THEN
             cSourceString = cSourceString + cAlignmentStyle + "|".
 
-        IF lTrimAvail THEN
-            cSourceString = cSourceString + cTrim + "|".
+        IF lFunctionAvail THEN
+            cSourceString = cSourceString + cFunctionValue + "|".
 
         cSourceString = cSourceString + cFieldValueSuffix.
         
@@ -577,7 +633,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
             cTargetString = fEscapeExceptionCharactersJSON (cTargetString).
 
         /* Replace the key field with format and data type with the value */
-        IF cFormat NE ? AND cFormat NE "" THEN
+        IF (cFormat NE ? AND cFormat NE "") OR lFunctionAvail THEN
             ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
     END.    
 END PROCEDURE.
@@ -773,6 +829,61 @@ PROCEDURE pFormatMonth PRIVATE:
             gcReplaceMonth = TRIM(STRING(ipiMonth,">9"))
             .
 END PROCEDURE.
+
+PROCEDURE Format_UpdateLineCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
+
+    DEFINE VARIABLE lcRequestSubstring AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cLineString        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLineCount         AS INTEGER   NO-UNDO.
+    
+    cLineString =  "$LineNumber$".
+    
+    DO WHILE ioplcRequestData MATCHES "*" + cLineString + "*":
+        iIndex = INDEX(ioplcRequestData, cLineString).
+        
+        lcRequestSubstring = SUBSTRING(ioplcRequestData, 1, iIndex + LENGTH(cLineString) - 1).
+        
+        iLineCount = NUM-ENTRIES(lcRequestSubstring, CHR(10)).
+        
+        lcRequestSubstring = REPLACE(lcRequestSubstring, cLineString, STRING (iLineCount)).
+        
+        ioplcRequestData = lcRequestSubstring + SUBSTRING(ioplcRequestData, iIndex + LENGTH(cLineString)).
+    END.
+END PROCEDURE.
+
+PROCEDURE Format_UpdatePageCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
+
+    DEFINE VARIABLE lcRequestSubstring AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cPageString        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPageCount         AS INTEGER   NO-UNDO.
+    
+    cPageString =  "$PageNumber$".
+    
+    DO WHILE ioplcRequestData MATCHES "*" + cPageString + "*":
+        iIndex = INDEX(ioplcRequestData, cPageString).
+        
+        lcRequestSubstring = SUBSTRING(ioplcRequestData, 1, iIndex + LENGTH(cPageString) - 1).
+        
+        iPageCount = NUM-ENTRIES(lcRequestSubstring, CHR(12)).
+        
+        lcRequestSubstring = REPLACE(lcRequestSubstring, cPageString, STRING (iPageCount)).
+        
+        ioplcRequestData = lcRequestSubstring + SUBSTRING(ioplcRequestData, iIndex + LENGTH(cPageString)).
+    END.
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
 

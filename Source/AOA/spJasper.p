@@ -378,11 +378,11 @@ PROCEDURE pGetUserParamValue:
             ASSIGN
                 cTable = ENTRY(1,dynValueColumn.colName,".")
                 cField = ENTRY(2,dynValueColumn.colName,".")
+                cTemp = cField
                 .
-            IF dynSubject.businessLogic EQ "" THEN DO:
-                cTemp = cField.
                 IF INDEX(cTemp,"[") NE 0 THEN
                 cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).
+            IF dynSubject.businessLogic EQ "" THEN DO:
                 IF cTable NE "ttUDF" THEN DO:
                     CREATE BUFFER hTable FOR TABLE cTable.
                     dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
@@ -390,7 +390,7 @@ PROCEDURE pGetUserParamValue:
             END. /* if not business logic */
             ELSE
             IF VALID-HANDLE(hTable) THEN
-            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.
         END. /* if table.field */
         ELSE
         cField = dynValueColumn.colName.

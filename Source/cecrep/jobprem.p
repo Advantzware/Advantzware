@@ -13,6 +13,9 @@ DEF VAR v-end-compress AS cha NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 DEF VAR lv-ord-qty LIKE oe-ordl.qty NO-UNDO.
 DEFINE VARIABLE lFirstPage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lPOScoresFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+
 {jcrep/r-ticket.i "shared"}
 
 {cecrep/jobtickprm.i "new shared"}
@@ -20,6 +23,8 @@ DEFINE VARIABLE lFirstPage AS LOGICAL NO-UNDO.
 {sys/inc/VAR.i SHARED}
 {cec/msfcalc.i}
 {custom/notesdef.i}
+{system/FormulaProcs.i}
+
 DEF VAR v-inst2 AS cha EXTENT 6 NO-UNDO.    
 DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEF VAR v-note-length AS INT INIT 80 NO-UNDO.
@@ -57,6 +62,11 @@ DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR tb_app-unprinted AS LOG NO-UNDO.
 /*DEFINE VARIABLE cMchEstRecKey AS CHARACTER NO-UNDO.*/
 DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
+
+
+
+/* **********************  Internal Procedures  *********************** */
+
 
 FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -813,10 +823,40 @@ do v-local-loop = 1 to v-local-copies:
         /* rstark 05181205 */
 
         if print-box and avail xest then do:    
+            
             PUT "<C60><P12>" ( IF lPrintMetric THEN "*Metric Sizes*" ELSE "*Imperial Size*" ) FORMAT "x(20)" .
-            run cec/desprntPrem.p (recid(xef),
-                               input-output v-lines,
-                               recid(xest),lPrintMetric).
+            
+            IF AVAILABLE xstyle and xstyle.designIDAlt NE 0 THEN
+            DO:
+                IF NOT VALID-HANDLE(hdFormulaProcs) THEN
+                    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+                
+                RUN Formula_ParseDesignScores IN hdFormulaProcs (
+                    INPUT xeb.company,
+                    INPUT xeb.est-no,
+                    INPUT xeb.form-no,
+                    INPUT xeb.blank-no,
+                    INPUT xstyle.designIDAlt,
+                    INPUT lPrintMetric,
+                    OUTPUT TABLE ttScoreLine
+                    ).
+                
+                DELETE PROCEDURE hdFormulaProcs.
+                
+                   
+                IF CAN-FIND(FIRST ttScoreLine) THEN
+                DO:
+                    RUN pPrintAltBoxDesign (BUFFER xstyle, xef.xgrain, xest.metric).
+                     
+                    lPOScoresFound = YES.
+                   
+                END.
+            END.
+            
+            IF NOT lPOScoresFound THEN
+                run cec/desprntPrem.p (recid(xef),
+                    input-output v-lines,
+                    recid(xest),lPrintMetric).
         end.
         ELSE PAGE.
         
@@ -1050,6 +1090,85 @@ end.  /* end v-local-loop  */
 hide all no-pause.
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
+
+
+PROCEDURE pPrintAltBoxDesign PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Printing logic for Alt design Box
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-Style FOR style.
+    DEFINE INPUT  PARAMETER ipcXGrain AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEstMetric AS LOGICAL   NO-UNDO.
+    
+    
+    DEFINE VARIABLE cLineText        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineL      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineLTotal AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineW      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreLineWTotal AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
+    DEFINE BUFFER bf-box-design-line FOR box-design-line.
+    
+    
+    IF NOT AVAILABLE ipbf-Style THEN
+        RETURN.
+    
+    FIND FIRST bf-box-design-hdr NO-LOCK
+        WHERE bf-box-design-hdr.design-no = ipbf-Style.designIDAlt NO-ERROR.
+    
+    IF NOT AVAILABLE bf-box-design-hdr THEN
+        RETURN.
+    
+    cLineText = "        " +  "Design #: " + 
+                trim(string(ipbf-Style.design-no,">>>")) +
+                "   " + ipbf-Style.dscr + "    CorrDir:"  +
+                (IF ipcXGrain = "N" THEN "Vertical" ELSE "Horizontal").
+                
+    
+    PUT UNFORMATTED "<P12>" SKIP.
+    
+    put cLineText FORM "x(200)" skip.
+    
+    FIND FIRST ttScoreLine NO-LOCK
+        WHERE ttScoreLine.PanelType = "L" NO-ERROR.
+    
+    IF AVAILABLE ttScoreLine THEN
+        ASSIGN
+            cScoreLineL      = ttScoreLine.ScoreLine
+            cScoreLineLTotal = ttScoreLine.ScoreLineTotal.
+         
+    put cScoreLineL  FORM "x(100)"  skip
+        cScoreLineLTotal FORM "x(100)"  skip.
+        
+    v-lines = v-lines + 4.
+    
+    IF bf-box-design-hdr.box-image NE "" THEN
+    DO: 
+        FILE-INFO:FILE-NAME = bf-box-design-hdr.box-image.
+     
+        PUT unformatted 
+            "<C1><#30><R+15><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+    END.
+    
+    PUT UNFORMATTED "<=30>" SKIP.
+      
+    FOR EACH ttScoreLine NO-LOCK
+        WHERE ttScoreLine.PanelType = "W":
+         
+        ASSIGN   
+            cScoreLineW      = ttScoreLine.ScoreLine
+            cScoreLineWTotal = ttScoreLine.ScoreLineTotal.
+            
+        PUT "<C66>" 
+            cScoreLineW FORMAT "x(9)" 
+            cScoreLineWTotal FORMAT "x(10)"  SKIP.
+         
+    END.  
+     
+END PROCEDURE.
+
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
 

@@ -272,10 +272,10 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.num-inv AT ROW 9.57 COL 94 COLON-ALIGNED
-          LABEL "Total# of Inv. Paid"
+     cust.num-inv AT ROW 9.57 COL 92 COLON-ALIGNED
+          LABEL "Total# of Inv. Paid" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 9 BY 1
           BGCOLOR 15 FONT 4
      cust.industryID AT ROW 10 COL 126 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
@@ -289,10 +289,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FONT 4
-     cust.avg-pay AT ROW 10.76 COL 94 COLON-ALIGNED
+     cust.avg-pay AT ROW 10.76 COL 92 COLON-ALIGNED
           LABEL "Avg# Days to Pay"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 9 BY 1
           BGCOLOR 15 FONT 4
      cust.ord-bal AT ROW 12.43 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -702,7 +702,7 @@ PROCEDURE local-display-fields :
 
   RUN Display-Field ("ptd-sales").
     
-  IF cust.AccountType EQ "" THEN DO:
+  IF AVAILABLE cust AND cust.AccountType EQ "" THEN DO:
       ASSIGN 
           cust.accountType:SCREEN-VALUE = "<None>"
           cust.accountType:MODIFIED = FALSE.

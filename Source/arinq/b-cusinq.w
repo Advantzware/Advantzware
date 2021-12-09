@@ -81,6 +81,8 @@ DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR v-format AS cha NO-UNDO.
 DEF NEW SHARED VAR uperiod AS INT NO-UNDO.  /* for gl-open.p */
 DEF VAR v-gltrans-desc AS CHAR NO-UNDO.
+DEF VAR lv-cust-rec-key   AS char NO-UNDO.
+DEF VAR v-att AS LOG NO-UNDO.
 
 &SCOPED-DEFINE SORTBY-ASC ASCENDING
 &SCOPED-DEFINE SORTBY-DES DESCENDING
@@ -475,6 +477,11 @@ DO:
   END.
 
   RUN dispatch ("open-query").
+  
+  ASSIGN lv-cust-rec-key = cust.rec_key when avail cust no-error.
+  
+  RUN pEnableAttachButton .
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -877,6 +884,8 @@ PROCEDURE local-initialize :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
+  RUN pDisableAttachButton .
+  
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "entry" TO fi_cust.
@@ -1022,6 +1031,74 @@ ASSIGN last-cust = cust.cust-no . */
 RUN arinq/csnq-exp.w ("", "").
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableAttachButton B-table-Win 
+PROCEDURE pEnableAttachButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"attach-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN enable-button IN WIDGET-HANDLE(char-hdl) .
+  
+  v-att = CAN-FIND(FIRST asi.attach WHERE
+          attach.company = cust.company and
+          attach.rec_key = lv-cust-rec-key AND
+          ATTACH.est-no  = "").
+  
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+     RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableAttachButton B-table-Win 
+PROCEDURE pDisableAttachButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"attach-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN disable-button IN WIDGET-HANDLE(char-hdl) .
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-changed-proc B-table-Win 
+PROCEDURE value-changed-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/select_attcust.i lv-cust-rec-key "'Customer: ' + cust.cust-no + ' - ' + 'Name: ' + cust.name" 0}
+
+  v-att = CAN-FIND(FIRST asi.attach WHERE
+          attach.company = cust.company and
+          attach.rec_key = lv-cust-rec-key AND
+          ATTACH.est-no  = "").
+  
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+     RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

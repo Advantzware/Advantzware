@@ -577,7 +577,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
         END.
         ASSIGN 
             cPoHeadNotesKiwi = cPoNotes
-            cPoNotes         = REPLACE(cPoNotes, "~n", "")
+            cPoNotes         = REPLACE(cPoNotes, CHR(10)," ")
+            cPoNotes         = REPLACE(cPoNotes, CHR(13)," ")
             .
         
         cPoNotesHRMS = cPoNotes.
@@ -1036,8 +1037,12 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             ASSIGN 
                 cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotes
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
-                cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
-                cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
+                cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
+                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
+                                    cPoLineNotes
+                                ELSE
+                                    cPoNotesHRMS + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
