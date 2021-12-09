@@ -1654,6 +1654,7 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE dOldCwt AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldBolDate AS DATE NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
@@ -1667,7 +1668,8 @@ PROCEDURE local-assign-record :
    old-carrier = oe-bolh.carrier
    old-shipid  = oe-bolh.ship-id
    old-loc     = oe-bolh.loc
-   dOldCwt     = oe-bolh.cwt.
+   dOldCwt     = oe-bolh.cwt
+   dtOldBolDate = oe-bolh.bol-date.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1727,7 +1729,16 @@ PROCEDURE local-assign-record :
       END.
     END.
   END.
-
+  
+  IF dtOldBolDate NE oe-bolh.bol-date AND NOT adm-new-record THEN
+  DO:
+       MESSAGE "Update BOL lines date" 
+               VIEW-AS ALERT-BOX QUESTION 
+               BUTTONS OK-CANCEL UPDATE lcheckflg AS LOGICAL .
+       IF lcheckflg THEN          
+       RUN pUpdateLineBolDate.
+  END.
+  
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
       new-loc NE new-loc OR (dOldCwt NE dNewCwt ) )
       THEN DO:
@@ -2522,6 +2533,27 @@ PROCEDURE pCalcFrtForce :
           
       END.          
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateLineBolDate V-table-Win 
+PROCEDURE pUpdateLineBolDate :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    IF AVAILABLE oe-bolh THEN
+    FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+        WHERE bf-oe-boll.company EQ oe-bolh.company 
+        AND bf-oe-boll.b-no EQ oe-bolh.b-no:
+        ASSIGN
+          bf-oe-boll.bol-date = oe-bolh.bol-date.
+    END.
+    RELEASE bf-oe-boll.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
