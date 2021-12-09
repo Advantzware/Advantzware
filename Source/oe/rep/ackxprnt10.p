@@ -338,10 +338,10 @@ find first company where company.company eq cocode no-lock no-error.
                put v-line FORM ">>>9" SPACE(3)
                     oe-ordl.i-no  SPACE(1)             
                     oe-ordl.i-name  
-                    "<C41.5>"oe-ordl.qty /*dQty*/
-                    "<C51>" oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(6)
-                    oe-ordl.pr-uom  
-                    "<C66>"XXX SKIP
+                    "<C45>"oe-ordl.qty /*dQty*/
+                    "<C54>" oe-ordl.price  FORM "->,>>>,>>9.99<<<<" 
+                    "<C66.5>"oe-ordl.pr-uom  
+                    "<C71.5>"XXX SKIP
                 .
            
         END.  /*IF v-print-fmt eq "ackhead 10" THEN*/
