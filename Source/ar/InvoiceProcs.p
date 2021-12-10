@@ -95,12 +95,13 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInv FOR ttInv.
 
-    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dDiscPct    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iDiscDays   AS DECIMAL NO-UNDO. 
-    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iDueOnMonth AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dDiscPct    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iDiscDays   AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE cTermsDesc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-shipto  FOR shipto.
@@ -110,8 +111,12 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
         WHERE bf-cust.company EQ ipbf-ttInv.company
           AND bf-cust.cust-no EQ ipbf-ttInv.customerID
         NO-ERROR.
-    IF AVAILABLE bf-cust THEN 
-        ipbf-ttInv.customerEmail = bf-cust.email.
+    IF AVAILABLE bf-cust THEN
+        ASSIGN
+            ipbf-ttInv.customerEmail = bf-cust.email
+            ipbf-ttInv.phone         = bf-cust.area-code + "-" + bf-cust.phone 
+            ipbf-ttInv.fax           = SUBSTRING(cust.fax,1,3) + "-" + SUBSTRING(cust.fax,4)
+            ipbf-ttInv.country       = bf-cust.fax-country .
         
     FIND FIRST bf-shipto NO-LOCK 
          WHERE bf-shipto.company EQ ipbf-ttInv.company
@@ -144,7 +149,8 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
         OUTPUT iDueOnDay,
         OUTPUT iNetDays, 
         OUTPUT dDiscPct,  
-        OUTPUT iDiscDays, 
+        OUTPUT iDiscDays,
+        OUTPUT cTermsDesc,
         OUTPUT lError         
         ).
     IF NOT lError THEN
@@ -155,6 +161,7 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttInv.termDiscountDueDate = ipbf-ttInv.invoiceDate + ipbf-ttInv.termDiscountDays
             ipbf-ttInv.termDiscountPercent = dDiscPct
             ipbf-ttInv.termDiscountAmount  = ipbf-ttInv.amountTotal * (ipbf-ttInv.termDiscountPercent / 100)
+            ipbf-ttInv.termsDesc           = cTermsDesc
             .
     
     FOR EACH bf-notes NO-LOCK
@@ -341,7 +348,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.invoiceDueDate       = ipbf-ar-inv.due-date
             ttInv.customerPONo         = ipbf-ar-inv.po-no
             ttInv.fob                  = IF ipbf-ar-inv.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
-            ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
+            ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE "" 
+            ttInv.frtPay               = ipbf-ar-inv.frt-pay
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -578,6 +586,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ttInv.invoiceDueDate       = DYNAMIC-FUNCTION("GetInvDueDate", ttInv.invoiceDate, ttInv.company ,ttInv.terms)
             ttInv.fob                  = IF ipbf-inv-head.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
             ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
+            ttInv.frtPay               = ipbf-inv-head.frt-pay
             . 
 
         RUN Tax_CalculateForInvHeadWithDetail(
