@@ -316,7 +316,7 @@ DO:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
-    DEFINE VARIABLE cAdderList         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdderList         AS CHARACTER EXTENT 6 NO-UNDO.
     DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO.
      
      
@@ -327,11 +327,7 @@ DO:
             AND bf-ef.est-no  EQ estCostMaterial.estimateNo:
             DO iCount = 1 TO 6:
                 IF bf-ef.adder[iCount] <> "" THEN 
-                DO:
-                    IF cAdderList = "" THEN 
-                        cAdderList = bf-ef.adder[iCount].
-                    ELSE cAdderList = cAdderList + "," + bf-ef.adder[iCount].
-                END.
+                    cAdderList[iCount] = bf-ef.adder[iCount].
             END.
         END.
         RUN system/vendorcostSelector.w(

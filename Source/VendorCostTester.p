@@ -363,7 +363,7 @@ PROCEDURE pGetVendorCostList PRIVATE:
         "",0,0,
         10000, "EA", 
         dDimLength, dDimWidth, dDimDepth, "IN",
-        dBasisWeight, "LBS/MSF", 
+        dBasisWeight, "LBS/MSF", "", 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT lError, OUTPUT cMessage).
     FOR EACH ttVendItemCost

@@ -406,7 +406,7 @@ PROCEDURE build-tt-report :
                 ef.est-no,ef.form-no,0,
                 dQty, "EA", 
                 ef.gsh-len, ef.gsh-wid, ef.gsh-dep, "IN",
-                ef.weight, "LBS/MSF", 
+                ef.weight, "LBS/MSF", "",
                 OUTPUT TABLE ttVendItemCost,
                 OUTPUT lError, OUTPUT cMessage).
             FOR EACH ttVendItemCost, 
