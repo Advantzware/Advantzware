@@ -575,7 +575,6 @@ PROCEDURE pRunProcess :
             ).
                 
         lCheckSimulate = NO .
-        STATUS DEFAULT "Process Complete" . 
     
     END.    
     
@@ -612,11 +611,15 @@ PROCEDURE pRunProcess :
         /* Reset context at the end of API calls to clear temp-table 
            data inside OutboundProcs */
         RUN Outbound_ResetContext IN hdOutboundProcs. 
-    
-        STATUS DEFAULT "Process Complete" .
-    
+        
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutboundProcs).
+        DELETE OBJECT hdOutboundProcs.
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
+        DELETE OBJECT hdOutputProcs.
      
     END.    /* ipcExecute */ 
+
+    STATUS DEFAULT "Process Complete" .
    
 END PROCEDURE.
 
