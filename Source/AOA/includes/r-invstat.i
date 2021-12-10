@@ -97,6 +97,55 @@ DEFINE TEMP-TABLE ttProdSum NO-UNDO
 DEFINE VARIABLE cPOSource AS CHARACTER NO-UNDO.
 &ENDIF
 
+FUNCTION fRuleFail RETURN LOGICAL PRIVATE
+    (iplRule1 AS LOGICAL,
+     iplRule2 AS LOGICAL,
+     iplRule3 AS LOGICAL,
+     iplRule4 AS LOGICAL,
+     iplRule5 AS LOGICAL,
+     ipdQty   AS DECIMAL
+     ):
+
+    // open dates only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ FALSE AND
+       iplRule3 EQ FALSE AND
+      (iplRule4 EQ TRUE  OR
+       iplRule5 EQ TRUE) THEN
+    ASSIGN
+        iplRule4 = FALSE
+        iplRule5 = FALSE
+        .
+
+    // if rule 3 only, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ FALSE AND
+       iplRule3 EQ TRUE  AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE THEN
+    iplRule3 = FALSE.
+
+    // if rule 2 & 3 with No Prod Qty, fail
+    IF iplRule1 EQ FALSE AND
+       iplRule2 EQ TRUE  AND
+       iplRule3 EQ TRUE  AND
+       iplRule4 EQ FALSE AND
+       iplRule5 EQ FALSE AND
+       ipdQty   EQ 0     THEN
+    ASSIGN
+        iplRule2 = FALSE
+        iplRule3 = FALSE
+        .
+
+    RETURN
+        iplRule1 EQ FALSE AND
+        iplRule2 EQ FALSE AND
+        iplRule3 EQ FALSE AND
+        iplRule4 EQ FALSE AND
+        iplRule5 EQ FALSE.
+
+END FUNCTION.
+
 FUNCTION fSalesRepName RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcSalesRep AS CHARACTER):
     FIND FIRST sman NO-LOCK
@@ -521,37 +570,7 @@ PROCEDURE pBuildJobItem PRIVATE:
                       (oe-ord.closeDate EQ ? OR
                        oe-ord.closeDate GE ipdtAsOf)
             .
-        // open dates only, don't show
-        IF lRule[1] EQ FALSE AND
-           lRule[2] EQ FALSE AND
-           lRule[3] EQ FALSE AND
-          (lRule[4] EQ TRUE  OR
-           lRule[5] EQ TRUE) THEN
-        lRule = FALSE.
-
-        // if rule 3 only, don't show
-        IF lRule[1] EQ FALSE AND
-           lRule[2] EQ FALSE AND
-           lRule[3] EQ TRUE  AND
-           lRule[4] EQ FALSE AND
-           lRule[5] EQ FALSE THEN
-        lRule = FALSE.
-
-        // if rule 2 & 3 with No Prod Qty, don't show
-        IF lRule[1] EQ FALSE AND
-           lRule[2] EQ TRUE  AND
-           lRule[3] EQ TRUE  AND
-           lRule[4] EQ FALSE AND
-           lRule[5] EQ FALSE AND
-           dQtyProd EQ 0     THEN
-        lRule = FALSE.
-
-        IF lRule[1] EQ FALSE AND
-           lRule[2] EQ FALSE AND
-           lRule[3] EQ FALSE AND
-           lRule[4] EQ FALSE AND
-           lRule[5] EQ FALSE THEN
-        NEXT.
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
 
         RUN pAddJobItem (
             job-hdr.company,
@@ -703,6 +722,19 @@ PROCEDURE pBuildJobItem PRIVATE:
         
         IF dPricePerUOM LT dInvAmt THEN NEXT.  /* already invoiced at time of "as of" */
 
+        ASSIGN
+            lRule[1] = dQtyOnHand NE 0
+            lRule[2] = dQtyInv    EQ 0
+            lRule[3] = dQtyOnHand EQ 0 AND
+                       dQtyInv    NE 0 AND
+                       dQtyOrd    GT dQtyInv
+            lRule[4] = FALSE
+            lRule[5] = dQtyOnHand EQ 0 AND
+                      (oe-ord.closeDate EQ ? OR
+                       oe-ord.closeDate GE ipdtAsOf)
+            .
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
+
         RUN pAddJobItem (
             oe-ord.company,
             oe-ord.cust-no,
@@ -775,6 +807,19 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dQtyInv,
             OUTPUT dQtyShip
             ).
+
+        ASSIGN
+            lRule[1] = dQtyOnHand NE 0
+            lRule[2] = dQtyInv    EQ 0
+            lRule[3] = dQtyOnHand EQ 0 AND
+                       dQtyInv    NE 0 AND
+                       dQtyOrd    GT dQtyInv
+            lRule[4] = FALSE
+            lRule[5] = dQtyOnHand EQ 0 AND
+                      (oe-ord.closeDate EQ ? OR
+                       oe-ord.closeDate GE ipdtAsOf)
+            .
+        IF fRuleFail(lRule[1], lRule[2], lRule[3], lRule[4], lRule[5], dQtyProd) THEN NEXT.
 
         RUN pAddJobItem (
             oe-ord.company,

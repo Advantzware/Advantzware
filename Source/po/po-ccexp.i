@@ -11,8 +11,6 @@ DEF INPUT PARAMETER v-format AS CHAR NO-UNDO.
 
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem FOR item.
-DEF BUFFER b-ref1  FOR reftable.
-DEF BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
 {methods/getExecutableFileName.i quoter}
@@ -33,7 +31,8 @@ DEF VAR v-mach AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR li-style AS INT NO-UNDO.
 
-
+DEFINE VARIABLE iIndex          AS INTEGER NO-UNDO.
+DEFINE VARIABLE lScoreAvailable AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20
@@ -366,11 +365,28 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                                     FORMAT "99".
     
     /* STYLE NUMBER */
-    RUN po/po-ordls.p (RECID(po-ordl)).
+    RUN po/POProcs.p PERSISTENT SET hdPOProcs.
     
-    {po/po-ordls.i}
+    RUN PO_GetLineScoresAndTypes IN hdPOProcs (
+        INPUT  po-ordl.company,
+        INPUT  po-ordl.po-no,
+        INPUT  po-ordl.line,
+        OUTPUT lv-val,
+        OUTPUT lv-typ
+        ).
+    
+    DELETE PROCEDURE hdPOProcs.  
+    
+    lScoreAvailable = FALSE.
+    
+    DO iIndex = 1 TO EXTENT(lv-val):
+        IF lv-val[iIndex] NE 0 OR lv-typ[iIndex] NE "" THEN DO:
+            lScoreAvailable = TRUE.
+            LEAVE.
+        END.
+    END. 
  
-    li-style = IF AVAIL b-ref1 OR AVAIL b-ref2 THEN 1 ELSE 2.
+    li-style = IF lScoreAvailable THEN 1 ELSE 2.
 
     PUT li-style                                    FORMAT "9999".
     
@@ -523,23 +539,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /* D4 */
     
     /* SCORE */
-    DO i = 1 TO 12:
-      IF AVAIL b-ref1 AND b-ref1.val[i] NE 0 THEN 
-        PUT trunc(b-ref1.val[i],0)                  FORMAT ">>>"
+    DO i = 1 TO 24:
+      IF i GT 20 THEN
+        PUT "       "                              FORMAT "x(7)".
+      ELSE IF lScoreAvailable AND lv-val[i] NE 0 THEN 
+        PUT trunc(lv-val[i],0)                      FORMAT ">>>"
             ":"                                     FORMAT "x"
-            (b-ref1.val[i] - trunc(b-ref1.val[i],0)) * 100
+            (lv-val[i] - trunc(lv-val[i],0)) * 100
                                                     FORMAT "99"
-            substr(b-ref1.dscr,i,1)                 FORMAT "x".
-            
-      ELSE PUT "       "                            FORMAT "x(7)".
-    END.
-    DO i = 1 TO 12:
-      IF AVAIL b-ref2 AND b-ref2.val[i] NE 0 THEN 
-        PUT trunc(b-ref2.val[i],0)                  FORMAT ">>>"
-            ":"                                     FORMAT "x"
-            (b-ref2.val[i] - trunc(b-ref2.val[i],0)) * 100
-                                                    FORMAT "99"
-            substr(b-ref2.dscr,i,1)                 FORMAT "x".
+            lv-typ[i]                               FORMAT "x".
             
       ELSE PUT "       "                            FORMAT "x(7)".
     END.

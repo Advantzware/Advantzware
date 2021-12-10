@@ -873,65 +873,65 @@
 64 "_default" "dynSubjct." 0 3 yes "ttSuperProc.procType" "Type" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067510007247635" no "" "" 0 0 "" no no "" "" no
 64 "_default" "dynSubjct." 0 4 yes "ttSuperProc.returnType" "Return" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067510007247636" no "" "" 0 0 "" no no "" "" no
 64 "_default" "dynSubjct." 0 5 yes "ttSuperProc.procParams" "Parameter(s)" "x(256)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067510007247637" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 1 yes "est.est-no" "Estimate #" "x(8)" 10.4 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247650" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 2 yes "est.est-date" "Est Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202105067512307247651" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 3 yes "eb.cust-no" "Cust. #" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247652" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 4 yes "eb.ship-id" "Ship To ID" "x(8)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247653" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 5 yes "eb.part-no" "Cust Part #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247654" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 6 yes "eb.part-dscr1" "Item Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247655" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 7 yes "eb.stock-no" "Stock Box #" "x(15)" 20.4 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247656" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 8 yes "eb.bl-qty" "Qty" ">>>>>>9" 9.2 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247657" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 9 yes "eb.style" "Style Code" "x(6)" 10.4 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247658" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 10 yes "ef.board" "Board" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247659" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 11 yes "ef.cal" "Caliper" "9.99999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247660" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 12 yes "eb.procat" "Category" "x(5)" 9 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247661" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 13 yes "eb.len" "Length" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247662" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 14 yes "eb.wid" "Width" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247663" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 15 yes "eb.dep" "Depth" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247664" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 16 yes "eb.quantityPerSet" "Qty/Set" ">>>>9.9<<<" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247665" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 17 yes "eb.i-col" "Colors" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247666" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 18 yes "eb.i-coat" "Coating" ">9" 7.4 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247667" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 19 yes "eb.form-no" "FORM" ">9" 5.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247668" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 20 yes "eb.blank-no" "BLANK" ">9" 6.2 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247669" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 21 yes "eb.num-wid" "# on Width" ">9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247670" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 22 yes "eb.num-len" "# on Length" ">9" 11.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247671" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 23 yes "eb.num-up" "# UP" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247672" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 24 yes "eb.die-in" "Die Inches" "->>>>9.99" 10 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247673" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 25 yes "ef.f-col" "# Colors/Form" ">9" 13.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247674" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 26 yes "ef.f-pass" "Form Passes" ">9" 12 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247675" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 27 yes "ef.f-coat" "Form coatings" ">9" 13.4 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247676" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 28 yes "ef.f-coat-p" "Number of Coating Passes" ">9" 25.2 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247677" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 29 yes "eb.pur-man" "Purchased or Manf" "P/M" 18 "logical" 0 no no "" "" no "" "" no no no "" "202105067512307247678" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 30 yes "eb.cas-no" "cas-no" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247679" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 31 yes "eb.cas-wid" "Width" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247680" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 32 yes "eb.cas-len" "Length" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247681" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 33 yes "eb.cas-dep" "Depth" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247682" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 34 yes "eb.t-wid" "Blank Width" ">>>9.999<<" 11.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247683" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 35 yes "eb.t-len" "Blank Length" ">>>9.999<<" 12.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247684" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 36 yes "ef.gsh-wid" "Gross Sheet Width" ">>9.9999" 17.8 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247685" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 37 yes "ef.gsh-len" "Length" ">>9.9999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202105067512307247686" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 38 yes "ef.n-out" "Number Out" ">9" 11.6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247687" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 39 yes "ef.n-out-l" "# out on Length" ">9" 15.6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247688" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 40 yes "eb.i-code2[1]" "Ink1" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247689" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 41 yes "eb.i-code2[2]" "Ink2" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247690" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 42 yes "eb.i-code2[3]" "Ink3" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247691" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 43 yes "eb.i-code2[4]" "Ink4" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247692" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 44 yes "eb.i-code2[5]" "Ink5" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247693" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 45 yes "eb.i-code2[6]" "Ink6" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247694" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 46 yes "eb.i-code2[7]" "Ink7" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247695" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 47 yes "eb.i-code2[8]" "Ink8" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247696" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 48 yes "eb.i-code2[9]" "Ink9" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247697" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 49 yes "eb.i-code2[10]" "Ink10" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247698" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 50 yes "ef.m-code" "Machine Code" "x(6)" 6 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247699" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 51 yes "ef.m-dscr" "Machine Description" "x(20)" 20 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247700" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 52 yes "est.entered-id" "Entered by" "X(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247701" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 53 yes "est.updated-id" "Updated by" "X(8)" 11.2 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247702" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 54 yes "est.mod-date" "Modified" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202105067512307247703" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 55 yes "eb.cas-cnt" "Count" ">>>>>9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247704" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 56 yes "eb.cas-pal" "Cases/Pall" ">>9" 9.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247705" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 57 yes "eb.tr-cnt" "Count" ">>>>9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247706" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 58 yes "eb.sman" "Salesman" "x(3)" 9 "STRING" 0 no no "" "" no "" "" no no no "" "202105067512307247707" no "" "" 0 0 "" no no "" "" no
-65 "_default" "dynSubjct." 0 59 yes "eb.yld-qty" "Yield Qty" ">>>>>>9" 8.6 "integer" 0 no no "" "" no "" "" no no no "" "202105067512307247708" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 1 yes "est.est-no" "Estimate #" "x(8)" 10.4 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170927" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 2 yes "est.est-date" "Est Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202110216486308170928" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 3 yes "eb.cust-no" "Cust. #" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170929" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 4 yes "eb.ship-id" "Ship To ID" "x(8)" 9.8 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170930" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 5 yes "eb.part-no" "Cust Part #" "x(15)" 15 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170931" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 6 yes "eb.part-dscr1" "Item Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170932" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 7 yes "eb.stock-no" "Stock Box #" "x(15)" 20.4 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170933" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 8 yes "eb.bl-qty" "Qty" ">>>>>>9" 9.2 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170934" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 9 yes "eb.style" "Style Code" "x(6)" 10.4 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170935" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 10 yes "ef.board" "Board" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170936" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 11 yes "ef.cal" "Caliper" "9.99999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170937" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 12 yes "eb.procat" "Category" "x(5)" 9 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170938" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 13 yes "eb.len" "Length" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170939" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 14 yes "eb.wid" "Width" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170940" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 15 yes "eb.dep" "Depth" ">9.99999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170941" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 16 yes "eb.quantityPerSet" "Qty/Set" ">>>>9.9<<<" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170942" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 17 yes "eb.i-col" "Colors" ">9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170943" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 18 yes "eb.i-coat" "Coating" ">9" 7.4 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170944" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 19 yes "eb.form-no" "FORM" ">9" 5.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170945" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 20 yes "eb.blank-no" "BLANK" ">9" 6.2 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170946" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 21 yes "eb.num-wid" "# on Width" ">9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170947" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 22 yes "eb.num-len" "# on Length" ">9" 11.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170948" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 23 yes "eb.num-up" "# UP" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170949" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 24 yes "eb.die-in" "Die Inches" "->>>>9.99" 10 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170950" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 25 yes "ef.f-col" "# Colors/Form" ">9" 13.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170951" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 26 yes "ef.f-pass" "Form Passes" ">9" 12 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170952" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 27 yes "ef.f-coat" "Form coatings" ">9" 13.4 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170953" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 28 yes "ef.f-coat-p" "Number of Coating Passes" ">9" 25.2 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170954" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 29 yes "eb.pur-man" "Purchased or Manf" "P/M" 18 "logical" 0 no no "" "" no "" "" no no no "" "202110216486308170955" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 30 yes "eb.cas-no" "cas-no" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170956" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 31 yes "eb.cas-wid" "Width" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170957" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 32 yes "eb.cas-len" "Length" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170958" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 33 yes "eb.cas-dep" "Depth" ">9.9999" 8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170959" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 34 yes "eb.t-wid" "Blank Width" ">>>9.999<<" 11.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170960" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 35 yes "eb.t-len" "Blank Length" ">>>9.999<<" 12.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170961" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 36 yes "ef.gsh-wid" "Gross Sheet Width" ">>9.9999" 17.8 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170962" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 37 yes "ef.gsh-len" "Length" ">>9.9999" 9.2 "decimal" 0 no no "" "" no "" "" no no no "" "202110216486308170963" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 38 yes "ef.n-out" "Number Out" ">9" 11.6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170964" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 39 yes "ef.n-out-l" "# out on Length" ">9" 15.6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170965" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 40 yes "eb.i-code2[1]" "Ink1" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170966" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 41 yes "eb.i-code2[2]" "Ink2" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170967" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 42 yes "eb.i-code2[3]" "Ink3" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170968" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 43 yes "eb.i-code2[4]" "Ink4" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170969" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 44 yes "eb.i-code2[5]" "Ink5" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170970" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 45 yes "eb.i-code2[6]" "Ink6" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170971" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 46 yes "eb.i-code2[7]" "Ink7" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170972" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 47 yes "eb.i-code2[8]" "Ink8" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170973" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 48 yes "eb.i-code2[9]" "Ink9" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170974" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 49 yes "eb.i-code2[10]" "Ink10" "x(10)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170975" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 50 yes "ef.m-code" "Machine Code" "x(6)" 6 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170976" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 51 yes "ef.m-dscr" "Machine Description" "x(20)" 20 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170977" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 52 yes "est.entered-id" "Entered by" "X(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170978" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 53 yes "est.updated-id" "Updated by" "X(8)" 11.2 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170979" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 54 yes "est.mod-date" "Modified" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202110216486308170980" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 55 yes "eb.cas-cnt" "Count" ">>>>>9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170981" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 56 yes "eb.cas-pal" "Cases/Pall" ">>9" 9.8 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170982" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 57 yes "eb.tr-cnt" "Count" ">>>>9" 6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170983" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 58 yes "eb.sman" "Salesman" "x(3)" 9 "STRING" 0 no no "" "" no "" "" no no no "" "202110216486308170984" no "" "" 0 0 "" no no "" "" no
+65 "_default" "dynSubjct." 0 59 yes "eb.yld-qty" "Yield Qty" ">>>>>>9" 8.6 "integer" 0 no no "" "" no "" "" no no no "" "202110216486308170985" no "" "" 0 0 "" no no "" "" no
 66 "_default" "dynSubjct." 0 1 yes "routing.r-code" "Routing Code" "x(2)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067513307247755" no "" "" 0 0 "" no no "" "" no
 66 "_default" "dynSubjct." 0 2 yes "routing.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067513307247756" no "" "" 0 0 "" no no "" "" no
 66 "_default" "dynSubjct." 0 3 yes "routing.m-code[9]" "Machine Code[9]" "x(6)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067513307247757" no "" "" 0 0 "" no no "" "" no
@@ -1721,18 +1721,24 @@
 114 "_default" "dynSubjct." 0 17 yes "rm-rdtlh.receiver-no" "Receiver No" "x(20)" 20 "STRING" 0 no no "" "" no "" "" no no no "" "202105067662707250280" no "" "" 0 0 "" no no "" "" no
 114 "_default" "dynSubjct." 0 18 yes "rm-rdtlh.enteredBy" "Scanned By" "x(12)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067662707250281" no "" "" 0 0 "" no no "" "" no
 114 "_default" "dynSubjct." 0 19 yes "rm-rdtlh.enteredDT" "Scanned Date/Time" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 0 no no "" "" no "" "" no no no "" "202105067662707250282" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 1 yes "job-mat.rm-i-no" "RM Item" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067664007250376" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 2 yes "job-mat.job-no" "Job Number" "x(6)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067664007250377" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 3 yes "job-mat.job-no2" "Run #" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202105067664007250378" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 4 yes "job-mat.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202105067664007250379" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 5 yes "job-mat.blank-no" "BLANK" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202105067664007250380" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 6 yes "job-mat.qty" "Required" ">,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202105067664007250381" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 7 yes "job-mat.qty-all" "Qty Allocated" ">,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202105067664007250382" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 8 yes "job-mat.qty-uom" "UOM" "x(4)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067664007250383" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 9 yes "item.cons-uom" "RM UOM" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067664007250384" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 10 yes "job-mat.wid" "Width" ">>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202105067664007250385" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 11 yes "job-mat.len" "Length" ">>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202105067664007250386" no "" "" 0 0 "" no no "" "" no
-115 "_default" "dynSubjct." 0 12 yes "job.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202105067664007250387" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 1 yes "job-mat.rm-i-no" "RM Item" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202110193519308156625" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 2 yes "job-mat.job-no" "Job Number" "x(6)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202110193519308156626" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 3 yes "job-mat.job-no2" "Run #" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110193519308156627" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 4 yes "job-mat.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110193519308156628" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 5 yes "job-mat.blank-no" "BLANK" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110193519308156629" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 6 yes "job-mat.qty" "Required" ">,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156630" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 7 yes "job-mat.qty-all" "Qty Allocated" ">,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156631" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 8 yes "job-mat.qty-uom" "UOM" "x(4)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202110193519308156632" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 9 yes "item.cons-uom" "RM UOM" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202110193519308156633" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 10 yes "job-mat.wid" "Width" ">>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156634" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 11 yes "job-mat.len" "Length" ">>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156635" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 12 yes "job.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202110193519308156636" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 13 yes "item.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202110193519308156637" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 14 yes "CalcLFAllocated" "LF Allocated" ">,>>>,>>9.99<<<<" 0 "Decimal" 0 no no "" "" yes "" ? no no no "job-mat.len|/|12" "202110193519308156638" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 15 yes "item.r-wid" "Roll Width" ">>,>>9.99<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156639" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 16 yes "item.q-onh" "Qty On-Hand" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156640" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 17 yes "item.q-ono" "Qty On-Order" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156641" no "" "" 0 0 "" no no "" "" no
+115 "_default" "dynSubjct." 0 18 yes "item.q-avail" "Qty Available" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110193519308156642" no "" "" 0 0 "" no no "" "" no
 116 "_default" "dynSubjct." 0 1 yes "ttSchedShipvsQtyHand.fgItem" "FG Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067668707250420" no "" "" 0 0 "" no no "" "" no
 116 "_default" "dynSubjct." 0 2 yes "ttSchedShipvsQtyHand.relDate" "Release Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202105067668707250421" no "" "" 0 0 "" no no "" "" no
 116 "_default" "dynSubjct." 0 3 yes "ttSchedShipvsQtyHand.req" "Required" "->>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202105067668707250422" no "" "" 0 0 "" no no "" "" no
@@ -1901,13 +1907,13 @@
 126 "_default" "dynSubjct." 0 15 yes "ttBOLPackingList.weight" "Wgt/Case" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202105067677707250816" no "" "" 0 0 "" no no "" "" no
 126 "_default" "dynSubjct." 0 16 yes "ttBOLPackingList.prntr" "Printer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202105067677707250817" no "" "" 0 0 "" no no "" "" no
 126 "_default" "dynSubjct." 0 17 yes "ttBOLPackingList.msfPrice" "MSF" "->>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202105067677707250818" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 1 yes "cust.cust-no" "Cust. #" "x(30)" 0 "STRING" 1 no no "" "" no "" "" yes yes yes "" "202106255599407508391" no "" "" 0 0 "" yes no "" "" no
-127 "_default" "dynSubjct." 0 2 yes "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508392" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 3 yes "cust.city" "City" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508393" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 4 yes "cust.state" "State" "x(2)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508394" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 5 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508395" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 6 yes "cust.type" "Customer Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508396" no "" "" 0 0 "" no no "" "" no
-127 "_default" "dynSubjct." 0 7 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202106255599407508397" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 1 yes "cust.cust-no" "Cust. #" "x(30)" 0 "STRING" 1 no no "" "" no "" "" yes yes yes "" "202109306676408092592" no "" "" 0 0 "" yes no "" "" no
+127 "_default" "dynSubjct." 0 2 yes "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092593" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 3 yes "cust.city" "City" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092594" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 4 yes "cust.state" "State" "x(2)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092595" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 5 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092596" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 6 yes "cust.type" "Customer Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092597" no "" "" 0 0 "" no no "" "" no
+127 "_default" "dynSubjct." 0 7 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202109306676408092598" no "" "" 0 0 "" no no "" "" no
 129 "_default" "dynSubjct." 0 1 yes "po-ord.vend-no" "Vendor" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202105067683907250892" no "" "" 0 0 "" no no "" "" no
 129 "_default" "dynSubjct." 0 2 yes "po-ord.po-no" "PO Number" ">>>>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250893" no "" "" 0 0 "" no no "" "" no
 129 "_default" "dynSubjct." 0 3 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202105067683907250894" no "" "" 0 0 "" no no "" "" no
@@ -2034,38 +2040,43 @@
 133 "_default" "dynSubjct." 0 4 yes "dateRules.skipDays" "Days to Skip" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202008147306005579175" no "" "" 0 0 "" no no "" "" no
 133 "_default" "dynSubjct." 0 5 yes "CalcSkipTime" "Skip Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "dateRules.skipTime" no no no "" "202008147306005579176" no "" "" 0 0 "" no no "" "" no
 133 "_default" "dynSubjct." 0 6 no "dateRules.skipTime" "Skip Time" ">>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202008147306005579177" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 1 yes "ttAgedReceivables.custNo" "Customer" "x(8)" 0 "character" 0 no yes "" "" no "" "" no no no "" "202106295205507526186" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 2 yes "ttAgedReceivables.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526187" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 3 yes "ttAgedReceivables.contact" "Contact" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526188" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 4 yes "ttAgedReceivables.salesRep" "Sales Rep" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526189" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 5 yes "ttAgedReceivables.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526190" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 6 yes "ttAgedReceivables.address1" "Address 1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526191" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 7 yes "ttAgedReceivables.address2" "Address 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526192" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 8 yes "ttAgedReceivables.city" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526193" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 9 yes "ttAgedReceivables.state" "State" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526194" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 10 yes "ttAgedReceivables.zip" "Zip" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526195" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 11 yes "ttAgedReceivables.creditLimit" "Credit Lim" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202106295205507526196" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 12 yes "ttAgedReceivables.phone" "Phone" "x(13)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526197" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 13 yes "ttAgedReceivables.fax" "Fax" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526198" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 14 yes "ttAgedReceivables.checkMemo" "Check/Memo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526199" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 15 yes "ttAgedReceivables.daysOld" "Days Old" "->>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202106295205507526200" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 16 yes "ttAgedReceivables.vType" "Type" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526201" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 17 yes "ttAgedReceivables.invoiceNo" "Invoice" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202106295205507526202" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 18 yes "ttAgedReceivables.invoiceDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202106295205507526203" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 19 yes "ttAgedReceivables.amount" "Amount" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526204" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 20 yes "ttAgedReceivables.vCurrent" "Current" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526205" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 21 yes "ttAgedReceivables.adtp" "Adtp" "->,>>9" 0 "integer" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526206" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 22 yes "ttAgedReceivables.td" "Td" "->,>>9" 0 "integer" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526207" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 23 yes "ttAgedReceivables.periodDay1" "Period Days 1" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526208" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 24 yes "ttAgedReceivables.periodDay2" "Period Days 2" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526209" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 25 yes "ttAgedReceivables.periodDay3" "Period Days 3" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526210" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 26 yes "ttAgedReceivables.periodDay4" "Period Days 4" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202106295205507526211" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 27 yes "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526212" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 28 yes "ttAgedReceivables.jobNo" "Job No " "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526213" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 29 yes "ttAgedReceivables.arClass" "AR Class" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202106295205507526214" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 30 yes "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526215" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 31 yes "ttAgedReceivables.collNote" "Collection Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106295205507526216" no "" "" 0 0 "" no no "" "" no
-134 "_default" "dynSubjct." 0 32 no "ttAgedReceivables.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202106295205507526217" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 1 yes "ttAgedReceivables.custNo" "Customer" "x(8)" 0 "character" 0 no yes "" "" no "" "" no no no "" "202110200102408159822" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 2 yes "ttAgedReceivables.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159823" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 3 yes "ttAgedReceivables.contact" "Contact" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159824" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 4 yes "ttAgedReceivables.salesRep" "Sales Rep" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159825" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 5 yes "ttAgedReceivables.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159826" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 6 yes "ttAgedReceivables.address1" "Address 1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159827" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 7 yes "ttAgedReceivables.address2" "Address 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159828" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 8 yes "ttAgedReceivables.city" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159829" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 9 yes "ttAgedReceivables.state" "State" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159830" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 10 yes "ttAgedReceivables.zip" "Zip" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159831" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 11 yes "ttAgedReceivables.creditLimit" "Credit Lim" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202110200102408159832" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 12 yes "ttAgedReceivables.phone" "Phone" "x(13)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159833" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 13 yes "ttAgedReceivables.fax" "Fax" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159834" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 14 yes "ttAgedReceivables.checkMemo" "Check/Memo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159835" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 15 yes "ttAgedReceivables.daysOld" "Days Old" "->>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110200102408159836" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 16 yes "ttAgedReceivables.vType" "Type" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159837" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 17 yes "ttAgedReceivables.invoiceNo" "Invoice" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110200102408159838" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 18 yes "ttAgedReceivables.invoiceDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202110200102408159839" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 19 yes "ttAgedReceivables.amount" "Amount" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159840" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 20 yes "ttAgedReceivables.vCurrent" "Current" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159841" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 21 yes "ttAgedReceivables.adtp" "Adtp" "->,>>9" 0 "integer" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159842" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 22 yes "ttAgedReceivables.td" "Td" "->,>>9" 0 "integer" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159843" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 23 yes "ttAgedReceivables.periodDay1" "Period Days 1" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159844" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 24 yes "ttAgedReceivables.periodDay2" "Period Days 2" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159845" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 25 yes "ttAgedReceivables.periodDay3" "Period Days 3" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159846" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 26 yes "ttAgedReceivables.periodDay4" "Period Days 4" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159847" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 27 yes "ttAgedReceivables.periodDay5" "Period Days 5" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159848" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 28 yes "ttAgedReceivables.periodDay6" "Period Days 6" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159849" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 29 yes "ttAgedReceivables.periodDay7" "Period Days 7" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] Customer,Sum" no "" "" no no no "" "202110200102408159850" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 30 yes "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159851" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 31 yes "ttAgedReceivables.jobNo" "Job No " "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159852" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 32 yes "ttAgedReceivables.arClass" "AR Class" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110200102408159853" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 33 yes "ttAgedReceivables.dueDate" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202110200102408159854" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 34 yes "ttAgedReceivables.daysFromDueDate" "Days From Due Date" "->,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110200102408159855" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 35 yes "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159856" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 36 yes "ttAgedReceivables.collNote" "Collection Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110200102408159857" no "" "" 0 0 "" no no "" "" no
+134 "_default" "dynSubjct." 0 37 no "ttAgedReceivables.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110200102408159858" no "" "" 0 0 "" no no "" "" no
 136 "_default" "dynSubjct." 0 1 yes "shipto.siteID" "Site ID" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067702207251557" no "" "" 0 0 "" no no "" "" no
 136 "_default" "dynSubjct." 0 2 yes "shipto.company" "Company" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067702207251558" no "" "" 0 0 "" no no "" "" no
 136 "_default" "dynSubjct." 0 3 yes "shipto.cust-no" "Customer" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202105067702207251559" no "" "" 0 0 "" no no "" "" no
@@ -2307,8 +2318,8 @@
 155 "_default" "dynSubjct." 0 1 yes "item.i-no" "Item No" "x(10)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101054987105943025" no "" "" 0 0 "" no no "" "" no
 155 "_default" "dynSubjct." 0 2 yes "item.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101054987105943026" no "" "" 0 0 "" no no "" "" no
 155 "_default" "dynSubjct." 0 3 yes "item.cal" "Caliper" "9.99999" 0 "decimal" 0 no no "" "" no "" "" yes yes yes "" "202101054987105943027" no "" "" 0 0 "" no no "" "" no
-156 "_default" "dynSubjct." 0 1 yes "style.style" "Style No." "x(6)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101177080906009628" no "" "" 0 0 "" no no "" "" no
-156 "_default" "dynSubjct." 0 2 yes "style.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101177080906009629" no "" "" 0 0 "" no no "" "" no
+156 "_default" "dynSubjct." 0 1 yes "style.style" "Style No." "x(6)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202111150262508252438" no "" "" 0 0 "" no no "" "" no
+156 "_default" "dynSubjct." 0 2 yes "style.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202111150262508252439" no "" "" 0 0 "" no no "" "" no
 157 "_default" "dynSubjct." 0 1 yes "fgcat.procat" "Category" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101133700605984972" no "" "" 0 0 "" no no "" "" no
 157 "_default" "dynSubjct." 0 2 yes "fgcat.dscr" "Description" "x(20)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202101133700605984973" no "" "" 0 0 "" no no "" "" no
 159 "_default" "dynSubjct." 0 1 yes "ttScheduledReleases.jobNo" "Job No" "X(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202106245932107497174" no "" "" 0 0 "" no no "" "" no
@@ -2627,13 +2638,14 @@
 175 "_default" "dynSubjct." 0 32 yes "ttInventoryValue.setHeader" "Set Header" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202107084556107755491" no "" "" 0 0 "" no no "" "" no
 175 "_default" "dynSubjct." 0 33 yes "ttInventoryValue.qtyPerSet" "Qty Per Set" "->>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202107084556107755492" no "" "" 0 0 "" no no "" "" no
 175 "_default" "dynSubjct." 0 34 yes "ttInventoryValue.recDate" "Rec Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202107084556107755493" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 1 yes "ttFormHeader.company" "Company" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109030789907924526" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 2 yes "ttFormHeader.invoiceID" "Invoice ID" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202109030789907924527" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 3 yes "ttFormHeader.invoiceDate" "Invoice Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202109030789907924528" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 4 yes "ttFormHeader.customerID" "Customer ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109030789907924529" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 5 yes "ttFormHeader.customerName" "Customer Name" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109030789907924530" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 6 yes "ttFormHeader.shiptoID" "Shipto ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109030789907924531" no "" "" 0 0 "" no no "" "" no
-176 "_default" "dynSubjct." 0 7 yes "ttFormHeader.emailKeyValues" "Email Key Values" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109030789907924532" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 1 yes "ttFormHeader.company" "Company" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110120179108131480" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 2 yes "ttFormHeader.invoiceID" "Invoice ID" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110120179108131481" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 3 yes "ttFormHeader.invoiceDate" "Invoice Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202110120179108131482" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 4 yes "ttFormHeader.customerID" "Customer ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110120179108131483" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 5 yes "ttFormHeader.customerName" "Customer Name" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110120179108131484" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 6 yes "ttFormHeader.shiptoID" "Shipto ID" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110120179108131485" no "" "" 0 0 "" no no "" "" no
+176 "_default" "dynSubjct." 0 7 yes "ttFormHeader.emailKeyValues" "Email Key Values" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202110120179108131486" no "" "" 0 0 "" no no "" "" yes
+176 "_default" "dynSubjct." 0 8 no "ttFormHeader.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202110120179108131487" no "" "" 0 0 "" no no "" "" no
 177 "_default" "dynSubjct." 0 1 yes "ap-inv.inv-no" "Invoice No." "x(20)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912291" no "" "" 0 0 "" no no "" "" no
 177 "_default" "dynSubjct." 0 2 yes "ap-inv.inv-date" "Invoice Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912292" no "" "" 0 0 "" no no "" "" no
 177 "_default" "dynSubjct." 0 3 yes "ap-inv.posted" "Posted" "y/n" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202108175825207912293" no "" "" 0 0 "" no no "" "" no
@@ -2697,3 +2709,208 @@
 182 "_default" "dynSubjct." 0 5 yes "ttPoReceipt.qty-uom" "PO Order UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109216895808045608" no "" "" 0 0 "" no no "" "" no
 182 "_default" "dynSubjct." 0 6 yes "ttPoReceipt.rec-qty" "PO Received Qty" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202109216895808045609" no "" "" 0 0 "" no no "" "" no
 182 "_default" "dynSubjct." 0 7 yes "ttPoReceipt.rec-qty-uom" "PO Received UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202109216895808045610" no "" "" 0 0 "" no no "" "" no
+195 "_default" "dynSubjct." 0 1 yes "country.countryCode" "Country Code" "x(4)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202111027447808213950" no "" "" 0 0 "" no no "" "" no
+195 "_default" "dynSubjct." 0 2 yes "country.Description" "Description" "x(20)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202111027447808213951" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 1 yes "ttImportData.iCount" "Record" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202111153946908256790" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 2 yes "ttImportData.lValid" "Valid" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202111153946908256791" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 3 yes "ttImportData.cImportNote" "Reason" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256792" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 4 yes "ttImportData.cData[1]" "Column[1]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256793" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 5 yes "ttImportData.cData[2]" "Column[2]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256794" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 6 yes "ttImportData.cData[3]" "Column[3]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256795" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 7 yes "ttImportData.cData[4]" "Column[4]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256796" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 8 yes "ttImportData.cData[5]" "Column[5]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256797" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 9 yes "ttImportData.cData[6]" "Column[6]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256798" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 10 yes "ttImportData.cData[7]" "Column[7]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256799" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 11 yes "ttImportData.cData[8]" "Column[8]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256800" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 12 yes "ttImportData.cData[9]" "Column[9]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256801" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 13 yes "ttImportData.cData[10]" "Column[10]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256802" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 14 yes "ttImportData.cData[11]" "Column[11]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256803" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 15 yes "ttImportData.cData[12]" "Column[12]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256804" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 16 yes "ttImportData.cData[13]" "Column[13]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256805" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 17 yes "ttImportData.cData[14]" "Column[14]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256806" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 18 yes "ttImportData.cData[15]" "Column[15]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256807" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 19 yes "ttImportData.cData[16]" "Column[16]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256808" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 20 yes "ttImportData.cData[17]" "Column[17]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256809" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 21 yes "ttImportData.cData[18]" "Column[18]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256810" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 22 yes "ttImportData.cData[19]" "Column[19]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256811" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 23 yes "ttImportData.cData[20]" "Column[20]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256812" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 24 yes "ttImportData.cData[21]" "Column[21]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256813" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 25 yes "ttImportData.cData[22]" "Column[22]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256814" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 26 yes "ttImportData.cData[23]" "Column[23]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256815" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 27 yes "ttImportData.cData[24]" "Column[24]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256816" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 28 yes "ttImportData.cData[25]" "Column[25]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256817" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 29 yes "ttImportData.cData[26]" "Column[26]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256818" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 30 yes "ttImportData.cData[27]" "Column[27]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256819" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 31 yes "ttImportData.cData[28]" "Column[28]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256820" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 32 yes "ttImportData.cData[29]" "Column[29]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256821" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 33 yes "ttImportData.cData[30]" "Column[30]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256822" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 34 yes "ttImportData.cData[31]" "Column[31]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256823" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 35 yes "ttImportData.cData[32]" "Column[32]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256824" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 36 yes "ttImportData.cData[33]" "Column[33]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256825" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 37 yes "ttImportData.cData[34]" "Column[34]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256826" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 38 yes "ttImportData.cData[35]" "Column[35]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256827" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 39 yes "ttImportData.cData[36]" "Column[36]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256828" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 40 yes "ttImportData.cData[37]" "Column[37]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256829" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 41 yes "ttImportData.cData[38]" "Column[38]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256830" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 42 yes "ttImportData.cData[39]" "Column[39]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256831" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 43 yes "ttImportData.cData[40]" "Column[40]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256832" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 44 yes "ttImportData.cData[41]" "Column[41]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256833" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 45 yes "ttImportData.cData[42]" "Column[42]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256834" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 46 yes "ttImportData.cData[43]" "Column[43]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256835" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 47 yes "ttImportData.cData[44]" "Column[44]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256836" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 48 yes "ttImportData.cData[45]" "Column[45]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256837" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 49 yes "ttImportData.cData[46]" "Column[46]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256838" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 50 yes "ttImportData.cData[47]" "Column[47]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256839" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 51 yes "ttImportData.cData[48]" "Column[48]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256840" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 52 yes "ttImportData.cData[49]" "Column[49]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256841" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 53 yes "ttImportData.cData[50]" "Column[50]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256842" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 54 yes "ttImportData.cData[51]" "Column[51]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256843" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 55 yes "ttImportData.cData[52]" "Column[52]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256844" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 56 yes "ttImportData.cData[53]" "Column[53]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256845" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 57 yes "ttImportData.cData[54]" "Column[54]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256846" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 58 yes "ttImportData.cData[55]" "Column[55]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256847" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 59 yes "ttImportData.cData[56]" "Column[56]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256848" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 60 yes "ttImportData.cData[57]" "Column[57]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153946908256849" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 61 yes "ttImportData.cData[58]" "Column[58]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256850" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 62 yes "ttImportData.cData[59]" "Column[59]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256851" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 63 yes "ttImportData.cData[60]" "Column[60]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256852" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 64 yes "ttImportData.cData[61]" "Column[61]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256853" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 65 yes "ttImportData.cData[62]" "Column[62]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256854" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 66 yes "ttImportData.cData[63]" "Column[63]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256855" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 67 yes "ttImportData.cData[64]" "Column[64]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256856" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 68 yes "ttImportData.cData[65]" "Column[65]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256857" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 69 yes "ttImportData.cData[66]" "Column[66]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256858" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 70 yes "ttImportData.cData[67]" "Column[67]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256859" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 71 yes "ttImportData.cData[68]" "Column[68]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256860" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 72 yes "ttImportData.cData[69]" "Column[69]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256861" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 73 yes "ttImportData.cData[70]" "Column[70]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256862" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 74 yes "ttImportData.cData[71]" "Column[71]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256863" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 75 yes "ttImportData.cData[72]" "Column[72]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256864" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 76 yes "ttImportData.cData[73]" "Column[73]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256865" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 77 yes "ttImportData.cData[74]" "Column[74]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256866" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 78 yes "ttImportData.cData[75]" "Column[75]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256867" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 79 yes "ttImportData.cData[76]" "Column[76]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256868" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 80 yes "ttImportData.cData[77]" "Column[77]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256869" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 81 yes "ttImportData.cData[78]" "Column[78]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256870" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 82 yes "ttImportData.cData[79]" "Column[79]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256871" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 83 yes "ttImportData.cData[80]" "Column[80]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256872" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 84 yes "ttImportData.cData[81]" "Column[81]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256873" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 85 yes "ttImportData.cData[82]" "Column[82]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256874" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 86 yes "ttImportData.cData[83]" "Column[83]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256875" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 87 yes "ttImportData.cData[84]" "Column[84]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256876" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 88 yes "ttImportData.cData[85]" "Column[85]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256877" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 89 yes "ttImportData.cData[86]" "Column[86]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256878" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 90 yes "ttImportData.cData[87]" "Column[87]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256879" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 91 yes "ttImportData.cData[88]" "Column[88]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256880" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 92 yes "ttImportData.cData[89]" "Column[89]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256881" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 93 yes "ttImportData.cData[90]" "Column[90]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256882" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 94 yes "ttImportData.cData[91]" "Column[91]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256883" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 95 yes "ttImportData.cData[92]" "Column[92]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256884" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 96 yes "ttImportData.cData[93]" "Column[93]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256885" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 97 yes "ttImportData.cData[94]" "Column[94]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256886" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 98 yes "ttImportData.cData[95]" "Column[95]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256887" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 99 yes "ttImportData.cData[96]" "Column[96]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256888" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 100 yes "ttImportData.cData[97]" "Column[97]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256889" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 101 yes "ttImportData.cData[98]" "Column[98]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256890" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 102 yes "ttImportData.cData[99]" "Column[99]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256891" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 103 yes "ttImportData.cData[100]" "Column[100]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256892" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 104 yes "ttImportData.cData[101]" "Column[101]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256893" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 105 yes "ttImportData.cData[102]" "Column[102]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256894" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 106 yes "ttImportData.cData[103]" "Column[103]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256895" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 107 yes "ttImportData.cData[104]" "Column[104]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256896" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 108 yes "ttImportData.cData[105]" "Column[105]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256897" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 109 yes "ttImportData.cData[106]" "Column[106]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256898" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 110 yes "ttImportData.cData[107]" "Column[107]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256899" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 111 yes "ttImportData.cData[108]" "Column[108]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256900" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 112 yes "ttImportData.cData[109]" "Column[109]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256901" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 113 yes "ttImportData.cData[110]" "Column[110]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256902" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 114 yes "ttImportData.cData[111]" "Column[111]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256903" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 115 yes "ttImportData.cData[112]" "Column[112]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256904" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 116 yes "ttImportData.cData[113]" "Column[113]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256905" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 117 yes "ttImportData.cData[114]" "Column[114]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256906" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 118 yes "ttImportData.cData[115]" "Column[115]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256907" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 119 yes "ttImportData.cData[116]" "Column[116]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256908" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 120 yes "ttImportData.cData[117]" "Column[117]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256909" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 121 yes "ttImportData.cData[118]" "Column[118]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256910" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 122 yes "ttImportData.cData[119]" "Column[119]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256911" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 123 yes "ttImportData.cData[120]" "Column[120]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256912" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 124 yes "ttImportData.cData[121]" "Column[121]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256913" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 125 yes "ttImportData.cData[122]" "Column[122]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256914" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 126 yes "ttImportData.cData[123]" "Column[123]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256915" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 127 yes "ttImportData.cData[124]" "Column[124]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256916" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 128 yes "ttImportData.cData[125]" "Column[125]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947008256917" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 129 yes "ttImportData.cData[126]" "Column[126]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256918" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 130 yes "ttImportData.cData[127]" "Column[127]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256919" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 131 yes "ttImportData.cData[128]" "Column[128]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256920" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 132 yes "ttImportData.cData[129]" "Column[129]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256921" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 133 yes "ttImportData.cData[130]" "Column[130]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256922" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 134 yes "ttImportData.cData[131]" "Column[131]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256923" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 135 yes "ttImportData.cData[132]" "Column[132]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256924" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 136 yes "ttImportData.cData[133]" "Column[133]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256925" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 137 yes "ttImportData.cData[134]" "Column[134]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256926" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 138 yes "ttImportData.cData[135]" "Column[135]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256927" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 139 yes "ttImportData.cData[136]" "Column[136]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256928" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 140 yes "ttImportData.cData[137]" "Column[137]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256929" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 141 yes "ttImportData.cData[138]" "Column[138]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256930" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 142 yes "ttImportData.cData[139]" "Column[139]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256931" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 143 yes "ttImportData.cData[140]" "Column[140]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256932" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 144 yes "ttImportData.cData[141]" "Column[141]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256933" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 145 yes "ttImportData.cData[142]" "Column[142]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256934" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 146 yes "ttImportData.cData[143]" "Column[143]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256935" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 147 yes "ttImportData.cData[144]" "Column[144]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256936" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 148 yes "ttImportData.cData[145]" "Column[145]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256937" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 149 yes "ttImportData.cData[146]" "Column[146]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256938" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 150 yes "ttImportData.cData[147]" "Column[147]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256939" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 151 yes "ttImportData.cData[148]" "Column[148]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256940" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 152 yes "ttImportData.cData[149]" "Column[149]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256941" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 153 yes "ttImportData.cData[150]" "Column[150]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256942" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 154 yes "ttImportData.cData[151]" "Column[151]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256943" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 155 yes "ttImportData.cData[152]" "Column[152]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256944" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 156 yes "ttImportData.cData[153]" "Column[153]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256945" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 157 yes "ttImportData.cData[154]" "Column[154]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256946" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 158 yes "ttImportData.cData[155]" "Column[155]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256947" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 159 yes "ttImportData.cData[156]" "Column[156]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256948" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 160 yes "ttImportData.cData[157]" "Column[157]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256949" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 161 yes "ttImportData.cData[158]" "Column[158]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256950" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 162 yes "ttImportData.cData[159]" "Column[159]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256951" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 163 yes "ttImportData.cData[160]" "Column[160]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256952" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 164 yes "ttImportData.cData[161]" "Column[161]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256953" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 165 yes "ttImportData.cData[162]" "Column[162]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256954" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 166 yes "ttImportData.cData[163]" "Column[163]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256955" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 167 yes "ttImportData.cData[164]" "Column[164]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256956" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 168 yes "ttImportData.cData[165]" "Column[165]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256957" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 169 yes "ttImportData.cData[166]" "Column[166]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256958" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 170 yes "ttImportData.cData[167]" "Column[167]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256959" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 171 yes "ttImportData.cData[168]" "Column[168]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256960" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 172 yes "ttImportData.cData[169]" "Column[169]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256961" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 173 yes "ttImportData.cData[170]" "Column[170]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256962" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 174 yes "ttImportData.cData[171]" "Column[171]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256963" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 175 yes "ttImportData.cData[172]" "Column[172]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256964" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 176 yes "ttImportData.cData[173]" "Column[173]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256965" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 177 yes "ttImportData.cData[174]" "Column[174]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256966" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 178 yes "ttImportData.cData[175]" "Column[175]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256967" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 179 yes "ttImportData.cData[176]" "Column[176]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256968" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 180 yes "ttImportData.cData[177]" "Column[177]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256969" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 181 yes "ttImportData.cData[178]" "Column[178]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256970" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 182 yes "ttImportData.cData[179]" "Column[179]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256971" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 183 yes "ttImportData.cData[180]" "Column[180]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256972" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 184 yes "ttImportData.cData[181]" "Column[181]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256973" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 185 yes "ttImportData.cData[182]" "Column[182]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256974" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 186 yes "ttImportData.cData[183]" "Column[183]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256975" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 187 yes "ttImportData.cData[184]" "Column[184]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256976" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 188 yes "ttImportData.cData[185]" "Column[185]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256977" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 189 yes "ttImportData.cData[186]" "Column[186]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256978" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 190 yes "ttImportData.cData[187]" "Column[187]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256979" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 191 yes "ttImportData.cData[188]" "Column[188]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256980" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 192 yes "ttImportData.cData[189]" "Column[189]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256981" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 193 yes "ttImportData.cData[190]" "Column[190]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256982" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 194 yes "ttImportData.cData[191]" "Column[191]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256983" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 195 yes "ttImportData.cData[192]" "Column[192]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256984" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 196 yes "ttImportData.cData[193]" "Column[193]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256985" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 197 yes "ttImportData.cData[194]" "Column[194]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256986" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 198 yes "ttImportData.cData[195]" "Column[195]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947108256987" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 199 yes "ttImportData.cData[196]" "Column[196]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256988" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 200 yes "ttImportData.cData[197]" "Column[197]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256989" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 201 yes "ttImportData.cData[198]" "Column[198]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256990" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 202 yes "ttImportData.cData[199]" "Column[199]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256991" no "" "" 0 0 "" no no "" "" no
+196 "_default" "dynSubjct." 0 203 yes "ttImportData.cData[200]" "Column[200]" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202111153947208256992" no "" "" 0 0 "" no no "" "" no

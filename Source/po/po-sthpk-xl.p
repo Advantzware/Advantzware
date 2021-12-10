@@ -516,8 +516,6 @@ assign
         chExcelApplication:Goto(v-cell) NO-ERROR.
         ASSIGN chExcelApplication:ActiveCell:Value = po-ordl.i-name.
         
-        {po/po-ordls.i}
-        
         /*
         len-score = ''.
 
