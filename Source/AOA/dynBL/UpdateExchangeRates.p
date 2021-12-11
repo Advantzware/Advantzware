@@ -183,7 +183,7 @@ PROCEDURE pReadResponse:
     
     DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.    
     DEFINE VARIABLE cSuccess       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCurrency  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBaseCurrency  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAsOfDate      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtAsOfDate     AS DATE      NO-UNDO.
     DEFINE VARIABLE cRateCurrency  AS CHARACTER NO-UNDO EXTENT.
@@ -221,9 +221,9 @@ PROCEDURE pReadResponse:
         END. 
     END.
     
-    cCurrency = oObject:GetJsonText("base") NO-ERROR.
+    cBaseCurrency = oObject:GetJsonText("base") NO-ERROR.
     
-    IF cCurrency EQ "" THEN DO:
+    IF cBaseCurrency EQ "" THEN DO:
         ASSIGN
             oplError   = TRUE
             opcMessage = "Could Not Get Base Currency from API"
@@ -258,7 +258,7 @@ PROCEDURE pReadResponse:
             CREATE ttExchangeRate.
             ASSIGN
                 ttExchangeRate.company          = cCompany
-                ttExchangeRate.baseCurrencyCode = cCurrency
+                ttExchangeRate.baseCurrencyCode = cBaseCurrency
                 ttExchangeRate.rateCurrencyCode = cRateCurrency[iIndex]
                 ttExchangeRate.asOfDate         = dtAsOfDate
                 .
