@@ -200,7 +200,7 @@ DO:
     IF lError THEN
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
     ELSE
-        MESSAGE "Exchange rates updated successfully" VIEW-AS ALERT-BOX.
+        MESSAGE "Exchange Rates Updated Successfully" VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */

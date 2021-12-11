@@ -296,9 +296,11 @@ PROCEDURE pUpdateExchangeRates:
         cCurrency               = ipcBaseCurrency
         cExchangeRateCurrencies = ipcExchangeRateCurrencies
         dtAsOfDate              = ipdtAsOfDate
+        .
+    RUN pBusinessLogic.
+    ASSIGN
         oplError                = lError
         opcMessage              = cMessage
         .
-    RUN pBusinessLogic.
 
 END PROCEDURE.
