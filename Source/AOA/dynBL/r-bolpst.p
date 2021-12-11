@@ -383,7 +383,7 @@ PROCEDURE pAutoSelectTags:
     
     /* Ensure that warehouse for inventory assignment is the ship-from for the BOL */
     /* Since the order was created, it could have been changed from the original's ship-to/ship-from */
-    DO TRANSACTION, ON ERROR UNDO:
+    DO TRANSACTION:
         FIND CURRENT oe-rel EXCLUSIVE NO-ERROR.    
         IF AVAIL oe-rel THEN ASSIGN 
             oe-rel.spare-char-1 = xoe-boll.loc.
