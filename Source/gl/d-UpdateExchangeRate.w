@@ -172,22 +172,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateExchangeRates D-Dialog
 ON CHOOSE OF btUpdateExchangeRates IN FRAME D-Dialog /* Update Exchange Rates */
 DO:
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hUpdateExchangeRates AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
     
     RUN pValidate (
         OUTPUT lError,
         OUTPUT cMessage
         ).
     IF lError THEN DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-        
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.        
         RETURN.
-    END.
-    
+    END.    
     SESSION:SET-WAIT-STATE ("GENERAL").
-    
-    RUN gl/UpdateExchangeRates.p (
+    RUN AOA/dynBL/UpdateExchangeRates.p PERSISTENT SET hUpdateExchangeRates.
+    RUN pUpdateExchangeRates IN hUpdateExchangeRates (
         cCompany, 
         fiBaseCurrency:SCREEN-VALUE, 
         "", /* Rate currencies. Leave empty to fetch rest of the currencies rates */ 
@@ -195,9 +194,9 @@ DO:
         OUTPUT lError,
         OUTPUT cMessage
         ).
-    
-    SESSION:SET-WAIT-STATE ("").
-    
+    IF VALID-HANDLE(hUpdateExchangeRates) THEN
+    DELETE PROCEDURE hUpdateExchangeRates.
+    SESSION:SET-WAIT-STATE ("").    
     IF lError THEN
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
     ELSE
