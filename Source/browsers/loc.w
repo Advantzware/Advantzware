@@ -533,13 +533,6 @@ PROCEDURE local-add-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
-    /* Code placed here will execute AFTER standard behavior.    */
-    ASSIGN 
-        location.company      = loc.company
-        location.locationCode = loc.loc
-        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        loc.addrRecKey        = location.rec_key.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -564,6 +557,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+  ASSIGN auto_find = ""
+         auto_find:SCREEN-VALUE IN FRAME {&frame-name} = "" .
+
+  RUN local-open-query.
+  
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+  END.
+
+  RUN dispatch ("row-changed").
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

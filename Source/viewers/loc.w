@@ -644,14 +644,12 @@ PROCEDURE local-create-record :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
     /* Code placed here will execute PRIOR to standard behavior. */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/loc.i}
-
         
 END PROCEDURE.
 
@@ -663,7 +661,10 @@ PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
          Purpose:
          Notes:
-        ------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bloc FOR loc.
+    DEFINE BUFFER blocation FOR location.
+    
     DEF VAR cBinType AS CHAR NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
@@ -671,7 +672,18 @@ PROCEDURE local-display-fields :
 
     
     IF LASTKEY = -1 THEN  RETURN.
-
+    
+    FOR EACH bloc WHERE 
+        bloc.company EQ "" OR 
+        bloc.loc EQ "":
+        DELETE bloc.
+    END.
+    FOR EACH blocation WHERE 
+        blocation.company EQ "" OR 
+        blocation.locationCode EQ "":
+        DELETE blocation.
+    END.
+    
     FIND FIRST fg-bin NO-LOCK WHERE 
         fg-bin.company EQ g_company AND 
         fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
@@ -732,6 +744,39 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+    FIND loc WHERE 
+        loc.company EQ cocode AND 
+        loc.loc EQ loc.loc:SCREEN-VALUE  
+        EXCLUSIVE NO-ERROR.
+    IF AVAIL loc THEN FIND FIRST location EXCLUSIVE WHERE 
+        location.company EQ loc.company AND 
+        location.locationCode EQ loc.loc 
+        NO-ERROR.
+    IF NOT AVAIL location THEN DO:
+        CREATE location.
+        ASSIGN 
+            location.company      = loc.company
+            location.locationCode = loc.loc
+            location.countryCode
+            location.subCode1
+            location.subCode2
+            location.subCode3
+            location.subCode4
+            location.streetAddr
+            location.defaultBin
+            location.geoLat
+            location.geoLong
+            location.lActive
+            location.notes
+            location.phone
+            location.fax
+            location.email
+            .
+        IF adm-new-record THEN ASSIGN 
+            location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+            loc.addrRecKey        = location.rec_key.
+    END.
+
     /* Code placed here will execute AFTER standard behavior.    */
     IF lCheckBinMessage THEN DO:
         IF rsBinType:SCREEN-VALUE EQ "FG" THEN DO:
@@ -778,8 +823,30 @@ PROCEDURE local-update-record :
         END. /* rsBinType:SCREEN-VALUE EQ "wp"*/
     END.
     
+    IF adm-new-record THEN 
+        RUN repo-query IN THIS-PROCEDURE (INPUT ROWID(loc)).
+    
     lCheckBinMessage = NO .     
     adm-new-record = NO .    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query V-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-Source", OUTPUT char-hdl).
+  RUN repo-query IN WIDGET-HANDLE(char-hdl) (INPUT ip-rowid).
 
 END PROCEDURE.
 
