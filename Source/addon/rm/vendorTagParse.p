@@ -18,9 +18,10 @@ DEFINE INPUT PARAMETER ipcTagno     AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiPOnumber AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiPOline   AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER opiQuantity AS INTEGER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcErrorStr AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcErrtype  AS CHARACTER NO-UNDO. //will be retried from the sys control Ignore,Warning and Error
-/*DEFINE OUTPUT PARAMETER opiUOM      AS CHARACTER NO-UNDO.*/
+DEFINE OUTPUT PARAMETER opcAddInfo  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplError    AS LOGICAL NO-UNDO. 
+
 
 DEFINE VARIABLE cParseMask     AS CHARACTER NO-UNDO INIT "PPPPPPLLLQQQQQ". /*will be retrieved from sys-ctrl later*/
 DEFINE VARIABLE cParseMasklist AS CHARACTER NO-UNDO INIT "P,L,Q".  
@@ -35,19 +36,29 @@ DEFINE VARIABLE ctemp      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPsize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iLsize     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iQsize     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iXsize     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cPromptType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE oSetting  AS system.Setting NO-UNDO.
+
+oSetting  = NEW system.Setting().
+cParseMask = oSetting:GetByName("SSScanVendorTagMask").
+cPromptType = oSetting:GetByName("SSScanVendorTagPrompt").
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
 
-opcErrtype = "I".
 
-IF LENGTH(cParseMask) <> LENGTH(ipcTagno) AND opcErrtype <> "I" THEN 
+IF LENGTH(cParseMask) <> LENGTH(ipcTagno) AND cPromptType BEGINS "Block if Length of Scan not equal to Length" THEN 
 DO:
-        opcErrorStr = "Vendor tag length must be " + STRING(LENGTH(cParseMask)).
-        IF opcErrtype = "Error" THEN 
-            RETURN.
+        opcMessage = "Vendor tag length must be " + STRING(LENGTH(cParseMask)).
+        oplError = YES. 
+        RETURN.
+END.
+ELSE IF LENGTH(cParseMask) <> LENGTH(ipcTagno) AND cPromptType BEGINS "Warn if Length of Scan not equal to Length" THEN
+DO:
+        opcMessage = "Vendor tag length must be " + STRING(LENGTH(cParseMask)).            
 END.
 
 DO iIncrement = 1 TO LENGTH(cParseMask ):
@@ -59,6 +70,8 @@ DO iIncrement = 1 TO LENGTH(cParseMask ):
             iLsize = iLsize + 1.
         WHEN "Q" THEN 
             iQsize = iQsize + 1.
+        WHEN "X" THEN 
+            iXsize = iXsize + 1.    
     END CASE.
 END.
 
@@ -74,6 +87,8 @@ DO iIncrement = 1 TO NUM-ENTRIES(cParseMaskList):
         ttParseVal.iStrlength = iLsize.
     ELSE IF ttParseVal.cValueFor = "Q" THEN
         ttParseVal.iStrlength = iQsize.
+    ELSE IF ttParseVal.cValueFor = "X" THEN
+        ttParseVal.iStrlength = iXsize.    
 END.
 
 FOR EACH ttParseVal:
@@ -84,5 +99,9 @@ FOR EACH ttParseVal:
             opiPOline   = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
         WHEN "Q" THEN
             opiQuantity = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+        WHEN "X" THEN
+            opcAddInfo = SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength).    
     END CASE.
 END.
+
+DELETE OBJECT oSetting.

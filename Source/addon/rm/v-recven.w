@@ -767,8 +767,9 @@ DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
    DEFINE VARIABLE t-scr-uom AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE cErrStr   AS CHARACTER NO-UNDO.
-   DEFINE VARIABLE cErrType  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cAddInfo  AS CHARACTER NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
@@ -819,22 +820,28 @@ DO:
                                               OUTPUT v-po-no,
                                               OUTPUT v-po-line,
                                               OUTPUT v-qty,
-                                              OUTPUT cErrStr,
-                                              OUTPUT cErrType). 
+                                              OUTPUT cAddInfo,
+                                              OUTPUT cMessage,
+                                              OUTPUT lError). 
              
 /*                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.*/
-                 IF cErrStr <> "" AND cErrType = "Error" THEN
+                 IF lError AND scr-vend-tag NE "" THEN
                  DO:
                     MESSAGE 
-                        cErrStr
+                        cMessage
                         VIEW-AS ALERT-BOX ERROR.
                      APPLY "entry" TO SELF.
                      RETURN NO-APPLY.
                  END.
-                 ELSE IF cErrStr <> "" AND cErrType = "Warning" THEN 
+                 ELSE IF cMessage NE "" AND scr-vend-tag NE "" THEN 
                     MESSAGE 
-                        cErrStr
+                        cMessage
                         VIEW-AS ALERT-BOX WARNING.
+                 ELSE IF scr-vend-tag EQ "" THEN
+                 DO:
+                   APPLY "entry" TO begin_po-no.
+                   RETURN.
+                 END.
                  /*Assign in case of both warning and non-prompt*/
                  ASSIGN
                      begin_po-no:SCREEN-VALUE = STRING(v-po-no) 
