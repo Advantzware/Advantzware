@@ -1318,6 +1318,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE str-tit4       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-line       AS cha       FORM "x(300)" NO-UNDO.
+    DEFINE VARIABLE dtPerStartDate   AS DATE      NO-UNDO.
 
     {sys/form/r-top5DL3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1332,6 +1333,10 @@ PROCEDURE run-report :
         AND period.pst     LE tran-date
         AND period.pend    GE tran-date
         NO-LOCK NO-ERROR.
+    IF AVAILABLE period THEN
+         dtPerStartDate = period.pst.
+    ELSE ASSIGN
+         dtPerStartDate = tran-date.    
 
     ASSIGN
         str-tit2 = "Current Month General Ledger Detail"
@@ -1415,25 +1420,17 @@ PROCEDURE run-report :
         NO-LOCK
         BREAK BY account.actnum:
 
-        {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}
-
-        RUN gl/gl-open1.p (RECID(account), vyear, tran-date, tran-period,
-            OUTPUT open-amt).
-
+        {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}    
+                  
+        RUN GL_GetAccountOpenBal(ROWID(account),dtPerStartDate, OUTPUT open-amt). 
+                
         FIND FIRST glhist NO-LOCK
             WHERE glhist.company EQ cocode
             AND glhist.actnum  EQ account.actnum
             AND glhist.period  EQ tran-period
             AND glhist.glYear  EQ vyear
             NO-ERROR.
-
-        /*  if avail gltrans or inc then do:
-            if line-counter gt page-size - 2 then page.
-            display string(account.actnum) + "  " + account.dscr format "x(75)" @
-                    account.actnum open-amt with frame r-cmon.
-            down with frame r-cmon.
-            if not avail gltrans then put skip(1).
-          end.*/
+                              
 
         /* gdm - 10010905 */
         ASSIGN 
@@ -1464,76 +1461,7 @@ PROCEDURE run-report :
             IF LAST-OF(glhist.tr-num) /*or op eq "D"*/ THEN 
             DO:
                 IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
-
-                /*   ASSIGN
-                   tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
-                              if gltrans.jrnl eq "CASHR"                          then
-                                "CASH RECEIPTS"                                   else
-                              if gltrans.jrnl eq "APCKR"                          then
-                                "ACCOUNTS PAYABLE CHECK REGISTER"                 else
-                              if gltrans.jrnl eq "GENERAL"                        then
-                                "GENERAL"                                         else
-                              if gltrans.jrnl eq "ARINV"                          then
-                                "ACCOUNTS RECEIVABLE INVOICE"                     else
-                              if gltrans.jrnl eq "MCSHREC"                        then
-                                "MISC CASH RECEIPTS"                              else
-                              if gltrans.jrnl eq "CDISB"                          then
-                                "CASH DISBURSEMENT"                               else
-                                ""
-           
-                   tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
-                              if tmp-dscr ne "" then tmp-dscr                     else
-                              if gltrans.jrnl eq "APMEM"                          then
-                                "ACCOUNTS PAYABLE MEMO"                           else
-                              if gltrans.jrnl eq "CRMEM"                          then
-                                "CREDIT MEMO"                                     else
-                              if gltrans.jrnl eq "DBMEM"                          then
-                                "DEBIT MEMO"                                      else
-                              if gltrans.jrnl eq "ACPAY"                          then
-                                "ACCOUNTS PAYABLE"                                else
-                              if gltrans.jrnl eq "APVOIDCK"                       then
-                                "ACCOUNTS PAYABLE VOID CHECK"                     else
-                              if gltrans.jrnl eq "OEINV"                          then
-                                "ORDER ENTRY INVOICE"                             else
-                              if gltrans.jrnl eq "JCOST"                          then
-                                "PRODUCTION JOB COSTING"                          else
-                                ""
-           
-                   tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
-                              if tmp-dscr ne "" then tmp-dscr                     else
-                              if gltrans.jrnl eq "ADJUST"                         then
-                                "ADJUSTMENT"                                      else
-                                "". */
-
-                /* gdm - 10010905 */
-                /*  IF tb_excel THEN DO:
-                    PUT STREAM str-exl UNFORMATTED 
-                        STRING(account.actnum)  ","  
-                        REPLACE(account.dscr, "," ," ")  ",,"               
-                        gltrans.trnum ",".
-          
-                    IF op EQ "D" 
-                      THEN PUT STREAM str-exl UNFORMATTED  gltrans.jrnl ",".
-                      ELSE PUT STREAM str-exl UNFORMATTED  " " ",".
-          
-                    PUT STREAM str-exl UNFORMATTED 
-                        REPLACE(TRIM(tmp-dscr),","," ") ","
-                        STRING(gltrans.tr-date,"99/99/9999") ",".
-          
-                    IF v-debit[1] NE 0
-                      THEN PUT STREAM str-exl UNFORMATTED v-debit[1] ",".
-                      ELSE PUT STREAM str-exl UNFORMATTED " " ",".
-                    IF v-crdit[1] NE 0 
-                      THEN PUT STREAM str-exl UNFORMATTED v-crdit[1] ",".
-                      ELSE PUT STREAM str-exl UNFORMATTED " " ",".
-          
-                    PUT STREAM str-exl UNFORMATTED v-runbal.
-          
-          
-                    PUT STREAM str-exl UNFORMATTED  SKIP.
-          
-                  END. */
-                /* gdm - 10010905 */
+                                                                  
 
                 v-jrnl-no = SUBSTRING(glhist.tr-dscr,(LENGTH(glhist.tr-dscr) - 6),LENGTH(glhist.tr-dscr)) .
 
@@ -1582,50 +1510,7 @@ PROCEDURE run-report :
                     PUT STREAM str-exl UNFORMATTED  
                         cExcelDisplay SKIP.
                 END.
-
-                /* if op eq "D" and gltrans.jrnl eq "GENERAL" and
-                    length(tmp-dscr) ge 11 then
-                 do:   
-                   if op eq "D" and gltrans.jrnl eq "GENERAL" and
-                      substring(tmp-dscr,(length(tmp-dscr) - 10),4) eq "JRN#" then
-                   do:
-                     display space(11)
-                             substring(tmp-dscr,(length(tmp-dscr) - 6),length(tmp-dscr))
-                                             format "x(7)"
-                             gltrans.trnum   format "9999999"
-                             gltrans.jrnl    when op eq "D"
-                             substring(tmp-dscr,1,length(tmp-dscr) - 11) format "x(35)"
-                             gltrans.tr-date format "99/99/99"
-                             v-debit[1]      when v-debit[1] ne 0
-                             v-crdit[1]      when v-crdit[1] ne 0
-                         with no-box stream-io width 200 no-attr-space no-labels frame f1.
-                     down with frame f1.            
-                   end.
-                   else                          
-                   do:
-                     display space(19)
-                             gltrans.trnum   format "9999999"
-                             gltrans.jrnl    when op eq "D"
-                             tmp-dscr        format "x(35)"
-                             gltrans.tr-date format "99/99/99"
-                             v-debit[1]      when v-debit[1] ne 0
-                             v-crdit[1]      when v-crdit[1] ne 0
-                         with no-box stream-io width 200 no-attr-space no-labels frame f2.
-                     down with frame f2.
-                   end.
-                 end.
-                 else                          
-                 do:
-                   display space(19)
-                           gltrans.trnum   format "9999999"
-                           gltrans.jrnl    when op eq "D"
-                           tmp-dscr        format "x(35)"
-                           gltrans.tr-date format "99/99/99"
-                           v-debit[1]      when v-debit[1] ne 0
-                           v-crdit[1]      when v-crdit[1] ne 0
-                       with no-box stream-io width 200 no-attr-space no-labels frame f2.
-                   down with frame f2.
-                 end.*/
+                                     
                 ASSIGN 
                     v-debit[1] = 0
                     v-crdit[1] = 0.
