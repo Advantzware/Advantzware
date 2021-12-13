@@ -774,15 +774,13 @@ FOR EACH ef
             v-size[2] = eb.i-coldscr.             
             
               
-        IF v-first THEN do:
-            RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
-                                 OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
-                                 OUTPUT cSizeLabel, OUTPUT cJigAvailableLabel, OUTPUT cMinWeightLabel, OUTPUT cFiberContentLabel, OUTPUT cPackingLabel , 
-                                 OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel, OUTPUT cTotalCount, OUTPUT cExpectedPallets).
-                                 
-            PUT "<R-0.5><C45>" cItemSpecLabel FORMAT "x(23)" SKIP .
-        END.    
-            
+        RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
+                             OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
+                             OUTPUT cSizeLabel, OUTPUT cJigAvailableLabel, OUTPUT cMinWeightLabel, OUTPUT cFiberContentLabel, OUTPUT cPackingLabel , 
+                             OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel, OUTPUT cTotalCount, OUTPUT cExpectedPallets).
+                             
+        PUT "<R-0.5><C45>" cItemSpecLabel FORMAT "x(23)" SKIP .
+                    
         PUT "<C2><#5><R+3><C+108><RECT#5><|3>" SKIP
             "<C2><#6><R+12><C+45><RECT#6><|3>"
             "<#7><R-12><C+33><RECT#7><|3>"
