@@ -56,6 +56,9 @@ DEFINE TEMP-TABLE tt-job NO-UNDO
     INDEX sortKey IS PRIMARY sortKey
     .
 
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+oSetting = NEW system.Setting().
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -867,7 +870,6 @@ PROCEDURE Get_Jobs :
     DEFINE VARIABLE b                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lv-form-completed AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cSortKey          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTSShowPending    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lTSShowPending    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lNK1Found         AS LOGICAL   NO-UNDO.
 
@@ -875,19 +877,8 @@ PROCEDURE Get_Jobs :
 
     EMPTY TEMP-TABLE tt-job.
   
-    RUN sys/ref/nk1look.p (
-        company_code,
-        "TSShowPending",
-        "L",
-        NO,
-        NO,
-        "",
-        "",
-        OUTPUT cTSShowPending,
-        OUTPUT lNK1Found
-        ).
-    lTSShowPending = lNK1Found AND cTSShowPending EQ "YES".
-
+    lTSShowPending  = LOGICAL(oSetting:GetByName("TSShowPending")).
+    
     IF ip-sort-by EQ "JOB" THEN
     &Scoped-define sortBy
     &Scoped-define sortKey job.job-no + STRING(job.job-no2,"99")
@@ -911,6 +902,27 @@ IF job-mch.start-date NE ? AND ~
 
     RUN Button_Labels (INPUT-OUTPUT button_item).
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-OBJECT(oSetting) THEN
+        DELETE OBJECT oSetting.
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

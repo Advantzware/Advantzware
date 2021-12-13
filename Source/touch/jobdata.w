@@ -40,9 +40,9 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE lv-timer     AS INTEGER   NO-UNDO. /* clock timer */
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE vTsampmWarn  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lTsampmWarn  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lTSBreaksQty AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cTSBreaksQty AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lTSBreaks    AS LOGICAL   NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
@@ -61,11 +61,13 @@ DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
-RUN sys/ref/nk1look.p (cocode,"TSAMPMWarn","L",NO,YES,"","",OUTPUT vTsampmWarn,OUTPUT lRecFound).
-RUN sys/ref/nk1look.p (cocode,"TSBREAKSQTY","L",NO,YES,"","",OUTPUT cTSBreakSQty,OUTPUT lRecFound).
 
-ASSIGN 
-    lTSBreakSQty = IF cTSBreakSQty EQ "yes" THEN TRUE ELSE FALSE.
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+oSetting = NEW system.Setting().
+
+lTsampmWarn  = LOGICAL(oSetting:GetByName("TSAMPMWarn")).
+lTSBreakSQty = LOGICAL(oSetting:GetByName("TSBREAKSQTY")).
+lTSBreaks    = LOGICAL(oSetting:GetByName("TSBREAKS")).
 
 DEF VAR v-time-clock-off AS LOG  NO-UNDO.
 
@@ -407,7 +409,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_AMPM s-object
 ON CHOOSE OF Btn_AMPM IN FRAME F-Main /* AM */
 DO:
-    IF  vTsampmWarn EQ "YES" THEN DO:
+    IF lTsampmWarn THEN DO:
         MESSAGE "Are you sure you want to change the AM/PM value?"
                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
         IF ll-ans THEN DO:
@@ -1190,10 +1192,7 @@ PROCEDURE Job_Data_Collection :
         ELSE DO: /* close out current operation */
             {methods/run_link.i "CONTAINER" "Get_MachTran_Rowid" "(OUTPUT machtran-rowid)"}
             FIND machtran EXCLUSIVE-LOCK WHERE ROWID(machtran) EQ machtran-rowid.
-            IF CAN-FIND(FIRST sys-ctrl
-                        WHERE sys-ctrl.company EQ cCompany
-                          AND sys-ctrl.name    EQ "TSBREAKS"
-                          AND sys-ctrl.log-fld EQ YES) THEN DO:
+            IF lTSBreaks THEN DO:
                 FIND FIRST shift_break NO-LOCK
                      WHERE shift_break.company   EQ machtran.company
                        AND shift_break.shift      EQ machtran.shift
@@ -1379,10 +1378,7 @@ PROCEDURE Job_Data_Collection :
             &endif
             
             /* create breaks if tsbreaks turned on */
-            IF CAN-FIND(FIRST sys-ctrl
-                        WHERE sys-ctrl.company EQ cCompany
-                          AND sys-ctrl.name    EQ "TSBREAKS"
-                          AND sys-ctrl.log-fld EQ YES) THEN DO:
+            IF lTSBreaks THEN DO:
                 FOR EACH ttTrans
                     WHERE ttTrans.chargeCode EQ cChargeCode
                       AND ttTrans.done       EQ NO
@@ -1422,7 +1418,7 @@ PROCEDURE Job_Data_Collection :
                             .
                     END. /* each shift_break */
                 END. /* each ttTrans */
-            END. /* if tsbreaks */
+            END. /* if lTSBreaks */
             
             /* remove done tttrans that have zeroed out */
             FOR EACH ttTrans
@@ -1844,6 +1840,27 @@ PROCEDURE Key_Stroke :
      lv-timer = INTEGER(time-hour:SCREEN-VALUE) * 3600
               + INTEGER(time-minute:SCREEN-VALUE) * 60.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-OBJECT(oSetting) THEN
+        DELETE OBJECT oSetting.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 

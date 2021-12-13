@@ -278,6 +278,7 @@ DEFINE VARIABLE unitFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE useDeptSort AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lProgressBar AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cADOSBJobs AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTSTime    AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bMach FOR mach.
 
@@ -419,12 +420,14 @@ ASSIGN
     locode = asiLocation
     .
 
-RUN sys/ref/nk1look.p (
-    asiCompany,"TSTIME","C",NO,NO,"","",
-    OUTPUT cFound,OUTPUT lFound
-    ).
-IF lFound THEN
-SESSION:TIME-SOURCE = IF cFound EQ "WorkStation" THEN "Local" ELSE "ASI".
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+oSetting = NEW system.Setting().
+
+cTSTime    = STRING(oSetting:GetByName("TSTime")).
+SESSION:TIME-SOURCE = IF cTSTime EQ "WorkStation" THEN "Local" ELSE "ASI".
+
+IF VALID-OBJECT(oSetting) THEN
+  DELETE OBJECT oSetting.
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?

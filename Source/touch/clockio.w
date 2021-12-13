@@ -45,6 +45,9 @@ IF g_company = "" THEN DO:
    IF AVAIL company THEN g_company = company.company.
 END.
 
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+oSetting = NEW system.Setting().
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -193,16 +196,19 @@ DO:
   /* This event will close the window and terminate the procedure.  */
 
 
-  DEF VAR v-passwd AS cha NO-UNDO.
+  DEFINE VARIABLE v-passwd         AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cTSClockPassword AS CHARACTER NO-UNDO.
   RUN custom/d-passwd (OUTPUT v-passwd).
-  find first sys-ctrl where sys-ctrl.company eq g_company
-                        and sys-ctrl.name    eq "TSCLOCK"
-                        no-lock no-error.
-  IF AVAIL sys-ctrl AND sys-ctrl.char-fld <> v-passwd THEN DO:
+  cTSClockPassword = STRING(oSetting:GetByName("TSClockPassword")).
+  
+  IF cTSClockPassword NE v-passwd THEN DO:
      MESSAGE "Invalid Password. " VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
 
+  IF VALID-OBJECT(oSetting) THEN
+        DELETE OBJECT oSetting.
+  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
