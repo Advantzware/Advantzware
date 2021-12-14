@@ -259,7 +259,7 @@ DEFINE BROWSE brVendItemCost
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 13.52
-         FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
+         FONT 34 ROW-HEIGHT-CHARS .9.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -590,6 +590,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF cAdderValue <> "" THEN
             fiAdders:SCREEN-VALUE = cAdderValue.
     END.
+    IF cAdderValue = "" THEN 
+        cAdders:HIDDEN = TRUE.
+        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
