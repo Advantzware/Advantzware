@@ -668,6 +668,7 @@ DO:
            END.               
        END.
        WHEN "cust-no" THEN DO:
+           RUN spSetSessionParam ("CustListID", "EF").
            ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN system/openlookup.p (
                INPUT  "", 
@@ -932,7 +933,6 @@ END.
 ON ENTRY OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
   DEF BUFFER b-eb FOR eb.
-
 
   IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
     FIND FIRST b-eb
