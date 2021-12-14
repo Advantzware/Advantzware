@@ -55,6 +55,7 @@ DEFINE VARIABLE cCXMLIdentityCust    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLPayloadID       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLSharedSecret    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomerPONoBlank   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iPurchaseOrder       AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
 DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
@@ -280,14 +281,17 @@ FOR EACH ttInv:
             RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemDescription", STRING(ttInvLine.chargeDescription)).
         ELSE
             RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemDescription", STRING(ttInvLine.itemDescription)).
-        
+                                
         lcLineItemsData = REPLACE(lcLineItemsData, "$TaxDetailLineItem$", lcTaxLineData).
                    
         lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.
+                        
+        IF ttInvLine.orderID NE 0 THEN
+        iPurchaseOrder = ttInvLine.orderID.
     END.
 
     lcTaxData = "".
-    
+     
     /* IF Freight is bill and and freight amount is not 0 */
     IF ttInv.billFreight AND ttInv.amountTotalFreight NE 0 THEN DO:
         IF AVAILABLE bf-charge-APIOutboundDetail THEN DO:
@@ -296,6 +300,7 @@ FOR EACH ttInv:
             
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
+            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeDesc", ttInvLine.chargeDescription).  
             
             IF ttInv.amountTotalFreight EQ ttInv.amountTotalTaxableFreight THEN
                 RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalFreight)).
@@ -331,6 +336,7 @@ FOR EACH ttInv:
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalTaxableFreight)).
+            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeDesc", ttInvLine.chargeDescription).  
 
             IF AVAILABLE bf-tax-APIOutboundDetail AND ttInv.amountTotalTaxableFreight NE 0 THEN DO:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
@@ -421,6 +427,7 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", iTotalLineCount).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "MiscLineCount", iMiscLineCount).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LineCount", iLineCount).    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PurchaseOrder", string(iPurchaseOrder)).
     
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   
