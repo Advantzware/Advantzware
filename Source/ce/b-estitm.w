@@ -4144,7 +4144,7 @@ PROCEDURE local-delete-record :
     RUN est/resetf&b.p (ROWID(est), ll-mass-del).
     RUN pResetQtySet(ROWID(est)).
     IF lAllowResetType OR NOT ll-mass-del THEN
-    RUN reset-est-type (OUTPUT li-est-type, OUTPUT lTypeChange).
+    RUN reset-est-type (OUTPUT li-est-type).
 
     IF AVAIL eb THEN     
     DO:      
