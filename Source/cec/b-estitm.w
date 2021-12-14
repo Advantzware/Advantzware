@@ -872,7 +872,7 @@ DO:
        WHEN "cust-no" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            /*RUN windows/l-custact.w (gcompany,ls-cur-val, OUTPUT char-val, OUTPUT look-recid).*/
-    
+           RUN spSetSessionParam ("CustListID", "EC").    
            RUN system/openlookup.p (
                INPUT  "", 
                INPUT  "", /* lookup field */
@@ -1201,7 +1201,6 @@ END.
 ON ENTRY OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
   DEF BUFFER b-eb FOR eb.
-
 
   IF {&self-name}:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
     FIND FIRST b-eb
