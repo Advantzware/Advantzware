@@ -300,8 +300,7 @@ FOR EACH ttInv:
             
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
-            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeDesc", ttInvLine.chargeDescription).
-            
+                       
             IF ttInv.amountTotalFreight EQ ttInv.amountTotalTaxableFreight THEN
                 RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalFreight)).
             ELSE
@@ -336,8 +335,7 @@ FOR EACH ttInv:
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeID", "C").   /* "A" - Allowance, "C" - Charge */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeCode", "D240").  /* "D240" - Freight */
             RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeAmount", STRING(ttInv.amountTotalTaxableFreight)).
-            RUN updateRequestData(INPUT-OUTPUT lcSurchargeData, "SurchargeDesc", ttInvLine.chargeDescription).
-
+            
             IF AVAILABLE bf-tax-APIOutboundDetail AND ttInv.amountTotalTaxableFreight NE 0 THEN DO:
                 lcTaxData = bf-tax-APIOutboundDetail.data.
 

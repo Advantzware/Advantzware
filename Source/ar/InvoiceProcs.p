@@ -115,7 +115,7 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
         ASSIGN
             ipbf-ttInv.customerEmail = bf-cust.email
             ipbf-ttInv.phone         = bf-cust.area-code + "-" + bf-cust.phone 
-            ipbf-ttInv.fax           = SUBSTRING(cust.fax,1,3) + "-" + SUBSTRING(cust.fax,4)
+            ipbf-ttInv.fax           = SUBSTRING(bf-cust.fax,1,3) + "-" + SUBSTRING(bf-cust.fax,4)
             ipbf-ttInv.country       = bf-cust.fax-country .
         
     FIND FIRST bf-shipto NO-LOCK 
