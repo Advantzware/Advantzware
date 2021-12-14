@@ -4146,7 +4146,12 @@ PROCEDURE local-delete-record :
     IF lAllowResetType OR NOT ll-mass-del THEN
     RUN reset-est-type (OUTPUT li-est-type).
 
-    IF AVAIL eb THEN RUN dispatch ("open-query").
+    IF AVAIL eb THEN     
+    DO:      
+        RUN dispatch ("open-query").
+        RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+        RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+    END.
   END.
 
   ELSE DO:    
