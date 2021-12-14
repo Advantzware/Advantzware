@@ -385,7 +385,7 @@ FOR EACH report
            END.
            ELSE DO:
                IF eb.i-col > 0 OR eb.i-coat > 0 THEN 
-                DO iInkCount = 1 TO EXTENT(eb.i-code2):
+                DO iInkCount = 1 TO EXTENT(eb.i-code):
                     IF eb.i-code[iInkCount] NE "" THEN DO:
                         FIND FIRST ITEM 
                             WHERE ITEM.company EQ cocode
