@@ -900,6 +900,8 @@ PROCEDURE applyFields :
     departmentValue = departments:SCREEN-VALUE.
     runPrint = findProgram('{&print}/',ID,'/' + runProgram + '.r').
     IF SEARCH(runPrint) EQ ? THEN
+    runPrint = findProgram('{&print}/',ID,'/' + runProgram + '.p').
+    IF SEARCH(runPrint) EQ ? THEN
     MESSAGE 'Program "' + runProgram + '.p" does not exist!' VIEW-AS ALERT-BOX ERROR.
     ELSE DO:
       runTitle = ''.
