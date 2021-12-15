@@ -973,7 +973,8 @@ FUNCTION getValue-loc RETURNS CHARACTER
    
     
     FIND FIRST location NO-LOCK
-        WHERE location.locationCode = ipb-loc.loc 
+        WHERE location.company = ipb-loc.company 
+        AND location.locationCode = ipb-loc.loc 
         AND location.rec_key = ipb-loc.addrRecKey NO-ERROR.
    
     CASE ipc-field :
