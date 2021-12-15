@@ -426,12 +426,15 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "MiscLineCount", iMiscLineCount).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LineCount", iLineCount). 
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PurchaseOrder", string(iPurchaseOrder)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AreaCode", ttInv.areaCode).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Phone", ttInv.phone).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Fax", ttInv.fax).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FaxAreaCode", substring(ttInv.fax,1,3)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Fax", substring(ttInv.fax,4)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country", ttInv.country).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CountryName", ttInv.countryName).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", ttInv.termsDesc).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightPayCode", ttInv.frtPay).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCode", IF ttInv.fob EQ "Destination" THEN "DE" ELSE "PE").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCode", ttInv.fob).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCodeDescription", ttInv.fob).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDiscountDue", ttInv.amountTotal - ttInv.termDiscountAmount ).
     

@@ -106,6 +106,7 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     DEFINE BUFFER bf-cust    FOR cust.
     DEFINE BUFFER bf-shipto  FOR shipto.
     DEFINE BUFFER bf-notes   FOR notes.
+    DEFINE BUFFER bf-country FOR country.
 
     FIND FIRST bf-cust NO-LOCK 
         WHERE bf-cust.company EQ ipbf-ttInv.company
@@ -114,8 +115,9 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     IF AVAILABLE bf-cust THEN
         ASSIGN
             ipbf-ttInv.customerEmail = bf-cust.email
-            ipbf-ttInv.phone         = bf-cust.area-code + "-" + bf-cust.phone 
-            ipbf-ttInv.fax           = SUBSTRING(bf-cust.fax,1,3) + "-" + SUBSTRING(bf-cust.fax,4)
+            ipbf-ttInv.areaCode      = bf-cust.area-code
+            ipbf-ttInv.phone         = bf-cust.phone 
+            ipbf-ttInv.fax           = bf-cust.fax
             ipbf-ttInv.country       = bf-cust.fax-country .
         
     FIND FIRST bf-shipto NO-LOCK 
@@ -141,7 +143,14 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
                                                 )
             ipbf-ttInv.siteID             = bf-shipto.siteId
             .
-
+    
+    FIND FIRST bf-country NO-LOCK
+         WHERE bf-country.countryCode EQ ipbf-ttInv.country
+         NO-ERROR.
+    IF AVAILABLE bf-country THEN
+        ASSIGN
+            ipbf-ttInv.countryName = bf-country.Description.
+            
     RUN Credit_GetTerms (
         INPUT  ipbf-ttInv.company,
         INPUT  ipbf-ttInv.terms,
