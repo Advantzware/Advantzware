@@ -1286,6 +1286,7 @@ PROCEDURE poSearch :
                 NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN
                 scr-uom:SCREEN-VALUE = ITEM.cons-uom.
+            ELSE scr-uom:SCREEN-VALUE = po-ordl.pr-uom.    
             ASSIGN
                 scr-item-no:SCREEN-VALUE   = po-ordl.i-no
                 scr-item-name:SCREEN-VALUE = po-ordl.i-name
