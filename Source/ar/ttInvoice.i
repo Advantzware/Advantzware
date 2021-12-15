@@ -73,6 +73,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD termsDesc                   AS CHARACTER FORMAT "X(30)"      LABEL "Terms Description"
     FIELD frtPay                      AS CHARACTER FORMAT "X(3)"      LABEL "Freight Pay Code"
     FIELD countryName                 AS CHARACTER FORMAT "X(30)"      LABEL "Country Name"
+    FIELD currency                    AS CHARACTER FORMAT "X(3)"       LABEL "Currency Code"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"

@@ -107,6 +107,14 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     DEFINE BUFFER bf-shipto  FOR shipto.
     DEFINE BUFFER bf-notes   FOR notes.
     DEFINE BUFFER bf-country FOR country.
+    
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ ipbf-ttInv.company
+         NO-ERROR.
+    IF AVAILABLE company THEN
+         ASSIGN 
+             ipbf-ttInv.country  = company.countryCode
+             ipbf-ttInv.currency = company.curr-code.    
 
     FIND FIRST bf-cust NO-LOCK 
         WHERE bf-cust.company EQ ipbf-ttInv.company
@@ -118,7 +126,8 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
             ipbf-ttInv.areaCode      = bf-cust.area-code
             ipbf-ttInv.phone         = bf-cust.phone 
             ipbf-ttInv.fax           = bf-cust.fax
-            ipbf-ttInv.country       = bf-cust.fax-country .
+            ipbf-ttInv.country       = IF bf-cust.fax-country NE "" THEN bf-cust.fax-country ELSE ipbf-ttInv.country
+            ipbf-ttInv.currency      = IF bf-cust.curr-code NE "" THEN bf-cust.curr-code ELSE ipbf-ttInv.currency.
         
     FIND FIRST bf-shipto NO-LOCK 
          WHERE bf-shipto.company EQ ipbf-ttInv.company

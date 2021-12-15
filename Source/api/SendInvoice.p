@@ -373,7 +373,7 @@ FOR EACH ttInv:
     
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceDate", STRING(ttInv.invoiceDate)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceNum", STRING(ttInv.invoiceID)).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", ttInv.currency).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", TRIM(ttInv.payloadID)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", ttInv.customerName).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerStreetAddress1", ttInv.customerAddress1).
