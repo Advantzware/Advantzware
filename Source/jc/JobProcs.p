@@ -525,6 +525,17 @@ PROCEDURE job_CloseJob_DCPost:
     
 END PROCEDURE.
 
+PROCEDURE job_Delete_JobMaterial:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.
+          
+    RUN pDelete_JobMaterial(INPUT iprwRowid).      
+    
+END PROCEDURE.
+
 
 PROCEDURE CloseJob_DCPost PRIVATE:
     /*------------------------------------------------------------------------------
@@ -581,6 +592,34 @@ PROCEDURE CloseJob_DCPost PRIVATE:
             END.
         END.         
     END. 
+    
+END PROCEDURE.  
+
+
+PROCEDURE pDelete_JobMaterial PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid   AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
+         WHERE rowid(bf-job-mat) EQ iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-job-mat THEN
+    DO:
+        FIND FIRST bf-job EXCLUSIVE-LOCK
+             WHERE bf-job.company EQ bf-job-mat.company
+               AND bf-job.job-no  EQ bf-job-mat.job-no
+               AND bf-job.job-no2 EQ bf-job-mat.job-no2
+               AND bf-job.job     EQ bf-job-mat.job NO-ERROR.
+               
+        RUN jc/jc-all.p (ROWID(bf-job-mat), -1, INPUT-OUTPUT bf-job.stat). 
+        FIND CURRENT bf-job NO-LOCK.
+        DELETE bf-job-mat.
+    END.
     
 END PROCEDURE.  
 
