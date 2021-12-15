@@ -301,13 +301,6 @@ CLASS system.UserColumn:
         
         EXTENT (iCurrentColPositionList) = BrowseHandle:NUM-COLUMNS.
         
-        DEFINE VARIABLE iCurrentColPositionList AS INTEGER   NO-UNDO EXTENT.
-        DEFINE VARIABLE cCurrentColNameList     AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE iIndex                  AS INTEGER   NO-UNDO.
-        DEFINE VARIABLE iPosition               AS INTEGER   NO-UNDO.
-        
-        EXTENT (iCurrentColPositionList) = BrowseHandle:NUM-COLUMNS.
-        
         DO iColumn = 1 TO BrowseHandle:NUM-COLUMNS:
             ASSIGN 
                 hdBrowseColumn = BrowseHandle:GET-BROWSE-COLUMN(iColumn) NO-ERROR.

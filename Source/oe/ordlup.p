@@ -166,6 +166,7 @@ DO:
              AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
         
             IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN DO:
+                FIND CURRENT job EXCLUSIVE NO-ERROR.
                 IF AVAILABLE job THEN
                 job.shipFromLocation = bf-oe-rel.spare-char-1.
                 job-hdr.loc          = bf-oe-rel.spare-char-1.

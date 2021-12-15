@@ -59,6 +59,7 @@ DEFINE TEMP-TABLE ttWIPStandards NO-UNDO
     FIELD uom         AS CHARACTER FORMAT "x(3)"                 LABEL "UOM"
     FIELD sale-value  AS DECIMAL   FORMAT ">,>>>,>>>,>>9.99<<<<" LABEL "Sales Value"
     FIELD user-id     AS CHARACTER FORMAT "x(10)"                LABEL "User ID"
+    FIELD cuts        AS INTEGER   FORMAT ">>>,>>9"              LABEL "Cuts"
     .
 {ce/mach-ink.i NEW}
 
@@ -290,6 +291,7 @@ PROCEDURE pBusinessLogic:
                                     ELSE IF AVAILABLE itemfg  THEN itemfg.pur-uom
                                     ELSE ""
             ttWIPStandards.user-id     = mch-act.user-id
+            ttWIPStandards.cuts        = IF AVAILABLE ef THEN ef.n-cuts ELSE 0
             dSaleValue                 = ttWIPStandards.price * (mch-act.qty / IF ttWIPStandards.uom EQ "M" THEN 1000 ELSE 1)
             .
         IF CAN-DO("A,R,S",mach.p-type) THEN
