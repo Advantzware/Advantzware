@@ -76,6 +76,7 @@ TSShowPending,Logical,TSShowPending,Logical,Show Schedule Board Pending Jobs,YES
 TSTIME,Character,TSTime,Character,Touch-Screen Time Source - Server or Workstation,Sserver|Workstation|NO,NO,Yes,TouchScreen,No
 TSTIMEB,Logical,TSTimeB,Logical,Always enable TS Time Buttons?,YES|NO,NO,Yes,TouchScreen,No
 TaskerNotRunning,Decimal,TaskerNotRunningTimeLimit,Integer,Tasker Not Running Time Limit,,0,No,MainMenu|dAOA,No
+VertexAccessToken,Logical,Vertex,Logical,Vertex Active,YES|NO,NO,Yes,Vertex,No
 VertexAccessToken,Character,VertexAccessToken,Character,Vertex API Access Token,,,Yes,Vertex,No
 VertexAccessToken,Date,VertexAccessTokenDateTime,DateTime-TZ,Vertex API Access Token Date Time,,,No,Vertex,No
 VertexAccessToken,Decimal,VertexAccessTokenRefreshInterval,Integer,Vertex API Access Token Refresh Interval,0,0,Yes,Vertex,No
