@@ -12,12 +12,17 @@ DEFINE VARIABLE iCountPallet   AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE glUpdateSetWithMaxQuantity             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glUpdateLoadTagSSCC                    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glUpdateLocBinFromItemFG               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glUpdateLocBinFromFGBin                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateFGReceipts                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus                    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateRFIDTag                        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCreateComponenetTagsForSetHeaderItem AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glFGSetCreateAdjustment                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcLoadtagPrintSoftware                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glAutoPrint                            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE giFGSetRec                             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE gcLoadTag                              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLoadTagOutputFile                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcLoadTagOutputPath                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcBOLLoadTagOutputFile                 AS CHARACTER NO-UNDO.

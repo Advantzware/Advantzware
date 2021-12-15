@@ -1194,7 +1194,7 @@ PROCEDURE pInit :
         
         RUN pInvalidRelease.
         
-        IF glShowKeyboard THEN
+        IF glShowVirtualKeyboard THEN
             RUN ShowKeyboard.
             
         /* If scan trailer is enabled */
