@@ -99,7 +99,7 @@ PROCEDURE postMonitor:
                 /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
                 RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
                     INPUT  cocode,
-                    INPUT  "/api/cXMLOrder",
+                    INPUT  "/api/OrderImport",
                     INPUT  lcResponseData,
                     OUTPUT lSuccess,
                     OUTPUT cMessage
