@@ -100,19 +100,19 @@ FUNCTION GetCustListActive RETURNS LOGICAL
 DEFINE VARIABLE iListCount AS INTEGER NO-UNDO.
 
 IF ipcMode NE "PROMPT" THEN DO:
-    oplActive = GetCustListActive(ipcCompany,  gcNK1Master).
+    oplActive = GetCustListActive(ipcCompany, gcNK1Master).
     IF oplActive AND iplBuild THEN DO:
         EMPTY TEMP-TABLE ttCustList.
         /*Build list specific to report*/
         iListCount = 0.
-        RUN BuildCustList(
+        RUN BuildCustList (
             ipcCompany,
             gcNK1Master,
             ipcMode,
             INPUT-OUTPUT iListCount
             ).        
         /*Build list for all reports*/
-        RUN BuildCustList(
+        RUN BuildCustList (
             ipcCompany,
             gcNK1Master,
             "",
