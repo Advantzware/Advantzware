@@ -929,7 +929,7 @@ PROCEDURE pGetBlankNo PRIVATE :
     IF lAllowEmptyFormAndBlank THEN
         ASSIGN
             opcBlankNoListItems = " " + "," + opcBlankNoListItems
-            opiBlankNo = INTEGER(ENTRY(1, opcBlankNoListItems))
+            opiBlankNo = ?
             NO-ERROR.
 END PROCEDURE.
 
@@ -964,7 +964,7 @@ PROCEDURE pGetFormNo PRIVATE :
     IF lAllowEmptyFormAndBlank THEN
         ASSIGN
             opcFormNoListItems = " " + "," + opcFormNoListItems
-            opiFormNo = INTEGER(ENTRY(1, opcFormNoListItems))
+            opiFormNo = ?
             NO-ERROR.
 END PROCEDURE.
 

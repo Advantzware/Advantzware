@@ -35,6 +35,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+DEFINE VARIABLE dExchangeRate AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dtDate        AS DATE    NO-UNDO.
+&SCOPED-DEFINE enable-currency enable-currency
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,7 +52,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -71,7 +74,7 @@ currency.country currency.c-num currency.minor-unit currency.is-base ~
 currency.ex-rate currency.ar-ast-acct 
 &Scoped-define DISPLAYED-TABLES currency
 &Scoped-define FIRST-DISPLAYED-TABLE currency
-
+&Scoped-Define DISPLAYED-OBJECTS exc_rate-dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -106,6 +109,10 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE exc_rate-dscr AS CHARACTER FORMAT "x(25)" 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1 .
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 135 BY 15.48.
@@ -138,11 +145,12 @@ DEFINE FRAME F-Main
           LABEL "Exchange Rate"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     exc_rate-dscr AT ROW 6.71 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
      currency.ar-ast-acct AT ROW 9.33 COL 68 COLON-ALIGNED
           LABEL "Foreign Exchange Gain/Loss Account"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     RECT-1 AT ROW 1 COL 3
+     RECT-1 AT ROW 1.24 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -200,7 +208,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -215,6 +223,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN currency.ex-rate IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN exc_rate-dscr IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -232,9 +242,11 @@ ASSIGN
 
 
 
-&Scoped-define SELF-NAME arClass.currencyCode
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME currency.ar-ast-acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL currency.ar-ast-acct V-table-Win
-ON LEAVE OF currency.ar-ast-acct IN FRAME F-Main /* currencyCode */
+ON LEAVE OF currency.ar-ast-acct IN FRAME F-Main /* Foreign Exchange Gain/Loss Account */
 DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
@@ -247,6 +259,37 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME currency.country
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL currency.country V-table-Win
+ON HELP OF currency.country IN FRAME F-Main /* Country */
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+    
+    RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */  
+                INPUT  195,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = IF NUM-ENTRIES(cFieldsValue,"|") GE 4 THEN
+                                            ENTRY(4, cFieldsValue, "|")
+                                            ELSE
+                                            "".                                            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
@@ -257,7 +300,7 @@ END.
   &ENDIF         
   
   /************************ INTERNAL PROCEDURES ********************/
-  
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -360,6 +403,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/    
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+  
+      RUN spCommon_CurrentCurrencyExcRate( INPUT g_company,
+                                    INPUT currency.c-code,                                
+                                    OUTPUT dtDate,
+                                    OUTPUT dExchangeRate).
+      IF dExchangeRate NE 0 THEN
+      ASSIGN
+      exc_rate-dscr:HIDDEN = NO
+      exc_rate-dscr:SCREEN-VALUE =  string(dExchangeRate) + " as of " + STRING(dtDate).
+      ELSE  exc_rate-dscr:HIDDEN = YES.
+  END.    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-currency V-table-Win 
+PROCEDURE enable-currency :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:      
+      IF dExchangeRate NE 0 THEN
+      DISABLE currency.ex-rate.
+      ELSE  ENABLE currency.ex-rate.
+  END.    
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -445,6 +536,19 @@ PROCEDURE state-changed :
   END CASE.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdateExchangeRates V-table-Win 
+PROCEDURE UpdateExchangeRates :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAILABLE currency THEN
+        RUN gl/d-UpdateExchangeRate.w (currency.c-code).
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

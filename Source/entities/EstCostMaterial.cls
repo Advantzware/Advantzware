@@ -74,8 +74,6 @@ CLASS entities.EstCostMaterial INHERITS entities.Entity:
 
 	METHOD PRIVATE VOID pInit(  ):
 		
-        LoadAttributes ().
-
 	END METHOD.
 
 END CLASS.

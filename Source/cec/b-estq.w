@@ -904,7 +904,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON ENTRY OF begin_cust-no IN FRAME F-Main
 DO:
-/*    RUN spSetSessionParam ("CustListID", "EC").*/
+    RUN spSetSessionParam ("CustListID", "EC").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2524,6 +2524,29 @@ PROCEDURE paper-clip-image-proc :
   
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    
+  RUN local-open-query.
+  
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+    RUN dispatch ('row-changed').
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

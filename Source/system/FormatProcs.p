@@ -283,8 +283,8 @@ PROCEDURE Format_Time:
         h  - Displays hours of the time in trimmed leading zero format ( Eg. 3600 - 1)
         mm - Displays minutes of the time in two digits ( Eg. 3660 - 01)
         m  - Displays minutes of the time in trimmed leading zero format ( Eg. 3660 - 1)
-        hh - Displays seconds of the time in two digits ( Eg. 3661 - 01)
-        h  - Displays seconds of the time in trimmed leading zero format ( Eg. 3661 - 1)
+        ss - Displays seconds of the time in two digits ( Eg. 3661 - 01)
+        s  - Displays seconds of the time in trimmed leading zero format ( Eg. 3661 - 1)
         am - Displays time in 12 hour format         
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipiTime       AS INTEGER   NO-UNDO.
@@ -539,17 +539,17 @@ PROCEDURE pUpdateRequestData PRIVATE:
                     cIfFalseValue = REPLACE(cIfFalseValue, '"', '')
                     cIfFalseValue = REPLACE(cIfFalseValue, "'", "")
                     NO-ERROR.
+
+                IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
+                    cFunctionText = cIfTrueValue.
+                ELSE
+                    cFunctionText = cIfFalseValue.
+                    
+                ASSIGN
+                    cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
+                    cTargetString  = cFunctionText
+                    .
             END.
-            
-            IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
-                cFunctionText = cIfTrueValue.
-            ELSE
-                cFunctionText = cIfFalseValue.
-                
-            ASSIGN
-                cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
-                cTargetString  = cFunctionText
-                .
         END.
         
         IF cFormatType NE "" THEN DO:

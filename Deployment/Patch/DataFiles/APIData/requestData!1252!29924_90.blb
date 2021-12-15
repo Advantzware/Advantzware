@@ -1,0 +1,2 @@
+A$NumberOfTransactions|999999999|Int|$Client NumTest$CurrentDate|YYMMDD|Date|$$ProcessingCentre|99999|Int|$$SPACE|X(20)|$$CurrencyType|X(3)|$$SPACE|X(1406)|$
+$Detail$Z$CheckCounter|999999999|Int|$Client NumTest$FillZero|x(14)|$$FillZero|x(8)|$$TotalSum|9999999999|Int|$$NumberOfTransactions|99999999|Int|$$FillZero|x(1396)|$

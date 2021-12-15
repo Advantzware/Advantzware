@@ -977,8 +977,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (INPUT oSetting).    
+    RUN windows/setting-dialog.w.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1050,6 +1049,7 @@ PROCEDURE pInit :
     DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
     
+    RUN spSetSettingContext.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.

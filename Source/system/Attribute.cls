@@ -14,50 +14,44 @@ USING Progress.Lang.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS system.Attribute: 
-    DEFINE TEMP-TABLE ttAttribute NO-UNDO
-        FIELD dbFieldName   AS CHARACTER
-        FIELD dbFieldExtent AS INTEGER
-        FIELD attributeName AS CHARACTER
-        .
-
-	DEFINE PUBLIC PROPERTY RequestData AS CHARACTER NO-UNDO 
-	GET.
-	SET. 
-
     DEFINE PUBLIC PROPERTY RequestDataType AS CHARACTER NO-UNDO 
     GET.
     SET. 
-    
-    DEFINE PUBLIC PROPERTY SourceTable AS CHARACTER NO-UNDO 
+
+    DEFINE PUBLIC PROPERTY RequestData AS CHARACTER NO-UNDO 
     GET.
     SET. 
-        
-	/*------------------------------------------------------------------------------
-	 Purpose:
-	 Notes:
-	------------------------------------------------------------------------------*/
-		
-	CONSTRUCTOR PUBLIC Attribute ( ipcSourceTable AS CHARACTER ):
-		SUPER ().
-        
-        SourceTable = ipcSourceTable.		
-        
-        LoadAttributes().
-	END CONSTRUCTOR.
     
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    METHOD PUBLIC VOID LoadAttributes( ):
-        DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
         
-        cFileName = "entities\" + SourceTable + ".json".
+    CONSTRUCTOR PUBLIC Attribute ( ):
+        SUPER ().
         
-        IF SEARCH (cFileName) EQ ? THEN
-            RETURN.
+    END CONSTRUCTOR.
 
-        TEMP-TABLE ttAttribute:READ-JSON ("FILE", SEARCH (cFileName)) NO-ERROR.
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC VOID UpdateRequestData( INPUT-OUTPUT iplcRequestData AS LONGCHAR, ipcAttributeName AS CHARACTER, ipcAttributeValue AS CHARACTER ):
+        RUN Format_UpdateRequestData (
+            INPUT-OUTPUT iplcRequestData,
+            INPUT        ipcAttributeName,
+            INPUT        ipcAttributeValue,
+            INPUT        RequestDataType
+            ). 
+	END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PUBLIC LONGCHAR ReplaceAttributes( ipBufferHandle AS HANDLE ):
+        RETURN pReplaceAttributes(THIS-OBJECT:RequestData, ipBufferHandle:TABLE, ipBufferHandle).
     END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -65,80 +59,44 @@ CLASS system.Attribute:
      Notes:
     ------------------------------------------------------------------------------*/
     METHOD PUBLIC LONGCHAR ReplaceAttributes( iplcRequestData AS LONGCHAR, ipBufferHandle AS HANDLE ):
-        RETURN pReplaceAttributes(iplcRequestData, ipBufferHandle).
-    END METHOD.
-    
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    METHOD PUBLIC LONGCHAR ReplaceAttributes( ipBufferHandle AS HANDLE ):
-        RETURN pReplaceAttributes(THIS-OBJECT:RequestData, ipBufferHandle).
+        RETURN pReplaceAttributes(iplcRequestData, ipBufferHandle:TABLE, ipBufferHandle).
     END METHOD.
 
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    METHOD PRIVATE LONGCHAR pReplaceAttributes( iplcRequestData AS LONGCHAR, ipBufferHandle AS HANDLE ):
+    METHOD PUBLIC LONGCHAR ReplaceAttributes( iplcRequestData AS LONGCHAR, ipcSourceTable AS CHARACTER, ipBufferHandle AS HANDLE ):
+        RETURN pReplaceAttributes(iplcRequestData, ipcSourceTable, ipBufferHandle).
+    END METHOD.
+    
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    METHOD PRIVATE LONGCHAR pReplaceAttributes( iplcRequestData AS LONGCHAR, ipcSourceTable AS CHARACTER, ipBufferHandle AS HANDLE ):
         DEFINE VARIABLE hdField       AS HANDLE    NO-UNDO.
         DEFINE VARIABLE cFieldValue   AS CHARACTER NO-UNDO.
         
         IF NOT VALID-HANDLE(ipBufferHandle) THEN
             RETURN iplcRequestData.
         
-        FOR EACH ttAttribute
-            WHERE ttAttribute.attributeName NE ?:
+        FOR EACH attribute NO-LOCK
+            WHERE attribute.dbTableName   EQ ipcSourceTable 
+              AND attribute.attributeName NE ?
+              AND attribute.dbFieldName   NE "":
+            cFieldValue = "".
+            
             IF ipBufferHandle:AVAILABLE THEN DO:
-                hdField = ipBufferHandle:BUFFER-FIELD(ttAttribute.dbFieldName) NO-ERROR.
-    
+                hdField = ipBufferHandle:BUFFER-FIELD(attribute.dbFieldName) NO-ERROR.
+                    
                 IF VALID-HANDLE (hdField) THEN
-                    cFieldValue = STRING(hdField:BUFFER-VALUE(ttAttribute.dbFieldExtent)).
+                    cFieldValue = STRING(hdField:BUFFER-VALUE(attribute.dbFieldExtent)).
             END.
             
-            RUN Format_UpdateRequestData (
-                INPUT-OUTPUT iplcRequestData,
-                INPUT        ttAttribute.attributeName,
-                INPUT        cFieldValue,
-                INPUT        RequestDataType
-                ).                  
-        END.
-        
-        RETURN iplcRequestData.
-    END METHOD.
-        
-	/*------------------------------------------------------------------------------
-	 Purpose:
-	 Notes:
-	------------------------------------------------------------------------------*/
-
-	METHOD PUBLIC VOID SetSourceTable( ipcSourceTable AS CHARACTER ):
-		
-		SourceTable = ipcSourceTable.
-
-	END METHOD.
-
-
-    METHOD PUBLIC VOID UpdateDelimiter (INPUT-OUTPUT ioplcRequestData AS LONGCHAR):
-    /*------------------------------------------------------------------------------
-     Purpose: Replaces and trims the delimiters of the request data for a given data type
-     Notes:
-    ------------------------------------------------------------------------------*/
-        IF RequestDataType EQ "JSON" THEN
-            ASSIGN
-                ioplcRequestData = REPLACE(ioplcRequestData, "$comma$", ",")
-                ioplcRequestData = TRIM(ioplcRequestData, ",")
-                .
-        ELSE
-            ASSIGN
-                ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")
-                ioplcRequestData = TRIM(ioplcRequestData, "~n")
-                .
+            UpdateRequestData (INPUT-OUTPUT iplcRequestData, attribute.attributeName, cFieldValue).                  
+        END.        
                 
-        /* Replaces $page$ with Form Feed character (PAGE keyword) */
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12))
-            ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
-            .    
-    END METHOD.
+        RETURN iplcRequestData.
+    END METHOD.    
 END CLASS.

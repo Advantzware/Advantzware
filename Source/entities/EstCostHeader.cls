@@ -117,8 +117,6 @@ CLASS entities.EstCostHeader  INHERITS entities.Entity:
 		
         oEstCostForm = NEW entities.EstCostForm().
         
-        LoadAttributes ().
-
 	END METHOD.
 
 	/*------------------------------------------------------------------------------

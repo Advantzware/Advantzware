@@ -146,6 +146,7 @@ DEFINE BUFFER bf-ttboll FOR tt-boll.
 DEFINE VARIABLE v-tot-case-qty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iRelPallet     AS INTEGER NO-UNDO.
 DEFINE VARIABLE iRelCase       AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCartonsCase   AS INTEGER NO-UNDO.
 DEFINE VARIABLE dTotalWeight   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-qty    LIKE oe-boll.qty NO-UNDO.
 
@@ -484,17 +485,21 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
         IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
-        PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-            "<=8><R+1> Total Pallets   :" /*v-tot-cases*/ v-tot-palls
-            "<=8><R+2> Total Cases     :" v-tot-cases
-            .
+        
         IF ipcFormName EQ "GPI2_I" THEN
         DO: 
             v-tot-wt2 = v-tot-wt * 0.453592 .
-            PUT "<=8><R+3> Total Weight    :" "<C60>" v-tot-wt " Lbs/" "<C67>"v-tot-wt2 " Kg"  .
+            PUT "<R53><C50><#8><FROM><R+5><C+30><RECT> " 
+                "<=8><R+1> Total Pallets   : " /*v-tot-cases*/ v-tot-palls
+                "<=8><R+2> Total Cases     : " v-tot-cases
+                "<=8><R+3> Total Weight    :" v-tot-wt " Lbs" 
+                "<=8><R+4> Total Weight    :" v-tot-wt2 " Kg" .
         END.
         ELSE DO:
-            PUT "<=8><R+3> Total Weight    :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+            PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
+                "<=8><R+1> Total Pallets   : " /*v-tot-cases*/ v-tot-palls
+                "<=8><R+2> Total Cases     : " v-tot-cases
+                "<=8><R+3> Total Weight    :" v-tot-wt /*fORM ">>,>>9.99"*/ .
         END.
     
         PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
@@ -517,10 +522,15 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         
         IF ipcFormName EQ "GPI2_I" THEN
         DO:
-           v-printline = 0.
-           PAGE.
-           {oe/rep/bolcardX.i}
-           PAGE.
+           
+           FOR EACH tt-boll NO-LOCK
+            BREAK BY tt-boll.i-no:
+               v-printline = 0.
+               PAGE.
+                    {oe/rep/bolcardGPI2_I.i}
+               PAGE.
+           END.
+           
         END.
         
         v-printline = 0.

@@ -1902,11 +1902,11 @@ PROCEDURE pUpdateJobQty PRIVATE:
     ll-new-job-hdr = NOT AVAILABLE job-hdr.
 
     IF ll-new-job-hdr THEN 
-    DO:
+    DO:         
         CREATE job-hdr.
         ASSIGN 
             job-hdr.company    = cocode
-            job-hdr.loc        = locode
+            job-hdr.loc        = IF job.shipFromLocation NE "" THEN job.shipFromLocation ELSE locode
             job-hdr.e-num      = xest.e-num
             job-hdr.est-no     = xest.est-no
             job-hdr.i-no       = xeb.stock-no
