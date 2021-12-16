@@ -34,6 +34,8 @@ DEFINE VARIABLE gcScopeDefault     AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
 DEFINE VARIABLE gcAutoSetMaximum   AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cAdderLExt AS CHARACTER EXTENT 6 NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -96,6 +98,7 @@ PROCEDURE BuildVendItemCosts:
     DEFINE VARIABLE dCost           AS DECIMAL   NO-UNDO.
     DEFINE BUFFER buf-ttVendItemCost FOR ttVendItemCost.
     
+    EMPTY TEMP-TABLE ttVendItemCost.
     /*create data for primary item*/
     RUN pBuildVendItemCosts(
         INPUT  ipcCompany,
@@ -300,7 +303,6 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
                         :
-
                                 RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
                                     ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).  
                     END.
@@ -1400,8 +1402,21 @@ PROCEDURE pAddTTVendItemCost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    FIND FIRST TTVendItemCost WHERE TTVendItemCost.company        = ipbf-vendItemCost.Company
+        AND TTVendItemCost.itemID         = ipbf-vendItemCost.ItemID
+        AND TTVendItemCost.itemType       = ipbf-vendItemCost.ItemType
+        AND TTVendItemCost.vendorID       = ipbf-vendItemCost.vendorID
+        AND TTVendItemCost.customerID     = ipbf-vendItemCost.customerID
+        AND TTVendItemCost.estimateNo     = ipbf-vendItemCost.EstimateNo
+        AND TTVendItemCost.formNo         = ipbf-vendItemCost.FormNo
+        AND TTVendItemCost.blankNo        = ipbf-vendItemCost.BlankNo
+        AND TTVendItemCost.effectiveDate  = ipbf-vendItemCost.effectiveDate
+        AND TTVendItemCost.expirationDate = ipbf-vendItemCost.expirationDate NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE TTVendItemCost THEN
+    DO:
     CREATE ttVendItemCost.
     BUFFER-COPY ipbf-vendItemCost TO ttVendItemCost.
+    END.
     ASSIGN 
         ttVendItemCost.isExpired                 = ipbf-vendItemCost.expirationDate LT TODAY AND ipbf-vendItemCost.expirationDate NE ? AND ipbf-vendItemCost.expirationDate NE 01/01/0001
         ttVendItemCost.isNotEffective            = ipbf-vendItemCost.effectiveDate GT TODAY
@@ -2673,6 +2688,73 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
+PROCEDURE VendCost_GetBestVendor:
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBestCostVendorID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-ef FOR ef.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lAdderAvail AS LOGICAL NO-UNDO.
+    
+    FOR EACH bf-ef NO-LOCK
+        WHERE bf-ef.company EQ ipcCompany
+        AND bf-ef.est-no  EQ ipcEstimateNo:
+        DO iCount = 1 TO 6:
+            IF bf-ef.adder[iCount] <> "" THEN
+                ASSIGN  
+                    cAdderLExt[iCount] = bf-ef.adder[iCount]
+                    lAdderAvail        = YES.
+        END.
+    END.
+
+    IF lAdderAvail THEN
+    DO: 
+        RUN BuildVendItemCosts(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
+            ipcEstimateNo, ipiFormNo, ipiBlankNo,
+            ipdQuantity, ipcQuantityUOM, 
+            ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+            ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
+            OUTPUT TABLE ttVendItemCost,
+            OUTPUT oplError, OUTPUT opcMessage).
+            
+        FOR EACH ttVendItemCost NO-LOCK
+            WHERE ttVendItemCost.isSelected
+            AND ttVendItemCost.isValid
+            AND ttVendItemCost.costTotal GT 0
+            BY ttVendItemCost.costTotal:
+            opcBestCostVendorID  = ttVendItemCost.vendorID.
+            LEAVE.
+        END. 
+        IF opcBestCostVendorID = "" THEN
+            FOR EACH ttVendItemCost NO-LOCK
+                WHERE ttVendItemCost.isValid
+                AND ttVendItemCost.costTotal GT 0
+                BY ttVendItemCost.costTotal:
+                opcBestCostVendorID  = ttVendItemCost.vendorID.
+                LEAVE.
+            END.            
+    END.
+    
+    EMPTY TEMP-TABLE ttVendItemCost.
+END PROCEDURE.
+
 PROCEDURE VendCost_GetBestCost:
     /*------------------------------------------------------------------------------
      Purpose:  Given all inputs, determine the best cost per UOM, Setup and VendorID
@@ -2703,11 +2785,17 @@ PROCEDURE VendCost_GetBestCost:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bf-ef FOR ef.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lAdderAvail AS LOGICAL NO-UNDO.
+    
+    cAdderLExt = "".
+    
     RUN BuildVendItemCosts(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
         ipcEstimateNo, ipiFormNo, ipiBlankNo,
         ipdQuantity, ipcQuantityUOM, 
         ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-        ipdBasisWeight, ipcBasisWeightUOM, "", 
+        ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT oplError, OUTPUT opcMessage).
     /*Find "selected" vendor level first*/
@@ -2741,7 +2829,8 @@ PROCEDURE VendCost_GetBestCost:
                 opdBestCostTotal     = ttVendItemCost.costTotal
                 .
             LEAVE.
-        END.         
+        END.
+            
 END PROCEDURE.
 
 PROCEDURE VendCost_GetWorstCost:
@@ -2777,7 +2866,7 @@ PROCEDURE VendCost_GetWorstCost:
         ipcEstimateNo, ipiFormNo, ipiBlankNo,
         ipdQuantity, ipcQuantityUOM, 
         ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-        ipdBasisWeight, ipcBasisWeightUOM, "", 
+        ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT oplError, OUTPUT opcMessage).
     FOR EACH ttVendItemCost NO-LOCK

@@ -375,6 +375,8 @@ PROCEDURE build-tt-report :
     DEFINE VARIABLE cScope   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dQty     AS DECIMAL   NO-UNDO.
     
+    DEFINE VARIABLE cAdderList AS CHARACTER EXTENT 6 NO-UNDO.
+    
     cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over").
 
     FIND est WHERE RECID(est) EQ v-recid NO-LOCK NO-ERROR.
@@ -406,7 +408,7 @@ PROCEDURE build-tt-report :
                 ef.est-no,ef.form-no,0,
                 dQty, "EA", 
                 ef.gsh-len, ef.gsh-wid, ef.gsh-dep, "IN",
-                ef.weight, "LBS/MSF", "",
+                ef.weight, "LBS/MSF", cAdderList,
                 OUTPUT TABLE ttVendItemCost,
                 OUTPUT lError, OUTPUT cMessage).
             FOR EACH ttVendItemCost, 

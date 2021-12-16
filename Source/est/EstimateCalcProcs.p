@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 
 {est/ttEstCost.i}
+{system/VendorCostProcs.i}
 
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
@@ -3153,7 +3154,7 @@ PROCEDURE pProcessAdders PRIVATE:
             IF AVAILABLE bfBoard-estCostMaterial THEN 
                 bf-estCostMaterial.vendorID = bfBoard-estCostMaterial.vendorID.
             
-            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).   
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, YES).   
     
         END.
     END.
@@ -3212,7 +3213,7 @@ PROCEDURE pProcessBoardBOM PRIVATE:
     IF AVAILABLE bfBoard-estCostMaterial THEN 
         bf-estCostMaterial.vendorID = bfBoard-estCostMaterial.vendorID.
             
-    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).   
+    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).   
     
 END PROCEDURE.
 
@@ -3259,7 +3260,7 @@ PROCEDURE pProcessBoardBOMAdhesive PRIVATE:
             bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostForm.grossQtyRequiredSetupWaste * ipdAreaInSqIn / dCoverageRateInSqInPerLb
             bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostForm.grossQtyRequiredRunWaste * ipdAreaInSqIn / dCoverageRateInSqInPerLb
             .    
-    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
 
 END PROCEDURE.
 
@@ -3307,7 +3308,7 @@ PROCEDURE pProcessBoardBOMLaminate PRIVATE:
             bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostForm.grossQtyRequiredSetupWaste * dGrossSheetAreaInSqIn / dCoverageRateInSqInPerLb
             bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostForm.grossQtyRequiredRunWaste * dGrossSheetAreaInSqIn / dCoverageRateInSqInPerLb
             .    
-    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
 
 END PROCEDURE.
 
@@ -3330,7 +3331,7 @@ PROCEDURE pProcessEstMaterial PRIVATE:
     DEFINE VARIABLE iPallets AS INTEGER NO-UNDO.
     DEFINE VARIABLE iQuantityInEA AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMultiplier AS INTEGER NO-UNDO.
-    
+
     IF ipbf-estCostHeader.isUnitizedSet  THEN 
     DO:
         /*Establish unitization form (Form 1)*/
@@ -3417,10 +3418,10 @@ PROCEDURE pProcessEstMaterial PRIVATE:
                 bf-estCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
                 bf-estCostMaterial.estCostBlankID = 0
                 .
-            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm, NO).
         END. 
         ELSE     
-            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm, NO).
         
     END.
     
@@ -3668,7 +3669,7 @@ PROCEDURE pProcessSpecialMaterials PRIVATE:
                     bf-estCostMaterial.itemName       = ipbf-ef.spec-dscr[iIndex]
                     bf-estCostMaterial.quantityUOM    = "EA"
                     .
-                RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+                RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
             END.
         END.         
     END.
@@ -3767,6 +3768,8 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostMaterial FOR estCostMaterial.
     DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
     
+    DEFINE INPUT PARAMETER iplFromItemAdder AS LOGICAL NO-UNDO.
+    
     DEFINE           BUFFER bf-estCostBlank      FOR estCostBlank.
     
     DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
@@ -3781,7 +3784,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
             RUN pGetEstFarmCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial, ipbf-estCostMaterial.quantityRequiredTotal, ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
                 OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID, OUTPUT ipbf-estCostMaterial.costPerUOMDeviation).
         ELSE 
-            RUN pGetEstMaterialCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial,ipbf-estCostMaterial.quantityRequiredTotal,ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, 
+            RUN pGetEstMaterialCosts(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostMaterial,ipbf-estCostMaterial.quantityRequiredTotal,ipbf-estCostMaterial.quantityUOM, ipbf-estCostMaterial.vendorID, iplFromItemAdder,
                 OUTPUT ipbf-estCostMaterial.costPerUOM, OUTPUT ipbf-estCostMaterial.costUOM,  OUTPUT ipbf-estCostMaterial.costSetup, OUTPUT ipbf-estCostMaterial.vendorID, OUTPUT ipbf-estCostMaterial.costPerUOMDeviation).
             
     END.
@@ -4033,7 +4036,7 @@ PROCEDURE pProcessBoard PRIVATE:
                 bf-estCostMaterial.costUOM            = ipbf-estCostForm.costOverrideUOM
                 .
         
-        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).   
+        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, YES).   
     END.
     
     ASSIGN 
@@ -4067,7 +4070,7 @@ PROCEDURE pProcessFarm PRIVATE:
             bf-estCostMaterial.quantityRequiredNoWaste = ipbf-estCostBlank.quantityRequired
             .
         
-        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
     END.
     
     ASSIGN 
@@ -4119,7 +4122,7 @@ PROCEDURE pProcessGlues PRIVATE:
             .             
         IF dQtyRequiredMinDiff GT 0 THEN 
             bf-estCostMaterial.quantityRequiredMinDiff = dQtyRequiredMinDiff.
-        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+        RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
         
     END.
 
@@ -4229,7 +4232,7 @@ PROCEDURE pProcessInk PRIVATE:
     IF dQtyRequiredMinDiff GT 0 THEN 
         bf-estCostMaterial.quantityRequiredMinDiff = dQtyRequiredMinDiff.
     
-    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
 
 END PROCEDURE.
 
@@ -4259,7 +4262,7 @@ PROCEDURE pProcessLeaf PRIVATE:
         bf-estCostMaterial.basisWeight                = 144000 / ipbf-ttLeaf.dCoverageRate
         .             
 
-    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
+    RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm, NO).
 
 END PROCEDURE.
 
@@ -4492,10 +4495,10 @@ PROCEDURE pProcessPacking PRIVATE:
                 bf-estCostMaterial.estCostFormID  = bfUnitize-estCostForm.estCostFormID
                 bf-estCostMaterial.estCostBlankID = 0
                 .
-            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bfUnitize-estCostForm, NO).
         END. 
         ELSE     
-            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm, NO).
         
     END.
     RELEASE bf-estCostBlank.
@@ -4640,6 +4643,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcQtyUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcVendNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplFromItemAdders AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
@@ -4659,6 +4663,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAdderLExt          AS CHARACTER EXTENT 6 NO-UNDO.
 
     ASSIGN
         lCostFound = NO
@@ -4685,15 +4690,110 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
         END.
         ELSE 
         DO:
-            RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
-                    ipbf-estCostMaterial.itemID, "RM", 
-                    cScope, lIncludeBlankVendor, 
-                    ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
-                    ipdQty, ipcQtyUOM, 
-                    ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-                    OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
+            /*running only when called from processboard and processadders*/
+            IF iplFromItemAdders THEN 
+            DO: 
+                /*Get the vendor*/
+                RUN VendCost_GetBestVendor(ipbf-estCostMaterial.company, 
+                    ipbf-estCostMaterial.itemID, 
+                    "RM", 
+                    cScope, 
+                    lIncludeBlankVendor, 
+                    ipbf-estCostMaterial.estimateNo, 
+                    ipbf-estCostMaterial.formNo, 
+                    ipbf-estCostMaterial.blankNo,
+                    ipdQty, 
+                    ipcQtyUOM, 
+                    ipbf-estCostMaterial.dimLength, 
+                    ipbf-estCostMaterial.dimWidth, 
+                    ipbf-estCostMaterial.dimDepth, 
+                    ipbf-estCostMaterial.dimUOM, 
+                    ipbf-estCostMaterial.basisWeight, 
+                    ipbf-estCostMaterial.basisWeightUOM,
+                    OUTPUT opcVendorID,
+                    OUTPUT lError, 
+                    OUTPUT cMessage).
+                    
+                RUN BuildVendItemCosts(ipbf-estCostMaterial.company, 
+                    ipbf-estCostMaterial.itemID, 
+                    "RM", 
+                    cScope, 
+                    lIncludeBlankVendor,
+                    ipbf-estCostMaterial.estimateNo, 
+                    ipbf-estCostMaterial.formNo, 
+                    ipbf-estCostMaterial.blankNo,
+                    ipdQty, 
+                    ipcQtyUOM, 
+                    ipbf-estCostMaterial.dimLength, 
+                    ipbf-estCostMaterial.dimWidth, 
+                    ipbf-estCostMaterial.dimDepth, 
+                    ipbf-estCostMaterial.dimUOM,
+                    ipbf-estCostMaterial.basisWeight, 
+                    ipbf-estCostMaterial.basisWeightUOM, 
+                    cAdderLExt, 
+                    OUTPUT TABLE ttVendItemCost,
                     OUTPUT lError, OUTPUT cMessage).
+                    
+                    /*Get the best price from available vendors*/
+                FOR EACH ttVendItemCost NO-LOCK
+                    WHERE ttVendItemCost.VendorID = opcVendorID 
+                    AND ttVendItemCost.isSelected
+                    AND ttVendItemCost.isValid
+                    AND ttVendItemCost.costTotal GT 0
+                    BY ttVendItemCost.costTotal:
+                    ASSIGN 
+                    opdCost    = ttVendItemCost.costPerVendorUOM
+                    opdSetup     = ttVendItemCost.costSetup
+                            //opcBestCostVendorID  = ttVendItemCost.vendorID 
+                    opcCostUOM = ttVendItemCost.vendorUOM
+                    opdCostDeviation = ttVendItemCost.costDeviation
+                    dCostTotal     = ttVendItemCost.costTotal
+                        .
+                    LEAVE.
+                END. 
+                /*If no "Selected" levels, pick the best vendor*/
+                IF opdCost EQ 0  AND opdSetup EQ 0 THEN
+                    FOR EACH ttVendItemCost NO-LOCK
+                        WHERE ttVendItemCost.VendorID = opcVendorID 
+                        AND ttVendItemCost.isValid
+                        AND ttVendItemCost.costTotal GT 0
+                        BY ttVendItemCost.costTotal:
+                        ASSIGN 
+                        opdCost    = ttVendItemCost.costPerVendorUOM
+                        opdSetup     = ttVendItemCost.costSetup
+                            //opcBestCostVendorID  = ttVendItemCost.vendorID
+                        opcCostUOM = ttVendItemCost.vendorUOM
+                        opdCostDeviation = ttVendItemCost.costDeviation
+                        dCostTotal     = ttVendItemCost.costTotal
+                            .
+                        LEAVE.
+                    END.
+            END. /*if iplFromItemAdders*/
+            ELSE     
+                RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
+                        ipbf-estCostMaterial.itemID, 
+                        "RM", 
+                        cScope, 
+                        lIncludeBlankVendor, 
+                        ipbf-estCostMaterial.estimateNo, 
+                        ipbf-estCostMaterial.formNo, 
+                        ipbf-estCostMaterial.blankNo,
+                        ipdQty, 
+                        ipcQtyUOM, 
+                        ipbf-estCostMaterial.dimLength, 
+                        ipbf-estCostMaterial.dimWidth, 
+                        ipbf-estCostMaterial.dimDepth, 
+                        ipbf-estCostMaterial.dimUOM, 
+                        ipbf-estCostMaterial.basisWeight, 
+                        ipbf-estCostMaterial.basisWeightUOM,
+                        OUTPUT opdCost, 
+                        OUTPUT opcCostUOM, 
+                        OUTPUT opdSetup, 
+                        OUTPUT opcVendorID, 
+                        OUTPUT opdCostDeviation, 
+                        OUTPUT dCostTotal,
+                        OUTPUT lError, 
+                        OUTPUT cMessage).
          END.
 
         RETURN.
@@ -5110,7 +5210,7 @@ PROCEDURE pRecalcMaterials PRIVATE:
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
             AND bf-estCostMaterial.estCostFormID EQ bf-estCostForm.estCostFormID:
                     
-            RUN pCalcEstMaterial(BUFFER bf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm).
+            RUN pCalcEstMaterial(BUFFER bf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER bf-estCostForm, NO).
         END.
        // RUN pCalcCostTotals(bf-estCostForm.estCostHeaderID, bf-estCostForm.estCostFormID, YES).
     END.

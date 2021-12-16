@@ -355,7 +355,7 @@ PROCEDURE pGetVendorCostList PRIVATE:
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cAdderList          AS CHARACTER EXTENT 6 NO-UNDO.    
         
     cValidScopes = DYNAMIC-FUNCTION("VendCost_GetValidScopes","").
     cScope = ENTRY(iScopeEntry, cValidScopes).
@@ -363,7 +363,7 @@ PROCEDURE pGetVendorCostList PRIVATE:
         "",0,0,
         10000, "EA", 
         dDimLength, dDimWidth, dDimDepth, "IN",
-        dBasisWeight, "LBS/MSF", "", 
+        dBasisWeight, "LBS/MSF", cAdderList, 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT lError, OUTPUT cMessage).
     FOR EACH ttVendItemCost
