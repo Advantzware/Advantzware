@@ -67,6 +67,7 @@ DEFINE TEMP-TABLE ttTask NO-UNDO
     FIELD taskID       AS INTEGER
     FIELD lineID       AS INTEGER
     FIELD runQuantity  AS DECIMAL
+    FIELD action       AS CHARACTER
     FIELD requestData  AS CLOB
     . 
 
@@ -1623,8 +1624,9 @@ PROCEDURE pCreateTasks PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-job FOR job.
 
-    DEFINE VARIABLE lcJobMachineData AS LONGCHAR NO-UNDO.
-    
+    DEFINE VARIABLE lcJobMachineData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cAction          AS CHARACTER NO-UNDO.
+        
     DEFINE BUFFER bf-job-mch-APIOutboundDetail FOR APIOutboundDetail.
     
     FIND FIRST bf-job-mch-APIOutboundDetail NO-LOCK
@@ -1650,14 +1652,21 @@ PROCEDURE pCreateTasks PRIVATE:
             ttTask.passNo      = job-mch.pass
             ttTask.taskID      = job-mch.job-mchID
             ttTask.runQuantity = job-mch.run-qty
+            ttTask.action      = "Create"
             .
-
+        
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mch))).
+        IF cAction NE "" THEN
+            ttTask.action = cAction.
+            
         RUN pUpdateMachineDetails(
             BUFFER job-mch,
             INPUT  lcJobMachineData,
             OUTPUT lcJobMachineData
             ).
-
+        
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "JobMachineAction", ttTask.action).   
+         
         ttTask.requestData = lcJobMachineData.               
     END.
 END PROCEDURE.
@@ -1720,7 +1729,10 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
     DEFINE VARIABLE lStartedMR             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lStartedRun            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lStarted               AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cMachineCodeSchedule   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineIndustry       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineDescription    AS CHARACTER NO-UNDO.
+            
     DEFINE BUFFER bf-mach    FOR mach.
     DEFINE BUFFER bf-mch-act FOR mch-act.
     
@@ -1861,11 +1873,16 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
          WHERE bf-mach.company EQ ipbf-job-mch.company
            AND bf-mach.m-code  EQ ipbf-job-mch.m-code
          NO-ERROR.
-    IF AVAILABLE bf-mach THEN DO:
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", IF bf-mach.sch-m-code NE "" THEN bf-mach.sch-m-code ELSE cMachineCode).
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", bf-mach.industry).
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", bf-mach.m-dscr).
-    END.
+    IF AVAILABLE bf-mach THEN
+        ASSIGN
+            cMachineCodeSchedule = IF bf-mach.sch-m-code NE "" THEN bf-mach.sch-m-code ELSE cMachineCode
+            cMachineIndustry     = bf-mach.industry
+            cMachineDescription  = bf-mach.m-dscr
+            .
+            
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineCodeSchedule", cMachineCodeSchedule).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineIndustry", cMachineIndustry).
+    RUN updateRequestData(INPUT-OUTPUT lcJobMachineDataByItem, "MachineDescription", cMachineDescription).
     
     oplcConcatJobMachineDataByItem = oplcConcatJobMachineDataByItem + lcJobMachineDataByItem.         
 END PROCEDURE.   
