@@ -74,6 +74,8 @@ DEFINE BUFFER bf-shipto FOR shipto .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTotalQty      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE v-cas-cnt      AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -296,7 +298,55 @@ find first company where company.company eq cocode no-lock no-error.
             END.
         END.
 
+        IF v-print-fmt eq "ackhead 10" THEN
+        DO:
+        
+            IF AVAILABLE oe-ordl THEN 
+            DO:
+                IF oe-ordl.pr-uom EQ "L" THEN
+                    xxx = oe-ordl.price.
+                ELSE
+                    IF oe-ordl.pr-uom EQ "CS" THEN
+                    DO:
+                        find first itemfg WHERE
+                            itemfg.company EQ quoteqty.company AND
+                            itemfg.i-no eq eb.stock-no
+                            NO-LOCK NO-ERROR.
+                            
+                        IF (AVAILABLE eb AND eb.cas-no NE "") OR AVAILABLE eb THEN
+                            RUN est/getcscnt.p ((IF AVAILABLE eb AND
+                                eb.cas-no NE "" THEN ROWID(eb) ELSE ROWID(eb)),
+                                OUTPUT v-cas-cnt,OUTPUT v-blank).
+                        ELSE
+                            v-cas-cnt = 0.
 
+                        xxx = oe-ordl.qty / (IF v-cas-cnt ne 0 then v-cas-cnt else
+                            if available itemfg and itemfg.case-count ne 0 THEN
+                            itemfg.case-count ELSE 1) * oe-ordl.price.
+                    END.
+                    ELSE
+                        IF oe-ordl.pr-uom EQ "C" THEN
+                            xxx = ((oe-ordl.qty / 100) * oe-ordl.price).
+                        ELSE
+                            IF oe-ordl.pr-uom EQ "M" THEN
+                                xxx = ((oe-ordl.qty / 1000) * oe-ordl.price).
+                            ELSE
+                                xxx = (oe-ordl.qty * oe-ordl.price).
+                                
+               END.  /* IF AVAILABLE oe-ordl THEN  */
+               
+               put v-line FORM ">>>9" SPACE(3)
+                    oe-ordl.i-no  SPACE(1)             
+                    oe-ordl.i-name  
+                    "<C45>"oe-ordl.qty /*dQty*/
+                    "<C54>" oe-ordl.price  FORM "->,>>>,>>9.99<<<<" 
+                    "<C66.5>"oe-ordl.pr-uom  
+                    "<C71.5>"XXX SKIP
+                .
+           
+        END.  /*IF v-print-fmt eq "ackhead 10" THEN*/
+        ELSE DO:
+        
         put v-line FORM ">>>9" SPACE(3)
                 oe-ordl.i-no  SPACE(2)             
                 oe-ordl.i-name SPACE(2)
@@ -304,6 +354,8 @@ find first company where company.company eq cocode no-lock no-error.
                 oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(5)
                 oe-ordl.pr-uom  SKIP
             .
+         END.
+         
         v-printline = v-printline + 1.
        if v-printline ge lv-line-print then
         do:
