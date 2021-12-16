@@ -464,6 +464,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                  v-case-cnt = "".
 
           IF v-printline > 50 THEN DO:
+               RUN pPrintWireInstruction.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -716,6 +717,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                     
                          DO i = 1 TO v-tmp-lines:
                             IF v-printline > 50 THEN DO:
+                               RUN pPrintWireInstruction.
                                PAGE.
                                v-printline = 0.
                                {oe/rep/invhenry.i}
@@ -745,6 +747,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF FIRST(inv-misc.ord-no) THEN
           DO:
             IF v-printline > 50 THEN DO:
+               RUN pPrintWireInstruction.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -780,6 +783,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
              v-lines   = v-lines + 1.
           END.
           IF v-printline > 53 THEN DO:
+             RUN pPrintWireInstruction.
              PAGE.
              v-printline = 0.
              {oe/rep/invhenry.i}
@@ -793,6 +797,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintWireInstruction.
                       PAGE.
                       v-printline = 0.
                       {oe/rep/invhenry.i}
@@ -923,6 +928,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
     ASSIGN
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
+       
+    RUN pPrintWireInstruction.
     PAGE.
  
     END. /* each xinv-head */
@@ -970,6 +977,21 @@ FOR EACH notes WHERE notes.rec_key = reckey
     
     IF k > 6 THEN LEAVE.
 END.
+
+END PROCEDURE.
+
+PROCEDURE pPrintWireInstruction :
+    IF PAGE-NUM EQ 1 THEN DO:
+        PAGE.
+        
+        FILE-INFO:FILE-NAME = ".\custfiles\Images\HenryWireInstructions.pdf" .
+        
+        PUT UNFORMATTED "<R1><C1>"
+                        "<#71><R+65><C125>"
+                        "<IMAGE#71=" FILE-INFO:FULL-PATHNAME ">"
+                        .  
+    END.
+
 
 END PROCEDURE.
 
