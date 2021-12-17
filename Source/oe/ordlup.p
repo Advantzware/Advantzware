@@ -165,10 +165,12 @@ DO:
              AND bf-oe-rel.i-no = oe-ordl.i-no
              AND bf-oe-rel.LINE = oe-ordl.LINE NO-ERROR.
         
-            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
-            ASSIGN
-            job.shipFromLocation = bf-oe-rel.spare-char-1
-            job-hdr.loc          = bf-oe-rel.spare-char-1.
+            IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN DO:
+                FIND CURRENT job EXCLUSIVE NO-ERROR.
+                IF AVAILABLE job THEN
+                job.shipFromLocation = bf-oe-rel.spare-char-1.
+                job-hdr.loc          = bf-oe-rel.spare-char-1.
+            END.
 END.   /* if oe-ordl.est-no ne "" */   /*DAR*/
 
 FIND FIRST itemfg EXCLUSIVE-LOCK

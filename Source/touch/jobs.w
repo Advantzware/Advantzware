@@ -31,7 +31,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-access-close AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSort AS CHARACTER NO-UNDO INITIAL "Job".
+DEFINE VARIABLE cSort AS CHARACTER NO-UNDO INITIAL "Start".
 
 /* Check if authorized enter job */
 RUN methods/prgsecur.p
@@ -219,7 +219,7 @@ DEFINE BUTTON Btn_Button-9
      LABEL "BUTTON9" 
      SIZE 14 BY 2.38.
 
-DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted by Jobs" 
+DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted by Start" 
       VIEW-AS TEXT 
      SIZE 18.4 BY .52
      BGCOLOR 14  NO-UNDO.
@@ -1020,7 +1020,7 @@ PROCEDURE pClick :
         WHEN "Sort" THEN DO WITH FRAME {&FRAME-NAME}:
             cSort = IF cSort EQ "Job" THEN "Start" ELSE "Job".
             sortBy:SCREEN-VALUE = "Sorted by " + cSort.
-            RUN Get_jobs (cSort).
+            RUN Get_Jobs (cSort).
             {touch/localview.i}
         END.
     END CASE.

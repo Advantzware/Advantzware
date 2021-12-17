@@ -97,6 +97,8 @@ DEF VAR llAutoAddItems AS LOGICAL NO-UNDO.
 DEF VAR llCreateFromEst AS LOGICAL NO-UNDO.
 DEF VAR oeDateAuto-log AS LOG NO-UNDO.
 DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
+DEF VAR oeReleas-log AS LOG NO-UNDO.
+DEF VAR oeReleas-char AS CHAR NO-UNDO.
 
 DEFINE VARIABLE OEPOReqDate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
@@ -199,6 +201,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 OEPO#Xfer-log = LOGICAL(cRtnChar) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -206,17 +213,23 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
-
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERELEAS", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeReleas-char = cRtnChar NO-ERROR. 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1285,7 +1298,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1300,9 +1313,9 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
-        INPUT "Over Percentage"
+        INPUT "Under Percentage"
         ).
 END.
 
@@ -1750,11 +1763,11 @@ DO:
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
@@ -2110,11 +2123,11 @@ DO:
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
@@ -5609,7 +5622,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT oe-ord.rec_key,
+             INPUT STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5620,7 +5633,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -6341,18 +6354,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -6566,7 +6579,7 @@ IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
 
-  MESSAGE "Order has been Invoice, no deletion allowed..."
+  MESSAGE "This Order has been Invoiced, It cannot be deleted, but can be purged by the Administrator."
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 
@@ -7943,11 +7956,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR opRelDate AS DATE NO-UNDO.
-  DEF VAR rShipTo AS ROWID NO-UNDO.
+  DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+  DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+  DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+  DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
   DEF BUFFER bf-shipto FOR shipto.    
   DEF BUFFER bf-oe-ord FOR oe-ord.
   DEF BUFFER bf-oe-rel FOR oe-rel.
+
   opRelDate = ?.
   FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
   RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
@@ -7958,12 +7975,23 @@ FUNCTION get-colonial-rel-date RETURNS DATE
 
   /* order header due-date - dock appt days, adjusted for weekends */
   IF AVAIL bf-shipto AND AVAIL(bf-oe-ord) THEN
+     IF oeReleas-log AND oeReleas-char EQ "DueDateLessTransitDays" THEN DO:
+         RUN oe/dueDateCalc.p (
+             bf-oe-rel.cust-no,
+             bf-oe-rel.rel-date,
+             DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+             "RelDate",
+             ROWID(bf-oe-rel),
+             OUTPUT dCalcRelDate,
+             OUTPUT dCalcPromDate
+             ).    
+         opRelDate = dCalcRelDate.
+     END.
+     ELSE
      opRelDate = get-date(bf-oe-ord.due-date, bf-shipto.spare-int-2, "-").
   RETURN opRelDate.
-
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

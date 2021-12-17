@@ -38,6 +38,8 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1237,6 +1239,320 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+            
+
+&Scoped-define SELF-NAME style.use-w[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[2] V-table-Win
+ON LEAVE OF style.use-w[2] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 2, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+
+&Scoped-define SELF-NAME style.use-w[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[3] V-table-Win
+ON LEAVE OF style.use-w[3] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 3, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[4] V-table-Win
+ON LEAVE OF style.use-w[4] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 4, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[5] V-table-Win
+ON LEAVE OF style.use-w[5] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 5, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[6] V-table-Win
+ON LEAVE OF style.use-w[6] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 6, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[7] V-table-Win
+ON LEAVE OF style.use-w[7] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 7, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[8] V-table-Win
+ON LEAVE OF style.use-w[8] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 8, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[9] V-table-Win
+ON LEAVE OF style.use-w[9] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 9, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[10] V-table-Win
+ON LEAVE OF style.use-w[10] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 10, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[11]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[11] V-table-Win
+ON LEAVE OF style.use-w[11] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 11, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[12]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[12] V-table-Win
+ON LEAVE OF style.use-w[12] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 12, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-w[13]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[13] V-table-Win
+ON LEAVE OF style.use-w[13] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 13, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+
+&Scoped-define SELF-NAME style.use-l[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[2] V-table-Win
+ON LEAVE OF style.use-l[2] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 2, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+
+&Scoped-define SELF-NAME style.use-l[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[3] V-table-Win
+ON LEAVE OF style.use-l[3] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 3, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[4] V-table-Win
+ON LEAVE OF style.use-l[4] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 4, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[5] V-table-Win
+ON LEAVE OF style.use-l[5] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 5, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[6] V-table-Win
+ON LEAVE OF style.use-l[6] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 6, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[7] V-table-Win
+ON LEAVE OF style.use-l[7] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 7, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[8] V-table-Win
+ON LEAVE OF style.use-l[8] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 8, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[9] V-table-Win
+ON LEAVE OF style.use-l[9] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 9, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[10] V-table-Win
+ON LEAVE OF style.use-l[10] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 10, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[11]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[11] V-table-Win
+ON LEAVE OF style.use-w[11] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 11, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[12]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[12] V-table-Win
+ON LEAVE OF style.use-l[12] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 12, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME style.use-l[13]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[13] V-table-Win
+ON LEAVE OF style.use-l[13] IN FRAME F-Main /*  */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 13, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME
@@ -1441,6 +1757,78 @@ PROCEDURE local-update-record :
       APPLY "ENTRY":U TO style.style IN FRAME {&FRAME-NAME}.
       RETURN ERROR.  
   END.  
+  
+  RUN valid-formula ("W", style.use-w[2]:HANDLE, 2, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[3]:HANDLE, 3, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[4]:HANDLE, 4, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[5]:HANDLE, 5, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[6]:HANDLE, 6, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[7]:HANDLE, 7, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[8]:HANDLE, 8, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[9]:HANDLE, 9, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[10]:HANDLE, 10, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[11]:HANDLE, 11, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[12]:HANDLE, 12, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("W", style.use-w[13]:HANDLE, 13, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[2]:HANDLE, 2, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[3]:HANDLE, 3, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[4]:HANDLE, 4, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[5]:HANDLE, 5, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[6]:HANDLE, 6, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[7]:HANDLE, 7, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[8]:HANDLE, 8, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[9]:HANDLE, 9, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[10]:HANDLE, 10, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[11]:HANDLE, 11, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[12]:HANDLE, 12, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
+  
+  RUN valid-formula ("L", style.use-l[13]:HANDLE, 13, OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1561,6 +1949,61 @@ PROCEDURE valid-type :
               RETURN ERROR.
           END.
       END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-formula V-table-Win 
+PROCEDURE valid-formula :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ipcType AS CHARACTER NO-UNDO.
+  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  DEF INPUT PARAM ipiValue AS INTEGER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+
+    IF INTEGER(ip-focus:SCREEN-VALUE) NE 1 AND INTEGER(ip-focus:SCREEN-VALUE) NE 2 AND INTEGER(ip-focus:SCREEN-VALUE) NE 3
+    THEN DO:
+          MESSAGE " Invalid formula reference (" + STRING(ipiValue) + ")"
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ip-focus.
+          oplReturnError = YES.
+          RETURN .
+    END.
+    IF ipcType EQ "W" AND
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 1 AND style.formula[1]:SCREEN-VALUE EQ "") OR
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 2 AND style.formula[3]:SCREEN-VALUE EQ "") OR 
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 3 AND style.formula[5]:SCREEN-VALUE EQ "") THEN
+    DO:
+         MESSAGE " Formula referenced is blank (" + STRING(ip-focus:SCREEN-VALUE) + ")"
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ip-focus.
+          oplReturnError = YES.
+          RETURN .
+    END.
+    
+    IF ipcType EQ "L" AND
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 1 AND style.formula[2]:SCREEN-VALUE EQ "") OR
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 2 AND style.formula[4]:SCREEN-VALUE EQ "") OR 
+       (INTEGER(ip-focus:SCREEN-VALUE) EQ 3 AND style.formula[6]:SCREEN-VALUE EQ "") THEN
+    DO:
+         MESSAGE " Formula referenced is blank (" + STRING(ip-focus:SCREEN-VALUE) + ")"
+              VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO ip-focus.
+          oplReturnError = YES.
+          RETURN .
+    END.
+    
   END.
 
   {methods/lValidateError.i NO}

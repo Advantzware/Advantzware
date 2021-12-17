@@ -119,6 +119,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
     
     
+    cSort2 = IF cAgedBy EQ "Due" THEN "Due Date" ELSE "Invoice Date".
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
           AND company.company LE cEndCompany,

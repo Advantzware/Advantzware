@@ -67,7 +67,7 @@ FOR EACH oe-ordl NO-LOCK
     WHERE oe-ord.company EQ oe-ordl.company
     AND (oe-ord.stat EQ ipcFilterStatus OR ipcFilterStatus EQ "")
     AND oe-ord.ord-no EQ oe-ordl.ord-no      
-    :
+    BREAK BY oe-ordl.ord-no:
     
     MAIN-LOOP:
     FOR EACH bf-oe-rel EXCLUSIVE-LOCK 
@@ -134,11 +134,13 @@ FOR EACH oe-ordl NO-LOCK
        
         IF ipExecute AND ipcChangeStatus NE "" THEN
         DO:
-            FIND FIRST bf-oe-ord EXCLUSIVE-LOCK
-                WHERE ROWID(bf-oe-ord) EQ rowid(oe-ord) NO-ERROR.
-            bf-oe-ord.stat = ipcChangeStatus.
-            FIND FIRST bf-oe-ord NO-LOCK NO-ERROR.
-        
+            IF LAST-OF(oe-ordl.ord-no) THEN
+            DO:
+                FIND FIRST bf-oe-ord EXCLUSIVE-LOCK
+                    WHERE ROWID(bf-oe-ord) EQ rowid(oe-ord) NO-ERROR.
+                bf-oe-ord.stat = ipcChangeStatus.
+                FIND FIRST bf-oe-ord NO-LOCK NO-ERROR.
+            END.
             FIND FIRST bf-oe-ordl EXCLUSIVE-LOCK
                 WHERE ROWID(bf-oe-ordl) EQ rowid(oe-ordl) NO-ERROR.
             bf-oe-ordl.stat = ipcChangeStatus.
