@@ -61,6 +61,11 @@ DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE iScreenHeight AS INTEGER NO-UNDO.
+DEFINE VARIABLE iScreenWidth  AS INTEGER NO-UNDO.
+DEFINE VARIABLE iScreenTop    AS INTEGER NO-UNDO.
+DEFINE VARIABLE iScreenLeft   AS INTEGER NO-UNDO.
+
 DEFINE VARIABLE gcLocationSource      AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glCloseJob            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAutoPost            AS LOGICAL   NO-UNDO INITIAL TRUE.
@@ -146,6 +151,7 @@ FUNCTION fGetInventoryStatus RETURNS CHARACTER
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -325,7 +331,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -665,8 +671,11 @@ DO:
         OUTPUT lError,
         OUTPUT cMessage
         ). 
-    IF lError THEN
+    IF lError THEN DO:
+        SELF:SCREEN-VALUE = "".
+        
         RUN pStatusMessage (CAPS(cMessage), 3).
+    END.
     ELSE
         ASSIGN
             SELF:SCREEN-VALUE  = ""
@@ -716,6 +725,8 @@ DO:
     IF lError THEN DO:
         RUN pStatusMessage (CAPS(cMessage), 3).
         
+        SELF:SCREEN-VALUE = "".
+        
         RETURN NO-APPLY.
     END.
     
@@ -741,6 +752,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -763,6 +775,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.48 , 155.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -1266,6 +1286,7 @@ PROCEDURE pTagScan PRIVATE :
             oplError = TRUE
             opcMessage = "Invalid tag '" + ipcTag + "'"
             .
+        
         RETURN.
     END.
 
@@ -1406,35 +1427,35 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btnExitText:COL                    = dCol - 9
-            btExit:COL                         = dCol
-            btnFirst:COL                       = dCol
-            btnPrevious:COL                    = dCol
-            btnNext:COL                        = dCol
-            btnLast:COL                        = dCol
-            btnClearText:COL                   = dCol - 12
-            btClear:COL                        = dCol            
-            BROWSE {&BROWSE-NAME}:HEIGHT       = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1.62
-            BROWSE {&BROWSE-NAME}:WIDTH        = dCol - 2
-            btnSettingsText:VISIBLE             = INDEX(gcShowSettings, "Text") GT 0
-            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
-            btnSettingsText:COL                = dCol - 20
+            {&WINDOW-NAME}:Y                     = iScreenTop
+            {&WINDOW-NAME}:X                     = iScreenLeft
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = iScreenHeight
+            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = iScreenWidth
+            {&WINDOW-NAME}:HEIGHT                = {&WINDOW-NAME}:VIRTUAL-HEIGHT - 1.22 - 1 /* Subtracting status area and title bar height */
+            {&WINDOW-NAME}:WIDTH                 = {&WINDOW-NAME}:VIRTUAL-WIDTH
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT   = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH    = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT           = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH            = {&WINDOW-NAME}:WIDTH
+            statusMessage:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                                 = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                      = dCol - 9
+            btExit:COL                           = dCol
+            btnFirst:COL                         = dCol
+            btnPrevious:COL                      = dCol
+            btnNext:COL                          = dCol
+            btnLast:COL                          = dCol
+            btnClearText:COL                     = dCol - 12
+            btClear:COL                          = dCol            
+            BROWSE {&BROWSE-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1.62
+            BROWSE {&BROWSE-NAME}:WIDTH          = dCol - 2
+            btnSettingsText:VISIBLE               = INDEX(gcShowSettings, "Text") GT 0
+            btnSettingsText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                  = dCol - 20
             .
                 
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
-                    
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.            
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
