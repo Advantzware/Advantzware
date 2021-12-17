@@ -52,6 +52,22 @@ DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE codeDir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE staticDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sbUser    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hHandle   AS HANDLE    NO-UNDO.
+
+hHandle = SESSION:FIRST-PROCEDURE.
+DO WHILE VALID-HANDLE(hHandle):
+    IF (INDEX(PROGRAM-NAME(1),"sbPro")  NE 0 AND INDEX(hHandle:NAME,"sbView") NE 0) OR
+       (INDEX(PROGRAM-NAME(1),"sbView") NE 0 AND INDEX(hHandle:NAME,"sbPro")  NE 0) THEN 
+    DO:
+        MESSAGE 
+            "Another Version of Schedule Board is already open." SKIP
+            "Running multiple Schedule Board's in the same Session is Prohibited."
+        VIEW-AS ALERT-BOX WARNING.
+        DELETE OBJECT THIS-PROCEDURE.
+        RETURN.
+    END.
+    hHandle = hHandle:NEXT-SIBLING.
+END. /* do while */
 
 IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE 
 OPSYS &ENDIF = "unix" THEN DO:
