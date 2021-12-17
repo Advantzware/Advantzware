@@ -225,6 +225,9 @@ ON CHOOSE OF btMinus IN FRAME F-Main /* Minus */
 DO:
     IF iWindowHeight - iWindowsHeightChange LT iWorkingAreaHeight * 0.6 THEN
         RETURN.
+    
+    IF iWindowWidth - iWindowsWidthChange LT iWorkingAreaWidth * 0.6 THEN
+        RETURN.
         
     ASSIGN
         iWindowHeight = iWindowHeight - iWindowsHeightChange
@@ -246,7 +249,10 @@ ON CHOOSE OF btPlus IN FRAME F-Main /* Plus */
 DO:
     IF iWindowHeight + iWindowsHeightChange GT iWorkingAreaHeight THEN
         RETURN.
-        
+
+    IF iWindowWidth + iWindowsWidthChange GT iWorkingAreaWidth THEN
+        RETURN.
+                
     ASSIGN
         iWindowHeight = iWindowHeight + iWindowsHeightChange
         iWindowWidth  = iWindowWidth + iWindowsWidthChange
