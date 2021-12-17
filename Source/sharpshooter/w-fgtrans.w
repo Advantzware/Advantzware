@@ -75,6 +75,8 @@ ASSIGN
     oItemFG  = NEW fg.ItemFG()
     .
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -983,9 +985,7 @@ PROCEDURE pInit PRIVATE :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    RUN spSetSettingContext.
-    
+
     RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
     
@@ -1024,7 +1024,6 @@ PROCEDURE pInit PRIVATE :
     END. /* do while */
     cColHandList = TRIM(cColHandList, ",").
     
-    RUN pWinReSize.
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).    
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
@@ -1422,10 +1421,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT   = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH    = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT           = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH            = {&WINDOW-NAME}:WIDTH
             statusMessage:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
             dCol                                 = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                      = dCol - 9

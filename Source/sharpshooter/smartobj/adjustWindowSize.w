@@ -51,6 +51,7 @@ DEFINE VARIABLE dCharsToPixelRatioHeight AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dCharsToPixelRatioWidth  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iWindowsHeightChange     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iWindowsWidthChange      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cShowWindowControls      AS CHARACTER NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -340,12 +341,15 @@ PROCEDURE pInit PRIVATE :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN spGetSessionParam ("UserID", OUTPUT cUser).
+    RUN spGetSettingByName ("ShowWindowControls", OUTPUT cShowWindowControls).
+    
+    RUN ShowHideWindowControls(INPUT cShowWindowControls EQ "YES").
     
     DEFINE BUFFER bf-userWindow FOR userWindow.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT char-hdl).
     
     hdWindow = HANDLE(char-hdl) NO-ERROR.
@@ -454,6 +458,31 @@ PROCEDURE pUpdateScreenTopLeftPostion:
 ------------------------------------------------------------------------------*/
     RUN spGetScreenStartPosition (OUTPUT iScreenTop, OUTPUT iScreenLeft).
 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowHideWindowControls s-object
+PROCEDURE ShowHideWindowControls:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplShowHide AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+            
+    ASSIGN
+        btFullScreen:VISIBLE            = iplShowHide
+        btFullScreenWorkingArea:VISIBLE = iplShowHide
+        btMinus:VISIBLE                 = iplShowHide
+        btPlus:VISIBLE                  = iplShowHide
+        .    
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

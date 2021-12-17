@@ -75,6 +75,8 @@ ASSIGN
     oTrailer  = NEW ar.Truck()
     .
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1151,8 +1153,6 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-
-    RUN spSetSettingContext.
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
@@ -1575,10 +1575,6 @@ PROCEDURE pWinReSize :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT   = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH    = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT           = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH            = {&WINDOW-NAME}:WIDTH
             btPrintBOL:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
             btPrintBOL:COL                       = {&WINDOW-NAME}:WIDTH  - btPrintBOL:WIDTH - 1
             btnPrintBOLText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
