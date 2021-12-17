@@ -1126,7 +1126,7 @@ PROCEDURE local-delete-record :
          system.SharedConfig:Instance:SetValue(STRING(tt-job-item.tt-rowid), "Delete").
      END.
 
-     IF TEMP-TABLE tt-job-item:HAS-RECORDS THEN
+     IF CAN-FIND(FIRST tt-job-item WHERE tt-job-item.IS-SELECTED) THEN
         RUN pCallAPIOutboundTrigger (BUFFER job, BUFFER job-mch, "DeleteJobMachine").
      
      /* Delete all the shared variable, so there won't be any record leaks */

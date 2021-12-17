@@ -67,7 +67,6 @@ DEFINE TEMP-TABLE ttTask NO-UNDO
     FIELD taskID       AS INTEGER
     FIELD lineID       AS INTEGER
     FIELD runQuantity  AS DECIMAL
-    FIELD action       AS CHARACTER
     FIELD requestData  AS CLOB
     . 
 
@@ -270,6 +269,7 @@ DEFINE VARIABLE iBlankCounter                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lIsACombo                     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iLinkSeqNo                    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iAssemblyBlankCount           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cAction                       AS CHARACTER NO-UNDO.
                     
 DEFINE BUFFER bf-APIOutboundDetail        FOR APIOutboundDetail.
 DEFINE BUFFER bf-job-mat                  FOR job-mat.
@@ -909,6 +909,12 @@ PROCEDURE pCreateMaterials PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
         RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
+
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mat))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+            
+        RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "JobMaterialAction", cAction).
             
         CREATE ttMaterial.
         ASSIGN
@@ -1373,7 +1379,11 @@ PROCEDURE pCreateParts PRIVATE:
                 ).
                                 
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
-            
+
+            cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+            IF cAction EQ "" THEN
+                cAction = "Create".
+                            
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
             RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1385,7 +1395,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Quantity",cQuantity).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
-            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).           
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
             
             CREATE ttPart.
             ASSIGN
@@ -1454,7 +1465,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                        
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+                                
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1507,7 +1519,11 @@ PROCEDURE pCreateParts PRIVATE:
                 ).
                             
             lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
-            
+
+            cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+            IF cAction EQ "" THEN
+                cAction = "Create".
+                            
             RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
             RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
             RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1520,7 +1536,8 @@ PROCEDURE pCreateParts PRIVATE:
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
             RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                
+            RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+            
             CREATE ttPart.
             ASSIGN
                 ttPart.formNo      = job-hdr.frm
@@ -1591,6 +1608,10 @@ PROCEDURE pCreateParts PRIVATE:
                         
         lcJobHeaderData = bf-job-hdr-APIOutboundDetail.data.
 
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-hdr))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+                
         RUN pUpdateItemInfo(INPUT job.company, INPUT cItem, INPUT-OUTPUT lcJobHeaderData).
         RUN pUpdateCustInfo(INPUT job.company, INPUT job-hdr.cust-no, INPUT-OUTPUT lcJobHeaderData).
         RUN pGetOrderQuantity(BUFFER job-hdr, OUTPUT dOrderQty).
@@ -1603,7 +1624,8 @@ PROCEDURE pCreateParts PRIVATE:
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityOrdered",STRING(dOrderQty)).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "IsJobHeaderLocked",cLock).
         RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "QuantityReceived",STRING(dQuantityReceived)).
-                    
+        RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "JobHeaderAction", cAction).
+                            
         CREATE ttPart.
         ASSIGN
             ttPart.formNo      = job-hdr.frm
@@ -1625,7 +1647,6 @@ PROCEDURE pCreateTasks PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job FOR job.
 
     DEFINE VARIABLE lcJobMachineData AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE cAction          AS CHARACTER NO-UNDO.
         
     DEFINE BUFFER bf-job-mch-APIOutboundDetail FOR APIOutboundDetail.
     
@@ -1643,7 +1664,12 @@ PROCEDURE pCreateTasks PRIVATE:
         USE-INDEX line-idx:
         IF AVAILABLE bf-job-mch-APIOutboundDetail THEN
             lcJobMachineData = bf-job-mch-APIOutboundDetail.data.
+
         
+        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mch))).
+        IF cAction EQ "" THEN
+            cAction = "Create".
+                    
         CREATE ttTask.
         ASSIGN
             ttTask.formNo      = job-mch.frm
@@ -1652,12 +1678,7 @@ PROCEDURE pCreateTasks PRIVATE:
             ttTask.passNo      = job-mch.pass
             ttTask.taskID      = job-mch.job-mchID
             ttTask.runQuantity = job-mch.run-qty
-            ttTask.action      = "Create"
             .
-        
-        cAction = system.SharedConfig:Instance:ConsumeValue(STRING(ROWID(job-mch))).
-        IF cAction NE "" THEN
-            ttTask.action = cAction.
             
         RUN pUpdateMachineDetails(
             BUFFER job-mch,
@@ -1665,7 +1686,7 @@ PROCEDURE pCreateTasks PRIVATE:
             OUTPUT lcJobMachineData
             ).
         
-        RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "JobMachineAction", ttTask.action).   
+        RUN updateRequestData(INPUT-OUTPUT lcJobMachineData, "JobMachineAction", cAction).   
          
         ttTask.requestData = lcJobMachineData.               
     END.
