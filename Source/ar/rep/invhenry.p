@@ -594,7 +594,7 @@ ELSE lv-comp-color = "BLACK".
                             DO i = 1 TO v-tmp-lines:
                            
                                IF v-printline > 50 THEN DO:
-                                  RUN pPrintWireInstruction.
+                                  RUN pPrintImageOnBack.
                                   PAGE.
                                   v-printline = 0.
                                   {ar/rep/invhenry.i}
@@ -614,7 +614,7 @@ ELSE lv-comp-color = "BLACK".
             END.
             
             IF v-printline > 50 THEN DO:
-               RUN pPrintWireInstruction.
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {ar/rep/invhenry.i}
@@ -629,7 +629,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
-                      RUN pPrintWireInstruction.
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {ar/rep/invhenry.i}
@@ -642,7 +642,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
               IF ar-inv.bill-i[i] <> "" THEN DO:
                  IF v-printline > 50 THEN DO:
-                    RUN pPrintWireInstruction.
+                    RUN pPrintImageOnBack.
                     PAGE.
                     v-printline = 0.
                     {ar/rep/invhenry.i}
@@ -654,7 +654,7 @@ ELSE lv-comp-color = "BLACK".
         END.
 
         IF v-printline > 50 THEN DO:
-           RUN pPrintWireInstruction.
+           RUN pPrintImageOnBack.
            PAGE.
            v-printline = 0.
            {ar/rep/invhenry.i}
@@ -796,7 +796,7 @@ END.
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
 
-    RUN pPrintWireInstruction.
+    RUN pPrintImageOnBack.
     /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */
     PAGE. 
 
@@ -854,19 +854,28 @@ END.
 
 END PROCEDURE.
 
-PROCEDURE pPrintWireInstruction :
-    IF PAGE-NUM EQ 1 THEN DO:
+PROCEDURE pPrintImageOnBack :
+    
+    DEFINE VARIABLE hdOutputProcs AS HANDLE.
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
+    
+    DEFINE VARIABLE lPrintImage AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cImageName  AS CHARACTER NO-UNDO.
+    
+    RUN PrintImageOnBack IN hdOutputProcs(
+        INPUT v-print-fmt, /* Image Name => ".\custfiles\Images\<InvoiceFormat>BackImage.pdf" */
+        INPUT "first",       /* After which Page- Image will print  (First, All) */
+        OUTPUT lPrintImage,
+        OUTPUT cImageName
+        ).
+    
+    IF lPrintImage THEN
+    DO:
         PAGE.
-        
-        FILE-INFO:FILE-NAME = ".\custfiles\Images\HenryWireInstructions.pdf" .
-        
-        PUT UNFORMATTED "<R1><C1>"
-                        "<#71><R+65><C125>"
-                        "<IMAGE#71=" FILE-INFO:FULL-PATHNAME ">"
-                        .  
+        PUT UNFORMATTED "<R1><C1><#71><R+65><C125><IMAGE#71=" cImageName .
     END.
 
-
+    DELETE OBJECT hdOutputProcs.   
 END PROCEDURE.
 
 
