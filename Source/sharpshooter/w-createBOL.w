@@ -51,10 +51,6 @@ DEFINE VARIABLE cLocation    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lShowTrailerRelease AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lShowTrailerTag     AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iScreenHeight       AS INTEGER NO-UNDO.
-DEFINE VARIABLE iScreenWidth        AS INTEGER NO-UNDO.
-DEFINE VARIABLE iScreenTop          AS INTEGER NO-UNDO.
-DEFINE VARIABLE iScreenLeft         AS INTEGER NO-UNDO.
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -1106,8 +1102,6 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN spGetScreenWorkingAreaSize (OUTPUT iScreenWidth, OUTPUT iScreenHeight).
-    RUN spGetScreenStartPosition (OUTPUT iScreenTop, OUTPUT iScreenLeft).
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
@@ -1581,12 +1575,6 @@ PROCEDURE pWinReSize :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:Y                     = iScreenTop
-            {&WINDOW-NAME}:X                     = iScreenLeft
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = iScreenHeight
-            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = iScreenWidth
-            {&WINDOW-NAME}:HEIGHT                = {&WINDOW-NAME}:VIRTUAL-HEIGHT - 1.22 - 1 /* Subtracting status area and title bar height */
-            {&WINDOW-NAME}:WIDTH                 = {&WINDOW-NAME}:VIRTUAL-WIDTH
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT   = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH    = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT           = {&WINDOW-NAME}:HEIGHT

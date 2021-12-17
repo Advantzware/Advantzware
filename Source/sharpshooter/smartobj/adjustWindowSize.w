@@ -197,7 +197,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFullScreen s-object
 ON CHOOSE OF btFullScreen IN FRAME F-Main /* FullScreen */
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iFullScreenHeight, iFullScreenWidth, ?, ?)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iFullScreenHeight, iFullScreenWidth, 0,0)"}
     
     RUN pSaveWindowSize(iFullScreenHeight, iFullScreenWidth).
 END.
@@ -210,7 +210,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFullScreenWorkingArea s-object
 ON CHOOSE OF btFullScreenWorkingArea IN FRAME F-Main /* WorkingArea */
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iWorkingAreaHeight, iWorkingAreaWidth, ?, ?)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iWorkingAreaHeight, iWorkingAreaWidth, iScreenTop, iScreenLeft)"}
     
     RUN pSaveWindowSize(iWorkingAreaHeight, iWorkingAreaWidth).
 END.
