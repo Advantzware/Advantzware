@@ -210,6 +210,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFullScreenWorkingArea s-object
 ON CHOOSE OF btFullScreenWorkingArea IN FRAME F-Main /* WorkingArea */
 DO:
+    RUN pUpdateScreenTopLeftPostion.
+    
     {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iWorkingAreaHeight, iWorkingAreaWidth, iScreenTop, iScreenLeft)"}
     
     RUN pSaveWindowSize(iWorkingAreaHeight, iWorkingAreaWidth).
@@ -228,7 +230,14 @@ DO:
     
     IF iWindowWidth - iWindowsWidthChange LT iWorkingAreaWidth * 0.6 THEN
         RETURN.
-        
+    
+    /* To make sure we always decrease window size based on working area */
+    IF iWindowWidth GT iWorkingAreaWidth THEN
+        iWindowWidth = iWorkingAreaWidth.
+
+    IF iWindowHeight GT iWorkingAreaHeight THEN
+        iWindowHeight = iWorkingAreaHeight.
+            
     ASSIGN
         iWindowHeight = iWindowHeight - iWindowsHeightChange
         iWindowWidth  = iWindowWidth - iWindowsWidthChange
@@ -395,7 +404,13 @@ PROCEDURE pInit PRIVATE :
         iWindowHeight = iScreenHeight
         iWindowWidth  = iScreenWidth
         .   
+    
+    IF iScreenHeight LT iWorkingAreaHeight * 0.60 THEN
+        iScreenHeight = iWorkingAreaHeight * 0.60.
 
+    IF iScreenWidth LT iWorkingAreaWidth * 0.60 THEN
+        iScreenWidth = iWorkingAreaWidth * 0.60.
+        
     {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iScreenHeight, iScreenWidth, iScreenTop, iScreenLeft)"}
 END PROCEDURE.
 
@@ -429,6 +444,22 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateScreenTopLeftPostion s-object
+PROCEDURE pUpdateScreenTopLeftPostion:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN spGetScreenStartPosition (OUTPUT iScreenTop, OUTPUT iScreenLeft).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
