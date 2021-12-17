@@ -23,12 +23,11 @@ find first ce-ctrl
 def shared frame probe.
 DEF SHARED FRAME probe-peach.
 DEF VAR cerunc-dec AS DEC NO-UNDO.
-
-DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
-DEFINE BUFFER bf-estCostForm FOR estCostForm.
-DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+DEFINE VARIABLE dCostDirectMaterial AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dQm AS DECIMAL NO-UNDO.
 
 {cec/probe.f}
+{cec/msfcalc.i}
 
 FIND FIRST sys-ctrl WHERE
      sys-ctrl.company EQ xest.company AND
@@ -38,6 +37,7 @@ FIND FIRST sys-ctrl WHERE
 cerunc-dec = sys-ctrl.dec-fld.
 
 {sys/inc/cerun.i}
+{cec/rollfac.i}
 
 find probe where recid(probe) eq v-recid no-lock.
 
@@ -45,8 +45,7 @@ assign
  voverall = round(probe.sell-price / probe.bsf,2)
  vtot-msf = probe.gshQtyInSF / 1000 .
  dFGPricePerMsf =  round(probe.sell-price * ( probe.est-qty / 1000) / vtot-msf,2) .
- dTotalContribution = probe.sell-price - probe.boardCostPerM - probe.freight .
-
+        
 IF sys-ctrl.char-fld NE "PEACHTRE" THEN
 DO:
    IF ce-ctrl.sell-by EQ "F" THEN
@@ -102,37 +101,27 @@ DO:
 END.
 ELSE
 DO:
-   FIND FIRST bf-estCostHeader NO-LOCK 
-    WHERE bf-estCostHeader.estCostHeaderID EQ INT64(probe.spare-char-2)
-    NO-ERROR.
-    IF AVAIL bf-estCostHeader THEN
-        FIND FIRST bf-estCostForm NO-LOCK 
-            WHERE bf-estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-            AND bf-estCostForm.formNo NE 0
-            NO-ERROR.
-        IF AVAIL bf-estCostHeader THEN
-            FOR EACH bf-estCostOperation NO-LOCK 
-                    WHERE bf-estCostOperation.estCostFormID EQ bf-estCostForm.estCostFormID
-                    BY bf-estCostOperation.sequenceOfOperation:
-                    
-                    dTotalhoursSetup = dTotalhoursSetup + bf-estCostOperation.hoursSetup.
-                    dTotalhoursRun = dTotalhoursRun + bf-estCostOperation.hoursRun .
-            END.
-
-   ASSIGN dTotalHour = dTotalhoursSetup + dTotalhoursRun .
-   
-   IF dTotalHour GT 0 THEN 
-        dContPerHr =  dTotalContribution / dTotalHour.
+   FIND FIRST CostHeader EXCLUSIVE-LOCK 
+        WHERE CostHeader.company EQ probe.company
+          AND CostHeader.estimateNo EQ probe.est-no             
+          AND CostHeader.quantityMaster EQ probe.est-qty              
+        NO-ERROR.
+            
+   dQm =  probe.est-qty / 1000 * v-sqft-fac.     
+   dCostDirectMaterial = IF AVAIL CostHeader THEN probe.sell-price - ((costHeader.stdCostDirectMaterial / dQm )  + (costHeader.stdCostFreight / dQm)) ELSE probe.boardContributionTotal .     
+      
+   IF probe.manHoursTotal GT 0 THEN 
+        dContPerManHr =  dCostDirectMaterial / probe.manHoursTotal.
    ELSE 
-        dContPerHr = dTotalContribution .
+        dContPerManHr = dCostDirectMaterial .
    
    IF cerunc-dec EQ 0 THEN
       display probe.est-qty
               probe.freight
 	          probe.boardCostPerM
 	          probe.boardCostPct
-	          dTotalContribution
-              dContPerHr
+	          dCostDirectMaterial @ probe.boardContributionTotal 
+	          dContPerManHr
               probe.sell-price
               dFGPricePerMsf @ voverall
 	          probe.gsh-qty format ">>>>>9"
@@ -143,8 +132,8 @@ DO:
            probe.freight
 	       probe.boardCostPerM
 	       probe.boardCostPct
-	       dTotalContribution
-           dContPerHr
+	       dCostDirectMaterial @ probe.boardContributionTotal 
+	       dContPerManHr
            probe.sell-price
            dFGPricePerMsf @ voverall
 	       probe.gsh-qty format ">>>>>9"
