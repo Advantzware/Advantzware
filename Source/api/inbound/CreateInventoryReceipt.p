@@ -13,24 +13,25 @@
 {jc/jcgl-sh.i  NEW}
 {fg/fg-post3.i NEW}
 
-DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipdQuantity                AS DECIMAL   NO-UNDO.
-DEFINE INPUT        PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopiPONo                   AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipiPOLine                  AS INTEGER   NO-UNDO. 
-DEFINE INPUT-OUTPUT PARAMETER iopcJobID                  AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcJobID2                  AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit      AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
-DEFINE INPUT        PARAMETER ipcWarehouseID             AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcLocationID              AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcSSPostFG                AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcUsername                AS CHARACTER NO-UNDO.
-DEFINE OUTPUT       PARAMETER opriRctd                   AS ROWID     NO-UNDO.
-DEFINE OUTPUT       PARAMETER opdFinalQuantity           AS DECIMAL   NO-UNDO.
-DEFINE OUTPUT       PARAMETER oplSuccess                 AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT       PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcCompany                         AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcInventoryStockID                AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipdQuantity                        AS DECIMAL   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcQuantityUOM                     AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiPONo                           AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiPOLine                          AS INTEGER   NO-UNDO. 
+DEFINE INPUT-OUTPUT PARAMETER iopcJobID                          AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcJobID2                          AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit              AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipiQuantitySubUnitsPerUnit         AS INTEGER   NO-UNDO.
+DEFINE INPUT        PARAMETER ipcWarehouseID                     AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcLocationID                      AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER iplCreateFGCompReceiptForSetHeader AS LOGICAL NO-UNDO.
+DEFINE INPUT        PARAMETER ipcSSPostFG                        AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername                        AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER opriRctd                           AS ROWID     NO-UNDO.
+DEFINE OUTPUT       PARAMETER opdFinalQuantity                   AS DECIMAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplSuccess                         AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage                         AS CHARACTER NO-UNDO.
 
 {api\inbound\ttRctd.i}
 
@@ -780,6 +781,10 @@ PROCEDURE pFGRecordCreation PRIVATE :
         .
         
     RELEASE bf-fg-rctd.
+
+    IF AVAILABLE itemfg AND iplCreateFGCompReceiptForSetHeader AND (itemfg.alloc EQ NO OR itemfg.alloc EQ ?) THEN
+        RUN fg/comprcpt.p (opriFGRctd).
+    
 END PROCEDURE.
 
 PROCEDURE pRMRecordCreation PRIVATE :
