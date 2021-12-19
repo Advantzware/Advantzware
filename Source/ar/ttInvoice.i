@@ -66,6 +66,14 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD fob                         AS CHARACTER FORMAT "x(12)"      LABEL "FOB"
     FIELD carrier                     AS CHARACTER FORMAT "x(30)"      LABEL "Carrier"
     FIELD emailKeyValues              AS CHARACTER FORMAT "x(30)"      LABEL "Email Key Values"
+    FIELD phone                       AS CHARACTER FORMAT "X(12)"      LABEL "Phone"
+    FIELD areaCode                    AS CHARACTER FORMAT "X(3)"       LABEL "Area Code"
+    FIELD fax                         AS CHARACTER FORMAT "X(12)"      LABEL "Fax"
+    FIELD country                     AS CHARACTER FORMAT "X(12)"      LABEL "Country"
+    FIELD termsDesc                   AS CHARACTER FORMAT "X(30)"      LABEL "Terms Description"
+    FIELD frtPay                      AS CHARACTER FORMAT "X(3)"      LABEL "Freight Pay Code"
+    FIELD countryName                 AS CHARACTER FORMAT "X(30)"      LABEL "Country Name"
+    FIELD currency                    AS CHARACTER FORMAT "X(3)"       LABEL "Currency Code"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"

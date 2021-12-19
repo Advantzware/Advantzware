@@ -75,6 +75,7 @@ ASSIGN
     oTrailer  = NEW ar.Truck()
     .
 
+RUN spSetSettingContext.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -115,6 +116,7 @@ btnDeleteText statusMessage btnSettingsText btnPrintBOLText
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-releaseitems AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-releasetags AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
@@ -745,6 +747,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -767,6 +770,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 165.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -921,6 +932,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'Setting':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_adjustwindowsize , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_releasefilter ,
              h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
@@ -1091,8 +1104,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN pWinReSize.
-
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
@@ -1141,8 +1153,6 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-
-    RUN spSetSettingContext.
     
     DO WITH FRAME {&FRAME-NAME}:
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
@@ -1560,33 +1570,24 @@ PROCEDURE pWinReSize :
     DEFINE VARIABLE dRow    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dHeight AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dWidth  AS DECIMAL NO-UNDO.
-
+    
     SESSION:SET-WAIT-STATE("General").
+
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            btPrintBOL:ROW                     = {&WINDOW-NAME}:HEIGHT - 1.1
-            btPrintBOL:COL                     = {&WINDOW-NAME}:WIDTH  - btPrintBOL:WIDTH - 1
-            btnPrintBOLText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
-            btnPrintBOLText:COL                = btPrintBOL:COL - btnPrintBOLText:WIDTH - 1
-            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
-            btnDeleteText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btnExitText:COL                    = dCol - 9
-            btnClearText:COL                   = dCol - 12
-            btClear:COL                        = dCol
-            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
-            btnSettingsText:COL                = btnPrintBOLText:COL - btnSettingsText:WIDTH - 10
+            btPrintBOL:ROW                       = {&WINDOW-NAME}:HEIGHT - 1.1
+            btPrintBOL:COL                       = {&WINDOW-NAME}:WIDTH  - btPrintBOL:WIDTH - 1
+            btnPrintBOLText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnPrintBOLText:COL                  = btPrintBOL:COL - btnPrintBOLText:WIDTH - 1
+            btDelete:ROW                         = {&WINDOW-NAME}:HEIGHT - 1.1
+            btnDeleteText:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            statusMessage:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                                 = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                      = dCol - 9
+            btnClearText:COL                     = dCol - 12
+            btClear:COL                          = dCol
+            btnSettingsText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                  = btnPrintBOLText:COL - btnSettingsText:WIDTH - 10
             .
         RUN set-position IN h_exit ( 1.00 , dCol ) NO-ERROR.
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
@@ -1605,8 +1606,7 @@ PROCEDURE pWinReSize :
             dRow    = dHeight + 7.25
             dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
             .
-        RUN set-size IN h_b-releasetags ( 6 , dWidth ) NO-ERROR.
-        RUN set-position IN h_b-releasetags ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_b-releasetags ( dRow , ? ) NO-ERROR.
         RUN set-size IN h_b-releasetags ( dHeight , dWidth ) NO-ERROR.
         dRow = dRow + 1.9.
         RUN set-position IN h_navigatefirst-2 ( dRow , dCol ) NO-ERROR.
@@ -1616,6 +1616,7 @@ PROCEDURE pWinReSize :
         RUN set-position IN h_navigatenext-2 ( dRow , dCol ) NO-ERROR.
         dRow = dRow + 1.9.
         RUN set-position IN h_navigatelast-2 ( dRow , dCol ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

@@ -1,29 +1,56 @@
-    INPUT FROM VALUE({&param1}). 
-    EMPTY TEMP-TABLE tt{&param2}.
-    EMPTY TEMP-TABLE ttUnmatchedData.
-    REPEAT:     
-        CREATE tt{&param2}.
-        IMPORT tt{&param2} EXCEPT tt{&param2}.differentFields. 
-        FIND FIRST {&param2} NO-LOCK
-             WHERE {&param2}.rec_Key = tt{&param2}.rec_Key 
-             NO-ERROR.
-        IF AVAILABLE {&param2} THEN DO: 
-            BUFFER-COMPARE {&param2} TO tt{&param2} SAVE RESULT IN cCompareResult.
-            IF cCompareResult GT "" THEN 
-                ASSIGN 
-                    tt{&param2}.differentFields = cCompareResult 
-                .
-            ELSE 
-                ASSIGN
-                    tt{&param2}.differentFields = "Exact Match" 
+    IF ENTRY(NUM-ENTRIES({&param1}, "."), {&param1}, ".") EQ "json" THEN DO:
+        EMPTY TEMP-TABLE tt{&param2}.
+        EMPTY TEMP-TABLE ttUnmatchedData.
+
+        TEMP-TABLE tt{&param2}:READ-JSON("file", {&param1}).
+                
+        FOR EACH tt{&param2}:
+            FIND FIRST {&param2} NO-LOCK
+                 WHERE {&param2}.rec_Key = tt{&param2}.rec_Key 
+                 NO-ERROR.
+            IF AVAILABLE {&param2} THEN DO: 
+                BUFFER-COMPARE {&param2} TO tt{&param2} SAVE RESULT IN cCompareResult.
+                IF cCompareResult GT "" THEN 
+                    ASSIGN 
+                        tt{&param2}.differentFields = cCompareResult 
                     .
-        END.   
-        IF NOT AVAILABLE {&param2} THEN  
-            tt{&param2}.differentFields = "New Record". 
-
+                ELSE 
+                    ASSIGN
+                        tt{&param2}.differentFields = "Exact Match" 
+                        .
+            END.   
+            IF NOT AVAILABLE {&param2} THEN  
+                tt{&param2}.differentFields = "New Record". 
+        END.
     END.
-    INPUT CLOSE.
-
+    ELSE DO:
+        INPUT FROM VALUE({&param1}). 
+        EMPTY TEMP-TABLE tt{&param2}.
+        EMPTY TEMP-TABLE ttUnmatchedData.
+        REPEAT:     
+            CREATE tt{&param2}.
+            IMPORT tt{&param2} EXCEPT tt{&param2}.differentFields. 
+            FIND FIRST {&param2} NO-LOCK
+                 WHERE {&param2}.rec_Key = tt{&param2}.rec_Key 
+                 NO-ERROR.
+            IF AVAILABLE {&param2} THEN DO: 
+                BUFFER-COMPARE {&param2} TO tt{&param2} SAVE RESULT IN cCompareResult.
+                IF cCompareResult GT "" THEN 
+                    ASSIGN 
+                        tt{&param2}.differentFields = cCompareResult 
+                    .
+                ELSE 
+                    ASSIGN
+                        tt{&param2}.differentFields = "Exact Match" 
+                        .
+            END.   
+            IF NOT AVAILABLE {&param2} THEN  
+                tt{&param2}.differentFields = "New Record". 
+    
+        END.
+        INPUT CLOSE.
+    END.
+    
     FOR EACH tt{&param2} 
         WHERE tt{&param2}.DifferentFields NE "" : 
         CREATE ttUnmatchedData.
