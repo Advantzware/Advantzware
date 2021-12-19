@@ -995,6 +995,9 @@ PROCEDURE pPrepareInputsEDI PRIVATE:
     DEFINE VARIABLE cOrderLineUOM          AS CHARACTER NO-UNDO. /* PO103 */
     DEFINE VARIABLE dOrderLineUnitPrice    AS DECIMAL   NO-UNDO. /* PO104 */
     DEFINE VARIABLE cBuyerPart             AS CHARACTER NO-UNDO. /* PO107 */
+    DEFINE VARIABLE iOrderIDSACLoop2       AS INTEGER   NO-UNDO. /* SACLoop2 Order ID */
+    DEFINE VARIABLE iOrderIDSAC            AS INTEGER   NO-UNDO. /* SAC Order ID */
+    DEFINE VARIABLE cChargeCode            AS CHARACTER NO-UNDO. /* SAC02 */
     DEFINE VARIABLE iOrderIDCTT            AS INTEGER   NO-UNDO. /* CTT Order ID */
     DEFINE VARIABLE iTotalLineItems        AS INTEGER   NO-UNDO. /* CTT01 */
     
@@ -1483,6 +1486,32 @@ PROCEDURE pPrepareInputsEDI PRIVATE:
                     OUTPUT lRecFound,
                     OUTPUT cBuyerPart
                     ).                    
+                
+                /* Charge segment */
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "SACLoop2",
+                    INPUT  INTEGER(ENTRY(iPO1Loop1Count, cPO1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDSACLoop2
+                    ).
+
+                IF lRecFound THEN DO:
+                    RUN XML_GetFieldOrderByNameAndParent (
+                        INPUT  "SAC",
+                        INPUT  iOrderIDSACLoop2,
+                        OUTPUT lRecFound,
+                        OUTPUT iOrderIDSAC
+                        ).
+                    IF lRecFound THEN DO:
+                        /* Charge code */
+                        RUN XML_GetFieldValueByNameAndParent (
+                            INPUT  "SAC02",
+                            INPUT  iOrderIDSAC,
+                            OUTPUT lRecFound,
+                            OUTPUT cChargeCode
+                            ).
+                    END.       
+                END.
 
                 CREATE ttOrderLine.
                 ASSIGN
@@ -1501,6 +1530,7 @@ PROCEDURE pPrepareInputsEDI PRIVATE:
                     ttOrderLine.dueDate                 = ?
                     ttOrderLine.promiseDate             = ?
                     ttOrderLine.lineCost                = ttOrderLine.quantity * dOrderLineUnitPrice
+                    ttOrderLine.prepCode                = TRIM(cChargeCode)
                     ttOrder.totalCost                   = ttOrder.totalCost + ttOrderLine.lineCost 
                     ttOrderLine.action                  = cOrderActionCreate
                     NO-ERROR.

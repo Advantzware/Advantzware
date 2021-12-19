@@ -1634,6 +1634,16 @@ PROCEDURE ProcessOrdersFromImport:
                 ).
             IF NOT oplSuccess THEN
                 RETURN.
+            
+            IF ttOrderLine.prepCode NE "" THEN
+                RUN pCreateMiscSurcharge (
+                    INPUT  ttOrder.company,
+                    INPUT  ttOrder.orderID,
+                    INPUT  ttOrderLine.prepCode,
+                    INPUT  ttOrderLine.priority,
+                    OUTPUT lError,
+                    OUTPUT opcMessage
+                    ).  
         END.
         
         FIND FIRST bf-oe-ord NO-LOCK

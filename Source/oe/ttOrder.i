@@ -69,6 +69,8 @@ DEFINE TEMP-TABLE ttOrderLine NO-UNDO
     FIELD itemName                AS CHARACTER LABEL "ItemName"
     FIELD uom                     AS CHARACTER LABEL "Uom"
     FIELD lineCost                AS DECIMAL   LABEL "LineCost"
+    FIELD prepCode                AS CHARACTER LABEL "Prep Code"
+    FIELD priority                AS INTEGER   LABEL "Priority"
     FIELD action                  AS CHARACTER LABEL "Action"    /* Create, Update, Delete */
     INDEX orderSeqID orderSeqID
     .    
