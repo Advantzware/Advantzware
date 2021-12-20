@@ -1196,7 +1196,7 @@ PROCEDURE pPrepareInputsEDI PRIVATE:
                     INPUT  "N102",
                     INPUT  iOrderIDN1,
                     OUTPUT lRecFound,
-                    OUTPUT cEntityIdentityCode
+                    OUTPUT cShipToName
                     ).
                     
                 RUN XML_GetFieldValueByNameAndParent (
