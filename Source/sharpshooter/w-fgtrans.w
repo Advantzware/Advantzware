@@ -67,6 +67,8 @@ DEFINE VARIABLE glSSFGPost            AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
+
 ASSIGN
     oLoadTag  = NEW Inventory.LoadTag()
     oKeyboard = NEW system.Keyboard()
@@ -1005,8 +1007,12 @@ PROCEDURE pInit PRIVATE :
     RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
     glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
 
-    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).
-    RUN spGetSettingByName ("SSLocationSource", OUTPUT gcSSLocationSource).
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
+
+    RUN spGetSettingByName("CreateFGCompReceiptForSetHeader", OUTPUT gcCreateFGCompReceiptForSetHeader).
     
     RUN spGetSettingByName ("SSCloseJob", OUTPUT cSettingValue).
     glSSCloseJob = LOGICAL(cSettingValue) NO-ERROR.
@@ -1291,6 +1297,9 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
     
+    DEFINE BUFFER bf-fg-rctd       FOR fg-rctd.
+    DEFINE BUFFER bf-comp-fg-rctd  FOR fg-rctd.
+    
     DO WITH FRAME {&FRAME-NAME}:    
     END.
     
@@ -1397,7 +1406,8 @@ PROCEDURE pTagScan PRIVATE :
             INPUT        iSubUnits,  /* Sub Units */     
             INPUT        iSubUnitsPerUnit,  /* Sub Units per Unit */
             INPUT        cWarehouse,            
-            INPUT        cLocation, 
+            INPUT        cLocation,
+            INPUT        gcCreateFGCompReceiptForSetHeader EQ "YES", 
             INPUT        "no", /* Post */            
             INPUT        USERID("ASI"),
             OUTPUT       riFGRctd,
@@ -1423,6 +1433,29 @@ PROCEDURE pTagScan PRIVATE :
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             .
+        
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ riFGRctd
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            FOR EACH bf-comp-fg-rctd NO-LOCK 
+                WHERE bf-comp-fg-rctd.company    EQ bf-fg-rctd.company
+                AND bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no
+                USE-INDEX fg-rctd:
+                CREATE ttBrowseInventory.
+                ASSIGN
+                    ttBrowseInventory.company          = bf-comp-fg-rctd.company
+                    ttBrowseInventory.fgItemID         = bf-comp-fg-rctd.i-no
+                    ttBrowseInventory.tag              = bf-comp-fg-rctd.tag
+                    ttBrowseInventory.warehouse        = bf-comp-fg-rctd.loc
+                    ttBrowseInventory.location         = bf-comp-fg-rctd.loc-bin
+                    ttBrowseInventory.quantity         = bf-comp-fg-rctd.qty
+                    ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
+                    ttBrowseInventory.transactionType  = "Receipt"
+                    ttBrowseInventory.inventoryStatus  = "Created"
+                    .            
+            END.            
+        END.
     END.
     
     IF glSSFGPost THEN
