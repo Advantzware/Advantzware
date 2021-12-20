@@ -61,12 +61,11 @@ DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE gcLocationSource      AS CHARACTER NO-UNDO INITIAL "LoadTag".
-DEFINE VARIABLE glCloseJob            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glFGPost              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcSSLocationSource    AS CHARACTER NO-UNDO INITIAL "LoadTag".
+DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glSSFGPost            AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
 
@@ -114,9 +113,9 @@ RUN spSetSettingContext.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation BROWSE-1 btReset ~
-btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast btnNext ~
-btnPrevious btExit btnExitText btnClearText btnSettingsText 
+&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation btPost BROWSE-1 ~
+btReset btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast ~
+btnNext btnPrevious btExit btnExitText btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
 statusMessage btnSettingsText 
 
@@ -371,8 +370,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR BUTTON btPost IN FRAME F-Main
-   NO-ENABLE                                                            */
 ASSIGN 
        btPost:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -611,6 +608,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btPost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPost W-Win
+ON CHOOSE OF btPost IN FRAME F-Main /* POST */
+DO:
+    RUN pPost.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
 ON CHOOSE OF btReset IN FRAME F-Main /* RESET */
@@ -628,6 +636,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* LOCATION */
 DO:
+    SELF:BGCOLOR = 30.
+    fiTag:BGCOLOR = 15.
+    
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
@@ -691,6 +702,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
+    SELF:BGCOLOR = 30.
+    fiLocation:BGCOLOR = 15.
+    
     btTransfer:VISIBLE = FALSE.
 
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
@@ -858,7 +872,7 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
           btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btClear fiTag fiLocation BROWSE-1 btReset btnKeyboardlOCATION 
+  ENABLE btClear fiTag fiLocation btPost BROWSE-1 btReset btnKeyboardlOCATION 
          btnKeyboardTAG btnNumPad btnFirst btnLast btnNext btnPrevious btExit 
          btnExitText btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
@@ -989,15 +1003,24 @@ PROCEDURE pInit PRIVATE :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
+    
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
 
-    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
+    
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
-    RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).
-    glFGPost = LOGICAL(cSettingValue) NO-ERROR.
 
     RUN spGetSettingByName("CreateFGCompReceiptForSetHeader", OUTPUT gcCreateFGCompReceiptForSetHeader).
     
-    glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
+    RUN spGetSettingByName ("SSCloseJob", OUTPUT cSettingValue).
+    glSSCloseJob = LOGICAL(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).            
+    glSSFGPost = LOGICAL(cSettingValue) NO-ERROR.
+    
+    btPost:HIDDEN = glSSFGPost.
     
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
     oKeyboard:SetProcedure(THIS-PROCEDURE).
@@ -1173,8 +1196,10 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.
     END.
         
-    IF glFGPost AND NOT lLocationConfirm THEN
+    IF glSSFGPost AND NOT lLocationConfirm THEN
         RUN pPost.
+    ELSE IF lLocationConfirm THEN
+        RUN pStatusMessage ("Transfer transaction confirmed", 1).
     ELSE
         RUN pStatusMessage ("Receipt Transaction created", 1).
         
@@ -1225,7 +1250,7 @@ PROCEDURE pPost PRIVATE :
         WHERE ttBrowseInventory.inventoryStatus = "Created":
         RUN PostFinishedGoodsForFGRctd IN hdInventoryProcs (
             INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-            INPUT  glCloseJob,
+            INPUT  glSSCloseJob,
             OUTPUT lError,
             OUTPUT cMessage
             ).
@@ -1238,6 +1263,8 @@ PROCEDURE pPost PRIVATE :
             RUN pStatusMessage ("Transaction posted successfully", 1).
         END.
     END.
+
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1313,12 +1340,12 @@ PROCEDURE pTagScan PRIVATE :
         cLocation  = oLoadTag:GetValue("Location")
         .
 
-    IF gcLocationSource EQ "FGItem" THEN
+    IF gcSSLocationSource EQ "FGItem" THEN
         ASSIGN
             cWarehouse = oItemFG:GetValue("Warehouse")
             cLocation  = oItemFG:GetValue("Location")
             .
-    ELSE IF gcLocationSource EQ "UserDefault" THEN DO:
+    ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
         RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
             INPUT  cCompany,
             OUTPUT cWarehouse
@@ -1431,7 +1458,7 @@ PROCEDURE pTagScan PRIVATE :
         END.
     END.
     
-    IF glFGPost THEN
+    IF glSSFGPost THEN
         RUN pPost.
     ELSE
         RUN pStatusMessage("Receipt Transaction created", 1).
@@ -1563,4 +1590,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
