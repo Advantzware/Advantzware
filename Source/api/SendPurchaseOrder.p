@@ -1490,7 +1490,11 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                        
                     ELSE 
                         cScoreSizeDecimalCorrKraft = cScoreSizeDecimalCorrKraft + (STRING(dScoreSize16ths, "999.99")) + "16" + cScoreType.     
-                END.    
+                END. 
+                
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSize16ths" + STRING(iIndex), dScoreSize16ths).  
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSizeDecimal" + STRING(iIndex), dScoreSizeDecimal).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreType" + STRING(iIndex), cScoreType).
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
