@@ -1252,6 +1252,7 @@ END PROCEDURE.
 
 PROCEDURE locCopy:
   DEFINE BUFFER bloc FOR loc.
+  DEFINE BUFFER blocation FOR location.
 
   RUN showMsg ('loc',NO).
   IF CAN-FIND(FIRST loc WHERE loc.company EQ ipCompanyTo) THEN
@@ -1264,6 +1265,18 @@ PROCEDURE locCopy:
       ASSIGN bloc.company = ipCompanyTo.
 
     {custom\rec_key.i bloc}
+    
+    FIND FIRST location NO-LOCK WHERE 
+        location.company EQ loc.company AND 
+        location.locationCode EQ loc.loc
+        NO-ERROR.
+    IF AVAIL location THEN DO:
+        BUFFER-COPY location EXCEPT company rec_key TO blocation
+          ASSIGN blocation.company = ipCompanyTo.
+        {custom\rec_key.i blocation}
+        ASSIGN 
+            bloc.addrRecKey = blocation.rec_key.
+    END.
 
   END.
   RUN showMsg ('',YES).

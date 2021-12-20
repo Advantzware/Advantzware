@@ -130,7 +130,7 @@ overUnderPct(onHandQty) @ overUnderPct fgItemNo() @ fgItemNo
           AND job.job-no  EQ job-hdr.job-no                                                 ~
           AND job.job-no2 EQ job-hdr.job-no2                                                ~
           AND job.opened EQ YES                                                             ~
-          AND (job.loc EQ ipLocation OR ipLocation EQ "*All")                               ~
+          AND ((job.loc EQ ipLocation AND job.shipFromLocation EQ "") OR (job.shipFromLocation EQ ipLocation AND job.shipFromLocation NE "") OR ipLocation EQ "*All")                               ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK                               ~
         WHERE job-hdr.company EQ cocode                                                     ~
@@ -143,7 +143,7 @@ overUnderPct(onHandQty) @ overUnderPct fgItemNo() @ fgItemNo
           AND job.job-no  EQ job-hdr.job-no                                                 ~
           AND job.job-no2 EQ job-hdr.job-no2                                                ~
           AND job.opened EQ YES                                                             ~
-          AND (job.loc EQ ipLocation OR ipLocation EQ "*All")                               ~
+          AND ((job.loc EQ ipLocation AND job.shipFromLocation EQ "") OR (job.shipFromLocation EQ ipLocation AND job.shipFromLocation NE "") OR ipLocation EQ "*All")                               ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 job-hdr job
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 job-hdr 
@@ -392,7 +392,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK                               ~
           AND job.job-no  EQ job-hdr.job-no                                                 ~
           AND job.job-no2 EQ job-hdr.job-no2                                                ~
           AND job.opened EQ YES                                                             ~
-          AND (job.loc EQ ipLocation OR ipLocation EQ "*All")               ~{&SORTBY-PHRASE}.
+          AND ((job.loc EQ ipLocation AND job.shipFromLocation EQ "") OR (job.shipFromLocation EQ ipLocation AND job.shipFromLocation NE "") OR ipLocation EQ "*All")               ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -533,7 +533,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             AND job.job-no  EQ job-hdr.job-no 
             AND job.job-no2 EQ job-hdr.job-no2
             AND job.opened EQ YES  
-            AND (job.loc EQ ipLocation OR ipLocation EQ "*All")
+            AND ((job.loc EQ ipLocation AND job.shipFromLocation EQ "") OR (job.shipFromLocation EQ ipLocation AND job.shipFromLocation NE "") OR ipLocation EQ "*All")
             NO-LOCK .
     END.
 

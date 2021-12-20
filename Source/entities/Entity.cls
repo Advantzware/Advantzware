@@ -42,7 +42,7 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
             
         cSkipListArray[1] = "".
         
-        oAttribute = NEW system.Attribute(srcEntity:GET-SOURCE-BUFFER:NAME).
+        oAttribute = NEW system.Attribute().
         
         THIS-OBJECT:ProDataSource = hDataSourceArray.
         THIS-OBJECT:SkipList = cSkipListArray.
@@ -73,14 +73,6 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 		SUPER:ReadData(cFilter).
 		
         THIS-OBJECT:ProDataSet:GET-BUFFER-HANDLE(1):BATCH-SIZE = 0.
-	END METHOD.
-
-	/*------------------------------------------------------------------------------
-	 Purpose:
-	 Notes:
-	------------------------------------------------------------------------------*/
-	METHOD PUBLIC VOID LoadAttributes( ):
-		oAttribute:LoadAttributes().
 	END METHOD.
 
     /*------------------------------------------------------------------------------
@@ -115,7 +107,7 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
 	------------------------------------------------------------------------------*/
 
 	METHOD PUBLIC LONGCHAR ReplaceEntityAttributes( ipBufferHandle AS HANDLE ):
-		oAttribute:ReplaceAttributes(ipBufferHandle).
+		RETURN oAttribute:ReplaceAttributes(ipBufferHandle).
 	END METHOD.
 
 	/*------------------------------------------------------------------------------
@@ -178,8 +170,6 @@ CLASS entities.Entity IMPLEMENTS entities.IEntity INHERITS BusinessEntity:
             lcConcatRequestData = lcConcatRequestData + ReplaceEntityAttributes( hdBuffer ).
         END.
 
-        oAttribute:UpdateDelimiter (INPUT-OUTPUT lcConcatRequestData).
-        
         RETURN lcConcatRequestData.
         
         FINALLY:

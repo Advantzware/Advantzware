@@ -2875,7 +2875,7 @@ PROCEDURE fg-post :
                 period.pnum,
                 "A",
                 v-post-date,
-                "",
+                work-job.cDesc,
                 "FG").
 
         END. /* each work-job */
@@ -3281,7 +3281,7 @@ PROCEDURE gl-from-work :
                 period.pnum,
                 "A",
                 v-post-date,
-                "",
+                work-gl.cDesc,
                 "FG").
             ASSIGN
                 debits  = 0

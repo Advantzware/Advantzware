@@ -64,3 +64,4 @@ sman ~
 bank ~
 vendItemCost ~
 oe-relh ~
+currency ~

@@ -12,9 +12,10 @@ DEFINE VARIABLE settingDataType     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingDefaultValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingDescription  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE settingPassword     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingValidValues  AS CHARACTER NO-UNDO.
 
-INPUT FROM VALUE(SEARCH("Documentation/NK1 to Setting Type Conversion.csv")) NO-ECHO.
+INPUT FROM VALUE(SEARCH("Documentation/NK1toSetting.csv")) NO-ECHO.
 IMPORT ^. // header line
 REPEAT:
     IMPORT DELIMITER ","
@@ -27,6 +28,7 @@ REPEAT:
         settingDefaultValue
         companyContext
         settingCategoryTags
+        settingPassword
         .
     FIND FIRST settingType NO-LOCK
          WHERE settingType.settingName EQ settingName
@@ -40,79 +42,83 @@ REPEAT:
         END. // do while
         CREATE settingType.
         ASSIGN
+            settingDescription        = REPLACE(settingDescription,","," ")
             settingType.settingTypeID = iSettingTypeID
             settingType.settingName   = settingName
-            settingType.description   = settingDescription
+            settingType.description   = REPLACE(settingDescription,"|",",")
             settingType.dataType      = settingDataType
-            settingType.validValues   = settingValidValues
-            settingType.defaultValue  = settingDefaultValue
-            settingType.categoryTags  = settingCategoryTags
+            settingType.validValues   = REPLACE(settingValidValues,"|",",")
+            settingType.defaultValue  = REPLACE(settingDefaultValue,"|",",")
+            settingType.categoryTags  = REPLACE(settingCategoryTags,"|",",")
+            settingType.isPassword    = settingPassword EQ "Yes"
             .
     END. // not can-find
-    IF companyContext THEN
-    FOR EACH sys-ctrl NO-LOCK
+    FOR EACH sys-ctrl EXCLUSIVE-LOCK
         WHERE sys-ctrl.name EQ nk1Name
         :
-        CASE nk1DataType:
-            WHEN "Character" THEN
-            cSettingValue = sys-ctrl.char-fld.
-            WHEN "Date" THEN
-            cSettingValue = STRING(sys-ctrl.date-fld,"99/99/9999").
-            WHEN "Decimal" THEN
-            cSettingValue = STRING(sys-ctrl.dec-fld).
-            WHEN "Integer" THEN
-            cSettingValue = STRING(sys-ctrl.int-fld).
-            WHEN "Logical" THEN
-            cSettingValue = STRING(sys-ctrl.log-fld,"YES/NO").
-            WHEN "Description" THEN
-            cSettingValue = sys-ctrl.descrip.
-        END CASE.
-        // convert when integer and/or decimal fields used as logicals
-        IF nk1DataType NE settingDataType AND settingDataType EQ "Logical" THEN
-        cSettingValue = STRING(cSettingValue EQ "1","YES/NO").
-        // if value same as default, don't create unique setting
-        IF cSettingValue EQ settingType.defaultValue THEN NEXT.
-        FIND FIRST scope NO-LOCK
-             WHERE scope.scopeTable  EQ "Company"
-               AND scope.scopeField1 EQ sys-ctrl.company
-             NO-ERROR.
-        IF NOT AVAILABLE scope THEN DO:
-            DO WHILE TRUE:
-                iScopeID = NEXT-VALUE(scopeID_seq).
-                IF NOT CAN-FIND(FIRST scope
-                                WHERE scope.scopeID EQ iScopeID) THEN
-                LEAVE.
-            END. // do while
-            CREATE scope.
-            ASSIGN
-                scope.scopeID     = iScopeID
-                scope.scopeTable  = "Company"
-                scope.scopeField1 = sys-ctrl.company
-                .
-        END. // if not avail
-        iScopeID = scope.scopeID.
-        FIND FIRST setting EXCLUSIVE-LOCK
-             WHERE setting.settingTypeID EQ settingType.settingTypeID
-               AND setting.settingName   EQ settingType.settingName
-               AND setting.scopeID       EQ iScopeID
-             NO-ERROR.
-        IF NOT AVAILABLE setting THEN DO:
-            DO WHILE TRUE:
-                iSettingID = NEXT-VALUE(settingID_seq).
-                IF NOT CAN-FIND(FIRST setting
-                                WHERE setting.settingID EQ iSettingID) THEN
-                LEAVE.
-            END. // do while
-            CREATE setting.
-            ASSIGN
-                setting.settingTypeID = settingType.settingTypeID
-                setting.settingID     = iSettingID
-                setting.settingName   = settingType.settingName
-                setting.description   = settingType.description
-                setting.scopeID       = iScopeID
-                .
-        END. // not avail
-        setting.settingValue = cSettingValue.
+        sys-ctrl.isActive = NO.
+        IF companyContext THEN DO:
+            CASE nk1DataType:
+                WHEN "Character" THEN
+                cSettingValue = sys-ctrl.char-fld.
+                WHEN "Date" THEN
+                cSettingValue = STRING(sys-ctrl.date-fld,"99/99/9999").
+                WHEN "Decimal" THEN
+                cSettingValue = STRING(sys-ctrl.dec-fld).
+                WHEN "Integer" THEN
+                cSettingValue = STRING(sys-ctrl.int-fld).
+                WHEN "Logical" THEN
+                cSettingValue = STRING(sys-ctrl.log-fld,"YES/NO").
+                WHEN "Description" THEN
+                cSettingValue = sys-ctrl.descrip.
+            END CASE.
+            // convert when integer and/or decimal fields used as logicals
+            IF nk1DataType NE settingDataType AND settingDataType EQ "Logical" THEN
+            cSettingValue = STRING(cSettingValue EQ "1","YES/NO").
+            // if value same as default, don't create unique setting
+            IF cSettingValue EQ settingType.defaultValue THEN NEXT.
+            FIND FIRST scope NO-LOCK
+                 WHERE scope.scopeTable  EQ "Company"
+                   AND scope.scopeField1 EQ sys-ctrl.company
+                 NO-ERROR.
+            IF NOT AVAILABLE scope THEN DO:
+                DO WHILE TRUE:
+                    iScopeID = NEXT-VALUE(scopeID_seq).
+                    IF NOT CAN-FIND(FIRST scope
+                                    WHERE scope.scopeID EQ iScopeID) THEN
+                    LEAVE.
+                END. // do while
+                CREATE scope.
+                ASSIGN
+                    scope.scopeID     = iScopeID
+                    scope.scopeTable  = "Company"
+                    scope.scopeField1 = sys-ctrl.company
+                    .
+            END. // if not avail
+            iScopeID = scope.scopeID.
+            FIND FIRST setting EXCLUSIVE-LOCK
+                 WHERE setting.settingTypeID EQ settingType.settingTypeID
+                   AND setting.settingName   EQ settingType.settingName
+                   AND setting.scopeID       EQ iScopeID
+                 NO-ERROR.
+            IF NOT AVAILABLE setting THEN DO:
+                DO WHILE TRUE:
+                    iSettingID = NEXT-VALUE(settingID_seq).
+                    IF NOT CAN-FIND(FIRST setting
+                                    WHERE setting.settingID EQ iSettingID) THEN
+                    LEAVE.
+                END. // do while
+                CREATE setting.
+                ASSIGN
+                    setting.settingTypeID = settingType.settingTypeID
+                    setting.settingID     = iSettingID
+                    setting.settingName   = settingType.settingName
+                    setting.description   = settingType.description
+                    setting.scopeID       = iScopeID
+                    .
+            END. // not avail
+            setting.settingValue = cSettingValue.
+        END. // if companycontext
     END. // each sys-ctrl
 END. // repeat
 INPUT CLOSE.

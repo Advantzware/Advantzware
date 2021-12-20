@@ -23,6 +23,7 @@ DEFINE VARIABLE gcItemTypeFG       AS CHARACTER NO-UNDO INITIAL "FG".
 DEFINE VARIABLE gcItemTypeRM       AS CHARACTER NO-UNDO INITIAL "RM".
 DEFINE VARIABLE gdQuantityOffset   AS DECIMAL   NO-UNDO INITIAL 0.000001.
 DEFINE VARIABLE gdQuantityMax      AS DECIMAL   NO-UNDO INITIAL 9999999.999999.
+DEFINE VARIABLE gdLengthWidthMax   AS DECIMAL   NO-UNDO INITIAL 99999.9999.
 DEFINE VARIABLE gcScopeAll         AS CHARACTER NO-UNDO INITIAL "All".
 DEFINE VARIABLE gcScopeEffective   AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired".
 DEFINE VARIABLE gcScopeRMStandard  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Standard".
@@ -2922,6 +2923,17 @@ FUNCTION VendCost_GetUnlimitedQuantity RETURNS DECIMAL
 
     RETURN gdQuantityMax.
 		
+END FUNCTION.
+
+FUNCTION VendCost_GetUnlimitedLenWid RETURNS DECIMAL 
+    (  ):
+    /*------------------------------------------------------------------------------
+    Purpose:  Returns the constant for Unlimited Value
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN gdLengthWidthMax.
+        
 END FUNCTION.
 
 FUNCTION VendCost_GetValidScopes RETURNS CHARACTER 

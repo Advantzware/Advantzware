@@ -727,6 +727,4 @@ form header
 
   IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV:CHECKED THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.
