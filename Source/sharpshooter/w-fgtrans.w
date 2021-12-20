@@ -63,10 +63,12 @@ DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcLocationSource      AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glCloseJob            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glAutoPost            AS LOGICAL   NO-UNDO INITIAL TRUE.
+DEFINE VARIABLE glFGPost              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
 
 ASSIGN
     oLoadTag  = NEW Inventory.LoadTag()
@@ -983,11 +985,17 @@ PROCEDURE pInit PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
     RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
+    RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).
+    glFGPost = LOGICAL(cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName("CreateFGCompReceiptForSetHeader", OUTPUT gcCreateFGCompReceiptForSetHeader).
     
     glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
     
@@ -1165,7 +1173,7 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.
     END.
         
-    IF glAutoPost AND NOT lLocationConfirm THEN
+    IF glFGPost AND NOT lLocationConfirm THEN
         RUN pPost.
     ELSE
         RUN pStatusMessage ("Receipt Transaction created", 1).
@@ -1261,6 +1269,9 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd       FOR fg-rctd.
+    DEFINE BUFFER bf-comp-fg-rctd  FOR fg-rctd.
     
     DO WITH FRAME {&FRAME-NAME}:    
     END.
@@ -1368,7 +1379,8 @@ PROCEDURE pTagScan PRIVATE :
             INPUT        iSubUnits,  /* Sub Units */     
             INPUT        iSubUnitsPerUnit,  /* Sub Units per Unit */
             INPUT        cWarehouse,            
-            INPUT        cLocation, 
+            INPUT        cLocation,
+            INPUT        gcCreateFGCompReceiptForSetHeader EQ "YES", 
             INPUT        "no", /* Post */            
             INPUT        USERID("ASI"),
             OUTPUT       riFGRctd,
@@ -1394,9 +1406,32 @@ PROCEDURE pTagScan PRIVATE :
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             .
+        
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ riFGRctd
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            FOR EACH bf-comp-fg-rctd NO-LOCK 
+                WHERE bf-comp-fg-rctd.company    EQ bf-fg-rctd.company
+                AND bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no
+                USE-INDEX fg-rctd:
+                CREATE ttBrowseInventory.
+                ASSIGN
+                    ttBrowseInventory.company          = bf-comp-fg-rctd.company
+                    ttBrowseInventory.fgItemID         = bf-comp-fg-rctd.i-no
+                    ttBrowseInventory.tag              = bf-comp-fg-rctd.tag
+                    ttBrowseInventory.warehouse        = bf-comp-fg-rctd.loc
+                    ttBrowseInventory.location         = bf-comp-fg-rctd.loc-bin
+                    ttBrowseInventory.quantity         = bf-comp-fg-rctd.qty
+                    ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
+                    ttBrowseInventory.transactionType  = "Receipt"
+                    ttBrowseInventory.inventoryStatus  = "Created"
+                    .            
+            END.            
+        END.
     END.
     
-    IF glAutoPost THEN
+    IF glFGPost THEN
         RUN pPost.
     ELSE
         RUN pStatusMessage("Receipt Transaction created", 1).
