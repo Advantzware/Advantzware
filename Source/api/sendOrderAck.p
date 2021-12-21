@@ -300,6 +300,13 @@ DEFINE VARIABLE cEstPrepEqty          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstPrepLine          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscType             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscInd              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iDueOnMonth           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iDueOnDay             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iNetDays              AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dDiscPct              AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iDiscDays             AS DECIMAL   NO-UNDO. 
+DEFINE VARIABLE cTermsDesc            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError                AS LOGICAL   NO-UNDO.
    
 /* Order Address Variables */
 DEFINE VARIABLE cState                LIKE shipto.ship-state NO-UNDO.
@@ -1015,7 +1022,19 @@ ASSIGN
     cWhsRder         = STRING(oe-ord.whs-order)
     cWhsed           = STRING(oe-ord.whsed)
     cZip             = STRING(oe-ord.zip ) 
-    .       
+    .  
+    
+   RUN Credit_GetTerms (
+        INPUT  oe-ord.company,
+        INPUT  oe-ord.terms,
+        OUTPUT iDueOnMonth,
+        OUTPUT iDueOnDay,
+        OUTPUT iNetDays, 
+        OUTPUT dDiscPct,  
+        OUTPUT iDiscDays,
+        OUTPUT cTermsDesc,
+        OUTPUT lError         
+        ).
 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrnt", cAckPrnt). 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrntDate", cAckPrntDate). 
@@ -1156,7 +1175,10 @@ RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD").
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount).
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderDateYMD", cEdiOrdDate).
 
-
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermNetDays", string(iNetDays)).  
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountDays", string(iDiscDays)).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountPercent", string(dDiscPct)).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", cTermsDesc).
           
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
     
