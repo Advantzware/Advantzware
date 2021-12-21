@@ -31,19 +31,32 @@ DEFINE TEMP-TABLE ttParseVal NO-UNDO
     FIELD iStartPos  AS INTEGER
     FIELD iStrlength AS INTEGER .
   
-DEFINE VARIABLE iIncrement AS INTEGER   NO-UNDO.
-DEFINE VARIABLE ctemp      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iPsize     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iLsize     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iQsize     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iXsize     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iIncrement  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE ctemp       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iPsize      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLsize      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iQsize      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iXsize      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cPromptType AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oSetting  AS system.Setting NO-UNDO.
+DEFINE VARIABLE cVendorNo   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE oSetting    AS system.Setting NO-UNDO.
+
+RUN spGetSessionParam("Company", OUTPUT cCompany).
 
 oSetting  = NEW system.Setting().
-cParseMask = oSetting:GetByName("SSScanVendorTagMask").
-cPromptType = oSetting:GetByName("SSScanVendorTagPrompt").
 
+FIND FIRST po-ord NO-LOCK
+     WHERE po-ord.company EQ cCompany 
+       AND (po-ord.po-no EQ INT(SUBSTR(ipcTagno,1,6)) 
+        OR  po-ord.po-no EQ INT(SUBSTR(ipcTagno,1,8)))
+     NO-ERROR.
+     
+cVendorNo = IF AVAIL po-ord THEN po-ord.vend-no ELSE "".
+            
+cParseMask = oSetting:GetByNameAndVendor("SSScanVendorTagMask", cVendorNo).
+cPromptType = oSetting:GetByNameAndVendor("SSScanVendorTagPrompt", cVendorNo).
+      
 /* ********************  Preprocessor Definitions  ******************** */
 
 

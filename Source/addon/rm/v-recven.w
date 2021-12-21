@@ -493,6 +493,7 @@ DO:
    DEF VAR op-qty AS INT NO-UNDO.
    DEF VAR lv-uom-list AS cha INIT ["EA,TON,MSF,MSH,LB,LF"] NO-UNDO.
    DEF VAR lv-uom-help AS CHAR NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
       
@@ -599,6 +600,8 @@ DO:
              scr-item-name:SCREEN-VALUE = ""
              scr-uom:SCREEN-VALUE = ""
              .
+          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"srch-target",OUTPUT char-hdl).
+          RUN do-search IN WIDGET-HANDLE(char-hdl) (lv-search).   
        END.
    END.
 END.
