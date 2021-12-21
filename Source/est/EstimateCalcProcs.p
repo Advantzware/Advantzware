@@ -1821,6 +1821,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
     DEFINE BUFFER bf-estCostBlank         FOR estCostBlank.
     DEFINE BUFFER bf-estCostItem          FOR estCostItem.
     DEFINE BUFFER bf-estCostMaterial      FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostMisc          FOR estCostMisc.
     
     
     DEFINE VARIABLE dRMHandlingCost           AS DECIMAL   NO-UNDO.
@@ -1916,24 +1917,38 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
                 RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, dRMHandlingCost).
         END.
         
-        IF dFGHandlingCost NE 0 THEN 
-            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, dFGHandlingCost).
-        
-        
-        /* Calculate the Handling percentage as a percentage of all material based costs */
+        /* Calculate the Handling percentage as a percentage of all material based costs and Prep and Misc */
         FOR EACH bf-estCostMaterial NO-LOCK 
-            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID:
+            WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+              AND bf-estCostMaterial.estCostFormID   EQ bf-estCostForm.estCostFormID:
                 
                 dCostTotalMaterial = dCostTotalMaterial + bf-estCostMaterial.costTotalNoWaste.
         END.
+        
+        /* Include cost for Prep and any Material misc cost which is not Labour */
+        FOR EACH bf-estCostMisc NO-LOCK 
+            WHERE bf-estCostMisc.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
+              AND bf-estCostMisc.estCostFormID   EQ bf-estCostForm.estCostFormID:
+                
+            IF bf-estCostMisc.isPrep = YES 
+            OR (bf-estCostMisc.isPrep = NO AND bf-estCostMisc.costType = "Mat") THEN
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMisc.costTotalBeforeProfit.
+                
+        END. /*Each estCostMaterial for estHeader*/
         
         IF dApplicableHandlingPct NE 0 THEN
         DO:
             dHandlingCost = (dCostTotalMaterial * dApplicableHandlingPct).
             
             IF dHandlingCost NE 0 THEN
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Handling Charge",dApplicableHandlingPct, dHandlingCost). 
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Handling Charge",dApplicableHandlingPct, dHandlingCost). 
         END.
+        
+        
+        
+        
+        IF dFGHandlingCost NE 0 THEN 
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, dFGHandlingCost).
         
         
     END.
