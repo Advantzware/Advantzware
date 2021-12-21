@@ -1591,6 +1591,10 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ID EQ "" THEN DO:
+    DELETE OBJECT THIS-PROCEDURE.
+    RETURN.
+  END.
   INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
   IMPORT version.
   INPUT CLOSE.
