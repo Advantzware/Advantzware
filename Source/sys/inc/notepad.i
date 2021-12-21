@@ -2,18 +2,14 @@
 DEF VAR notepad-log AS LOG NO-UNDO.
 DEF VAR notepad-chr AS char NO-UNDO.
 
-find first sys-ctrl
-    where sys-ctrl.company eq gcompany
-      and sys-ctrl.name    eq "NOTEPAD"
-    no-lock no-error.
-if not avail sys-ctrl then do:
-  create sys-ctrl.
-  assign
-   sys-ctrl.company = gcompany
-   sys-ctrl.name    = "NOTEPAD"
-   sys-ctrl.descrip  = "Notepad instead of Standard Screen Output?".
-end.
+DEFINE VARIABLE gcNotepadFlag AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcNotepadValue AS CHARACTER NO-UNDO.
 
- notepad-log = sys-ctrl.log-fld.
- notepad-chr = sys-ctrl.char-fld.
- 
+RUN spGetSettingByName ("Notepad", OUTPUT gcNotepadFlag).
+ASSIGN notepad-log = LOGICAL(gcNotepadFlag) NO-ERROR.
+
+
+RUN spGetSettingByName ("NotepadValue", OUTPUT gcNotepadValue).
+ASSIGN notepad-chr = gcNotepadValue NO-ERROR.
+
+
