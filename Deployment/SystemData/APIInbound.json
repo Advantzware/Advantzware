@@ -376,5 +376,23 @@
     "apiInboundID": 21,
     "transactionCounter": 0,
     "importPath": ""
+  },
+  {
+    "rec_key": "202112214167208385088",
+    "apiRoute": "\/api\/applicationadvice",
+    "description": "This API should receive and process any of the response (EDI 824) for the invoice the application sends",
+    "requestData": "",
+    "requestDataType": "XML",
+    "requestVerb": "POST",
+    "inActive": false,
+    "createBy": "asi",
+    "requestHandler": "api\/inbound\/handlers\/ApplicationAdviceRequestHandler.p",
+    "createTime": "2021-12-21T12:27:40.488",
+    "canBeQueued": true,
+    "responseData": "",
+    "company": "001",
+    "apiInboundID": 22,
+    "transactionCounter": 0,
+    "importPath": ""
   }
 ]
