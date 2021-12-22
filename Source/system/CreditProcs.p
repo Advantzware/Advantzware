@@ -90,6 +90,7 @@ PROCEDURE Credit_GetTerms:
     DEFINE OUTPUT PARAMETER opiNetDays    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiscRate   AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opiDiscDays   AS DECIMAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcTermsDesc  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
 
    FIND FIRST terms NO-LOCK
@@ -103,6 +104,7 @@ PROCEDURE Credit_GetTerms:
        opiNetDays    = terms.net-days
        opdDiscRate   = terms.disc-rate 
        opiDiscDays   = terms.disc-days
+       opcTermsDesc  = terms.dscr
        .
    ELSE oplError = YES.
 
@@ -159,6 +161,7 @@ FUNCTION GetInvDueDate RETURNS DATE (
     DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
     DEFINE VARIABLE dDiscRate   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iDiscDays   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cTermsDesc  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lGetError   AS LOGICAL NO-UNDO.
 
     RUN Credit_GetTerms (
@@ -169,6 +172,7 @@ FUNCTION GetInvDueDate RETURNS DATE (
         OUTPUT iNetDays,
         OUTPUT dDiscRate,
         OUTPUT iDiscDays,
+        OUTPUT cTermsDesc,
         OUTPUT lGetError
         ).
     IF NOT lGetError THEN DO:

@@ -1178,10 +1178,11 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
           
     /*used for Terms procedures*/
-    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iDueOnMonth AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTermsDesc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
         
     CREATE bf-ar-inv.
     DISABLE TRIGGERS FOR LOAD OF ar-inv.
@@ -1258,7 +1259,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     RUN Credit_GetTerms(ipbf-inv-head.company,ipbf-inv-head.terms, 
         OUTPUT iDueOnMonth, OUTPUT iDueOnDay, OUTPUT iNetDays, 
         OUTPUT bf-ar-inv.disc-%, OUTPUT bf-ar-inv.disc-days,  
-        OUTPUT lError) .
+        OUTPUT cTermsDesc, OUTPUT lError) .
     IF NOT lError THEN         
         bf-ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", DATE(bf-ar-inv.inv-date), ipbf-inv-head.company, ipbf-inv-head.terms).  /*From CreditProcs*/
         

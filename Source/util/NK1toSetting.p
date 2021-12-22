@@ -75,6 +75,9 @@ REPEAT:
             // convert when integer and/or decimal fields used as logicals
             IF nk1DataType NE settingDataType AND settingDataType EQ "Logical" THEN
             cSettingValue = STRING(cSettingValue EQ "1","YES/NO").
+            // convert date & integer to datetime-tz
+            IF nk1Datatype EQ "Date" AND settingDataType EQ "DateTime-TZ" THEN
+            cSettingValue = STRING(DATETIME-TZ(sys-ctrl.date-fld, sys-ctrl.int-fld, TIMEZONE)).
             // if value same as default, don't create unique setting
             IF cSettingValue EQ settingType.defaultValue THEN NEXT.
             FIND FIRST scope NO-LOCK
