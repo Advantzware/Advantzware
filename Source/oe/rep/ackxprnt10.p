@@ -6,6 +6,7 @@
 {sys/inc/var.i shared}
 
 {oe/rep/acknowl.i}
+{custom/formtext.i NEW}
 
 def var v-salesman as char format "x(3)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
@@ -76,6 +77,9 @@ DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTotalQty      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-cas-cnt      AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
+DEF VAR lv-text        AS CHARACTER                     NO-UNDO.
+DEF VAR li             AS INTEGER                       NO-UNDO.
+DEF VAR cShiptoAddress AS CHAR FORMAT "x(80)"  EXTENT 4 NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -669,17 +673,41 @@ PROCEDURE print-rels:
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                PUT "Deliver to: " + trim(shipto.ship-name) + " " + trim(shipto.ship-addr[1]) + " " + trim(shipto.ship-addr[2]) + " " + v-addr4 FORMAT "x(150)" AT 10  SKIP .
-                v-printline = v-printline + 1.
-                if v-printline GT lv-line-print then
-                do:
-                    PAGE .
-                    {oe/rep/ackxprnt10.i}
-                    assign v-printline = 20.          
-                end.                 
-            END.
-          end.
-    END.
+                FOR EACH tt-formtext:
+                    DELETE tt-formtext.
+                END.
+                
+                ASSIGN lv-text = trim(shipto.ship-name) + " " + trim(shipto.ship-addr[1]) + " " + trim(shipto.ship-addr[2]) + " " + v-addr4 .
+                
+                DO li = 1 TO 4:
+                  CREATE tt-formtext.
+                  ASSIGN tt-line-no = li
+                         tt-length  = 65. 
+                END.
+
+                RUN custom/formtext.p (lv-text).
+                
+                ASSIGN i = 0.
+                PUT "Deliver to:" AT 10.
+                FOR EACH tt-formtext:
+                  i = i + 1.
+                  IF  i <= 4 THEN cShiptoAddress[i] = tt-formtext.tt-text.
+                  
+                  IF cShiptoAddress[i] NE "" THEN DO:
+                    PUT cShiptoAddress[i] AT 22 SKIP.
+                    v-printline = v-printline + 1.
+                    IF v-printline GT lv-line-print THEN
+                    DO:
+                        PAGE .
+                        {oe/rep/ackxprnt10.i}
+                        ASSIGN v-printline = 20.          
+                    END. /* IF v-printline GT lv-line-print */
+                  END. /* IF cShiptoAddress[i] NE "" */
+                END. /* FOR EACH tt-formtext */
+                                 
+            END. /* IF AVAIL shipto */
+          END. /* if v-shipto then */
+    END. /* DO WITH FRAME sched-rel DOWN */
 END PROCEDURE
 
 /* end ---------------------------------- copr. 2001  Advanced Software, Inc. */
