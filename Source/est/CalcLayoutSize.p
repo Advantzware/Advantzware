@@ -16,9 +16,11 @@
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
+{est/ttCalcLayoutSize.i}
 
 DEFINE INPUT PARAMETER ipriEf       AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipriEb       AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE       FOR ttLayoutSize.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -27,6 +29,8 @@ DEFINE INPUT PARAMETER ipriEb       AS ROWID NO-UNDO.
 DEFINE TEMP-TABLE formule NO-UNDO
     FIELD formule AS DECIMAL EXTENT 12
     .
+
+
 
 DEFINE VARIABLE isFoamStyle       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cIndustryType     AS CHARACTER NO-UNDO.
@@ -54,33 +58,6 @@ DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE ceroute-dec AS DECIMAL NO-UNDO. // ASk  BRAD
 
 
-DEFINE TEMP-TABLE ttLayoutDims NO-UNDO
-    FIELD dLayoutSheetLength    AS DECIMAL  // xef.lsh-len- Side to Side Layout Length
-    FIELD dLayoutSheetWidth     AS DECIMAL  // xef.lsh-wid- Front to Back Layout Width
-    FIELD dNetSheetLength       AS DECIMAL  // xef.nsh-len
-    FIELD dNetSheetWidth        AS DECIMAL  // xef.nsh-wid
-    FIELD dNetSheetDepth        AS DECIMAL  // xef.nsh-dep
-    FIELD dGrossSheetLength     AS DECIMAL  // xef.gsh-len 
-    FIELD dGrossSheetWidth      AS DECIMAL  // xef.gsh-wid
-    FIELD dGrossSheetDepth      AS DECIMAL  // xef.gsh-dep
-    FIELD dDieSizeLength        AS DECIMAL  // xef.trim-l
-    FIELD dDieSizeWidth         AS DECIMAL  // xef.trim-w
-    FIELD dDieSizeDepth         AS DECIMAL  // xef.trim-d 
-    FIELD dRollWidth            AS DECIMAL  // xef.roll-wid
-    FIELD dDieInchesRequired    AS DECIMAL  // xef.die-in - Total die inches required for the layout
-    FIELD cBoardItemCode        AS CHARACTER  // xef.i-code
-    FIELD cBoardItemBasisWeight AS DECIMAL  // xef.weight
-    FIELD dBoardItemCaliper     AS DECIMAL  // xef.cal
-    FIELD IsRollMaterial        AS LOGICAL  // xef.roll - Is this a Roll material? 
-    FIELD iNumOutWidth          AS DECIMAL  // xef.n-out - Number Out
-    FIELD iNumOutLength         AS DECIMAL  // xef.n-out-l
-    FIELD iNumOutDepth          AS DECIMAL  //  xef.n-out-d
-    FIELD iNumberCuts           AS DECIMAL  // xef.n-cuts
-    FIELD iBlankNumUp           AS DECIMAL  // xeb.num-up 
-    FIELD iBlankNumOnWidth      AS DECIMAL  // xeb.num-wid
-    FIELD iBlankNumOnLength     AS DECIMAL  // xeb.num-len
-    FIELD iBlankNumOnDepth      AS DECIMAL  // xeb.num-len
-    .
     
 
 DEFINE BUFFER bf-style   FOR style.
@@ -111,14 +88,13 @@ FIND FIRST bf-style NO-LOCK
     WHERE bf-style.company = bf-ef.company  
     AND bf-style.style = bf-eb.style NO-ERROR.
     
-IF AVAILABLE bf-style AND bf-style.type = "F" THEN isFoamStyle = YES.
 IF AVAILABLE bf-style THEN 
     ASSIGN
         cIndustryType = bf-style.industry
         isFoamStyle   = YES WHEN bf-style.type = "F".
 
 /* Create Temp-table record and populate the fields later */    
-CREATE ttLayoutDims.    
+CREATE ttLayoutSize.    
     
 IF bf-ef.m-code NE "" THEN
 DO:
@@ -132,15 +108,15 @@ DO:
         ASSIGN 
             dTrimLength                     = bf-mach.min-triml * 2
             dTrimWidth                      = bf-mach.min-trimw * 2
-            ttLayoutDims.dLayoutSheetLength = bf-mach.max-wid
-            ttLayoutDims.dLayoutSheetWidth  = bf-mach.max-len
-            ttLayoutDims.IsRollMaterial     = bf-mach.p-type = "R". 
+            ttLayoutSize.dLayoutSheetLength = bf-mach.max-wid
+            ttLayoutSize.dLayoutSheetWidth  = bf-mach.max-len
+            ttLayoutSize.IsRollMaterial     = bf-mach.p-type = "R". 
               
         IF bf-item.i-code EQ "E" THEN
             ASSIGN 
-                ttLayoutDims.dGrossSheetWidth  = ( trunc(bf-mach.max-len / bf-eb.t-len,0) * bf-eb.t-len + dTrimWidth)
-                ttLayoutDims.dGrossSheetLength = (trunc(bf-mach.max-wid / bf-eb.t-wid,0) * bf-eb.t-wid + dTrimLength )
-                ttLayoutDims.dGrossSheetDepth  = IF isFoamStyle THEN (trunc(bf-mach.max-dep / bf-eb.t-dep,0) * bf-eb.t-dep ) ELSE 0.
+                ttLayoutSize.dGrossSheetWidth  = ( trunc(bf-mach.max-len / bf-eb.t-len,0) * bf-eb.t-len + dTrimWidth)
+                ttLayoutSize.dGrossSheetLength = (trunc(bf-mach.max-wid / bf-eb.t-wid,0) * bf-eb.t-wid + dTrimLength )
+                ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (trunc(bf-mach.max-dep / bf-eb.t-dep,0) * bf-eb.t-dep ) ELSE 0.
         
     END.
 END. /* IF bf-ef.m-code NE "" THEN */
@@ -154,52 +130,52 @@ DO:
     ASSIGN 
         dTrimLength                     = bf-ce-ctrl.ls-triml * 2
         dTrimWidth                      = bf-ce-ctrl.ls-trimw * 2
-        ttLayoutDims.dLayoutSheetWidth  = bf-ce-ctrl.ls-length
-        ttLayoutDims.dLayoutSheetLength = bf-ce-ctrl.ls-width.
+        ttLayoutSize.dLayoutSheetWidth  = bf-ce-ctrl.ls-length
+        ttLayoutSize.dLayoutSheetLength = bf-ce-ctrl.ls-width.
         
 END.        
         
 IF AVAILABLE bf-item THEN
     ASSIGN
-        ttLayoutDims.dGrossSheetLength = (bf-item.s-len)
-        ttLayoutDims.dGrossSheetWidth  = (bf-item.s-wid)
-        ttLayoutDims.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
+        ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
+        ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
+        ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
 
-IF ttLayoutDims.dGrossSheetLength = 0 OR ttLayoutDims.dGrossSheetWidth = 0 THEN 
+IF ttLayoutSize.dGrossSheetLength = 0 OR ttLayoutSize.dGrossSheetWidth = 0 THEN 
     ASSIGN
-        ttLayoutDims.dGrossSheetLength = bf-eb.t-len
-        ttLayoutDims.dGrossSheetWidth  = bf-eb.t-wid.
+        ttLayoutSize.dGrossSheetLength = bf-eb.t-len
+        ttLayoutSize.dGrossSheetWidth  = bf-eb.t-wid.
 
 
 
 IF AVAILABLE bf-item THEN 
 DO:
     ASSIGN 
-        ttLayoutDims.cBoardItemCode        = bf-item.i-code
-        ttLayoutDims.cBoardItemBasisWeight = bf-item.basis-w.
+        ttLayoutSize.cBoardItemCode        = bf-item.i-code
+        ttLayoutSize.cBoardItemBasisWeight = bf-item.basis-w.
     
     IF NOT bf-ef.lsh-lock THEN 
     DO:
-        ttLayoutDims.dBoardItemCaliper   = bf-item.cal. 
+        ttLayoutSize.dBoardItemCaliper   = bf-item.cal. 
            
         IF bf-item.i-code EQ "R" THEN 
         DO:
             IF bf-item.r-wid GT 0  THEN 
                 ASSIGN 
-                    ttLayoutDims.dRollWidth         = bf-item.r-wid
-                    ttLayoutDims.dGrossSheetWidth   = bf-item.r-wid
-                    ttLayoutDims.dLayoutSheetLength = bf-item.r-wid
-                    ttLayoutDims.IsRollMaterial     = YES
+                    ttLayoutSize.dRollWidth         = bf-item.r-wid
+                    ttLayoutSize.dGrossSheetWidth   = bf-item.r-wid
+                    ttLayoutSize.dLayoutSheetLength = bf-item.r-wid
+                    ttLayoutSize.IsRollMaterial     = YES
                     .
             ELSE 
             DO:
                 ASSIGN 
-                    ttLayoutDims.dGrossSheetWidth   = bf-item.s-wid
-                    ttLayoutDims.dGrossSheetLength  = bf-item.s-len
-                    ttLayoutDims.dLayoutSheetLength = bf-item.s-len
-                    ttLayoutDims.dLayoutSheetWidth  = bf-item.s-wid
-                    ttLayoutDims.IsRollMaterial     = NO
-                    ttLayoutDims.dRollWidth         = 0
+                    ttLayoutSize.dGrossSheetWidth   = bf-item.s-wid
+                    ttLayoutSize.dGrossSheetLength  = bf-item.s-len
+                    ttLayoutSize.dLayoutSheetLength = bf-item.s-len
+                    ttLayoutSize.dLayoutSheetWidth  = bf-item.s-wid
+                    ttLayoutSize.IsRollMaterial     = NO
+                    ttLayoutSize.dRollWidth         = 0
                     .
             END.
        
@@ -208,25 +184,25 @@ DO:
         ELSE 
         DO:
             ASSIGN 
-                ttLayoutDims.dGrossSheetWidth  = ttLayoutDims.dLayoutSheetWidth
-                ttLayoutDims.dGrossSheetLength = ttLayoutDims.dLayoutSheetLength
-                ttLayoutDims.dNetSheetLength   = ttLayoutDims.dGrossSheetLength
-                ttLayoutDims.dNetSheetWidth    = ttLayoutDims.dGrossSheetWidth
-                ttLayoutDims.dRollWidth        = ttLayoutDims.dGrossSheetWidth.
+                ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dLayoutSheetWidth
+                ttLayoutSize.dGrossSheetLength = ttLayoutSize.dLayoutSheetLength
+                ttLayoutSize.dNetSheetLength   = ttLayoutSize.dGrossSheetLength
+                ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dGrossSheetWidth
+                ttLayoutSize.dRollWidth        = ttLayoutSize.dGrossSheetWidth.
             
         END.   /* bf-item.i-code = "E" */
     END. /* IF NOT bf-ef.lsh-lock THEN */
 END. /* IF AVAIL bf-item THEN */
 
 ASSIGN
-    ttLayoutDims.iNumOutWidth  = MAX(ttLayoutDims.iNumOutWidth,1)
-    ttLayoutDims.iNumOutLength = MAX(ttLayoutDims.iNumOutLength,1)
-    ttLayoutDims.iNumOutDepth  = MAX(ttLayoutDims.iNumOutDepth,1)
-    ttLayoutDims.iNumberCuts   = (ttLayoutDims.iNumOutWidth - 1) + (ttLayoutDims.iNumOutLength - 1) + (ttLayoutDims.iNumOutDepth - 1).
+    ttLayoutSize.iNumOutWidth  = MAX(ttLayoutSize.iNumOutWidth,1)
+    ttLayoutSize.iNumOutLength = MAX(ttLayoutSize.iNumOutLength,1)
+    ttLayoutSize.iNumOutDepth  = MAX(ttLayoutSize.iNumOutDepth,1)
+    ttLayoutSize.iNumberCuts   = (ttLayoutSize.iNumOutWidth - 1) + (ttLayoutSize.iNumOutLength - 1) + (ttLayoutSize.iNumOutDepth - 1).
   
 ASSIGN 
-    dTempLength = ttLayoutDims.dGrossSheetLength / ttLayoutDims.iNumOutWidth
-    dTempWidth  = ttLayoutDims.dGrossSheetWidth / ttLayoutDims.iNumOutLength.
+    dTempLength = ttLayoutSize.dGrossSheetLength / ttLayoutSize.iNumOutWidth
+    dTempWidth  = ttLayoutSize.dGrossSheetWidth / ttLayoutSize.iNumOutLength.
   
 IF avail(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "N" AND AVAILABLE bf-mach THEN
     ASSIGN
@@ -285,8 +261,8 @@ DO:
     ASSIGN
         iCalcNumOnWidth            = 1
         iCalcNumOnLength           = 1
-        ttLayoutDims.iNumOutWidth  = 1
-        ttLayoutDims.iNumOutLength = 1.
+        ttLayoutSize.iNumOutWidth  = 1
+        ttLayoutSize.iNumOutLength = 1.
       
     IF bf-ef.xgrain EQ "B" THEN
         ASSIGN
@@ -336,132 +312,134 @@ DO:
     IF bf-ef.xgrain = "B" THEN 
     DO:
         ASSIGN 
-            ttLayoutDims.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutDims.iBlankNumOnLength = iCalcNumOnLength.
+            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
+            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.
             
-        IF bf-eb.t-len * ttLayoutDims.iBlankNumOnLength GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-len * ttLayoutDims.iBlankNumOnLength.
-        IF bf-eb.t-wid * ttLayoutDims.iBlankNumOnWidth GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-wid * ttLayoutDims.iBlankNumOnWidth.  
+        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+            dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
+        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+            dCalcTotalLength = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.  
     END.
     ELSE 
     DO:
         ASSIGN 
-            ttLayoutDims.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutDims.iBlankNumOnLength = iCalcNumOnLength.   
+            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
+            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
                
-        IF bf-eb.t-len * ttLayoutDims.iBlankNumOnWidth GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-len * ttLayoutDims.iBlankNumOnWidth.
-        IF bf-eb.t-wid * ttLayoutDims.iBlankNumOnLength GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-wid * ttLayoutDims.iBlankNumOnLength.
+        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
+        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
     END.  
 END.
 
 ASSIGN 
-    ttLayoutDims.iBlankNumUp        = ttLayoutDims.iBlankNumOnWidth * ttLayoutDims.iBlankNumOnLength
-    ttLayoutDims.dDieInchesRequired = formule.formule[12] * ttLayoutDims.iBlankNumUp  .
+    ttLayoutSize.iBlankNumUp        = ttLayoutSize.iBlankNumOnWidth * ttLayoutSize.iBlankNumOnLength
+    ttLayoutSize.dDieInchesRequired = formule.formule[12] * ttLayoutSize.iBlankNumUp  .
 
 ASSIGN   
-    ttLayoutDims.dNetSheetWidth  = dCalcTotalWidth + dTrimWidth
-    ttLayoutDims.dNetSheetLength = dCalcTotalLength + dTrimLength 
-    ttLayoutDims.dDieSizeWidth   = dCalcTotalWidth
-    ttLayoutDims.dDieSizeLength  = dCalcTotalLength.
-
-IF ttLayoutDims.dLayoutSheetWidth LT ttLayoutDims.dNetSheetWidth THEN 
-    ttLayoutDims.dLayoutSheetWidth = ttLayoutDims.dNetSheetWidth.
+    ttLayoutSize.dNetSheetWidth  = dCalcTotalWidth + dTrimWidth
+    ttLayoutSize.dNetSheetLength = dCalcTotalLength + dTrimLength 
+    ttLayoutSize.dDieSizeWidth   = dCalcTotalWidth
+    ttLayoutSize.dDieSizeLength  = dCalcTotalLength.
     
-IF ttLayoutDims.dLayoutSheetLength LT ttLayoutDims.dNetSheetLength THEN 
-    ttLayoutDims.dLayoutSheetLength = ttLayoutDims.dNetSheetLength.
+
+IF ttLayoutSize.dLayoutSheetWidth LT ttLayoutSize.dNetSheetWidth THEN 
+    ttLayoutSize.dLayoutSheetWidth = ttLayoutSize.dNetSheetWidth.
+    
+IF ttLayoutSize.dLayoutSheetLength LT ttLayoutSize.dNetSheetLength THEN 
+    ttLayoutSize.dLayoutSheetLength = ttLayoutSize.dNetSheetLength.
 
 
 IF INDEX("B",bf-ef.xgrain) EQ 0 AND bf-item.i-code NE "R"  THEN 
 DO:
 
-    IF ttLayoutDims.dGrossSheetWidth LT ttLayoutDims.dNetSheetWidth THEN 
-        ttLayoutDims.dGrossSheetWidth = ttLayoutDims.dNetSheetWidth.
-    IF ttLayoutDims.dGrossSheetLength LT ttLayoutDims.dNetSheetLength THEN 
-        ttLayoutDims.dGrossSheetLength = ttLayoutDims.dNetSheetLength.
+    IF ttLayoutSize.dGrossSheetWidth LT ttLayoutSize.dNetSheetWidth THEN 
+        ttLayoutSize.dGrossSheetWidth = ttLayoutSize.dNetSheetWidth.
+    IF ttLayoutSize.dGrossSheetLength LT ttLayoutSize.dNetSheetLength THEN 
+        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dNetSheetLength.
 END.
 
 IF bf-item.i-code EQ "E" THEN 
 DO:
     IF AVAILABLE bf-mach AND bf-mach.dept[1] EQ "RC" THEN
         ASSIGN  
-            ttLayoutDims.dNetSheetWidth  = ttLayoutDims.dNetSheetWidth - dTrimWidth
-            ttLayoutDims.dNetSheetLength = ttLayoutDims.dNetSheetLength - dTrimLength.
+            ttLayoutSize.dNetSheetWidth  = ttLayoutSize.dNetSheetWidth - dTrimWidth
+            ttLayoutSize.dNetSheetLength = ttLayoutSize.dNetSheetLength - dTrimLength.
 
 
     IF ceroute-dec NE 1 THEN        
         ASSIGN 
-            ttLayoutDims.iNumOutWidth  = TRUNCATE(ttLayoutDims.dLayoutSheetWidth / ttLayoutDims.dNetSheetWidth,0)
-            ttLayoutDims.iNumOutLength = TRUNCATE(ttLayoutDims.dLayoutSheetLength / ttLayoutDims.dNetSheetLength,0).
+            ttLayoutSize.iNumOutWidth  = TRUNCATE(ttLayoutSize.dLayoutSheetWidth / ttLayoutSize.dNetSheetWidth,0)
+            ttLayoutSize.iNumOutLength = TRUNCATE(ttLayoutSize.dLayoutSheetLength / ttLayoutSize.dNetSheetLength,0).
 
     ASSIGN 
-        ttLayoutDims.iNumOutDepth   = 1
-        ttLayoutDims.dNetSheetDepth = bf-eb.t-dep
-        ttLayoutDims.dDieSizeDepth  = bf-eb.t-dep.
+        ttLayoutSize.iNumOutDepth   = 1
+        ttLayoutSize.dNetSheetDepth = bf-eb.t-dep
+        ttLayoutSize.dDieSizeDepth  = bf-eb.t-dep.
 END.
 
 /* Check machine limits */
 IF AVAILABLE bf-mach THEN 
 DO:
-    IF ttLayoutDims.iNumOutWidth  GT bf-mach.num-wid AND bf-mach.num-wid NE 0 THEN
-        ttLayoutDims.iNumOutWidth  = bf-mach.num-wid.
-    IF ttLayoutDims.iNumOutLength GT bf-mach.num-len AND bf-mach.num-len NE 0 THEN
-        ttLayoutDims.iNumOutLength = bf-mach.num-len.
+    IF ttLayoutSize.iNumOutWidth  GT bf-mach.num-wid AND bf-mach.num-wid NE 0 THEN
+        ttLayoutSize.iNumOutWidth  = bf-mach.num-wid.
+    IF ttLayoutSize.iNumOutLength GT bf-mach.num-len AND bf-mach.num-len NE 0 THEN
+        ttLayoutSize.iNumOutLength = bf-mach.num-len.
 END.
 
 IF bf-item.i-code EQ "E" THEN 
 DO:
     ASSIGN 
-        ttLayoutDims.iBlankNumOnDepth  = 1
-        ttLayoutDims.dGrossSheetWidth  = (ttLayoutDims.iNumOutWidth  * ttLayoutDims.dNetSheetWidth)
-        ttLayoutDims.dGrossSheetLength = (ttLayoutDims.iNumOutLength * ttLayoutDims.dNetSheetLength)
-        ttLayoutDims.dGrossSheetDepth  = (ttLayoutDims.iNumOutDepth * ttLayoutDims.dNetSheetDepth)
+        ttLayoutSize.iBlankNumOnDepth  = 1
+        ttLayoutSize.dGrossSheetWidth  = (ttLayoutSize.iNumOutWidth  * ttLayoutSize.dNetSheetWidth)
+        ttLayoutSize.dGrossSheetLength = (ttLayoutSize.iNumOutLength * ttLayoutSize.dNetSheetLength)
+        ttLayoutSize.dGrossSheetDepth  = (ttLayoutSize.iNumOutDepth * ttLayoutSize.dNetSheetDepth)
         .
         
+            
     IF AVAILABLE bf-mach AND bf-mach.dept[1] EQ "RC" THEN
         ASSIGN  
-            ttLayoutDims.dGrossSheetWidth  = ttLayoutDims.dGrossSheetWidth + dTrimWidth 
-            ttLayoutDims.dGrossSheetLength = ttLayoutDims.dGrossSheetLength + dTrimLength. 
+            ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dGrossSheetWidth + dTrimWidth 
+            ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetLength + dTrimLength. 
     
 END.
                                 
 
 IF isFoamStyle THEN
     ASSIGN
-        ttLayoutDims.dNetSheetDepth   = bf-eb.t-dep
-        ttLayoutDims.dDieSizeDepth    = bf-eb.t-dep
-        ttLayoutDims.dGrossSheetDepth = IF bf-item.i-code EQ "E" THEN bf-eb.t-dep ELSE bf-item.s-dep
-        ttLayoutDims.iNumOutDepth     = IF ttLayoutDims.dNetSheetDepth NE 0 THEN TRUNCATE(ttLayoutDims.dGrossSheetDepth / ttLayoutDims.dNetSheetDepth,0) ELSE 1
-        ttLayoutDims.iBlankNumOnDepth = 1. 
+        ttLayoutSize.dNetSheetDepth   = bf-eb.t-dep
+        ttLayoutSize.dDieSizeDepth    = bf-eb.t-dep
+        ttLayoutSize.dGrossSheetDepth = IF bf-item.i-code EQ "E" THEN bf-eb.t-dep ELSE bf-item.s-dep
+        ttLayoutSize.iNumOutDepth     = IF ttLayoutSize.dNetSheetDepth NE 0 THEN TRUNCATE(ttLayoutSize.dGrossSheetDepth / ttLayoutSize.dNetSheetDepth,0) ELSE 1
+        ttLayoutSize.iBlankNumOnDepth = 1. 
 
 IF lDecimal = NO THEN
     ASSIGN
-        ttLayoutDims.dGrossSheetLength = ROUND(ttLayoutDims.dGrossSheetLength * dDecimalFactor,0)
-        ttLayoutDims.dGrossSheetLength = ttLayoutDims.dGrossSheetLength / dDecimalFactor
-        ttLayoutDims.dGrossSheetWidth  = ROUND(ttLayoutDims.dGrossSheetWidth * dDecimalFactor,0)
-        ttLayoutDims.dGrossSheetWidth  = ttLayoutDims.dGrossSheetWidth / dDecimalFactor
-        ttLayoutDims.dGrossSheetDepth  = ROUND(ttLayoutDims.dGrossSheetDepth * dDecimalFactor,0)
-        ttLayoutDims.dGrossSheetDepth  = ttLayoutDims.dGrossSheetDepth / dDecimalFactor
-        ttLayoutDims.dNetSheetLength   = ROUND(ttLayoutDims.dNetSheetLength * dDecimalFactor,0)
-        ttLayoutDims.dNetSheetLength   = ttLayoutDims.dNetSheetLength / dDecimalFactor
-        ttLayoutDims.dNetSheetWidth    = ROUND(ttLayoutDims.dNetSheetWidth * dDecimalFactor,0)
-        ttLayoutDims.dNetSheetWidth    = ttLayoutDims.dNetSheetWidth / dDecimalFactor
-        ttLayoutDims.dNetSheetDepth    = ROUND(ttLayoutDims.dNetSheetDepth * dDecimalFactor,0)
-        ttLayoutDims.dNetSheetDepth    = ttLayoutDims.dNetSheetDepth / dDecimalFactor
-        ttLayoutDims.dDieSizeLength    = ROUND(ttLayoutDims.dDieSizeLength * dDecimalFactor,0)
-        ttLayoutDims.dDieSizeLength    = ttLayoutDims.dDieSizeLength / dDecimalFactor
-        ttLayoutDims.dDieSizeWidth     = ROUND(ttLayoutDims.dDieSizeWidth * dDecimalFactor,0)
-        ttLayoutDims.dDieSizeWidth     = ttLayoutDims.dDieSizeWidth / dDecimalFactor
-        ttLayoutDims.dDieSizeDepth     = ROUND(ttLayoutDims.dDieSizeDepth * dDecimalFactor,0)
-        ttLayoutDims.dDieSizeDepth     = ttLayoutDims.dDieSizeDepth / dDecimalFactor.
+        ttLayoutSize.dGrossSheetLength = ROUND(ttLayoutSize.dGrossSheetLength * dDecimalFactor,0)
+        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetLength / dDecimalFactor
+        ttLayoutSize.dGrossSheetWidth  = ROUND(ttLayoutSize.dGrossSheetWidth * dDecimalFactor,0)
+        ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dGrossSheetWidth / dDecimalFactor
+        ttLayoutSize.dGrossSheetDepth  = ROUND(ttLayoutSize.dGrossSheetDepth * dDecimalFactor,0)
+        ttLayoutSize.dGrossSheetDepth  = ttLayoutSize.dGrossSheetDepth / dDecimalFactor
+        ttLayoutSize.dNetSheetLength   = ROUND(ttLayoutSize.dNetSheetLength * dDecimalFactor,0)
+        ttLayoutSize.dNetSheetLength   = ttLayoutSize.dNetSheetLength / dDecimalFactor
+        ttLayoutSize.dNetSheetWidth    = ROUND(ttLayoutSize.dNetSheetWidth * dDecimalFactor,0)
+        ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dNetSheetWidth / dDecimalFactor
+        ttLayoutSize.dNetSheetDepth    = ROUND(ttLayoutSize.dNetSheetDepth * dDecimalFactor,0)
+        ttLayoutSize.dNetSheetDepth    = ttLayoutSize.dNetSheetDepth / dDecimalFactor
+        ttLayoutSize.dDieSizeLength    = ROUND(ttLayoutSize.dDieSizeLength * dDecimalFactor,0)
+        ttLayoutSize.dDieSizeLength    = ttLayoutSize.dDieSizeLength / dDecimalFactor
+        ttLayoutSize.dDieSizeWidth     = ROUND(ttLayoutSize.dDieSizeWidth * dDecimalFactor,0)
+        ttLayoutSize.dDieSizeWidth     = ttLayoutSize.dDieSizeWidth / dDecimalFactor
+        ttLayoutSize.dDieSizeDepth     = ROUND(ttLayoutSize.dDieSizeDepth * dDecimalFactor,0)
+        ttLayoutSize.dDieSizeDepth     = ttLayoutSize.dDieSizeDepth / dDecimalFactor.
 
 IF AVAIL(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "S" THEN
     ASSIGN
-        dSwapDim                       = ttLayoutDims.dGrossSheetLength
-        ttLayoutDims.dGrossSheetLength = ttLayoutDims.dGrossSheetWidth
-        ttLayoutDims.dGrossSheetWidth  = dSwapDim.
+        dSwapDim                       = ttLayoutSize.dGrossSheetLength
+        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dGrossSheetWidth
+        ttLayoutSize.dGrossSheetWidth  = dSwapDim.
 
 
 
