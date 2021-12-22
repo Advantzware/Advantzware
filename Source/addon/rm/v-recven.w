@@ -599,9 +599,7 @@ DO:
              scr-item-no:SCREEN-VALUE = ""
              scr-item-name:SCREEN-VALUE = ""
              scr-uom:SCREEN-VALUE = ""
-             .
-          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"srch-target",OUTPUT char-hdl).
-          RUN do-search IN WIDGET-HANDLE(char-hdl) (lv-search).   
+             .           
        END.
    END.
 END.
