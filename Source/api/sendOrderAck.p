@@ -317,7 +317,8 @@ DEFINE VARIABLE cQtyPerPack           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPurchaseUnit         AS CHARACTER NO-UNDO.
     
 DEFINE VARIABLE cRequestDataType      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dFreight              AS DECIMAL   NO-UNDO.
     
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail. 
 
@@ -576,7 +577,12 @@ DO:
             cWhsItem       = STRING(oe-ordl.whs-item)
             cWhsed         = STRING(oe-ordl.whsed)
             .
-
+            
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ oe-ordl.company
+               AND po-ord.po-no   EQ oe-ordl.po-no-po
+             NO-ERROR.   
+        dFreight = IF AVAIL po-ord THEN po-ord.t-freight ELSE 0.
              
         RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineNum", cLineNum).
         RUN updateRequestData(INPUT-OUTPUT lcLineData, "QtyUOM", cQtyUOM).
@@ -711,7 +717,8 @@ DO:
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"VendNo", cVendNo).   
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"WScore", cWScore).   
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"WhsItem", cWhsItem).   
-        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed).  
+        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed). 
+        RUN updateRequestData(INPUT-OUTPUT lcLineData,"Freight", dFreight).
        
         // RUN pUpdateDelimiter (INPUT-OUTPUT lcLineData, cRequestDataType).  
         lcConcatLineData = lcConcatLineData +  lcLineData . 
