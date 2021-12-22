@@ -4937,15 +4937,15 @@ PROCEDURE local-assign-record :
           NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 
-
-    IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
+    IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
+       (cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         lcheckflg = NO .
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
             NO-LOCK BREAK BY oe-ordl.i-no :
-            IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
+            IF dueDateChanged AND OEDateAuto-char EQ "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
