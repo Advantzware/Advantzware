@@ -52,6 +52,8 @@ DEFINE VARIABLE lDecimal          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dDecimalFactor    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dDecimalMax       AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iStyleFormulaOnLen LIKE style.use-l   NO-UNDO.
+DEFINE VARIABLE iStyleFormulaOnWid LIKE style.use-w   NO-UNDO.
 
 
 
@@ -91,7 +93,9 @@ FIND FIRST bf-style NO-LOCK
 IF AVAILABLE bf-style THEN 
     ASSIGN
         cIndustryType = bf-style.industry
-        isFoamStyle   = YES WHEN bf-style.type = "F".
+        isFoamStyle   = YES WHEN bf-style.type = "F"
+        iStyleFormulaOnLen = bf-style.use-l
+        iStyleFormulaOnWid = bf-style.use-w.
 
 /* Create Temp-table record and populate the fields later */    
 CREATE ttLayoutSize.    
@@ -284,36 +288,75 @@ DO:
             dLengthtoUse = dTempLength - dTrimLength
             dWidtoUse    = dTempWidth - dTrimWidth.
         
-        
+    /* Calculate Width Size using Panel dimension */    
     DO iCnt = 1 TO 50:
-        iExt = iCnt.
-        
+        iExt = iCnt.        
         IF iCnt > 13 THEN 
             iExt = 13.
         
-        /* Calculate Length Size using Panel dimension */    
-        IF iCnt = 1 OR dCalcTotalLength + formule.formule[use-l[iExt] + (use-l[iExt] - 1)] <= dLengthtoUse THEN
-            ASSIGN 
-                iCalcNumOnLength = iCnt
-                dCalcTotalLength = dCalcTotalLength + formule.formule[use-l[iExt] + (use-l[iExt] - 1)].
-                
-        /* Calculate Width Size using Panel dimension */
-        IF iCnt = 1 OR dCalcTotalWidth + formule.formule[use-w[iExt] * 2] <= dWidtoUse THEN 
-            ASSIGN 
-                iCalcNumOnWidth = iCnt
-                dCalcTotalWidth = dCalcTotalWidth + formule.formule[use-w[iExt] * 2].
+        IF bf-ef.xgrain = "B" THEN
+        DO: 
+            IF iCnt = 1 OR dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
+                ASSIGN 
+                    iCalcNumOnWidth = iCnt
+                    dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
+                    
+            ELSE 
+                LEAVE.
+        END.
+        ELSE
+        DO:
+            IF dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)] <= dWidtoUse
+                OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                ASSIGN
+                    iCalcNumOnWidth = iCnt
+                    dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)].
         
-    END.
+            ELSE 
+                LEAVE.
+        END.
+    END. // DO iCnt = 1 TO 50:
+     
+    /* Calculate Length Size using Panel dimension */    
+    DO iCnt = 1 TO 50:
+        iExt = iCnt.        
+        IF iCnt > 13 THEN 
+            iExt = 13.
+            
+        IF bf-ef.xgrain = "B" THEN
+        DO:
+            IF iCnt = 1 OR dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
+                ASSIGN 
+                    iCalcNumOnLength = iCnt
+                    dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+            
+            ELSE 
+                LEAVE.
+        END.
+        ELSe
+        DO:
+            IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
+                OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                ASSIGN 
+                    iCalcNumOnLength = iCnt
+                    dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2].
+                    
+            ELSE 
+                LEAVE.
+        END.
+         
+    END. // DO iCnt = 1 TO 50:
     
-END.
+END. /* ELSE*/
+
 
 IF NOT bf-ef.lsh-lock THEN /* autocalc */
 DO:
     IF bf-ef.xgrain = "B" THEN 
     DO:
         ASSIGN 
-            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.
+            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+            ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth.
             
         IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
             dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
@@ -325,11 +368,12 @@ DO:
         ASSIGN 
             ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
             ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
-               
-        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
-        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
+        
+              
+        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
+            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
+        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalWidth THEN  
+            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.
     END.  
 END.
 
