@@ -10,6 +10,7 @@ FUNCTION get-date RETURNS DATE
     DEFINE VARIABLE dtLastDate   AS DATE    NO-UNDO.
     DEFINE VARIABLE ctr          AS INTEGER NO-UNDO.
 
+    ipiDays = 2.
     ASSIGN
         dtFirstDate = ipdDate                                                                                          
         dtCalcDate  = ipdDate

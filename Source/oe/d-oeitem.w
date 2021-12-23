@@ -8715,7 +8715,7 @@ PROCEDURE OnSaveButton :
 
         IF oeDateChange-log 
             AND  NOT ll-new-record
-            AND  LOOKUP("promise Date", oeDateChange-chr) GT 0
+            AND  LOOKUP("Promise Date", oeDateChange-chr) GT 0
             AND  oe-ordl.prom-date NE ld-prev-prom-date 
             AND  ld-prev-prom-date NE ?
             AND  gcLastDateChange EQ "prom-date" THEN 
@@ -8800,14 +8800,19 @@ PROCEDURE OnSaveButton :
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:             
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "DueDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-            oe-ordl.prom-date = dCalcPromDate.
+            IF cDueManualChanged AND NOT cPromManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+                MESSAGE 1 "dCalcPromDate:" dCalcPromDate
+                VIEW-AS ALERT-BOX.
+            END.
             
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
@@ -8819,19 +8824,23 @@ PROCEDURE OnSaveButton :
                     OUTPUT dCalcDueDate,
                     OUTPUT dCalcPromDate).
                 oe-ordl.req-date = dCalcDueDate.
+                MESSAGE 2 "dCalcDueDate:" dCalcDueDate
+                VIEW-AS ALERT-BOX.
             END.
-            ELSE
-                IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
-                DO:
-                    RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                        INPUT oe-ordl.req-date,
-                        INPUT oe-ordl.prom-date,
-                        INPUT "DueDate",
-                        INPUT ROWID(oe-ordl),
-                        OUTPUT dCalcDueDate,
-                        OUTPUT dCalcPromDate).
-                    oe-ordl.prom-date = dCalcPromDate.
-                END.
+
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+                MESSAGE 3 "dCalcPromDate:" dCalcPromDate
+                VIEW-AS ALERT-BOX.
+            END.
         END.
     
         RUN final-steps.
@@ -12843,6 +12852,10 @@ FUNCTION get-colonial-rel-date RETURNS DATE
                 opRelDate = oe-ordl.req-date.
             ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
                      IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN DO:
+                        MESSAGE 4 
+                        "bf-oe-rel.rel-date:" bf-oe-rel.rel-date SKIP
+                        "bf-oe-rel.spare-char-4:" bf-oe-rel.spare-char-4
+                        VIEW-AS ALERT-BOX.
                         RUN oe/dueDateCalc.p (
                             bf-oe-ord.cust-no,
                             bf-oe-rel.rel-date,
@@ -12853,9 +12866,13 @@ FUNCTION get-colonial-rel-date RETURNS DATE
                             OUTPUT dCalcPromDate
                             ).
                          opRelDate = dCalcRelDate.
+                         MESSAGE 5 "dCalcRelDate:" dCalcRelDate
+                         VIEW-AS ALERT-BOX.
                          IF opRelDate EQ oe-ordl.prom-date THEN
                          DO TRANSACTION:
-                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             dCalcPromDate = get-date (oe-ordl.prom-date, -1, "-").
+                             MESSAGE 6 "dCalcPromDate:" dCalcPromDate
+                             VIEW-AS ALERT-BOX.
                              FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
                              oe-ordl.prom-date = dCalcPromDate.
                              FIND CURRENT oe-ordl NO-LOCK.
