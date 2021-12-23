@@ -195,7 +195,7 @@ PROCEDURE assignOrderHeader:
                             ELSE IF paymentPCard BEGINS '5' THEN 'MC'
                             ELSE IF paymentPCard BEGINS '6' THEN 'DISCOVER'
                             ELSE ''
-          oe-ord.spare-int-1   = 1                  
+          oe-ord.ediSubmitted  = 1                  
           .
           IF paymentExpiration NE '' THEN
           oe-ord.cc-expiration = DATE(INT(SUBSTR(paymentExpiration,6,2))
@@ -639,13 +639,13 @@ PROCEDURE genOrderLines:
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.stat      = 'W'
-        oe-ordl.spare-char-2 = TRIM(itemUnitOfMeasure)
-        oe-ordl.spare-dec-2  = DEC(itemMoney)
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
         
       IF itemUnitOfMeasure NE "EA" THEN DO:  
         RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
-        oe-ordl.spare-char-2 = (IF LOOKUP(oe-ordl.spare-char-2, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.spare-char-2).
+        oe-ordl.ediPriceUOM = (IF LOOKUP(oe-ordl.ediPriceUOM, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.ediPriceUOM).
       END.
     
       IF oe-ordl.price EQ 0 THEN DO:                      

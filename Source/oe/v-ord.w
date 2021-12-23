@@ -4961,8 +4961,8 @@ PROCEDURE local-assign-record :
           NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
     
-    IF oe-ord.spare-int-1 EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
-    ASSIGN oe-ord.spare-int-2 = 1.
+    IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
+    ASSIGN oe-ord.ediModified = 1.
 
     IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
@@ -5629,8 +5629,8 @@ PROCEDURE local-display-fields :
                         ELSE STRING(oe-ord.pord-no).
      IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
          fi_prev_order = STRING(oe-ord.pord-no).
-     tbEdiSubmit = IF oe-ord.spare-int-1 EQ 1 THEN YES ELSE NO.    
-     tbEdiModified = IF oe-ord.spare-int-2 EQ 1 THEN YES ELSE NO.
+     tbEdiSubmit = IF oe-ord.ediSubmitted EQ 1 THEN YES ELSE NO .    
+     tbEdiModified = IF oe-ord.ediModified EQ 1 THEN YES ELSE NO.
   END.
 
   /* Dispatch standard ADM method.                             */

@@ -700,13 +700,13 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.whsed     = oe-ordl.est-no NE ''
         oe-ordl.q-no      = oe-ord.q-no
         oe-ordl.prom-date = oe-ord.due-date
-        oe-ordl.spare-char-2 = TRIM(itemUnitOfMeasure)
-        oe-ordl.spare-dec-2  = DEC(itemMoney)
+        oe-ordl.ediPriceUOM = TRIM(itemUnitOfMeasure)
+        oe-ordl.ediPrice    = DEC(itemMoney)
         .
         
       IF itemUnitOfMeasure NE "EA" THEN DO:  
         RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
-        oe-ordl.spare-char-2 = (IF LOOKUP(oe-ordl.spare-char-2, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.spare-char-2).
+        oe-ordl.ediPriceUOM = (IF LOOKUP(oe-ordl.ediPriceUOM, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.ediPriceUOM).
       END.  
 
       IF oe-ordl.price EQ 0 THEN DO:                      

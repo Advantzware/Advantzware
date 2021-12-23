@@ -1491,9 +1491,9 @@ PROCEDURE run-report :
                         WHEN "shiptoStatus"           THEN 
                             cVarValue = STRING(cShiptoTaxStatus).
                         WHEN "ediPrice"           THEN 
-                            cVarValue = STRING(inv-line.spare-dec-2).
+                            cVarValue = STRING(inv-line.ediPrice).
                         WHEN "ediPriceUom"           THEN 
-                            cVarValue = STRING(inv-line.spare-char-5).    
+                            cVarValue = STRING(inv-line.ediPriceUOM).    
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1728,9 +1728,9 @@ PROCEDURE run-report :
                         WHEN "shiptoStatus"           THEN 
                             cVarValue = STRING(cShiptoTaxStatus).
                         WHEN "ediPrice"           THEN 
-                            cVarValue = STRING(inv-line.spare-dec-2).
+                            cVarValue = STRING(inv-line.ediPrice).
                         WHEN "ediPriceUom"           THEN 
-                            cVarValue = STRING(inv-line.spare-char-5).    
+                            cVarValue = STRING(inv-line.ediPriceUOM).    
                     END CASE.
 
                     cExcelVarValue = cVarValue.

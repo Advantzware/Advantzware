@@ -1960,7 +1960,7 @@ PROCEDURE pAddOrderToUpdate PRIVATE:
         IF bf-oe-ordl.cas-cnt NE 0 THEN 
             iopdQuantityPerSubUnit = bf-oe-ordl.cas-cnt.
             iopiOrderLine = bf-oe-ordl.LINE.
-            oplOrderEdi = IF bf-oe-ordl.spare-int-1 EQ 1 THEN YES ELSE NO.
+            oplOrderEdi = IF bf-oe-ordl.ediSubmitted EQ 1 THEN YES ELSE NO.
              
         FIND FIRST ttOrderLineToUpdate EXCLUSIVE-LOCK
             WHERE ttOrderLineToUpdate.riOeOrdl EQ ROWID(bf-oe-ordl)

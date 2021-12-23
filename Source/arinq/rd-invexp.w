@@ -1436,9 +1436,9 @@ PROCEDURE run-report :
                     WHEN "cSoldToName" THEN 
                         cVarValue         = STRING(cSoldToName,"x(30)").
                     WHEN "ediPrice" THEN 
-                        cVarValue         = STRING(ar-invl.spare-dec-2).
+                        cVarValue         = STRING(ar-invl.ediPrice).
                     WHEN "ediPriceUom" THEN 
-                        cVarValue         = STRING(ar-invl.spare-char-5).  
+                        cVarValue         = STRING(ar-invl.ediPriceUOM).  
                 END CASE.
 
                 cExcelVarValue = cVarValue.

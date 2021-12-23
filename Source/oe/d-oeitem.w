@@ -246,7 +246,7 @@ DEFINE VARIABLE lQuotePriceMatrix        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCreateJobFromFG         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUnspecified             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGItem                  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSettingValue            AS LOGICAL   NO-UNDO.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
@@ -595,7 +595,7 @@ oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
-oe-ordl.spare-dec-2 
+oe-ordl.ediPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
 oe-ordl.SourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -648,7 +648,7 @@ oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] ~
 oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] ~
 oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code ~
 oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
-oe-ordl.spare-char-2 oe-ordl.spare-dec-2 
+oe-ordl.spare-char-2 oe-ordl.ediPrice 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 &Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
@@ -1417,7 +1417,7 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     oe-ordl.spare-dec-2 AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
+     oe-ordl.ediPrice AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
           LABEL "Edi Price"
           VIEW-AS FILL-IN 
           SIZE 17.8 BY .80
@@ -1623,7 +1623,7 @@ ASSIGN
    NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-2 IN FRAME d-oeitem
+/* SETTINGS FOR FILL-IN oe-ordl.ediPrice IN FRAME d-oeitem
    NO-ENABLE EXP-LABEL                                                           */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
@@ -4016,7 +4016,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ld-prev-prom-date = oe-ordl.prom-date
         dtPrevDueDate     = oe-ordl.req-date
         v-margin          = oe-ordl.q-qty
-        fi_edi-price-uom      = oe-ordl.spare-char-2.
+        fi_edi-price-uom  = oe-ordl.ediPriceUOM.
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -4204,17 +4204,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN
                 asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                 asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME}  = NO.
+                
+        RUN spGetSettingByName("EDIOrderChanged", OUTPUT cSettingValue).
         
-        lEDIOrderChanged = logical(oSetting:GetByName("EDIOrderChanged")) NO-ERROR.
-        
-        IF lEDIOrderChanged AND oe-ord.spare-int-1 EQ 1 THEN
+        IF LOGICAL(cSettingValue) AND oe-ord.ediSubmitted EQ 1 THEN
         ASSIGN             
-            asi.oe-ordl.spare-dec-2:HIDDEN IN FRAME {&FRAME-NAME} = NO            
-            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}        = NO.
+            asi.oe-ordl.ediPrice:HIDDEN IN FRAME {&FRAME-NAME} = NO            
+            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}     = NO.
          ELSE
          ASSIGN             
-            asi.oe-ordl.spare-dec-2:HIDDEN IN FRAME {&FRAME-NAME}  = YES              
-            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}         = YES.
+            asi.oe-ordl.ediPrice:HIDDEN IN FRAME {&FRAME-NAME}  = YES              
+            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}      = YES. 
        
 
         RUN spGetSettingByName("DisplayFGLocationDetails", OUTPUT cDisplayFGLocationDetails).
@@ -6876,7 +6876,7 @@ PROCEDURE enable_UI :
           oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
           oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-          oe-ordl.spare-dec-2 
+          oe-ordl.ediPrice 
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.SourceEstimateID oe-ordl.qty fi_qty-uom 
          oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 
@@ -8838,8 +8838,8 @@ PROCEDURE OnSaveButton :
         FIND CURRENT oe-ordl EXCLUSIVE.
         FIND CURRENT oe-ord EXCLUSIVE.
         
-        IF lEdiChange AND oe-ord.spare-int-1 EQ 1 THEN 
-        oe-ord.spare-int-2 = 1.
+        IF lEdiChange AND oe-ord.ediSubmitted EQ 1 THEN 
+        oe-ord.ediModified = 1.
         
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:             
