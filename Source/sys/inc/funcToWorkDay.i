@@ -1,46 +1,38 @@
+/* funcToWorkDay.i */
+
 FUNCTION get-date RETURNS DATE
-    ( INPUT ipdDate AS DATE, INPUT ipiDays AS INT, INPUT ipcPlusMinus as char ) :
-    /*------------------------------------------------------------------------------
-      Purpose:  
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    DEF    VAR      dCalcDate    AS DATE.       
+    (ipdDate AS DATE, ipiDays AS INTEGER, ipcPlusMinus AS CHARACTER):
 
-    DEFINE VAR      search-date  AS DATE    NO-UNDO.
-    DEFINE VAR      biz-days     AS INTEGER NO-UNDO.
-    DEFINE VAR      tot-biz-days AS INTEGER NO-UNDO.
-
-
-    DEFINE VARIABLE first-date   AS DATE    NO-UNDO.
-    DEFINE VARIABLE last-date    AS DATE    NO-UNDO.
+    DEFINE VARIABLE dtCalcDate   AS DATE    NO-UNDO.
+    DEFINE VARIABLE dtBizDate    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dtTotBizDate AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dtFirstDate  AS DATE    NO-UNDO.
+    DEFINE VARIABLE dtLastDate   AS DATE    NO-UNDO.
     DEFINE VARIABLE ctr          AS INTEGER NO-UNDO.
-    first-date = ipdDate.   
-    dCalcDate = ipdDate.
 
-    IF ipiDays NE 0 THEN DO:
-      
-      ASSIGN 
-          ctr      = (if ipcPlusMinus = "+" then 1 else -1)
-          biz-days = 0.
-  
-      REPEAT:
-          last-date = first-date + ctr.
-          IF ipcPlusMinus = "+" THEN
-            ctr = ctr + 1.
-          ELSE
-            ctr = ctr - 1.       
-          
-          IF WEEKDAY(last-date) EQ 1 OR WEEKDAY(last-date) EQ 7 THEN NEXT.
-          IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "Holiday" AND DATE(reftable.loc) EQ last-date) THEN
-              NEXT.
-              
-          tot-biz-days = tot-biz-days + 1.
-          IF last-date LE search-date THEN biz-days = biz-days + 1.
-  
-          dCalcDate = last-date.
-          IF abs(tot-biz-days) GE ipiDays THEN LEAVE.
-      END.
-    END.
+    ASSIGN
+        dtFirstDate = ipdDate                                                                                          
+        dtCalcDate  = ipdDate
+        ctr         = IF ipcPlusMinus EQ "+" THEN 1 ELSE -1                                                        
+        dtBizDate   = 0
+        .
+    REPEAT:
+        ASSIGN
+            dtLastDate = dtFirstDate + ctr
+            ctr = ctr + IF ipcPlusMinus EQ "+" THEN 1 ELSE -1
+            .
+        IF WEEKDAY(dtLastDate) EQ 1 OR WEEKDAY(dtLastDate) EQ 7 THEN NEXT.
+        IF CAN-FIND(FIRST reftable
+                    WHERE reftable.reftable  EQ "Holiday"
+                      AND DATE(reftable.loc) EQ dtLastDate) THEN
+        NEXT.
+        ASSIGN
+            dtTotBizDate = dtTotBizDate + 1
+            dtCalcDate   = dtLastDate
+            .
+        IF ABSOLUTE(dtTotBizDate) GE ipiDays THEN
+        LEAVE.
+    END. // repeat
+    RETURN dtCalcDate.
 
-    RETURN dCalcDate.   /* Function return value. */
 END FUNCTION.

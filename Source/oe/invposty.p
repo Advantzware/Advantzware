@@ -11,6 +11,8 @@ DEF INPUT PARAM v-fix     LIKE itemfg.std-fix-cost.
 DEF INPUT PARAM v-var     LIKE itemfg.std-var-cost.
 DEF INPUT PARAM v-mat     LIKE itemfg.std-mat-cost.
 
+DEF INPUT PARAM ipDesc    AS CHARACTER NO-UNDO.
+
 {sys/inc/var.i SHARED}
 {sys/form/s-top.f}
 
@@ -30,21 +32,21 @@ FOR EACH prodl
       AND prod.prolin  EQ prodl.prolin
     NO-LOCK:
 
-  RUN oe/invpostx.p (prod.cgs-dl, v-lab, v-qty, NO, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.cgs-dl, v-lab, v-qty, NO, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.fg-lab, v-lab, v-qty, YES, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.fg-lab, v-lab, v-qty, YES, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.cgs-fo, v-fix, v-qty, NO, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.cgs-fo, v-fix, v-qty, NO, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.fg-fo, v-fix, v-qty, YES, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.fg-fo, v-fix, v-qty, YES, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.cgs-vo, v-var, v-qty, NO, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.cgs-vo, v-var, v-qty, NO, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.fg-vo, v-var, v-qty, YES, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.fg-vo, v-var, v-qty, YES, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.cgs-mat, v-mat, v-qty, NO, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.cgs-mat, v-mat, v-qty, NO, v-i-no, v-inv-no, v-uom, ipDesc).
 
-  RUN oe/invpostx.p (prod.fg-mat, v-mat, v-qty, YES, v-i-no, v-inv-no, v-uom).
+  RUN oe/invpostx.p (prod.fg-mat, v-mat, v-qty, YES, v-i-no, v-inv-no, v-uom, ipDesc).
 
   LEAVE.
 END.

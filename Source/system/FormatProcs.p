@@ -539,17 +539,17 @@ PROCEDURE pUpdateRequestData PRIVATE:
                     cIfFalseValue = REPLACE(cIfFalseValue, '"', '')
                     cIfFalseValue = REPLACE(cIfFalseValue, "'", "")
                     NO-ERROR.
+
+                IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
+                    cFunctionText = cIfTrueValue.
+                ELSE
+                    cFunctionText = cIfFalseValue.
+                    
+                ASSIGN
+                    cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
+                    cTargetString  = cFunctionText
+                    .
             END.
-            
-            IF (cIfValue EQ ipcValue) OR (lIsNullValue AND cIfValue EQ "?") THEN
-                cFunctionText = cIfTrueValue.
-            ELSE
-                cFunctionText = cIfFalseValue.
-                
-            ASSIGN
-                cFunctionText  = REPLACE(cFunctionText, "!VALUE!", cTargetString)
-                cTargetString  = cFunctionText
-                .
         END.
         
         IF cFormatType NE "" THEN DO:

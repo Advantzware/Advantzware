@@ -535,11 +535,6 @@ DO:
       IF LASTKEY = -1 THEN RETURN.
      {&methods/lValidateError.i YES}
 
-      IF fi_cust:SCREEN-VALUE NE "" AND INT64(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
-         MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
-         RETURN NO-APPLY.
-      END.
-
       IF INT64(fi_fchk:SCREEN-VALUE) >= 90000000 AND
          INT64(fi_fchk:SCREEN-VALUE) <= 99999999 THEN
           DO:

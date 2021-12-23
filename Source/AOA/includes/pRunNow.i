@@ -9,22 +9,24 @@ PROCEDURE pRunNow:
     DEFINE INPUT PARAMETER ipcTaskFormat AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTitle      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplRecipients AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE gcConfigID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE giConfigID  AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iConfigID   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lRunSync    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSubmit     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE oSetting    AS system.Setting NO-UNDO.
     
-    oSetting = NEW system.Setting().
-    oSetting:LoadByCategoryAndProgram("dAOA").
     IF AVAILABLE {1}dynParamValue THEN DO:
         &IF DEFINED(silentSubmitted) EQ 0 &THEN
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
-        iConfigID = INTEGER(oSetting:GetByName("TaskerNotRunningEmailID")).
+        
+        RUN spGetSettingByName ("TaskerNotRunningEmailID", gcConfigID).
+        giConfigID = INTEGER(gcConfigID).
+        
         IF CAN-FIND(FIRST emailConfig
-                    WHERE emailConfig.configID EQ iConfigID
+                    WHERE emailConfig.configID EQ giConfigID
                       AND emailConfig.isActive EQ YES
                       AND emailConfig.notified EQ YES) THEN DO:
             MESSAGE 
@@ -68,7 +70,4 @@ PROCEDURE pRunNow:
         VIEW-AS ALERT-BOX TITLE "Run Now".
         &ENDIF
     END. /* if avail */
-    IF VALID-OBJECT(oSetting) THEN
-    DELETE OBJECT oSetting.
-
 END PROCEDURE.

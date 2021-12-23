@@ -117,6 +117,8 @@ DEF TEMP-TABLE ttZmessage LIKE zMessage.
 DEF TEMP-TABLE ttEmailConfig LIKE emailConfig.
 DEF TEMP-TABLE ttServerResource LIKE serverResource.
 DEF TEMP-TABLE ttInventoryStatusType LIKE inventoryStatusType.
+DEF TEMP-TABLE ttLocation LIKE location.
+    
 
 DEF TEMP-TABLE ttAPIOutbound 
     FIELD apiOutboundID AS INT64 
@@ -256,8 +258,6 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR hVendCostProcs AS HANDLE NO-UNDO.
-DEF VAR cOrigPropath   AS CHARACTER NO-UNDO.
-DEF VAR cNewPropath    AS CHARACTER NO-UNDO.
     
 
 /* _UIB-CODE-BLOCK-END */
@@ -1225,6 +1225,14 @@ PROCEDURE ipBackupDataFiles :
     RUN ipStatus ("  Backing up data files").
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
+
+&SCOPED-DEFINE cFile attribute
+
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile AuditTbl
 
@@ -2932,6 +2940,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix210300.
     IF iCurrentVersion LT 21040000 THEN 
         RUN ipDataFix210400.
+    IF iCurrentVersion LT 21041500 THEN 
+        RUN ipDataFix210415.
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3758,6 +3768,23 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix210415 C-Win
+PROCEDURE ipDataFix210415:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("  Data Fix 210415...").
+
+    RUN ipFixLocations.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
@@ -4429,6 +4456,66 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixLocations C-Win
+PROCEDURE ipFixLocations:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus("   Fixing Location records").
+
+    DISABLE TRIGGERS FOR LOAD OF loc.
+    DISABLE TRIGGERS FOR LOAD OF location.
+    
+    /* remove any blank locations */
+    FOR EACH location EXCLUSIVE WHERE 
+        location.locationCode EQ "" OR 
+        location.rec_key EQ "":
+        DELETE location.
+    END.
+    
+    /* make sure associated locations exist for each loc */
+    FOR EACH loc EXCLUSIVE:
+        EMPTY TEMP-TABLE ttLocation.
+        
+        FIND FIRST location WHERE 
+            location.company EQ loc.company AND 
+            location.locationCode EQ loc.loc 
+            NO-ERROR.
+        IF NOT AVAIL location THEN FIND FIRST location WHERE 
+            location.locationCode EQ loc.loc AND 
+            location.rec_key EQ loc.addrRecKey 
+            NO-ERROR.
+        IF AVAIL location THEN DO:
+            CREATE ttLocation.
+            BUFFER-COPY location TO ttLocation.
+            DELETE location.
+        END.
+        
+        CREATE location.
+        FIND FIRST ttLocation
+            NO-ERROR.
+        IF AVAIL ttLocation THEN 
+            BUFFER-COPY ttLocation TO location.
+        ASSIGN 
+            location.company = loc.company
+            location.locationCode = loc.loc
+            location.rec_Key = STRING(YEAR(TODAY),"9999") + 
+                            STRING(MONTH(TODAY),"99") + 
+                            STRING(DAY(TODAY),"99") + 
+                            STRING(TIME,"99999") + 
+                            STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+            loc.addrRecKey = location.rec_key.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixLocationStorageCost C-Win
 PROCEDURE ipFixLocationStorageCost:
 /*------------------------------------------------------------------------------
@@ -4837,6 +4924,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAttributeData C-Win 
+PROCEDURE ipLoadAttributeData :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading Attribute data").
+
+    &SCOPED-DEFINE tablename attribute
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename}.
+    END.
+    INPUT CLOSE.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
@@ -5956,6 +6069,9 @@ PROCEDURE ipLoadSettingType :
         IMPORT {&tablename}.
     END.
     INPUT CLOSE.
+    
+    IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
+        RUN VALUE (SEARCH("util/nk1ToSetting.r")).
         
 END PROCEDURE.
 
@@ -7451,6 +7567,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadZmessage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
         RUN ipLoadNaicsData IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\attribute.d") <> ? THEN
+        RUN ipLoadAttributeData IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

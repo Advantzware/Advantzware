@@ -90,7 +90,8 @@ DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btExit ~
 btnFirst btnLast btnNext btnPrevious btnExitText imJobLookup ~
-btnViewRM btClear btnClearText btCopy btAdd btAllocate btUpdate
+btnViewRM btClear btnClearText btCopy btAdd btAllocate btUpdate ~
+btDelete
 &Scoped-Define DISPLAYED-OBJECTS fiStatusLabel fiStatus fiCreatedLabel ~
 fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage ~
 btnViewRM ~
@@ -151,6 +152,11 @@ DEFINE BUTTON btAllocate  NO-FOCUS
      LABEL "Allocate" 
      SIZE 20 BY 1.52
      FONT 17.     
+
+DEFINE BUTTON btDelete  NO-FOCUS
+     LABEL "Delete" 
+     SIZE 20 BY 1.52
+     FONT 17.
 
 DEFINE BUTTON btnFirst 
      IMAGE-UP FILE "Graphics/32x32/first.png":U NO-FOCUS FLAT-BUTTON
@@ -299,6 +305,7 @@ DEFINE FRAME F-Main
      fiJobQtyLabel AT ROW 19.72 COL 122 NO-LABEL 
      fiJobQty AT ROW 19.72 COL 136 COLON-ALIGNED NO-LABEL 
      btCopy AT ROW 7.33 COL 125 WIDGET-ID 118
+     btDelete AT ROW 32.33 COL 142
      btAdd AT ROW 32.33 COL 170 
      btUpdate AT ROW 32.33 COL 212
      btAllocate AT ROW 32.33 COL 240 
@@ -510,8 +517,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAdd W-Win
 ON CHOOSE OF btAdd IN FRAME F-Main /* Add */
 DO:
-     DEFINE VARIABLE iForm AS INTEGER NO-UNDO.
-     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
+     DEFINE VARIABLE iForm AS INTEGER INIT 1 NO-UNDO.
+     DEFINE VARIABLE iBlank AS INTEGER INIT 1 NO-UNDO.
      DEFINE VARIABLE cRmItem AS CHARACTER NO-UNDO.
      DEFINE VARIABLE cRmItemDesc AS CHARACTER NO-UNDO.
      DEFINE VARIABLE dAllocation AS DECIMAL NO-UNDO.
@@ -582,6 +589,39 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btDelete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
+ON CHOOSE OF btDelete IN FRAME F-Main /* Delete */
+DO:
+     DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE iForm AS INTEGER NO-UNDO.
+     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
+     DEFINE VARIABLE cRmItem AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE cRmItemDesc AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE dAllocation AS DECIMAL NO-UNDO.
+     DEFINE VARIABLE dAvailQty AS DECIMAL NO-UNDO.
+     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+     DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
+     
+     RUN pStatusMessage("","0").      
+     RUN pGetMaterial IN h_b-job-mat (OUTPUT rwRowid, OUTPUT iForm, OUTPUT iBlank, OUTPUT cRmItem, OUTPUT cRmItemDesc, OUTPUT dAllocation, OUTPUT dAvailQty).   
+     
+     RUN sharpshooter\messageDialog.w("Delete this material ?",
+            YES,
+            YES,
+            NO,
+            OUTPUT ll
+            ).
+     IF ll THEN 
+     DO:
+         RUN job_Delete_JobMaterial IN hdJobProcs(rwRowid).
+         RUN pReOpenQuery IN h_b-job-mat(rwRowid).
+     END.
+             
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
@@ -877,7 +917,7 @@ PROCEDURE enable_UI :
           fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel fiJobQty
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btExit btnFirst btnLast btnNext btAdd btAllocate
-         btUpdate btnPrevious btnExitText btCopy  
+         btUpdate btnPrevious btnExitText btCopy btDelete 
          btnViewRM btClear btnClearText imJobLookup
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1284,12 +1324,12 @@ PROCEDURE pWinReSize :
             {&WINDOW-NAME}:COL                 = 1
             {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
             {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
+            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT - 4
+            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH  - 4
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT 
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH  
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT 
+            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH  
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btExit:COL                         = dCol - 1
@@ -1301,6 +1341,7 @@ PROCEDURE pWinReSize :
             btnClearText:COL                   = dCol - 13
             btClear:COL                        = dCol - 1           
             //btnPrintJobText:COL                = dCol - btnPrintJobText:WIDTH - 1
+            btDelete:ROW                       = {&WINDOW-NAME}:HEIGHT - .96
             btAllocate:ROW                     = {&WINDOW-NAME}:HEIGHT - .96
             btAdd:ROW                          = {&WINDOW-NAME}:HEIGHT - .96
             btUpdate:ROW                       = {&WINDOW-NAME}:HEIGHT - .96

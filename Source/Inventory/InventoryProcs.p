@@ -31,6 +31,7 @@
 {inventory/ttFGBin.i}
 {inventory/ttRawMaterialsToPost.i}
 {inventory/ttRawMaterialsGLTransToPost.i}
+{inventory/ttFGComponent.i}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -428,6 +429,96 @@ PROCEDURE Inventory_FGQuantityAdjust:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetFGSetComponents:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to return set parts for the given item
+ Notes: Replaces fg/fullset.i
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttFGComponent.
+    
+    EMPTY TEMP-TABLE ttFGComponent.
+    
+    RUN pCreateFGSetComponents (
+        INPUT  ipcCompany, 
+        INPUT  ipcItemID,
+        INPUT-OUTPUT TABLE ttFGComponent 
+        ).
+               
+END PROCEDURE.
+
+PROCEDURE pCreateFGSetComponents PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttFGComponent.
+
+    DEFINE VARIABLE dHeaderQuantity       AS DECIMAL NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dHeaderQuantityPerSet AS DECIMAL NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dPartQuantity         AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fg-set FOR fg-set.
+     
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemID
+           AND bf-itemfg.isaset  EQ TRUE 
+           AND bf-itemfg.alloc   NE TRUE  /* Assembled or assembled with part receipts */
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN
+        RETURN.
+
+    FIND FIRST bf-fg-set NO-LOCK 
+         WHERE bf-fg-set.company EQ bf-itemfg.company 
+           AND bf-fg-set.set-no  EQ bf-itemfg.i-no 
+           AND bf-fg-set.part-no EQ bf-itemfg.i-no
+        NO-ERROR.    
+    IF AVAILABLE bf-fg-set THEN
+        ASSIGN
+            dHeaderQuantity       = IF bf-fg-set.qtyPerSet LT 0 THEN
+                                        (1 / (bf-fg-set.qtyPerSet * -1))
+                                    ELSE
+                                        bf-fg-set.qtyPerSet
+            dHeaderQuantityPerSet = bf-fg-set.qtyPerSet
+            .
+
+    FOR EACH bf-fg-set NO-LOCK 
+        WHERE bf-fg-set.company EQ bf-itemfg.company 
+          AND bf-fg-set.set-no  EQ bf-itemfg.i-no
+          AND bf-fg-set.part-no NE bf-fg-set.set-no:
+        
+        dPartQuantity = 0.
+        
+        FIND FIRST ttFGComponent
+             WHERE ttFGComponent.itemID EQ bf-fg-set.part-no
+             NO-ERROR.
+        IF NOT AVAILABLE ttFGComponent THEN
+            CREATE ttFGComponent.
+        ELSE
+            dPartQuantity = ttFGComponent.quantityToDeplete.
+        
+        ASSIGN
+            ttFGComponent.itemID         = bf-fg-set.part-no
+            ttFGComponent.createReceipt  = NOT bf-fg-set.noReceipt
+            ttFGComponent.quantityPerSet = dHeaderQuantityPerSet * bf-fg-set.qtyPerSet
+            .
+
+        ASSIGN
+            ttFGComponent.quantityToDeplete = IF bf-fg-set.qtyPerSet LT 0 THEN
+                                                  (1 / (bf-fg-set.qtyPerSet * -1))
+                                              ELSE
+                                                  bf-fg-set.qtyPerSet
+            ttFGComponent.quantityToDeplete = ttFGComponent.quantityToDeplete * dHeaderQuantity
+            ttFGComponent.quantityToDeplete = ttFGComponent.quantityToDeplete + dPartQuantity
+            .
+    END.
+END PROCEDURE.
+
 PROCEDURE Inventory_GetWarehouseLength:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -605,6 +696,53 @@ PROCEDURE pBuildRMHistory PRIVATE:
         IF ttBrowseInventory.quantity EQ 0 THEN
             DELETE ttBrowseInventory.
     END.  
+END PROCEDURE.
+
+PROCEDURE pCreateFGSetComponentTransactions PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd   AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.    
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    FIND FIRST bf-fg-rctd NO-LOCK
+         WHERE ROWID (bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid fg-rctd record"
+            .
+        
+        RETURN.
+    END.
+    
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ bf-fg-rctd.company
+           AND bf-itemfg.i-no    EQ bf-fg-rctd.i-no
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid item '" + bf-fg-rctd.i-no + "'"
+            .
+        
+        RETURN.    
+    END.
+    
+    IF NOT bf-itemfg.isaset OR bf-itemfg.alloc THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Item '" + bf-itemfg.i-no + "' is not a set or "
+            .
+        
+        RETURN.    
+    END.
 END PROCEDURE.
 
 PROCEDURE pFGQuantityAdjust PRIVATE:
@@ -3605,7 +3743,7 @@ PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
                                            IF AVAILABLE bf-period THEN bf-period.pnum ELSE 1,
                                            "A",
                                            ipdtPostingDate,
-                                           "",
+                                           (IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN "Job:" + ttRawMaterialsGLTransToPost.jobNo + "-" + STRING(ttRawMaterialsGLTransToPost.jobNo2,"99") ELSE ""),
                                            "RM").   
                        ASSIGN 
                         dDebitsTotal = 0
@@ -6066,7 +6204,7 @@ PROCEDURE CreatePrintInventoryForFG:
         END.
         
         FIND FIRST company NO-LOCK
-             WHERE company.company  Eq inventoryStock.company
+             WHERE company.company  EQ inventoryStock.company
              NO-ERROR.
         IF AVAILABLE company THEN
             ttPrintInventoryStockFG.vendor = company.name.
@@ -8858,7 +8996,7 @@ PROCEDURE UpdateFGLocationOnHandQty:
             AND bf-itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
               
        /* Updates On Hand qty */     
-       IF avail bf-itemfg AND iplOnHold THEN
+       IF AVAIL bf-itemfg AND iplOnHold THEN
        bf-itemfg.q-onh =  bf-itemfg.q-onh - bf-fg-bin.qty.
        ELSE IF AVAIL bf-itemfg THEN
        bf-itemfg.q-onh =  bf-itemfg.q-onh + bf-fg-bin.qty.

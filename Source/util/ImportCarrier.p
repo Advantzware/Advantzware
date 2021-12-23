@@ -16,10 +16,10 @@ DEFINE TEMP-TABLE ttImportCarrier
     FIELD Company       AS CHARACTER 
     FIELD Location      AS CHARACTER
     FIELD Carrier       AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Carrier" HELP "Required - Size:8"
-    FIELD Dscr      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Description" HELP "Optional - Size:30" 
-    FIELD Loc        AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Required - Size:8" 
-    FIELD LocDscr      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Loc Description" HELP "Optional - Size:30" 
-    FIELD chg-method      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Charge Method" HELP "Required - MSF,Pallet,Weight"
+    FIELD Dscr          AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Description" HELP "Optional - Size:30" 
+    FIELD Loc           AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Required - Size:8" 
+    FIELD LocDscr       AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Loc Description" HELP "Optional - Size:30" 
+    FIELD chg-method    AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Charge Method" HELP "Required - MSF Pallet Weight (Comma Separated)"
     FIELD Inactive      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Inactive" HELP "Required - Yes or No"
     
     .

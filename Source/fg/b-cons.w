@@ -1122,7 +1122,7 @@ PROCEDURE gl-from-work :
                         period.pnum,
                         "A",
                         v-post-date,
-                        "",
+                        work-gl.cDesc,
                         "FG").
 
      ASSIGN

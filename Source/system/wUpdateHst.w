@@ -57,7 +57,7 @@ DEFINE VARIABLE cCurlLoc AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BUTTON-1 bHotfix 
+&Scoped-Define ENABLED-OBJECTS BUTTON-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -154,6 +154,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON bHotfix IN FRAME fMain
+   NO-ENABLE                                                            */
+ASSIGN 
+       bHotfix:HIDDEN IN FRAME fMain           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -204,7 +209,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -310,7 +314,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE BUTTON-1 bHotfix 
+  ENABLE BUTTON-1 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -335,9 +339,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin
-PROCEDURE initializeObject:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin 
+PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -362,15 +365,13 @@ PROCEDURE initializeObject:
         bHotfix:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipInstallPatch wWin
-PROCEDURE ipInstallPatch:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipInstallPatch wWin 
+PROCEDURE ipInstallPatch :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -513,8 +514,7 @@ PROCEDURE ipInstallPatch:
         VIEW-AS ALERT-BOX INFO.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
