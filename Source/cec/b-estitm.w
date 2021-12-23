@@ -36,6 +36,8 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/persist.i}
 {est/ttInputEst.i NEW}
+
+{est/ttCalcLayoutSize.i}
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -154,6 +156,7 @@ DEFINE VARIABLE lv-hld-wid   LIKE eb.wid       NO-UNDO.
 DEFINE VARIABLE lv-hld-len   LIKE eb.len       NO-UNDO.
 DEFINE VARIABLE lv-hld-dep   LIKE eb.dep       NO-UNDO.
 DEFINE VARIABLE lv-hld-style LIKE eb.style     NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc  AS LOGICAL NO-UNDO.
 
 DEF NEW SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
 
@@ -264,6 +267,12 @@ IF lRecFound THEN
     OUTPUT cRecValue, OUTPUT lRecFound).
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cRecValue) NO-ERROR.    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2839,7 +2848,10 @@ PROCEDURE calc-layout :
       {sys/inc/ceroute1.i w id l en}
     END.
 
-    RUN cec/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+    ELSE
+       RUN cec/calc-dim.p.
   END.
 
   IF ceroute-chr NE "" THEN DO:
@@ -2856,7 +2868,10 @@ PROCEDURE calc-layout :
        xeb.num-wid  = 1
        xeb.num-len  = 1.
 
-      RUN cec/calc-dim1.p NO-ERROR.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
       ASSIGN
        xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)
@@ -2899,7 +2914,10 @@ PROCEDURE calc-layout4Artios :
       RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
       {sys/inc/ceroute1.i w id l en}
 
-      RUN cec/calc-dim.p.
+        IF lCEUseNewLayoutCalc THEN
+            RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN cec/calc-dim.p.
 
       /*
       IF xef.m-code EQ "" THEN xef.m-code = ceroute-chr.
@@ -4863,7 +4881,10 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-len = 1
                   eb.num-up = 1.
                
-               RUN cec/calc-dim.p .
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4910,7 +4931,11 @@ DEF VAR li AS INT NO-UNDO.
                   FIND xef WHERE RECID(xef) = recid(ef).
                   FIND xeb WHERE RECID(xeb) = recid(eb).
               /* END.*/
-               RUN cec/calc-dim.p .
+               
+                IF lCEUseNewLayoutCalc THEN
+                    RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+                ELSE
+                    RUN cec/calc-dim.p .
             END.
          END.
         
@@ -4955,7 +4980,11 @@ DEF VAR li AS INT NO-UNDO.
                eb.num-wid = 1
                eb.num-len = 1
                eb.num-up = 1.
-            RUN cec/calc-dim.p.
+            
+             IF lCEUseNewLayoutCalc THEN
+                 RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+             ELSE
+                 RUN cec/calc-dim.p.
          END.
       END.
 
@@ -5081,6 +5110,63 @@ PROCEDURE getEstQtyRowID :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcDimensions B-table-Win
+PROCEDURE pCalcDimensions PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate and Update Form's size values
+     Notes: calculate EF Gross, net, die size and other dimension fields
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
+        RETURN.
+
+    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
+        INPUT ROWID(ipbf-eb),
+        OUTPUT TABLE ttLayoutSize).
+    
+        
+    FOR FIRST ttLayoutSize:
+        
+        ASSIGN
+            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
+            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
+            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
+            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
+            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
+            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
+            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
+            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
+            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
+            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
+            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
+            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
+            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
+            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
+            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
+            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
+            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
+            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
+            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
+            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
+            .     
+   
+    END.     
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

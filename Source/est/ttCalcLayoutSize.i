@@ -38,7 +38,7 @@ DEFINE TEMP-TABLE ttLayoutSize NO-UNDO
     FIELD iBlankNumUp           AS DECIMAL  // xeb.num-up 
     FIELD iBlankNumOnWidth      AS DECIMAL  // xeb.num-wid
     FIELD iBlankNumOnLength     AS DECIMAL  // xeb.num-len
-    FIELD iBlankNumOnDepth      AS DECIMAL  // xeb.num-len
+    FIELD iBlankNumOnDepth      AS DECIMAL  // xeb.num-dep
     .
     
 

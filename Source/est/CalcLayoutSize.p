@@ -82,6 +82,9 @@ FUNCTION fRound RETURNS LOGICAL
 FIND bf-ef WHERE ROWID(bf-ef) EQ ipriEf NO-ERROR.
 FIND bf-eb WHERE ROWID(bf-eb) EQ ipriEb NO-ERROR.
 
+IF NOT AVAILABLE bf-ef OR NOT AVAILABLE bf-eb THEN
+    RETURN.
+
 FIND FIRST bf-item NO-LOCK
     WHERE bf-item.company = bf-ef.company 
     AND bf-item.i-no EQ bf-ef.board NO-ERROR.
