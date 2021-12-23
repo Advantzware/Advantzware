@@ -3418,7 +3418,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
         IF iplgUpdateTax THEN 
             RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
         
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalUsed",bf-inv-head.cust-no,iplIsValidateOnly).
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApproval",bf-inv-head.cust-no,iplIsValidateOnly).
 
         IF NOT lValidateRequired THEN DO:
             RUN pAddTagInfo(
@@ -3956,11 +3956,11 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     
     RUN spGetSettingByNameAndCustomer (ipcControl, ipcCustomer, OUTPUT cReturn). 
     
-    lLogicalValue = cReturn NE ? AND NOT (cReturn EQ "DoNotValidate").
+    lLogicalValue = cReturn NE ? AND NOT (cReturn EQ "Off").
     
     IF iplIsValidateOnly THEN
         lReturnValue = lLogicalValue.
-    ELSE IF NOT iplIsValidateOnly AND cReturn EQ "ValidateWhenPosting" THEN
+    ELSE IF NOT iplIsValidateOnly AND cReturn EQ "On Also During Post" THEN
         lReturnValue = TRUE .
    	
     RETURN lReturnValue.

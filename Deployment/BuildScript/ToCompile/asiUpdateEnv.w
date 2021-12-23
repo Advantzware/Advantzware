@@ -8177,7 +8177,7 @@ PROCEDURE ipConvertInvoiceApprovalSettings:
         cSettingName = ENTRY(iIndex, cNK1List).
 
         IF cSettingName = "ApplyInvoiceApprovals" THEN
-            cSettingName = "InvoiceApprovalUsed".
+            cSettingName = "InvoiceApproval".
 
         FOR EACH sys-ctrl 
             WHERE sys-ctrl.name EQ ENTRY(iIndex, cNK1List):
@@ -8185,12 +8185,12 @@ PROCEDURE ipConvertInvoiceApprovalSettings:
             sys-ctrl.isActive = NO.
             
             IF sys-ctrl.log-fld THEN DO:
-                cSettingValue = "DoNotValidate".
+                cSettingValue = "Off".
 
                 IF sys-ctrl.int-fld EQ 0 THEN
-                    cSettingValue = "Validate".
+                    cSettingValue = "On".
                 ELSE IF sys-ctrl.int-fld EQ 1 THEN
-                    cSettingValue = "ValidateWhenPosting".
+                    cSettingValue = "On Also During Post".
     
                 oSetting:Update(cSettingName, "Company", sys-ctrl.company, "", "", cSettingValue).
             END.
@@ -8199,14 +8199,14 @@ PROCEDURE ipConvertInvoiceApprovalSettings:
                 WHERE sys-ctrl-ship.company EQ sys-ctrl.company
                   AND sys-ctrl-shipto.name  EQ sys-ctrl.name:
 
-                cSettingValue = "DoNotValidate".
+                cSettingValue = "Off".
 
                 IF NOT sys-ctrl-shipto.log-fld THEN 
-                    cSettingValue = "DoNotValidate".
+                    cSettingValue = "Off".
                 ELSE IF sys-ctrl-shipto.int-fld EQ 0 THEN
-                    cSettingValue = "Validate".
+                    cSettingValue = "On".
                 ELSE IF sys-ctrl-shipto.int-fld EQ 1 THEN
-                    cSettingValue = "ValidateWhenPosting".
+                    cSettingValue = "On Also During Post".
                     
                 oSetting:Update(cSettingName, "Customer", sys-ctrl-shipto.company, sys-ctrl-shipto.cust-vend-no, "", cSettingValue).
             END.
