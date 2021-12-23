@@ -181,7 +181,7 @@ ASSIGN
 /* it is GUARANTEED that the old one logged out outside-of-process. */  
 /* This should dramatically reduce the number of STALE logins that Support deals with */
     FOR EACH userLog EXCLUSIVE WHERE 
-        userLog.userStatus EQ "LoggedIn" AND 
+        userLog.userStatus EQ "Logged In" AND 
         userLog.asiUsrNo EQ asi._connect._Connect-Usr:
         ASSIGN 
             userLog.logoutDateTime = DATETIME(TODAY, MTIME)
@@ -202,8 +202,10 @@ ASSIGN
         IF cCurrentUserID EQ "monitor" 
         OR iLoginUserSecLevel GE 1000 THEN ASSIGN 
             cResponse = "".
-        ELSE  
+        ELSE DO:
+            cResponse = "Exit Application".  /* Ticket 105923 */
             RUN system/wSession.w (INPUT iLoginCnt, INPUT iSessionLimit, OUTPUT cResponse).
+        END.
 
         CASE cResponse:
             WHEN "" THEN ASSIGN     /* First time, or user wants multiple sessions */ 
