@@ -121,6 +121,10 @@ DEFINE VARIABLE dTotalAmount   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
 DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
 
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
+
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -853,30 +857,5 @@ FOR EACH notes WHERE notes.rec_key = reckey
 END.
 
 END PROCEDURE.
-
-PROCEDURE pPrintImageOnBack :
-    
-    DEFINE VARIABLE hdOutputProcs AS HANDLE.
-    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
-    
-    DEFINE VARIABLE lPrintImage AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cImageName  AS CHARACTER NO-UNDO.
-    
-    RUN PrintImageOnBack IN hdOutputProcs(
-        INPUT v-print-fmt, /* Image Name => ".\custfiles\Images\<InvoiceFormat>BackImage.pdf" */
-        INPUT "first",       /* After which Page- Image will print  (First, All) */
-        OUTPUT lPrintImage,
-        OUTPUT cImageName
-        ).
-    
-    IF lPrintImage THEN
-    DO:
-        PAGE.
-        PUT UNFORMATTED "<R1><C1><#71><R+65><C125><IMAGE#71=" cImageName .
-    END.
-
-    DELETE OBJECT hdOutputProcs.   
-END PROCEDURE.
-
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
