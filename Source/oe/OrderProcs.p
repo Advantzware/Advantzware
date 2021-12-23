@@ -4512,9 +4512,11 @@ PROCEDURE pProcessImportedOrderLine:
         bf-oe-ordl.i-name     = bf-itemfg.i-name
         bf-oe-ordl.cases-unit = bf-itemfg.case-pall
         bf-oe-ordl.part-dscr1 = bf-itemfg.part-dscr1
-        bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2         
+        bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2 
+        bf-oe-ordl.ediPriceUOM = ipbf-ttOrderLine.uom
+        bf-oe-ordl.ediPrice    = ipbf-ttOrderLine.unitPrice
         .
-
+          
     IF AVAILABLE bf-cust THEN
         ASSIGN
             bf-oe-ordl.disc = bf-cust.disc
@@ -4561,6 +4563,7 @@ PROCEDURE pProcessImportedOrderLine:
                                           "CS" 
                                       ELSE 
                                           bf-oe-ordl.pr-uom
+            bf-oe-ordl.ediPriceUOM = (IF LOOKUP(bf-oe-ordl.ediPriceUOM, gcCaseUOMList) GT 0 THEN "CS" ELSE bf-oe-ordl.ediPriceUOM).                              
             .
             
         RUN Conv_QtyToEA (
