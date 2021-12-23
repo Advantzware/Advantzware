@@ -37,7 +37,6 @@ CREATE WIDGET-POOL.
 {custom/persist.i}
 {est/ttInputEst.i NEW}
 
-{est/ttCalcLayoutSize.i}
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -2849,7 +2848,7 @@ PROCEDURE calc-layout :
     END.
 
     IF lCEUseNewLayoutCalc THEN
-        RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+        RUN pCalcDimensions.
     ELSE
        RUN cec/calc-dim.p.
   END.
@@ -2869,7 +2868,7 @@ PROCEDURE calc-layout :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+            RUN pCalcDimensions.
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 
@@ -2915,7 +2914,7 @@ PROCEDURE calc-layout4Artios :
       {sys/inc/ceroute1.i w id l en}
 
         IF lCEUseNewLayoutCalc THEN
-            RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+            RUN pCalcDimensions.
         ELSE
             RUN cec/calc-dim.p.
 
@@ -4882,7 +4881,7 @@ DEF VAR li AS INT NO-UNDO.
                   eb.num-up = 1.
                
                 IF lCEUseNewLayoutCalc THEN
-                    RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+                    RUN pCalcDimensions.
                 ELSE
                     RUN cec/calc-dim.p .
             END.
@@ -4933,7 +4932,7 @@ DEF VAR li AS INT NO-UNDO.
               /* END.*/
                
                 IF lCEUseNewLayoutCalc THEN
-                    RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+                    RUN pCalcDimensions.
                 ELSE
                     RUN cec/calc-dim.p .
             END.
@@ -4982,7 +4981,7 @@ DEF VAR li AS INT NO-UNDO.
                eb.num-up = 1.
             
              IF lCEUseNewLayoutCalc THEN
-                 RUN pCalcDimensions (BUFFER xef, BUFFER xeb).
+                 RUN pCalcDimensions.
              ELSE
                  RUN cec/calc-dim.p.
          END.
@@ -5122,49 +5121,9 @@ PROCEDURE pCalcDimensions PRIVATE:
      Purpose: Calculate and Update Form's size values
      Notes: calculate EF Gross, net, die size and other dimension fields
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
-    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
     
-    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
-        RETURN.
-
-    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
-        INPUT ROWID(ipbf-eb),
-        OUTPUT TABLE ttLayoutSize).
-    
+    RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
         
-    FOR FIRST ttLayoutSize:
-        
-        ASSIGN
-            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
-            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
-            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
-            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
-            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
-            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
-            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
-            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
-            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
-            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
-            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
-            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
-            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
-            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
-            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
-            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
-            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
-            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
-            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
-            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
-            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
-            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
-            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
-            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
-            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
-            .     
-   
-    END.     
-
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
