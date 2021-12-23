@@ -27,8 +27,7 @@ DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdInvoiceProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE oSetting        AS system.Setting NO-UNDO.
-oSetting = NEW system.Setting().
+
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
 /* ********************  Preprocessor Definitions  ******************** */
@@ -437,8 +436,8 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.orderLine         = ipbf-inv-line.line
         ttInvoiceLineToPost.iEnum             = ipbf-inv-line.e-num
         ttInvoiceLineToPost.bNo               = ipbf-inv-line.b-no
-        ttInvoiceLineToPost.ediPrice          = ipbf-inv-line.spare-dec-2
-        ttInvoiceLineToPost.ediPriceUom       = ipbf-inv-line.spare-char-5
+        ttInvoiceLineToPost.ediPrice          = ipbf-inv-line.ediPrice
+        ttInvoiceLineToPost.ediPriceUom       = ipbf-inv-line.ediPriceUOM
         .
     FIND FIRST bf-sman NO-LOCK 
         WHERE bf-sman.company EQ ipbf-inv-line.company
@@ -1363,8 +1362,8 @@ PROCEDURE pCreateARInvLine PRIVATE:
         bf-ar-invl.sf-sht             = ttInvoiceLineToPost.squareFeetPerEA
         bf-ar-invl.amt-msf            = (bf-ar-invl.inv-qty * bf-ar-invl.sf-sht) / 1000
         bf-ar-invl.taxGroup           = ipbf-inv-line.taxGroup
-        bf-ar-invl.spare-dec-2        = ipbf-inv-line.spare-dec-2
-        bf-ar-invl.spare-char-5       = ipbf-inv-line.spare-char-5
+        bf-ar-invl.ediPrice           = ipbf-inv-line.ediPrice
+        bf-ar-invl.ediPriceUOM        = ipbf-inv-line.ediPriceUOM
         .
 
     IF bf-ar-invl.ord-no EQ 0 THEN 
@@ -2024,9 +2023,6 @@ PROCEDURE pGetSettings PRIVATE:
     DO:            
          ipbf-ttPostingMaster.exportPath = cReturn + "\OB4\" . /* created sub folder*/             
     END.
-       
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalOrderlineChange", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalMiscCharge", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
 END PROCEDURE.
 
 PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
@@ -3399,6 +3395,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE iOverPer                       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dInvPricePerEA                 AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dEdiPricePerEA                 AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSettingValue                  AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3421,7 +3418,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
         IF iplgUpdateTax THEN 
             RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
         
-        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"ApplyInvoiceApprovals",bf-inv-head.cust-no,iplIsValidateOnly).
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalUsed",bf-inv-head.cust-no,iplIsValidateOnly).
 
         IF NOT lValidateRequired THEN DO:
             RUN pAddTagInfo(
@@ -3516,7 +3513,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                     lAutoApprove = NO.
                 END. 
                 
-                lValidateRequired =  logical(oSetting:GetByNameAndCustomer("InvoiceApprovalShipOverage",bf-inv-head.cust-no)).  
+                lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalShipOverage", bf-inv-head.cust-no,iplIsValidateOnly).   
                 IF lValidateRequired THEN
                 DO:   
                     RUN pGetOrderRelAndShipQty(bf-ttInvoiceLineToPost.company , bf-ttInvoiceLineToPost.orderID, bf-ttInvoiceLineToPost.itemID, bf-ttInvoiceLineToPost.orderLine, OUTPUT iReleaseQty, OUTPUT iOrderQty, OUTPUT iOverPer).
@@ -3527,7 +3524,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                     END.                     
                 END. 
                 
-                lValidateRequired = logical(oSetting:GetByNameAndCustomer("InvoiceApprovalEdiPriceVariance",bf-inv-head.cust-no)). 
+                lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalEdiPriceVariance", bf-inv-head.cust-no,iplIsValidateOnly). 
                 IF lValidateRequired AND bf-ttInvoiceLineToPost.isOrderEdi THEN
                 DO:   
                     IF bf-ttInvoiceLineToPost.ediPriceUom EQ bf-ttInvoiceLineToPost.priceUOM  AND bf-ttInvoiceLineToPost.pricePerUOM NE bf-ttInvoiceLineToPost.ediPrice  THEN
@@ -3957,20 +3954,14 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE cReturn       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
     
-    RUN sys/ref/nk1look.p (ipcCompany, ipcControl, "L", YES, YES, ipcCustomer ,"", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN lLogicalValue = cReturn EQ "YES".
+    RUN spGetSettingByNameAndCustomer (ipcControl, ipcCustomer, OUTPUT cReturn). 
     
-    RUN sys/ref/nk1look.p (ipcCompany, ipcControl, "I", YES, YES, ipcCustomer,"", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN iIntegerValue = INTEGER(cReturn) NO-ERROR.    
-      
-    IF iplIsValidateOnly AND lLogicalValue THEN
-    DO:
+    lLogicalValue = cReturn NE ? AND NOT (cReturn EQ "DoNotValidate").
+    
+    IF iplIsValidateOnly THEN
+        lReturnValue = lLogicalValue.
+    ELSE IF NOT iplIsValidateOnly AND cReturn EQ "ValidateWhenPosting" THEN
         lReturnValue = TRUE .
-    END.
-    ELSE IF NOT iplIsValidateOnly AND lLogicalValue AND iIntegerValue EQ 1  THEN
-        DO:
-            lReturnValue = TRUE .
-        END.                  
    	
     RETURN lReturnValue.
 		
