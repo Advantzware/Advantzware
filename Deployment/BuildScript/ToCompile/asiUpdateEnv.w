@@ -3778,7 +3778,7 @@ PROCEDURE ipDataFix210415:
     RUN ipStatus ("  Data Fix 210415...").
 
     RUN ipFixLocations.
-
+    RUN ipConvertInvoiceApprovalSettings.
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -8143,6 +8143,85 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertInvoiceApprovalSettings C-Win
+PROCEDURE ipConvertInvoiceApprovalSettings:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cNK1List AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+    RUN ipStatus ("Converting InvoiceApproval NK1s...").
+
+    cNK1List = "ApplyInvoiceApprovals,"
+             + "InvoiceApprovalBillNotes,"
+             + "InvoiceApprovalExpectZero,"
+             + "InvoiceApprovalFreightAmount,"
+             + "InvoiceApprovalFreightTerms,"
+             + "InvoiceApprovalInvoiceStatus,"
+             + "InvoiceApprovalMiscCharge,"
+             + "InvoiceApprovalOrderlineChange,"
+             + "InvoiceApprovalPriceGTCost,"
+             + "InvoiceApprovalTaxableCheck,"
+             + "InvoiceApprovalTaxCalc".
+    
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSettingName  AS CHARACTER NO-UNDO.
+
+    oSetting = NEW system.Setting().
+
+    DO iIndex = 1 TO NUM-ENTRIES(cNK1List):
+        cSettingName = ENTRY(iIndex, cNK1List).
+
+        IF cSettingName = "ApplyInvoiceApprovals" THEN
+            cSettingName = "InvoiceApprovalUsed".
+
+        FOR EACH sys-ctrl 
+            WHERE sys-ctrl.name EQ ENTRY(iIndex, cNK1List):
+            
+            sys-ctrl.isActive = NO.
+            
+            IF sys-ctrl.log-fld THEN DO:
+                cSettingValue = "DoNotValidate".
+
+                IF sys-ctrl.int-fld EQ 0 THEN
+                    cSettingValue = "Validate".
+                ELSE IF sys-ctrl.int-fld EQ 1 THEN
+                    cSettingValue = "ValidateWhenPosting".
+    
+                oSetting:Update(cSettingName, "Company", sys-ctrl.company, "", "", cSettingValue).
+            END.
+
+            FOR EACH sys-ctrl-shipto NO-LOCK 
+                WHERE sys-ctrl-ship.company EQ sys-ctrl.company
+                  AND sys-ctrl-shipto.name  EQ sys-ctrl.name:
+
+                cSettingValue = "DoNotValidate".
+
+                IF NOT sys-ctrl-shipto.log-fld THEN 
+                    cSettingValue = "DoNotValidate".
+                ELSE IF sys-ctrl-shipto.int-fld EQ 0 THEN
+                    cSettingValue = "Validate".
+                ELSE IF sys-ctrl-shipto.int-fld EQ 1 THEN
+                    cSettingValue = "ValidateWhenPosting".
+                    
+                oSetting:Update(cSettingName, "Customer", sys-ctrl-shipto.company, sys-ctrl-shipto.cust-vend-no, "", cSettingValue).
+            END.
+        END.
+    END.
+
+    FINALLY:
+        IF VALID-OBJECT (oSetting) THEN
+            DELETE OBJECT oSetting.	
+    END FINALLY.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
