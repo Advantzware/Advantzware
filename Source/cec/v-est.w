@@ -93,6 +93,7 @@ DEF BUFFER b-style FOR style.
 DEF VAR v-count AS INT NO-UNDO.
 
 DEFINE VARIABLE cWidgethandles AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 
 DO TRANSACTION:
   {sys/inc/addprep.i}
@@ -1193,6 +1194,11 @@ DO:
                          OUTPUT cRecValue, OUTPUT lRecFound).    
   IF lRecFound THEN
     cArtiosCAD = cRecValue NO-ERROR.  
+  
+  RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+  
   
   ASSIGN
     initDir = cArtiosCAD 
@@ -4829,7 +4835,10 @@ PROCEDURE update-sheet :
     {sys/inc/ceroute1.i w id l en}
   END.
 
-  RUN cec/calc-dim.p .
+  IF lCEUseNewLayoutCalc THEN
+      RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+  ELSE
+      RUN cec/calc-dim.p .
 
   IF ceroute-chr NE "" THEN DO:
     FIND FIRST mach
@@ -4845,7 +4854,10 @@ PROCEDURE update-sheet :
        xeb.num-wid  = 1
        xeb.num-len  = 1.
 
-      RUN cec/calc-dim1.p NO-ERROR.
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN cec/calc-dim1.p NO-ERROR.
 
       ASSIGN
        xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)
