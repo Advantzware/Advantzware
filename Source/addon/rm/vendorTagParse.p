@@ -40,11 +40,8 @@ DEFINE VARIABLE iXsize      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cPromptType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendorNo   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE oSetting    AS system.Setting NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
-
-oSetting  = NEW system.Setting().
 
 FIND FIRST po-ord NO-LOCK
      WHERE po-ord.company EQ cCompany 
@@ -53,9 +50,9 @@ FIND FIRST po-ord NO-LOCK
      NO-ERROR.
      
 cVendorNo = IF AVAIL po-ord THEN po-ord.vend-no ELSE "".
-            
-cParseMask = oSetting:GetByNameAndVendor("SSScanVendorTagMask", cVendorNo).
-cPromptType = oSetting:GetByNameAndVendor("SSScanVendorTagPrompt", cVendorNo).
+
+RUN spGetSettingByNameAndVendor("SSScanVendorTagMask", cVendorNo, OUTPUT cParseMask) .
+RUN spGetSettingByNameAndVendor("SSScanVendorTagPrompt", cVendorNo, OUTPUT cPromptType) .
       
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -116,5 +113,3 @@ FOR EACH ttParseVal:
             opcAddInfo = SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength).    
     END CASE.
 END.
-
-DELETE OBJECT oSetting.
