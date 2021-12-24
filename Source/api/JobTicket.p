@@ -76,6 +76,13 @@
     DEFINE VARIABLE lcBlankGroupHeader     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcBlankGroupFooter     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcData                 AS LONGCHAR NO-UNDO.
+
+    DEFINE VARIABLE lcJobData       AS LONGCHAR.
+    DEFINE VARIABLE lcFormData      AS LONGCHAR.
+    DEFINE VARIABLE lcBlankData     AS LONGCHAR.
+    DEFINE VARIABLE lcMaterialData  AS LONGCHAR.
+    DEFINE VARIABLE lcOperationData AS LONGCHAR.
+    DEFINE VARIABLE lcItemData      AS LONGCHAR.
     
     DEFINE VARIABLE lJobAvailable       AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOperationAvailable AS LOGICAL NO-UNDO.
@@ -83,15 +90,7 @@
     DEFINE VARIABLE lBlankAvailable     AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lMaterialAvailable  AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE oEbAttribute      AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEfAttribute      AS system.Attribute NO-UNDO.                    
-    DEFINE VARIABLE oEstCostHeader    AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEstCostForm      AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEstCostBlank     AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEstCostMaterial  AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEstCostOperation AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oEstCostItem      AS system.Attribute NO-UNDO.
-    DEFINE VARIABLE oJobHeader        AS system.Attribute NO-UNDO.
+    DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     
@@ -138,33 +137,15 @@
         
         SET-SIZE(mptrTTReceipt) = 0.                  
 
-        oEstCostHeader    = NEW system.Attribute("estCostHeader").
-        oEstCostForm      = NEW system.Attribute("estCostForm").
-        oEstCostBlank     = NEW system.Attribute("estCostBlank").
-        oEstCostMaterial  = NEW system.Attribute("estCostMaterial").
-        oEstCostOperation = NEW system.Attribute("estCostOperation").
-        oEstCostItem      = NEW system.Attribute("estCostItem").
-        oEfAttribute      = NEW system.Attribute("ef").
-        oEbAttribute      = NEW system.Attribute("eb").
-        oJobHeader        = NEW system.Attribute("job-hdr").
+        oAttribute = NEW system.Attribute().
+        oAttribute:RequestDataType = gcRequestDataType.
         
-        RUN pGetRequestData ("Job", OUTPUT lcData).
-        oEstCostHeader:RequestData = lcData.
-        
-        RUN pGetRequestData ("Form", OUTPUT lcData).
-        oEstCostForm:RequestData = lcData.
-
-        RUN pGetRequestData ("Blank", OUTPUT lcData).
-        oEstCostBlank:RequestData = lcData.
-
-        RUN pGetRequestData ("Material", OUTPUT lcData).
-        oEstCostMaterial:RequestData = lcData.
-
-        RUN pGetRequestData ("Operation", OUTPUT lcData).
-        oEstCostOperation:RequestData = lcData.
-
-        RUN pGetRequestData ("Item", OUTPUT lcData).
-        oEstCostItem:RequestData = lcData.
+        RUN pGetRequestData ("Job", OUTPUT lcJobData).
+        RUN pGetRequestData ("Form", OUTPUT lcFormData).
+        RUN pGetRequestData ("Blank", OUTPUT lcBlankData).
+        RUN pGetRequestData ("Material", OUTPUT lcMaterialData).
+        RUN pGetRequestData ("Operation", OUTPUT lcOperationData).
+        RUN pGetRequestData ("Item", OUTPUT lcItemData).
         
         RUN pGetRequestData ("PageHeader", OUTPUT lcPageHeader).
         RUN pGetRequestData ("PageFooter", OUTPUT lcPageFooter).
@@ -180,8 +161,6 @@
         RUN pGetRequestData ("BlankGroupFooter", OUTPUT lcBlankGroupFooter).
         
         FOR EACH ttEstCostHeaderID:
-            RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
-                                      
             FIND FIRST estCostHeader NO-LOCK
                  WHERE estCostHeader.estCostHeaderID EQ ttEstCostHeaderID.estCostHeaderID
                  NO-ERROR.
@@ -246,28 +225,30 @@
                           AND estCostMaterial.estCostBlankID  EQ estCostBlank.estCostBlankID:
                               
                         lMaterialAvailable = TRUE.
+
+                        lcMaterial = lcMaterialData.
                         
-                        lcMaterial = oEstCostMaterial:ReplaceAttributes(BUFFER estCostMaterial:HANDLE).
+                        lcMaterial = oAttribute:ReplaceAttributes(lcMaterial, BUFFER estCostMaterial:HANDLE).
                         lcConcatMaterial = lcConcatMaterial + lcMaterial.
                     END.
                     
-                    lcBlank = oEstCostBlank:RequestData.
+                    lcBlank = lcBlankData.
                     
                     FIND FIRST estCostItem NO-LOCK
                          WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
                            AND estCostItem.estCostItemID   EQ estCostBlank.estCostItemID
                          NO-ERROR.
-                    lcBlank = oEstCostItem:ReplaceAttributes(INPUT lcBlank, BUFFER estCostItem:HANDLE).
+                    lcBlank = oAttribute:ReplaceAttributes(INPUT lcBlank, BUFFER estCostItem:HANDLE).
 
-                    RUN updateRequestData(INPUT-OUTPUT lcBlank, "MaterialAvailable",STRING(lMaterialAvailable)).
-                    
+                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "MaterialAvailable", STRING(lMaterialAvailable)).
+
                     lcBlank = REPLACE(lcBlank, "$Materials$", lcConcatMaterial).
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupHeader$", lcMaterialGroupHeader).
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupFooter$", lcMaterialGroupFooter).
 
-                    lcBlank = oEstCostBlank:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
-                    lcBlank = oEbAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
-                    lcBlank = oJobHeader:ReplaceAttributes(lcBlank, BUFFER bf-job-hdr:HANDLE).
+                    lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
+                    lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
+                    lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER bf-job-hdr:HANDLE).
                     
                     lcConcatBlank = lcConcatBlank + lcBlank.
                 END.
@@ -280,15 +261,17 @@
                       BY estCostOperation.sequence:
                     
                     lOperationAvailable = TRUE.
+    
+                    lcOperation = lcOperationData.
                     
-                    lcOperation = oEstCostOperation:ReplaceAttributes(BUFFER estCostOperation:HANDLE).
+                    lcOperation = oAttribute:ReplaceAttributes(lcOperation, BUFFER estCostOperation:HANDLE).
                     lcConcatOperation = lcConcatOperation + lcOperation.
                 END.
                 
-                lcForm = oEstCostForm:RequestData.
+                lcForm = lcFormData.
                 
-                RUN updateRequestData(INPUT-OUTPUT lcForm, "OperationAvailable",STRING(lOperationAvailable)).
-                RUN updateRequestData(INPUT-OUTPUT lcForm, "BlankAvailable",STRING(lBlankAvailable)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "OperationAvailable",STRING(lOperationAvailable)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "BlankAvailable",STRING(lBlankAvailable)).
                 
                 lcForm = REPLACE(lcForm, "$Blanks$", lcConcatBlank).
                 lcForm = REPLACE(lcForm, "$BlankGroupHeader$", lcBlankGroupHeader).
@@ -297,29 +280,29 @@
                 lcForm = REPLACE(lcForm, "$OperationGroupHeader$", lcOperationGroupHeader).
                 lcForm = REPLACE(lcForm, "$OperationGroupFooter$", lcOperationGroupFooter).
 
-                lcForm = oEstCostForm:ReplaceAttributes(lcForm, BUFFER estCostForm:HANDLE).
-                lcForm = oEbAttribute:ReplaceAttributes(lcForm, BUFFER ef:HANDLE).
+                lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER estCostForm:HANDLE).
+                lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER ef:HANDLE).
 
                 lcConcatForm = lcConcatForm + lcForm.
             END.  
             
-            lcJob = oEstCostHeader:RequestData.
+            lcJob = lcJobData.
             
             lcJob = REPLACE(lcJob, "$Forms$", lcConcatForm).
             lcJob = REPLACE(lcJob, "$FormGroupHeader$", lcFormGroupHeader).
             lcJob = REPLACE(lcJob, "$FormGroupFooter$", lcFormGroupFooter).
 
-            lcJob = oEstCostHeader:ReplaceAttributes(lcJob, BUFFER estCostHeader:HANDLE).
+            lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER estCostHeader:HANDLE).
             
             RUN pGetRequestData ("JobHeader", OUTPUT lcJobHeader).
             
-            lcJobHeader = oEstCostHeader:ReplaceAttributes(lcJobHeader, BUFFER estCostHeader:HANDLE).
+            lcJobHeader = oAttribute:ReplaceAttributes(lcJobHeader, BUFFER estCostHeader:HANDLE).
 
-            RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+            RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
             
             RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
 
-            lcJob = oJobHeader:ReplaceAttributes(lcJob, BUFFER job-hdr:HANDLE).
+            lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER job-hdr:HANDLE).
             
             lcConcatJob = lcConcatJob + lcJob.
         END.
@@ -335,7 +318,7 @@
         ioplcRequestData = REPLACE(ioplcRequestData, "$ReportHeader$", lcReportHeader).
         ioplcRequestData = REPLACE(ioplcRequestData, "$ReportFooter$", lcReportFooter).
         
-        RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
         
         ASSIGN
             opcMessage = ""
@@ -344,32 +327,9 @@
     END.
 
     FINALLY:
-        IF VALID-OBJECT (oEbAttribute) THEN
-            DELETE OBJECT oEbAttribute.
+        IF VALID-OBJECT (oAttribute) THEN
+            DELETE OBJECT oAttribute.
 
-        IF VALID-OBJECT (oEfAttribute) THEN
-            DELETE OBJECT oEfAttribute.                    
-
-        IF VALID-OBJECT (oEstCostHeader) THEN
-            DELETE OBJECT oEstCostHeader.
-
-        IF VALID-OBJECT (oEstCostForm) THEN
-            DELETE OBJECT oEstCostForm.
-
-        IF VALID-OBJECT (oEstCostBlank) THEN
-            DELETE OBJECT oEstCostBlank.
-
-        IF VALID-OBJECT (oEstCostMaterial) THEN
-            DELETE OBJECT oEstCostMaterial.
-
-        IF VALID-OBJECT (oEstCostOperation) THEN
-            DELETE OBJECT oEstCostOperation.
-
-        IF VALID-OBJECT (oEstCostItem) THEN
-            DELETE OBJECT oEstCostItem.
-
-        IF VALID-OBJECT (oJobHeader) THEN
-            DELETE OBJECT oJobHeader.
     END FINALLY.
     
 
@@ -455,7 +415,7 @@ PROCEDURE pInsertPageHeaderFooter:
         ELSE
             ioplcRequestData = lcRequestData1 + lcRequestData2.
         
-        RUN pUpdateDelimiter (INPUT-OUTPUT ioplcRequestData, "").
+        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     END. 
 END PROCEDURE.
 

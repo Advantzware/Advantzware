@@ -121,6 +121,10 @@ DEFINE VARIABLE dTotalAmount   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
 DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
 
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
+
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -594,6 +598,7 @@ ELSE lv-comp-color = "BLACK".
                             DO i = 1 TO v-tmp-lines:
                            
                                IF v-printline > 50 THEN DO:
+                                  RUN pPrintImageOnBack.
                                   PAGE.
                                   v-printline = 0.
                                   {ar/rep/invhenry.i}
@@ -613,6 +618,7 @@ ELSE lv-comp-color = "BLACK".
             END.
             
             IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {ar/rep/invhenry.i}
@@ -627,6 +633,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {ar/rep/invhenry.i}
@@ -639,6 +646,7 @@ ELSE lv-comp-color = "BLACK".
            DO i = 1 TO 4:
               IF ar-inv.bill-i[i] <> "" THEN DO:
                  IF v-printline > 50 THEN DO:
+                    RUN pPrintImageOnBack.
                     PAGE.
                     v-printline = 0.
                     {ar/rep/invhenry.i}
@@ -650,6 +658,7 @@ ELSE lv-comp-color = "BLACK".
         END.
 
         IF v-printline > 50 THEN DO:
+           RUN pPrintImageOnBack.
            PAGE.
            v-printline = 0.
            {ar/rep/invhenry.i}
@@ -708,13 +717,11 @@ ELSE lv-comp-color = "BLACK".
          cCurrency = "EUR" .
          ELSE IF i EQ 2 THEN
          cCurrency = "GBP".
-         FIND FIRST currency NO-LOCK
-              WHERE currency.company   EQ cust.company
-              AND currency.c-code      EQ cCurrency               
-              AND currency.ex-rate     GT 0
-              NO-ERROR.
-             
-           dExchangeRate[i] = IF AVAILABLE currency THEN currency.ex-rate ELSE 1.   
+         RUN spCommon_CurrencyExcRate( INPUT cust.company,
+                                       INPUT cCurrency,
+                                       INPUT "USD",
+                                       INPUT ar-inv.inv-date,
+                                       OUTPUT dExchangeRate[i]).   
         END.     
     END.
 
@@ -793,6 +800,7 @@ END.
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
 
+    RUN pPrintImageOnBack.
     /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */
     PAGE. 
 
@@ -849,6 +857,5 @@ FOR EACH notes WHERE notes.rec_key = reckey
 END.
 
 END PROCEDURE.
-
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

@@ -1765,6 +1765,10 @@ PROCEDURE create-rec-from-vend-tag :
                  work-gl.actnum = costtype.inv-asset.
                END.
                work-gl.debits = work-gl.debits + v-ext-cost.
+               
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
+                               + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
 
                /* Credit RM AP Accrued */
                FIND FIRST work-gl WHERE work-gl.actnum EQ costtype.ap-accrued NO-LOCK NO-ERROR.
@@ -1773,6 +1777,10 @@ PROCEDURE create-rec-from-vend-tag :
                   work-gl.actnum = costtype.ap-accrued.
                END.
                work-gl.credits = work-gl.credits + v-ext-cost.
+               
+               work-gl.cDesc = work-gl.cDesc +  (IF rm-rctd.job-no NE "" THEN "Job: " + rm-rctd.job-no + "-" + STRING(rm-rctd.job-no2,"99") 
+                               ELSE IF rm-rctd.po-no NE "" THEN "PO: " + string(rm-rctd.po-no,"999999") + "-" + STRING(rm-rctd.po-line,"999") ELSE "")
+                               + " Cost $" + string(rm-rctd.cost) + " / " + rm-rctd.cost-uom.
            END.
          END.
 
@@ -2649,7 +2657,7 @@ PROCEDURE gl-from-work :
                           period.pnum,
                           "A",
                           v-post-date,
-                          string(IF AVAIL rm-rctd THEN rm-rctd.i-no ELSE ""),
+                          work-gl.cDesc,
                           "RM").
         ASSIGN
            debits  = 0
@@ -2784,16 +2792,16 @@ PROCEDURE LoadTag :
 /*------------------------------------------------------------------------------
   Purpose:     
   Notes:       
-------------------------------------------------------------------------------*/
-    GET FIRST {&BROWSE-NAME}.
-    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+------------------------------------------------------------------------------*/        
+    IF AVAIL rm-rctd THEN
+    DO:
         CREATE ttLoadTag.
         ASSIGN
-            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
-            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            ttLoadTag.loadtag = rm-rctd.tag
+            ttLoadTag.qty     = rm-rctd.qty
             .
-        GET NEXT {&BROWSE-NAME}.
-    END. /* repeat */
+    END.
+    
     IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
     RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
     IF run-proc NE "" THEN

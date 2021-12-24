@@ -59,6 +59,9 @@ DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFilePath            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName            AS CHARACTER NO-UNDO.
+
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs           AS HANDLE    NO-UNDO.
@@ -106,6 +109,9 @@ FOR FIRST APIOutbound NO-LOCK
         .
 END.
 
+/* EndPoint Variable replacement using SharedConfig values */
+gcEndPoint = scInstance:ReplaceEndPointVariables(gcEndPoint, gcAPIID).
+
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
         opcMessage = "Config for Outbound API Sequence ID [" 
@@ -151,8 +157,27 @@ IF (gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" OR gcRequestType EQ "SAVE"
 END.
 
 IF glSaveFile THEN DO:
+    cFilePath = gcSaveFileFolder.
+    
+    IF INDEX (gcSaveFileFolder, "$") GT 0 THEN DO:
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CompanyID", cCompany, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "APIID", gcAPIID, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "ClientID", gcClientID, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "PrimaryID", ipcPrimaryID, "").   
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "RequestDataType", gcRequestDataType, ""). 
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "RequestVerb", gcRequestVerb, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDate", TODAY, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentTime", TIME, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDateTime", NOW, "").
+        
+        ASSIGN 
+            cFileName = ENTRY(NUM-ENTRIES(gcSaveFileFolder, "\"), gcSaveFileFolder, "\") 
+            cFilePath = SUBSTRING(gcSaveFileFolder, 1, R-INDEX(gcSaveFileFolder, "\") - 1)
+            NO-ERROR.
+    END.
+    
     RUN FileSys_CreateDirectory (
-        INPUT  gcSaveFileFolder,
+        INPUT  cFilePath,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) NO-ERROR.
@@ -160,8 +185,8 @@ IF glSaveFile THEN DO:
         RETURN.
 
     RUN FileSys_GetFilePath (
-        INPUT  gcSaveFileFolder,
-        OUTPUT gcSaveFileFolder,
+        INPUT  cFilePath,
+        OUTPUT cFilePath,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).    
@@ -169,8 +194,8 @@ IF glSaveFile THEN DO:
         RETURN.
 
     ASSIGN
-        gcRequestFile = RIGHT-TRIM(gcSaveFileFolder, "/")
-        gcRequestFile = RIGHT-TRIM(gcSaveFileFolder, "\")
+        gcRequestFile = RIGHT-TRIM(cFilePath, "/")
+        gcRequestFile = RIGHT-TRIM(cFilePath, "\")
         .
 
     ASSIGN
@@ -179,11 +204,14 @@ IF glSaveFile THEN DO:
                        + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
                        + gcDateTime               /* Date and Time */
                        + "." + "log"
-        cRequestFile   = gcAPIID       + "_"      /* API ID    */
-                       + gcClientID    + "_"      /* Client ID */
-                       + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
-                       + gcDateTime               /* Date and Time */
-                       + "." + lc(gcRequestDataType). /* File Extentions */
+        cRequestFile   = IF cFileName NE "" THEN
+                             cFileName
+                         ELSE 
+                             (gcAPIID       + "_"      /* API ID    */
+                            + gcClientID    + "_"      /* Client ID */
+                            + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
+                            + gcDateTime               /* Date and Time */
+                            + "." + lc(gcRequestDataType)). /* File Extentions */
         .
 
     RUN FileSys_FileNameCleanup (
@@ -202,7 +230,6 @@ IF glSaveFile THEN DO:
         .
         
     COPY-LOB iplcRequestData TO FILE gcRequestFile.
-    OS-COPY VALUE (gcRequestFile) VALUE (gcSaveFileFolder).    
 END.
 
 /* Return as file would have been already saved */
@@ -295,7 +322,7 @@ IF cAPIRequestMethod EQ "cURL" THEN DO:
               + cUrlEncodedData
               + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
               + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-              + gcEndPoint.
+              + '"' + gcEndPoint + '"'.
     
     /* Put Request Data from a variable into a Temporary file */
     COPY-LOB glcRequestData TO FILE gcRequestFile.

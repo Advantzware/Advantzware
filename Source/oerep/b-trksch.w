@@ -1113,6 +1113,21 @@ PROCEDURE update-record :
   END.
 
   RUN calc-tot-wgt-proc.
+  
+  IF CAN-FIND( FIRST b-tt-report WHERE
+     b-tt-report.carrier EQ tt-report.carrier AND 
+     b-tt-report.truck-code EQ tt-report.truck-code AND 
+     b-tt-report.ship-date EQ tt-report.ship-date AND 
+     b-tt-report.ship-no EQ tt-report.ship-no AND 
+     b-tt-report.deliv-zone EQ tt-report.deliv-zone AND
+     ROWID(b-tt-report) NE ROWID(tt-report)) THEN DO:
+     
+     MESSAGE "Update all items with this Stop#"
+              VIEW-AS ALERT-BOX QUESTION 
+              BUTTONS YES-NO UPDATE lcheckflg as logical .
+     IF lcheckflg THEN 
+     RUN pUpdateStopNo.         
+  END.
 
   FIND FIRST truck WHERE
        truck.company = tt-report.company AND
@@ -1181,6 +1196,40 @@ PROCEDURE update-release :
       FIND CURRENT oe-relh NO-LOCK.
       RELEASE oe-relh.
    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStopNo D-Dialog 
+PROCEDURE pUpdateStopNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+     FOR EACH b-tt-report
+         WHERE b-tt-report.carrier EQ tt-report.carrier 
+           AND b-tt-report.truck-code EQ tt-report.truck-code 
+           AND b-tt-report.ship-date EQ tt-report.ship-date 
+           AND b-tt-report.ship-no EQ tt-report.ship-no 
+           AND b-tt-report.deliv-zone EQ tt-report.deliv-zone
+           AND ROWID(b-tt-report) NE ROWID(tt-report):
+                            
+           ASSIGN b-tt-report.stop-no = tt-report.stop-no. 
+           RUN add-truck-run (INPUT rowid(b-tt-report), INPUT NO, OUTPUT rwRowid).
+           FIND truck-run-print WHERE rowid(truck-run-print) = rwRowid
+               EXCLUSIVE-LOCK.
+
+           ASSIGN              
+              truck-run-print.stop-no = tt-report.stop-no
+              .
+
+           FIND CURRENT truck-run-print NO-LOCK.
+           RELEASE truck-run-print.
+     END.      
 
 END PROCEDURE.
 

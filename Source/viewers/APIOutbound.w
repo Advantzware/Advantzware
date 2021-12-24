@@ -1121,12 +1121,39 @@ PROCEDURE pFieldValidations :
                 .
             RETURN.
         END.    
-    
-        RUN FileSys_CreateDirectory(
-            INPUT  saveFileFolder:SCREEN-VALUE,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
+        
+        IF INDEX (saveFileFolder:SCREEN-VALUE, "$CurrentDate$") GT 0 THEN DO:
+            MESSAGE "Format does not exist for CurrentDate attribute. This may create unwanted directories" SKIP
+                "Formatting Example: $CurrentDate|YYYY_MM_DD|DATE|$" SKIP
+                "Do not include any slashes ('\', '/') in the formatting." SKIP
+                "Please check documentation for more inforamtion"
+                VIEW-AS ALERT-BOX WARNING.
+        END.
+
+        IF INDEX (saveFileFolder:SCREEN-VALUE, "$CurrentTime$") GT 0 THEN DO:
+            MESSAGE "Format does not exist for CurrentTime attribute" SKIP
+                "Formatting Example: $CurrentTime|hh_mm_ss|TIME|$" SKIP
+                "Please check documentation for more inforamtion"
+                VIEW-AS ALERT-BOX WARNING.
+        END.
+
+        IF INDEX (saveFileFolder:SCREEN-VALUE, "$CurrentDateTime$") GT 0 THEN DO:
+            ASSIGN
+                oplSuccess = FALSE            
+                opcMessage = "Format does not exist for CurrentDateTime attribute. This may result in an error while creating the file/folder. ~n"
+                           + "Formatting Example: $CurrentDateTime|YYYY_MM_DD_hh_mm_ss|DATE|$ ~n"
+                           + "Do not include any slashes ('\', '/') in the formatting. ~n"
+                           + "Please check documentation for more inforamtion"
+                .
+            RETURN.                
+        END.
+          
+        IF INDEX (saveFileFolder:SCREEN-VALUE, "$") EQ 0 THEN 
+            RUN FileSys_CreateDirectory(
+                INPUT  saveFileFolder:SCREEN-VALUE,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
         
         IF NOT oplSuccess THEN
             RETURN.   

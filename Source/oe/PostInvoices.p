@@ -323,7 +323,7 @@ PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
         ttGLTransaction.account           = ipcAccount
         ttGLTransaction.amount            = dCostTotal
         ttGLTransaction.itemID            = ipbf-ttInvoiceLineToPost.itemID
-        ttGLTransaction.transactionDesc   = fGetTransactionDescription(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.customerID, ipbf-ttInvoiceLineToPost.invoiceID) + " " + ipcTransactionType
+        ttGLTransaction.transactionDesc   = fGetTransactionDescription(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.customerID, ipbf-ttInvoiceLineToPost.invoiceID) + " " + ipcTransactionType + " Line:" + STRING(ipbf-ttInvoiceLineToPost.invoiceLine)
         ttGLTransaction.journalNote       = ipbf-ttPostingMaster.journalNote
         ttGLTransaction.transactionDate   = ipbf-ttPostingMaster.postDate
         ttGLTransaction.transactionPeriod = ipbf-ttPostingMaster.periodID
@@ -1178,10 +1178,11 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
           
     /*used for Terms procedures*/
-    DEFINE VARIABLE iDueOnMonth AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iDueOnMonth AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDueOnDay   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNetDays    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTermsDesc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
         
     CREATE bf-ar-inv.
     DISABLE TRIGGERS FOR LOAD OF ar-inv.
@@ -1258,7 +1259,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     RUN Credit_GetTerms(ipbf-inv-head.company,ipbf-inv-head.terms, 
         OUTPUT iDueOnMonth, OUTPUT iDueOnDay, OUTPUT iNetDays, 
         OUTPUT bf-ar-inv.disc-%, OUTPUT bf-ar-inv.disc-days,  
-        OUTPUT lError) .
+        OUTPUT cTermsDesc, OUTPUT lError) .
     IF NOT lError THEN         
         bf-ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", DATE(bf-ar-inv.inv-date), ipbf-inv-head.company, ipbf-inv-head.terms).  /*From CreditProcs*/
         
@@ -1530,6 +1531,7 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-glhist.entryType = "A"
             bf-glhist.module    = "AR"
             bf-glhist.posted    =  NO
+            bf-glhist.documentID = IF INDEX(ipcDescription,'#') EQ 0 THEN ipcDescription ELSE "Inv: " + substring(ipcDescription,INDEX(ipcDescription,'#') + 1 ,45)
             .
         RELEASE bf-glhist.
     END.
@@ -2485,7 +2487,7 @@ PROCEDURE pPostGLType PRIVATE:
                     DO:
                         IF iplCreateGL THEN 
                         DO:
-                            ttGLTransaction.transactionDesc = ipcConsolidateDesc.
+                            ttGLTransaction.transactionDesc = ipcConsolidateDesc + " Inv:" + STRING(ttGLTransaction.invoiceID,"9999999").
                             RUN pCreateGLTransFromTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
                         END.
                         dAmountToPost = 0.

@@ -661,7 +661,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-2 ).
-       RUN set-position IN h_v-navest-2 ( 9.10 , 57.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-2 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -710,7 +710,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-3 ).
-       RUN set-position IN h_v-navest-3 ( 9.10 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-3 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -785,7 +785,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-4 ).
-       RUN set-position IN h_v-navest-4 ( 9.10 , 45.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-4 ( 9.45 , 7.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

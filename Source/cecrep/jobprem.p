@@ -831,18 +831,20 @@ do v-local-loop = 1 to v-local-copies:
                 IF NOT VALID-HANDLE(hdFormulaProcs) THEN
                     RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
                 
-                RUN Formula_GetPanelDetailsForPOScores IN hdFormulaProcs (
-                    INPUT  xeb.company,
-                    INPUT  xeb.est-no,
-                    INPUT  xeb.form-no,
-                    INPUT  xeb.blank-no,
-                    OUTPUT TABLE ttPanel
+                RUN Formula_ParseDesignScores IN hdFormulaProcs (
+                    INPUT xeb.company,
+                    INPUT xeb.est-no,
+                    INPUT xeb.form-no,
+                    INPUT xeb.blank-no,
+                    INPUT xstyle.designIDAlt,
+                    INPUT lPrintMetric,
+                    OUTPUT TABLE ttScoreLine
                     ).
                 
                 DELETE PROCEDURE hdFormulaProcs.
                 
                    
-                IF CAN-FIND(FIRST ttPanel) THEN
+                IF CAN-FIND(FIRST ttScoreLine) THEN
                 DO:
                     RUN pPrintAltBoxDesign (BUFFER xstyle, xef.xgrain, xest.metric).
                      
@@ -1129,9 +1131,14 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
     
     put cLineText FORM "x(200)" skip.
     
-    RUN pParseScoreLine (bf-box-design-hdr.lscore, iplEstMetric, "L", NO, OUTPUT cScoreLineL).
-    RUN pParseScoreLine (bf-box-design-hdr.lcum-score, iplEstMetric, "L", YES, OUTPUT cScoreLineLTotal).
+    FIND FIRST ttScoreLine NO-LOCK
+        WHERE ttScoreLine.PanelType = "L" NO-ERROR.
     
+    IF AVAILABLE ttScoreLine THEN
+        ASSIGN
+            cScoreLineL      = ttScoreLine.ScoreLine
+            cScoreLineLTotal = ttScoreLine.ScoreLineTotal.
+         
     put cScoreLineL  FORM "x(100)"  skip
         cScoreLineLTotal FORM "x(100)"  skip.
         
@@ -1142,103 +1149,25 @@ PROCEDURE pPrintAltBoxDesign PRIVATE:
         FILE-INFO:FILE-NAME = bf-box-design-hdr.box-image.
      
         PUT unformatted 
-            "<C1><#30><R+25><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+            "<C1><#30><R+15><C+65><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
     END.
     
-     PUT UNFORMATTED "<=30>" SKIP.
+    PUT UNFORMATTED "<=30>" SKIP.
       
-     FOR EACH bf-box-design-line OF bf-box-design-hdr NO-LOCK:
+    FOR EACH ttScoreLine NO-LOCK
+        WHERE ttScoreLine.PanelType = "W":
          
-         RUN pParseScoreLine (bf-box-design-line.wscore, iplEstMetric, "W", NO, OUTPUT cScoreLineW).
-         RUN pParseScoreLine (bf-box-design-line.wcum-score, iplEstMetric, "W", YES, OUTPUT cScoreLineWTotal).
-    
-         PUT "<C66>" 
+        ASSIGN   
+            cScoreLineW      = ttScoreLine.ScoreLine
+            cScoreLineWTotal = ttScoreLine.ScoreLineTotal.
+            
+        PUT "<C66>" 
             cScoreLineW FORMAT "x(9)" 
             cScoreLineWTotal FORMAT "x(10)"  SKIP.
-                 
-     END.
-
+         
+    END.  
+     
 END PROCEDURE.
-
-PROCEDURE pParseScoreLine:
-    DEFINE INPUT  PARAMETER ipcScoreTxt         AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplEstMetric        AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcPanelType        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplTotal            AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcScoreStream      AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE iCnt        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cTempVal    AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cScrNum     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreLine  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iSpaceCount AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dTmpScore   AS DECIMAL   NO-UNDO.
-    
-    DEFINE VARIABLE cRepChar  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTempChar AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cNewText  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iNum      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE deFinalScore   AS DECIMAL NO-UNDO.
-    
-    
-    ASSIGN cNewText = ipcScoreTxt.
-
-    DO iCnt = 1 TO LENGTH(ipcScoreTxt):
-        ASSIGN cTempChar = TRIM(SUBSTRING(ipcScoreTxt, iCnt, 1)).
-        
-        IF (cTempChar = "" OR iCnt = LENGTH(ipcScoreTxt)) and cRepChar <> "" Then
-        DO: 
-            IF iCnt = LENGTH(ipcScoreTxt) AND cTempChar <> "" THEN
-                ASSIGN cRepChar = cRepChar + cTempChar.
-            
-            ASSIGN iNum = INTEGER(REPLACE(REPLACE(cRepChar, "[", ""), "]", "")) NO-ERROR.
-            
-            IF NOT ERROR-STATUS:ERROR THEN
-            DO:
-                IF ipcPanelType = "W" THEN
-                    FOR EACH ttPanel 
-                        WHERE ttPanel.cPanelType EQ ipcPanelType
-                        AND ttPanel.iPanelNum  LT iNum:
-                    
-                        ASSIGN 
-                            dTmpScore = IF lPrintMetric AND NOT iplEstMetric THEN ( ({sys/inc/k16bv.i dec(ttPanel.dPanelSize)}) * 25.4) ELSE dec(ttPanel.dPanelSize).
-                        
-                        IF iplTotal THEN
-                            deFinalScore = deFinalScore + dTmpScore.
-                    END.
-                
-                FIND FIRST ttPanel 
-                    WHERE ttPanel.cPanelType EQ ipcPanelType
-                      AND ttPanel.iPanelNum  EQ iNum NO-ERROR.
-    
-                IF AVAILABLE ttPanel THEN
-                DO:
-                    
-                    ASSIGN 
-                        dTmpScore   = IF lPrintMetric AND NOT iplEstMetric THEN ( ({sys/inc/k16bv.i dec(ttPanel.dPanelSize)}) * 25.4) ELSE dec(ttPanel.dPanelSize).
-                        
-                     IF iplTotal THEN
-                        deFinalScore = deFinalScore + dTmpScore.
-                    ELSE
-                        deFinalScore  = dTmpScore.
-                           
-                    cNewText = REPLACE(cNewText, cRepChar, ( IF lPrintMetric THEN  string(round(deFinalScore,0)) ELSE string(round(deFinalScore,2)))). 
-                END.                        
-                          
-            END.
-            ASSIGN cRepChar = "".
-              
-        END.
-        
-        IF cTempChar <> "" THEN
-            ASSIGN cRepChar = cRepChar + cTempChar.
-        
-    END.
-    
-     ASSIGN opcScoreStream = cNewText.
-    
-    
-END PROCEDURE.    
 
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

@@ -215,10 +215,6 @@ DEFINE VARIABLE li-bal                    AS INTEGER        NO-UNDO.
 DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER      NO-UNDO.
 DEFINE VARIABLE cFGDefaultQtyDisplay      AS CHARACTER      NO-UNDO.
 
-DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -638,7 +634,7 @@ oe-ordl.spare-char-2
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
-Btn_hist fi_jobStartDate btn-quotes btnTagsUnder 
+Btn_hist fi_jobStartDate btn-quotes  
 &Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -1504,6 +1500,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsUnder IN FRAME d-oeitem
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR BUTTON btnViewDetail IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -2147,7 +2145,7 @@ DO:
 ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "",
             INPUT "Over Percentage"
             ).
@@ -2162,7 +2160,7 @@ DO:
 ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "",
             INPUT "Under Percentage"
             ).
@@ -2193,11 +2191,11 @@ DO:
             INPUT "Price-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "Under Percentage"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "Over Percentage"
             ).
         IF ip-type EQ  'Update' THEN       
@@ -2646,7 +2644,10 @@ DO:
                 asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
             ELSE IF oe-ordl.est-no:SCREEN-VALUE GT "" AND runship-char EQ "DefaultOnly" AND runship-log = YES THEN 
                     asi.oe-ordl.whsed:SCREEN-VALUE = "YES".
-          
+                   
+            IF btnViewDetail:LABEL EQ "Close Detail" THEN
+            RUN pViewDetail ("Locations"). 
+            
         END.
     END.
 
@@ -3464,39 +3465,33 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON LEAVE OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF SELF:modified AND oe-ordl.line > 1 THEN 
-        DO:
-            MESSAGE "Change all promise dates on order? " 
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-            IF ll-ans THEN lv-change-prom-date = YES.
-            ELSE lv-change-prom-date = NO.
-        END.
-
-
-        IF SELF:MODIFIED AND oeDateAuto-log THEN 
-        DO:
-    
-            IF NOT cDueManualChanged THEN 
-            DO:      
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "PromiseDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-                oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
-            END.
-
-            /* Used to update due-date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "prom-date".
-        END.
-
+    IF SELF:modified AND oe-ordl.line GT 1 THEN DO:
+        MESSAGE "Change all promise dates on order? " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+        IF ll-ans THEN lv-change-prom-date = YES.
+        ELSE lv-change-prom-date = NO.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:    
+        IF NOT cDueManualChanged THEN DO:      
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "PromiseDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).
+            oe-ordl.req-date:SCREEN-VALUE = STRING(dCalcDueDate).
+        END.
+        /* Used to update due-date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "prom-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3505,8 +3500,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.prom-date d-oeitem
 ON VALUE-CHANGED OF oe-ordl.prom-date IN FRAME d-oeitem /* Prom. Date */
 DO:
-        cPromManualChanged = YES.
-    END.
+    cPromManualChanged = YES.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3597,35 +3592,31 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.req-date d-oeitem
 ON LEAVE OF oe-ordl.req-date IN FRAME d-oeitem /* Due Date */
 DO:
-        DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
-        DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcDueDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN validate-due-date NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        END.
-        IF SELF:MODIFIED AND oeDateAuto-log  THEN 
-        DO:
-            IF NOT cPromManualChanged THEN 
-            DO:
-                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                    INPUT oe-ordl.req-date:SCREEN-VALUE,
-                    INPUT oe-ordl.prom-date:SCREEN-VALUE,
-                    INPUT "DueDate",
-                    INPUT ROWID(oe-ordl),
-                    OUTPUT dCalcDueDate,
-                    OUTPUT dCalcPromDate).
-    
-                oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
-            END.
-
-            /* Used to set date on header */
-            IF gcLastDateChange EQ "" THEN
-                gcLastDateChange = "req-date".
-
-        END.
+    IF LASTKEY NE -1 THEN DO:
+        RUN validate-due-date NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
+    IF SELF:MODIFIED AND oeDateAuto-log THEN DO:
+        IF NOT cPromManualChanged THEN DO:
+            RUN oe/dueDateCalc.p (
+                oe-ord.cust-no,
+                oe-ordl.req-date:SCREEN-VALUE,
+                oe-ordl.prom-date:SCREEN-VALUE,
+                "DueDate",
+                ROWID(oe-ordl),
+                OUTPUT dCalcDueDate,
+                OUTPUT dCalcPromDate
+                ).    
+            oe-ordl.prom-date:SCREEN-VALUE = STRING(dCalcPromDate).
+        END.
+        /* Used to set date on header */
+        IF gcLastDateChange EQ "" THEN
+        gcLastDateChange = "req-date".
+    END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4194,7 +4185,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                 asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME}  = NO.
 
-        cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
+        RUN spGetSettingByName("DisplayFGLocationDetails", OUTPUT cDisplayFGLocationDetails).
+
         IF cDisplayFGLocationDetails EQ ? THEN
             cDisplayFGLocationDetails = "NO".
         IF cDisplayFGLocationDetails NE "NO" THEN 
@@ -4903,7 +4895,8 @@ PROCEDURE create-job :
     DEFINE VARIABLE li-j-no    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-i        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE v-prod-cat AS CHARACTER NO-UNDO.
-
+    DEFINE BUFFER bf-oe-rel FOR oe-rel.
+        
     /* === from oe/oe-ord1.p  ============= */
     IF NOT AVAILABLE oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -4986,6 +4979,7 @@ PROCEDURE create-job :
         job.ordertype  = oe-ord.type
         job.csrUser_id = IF AVAILABLE oe-ord THEN oe-ord.csrUser_id ELSE ""
         op-recid       = RECID(job) 
+        job.shipFromLocation = locode
         .
 
     FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
@@ -5037,7 +5031,18 @@ PROCEDURE create-job :
         
     IF oe-ord.stat EQ "H" THEN
         RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
-     
+        
+    FIND FIRST bf-oe-rel NO-LOCK 
+         WHERE bf-oe-rel.company EQ cocode
+         AND bf-oe-rel.ord-no EQ oe-ordl.ord-no
+         AND bf-oe-rel.i-no EQ oe-ordl.i-no
+         AND bf-oe-rel.LINE EQ oe-ordl.LINE NO-ERROR.
+                  
+    IF AVAILABLE bf-oe-rel AND bf-oe-rel.spare-char-1 NE "" THEN
+    ASSIGN
+    job.shipFromLocation = bf-oe-rel.spare-char-1
+    job-hdr.loc          = bf-oe-rel.spare-char-1.
+           
     RELEASE job.
     RELEASE job-hdr.
 END PROCEDURE.
@@ -6851,7 +6856,7 @@ PROCEDURE enable_UI :
          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
          oe-ordl.req-date oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-         fi_jobStartDate btn-quotes btnTagsUnder 
+         fi_jobStartDate btn-quotes  
       WITH FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
 END PROCEDURE.
@@ -7843,16 +7848,16 @@ PROCEDURE getTagsToReset :
         btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Over Percentage",
         OUTPUT lAvailable
-        ).
+        ).  
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Over Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -7867,16 +7872,16 @@ PROCEDURE getTagsToReset :
         btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Under Percentage",
         OUTPUT lAvailable
-        ).
+        ).    
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Under Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -9182,18 +9187,18 @@ PROCEDURE pAddTag :
    
     DO WITH FRAME {&frame-name}:   
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -12814,11 +12819,15 @@ FUNCTION get-colonial-rel-date RETURNS DATE
       Purpose:  
         Notes:  
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opRelDate AS DATE  NO-UNDO.
-    DEFINE VARIABLE rShipTo   AS ROWID NO-UNDO.
+    DEFINE VARIABLE dCalcRelDate  AS DATE  NO-UNDO.
+    DEFINE VARIABLE dCalcPromDate AS DATE  NO-UNDO.
+    DEFINE VARIABLE opRelDate     AS DATE  NO-UNDO.
+    DEFINE VARIABLE rShipTo       AS ROWID NO-UNDO.
+
     DEFINE BUFFER bf-shipto FOR shipto.    
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
     DEFINE BUFFER bf-oe-rel FOR oe-rel.
+
     FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ iprRel NO-LOCK NO-ERROR.
     RUN sys/ref/shipToOfRel.p (INPUT ROWID(oe-rel), OUTPUT rShipTo).
     FIND bf-shipto WHERE ROWID(bf-shipto) EQ rShipTo NO-LOCK NO-ERROR.
@@ -12833,7 +12842,27 @@ FUNCTION get-colonial-rel-date RETURNS DATE
         ELSE IF oereleas-cha EQ "Due Date" THEN
                 opRelDate = oe-ordl.req-date.
             ELSE IF oereleas-cha EQ "DueDateLessTransitDays" THEN    
-                    opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
+                     IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN DO:
+                        RUN oe/dueDateCalc.p (
+                            bf-oe-ord.cust-no,
+                            bf-oe-rel.rel-date,
+                            DATE(ENTRY(1,bf-oe-rel.spare-char-4)),
+                            "RelDate",
+                            ROWID(bf-oe-rel),
+                            OUTPUT dCalcRelDate,
+                            OUTPUT dCalcPromDate
+                            ).
+                         opRelDate = dCalcRelDate.
+                         IF opRelDate EQ oe-ordl.prom-date THEN
+                         DO TRANSACTION:
+                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+                             oe-ordl.prom-date = dCalcPromDate.
+                             FIND CURRENT oe-ordl NO-LOCK.
+                         END.
+                     END.
+                     ELSE
+                     opRelDate = oe-ordl.req-date - (IF AVAILABLE bf-shipto THEN bf-shipto.del-time ELSE 0).
                 ELSE /*DueDate+1Day*/
                 DO:
                     opRelDate = oe-ordl.req-date + 1.

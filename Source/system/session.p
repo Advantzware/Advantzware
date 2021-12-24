@@ -18,7 +18,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+USING Progress.Lang.*.
 USING system.SharedConfig.
 USING system.SessionConfig.
 
@@ -59,14 +59,41 @@ DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
 DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
-DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
-DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO.
+DEFINE VARIABLE scInstance          AS System.SharedConfig  NO-UNDO.
+DEFINE VARIABLE sessionInstance     AS system.SessionConfig NO-UNDO.
+DEFINE VARIABLE oSetting            AS system.Setting       NO-UNDO.
+DEFINE VARIABLE hdBrokerHandle      AS HANDLE               NO-UNDO.
+ 
+DEFINE VARIABLE cProgramName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCategoryTags AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
     FIELD isRunning      AS LOGICAL
         INDEX ttSuperProcedure IS PRIMARY superProcedure
         .
+
+DEFINE TEMP-TABLE ttProgramTag NO-UNDO
+    FIELD programName     AS CHARACTER 
+    FIELD categoryTags    AS CHARACTER
+    INDEX programName IS PRIMARY UNIQUE programName
+    .
+
+DEFINE TEMP-TABLE ttSettingObject NO-UNDO
+    FIELD programName   AS CHARACTER
+    FIELD programHandle AS HANDLE
+    FIELD programType   AS CHARACTER
+    FIELD settingObject AS Object
+    INDEX programName   IS PRIMARY UNIQUE programName 
+    .
+
+DEFINE TEMP-TABLE ttProgramHandle NO-UNDO
+    FIELD programHandle      AS HANDLE
+    FIELD childProgramHandle AS HANDLE
+    FIELD childProgramName   AS CHARACTER
+    INDEX programHandle IS PRIMARY programHandle childProgramHandle 
+    .
+                
 {system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
@@ -104,6 +131,20 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fGetProgramType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetProgramType Procedure
+FUNCTION fGetProgramType RETURNS CHARACTER 
+  ( INPUT iphdSourceProc AS HANDLE ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageText Procedure
@@ -432,6 +473,20 @@ FOR EACH ttSuperProcedure
     RUN VALUE(ttSuperProcedure.superProcedure) PERSISTENT SET hSuperProcedure.
     SESSION:ADD-SUPER-PROCEDURE (hSuperProcedure).
 END. /* each ttSuperProcedure */
+
+INPUT FROM VALUE(SEARCH("ProgramTagsList.dat")) NO-ECHO.
+IMPORT ^.
+REPEAT:
+    IMPORT cProgramName cCategoryTags.
+    IF cProgramName NE "" AND cCategoryTags NE "" THEN DO:
+        CREATE ttProgramTag.
+        ASSIGN
+            ttProgramTag.programName  = cProgramName
+            ttProgramTag.categoryTags = cCategoryTags
+            .
+    END.
+END. /* repeat */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -839,6 +894,58 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetScreenSize Procedure
+PROCEDURE pGetScreenSize PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScreenSizeType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdWidth          AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight         AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE oScreen    AS System.Windows.Forms.Screen NO-UNDO.
+    DEFINE VARIABLE oAblParent AS System.IntPtr               NO-UNDO.
+    
+    oAblParent = NEW System.IntPtr(ACTIVE-WINDOW:HWND) NO-ERROR.
+
+    oScreen = System.Windows.Forms.Screen:FromHandle(oAblParent) NO-ERROR.
+    
+    IF VALID-OBJECT (oScreen) THEN DO:
+        IF ipcScreenSizeType EQ "FullScreen" THEN
+            ASSIGN
+                opdWidth  = oScreen:Bounds:WIDTH
+                opdHeight = oScreen:Bounds:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "WorkingArea" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:WIDTH
+                opdHeight = oScreen:WorkingArea:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "TopLeftPosition" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:LEFT
+                opdHeight = oScreen:WorkingArea:TOP
+                .
+        
+    END.
+
+    IF VALID-OBJECT(oScreen) THEN
+        DELETE OBJECT oScreen.
+
+    IF VALID-OBJECT(oAblParent) THEN
+        DELETE OBJECT oAblParent.  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pSetCompanyContexts) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompanyContexts Procedure
@@ -867,7 +974,18 @@ PROCEDURE pSetCompanyContexts PRIVATE:
     sessionInstance:SetValue("CompanyCity",bf-company.city).
     sessionInstance:SetValue("CompanyState",bf-company.state).
     sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
-           
+
+    /* Delete existing setting objects. This will remove any records loaded in the temp-table */
+    FOR EACH ttSettingObject:
+        IF VALID-OBJECT (ttSettingObject.settingObject) THEN
+            DELETE OBJECT ttSettingObject.settingObject.
+
+        DELETE ttSettingObject.
+    END.
+    
+    /* Set the company in the session's setting object */
+    IF VALID-OBJECT (oSetting) THEN
+        oSetting:SetCompany(ipcCompany).           
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1291,6 +1409,13 @@ PROCEDURE spCreateSettingUsage:
         CREATE ttSettingUsage.
         BUFFER-COPY ttSetting TO ttSettingUsage
             ASSIGN ttSettingUsage.stackTrace = cStackTrace.
+        IF CAN-FIND(FIRST settingType
+                    WHERE settingType.settingTypeID EQ ttSetting.settingTypeID
+                      AND settingType.isPassword    EQ YES) THEN
+        ASSIGN
+            ttSettingUsage.settingValue = FILL("*",LENGTH(ttSettingUsage.settingValue))
+            ttSettingUsage.defaultValue = FILL("*",LENGTH(ttSettingUsage.defaultValue))
+            .
     END. // each ttsetting
     hSysCtrlUsage = sfGetSysCtrlUsageHandle().
     IF VALID-HANDLE(hSysCtrlUsage) THEN
@@ -1303,6 +1428,70 @@ END PROCEDURE.
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCreateSettingUsageRecord) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCreateSettingUsageRecord Procedure
+PROCEDURE spCreateSettingUsageRecord:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iphdBuffer AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE cStackTrace   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hSysCtrlUsage AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO INITIAL 1.
+
+    IF NOT VALID-HANDLE (iphdBuffer) THEN
+        RETURN.
+    
+    IF NOT iphdBuffer:AVAILABLE THEN 
+        RETURN.
+
+    /* build stack trace */
+    DO WHILE TRUE:
+        idx = idx + 1.
+        /* all done with program stack */
+        IF PROGRAM-NAME(idx) EQ ? THEN LEAVE.
+        cStackTrace = cStackTrace + PROGRAM-NAME(idx) + ",".
+    END. /* while true */
+    cStackTrace = TRIM(cStackTrace,",").
+
+    FIND FIRST ttSettingUsage
+         WHERE ttSettingUsage.settingTypeID EQ iphdBuffer:BUFFER-FIELD("settingTypeID"):BUFFER-VALUE
+           AND ttSettingUsage.settingName   EQ iphdBuffer:BUFFER-FIELD("settingName"):BUFFER-VALUE
+           AND ttSettingUsage.scopeTable    EQ iphdBuffer:BUFFER-FIELD("scopeTable"):BUFFER-VALUE
+           AND ttSettingUsage.scopeField1   EQ iphdBuffer:BUFFER-FIELD("scopeField1"):BUFFER-VALUE
+           AND ttSettingUsage.scopeField2   EQ iphdBuffer:BUFFER-FIELD("scopeField2"):BUFFER-VALUE
+           AND ttSettingUsage.scopeField3   EQ iphdBuffer:BUFFER-FIELD("scopeField3"):BUFFER-VALUE
+        NO-ERROR.
+    IF NOT AVAILABLE ttSettingUsage THEN DO:
+        CREATE ttSettingUsage.
+        TEMP-TABLE ttSettingUsage:DEFAULT-BUFFER-HANDLE:BUFFER-COPY(iphdBuffer).
+        
+        ASSIGN ttSettingUsage.stackTrace = cStackTrace.
+        
+        IF ttSettingUsage.scopeTable EQ "" THEN
+            ttSettingUsage.scopeTable = "System".
+            
+        IF iphdBuffer:BUFFER-FIELD("isPassword"):BUFFER-VALUE THEN
+            ASSIGN
+                ttSettingUsage.settingValue = FILL("*",LENGTH(ttSettingUsage.settingValue))
+                ttSettingUsage.defaultValue = FILL("*",LENGTH(ttSettingUsage.defaultValue))
+                .
+    END. // each ttsetting
+    hSysCtrlUsage = sfGetSysCtrlUsageHandle().
+    IF VALID-HANDLE(hSysCtrlUsage) THEN
+    RUN pGetSettingUsage IN hSysCtrlUsage.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
@@ -1723,6 +1912,83 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenSize Procedure
+PROCEDURE spGetScreenSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "FullScreen",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenTopLeftPosition) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenTopLeftPosition Procedure
+PROCEDURE spGetScreenStartPosition:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdTop  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdLeft AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "TopLeftPosition",
+        OUTPUT opdLeft,
+        OUTPUT opdTop
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenWorkingAreaSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenWorkingAreaSize Procedure
+PROCEDURE spGetScreenWorkingAreaSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "WorkingArea",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+ 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spGetSession) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSession Procedure
@@ -1763,6 +2029,325 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spGetSettingByName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByName Procedure
+PROCEDURE spGetSettingByName:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+
+    opcSettingValue = oSetting:GetByName(ipcSettingName).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndCustomer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndCustomer Procedure
+PROCEDURE spGetSettingByNameAndCustomer:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndCustomer(ipcSettingName, ipcCustomerID).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndShipTo) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndShipTo Procedure
+PROCEDURE spGetSettingByNameAndShipTo:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndShipTo(ipcSettingName, ipcCustomerID, ipcShipToID).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndVendor) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndVendor Procedure
+PROCEDURE spGetSettingByNameAndVendor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorID     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndVendor(ipcSettingName, ipcVendorID).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetSettingObject) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingObject Procedure
+PROCEDURE spGetSettingObject:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName AS CHARACTER      NO-UNDO.
+    DEFINE INPUT  PARAMETER iphdSourceProc AS HANDLE         NO-UNDO.
+    DEFINE OUTPUT PARAMETER opoSetting     AS system.Setting NO-UNDO.
+
+    DEFINE VARIABLE iLevel              AS INTEGER   NO-UNDO INITIAL 2.
+    DEFINE VARIABLE cProgramName        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdObject            AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iIndex              AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSmartObjectList    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdInstantiatingProc AS HANDLE    NO-UNDO.
+    
+    IF NOT VALID-OBJECT (oSetting) THEN
+        oSetting = NEW system.Setting().
+
+    /* Verify if the setting has at least one program context. If there is no program context any setting object can fetch the exact setting value */
+    IF NOT oSetting:HasProgramContext (ipcSettingName) THEN DO:
+        opoSetting = oSetting.
+        RETURN.
+    END.
+
+    /* Verify if the calling procedure is one of the program where settings are loaded */
+    FIND FIRST ttSettingObject
+         WHERE ttSettingObject.programHandle EQ iphdSourceProc
+         NO-ERROR.
+    IF AVAILABLE ttSettingObject THEN DO:
+        opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+        RETURN.
+    END.
+    
+    /* Verify if the calling procedure is one of the smart object in the program where settings are loaded */
+    FIND FIRST ttProgramHandle
+         WHERE ttProgramHandle.childProgramHandle EQ iphdSourceProc
+         NO-ERROR.
+    IF AVAILABLE ttProgramHandle AND VALID-HANDLE (ttProgramHandle.childProgramHandle) THEN DO:
+        FIND FIRST ttSettingObject
+             WHERE ttSettingObject.programHandle EQ ttProgramHandle.programHandle
+             NO-ERROR.
+        IF AVAILABLE ttSettingObject AND VALID-HANDLE (ttSettingObject.programHandle) THEN DO:
+            opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+            RETURN.
+        END.
+    END.
+    
+    /* Find the broker.p handle. This should run persistently once a window is open */
+    IF NOT VALID-HANDLE (hdBrokerHandle) THEN DO:
+        ASSIGN hdObject = SESSION:FIRST-PROCEDURE.
+        DO WHILE hdObject <> ?:
+            ASSIGN hdBrokerHandle   = hdObject
+                   hdObject = hdObject:NEXT-SIBLING.
+            IF hdBrokerHandle:NAME EQ "adm/objects/broker.p" THEN
+                LEAVE.
+        END.
+    END.
+
+    EMPTY TEMP-TABLE ttProgramHandle.
+    
+    /* Load all the smart objects in the windows where the program context is set */
+    IF VALID-HANDLE (hdBrokerHandle) THEN DO:
+        FOR EACH ttSettingObject 
+            WHERE ttSettingObject.programType EQ "SMART-WINDOW":
+            IF NOT VALID-HANDLE (ttSettingObject.programHandle) THEN
+                NEXT.
+            
+            cSmartObjectList = "".
+            
+            RUN getlinktable IN hdBrokerHandle(ttSettingObject.programHandle:UNIQUE-ID, OUTPUT cSmartObjectList).
+
+            DO iIndex = 1 TO NUM-ENTRIES (cSmartObjectList):
+                CREATE ttProgramHandle.
+                ttProgramHandle.programHandle = ttSettingObject.programHandle.
+                
+                ASSIGN
+                    ttProgramHandle.childProgramHandle = HANDLE(ENTRY(iIndex, cSmartObjectList))
+                    ttProgramHandle.childProgramName   = IF VALID-HANDLE (ttProgramHandle.childProgramHandle) THEN ttProgramHandle.childProgramHandle:NAME ELSE "" 
+                    .
+            END.        
+        END.
+    END.
+    
+    /* Verify if the calling procedure is one of the smart object in the program where settings are loaded. We have to do it twice because
+       there is chance that all smart objects are not instantiated (Smart objects are instantiated only once we select the page */  
+    FIND FIRST ttProgramHandle
+         WHERE ttProgramHandle.childProgramHandle EQ iphdSourceProc
+         NO-ERROR.
+    IF AVAILABLE ttProgramHandle AND VALID-HANDLE (ttProgramHandle.childProgramHandle) THEN DO:
+        FIND FIRST ttSettingObject
+             WHERE ttSettingObject.programHandle EQ ttProgramHandle.programHandle
+             NO-ERROR.
+        IF AVAILABLE ttSettingObject AND VALID-HANDLE (ttSettingObject.programHandle) THEN DO:
+            opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+            RETURN.
+        END.
+    END.
+    
+    /* If the calling procedure is run persistently and not a super-procedure */        
+    IF iphdSourceProc:PERSISTENT AND LOOKUP (STRING(iphdSourceProc), SESSION:SUPER-PROCEDURES) EQ 0 THEN DO:
+        /* Find it's intantiating procedure (program where procedure ran persistently) */
+        hdInstantiatingProc = iphdSourceProc:INSTANTIATING-PROCEDURE NO-ERROR.
+
+        /* Repeat until an intantiating procedure is found in one of the smart objects in the program settings are loaded */       
+        REPEAT WHILE hdInstantiatingProc NE ? AND LOOKUP (STRING(hdInstantiatingProc), SESSION:SUPER-PROCEDURES) EQ 0:
+            FIND FIRST ttProgramHandle
+                 WHERE ttProgramHandle.childProgramHandle EQ hdInstantiatingProc
+                 NO-ERROR.
+
+            IF AVAILABLE ttProgramHandle THEN DO:
+                FIND FIRST ttSettingObject
+                     WHERE ttSettingObject.programHandle EQ ttProgramHandle.programHandle
+                     NO-ERROR.
+                IF AVAILABLE ttSettingObject AND VALID-HANDLE (ttSettingObject.programHandle) THEN DO:
+                                              
+                    opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+                    RETURN.
+                END.
+                hdInstantiatingProc = hdInstantiatingProc:INSTANTIATING-PROCEDURE NO-ERROR.
+            END.
+            ELSE 
+                LEAVE.
+        END.
+    END.
+    
+    /* If everthing else fails, then use the program stack trace to find if a program in the stack is where settings are loaded */        
+    REPEAT WHILE PROGRAM-NAME(iLevel) <> ?:
+        ASSIGN
+            cProgramName = PROGRAM-NAME(iLevel)
+            cProgramName = ENTRY(NUM-ENTRIES(cProgramName," "), cProgramName, " ")
+            cProgramName = REPLACE (cProgramName, "\", "/")
+            .
+        
+        /* Skip mainmenu program as this would be the program where all programs are run */
+        IF (cProgramName EQ "system/mainmenu.r" AND iphdSourceProc:NAME NE "system/mainmenu.r") OR
+           (cProgramName EQ "system/mainmenu.w" AND iphdSourceProc:NAME NE "system/mainmenu.w") THEN
+            LEAVE.
+
+        FIND FIRST ttSettingObject
+             WHERE ttSettingObject.programName EQ cProgramName
+             NO-ERROR.
+
+       IF AVAILABLE ttSettingObject THEN DO:
+            opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+
+            RETURN.
+        END.
+
+        iLevel = iLevel + 1.
+    END.
+
+    iLevel = 2.
+    
+    /* If the above case fails, then use the stack trace to find if a program in the stack is a smart object in program where settings are loaded  */    
+    REPEAT WHILE PROGRAM-NAME(iLevel) <> ?:
+        ASSIGN
+            cProgramName = PROGRAM-NAME(iLevel)
+            cProgramName = ENTRY(NUM-ENTRIES(cProgramName," "), cProgramName, " ")
+            cProgramName = REPLACE (cProgramName, "\", "/")
+            .
+
+        IF (cProgramName EQ "system/mainmenu.r" AND iphdSourceProc:NAME NE "system/mainmenu.r") OR
+           (cProgramName EQ "system/mainmenu.w" AND iphdSourceProc:NAME NE "system/mainmenu.w") THEN
+            LEAVE.
+
+        FIND ttProgramHandle
+             WHERE ttProgramHandle.childProgramName EQ cProgramName
+             NO-ERROR.
+        IF NOT AMBIGUOUS ttProgramHandle THEN DO:
+            FIND FIRST ttSettingObject
+                 WHERE ttSettingObject.programHandle EQ ttProgramHandle.programHandle
+                 NO-ERROR.
+            IF AVAILABLE ttSettingObject AND VALID-HANDLE (ttSettingObject.programHandle) THEN DO:
+                opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+                RETURN.
+            END.
+        END.                   
+
+        iLevel = iLevel + 1.
+    END.
+
+    /* If all the above fails, then find the current active window, and verify if settings are loaded for that window */
+    FOR EACH ttSettingObject
+        WHERE ttSettingObject.programType EQ "SMART-WINDOW":
+        IF VALID-HANDLE(ttSettingObject.programHandle) AND VALID-HANDLE (ttSettingObject.programHandle:CURRENT-WINDOW) THEN DO:
+            IF ttSettingObject.programHandle:CURRENT-WINDOW EQ ACTIVE-WINDOW THEN DO:
+                opoSetting = CAST(ttSettingObject.settingObject, system.Setting).
+                RETURN.
+            END.            
+        END.
+    END.
+    
+    FINALLY:
+        /* if everything fails, then use the session.p setting object */                
+        IF NOT VALID-OBJECT (opoSetting) THEN
+            opoSetting = oSetting.
+    
+    END FINALLY.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
 
@@ -1827,6 +2412,72 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spLoadSettings) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spLoadSettings Procedure
+PROCEDURE spSetSettingContext:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cProgramName  AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE oSetting      AS system.Setting NO-UNDO.
+    DEFINE VARIABLE hdSourceProc  AS HANDLE         NO-UNDO.
+    DEFINE VARIABLE cCategoryTags AS CHARACTER      NO-UNDO.
+    
+    ASSIGN
+        hdSourceProc = SOURCE-PROCEDURE
+        cProgramName = hdSourceProc:NAME
+        .
+    
+    FIND FIRST ttSettingObject
+         WHERE ttSettingObject.programName EQ cProgramName 
+         NO-ERROR.
+    IF AVAILABLE ttSettingObject THEN DO:
+        ttSettingObject.programHandle = hdSourceProc.
+        
+        IF VALID-HANDLE (hdSourceProc) THEN
+            ttSettingObject.programType = fGetProgramType(hdSourceProc).
+                                                      
+        oSetting = CAST(ttSettingObject.settingObject, system.Setting).
+             
+        RETURN.
+    END.
+    ELSE DO:
+        CREATE ttSettingObject.
+        ASSIGN
+            ttSettingObject.programName   = cProgramName
+            ttSettingObject.programHandle = hdSourceProc
+            .
+        
+        IF VALID-HANDLE (hdSourceProc) THEN
+            ttSettingObject.programType = fGetProgramType(hdSourceProc). 
+    END.
+
+    ASSIGN
+        cProgramName = SUBSTRING(cProgramName,1,INDEX(cProgramName,"."))
+        cProgramName = REPLACE(cProgramName, "\", "/")
+        .
+    
+    FIND FIRST ttProgramTag
+         WHERE ttProgramTag.programName EQ cProgramName
+         NO-ERROR.
+    IF AVAILABLE ttProgramTag THEN
+        cCategoryTags = ttProgramTag.categoryTags.
+    
+    oSetting = NEW system.Setting(cProgramName, cCategoryTags).
+    
+    ttSettingObject.settingObject = oSetting.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spProgressBar) = 0 &THEN
 
@@ -2533,6 +3184,123 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spSetSettingByName) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSettingByName Procedure
+PROCEDURE spSetSettingByName:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSettingValue AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    RETURN oSetting:Update(ipcSettingName, ipcSettingValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spSetSettingByNameAndCustomer) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSettingByNameAndCustomer Procedure
+PROCEDURE spSetSettingByNameAndCustomer:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSettingValue AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RETURN oSetting:Update(ipcSettingName, "Customer" /* Scope */, cCompany, ipcCustomerID, "", ipcSettingValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spSetSettingByNameAndShiptTo) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSettingByNameAndShiptTo Procedure
+PROCEDURE spSetSettingByNameAndShiptTo:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSettingValue AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RETURN oSetting:Update(ipcSettingName, "ShipTo" /* Scope */, cCompany, ipcCustomerID, ipcShipToID, ipcSettingValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spSetSettingByNameAndVendor) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSettingByNameAndVendor Procedure
+PROCEDURE spSetSettingByNameAndVendor:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSettingValue AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RETURN oSetting:Update(ipcSettingName, "Vendor" /* Scope */, cCompany, ipcVendorID, "", ipcSettingValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
@@ -2649,6 +3417,41 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-fGetProgramType) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetProgramType Procedure
+FUNCTION fGetProgramType RETURNS CHARACTER 
+  ( INPUT iphdSourceProc AS HANDLE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cProcedureType AS CHARACTER NO-UNDO.
+
+    cProcedureType = IF iphdSourceProc:SINGLE-RUN THEN
+                         "PROCEDURE"
+                     ELSE IF LOOKUP("containr-identifier",iphdSourceProc:INTERNAL-ENTRIES) GT 0 THEN
+                         "SMART-WINDOW"
+                     ELSE IF VALID-HANDLE (iphdSourceProc:CURRENT-WINDOW) THEN
+                         "WINDOW"
+                     ELSE IF iphdSourceProc:PERSISTENT AND LOOKUP (STRING(iphdSourceProc), SESSION:SUPER-PROCEDURES) GT 0 THEN
+                         "SUPER-PROCEDURE"
+                     ELSE IF iphdSourceProc:PERSISTENT THEN
+                         "PERSISTENT"
+                     ELSE
+                         "".
+                         
+	RETURN cProcedureType.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
