@@ -1871,7 +1871,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
                 
             
             ASSIGN
-                dWeightInSrcUOM = bf-estCostItem.weightTare
+                dWeightInSrcUOM = bf-estCostItem.weightTotal
                 cSrcUOM         = bf-estCostItem.weightUOM.
                 
             RUN pConvertQuantityFromUOMToUOM(bf-estCostItem.company, bf-estCostItem.itemID, "RM", cSrcUOM, "CWT", 
