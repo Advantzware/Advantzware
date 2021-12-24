@@ -979,6 +979,7 @@ PROCEDURE pAddEstMiscForHandling PRIVATE:
     DEFINE INPUT  PARAMETER ipcCostType      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCostDesc      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCostperUOM    AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCostUOM       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdCostTotal     AS DECIMAL NO-UNDO.
     
     DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
@@ -995,7 +996,7 @@ PROCEDURE pAddEstMiscForHandling PRIVATE:
             bf-estCostMisc.costType              = ipcCostType
             bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
             bf-estCostMisc.SIMON                 = "I"
-            bf-estCostMisc.costUOM               = "CWT"
+            bf-estCostMisc.costUOM               = ipcCostUOM
             bf-estCostMisc.costPerUOM            = ipdCostperUOM
             bf-estCostMisc.costSetup             = 0
             bf-estCostMisc.costTotalBeforeProfit = ipdCostTotal
@@ -1914,7 +1915,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
             dRMHandlingCost = (dBoardWeightInCUOM * dApplicableRMHandlingRate).
             
             IF dRMHandlingCost NE 0 THEN
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate, dRMHandlingCost).
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Raw Mat'l Handling",dApplicableRMHandlingRate,"CWT", dRMHandlingCost).
         END.
         
         /* Calculate the Handling percentage as a percentage of all material based costs and Prep and Misc */
@@ -1922,7 +1923,8 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
             WHERE bf-estCostMaterial.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
               AND bf-estCostMaterial.estCostFormID   EQ bf-estCostForm.estCostFormID:
                 
-                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMaterial.costTotalNoWaste.
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMaterial.costTotal.
+                 
         END.
         
         /* Include cost for Prep and any Material misc cost which is not Labour */
@@ -1932,7 +1934,7 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
                 
             IF bf-estCostMisc.isPrep = YES 
             OR (bf-estCostMisc.isPrep = NO AND bf-estCostMisc.costType = "Mat") THEN
-                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMisc.costTotalBeforeProfit.
+                dCostTotalMaterial = dCostTotalMaterial + bf-estCostMisc.costTotal.
                 
         END. /*Each estCostMaterial for estHeader*/
         
@@ -1941,14 +1943,11 @@ PROCEDURE pBuildEstHandlingCharges PRIVATE:
             dHandlingCost = (dCostTotalMaterial * dApplicableHandlingPct).
             
             IF dHandlingCost NE 0 THEN
-                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Handling Charge",dApplicableHandlingPct, dHandlingCost). 
+                RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "RM", "Handling Charge",dApplicableHandlingPct,"%", dHandlingCost). 
         END.
         
-        
-        
-        
         IF dFGHandlingCost NE 0 THEN 
-            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate, dFGHandlingCost).
+            RUN pAddEstMiscForHandling (BUFFER bf-estCostForm, "FG", "Finished Goods Handling",dApplicableFGHandlingRate,"CWT", dFGHandlingCost).
         
         
     END.
