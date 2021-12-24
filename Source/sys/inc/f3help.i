@@ -31,10 +31,15 @@ DO:
     IF CAN-DO("Browse,Frame",SELF:TYPE) THEN DO:
         &IF DEFINED(SysCtrlHelp) EQ 0 &THEN
         IF ls-prog-name MATCHES "*viewers/sys-ctrl*" THEN
-        RUN sys/ref/hlpd.w (sys-ctrl.name, sys-ctrl.company, FRAME-FIELD, ls-prog-name, "English") .
+        RUN sys/ref/hlpd.w (sys-ctrl.name, sys-ctrl.company, FRAME-FIELD, ls-prog-name, "English") . 
+        &IF DEFINED(SettingHelp) NE 0 &THEN
+        IF ls-prog-name MATCHES "*browsers/setting*" THEN
+        RUN sys/ref/hlpd.w (ttSetting.settingName, "System", "", ls-prog-name, "English") .          
+        &ENDIF           
+        
         &ELSE
         IF ls-prog-name MATCHES "*system/sys-ctrl*" THEN
-        RUN sys/ref/hlpd.w (ttSysCtrl.name, g_company, FRAME-FIELD, REPLACE(ls-prog-name,"system","viewers"), "English") .
+        RUN sys/ref/hlpd.w (ttSysCtrl.name, g_company, FRAME-FIELD, REPLACE(ls-prog-name,"system","viewers"), "English") .       
         &ENDIF
         /* self:name or focus:name */
         ELSE RUN sys/ref/hlpd.w (SELF:NAME, FRAME-FILE, FRAME-DB, ls-prog-name, "English") .
