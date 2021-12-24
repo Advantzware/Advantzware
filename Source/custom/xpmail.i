@@ -30,10 +30,11 @@ RUN system/EmailProcs.p PERSISTENT SET hEmailProcs.
 
 IF ipType EQ "ALL" THEN
     RUN pBuildToList IN hEmailProcs (
-        ipType,           /* Rec_Key        */
-        "",               /* Email Address  */
-        ipGroupTitle,     /* Title          */
-        OUTPUT ls-to-list /* Recepients     */
+        ipType,           /* Rec_Key       */
+        "",               /* Rec_Key       */
+        "",               /* Email Address */
+        ipGroupTitle,     /* Title         */
+        OUTPUT ls-to-list /* Recepients    */
         ).
 ELSE
 IF ipType BEGINS "CUSTOMER" THEN

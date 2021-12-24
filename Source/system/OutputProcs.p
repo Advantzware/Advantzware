@@ -281,6 +281,54 @@ PROCEDURE PrintLabelMatrixFile:
 
 END PROCEDURE.
 
+PROCEDURE PrintImageOnBack :
+    /*------------------------------------------------------------------------------
+     Purpose: Print Image On Back
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcImageName   AS CHARACTER      NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrintOnPage AS CHARACTER      NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPrintImage  AS LOGICAL        NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcImageName   AS CHARACTER      NO-UNDO.
+    
+    DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    ASSIGN cRtnChar = ".\custfiles\Images\" + ipcImageName + "BackImage.pdf"
+    
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    
+    
+    IF lValid THEN
+    DO:
+        ASSIGN opcImageName = cRtnChar + ">" .
+    
+        CASE CAPS(ipcPrintOnPage):
+            WHEN "FIRST" THEN
+                ASSIGN    
+                    oplPrintImage = PAGE-NUM EQ 1.   
+            WHEN "ALL" THEN DO:
+                ASSIGN    
+                    oplPrintImage = YES.  
+            END. /* WHEN "All" THEN DO */
+                          
+        END. /* CASE ipcPrintOnPage */
+        
+    END. /* IF lValid THEN */
+
+END PROCEDURE.
+
 PROCEDURE Output_PrintXprintFile:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper for Printing XPrint File

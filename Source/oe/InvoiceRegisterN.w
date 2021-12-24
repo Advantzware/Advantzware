@@ -730,8 +730,15 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.
 
         ELSE MESSAGE "No Invoices available for posting..." VIEW-AS ALERT-BOX ERROR.  
-        IF tbAutoClose:CHECKED THEN 
-            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        IF tbAutoClose:CHECKED THEN DO:
+            RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
+                OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+                                            
+            IF VALID-HANDLE(hdOutboundProcs) THEN
+                DELETE PROCEDURE hdOutboundProcs.
+            APPLY "close" TO THIS-PROCEDURE.
+        END. /* IF tbAutoClose:CHECKED THEN DO */
         SESSION:SET-WAIT-STATE("").
     END.
 

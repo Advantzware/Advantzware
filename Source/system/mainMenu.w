@@ -34,8 +34,12 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN
-    RUN AOA/dynParam.w PERSISTENT.
+    DEFINE VARIABLE hDynParam AS HANDLE NO-UNDO.
+
+    IF DYNAMIC-FUNCTION("sfIsUserSuperAdmin") THEN DO:
+        RUN AOA/dynParam.w PERSISTENT SET hDynParam.
+        RUN dispatch IN hDynParam ("initialize":U).
+    END.
 END.
 
 ON 'CTRL-ALT-P':U ANYWHERE
