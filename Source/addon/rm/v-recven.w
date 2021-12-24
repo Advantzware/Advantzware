@@ -553,7 +553,7 @@ DO:
               RETURN NO-APPLY. 
           END.       
       END.    
-      ELSE IF po-ordl.item-type EQ NO THEN
+      IF po-ordl.item-type EQ NO THEN
       DO:
          op-error = YES.
          MESSAGE "Only Raw Materials can be Received."
@@ -788,7 +788,7 @@ DO:
                            
          RUN edDocSearch (OUTPUT lEdDocFound).
          IF lEdDocFound THEN DO:
-             RUN poSearch(OUTPUT lContinue).
+             RUN poSearch(OUTPUT lContinue, lError).
          END. 
          ELSE DO: 
              RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
@@ -855,8 +855,10 @@ DO:
              
 /*                 IF NOT ERROR-STATUS:ERROR THEN
                 scr-qty:SCREEN-VALUE = STRING(v-qty). */
-            
-             RUN poSearch(OUTPUT lContinue).
+                     
+             RUN poSearch(OUTPUT lContinue, OUTPUT lError).       
+             IF NOT lError AND (SSPostFGVT-log OR SSPostFGVT-log EQ ?) THEN 
+             lContinue = NO.
              IF NOT lContinue THEN DO:
                  APPLY "entry" TO SELF.
                  RETURN NO-APPLY.
@@ -1180,6 +1182,7 @@ PROCEDURE poSearch :
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplContinue AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cVendorID AS CHARACTER NO-UNDO.
     
@@ -1213,7 +1216,7 @@ PROCEDURE poSearch :
             RELEASE po-ordl.
             oplContinue = YES.
         END.
-             
+        oplError =  LOGICAL(ERROR-STATUS:ERROR).          
         IF oplContinue AND  NOT ERROR-STATUS:ERROR THEN
             DO:
                 IF SSPostFGVT-log OR SSPostFGVT-log EQ ? THEN 

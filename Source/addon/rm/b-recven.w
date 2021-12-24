@@ -887,10 +887,9 @@ DO:
         loadtag.misc-char[2]:SCREEN-VALUE = loadtag.misc-char[2].
 
         APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.
-        
-        IF NOT v-ssrmscan THEN do:
-          APPLY "row-leave" TO BROWSE {&browse-name}.
-          RETURN NO-APPLY.
+                 
+        IF NOT v-ssrmscan THEN do:             
+          RUN dispatch ("update-record").
         END.
     END.
 END.
