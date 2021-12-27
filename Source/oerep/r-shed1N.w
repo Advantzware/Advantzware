@@ -861,6 +861,9 @@ DO:
                   OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                END.
            END.
+           ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
+           END.
        END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/

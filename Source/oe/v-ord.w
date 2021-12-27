@@ -1298,7 +1298,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1313,9 +1313,9 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT STRING(oe-ord.ord-no),
         INPUT "",
-        INPUT "Over Percentage"
+        INPUT "Under Percentage"
         ).
 END.
 
@@ -1763,11 +1763,11 @@ DO:
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
-                INPUT oe-ordl.rec_key,
+                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
@@ -2123,11 +2123,11 @@ DO:
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
-                    INPUT oe-ordl.rec_key,
+                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
@@ -5622,7 +5622,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT oe-ord.rec_key,
+             INPUT STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5633,7 +5633,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -6354,18 +6354,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ord.rec_key,
+            INPUT STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -6579,7 +6579,7 @@ IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
 
-  MESSAGE "Order has been Invoice, no deletion allowed..."
+  MESSAGE "This Order has been Invoiced, It cannot be deleted, but can be purged by the Administrator."
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 

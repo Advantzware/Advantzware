@@ -215,10 +215,6 @@ DEFINE VARIABLE li-bal                    AS INTEGER        NO-UNDO.
 DEFINE VARIABLE cDisplayFGLocationDetails AS CHARACTER      NO-UNDO.
 DEFINE VARIABLE cFGDefaultQtyDisplay      AS CHARACTER      NO-UNDO.
 
-DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
-
-oSetting = NEW system.Setting().
-
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
 cocode = g_company.
@@ -638,7 +634,7 @@ oe-ordl.spare-char-2
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
-Btn_hist fi_jobStartDate btn-quotes btnTagsUnder 
+Btn_hist fi_jobStartDate btn-quotes  
 &Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -1504,6 +1500,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsUnder IN FRAME d-oeitem
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR BUTTON btnViewDetail IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -2147,7 +2145,7 @@ DO:
 ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "",
             INPUT "Over Percentage"
             ).
@@ -2162,7 +2160,7 @@ DO:
 ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "",
             INPUT "Under Percentage"
             ).
@@ -2193,11 +2191,11 @@ DO:
             INPUT "Price-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT string(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "Under Percentage"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "Over Percentage"
             ).
         IF ip-type EQ  'Update' THEN       
@@ -4187,7 +4185,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                 asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME}  = NO.
 
-        cDisplayFGLocationDetails = oSetting:GetByName("DisplayFGLocationDetails").
+        RUN spGetSettingByName("DisplayFGLocationDetails", OUTPUT cDisplayFGLocationDetails).
+
         IF cDisplayFGLocationDetails EQ ? THEN
             cDisplayFGLocationDetails = "NO".
         IF cDisplayFGLocationDetails NE "NO" THEN 
@@ -6857,7 +6856,7 @@ PROCEDURE enable_UI :
          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
          oe-ordl.req-date oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-         fi_jobStartDate btn-quotes btnTagsUnder 
+         fi_jobStartDate btn-quotes  
       WITH FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
 END PROCEDURE.
@@ -7849,16 +7848,16 @@ PROCEDURE getTagsToReset :
         btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Over Percentage",
         OUTPUT lAvailable
-        ).
+        ).  
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Over Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -7873,16 +7872,16 @@ PROCEDURE getTagsToReset :
         btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Under Percentage",
         OUTPUT lAvailable
-        ).
+        ).    
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  STRING(oe-ordl.ord-no + oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Under Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -9188,18 +9187,18 @@ PROCEDURE pAddTag :
    
     DO WITH FRAME {&frame-name}:   
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcSource,
             OUTPUT lAvailable

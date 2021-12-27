@@ -41,7 +41,11 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipoSetting AS system.Setting NO-UNDO.
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+RUN spGetSettingObject ("", SOURCE-PROCEDURE, OUTPUT oSetting).
+
+oSetting:Reload().    
 
 /* Local Variable Definitions ---                                       */
 
@@ -402,8 +406,8 @@ PROCEDURE GetSetting :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
-
-    opoSetting = ipoSetting.
+    
+    opoSetting = oSetting.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -422,7 +426,7 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FRAME {&FRAME-NAME}:TITLE = "Program Settings for " + ipoSetting:CurrentProgramHotKey.
+    FRAME {&FRAME-NAME}:TITLE = "Program Settings for " + oSetting:CurrentProgramHotKey.
     
 END PROCEDURE.
 
