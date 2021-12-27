@@ -84,65 +84,56 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
     
     
-    /* Load the estCostCategory data */  
-    FOR EACH bf-estCostCategory NO-LOCK
-        WHERE (bf-estCostCategory.Company EQ ipcCompany OR bf-estCostCategory.Company EQ ""):
-            
-        CREATE ttEstCostCategory.
-        BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
-    END.
-    
-    /* If category data is setup in estCostCategory then use estCostCategorySystem table */
-    
+    /* Load the estCostCategorySystem data. If category data is setup in estCostCategory then overwrite it */
     FOR EACH bf-estCostCategorySystem NO-LOCK
         WHERE (bf-estCostCategorySystem.Company EQ ipcCompany OR bf-estCostCategorySystem.Company EQ ""):
         
-        IF NOT CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.Company = bf-estCostCategorySystem.Company
-                                                  AND ttEstCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID) THEN
-        DO:    
-            CREATE ttEstCostCategory.
-            BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
-        END.
-    END.
-    
-    /* Load the estCostGroup data */    
-    FOR EACH bf-estCostGroup NO-LOCK
-        WHERE (bf-estCostGroup.Company EQ ipcCompany OR bf-estCostGroup.Company EQ ""):
+        CREATE ttEstCostCategory.
+        
+        FIND FIRST bf-estCostCategory NO-LOCK
+            WHERE (bf-estCostCategory.Company EQ ipcCompany OR bf-estCostCategory.Company EQ "")
+            AND bf-estCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostCategory THEN
+            BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
             
-        CREATE ttEstCostGroup.
-        BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+        ELSE 
+            BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
     END.
     
-    /* If No data is setup in estCostCategory then use estCostCategorySystem table */
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK
         WHERE (bf-estCostGroupSystem.Company EQ ipcCompany OR bf-estCostGroupSystem.Company EQ ""):
+                
+        CREATE ttEstCostGroup.
+        
+        FIND FIRST bf-estCostGroup NO-LOCK
+            WHERE (bf-estCostGroup.Company EQ ipcCompany OR bf-estCostGroup.Company EQ "")
+            AND bf-estCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroup THEN
+            BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
             
-        IF NOT CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.Company = bf-estCostGroupSystem.Company
-            AND ttEstCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID) THEN
-        DO:
-            CREATE ttEstCostGroup.
+        ELSE 
             BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
-        END.
     END.
-    
-    /* Load the estCostGroupLevel */    
-    FOR EACH bf-estCostGroupLevel NO-LOCK
-        WHERE (bf-estCostGroupLevel.Company EQ ipcCompany OR bf-estCostGroupLevel.Company EQ ""):
-            
-        CREATE ttEstCostGroupLevel.
-        BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
-    END.
-    
-    /* If No data is setup in estCostCategory then use estCostCategorySystem table */
+   
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK
         WHERE (bf-estCostGroupLevelSystem.Company EQ ipcCompany OR bf-estCostGroupLevelSystem.Company EQ ""):
+        
+        CREATE ttEstCostGroupLevel.
             
-        IF NOT CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.Company = bf-estCostGroupLevelSystem.Company
-            AND ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID) THEN
-        DO:
-            CREATE ttEstCostGroupLevel.
+        FIND FIRST bf-estCostGroupLevel NO-LOCK
+            WHERE (bf-estCostGroupLevel.Company EQ ipcCompany OR bf-estCostGroupLevel.Company EQ "")
+            AND bf-estCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroupLevel THEN
+            BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+            
+        ELSE 
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
-        END.
+        
     END.
 
 END PROCEDURE.
