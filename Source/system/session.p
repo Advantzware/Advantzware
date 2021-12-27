@@ -894,6 +894,58 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetScreenSize Procedure
+PROCEDURE pGetScreenSize PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScreenSizeType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdWidth          AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight         AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE oScreen    AS System.Windows.Forms.Screen NO-UNDO.
+    DEFINE VARIABLE oAblParent AS System.IntPtr               NO-UNDO.
+    
+    oAblParent = NEW System.IntPtr(ACTIVE-WINDOW:HWND) NO-ERROR.
+
+    oScreen = System.Windows.Forms.Screen:FromHandle(oAblParent) NO-ERROR.
+    
+    IF VALID-OBJECT (oScreen) THEN DO:
+        IF ipcScreenSizeType EQ "FullScreen" THEN
+            ASSIGN
+                opdWidth  = oScreen:Bounds:WIDTH
+                opdHeight = oScreen:Bounds:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "WorkingArea" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:WIDTH
+                opdHeight = oScreen:WorkingArea:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "TopLeftPosition" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:LEFT
+                opdHeight = oScreen:WorkingArea:TOP
+                .
+        
+    END.
+
+    IF VALID-OBJECT(oScreen) THEN
+        DELETE OBJECT oScreen.
+
+    IF VALID-OBJECT(oAblParent) THEN
+        DELETE OBJECT oAblParent.  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pSetCompanyContexts) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompanyContexts Procedure
@@ -922,7 +974,18 @@ PROCEDURE pSetCompanyContexts PRIVATE:
     sessionInstance:SetValue("CompanyCity",bf-company.city).
     sessionInstance:SetValue("CompanyState",bf-company.state).
     sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
-           
+
+    /* Delete existing setting objects. This will remove any records loaded in the temp-table */
+    FOR EACH ttSettingObject:
+        IF VALID-OBJECT (ttSettingObject.settingObject) THEN
+            DELETE OBJECT ttSettingObject.settingObject.
+
+        DELETE ttSettingObject.
+    END.
+    
+    /* Set the company in the session's setting object */
+    IF VALID-OBJECT (oSetting) THEN
+        oSetting:SetCompany(ipcCompany).           
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1849,6 +1912,83 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenSize Procedure
+PROCEDURE spGetScreenSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "FullScreen",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenTopLeftPosition) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenTopLeftPosition Procedure
+PROCEDURE spGetScreenStartPosition:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdTop  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdLeft AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "TopLeftPosition",
+        OUTPUT opdLeft,
+        OUTPUT opdTop
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenWorkingAreaSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenWorkingAreaSize Procedure
+PROCEDURE spGetScreenWorkingAreaSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "WorkingArea",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+ 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spGetSession) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSession Procedure
@@ -1906,6 +2046,7 @@ PROCEDURE spGetSettingByName:
     RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
 
     opcSettingValue = oSetting:GetByName(ipcSettingName).
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

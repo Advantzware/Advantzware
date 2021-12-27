@@ -109,12 +109,10 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE cSettingValue   AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dttzServerDateTimeTZ              AS DATETIME-TZ NO-UNDO.    
-    DEFINE VARIABLE dttzCurrentGMTDateTimeTZ          AS DATETIME-TZ NO-UNDO.
-    DEFINE VARIABLE dtVertexAccessTokenDateTimeTZ     AS DATETIME-TZ NO-UNDO.
-    DEFINE VARIABLE iVertexAccessTokenRefreshInterval AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE dttzServerDateTimeTZ     AS DATETIME-TZ NO-UNDO.    
+    DEFINE VARIABLE dttzCurrentGMTDateTimeTZ AS DATETIME-TZ NO-UNDO.
+    DEFINE VARIABLE dttzSysCtrlDateTimeTZ    AS DATETIME-TZ NO-UNDO.
     
     DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
     DEFINE BUFFER bf-APIOutbound      FOR APIOutbound.
@@ -130,20 +128,24 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
-    RUN spGetSettingByName ("VertexAccessTokenDateTime", OUTPUT cSettingValue).
-    dtVertexAccessTokenDateTimeTZ = DATETIME-TZ(cSettingValue) NO-ERROR.
-    
-    RUN spGetSettingByName ("VertexAccessTokenRefreshInterval", OUTPUT cSettingValue).
-    iVertexAccessTokenRefreshInterval = INTEGER (cSettingValue) NO-ERROR.
-             
-    IF INTERVAL(dttzCurrentGMTDateTimeTZ, dtVertexAccessTokenDateTimeTZ, "seconds") LT iVertexAccessTokenRefreshInterval THEN DO:
-        ASSIGN
-            oplSuccess     = TRUE
-            opcMessage     = "Success"
-            .
-        RETURN.
+    FIND FIRST bf-sys-ctrl NO-LOCK
+         WHERE bf-sys-ctrl.company EQ ipcCompany
+           AND bf-sys-ctrl.name    EQ "VertexAccessToken"
+         NO-ERROR.
+    IF AVAILABLE bf-sys-ctrl AND bf-sys-ctrl.date-fld NE ? THEN DO:
+        
+        /* Convert sys-ctrl date and time into a variable of type datetime-tz with +00:00 time zone */
+        dttzSysCtrlDateTimeTZ = DATETIME-TZ(bf-sys-ctrl.date-fld, bf-sys-ctrl.int-fld * 1000, 0).
+        
+        IF INTERVAL(dttzCurrentGMTDateTimeTZ, dttzSysCtrlDateTimeTZ, "seconds") LT bf-sys-ctrl.dec-fld THEN DO:
+            ASSIGN
+                oplSuccess     = TRUE
+                opcMessage     = "Success"
+                .
+            RETURN.
+        END.
     END.
-            
+    
     FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiID EQ "CalculateTax"
            AND NOT bf-APIOutbound.clientID BEGINS "_default"
@@ -235,27 +237,19 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         INPUT  dttzServerDateTimeTZ,
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
-    
-    RUN spSetSettingByName ("VertexAccessToken", cAccessToken).
-    
-    opcMessage = RETURN-VALUE.
-    IF opcMessage NE "" THEN DO:
+
+    FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
+         WHERE bf-sys-ctrl.company EQ ipcCompany
+           AND bf-sys-ctrl.name    EQ "VertexAccessToken"
+         NO-ERROR.
+    IF AVAILABLE bf-sys-ctrl THEN
         ASSIGN
-            opcMessage = "Error while updating VertexAccessToken setting. '" + opcMessage + "'"
-            oplSuccess = FALSE
-            .
-    END.
-    
-    RUN spSetSettingByName ("VertexAccessTokenDateTime", STRING(dttzCurrentGMTDateTimeTZ)).
-    
-    opcMessage = RETURN-VALUE.
-    
-    IF opcMessage NE "" THEN DO:
-        ASSIGN
-            opcMessage = "Error while updating VertexAccessTokenDateTime setting. '" + opcMessage + "'"
-            oplSuccess = FALSE
-            .
-    END.      
+            bf-sys-ctrl.char-fld = cAccessToken
+            bf-sys-ctrl.date-fld = DATE(dttzCurrentGMTDateTimeTZ) /* Save GMT date */
+            bf-sys-ctrl.int-fld  = TRUNCATE(MTIME(dttzCurrentGMTDateTimeTZ) / 1000, 0) /* Save GMT time */
+            opcMessage           = "Success"
+            oplSuccess           = TRUE
+            .    
         
     FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE bf-APIOutbound THEN

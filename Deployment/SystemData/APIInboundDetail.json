@@ -1,0 +1,46 @@
+[
+  {
+    "apiRoute": "\/api\/getpriceinuom",
+    "rec_key": "202007072671905413040",
+    "parentID": "\/api\/getpriceinuom",
+    "detailID": "price",
+    "data": "        {\n          \"Company\": \"$Company$\",\n          \"ItemID\": \"$ItemID$\",\n          \"CustomerID\": \"$CustomerID$\",\n          \"ShipToID\": \"$ShipToID$\",\n          \"Quantity\": $Quantity$,\n          \"QuantityUOM\": \"$QuantityUOM$\",\n          \"TargetUOM\": \"$TargetUOM$\",\n          \"Price\": $Price$,\n          \"PriceUOM\": \"$PriceUOM$\"\n        }",
+    "detailType": "Response",
+    "company": "001",
+    "apiInboundID": 17,
+    "apiInboundDetailID": 1
+  },
+  {
+    "apiRoute": "\/api\/getprice",
+    "rec_key": "202007072894505413042",
+    "parentID": "\/api\/getprice",
+    "detailID": "price",
+    "data": "        {\n          \"Company\": \"$Company$\",\n          \"ItemID\": \"$ItemID$\",\n          \"CustomerID\": \"$CustomerID$\",\n          \"ShipToID\": \"$ShipToID$\",\n          \"Quantity\": $Quantity$,\n          \"QuantityUOM\": \"$QuantityUOM$\",\n          \"Price\": $Price$,\n          \"PriceUOM\": \"$PriceUOM$\"\n        }",
+    "detailType": "Response",
+    "company": "001",
+    "apiInboundID": 18,
+    "apiInboundDetailID": 2
+  },
+  {
+    "apiRoute": "\/api\/getpricematrix",
+    "rec_key": "202007074878005413044",
+    "parentID": "\/api\/getpricematrix",
+    "detailID": "price",
+    "data": "        {\n          \"Company\": \"$Company$\",\n          \"ItemID\": \"$ItemID$\",\n          \"CustomerID\": \"$CustomerID$\",\n          \"ShipToID\": \"$ShipToID$\",\n          \"Matrix\": [$matrix$]\n        }",
+    "detailType": "Response",
+    "company": "001",
+    "apiInboundID": 19,
+    "apiInboundDetailID": 3
+  },
+  {
+    "apiRoute": "\/api\/getpricematrix",
+    "rec_key": "202007075075005413045",
+    "parentID": "price",
+    "detailID": "matrix",
+    "data": "        {\n          \"Level\": $Level$,\n          \"Quantity\": $Quantity$,\n          \"QuantityUOM\": \"$QuantityUOM$\",\n          \"Price\": $Price$,\n          \"PriceUOM\": \"$PriceUOM$\"\n        }",
+    "detailType": "Response",
+    "company": "001",
+    "apiInboundID": 19,
+    "apiInboundDetailID": 4
+  }
+]

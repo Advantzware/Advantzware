@@ -109,6 +109,9 @@ FOR FIRST APIOutbound NO-LOCK
         .
 END.
 
+/* EndPoint Variable replacement using SharedConfig values */
+gcEndPoint = scInstance:ReplaceEndPointVariables(gcEndPoint, gcAPIID).
+
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
         opcMessage = "Config for Outbound API Sequence ID [" 
@@ -319,7 +322,7 @@ IF cAPIRequestMethod EQ "cURL" THEN DO:
               + cUrlEncodedData
               + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
               + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-              + gcEndPoint.
+              + '"' + gcEndPoint + '"'.
     
     /* Put Request Data from a variable into a Temporary file */
     COPY-LOB glcRequestData TO FILE gcRequestFile.

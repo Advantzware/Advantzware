@@ -149,7 +149,7 @@ DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Job Sequence"
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Job Sequence","Due Date","Job","Resource" 
      DROP-DOWN-LIST
-     SIZE 29 BY 1.05 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
 DEFINE VARIABLE deptTitle AS CHARACTER FORMAT "X(256)":U INITIAL "Departments:" 
       VIEW-AS TEXT 
@@ -221,7 +221,6 @@ DEFINE VARIABLE outputTo AS CHARACTER INITIAL "Screen"
      RADIO-BUTTONS 
           "&Print", "Print",
 "e&Mail", "eMail",
-"&Fax", "Fax",
 "&Excel", "Excel",
 "&Screen", "Screen"
      SIZE 13 BY 3.81
@@ -235,12 +234,12 @@ DEFINE VARIABLE printProgram AS CHARACTER
      BGCOLOR 8  NO-UNDO.
 
 DEFINE RECTANGLE buttonRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 15 BY 5.48
      BGCOLOR 7 .
 
 DEFINE RECTANGLE outputRect
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 15 BY 4.29
      BGCOLOR 15 .
 
@@ -900,6 +899,8 @@ PROCEDURE applyFields :
     IF ID BEGINS 'ASI' THEN
     departmentValue = departments:SCREEN-VALUE.
     runPrint = findProgram('{&print}/',ID,'/' + runProgram + '.r').
+    IF SEARCH(runPrint) EQ ? THEN
+    runPrint = findProgram('{&print}/',ID,'/' + runProgram + '.p').
     IF SEARCH(runPrint) EQ ? THEN
     MESSAGE 'Program "' + runProgram + '.p" does not exist!' VIEW-AS ALERT-BOX ERROR.
     ELSE DO:

@@ -31,6 +31,26 @@ CLASS system.SharedConfig IMPLEMENTS SessionInterface:
     PRIVATE SET.
 
 
+	/*------------------------------------------------------------------------------
+	 Purpose:
+	 Notes:
+	------------------------------------------------------------------------------*/
+
+	METHOD PUBLIC CHARACTER ReplaceEndPointVariables( ipcEndPoint AS CHARACTER, ipcAPIID AS CHARACTER ):
+		DEFINE VARIABLE cVariableName AS CHARACTER NO-UNDO.
+		
+		FOR EACH ttKeyValue
+		    WHERE ttKeyValue.cKey BEGINS "EndPoint_" + ipcAPIID + "_":
+		    cVariableName = ENTRY(NUM-ENTRIES(ttKeyValue.cKey, "_"), ttKeyValue.cKey, "_").
+		    
+            ipcEndPoint = REPLACE (ipcEndPoint, "$" + cVariableName + "$", ttKeyValue.cValue).
+            
+            DELETE ttKeyValue.
+        END.
+        
+        RETURN ipcEndPoint.
+	END METHOD.
+
     /*------------------------------------------------------------------------------
      Purpose: Set the value for a given key. Overwrites value if already available
      Notes:

@@ -52,7 +52,7 @@ DEFINE VARIABLE cGLDate AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -64,8 +64,7 @@ DEFINE VARIABLE cGLDate AS CHARACTER NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ar-cash.cust-no ~
-ar-cash.check-no ar-cash.check-date ar-cash.check-amt ~
-getTrNo() @ iTrNo getPeriod() @ iPeriod getDate() @ cGLDate
+ar-cash.check-no ar-cash.check-date ar-cash.check-amt 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ar-cash WHERE ~{&KEY-PHRASE} ~
       AND ar-cash.company = g_company NO-LOCK ~
@@ -90,27 +89,7 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTrNo B-table-Win 
-FUNCTION getTrNo RETURNS INTEGER
-  ( /* parameter-definitions */ )  FORWARD.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getPeriod B-table-Win 
-FUNCTION getPeriod RETURNS INTEGER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getDate B-table-Win 
-FUNCTION getDate RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -154,9 +133,6 @@ DEFINE BROWSE Browser-Table
       ar-cash.check-no FORMAT "999999999999":U WIDTH 19.2
       ar-cash.check-date FORMAT "99/99/9999":U WIDTH 17.2
       ar-cash.check-amt FORMAT "->>,>>>,>>9.99":U WIDTH 21.2
-      getTrNo() @ iTrNo  COLUMN-LABEL "GL Trans#" FORMAT ">>>>>>>>":U
-      getDate() @ cGLDate COLUMN-LABEL "Posted Date" FORMAT "x(10)":U
-      getPeriod() @ iPeriod  COLUMN-LABEL "GL Period" FORMAT ">>>":U        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
@@ -234,7 +210,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -257,19 +233,13 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "ASI.ar-cash.company = g_company"
      _FldNameList[1]   > ASI.ar-cash.cust-no
-"ar-cash.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-cash.check-no
-"ar-cash.check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"check-no" ? "999999999999" "integer" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-cash.check-date
-"ar-cash.check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"check-date" ? ? "date" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ar-cash.check-amt
-"ar-cash.check-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > "_<CALC>"
-"getTrNo() @ iTrNo" "GL Tran#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no          
-     _FldNameList[6]   > "_<CALC>"
-"getDate() @ cGLDate" "Posted Date" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
-    _FldNameList[7]   > "_<CALC>"
-"getPeriod() @ iPeriod" "GL Period" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+"check-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -446,69 +416,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTrNo B-table-Win 
-FUNCTION getTrNo RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-         
-    IF AVAIL glhist THEN iReturn = glhist.tr-num.
-    RETURN iReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getPeriod B-table-Win 
-FUNCTION getPeriod RETURNS INTEGER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iReturn AS INTEGER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-         
-    IF AVAIL glhist THEN iReturn = glhist.period.
-    RETURN iReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDate B-table-Win 
-FUNCTION getDate RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    FIND FIRST glhist NO-LOCK
-         WHERE glhist.company EQ g_company
-         AND glhist.jrnl    EQ "CASHR"
-         AND glhist.tr-dscr MATCHES "*" + ar-cash.cust-no + " " + STRING(ar-cash.check-no,"999999999999") + "*" NO-ERROR.
-                  
-    IF AVAIL glhist THEN cReturn = string(glhist.tr-date).
-    RETURN cReturn .   /* Function return value. */
-    
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

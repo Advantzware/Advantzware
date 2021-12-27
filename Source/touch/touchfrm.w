@@ -581,7 +581,7 @@ PROCEDURE Change_Page :
       RUN Set_Title(translate('Job',NO) + ' - ' +
                     translate('Machine',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
-      RUN Get_Jobs IN h_jobs ("Job").
+      RUN Get_Jobs IN h_jobs ("Start").
     END.
     WHEN 10 THEN /* forms */
     DO:
