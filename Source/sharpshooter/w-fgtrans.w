@@ -60,6 +60,8 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lIsMoveReceipt   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE riFGRctdMove     AS ROWID     NO-UNDO.
 
 DEFINE VARIABLE gcSSLocationSource    AS CHARACTER NO-UNDO INITIAL "LoadTag".
 DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
@@ -673,14 +675,18 @@ DO:
         RUN pStatusMessage ("LOCATION CANNOT BE EMPTY", 3).
         RETURN. 
     END.
-        
-    RUN pLocationScan (
-        INPUT  fiTag:SCREEN-VALUE,
-        INPUT  cWarehouse,
-        INPUT  cLocation,
-        OUTPUT lError,
-        OUTPUT cMessage
-        ). 
+    
+    IF lIsMoveReceipt THEN
+        RUN pMoveReceipt (riFGRctdMove, cWarehouse, cLocation, OUTPUT lError, OUTPUT cMessage).
+    ELSE            
+        RUN pLocationScan (
+            INPUT  fiTag:SCREEN-VALUE,
+            INPUT  cWarehouse,
+            INPUT  cLocation,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ). 
+
     IF lError THEN DO:
         SELF:SCREEN-VALUE = "".
         
@@ -743,7 +749,7 @@ DO:
         RETURN NO-APPLY.
     END.
     
-    IF NOT lIsTransfer THEN DO:
+    IF NOT lIsTransfer AND NOT lIsMoveReceipt THEN DO:
         SELF:SCREEN-VALUE = "".
         
         RETURN NO-APPLY.
@@ -1209,6 +1215,66 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveReceipt W-Win
+PROCEDURE pMoveReceipt:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+            
+    RUN Inventory_MoveFGTransaction IN hdInventoryProcs (
+        ipriFGRctd,
+        ipcLocation,
+        ipcBin,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+
+    IF NOT oplError THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            FIND FIRST ttBrowseInventory
+                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(bf-fg-rctd))
+                 NO-ERROR.
+            IF NOT AVAILABLE ttBrowseInventory THEN
+                CREATE ttBrowseInventory.
+            
+            ASSIGN
+                ttBrowseInventory.company          = bf-fg-rctd.company
+                ttBrowseInventory.fgItemID         = bf-fg-rctd.i-no
+                ttBrowseInventory.tag              = bf-fg-rctd.tag
+                ttBrowseInventory.warehouse        = bf-fg-rctd.loc
+                ttBrowseInventory.location         = bf-fg-rctd.loc-bin
+                ttBrowseInventory.quantity         = bf-fg-rctd.qty
+                ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
+                ttBrowseInventory.transactionType  = "Receipt"
+                ttBrowseInventory.inventoryStatus  = "Moved"
+                .
+                
+            RUN pStatusMessage (CAPS("Tag # '" + bf-fg-rctd.tag + "' moved successfull"), 1).
+        END.
+    END.
+    
+    lIsMoveReceipt = FALSE.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNavigate W-Win 
 PROCEDURE pNavigate :
 /*------------------------------------------------------------------------------
@@ -1277,7 +1343,7 @@ PROCEDURE pTagScan PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
     
@@ -1302,6 +1368,11 @@ PROCEDURE pTagScan PRIVATE :
     
     DO WITH FRAME {&FRAME-NAME}:    
     END.
+    
+    ASSIGN
+        lIsMoveReceipt = FALSE
+        riFGRctdMove   = ?
+        .
     
     IF TRIM(ipcTag) EQ "" THEN DO:
         ASSIGN
@@ -1335,33 +1406,52 @@ PROCEDURE pTagScan PRIVATE :
     
     oplIsTransfer = oFGBin:SetContext (cCompany, cItemID, ipcTag).
 
-    ASSIGN
-        cWarehouse = oLoadTag:GetValue("Warehouse")
-        cLocation  = oLoadTag:GetValue("Location")
-        .
-
-    IF gcSSLocationSource EQ "FGItem" THEN
+    IF NOT glSSFGPost THEN
+        RUN Inventory_GetFGReceiptTransaction IN hdInventoryProcs (cCompany, ipcTag, OUTPUT riFGRctdMove).
+        
+    IF riFGRctdMove NE ? THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ riFGRctdMove
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            ASSIGN
+                lIsMoveReceipt = TRUE
+                cWarehouse     = bf-fg-rctd.loc
+                cLocation      = bf-fg-rctd.loc-bin
+                .    
+            
+            RUN pStatusMessage (CAPS("Tag# '" + bf-fg-rctd.tag + "' is received, scan new location"), 2).
+        END.
+    END.
+    ELSE DO:    
         ASSIGN
-            cWarehouse = oItemFG:GetValue("Warehouse")
-            cLocation  = oItemFG:GetValue("Location")
+            cWarehouse = oLoadTag:GetValue("Warehouse")
+            cLocation  = oLoadTag:GetValue("Location")
             .
-    ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
-        RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
-            INPUT  cCompany,
-            OUTPUT cWarehouse
-            ).
-
-        RUN Inventory_GetDefaultBin IN hdInventoryProcs (
-            INPUT  cCompany,
-            OUTPUT cLocation
-            ).
+    
+        IF gcSSLocationSource EQ "FGItem" THEN
+            ASSIGN
+                cWarehouse = oItemFG:GetValue("Warehouse")
+                cLocation  = oItemFG:GetValue("Location")
+                .
+        ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
+            RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cWarehouse
+                ).
+    
+            RUN Inventory_GetDefaultBin IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cLocation
+                ).
+        END.
     END.
     
     fiLocation:SCREEN-VALUE = cWarehouse 
                             + FILL(" ", iWarehouseLength - LENGTH(cWarehouse)) 
                             + cLocation.      
 
-    IF oplIsTransfer THEN DO:
+    IF oplIsTransfer OR lIsMoveReceipt THEN DO:
         fiLocation:SENSITIVE = TRUE.
         
         APPLY "ENTRY" TO fiLocation.

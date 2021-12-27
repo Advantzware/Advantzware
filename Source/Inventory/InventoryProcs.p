@@ -448,6 +448,93 @@ PROCEDURE Inventory_GetFGSetComponents:
                
 END PROCEDURE.
 
+PROCEDURE Inventory_GetFGReceiptTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriFGRctd AS ROWID     NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE bf-fg-rctd.company   EQ ipcCompany
+           AND bf-fg-rctd.tag       EQ ipcTag
+           AND bf-fg-rctd.rita-code EQ gcTransactionTypeReceive
+           AND bf-fg-rctd.qty       GT 0
+         NO-ERROR.
+    IF AVAILABLE bf-fg-rctd THEN
+        opriFGRctd = ROWID(bf-fg-rctd).
+
+END PROCEDURE.
+
+PROCEDURE Inventory_MoveFGTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lValidLoc AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+       
+    FIND FIRST bf-fg-rctd NO-LOCK  
+         WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid FG Receipt passed as input"
+            .
+        
+        RETURN. 
+    END.
+    
+    RUN ValidateLoc ( bf-fg-rctd.company, ipcLocation, OUTPUT lValidLoc).
+    
+    IF NOT lValidLoc THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Location " + ipcLocation                 
+            oplError   = TRUE
+            .
+        RETURN.
+    END.
+    
+    /* Validate location */
+    RUN ValidateBin (bf-fg-rctd.company, ipcLocation, ipcBin, OUTPUT lValidBin).
+    
+    IF ipcBin EQ "" OR NOT lValidBin THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid Bin " + ipcBin
+            oplError   = TRUE 
+            .
+        RETURN.
+    END.
+    
+    FIND CURRENT bf-fg-rctd EXCLUSIVE-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-fg-rctd THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "FG Receipt is locked. Please try again later"
+            .
+        
+        RETURN.     
+    END.
+    
+    ASSIGN
+        bf-fg-rctd.loc     = ipcLocation
+        bf-fg-rctd.loc-bin = ipcBin
+        .
+END PROCEDURE.
+
 PROCEDURE pCreateFGSetComponents PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
