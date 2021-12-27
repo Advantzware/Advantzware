@@ -553,6 +553,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+  IF adm-adding-record THEN
+  cAction = "add-only".
+  ELSE cAction = "initial".
+  
+  {methods/run_link.i "container-source" "enable-line-button" "(input cAction)" } 
+   adm-adding-record = NO .
+   adm-new-record = NO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -599,6 +625,7 @@ PROCEDURE local-create-record :
 */
 
   RUN dispatch ('row-changed').
+  {methods/run_link.i "container-source" "disable-line-button" } 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -670,6 +697,7 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEFINE VARIABLE lUpdateBankCode AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ====*/
   RUN valid-cust-no NO-ERROR.
@@ -757,6 +785,11 @@ PROCEDURE local-update-record :
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
   END.
+  IF NOT ll-new-record THEN do:  
+      cAction = "initial".       
+      {methods/run_link.i "container-source" "enable-line-button" "(input cAction)" } 
+  END.
+   
 END PROCEDURE.
 
 
@@ -810,7 +843,8 @@ PROCEDURE proc-enable :
     lv-old-cust = ar-cash.cust-no:SCREEN-VALUE.
     IF NOT adm-new-record AND AVAIL ar-cash AND CAN-FIND(FIRST ar-cashl OF ar-cash) THEN DISABLE ar-cash.cust-no.
   END.
-   
+  
+  {methods/run_link.i "container-source" "disable-line-button" } 
 
 END PROCEDURE.
 
