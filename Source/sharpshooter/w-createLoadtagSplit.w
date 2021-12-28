@@ -51,22 +51,15 @@ DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glShowKeyboard AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE oSetting AS system.Setting     NO-UNDO.
 DEFINE VARIABLE oKeyboard AS system.Keyboard   NO-UNDO.
 
 RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
-oSetting = NEW system.Setting().
 oKeyboard = NEW system.Keyboard().
 
-oSetting:LoadByCategoryAndProgram("SSCreateLoadTag,Keyboard").
-
-ASSIGN
-    gcShowSettings = oSetting:GetByName("ShowSettings")
-    glShowKeyboard = LOGICAL(oSetting:GetByName("ShowVirtualKeyboard"))
-    .
+RUN spSetSettingContext.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -104,6 +97,7 @@ btnDeleteText statusMessage btnPrintText
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-loadtags AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-splittag AS HANDLE NO-UNDO.
@@ -197,7 +191,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -411,6 +404,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -432,6 +426,16 @@ PROCEDURE adm-create-objects :
 
   CASE adm-current-page: 
 
+    WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 158.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
+    END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -512,10 +516,16 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_adjustwindowsize , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_f-splittag ,
              h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-loadtags ,
+             h_f-splittag , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatefirst ,
              h_b-loadtags , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_navigateprev ,
+             h_navigatefirst , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatenext ,
              h_navigateprev , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_navigatelast ,
@@ -614,9 +624,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win
-PROCEDURE GetKeyboard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win 
+PROCEDURE GetKeyboard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -625,30 +634,12 @@ PROCEDURE GetKeyboard:
 
     opoKeyboard = oKeyboard.
 END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSetting W-Win 
-PROCEDURE GetSetting :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoSetting AS system.Setting NO-UNDO.
-
-    opoSetting = oSetting.    
-
-END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win
-PROCEDURE Key_Stroke:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke W-Win 
+PROCEDURE Key_Stroke :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -659,23 +650,17 @@ PROCEDURE Key_Stroke:
         oKeyboard:KeyStroke(ipcKeyStroke).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF VALID-OBJECT(oSetting) THEN
-      DELETE OBJECT oSetting.
-  
   IF VALID-OBJECT(oKeyboard) THEN
       DELETE OBJECT oKeyboard.
       
@@ -684,11 +669,9 @@ PROCEDURE local-destroy:
 
   /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
 PROCEDURE local-enable :
@@ -734,8 +717,7 @@ PROCEDURE OpenSetting :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF VALID-OBJECT(oSetting) THEN
-        RUN windows/setting-dialog.w (oSetting).
+    RUN windows/setting-dialog.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,8 +730,9 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.    
+    DEFINE VARIABLE cReturnValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.     
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -757,6 +740,11 @@ PROCEDURE pInit :
     RUN spGetSessionParam("UserID", OUTPUT cUser).
     RUN pStatusMessage ("", 0).
 
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).
+    
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
     oKeyboard:SetProcedure(THIS-PROCEDURE).
     oKeyboard:SetFrame(FRAME {&FRAME-NAME}:HANDLE).
@@ -765,8 +753,8 @@ PROCEDURE pInit :
 
     ASSIGN
         btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0
-        btnNumPad:VISIBLE       = glShowKeyboard
-        RECT-2:VISIBLE          = glShowKeyboard
+        btnNumPad:VISIBLE       = glShowVirtualKeyboard
+        RECT-2:VISIBLE          = glShowVirtualKeyboard
         .  
         
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
@@ -847,16 +835,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
             btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
             btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
@@ -887,6 +865,7 @@ PROCEDURE pWinReSize :
             dHeight = {&WINDOW-NAME}:HEIGHT - dRow - 1.33
             .
         RUN set-size IN h_b-loadtags ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 END PROCEDURE.
@@ -938,23 +917,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard W-Win
-PROCEDURE ShowKeyboard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard W-Win 
+PROCEDURE ShowKeyboard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplShowKeyboard AS LOGICAL NO-UNDO.
 
-    oplShowKeyboard = glShowKeyboard.
+    oplShowKeyboard = glShowVirtualKeyboard.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

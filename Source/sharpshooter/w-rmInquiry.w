@@ -108,6 +108,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-rminqbins AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-rminqsumm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
@@ -236,7 +237,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -677,6 +677,7 @@ END.
 {src/adm/template/windowmn.i}
 {sharpshooter/smartobj/windowExit.i}
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -699,6 +700,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 159.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -1139,16 +1148,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
             btnExitText:COL                    = dCol - 9
@@ -1173,6 +1172,7 @@ PROCEDURE pWinReSize :
             dWidth  = dCol - 3
             .
         RUN set-size IN h_b-rminqbins ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

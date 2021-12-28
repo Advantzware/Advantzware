@@ -46,6 +46,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -82,6 +84,7 @@ btnSettingsText btnPrintText
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-loadtags AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_bolfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
@@ -335,7 +338,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
-
+{sharpshooter/ChangeWindowSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -357,6 +360,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 143.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -455,6 +466,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_adjustwindowsize , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_bolfilter ,
              h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
@@ -663,8 +676,6 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    RUN spSetSettingContext.
-
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).        
 
     btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0.
@@ -693,16 +704,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
             btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
             btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
@@ -735,6 +736,7 @@ PROCEDURE pWinReSize :
             dWidth  = dCol - 2
             .
         RUN set-size IN h_b-loadtags ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

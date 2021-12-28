@@ -414,7 +414,13 @@ PROCEDURE pInit PRIVATE :
 
     IF iScreenWidth LT iWorkingAreaWidth * 0.60 THEN
         iScreenWidth = iWorkingAreaWidth * 0.60.
-        
+
+    IF iScreenHeight GT iWorkingAreaHeight THEN
+        iScreenHeight = iWorkingAreaHeight.
+    
+    IF iScreenWidth GT iWorkingAreaWidth THEN
+        iScreenWidth = iWorkingAreaWidth.
+
     {methods/run_link.i "CONTAINER-SOURCE" "ChangeWindowSize" "(iScreenHeight, iScreenWidth, iScreenTop, iScreenLeft)"}
 END PROCEDURE.
 
