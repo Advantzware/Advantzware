@@ -60,7 +60,7 @@ ASSIGN
    cerunc-dec = sys-ctrl.dec-fld
    cerunc     = sys-ctrl.char-fld.
 
-IF cCerun-char NE "PEACHTRE" THEN
+IF cerunc NE "PEACHTRE" THEN
 DO:  
     IF cerunc-dec EQ 0 THEN
     DO:
