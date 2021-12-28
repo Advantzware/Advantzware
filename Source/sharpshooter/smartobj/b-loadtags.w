@@ -172,21 +172,21 @@ DEFINE BROWSE br_table
       ttLoadTag.jobID2 NO-LABEL FORMAT "99" WIDTH 6
       ttLoadTag.itemID COLUMN-LABEL "Item #" WIDTH 30
       ttLoadTag.itemName COLUMN-LABEL "Item!Name" WIDTH 40
-      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 32
-      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 15
-      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 12
-      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 12
-      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 12
+      ttLoadTag.tag COLUMN-LABEL "Tag#" WIDTH 40
+      ttLoadTag.quantityInUnit FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet" WIDTH 20
+      ttLoadTag.subUnitsPerUnit FORMAT "->>>,>>9" COLUMN-LABEL "Units/!Pallet" WIDTH 15
+      ttLoadTag.quantityInSubUnit FORMAT "->>>,>>9" COLUMN-LABEL "Unit!Count" WIDTH 15
+      ttLoadTag.quantityOfSubUnits FORMAT "->>>,>>9" COLUMN-LABEL "Total!Units" WIDTH 15
       ttLoadTag.jobQuantity COLUMN-LABEL "Job!Quantity" WIDTH 15
       ttLoadTag.printCopies COLUMN-LABEL "Print!Copies" WIDTH 15
       ttLoadTag.ordQuantity COLUMN-LABEL "Ord Qty" WIDTH 15
       ttLoadTag.relQuantity COLUMN-LABEL "Rel Qty" WIDTH 15
       ttLoadTag.overPct FORMAT ">>9.99" COLUMN-LABEL "Overrun%" WIDTH 15
       ttLoadTag.partial COLUMN-LABEL "Partial" WIDTH 12
-      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 12
-      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty"
-      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 12
-      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 12
+      ttLoadTag.totalTags COLUMN-LABEL "No. of!Tags" WIDTH 15
+      ttLoadTag.quantityTotal FORMAT "->,>>>,>>9" COLUMN-LABEL "Total Qty" WIDTH 15
+      ttLoadTag.unitWeight COLUMN-LABEL "Unit!Wt" WIDTH 15
+      ttLoadTag.palletWeight COLUMN-LABEL "Pallet!Wt" WIDTH 15
       ttLoadTag.lotID FORMAT "X(20)" COLUMN-LABEL "FG Lot#" WIDTH 30
       ttLoadTag.custPONo COLUMN-LABEL "Customer!PO#" WIDTH 15
       ttLoadTag.poline COLUMN-LABEL "Ln" WIDTH 10
