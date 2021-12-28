@@ -31,10 +31,11 @@ DO:
     IF CAN-DO("Browse,Frame",SELF:TYPE) THEN DO:
         &IF DEFINED(SysCtrlHelp) EQ 0 &THEN
         IF ls-prog-name MATCHES "*viewers/sys-ctrl*" THEN
-        RUN sys/ref/hlpd.w (sys-ctrl.name, sys-ctrl.company, FRAME-FIELD, ls-prog-name, "English") . 
+        RUN sys/ref/hlpd.w (sys-ctrl.name, sys-ctrl.company, FRAME-FIELD, ls-prog-name, "English") .
+        
         &IF DEFINED(SettingHelp) NE 0 &THEN
-        IF ls-prog-name MATCHES "*browsers/setting*" THEN
-        RUN sys/ref/hlpd.w (ttSetting.settingName, "System", "", ls-prog-name, "English") .          
+        IF ls-prog-name MATCHES "*browsers/setting*" AND AVAIL ttSetting THEN
+        RUN sys/ref/hlpd.w (ttSetting.settingName, "Setting", "", ls-prog-name, "English") .          
         &ENDIF           
         
         &ELSE
@@ -46,7 +47,13 @@ DO:
     END.
     ELSE
     &IF DEFINED(SysCtrlHelp) EQ 0 &THEN
-    RUN sys/ref/hlpd.w (FOCUS:NAME, FOCUS:TABLE, FOCUS:DBNAME, "{&FRAME-NAME}", "English") .
+        &IF DEFINED(SettingViewersHelp) NE 0 &THEN
+        IF ls-prog-name MATCHES "*viewerid/setting*" THEN           
+        RUN sys/ref/hlpd.w (fiSettingName:SCREEN-VALUE, "Setting", "", ls-prog-name, "English") .
+        &ENDIF
+        &IF DEFINED(SettingViewersHelp) EQ 0 &THEN
+        RUN sys/ref/hlpd.w (FOCUS:NAME, FOCUS:TABLE, FOCUS:DBNAME, "{&FRAME-NAME}", "English") .
+        &ENDIF
     &ELSE
     IF ls-prog-name MATCHES "*system/sys-ctrl*" THEN DO:
         cHelpField = SUBSTR(FOCUS:NAME,2).
