@@ -172,8 +172,8 @@ DEFINE BROWSE br_table
     job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
     job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
     item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55         
-    job-mat.qty COLUMN-LABEL "Required" FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 27
-    job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>9.99<<<<":U WIDTH 27
+    job-mat.qty COLUMN-LABEL "Required" FORMAT "->>,>>>,>>9.9<<<<<":U WIDTH 27
+    job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 27
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
     cEmptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */

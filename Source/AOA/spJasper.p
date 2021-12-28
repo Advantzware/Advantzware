@@ -1264,6 +1264,7 @@ PROCEDURE pJasperLastPageFooter :
                    BY dynValueParam.sortOrder
                 :
                 IF dynValueParam.paramName BEGINS "svS" THEN NEXT.
+                IF INDEX(dynValueParam.paramName,"DatePickList") NE 0 THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynValueParam.paramLabel EQ ? THEN REPLACE(dynValueParam.paramName,"sv","")
                                                 ELSE REPLACE(dynValueParam.paramLabel,":","")
@@ -1293,12 +1294,15 @@ PROCEDURE pJasperLastPageFooter :
                 cValue = "".
                 ASSIGN
                     cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+.
                     iParameterRow = iParameterRow + 1
                     .
             END. /* each dynvalueparam */
-        END. /* dynparamvalue */
+        END. /* when dynparamvalue */
     END CASE.
     
+    IF iParameterRow GT 35 THEN
+    iParameterRow = 35.
     IF dynParamValue.pageHeight GE (iParameterRow + 3) * 14 THEN DO:
         /* last page footer band */
         PUT STREAM sJasper UNFORMATTED
@@ -1313,7 +1317,7 @@ PROCEDURE pJasperLastPageFooter :
             "x=~"" 0 "~" "
             "y=~"" 14 "~" "
             "width=~"" 560 "~" "
-            "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
+            "height=~"" iParameterRow * 14 "~"/>" SKIP
             "            </rectangle>" SKIP
             "            <staticText>" SKIP
             "                <reportElement "
@@ -1340,7 +1344,7 @@ PROCEDURE pJasperLastPageFooter :
                 "            </staticText>" SKIP
                 .
         END. /* do idx */
-        RUN pJasperPageBottom (iParameterRow * 14).
+        RUN pJasperPageBottom ((iParameterRow + 1) * 14).
         PUT STREAM sJasper UNFORMATTED
             "        </band>" SKIP
             "    </lastPageFooter>" SKIP

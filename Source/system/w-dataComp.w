@@ -500,7 +500,7 @@ DO:
     REPEAT:
         SYSTEM-DIALOG GET-FILE cFileName
         TITLE   "Choose Procedure to Run ..."
-        FILTERS "Data Files (*.d)"   "*.d"                  
+        FILTERS "Data Files (*.d),Json Files (*.json)"   "*.d,*.json"                  
         MUST-EXIST
         USE-FILENAME
         UPDATE lOKpressed.
