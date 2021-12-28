@@ -17,6 +17,8 @@
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
+USING Progress.Json.ObjectModel.*.
+
 /* ***************************  Definitions  ************************** */
 /* The values of the below variables need to be in upper case and modifying them will cause inaccurate output */ 
 DEFINE VARIABLE gcMonthShort AS CHARACTER EXTENT 12 NO-UNDO INITIAL ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].
@@ -38,6 +40,9 @@ DEFINE VARIABLE gcReplaceMilliSeconds AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcReplace12hrs        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcReplaceTimeZone     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glFormatAll           AS LOGICAL   NO-UNDO INITIAL TRUE.
+
+DEFINE VARIABLE oJSONObject AS JsonObject NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -893,17 +898,19 @@ FUNCTION fEscapeExceptionCharactersJSON RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    IF NOT VALID-OBJECT (oJSONObject) THEN
+        oJSONObject = NEW JsonObject().
     
-    cValue = ipcValue.
+    /* Add a property to JSON Object. JsonObject will automatically escape any exception character */
+    oJSONObject:Add("EscapeExceptionalCharacters", ipcValue).
     
-    ASSIGN
-        cValue = REPLACE(cValue, '\','\\')
-        cValue = REPLACE(cValue, '/','\/')
-        cValue = REPLACE(cValue, '"','\"')
-        .
+    /* The output from GetJsonText will have all the exceptonal character escaped */
+    ipcValue = oJSONObject:GetJsonText("EscapeExceptionalCharacters").
     
-    RETURN cValue.
+    /* Remove the property so next Add won't have any error */
+    oJSONObject:Remove("EscapeExceptionalCharacters").
+    
+    RETURN ipcValue.
 END FUNCTION.
 
 FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER 
