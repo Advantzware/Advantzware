@@ -95,7 +95,7 @@ PROCEDURE pPostMonitorAPI:
         SET cMonitorFile ^ cAttrList.
     
         /* skips directories and files which are not csv and xml */
-        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' OR (INDEX(cMonitorFile,'.csv') EQ 0 AND INDEX(cMonitorFile,'.xml') EQ 0) THEN
+        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' THEN
             NEXT.
         
         cFile = monitorImportDir + "\" + cMonitorFile.
