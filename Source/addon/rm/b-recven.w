@@ -2793,16 +2793,16 @@ PROCEDURE LoadTag :
 /*------------------------------------------------------------------------------
   Purpose:     
   Notes:       
-------------------------------------------------------------------------------*/
-    GET FIRST {&BROWSE-NAME}.
-    DO WHILE AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:
+------------------------------------------------------------------------------*/        
+    IF AVAIL rm-rctd THEN
+    DO:
         CREATE ttLoadTag.
         ASSIGN
-            ttLoadTag.loadtag = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.tag
-            ttLoadTag.qty     = {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.qty
+            ttLoadTag.loadtag = rm-rctd.tag
+            ttLoadTag.qty     = rm-rctd.qty
             .
-        GET NEXT {&BROWSE-NAME}.
-    END. /* repeat */
+    END.
+    
     IF NOT CAN-FIND(FIRST ttLoadTag) THEN RETURN.
     RUN Get_Procedure IN Persistent-Handle ("rmloadtg4a.", OUTPUT run-proc, NO).
     IF run-proc NE "" THEN
