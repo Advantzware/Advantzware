@@ -1436,10 +1436,14 @@ PROCEDURE pAddLeaf PRIVATE:
             
             IF ttLeaf.lIsWax AND bf-item.shrink NE 0 THEN 
                 ASSIGN 
-                    ttLeaf.dAreaInSQIn   = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
-                    ttLeaf.dCoverageRate = 1
+                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
+                    ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSqIn
+                    ttLeaf.dCoverageRate = 1                    
                     .
-            ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate.
+            ELSE 
+                RUN pConvertQuantityFromUOMToUOM(ipbf-estCostForm.company, ttLeaf.cItemID, "RM", "EA", ttLeaf.cQtyUOM, 
+                144000 / ttLeaf.dCoverageRate, ttLeaf.dDimLength, ttLeaf.dDimWidth, 0, 
+                1, OUTPUT ttLeaf.dQtyRequiredPerLeaf).                
                 
             FIND FIRST bf-estCostBlank EXCLUSIVE-LOCK 
                 WHERE bf-estCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
