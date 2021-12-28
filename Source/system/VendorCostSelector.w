@@ -538,7 +538,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-    RUN BuildVendItemCosts(
+    RUN BuildVendItemCostsWithAdders(
      INPUT  ipcCompany,
      INPUT  ipcItemID,
      INPUT  ipcItemType,
