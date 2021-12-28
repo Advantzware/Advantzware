@@ -576,6 +576,7 @@ DO:
             cWScore        = STRING(oe-ordl.w-score[1]) 
             cWhsItem       = STRING(oe-ordl.whs-item)
             cWhsed         = STRING(oe-ordl.whsed)
+            cOrdDate       = STRING(oe-ord.ord-date)
             .
             
         FIND FIRST po-ord NO-LOCK
@@ -719,6 +720,7 @@ DO:
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"WhsItem", cWhsItem).   
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed). 
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"Freight", dFreight).
+        RUN updateRequestData(INPUT-OUTPUT lcLineData, "OrdDate", cOrdDate).
        
         // RUN pUpdateDelimiter (INPUT-OUTPUT lcLineData, cRequestDataType).  
         lcConcatLineData = lcConcatLineData +  lcLineData . 
