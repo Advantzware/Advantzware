@@ -814,8 +814,7 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF ar-cashl.inv-no EQ 0 OR ar-cashl.memo THEN RETURN.
-
+  
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
@@ -847,7 +846,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/run_link.i "CONTAINER-SOURCE" "pInitializeButton"}
+  
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1107,13 +1106,12 @@ PROCEDURE valid-buttons :
    /*add and delete not valid buttons*/
    DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
    DEF OUTPUT PARAMETER op-delete-valid AS LOG NO-UNDO.
-       
-   IF AVAIL ar-cashl AND ar-cashl.amt-paid EQ 0 AND ar-cashl.amt-disc EQ 0 THEN
+      
    op-delete-valid = YES.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME   
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-inv-no B-table-Win 
 PROCEDURE valid-inv-no :
