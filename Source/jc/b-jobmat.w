@@ -1291,6 +1291,22 @@ PROCEDURE local-update-record :
   run select-page in widget-handle(char-hdl) (1).
   run select-page in widget-handle(char-hdl) (3).
 
+  system.SharedConfig:Instance:SetValue(STRING(ROWID(job-mat)), "Update").
+  
+  RUN api/ProcessOutboundRequest.p (
+      INPUT  job.company,                                     /* Company Code (Mandatory) */
+      INPUT  job.loc,                                         /* Location Code (Mandatory) */
+      INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
+      INPUT  "",                                              /* Scope ID */
+      INPUT  "",                                              /* Scope Type */
+      INPUT  "UpdateJobMaterial",                             /* Trigger ID (Mandatory) */
+      INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
+      INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+      INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+      INPUT  "Update Job Header triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
+      ) NO-ERROR.
+   
+  system.SharedConfig:Instance:DeleteValue(STRING(ROWID(job-mat))).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
