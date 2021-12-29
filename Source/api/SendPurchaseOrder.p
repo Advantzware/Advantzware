@@ -1515,6 +1515,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
+                cScoreSize16thsHRMS1        = REPLACE(cScoreSize16thsHRMS1,".",":")
+                cScoreSize16thsHRMS2        = REPLACE(cScoreSize16thsHRMS2,".",":")                
                 cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
                 cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
                 cScoreSizeDecimalCorrKraft  = REPLACE(cScoreSizeDecimalCorrKraft,".","")
