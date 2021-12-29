@@ -46,6 +46,11 @@ DEFINE VARIABLE oLoadtag AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -63,6 +68,7 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS btnKeyboardQuantity 
 &Scoped-Define DISPLAYED-OBJECTS fiQuantity 
 
 /* Custom List Definitions                                              */
@@ -80,6 +86,11 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_tagfilter AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnKeyboardQuantity 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE BUTTON btReturn 
      LABEL "RETURN" 
      SIZE 21 BY 1.91.
@@ -94,12 +105,13 @@ DEFINE VARIABLE fiQuantity AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboardQuantity AT ROW 3.81 COL 55.8 WIDGET-ID 136 NO-TAB-STOP 
      fiQuantity AT ROW 3.86 COL 28.2 COLON-ALIGNED WIDGET-ID 2
-     btReturn AT ROW 5.76 COL 32 WIDGET-ID 4
+     btReturn AT ROW 5.76 COL 30.2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 83.8 BY 7.05
+         SIZE 126 BY 7
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -128,7 +140,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
          HEIGHT             = 7
-         WIDTH              = 83.8.
+         WIDTH              = 126.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -151,6 +163,9 @@ END.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME                                               */
+ASSIGN 
+       btnKeyboardQuantity:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR BUTTON btReturn IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiQuantity IN FRAME F-Main
@@ -174,6 +189,19 @@ END.
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnKeyboardQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardQuantity F-Frame-Win
+ON CHOOSE OF btnKeyboardQuantity IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiQuantity.    
+    
+    oKeyboard:OpenKeyboardOverride (fiQuantity:HANDLE, "Numeric"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btReturn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReturn F-Frame-Win
 ON CHOOSE OF btReturn IN FRAME F-Main /* RETURN */
@@ -189,6 +217,30 @@ DO:
     {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
 
     {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON ENTRY OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 30.  
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity F-Frame-Win
+ON LEAVE OF fiQuantity IN FRAME F-Main /* QUANTITY */
+DO:
+    SELF:BGCOLOR = 15.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -234,16 +286,14 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 1.05 , 1.60 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 79.00 ) */
+       RUN set-position IN h_tagfilter ( 1.43 , 19.40 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 85.40 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'TAG':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_tagfilter ,
-             fiQuantity:HANDLE IN FRAME F-Main , 'BEFORE':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -306,7 +356,27 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiQuantity 
       WITH FRAME F-Main.
+  ENABLE btnKeyboardQuantity 
+      WITH FRAME F-Main.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,6 +411,85 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable F-Frame-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit F-Frame-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
+    {methods/run_link.i "TAG-SOURCE" "DisableErrorAlerts"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    {methods/run_link.i "TAG-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+
+    RUN Set-Focus.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "return-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
+    
+    fiQuantity:SCREEN-VALUE = "0.00".
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records F-Frame-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -353,6 +502,39 @@ PROCEDURE send-records :
      Tables specified for this SmartFrame, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "ShowKeyboard"}
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardQuantity:VISIBLE   = TRUE
+        btnKeyboardQuantity:SENSITIVE = TRUE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,13 +553,20 @@ PROCEDURE state-changed :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN new-state ("empty-message").
+    
     CASE p-state:
         WHEN "tag-valid" THEN DO:
             ASSIGN
                 btReturn:SENSITIVE   = TRUE
                 fiQuantity:SENSITIVE = TRUE
                 .
-        END.        
+        END.     
+        WHEN "tag-error" THEN DO:
+            {methods/run_link.i "TAG-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pSendError.
+        END.           
     END CASE.
 END PROCEDURE.
 

@@ -528,6 +528,8 @@ PROCEDURE ipCreateInvLine:
         inv-line.spare-char-4 = v-term
         inv-line.spare-int-2  = ipiTempInvLn
         inv-line.taxGroup     = ipcTaxGroupHeader
+        inv-line.ediPrice     = bf-oe-ordl.ediPrice
+        inv-line.ediPriceUOM  = bf-oe-ordl.ediPriceUOM
         .
     
     IF bf-oe-boll.zeroPrice EQ 1 THEN

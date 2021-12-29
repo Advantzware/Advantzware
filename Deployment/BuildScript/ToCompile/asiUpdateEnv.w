@@ -3778,7 +3778,6 @@ PROCEDURE ipDataFix210415:
     RUN ipStatus ("  Data Fix 210415...").
 
     RUN ipFixLocations.
-
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -6071,7 +6070,7 @@ PROCEDURE ipLoadSettingType :
     INPUT CLOSE.
     
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
-        RUN VALUE (SEARCH("util/nk1ToSetting.r")).
+        RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
         
 END PROCEDURE.
 
@@ -8143,6 +8142,7 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 

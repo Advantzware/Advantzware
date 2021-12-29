@@ -109,14 +109,14 @@
            wip-voh = w-fg-rctd.t-qty / 1000 * job-hdr.std-var-cost.
 
           IF wip-amt NE ? AND wip-lab NE ? AND wip-foh NE ? AND wip-voh NE ? THEN DO:
-            {jc/jcglcrt.i prod.fg-mat 0 wip-amt}    /* Finished Goods Material */
-            {jc/jcglcrt.i prod.fg-lab 0 wip-lab}    /* Finished Goods Direct Labor */
-            {jc/jcglcrt.i prod.fg-fo  0 wip-foh}    /* Finished Goods Fixed Ovrhd */
-            {jc/jcglcrt.i prod.fg-vo  0 wip-voh}    /* Finished Goods Variable O/H */
-            {jc/jcglcrt.i prod.wip-mat wip-amt 0}   /* Work in Process Material */
-            {jc/jcglcrt.i prod.wip-lab wip-lab 0}   /* WIP Direct Labor */
-            {jc/jcglcrt.i prod.wip-fo  wip-foh 0}   /* WIP Fixed Overhead */
-            {jc/jcglcrt.i prod.wip-vo  wip-voh 0}   /* WIP Variable Overhead */
+            {jc/jcglcrt.i prod.fg-mat 0 wip-amt w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}    /* Finished Goods Material */
+            {jc/jcglcrt.i prod.fg-lab 0 wip-lab w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}    /* Finished Goods Direct Labor */
+            {jc/jcglcrt.i prod.fg-fo  0 wip-foh w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}    /* Finished Goods Fixed Ovrhd */
+            {jc/jcglcrt.i prod.fg-vo  0 wip-voh w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}    /* Finished Goods Variable O/H */
+            {jc/jcglcrt.i prod.wip-mat wip-amt 0 w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}   /* Work in Process Material */
+            {jc/jcglcrt.i prod.wip-lab wip-lab 0 w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}   /* WIP Direct Labor */
+            {jc/jcglcrt.i prod.wip-fo  wip-foh 0 w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}   /* WIP Fixed Overhead */
+            {jc/jcglcrt.i prod.wip-vo  wip-voh 0 w-fg-rctd.std-cost "w-fg-rctd.cost-uom"}   /* WIP Variable Overhead */
             ll-wip = YES.
           END.
         END.

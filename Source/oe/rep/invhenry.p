@@ -139,6 +139,9 @@ ASSIGN
     cInvMessage5 = cInvMessage[5]
     .
 */
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -464,6 +467,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                  v-case-cnt = "".
 
           IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -716,6 +720,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                     
                          DO i = 1 TO v-tmp-lines:
                             IF v-printline > 50 THEN DO:
+                               RUN pPrintImageOnBack.
                                PAGE.
                                v-printline = 0.
                                {oe/rep/invhenry.i}
@@ -745,6 +750,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF FIRST(inv-misc.ord-no) THEN
           DO:
             IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -780,6 +786,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
              v-lines   = v-lines + 1.
           END.
           IF v-printline > 53 THEN DO:
+             RUN pPrintImageOnBack.
              PAGE.
              v-printline = 0.
              {oe/rep/invhenry.i}
@@ -793,6 +800,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {oe/rep/invhenry.i}
@@ -923,6 +931,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
     ASSIGN
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
+       
+    RUN pPrintImageOnBack.
     PAGE.
  
     END. /* each xinv-head */
