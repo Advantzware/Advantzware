@@ -386,7 +386,11 @@ DO:
   def var phandle as widget-handle no-undo.
   def var char-hdl as cha no-undo.   
 
-
+  IF AVAIL ar-cash AND ar-cash.posted THEN do:
+     MESSAGE "This Cash Receipt has been posted. No updates are allowed!"  VIEW-AS ALERT-BOX ERROR.
+     RETURN.
+  END.
+  
   RUN get-link-handle IN adm-broker-hdl
         (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
