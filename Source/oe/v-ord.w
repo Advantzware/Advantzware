@@ -4964,14 +4964,15 @@ PROCEDURE local-assign-record :
     IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
     ASSIGN oe-ord.ediModified = 1.
 
-    IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
+   IF (dueDateChanged AND OEDateAuto-log AND OEDateAuto-char EQ "colonial") OR
+       (cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         lcheckflg = NO .
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
             NO-LOCK BREAK BY oe-ordl.i-no :
-            IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
+            IF dueDateChanged AND OEDateAuto-char EQ "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -5158,11 +5159,9 @@ PROCEDURE local-assign-record :
 
     IF oe-ord.due-date NE lv-date THEN
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
-            IF NOT ll-new-due THEN
-                ll-new-due = FIRST(oe-ordl.line) AND LAST(oe-ordl.line).
 
             IF NOT ll-new-due THEN
-                MESSAGE "Update all line items with this Due Date?"
+                MESSAGE "Update all line items and release dates with this Due Date?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                     UPDATE ll-new-due.
 
