@@ -1466,7 +1466,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                     cScoreSizeDecimalHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
                         cScoreSizeDecimalKiwi =  cScoreSizeDecimalKiwi + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
                         cScoreSize16thsHRMS1  = IF cScoreSize16thsHRMS1 EQ "" THEN 
-                                                 (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                                 (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)")
                                                  ELSE
                                                     cScoreSize16thsHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)").
                     END.
@@ -1481,7 +1481,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                                                 cScoreSizeDecimalHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
 
                     cScoreSize16thsHRMS2  = IF cScoreSize16thsHRMS2 EQ "" THEN 
-                                             (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                             (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)")
                                              ELSE
                                                 cScoreSize16thsHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + STRING(cScoreType, "X(1)").
                 END.
