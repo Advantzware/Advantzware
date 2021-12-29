@@ -23,7 +23,7 @@ PROCEDURE getPrice:
         DO:
             IF NOT AVAILABLE xoe-ord THEN
                 FIND FIRST xoe-ord NO-LOCK  
-                    WHERE xoe-ord.company EQ g_company
+                    WHERE xoe-ord.company EQ bf-oe-ordl.company
                     AND xoe-ord.ord-no  EQ bf-oe-ordl.ord-no
                     NO-ERROR.
 
@@ -35,7 +35,7 @@ PROCEDURE getPrice:
                 v-qty-mod = YES. /* new record, so will have been modified */
 
             FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ cocode
+                WHERE itemfg.company EQ bf-oe-ordl.company
                 AND itemfg.i-no    EQ v-i-item
                 NO-ERROR.
         
