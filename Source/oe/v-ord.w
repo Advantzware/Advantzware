@@ -190,6 +190,10 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -341,9 +345,9 @@ oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date ~
 oe-ord.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiStatDesc fiShipName ~
-fiText1 fiText2 fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl ~
-fi_s-comm-lbl fi_sman-lbl fiSoldAddress fiShipAddress 
+&Scoped-Define DISPLAYED-OBJECTS tbEdiSubmit fiCustAddress fiStatDesc ~
+fiShipName fiText1 fiText2 fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl ~
+fi_s-comm-lbl fi_sman-lbl fiSoldAddress fiShipAddress tbEdiModified 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
@@ -550,10 +554,21 @@ DEFINE RECTANGLE RECT-37
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151.6 BY 6.57.
 
+DEFINE VARIABLE tbEdiModified AS LOGICAL INITIAL no 
+     LABEL "Modified Order" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22.6 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tbEdiSubmit AS LOGICAL INITIAL no 
+     LABEL "EDI Submitted" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     tbEdiSubmit AT ROW 11.71 COL 88.4 WIDGET-ID 40
      btnTags AT ROW 9.33 COL 121.6 WIDGET-ID 34
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
@@ -636,9 +651,6 @@ DEFINE FRAME F-Main
           LABEL "Due" FORMAT "XXXXX"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     oe-ord.due-date AT ROW 3.71 COL 128.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -646,6 +658,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.due-date AT ROW 3.71 COL 128.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      oe-ord.last-date AT ROW 4.76 COL 128.2 COLON-ALIGNED
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
@@ -675,10 +690,10 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
-     oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
+     oe-ord.priceHold AT ROW 10.62 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
-     oe-ord.priceHoldReason AT ROW 10.91 COL 114 COLON-ALIGNED WIDGET-ID 32
+     oe-ord.priceHoldReason AT ROW 10.52 COL 114 COLON-ALIGNED WIDGET-ID 32
           LABEL "Reason"
           VIEW-AS FILL-IN 
           SIZE 35 BY 1
@@ -726,9 +741,6 @@ DEFINE FRAME F-Main
 "Bill", "B":U,
 "3rd Party", "T":U
           SIZE 50 BY .95
-     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -736,6 +748,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
      oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -784,11 +799,12 @@ DEFINE FRAME F-Main
      fiSoldAddress AT ROW 5.81 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiShipAddress AT ROW 7.91 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      btnValidate AT ROW 9.33 COL 130
-     oe-ord.spare-char-2 AT ROW 11 COL 78 COLON-ALIGNED NO-LABEL
+     oe-ord.spare-char-2 AT ROW 10.62 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.6 BY 1 NO-TAB-STOP 
      btnTagsOverrn AT ROW 9.33 COL 29.6 WIDGET-ID 36
      btnTagsUnder AT ROW 10.38 COL 29.6 WIDGET-ID 38
+     tbEdiModified AT ROW 11.71 COL 116.2 WIDGET-ID 42
      RECT-30 AT ROW 9.1 COL 1.6
      RECT-33 AT ROW 12.67 COL 78
      RECT-35 AT ROW 15.33 COL 78
@@ -993,6 +1009,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN oe-ord.tax-gr IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbEdiModified IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbEdiSubmit IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms-d IN FRAME F-Main
@@ -4868,6 +4888,8 @@ PROCEDURE local-assign-record :
     DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cOldCarrier AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUpdateCarrier AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cOldCustomer AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOldCustPo AS CHARACTER NO-UNDO.
     
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
@@ -4925,7 +4947,9 @@ PROCEDURE local-assign-record :
         lv-date   = oe-ord.due-date
         lv-ord-no = oe-ord.ord-no
         cOldShipTo = oe-ord.ship-id 
-        cOldCarrier =  oe-ord.carrier.
+        cOldCarrier =  oe-ord.carrier
+        cOldCustomer = oe-ord.cust-no 
+        cOldCustPo = oe-ord.po-no .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -4936,7 +4960,9 @@ PROCEDURE local-assign-record :
            AND terms.t-code  EQ oe-ord.terms
           NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
-
+    
+    IF oe-ord.ediSubmitted EQ 1 AND (cOldCustomer NE oe-ord.cust-no OR cOldCustPo NE oe-ord.po-no OR cOldShipTo NE oe-ord.ship-id ) THEN
+    ASSIGN oe-ord.ediModified = 1.
 
     IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
@@ -5587,6 +5613,15 @@ PROCEDURE local-display-fields :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     
   /* Code placed here will execute PRIOR to standard behavior. */
+  lEDIOrderChanged = logical(oSetting:GetByName("EDIOrderChanged")) NO-ERROR.
+  IF lEDIOrderChanged THEN
+  ASSIGN
+       tbEdiSubmit:HIDDEN IN FRAME {&FRAME-NAME} = NO 
+       tbEdiModified:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+  ELSE 
+  ASSIGN
+       tbEdiSubmit:HIDDEN IN FRAME {&FRAME-NAME} = YES 
+       tbEdiModified:HIDDEN IN FRAME {&FRAME-NAME} = YES .
   IF AVAIL oe-ord AND NOT adm-new-record THEN DO:
      ASSIGN
         fi_type = oe-ord.TYPE .
@@ -5594,6 +5629,8 @@ PROCEDURE local-display-fields :
                         ELSE STRING(oe-ord.pord-no).
      IF oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
          fi_prev_order = STRING(oe-ord.pord-no).
+     tbEdiSubmit = IF oe-ord.ediSubmitted EQ 1 THEN YES ELSE NO .    
+     tbEdiModified = IF oe-ord.ediModified EQ 1 THEN YES ELSE NO.
   END.
 
   /* Dispatch standard ADM method.                             */
