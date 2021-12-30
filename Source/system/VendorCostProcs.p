@@ -2868,28 +2868,120 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
-PROCEDURE VendCost_GetBestVendor:
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcScope AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcBestCostVendorID AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+PROCEDURE VendCost_GetBestVendorWithAdders:
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo             AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength          AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAdderList          AS CHARACTER EXTENT 6 NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBestCostVendorID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+      RUN pGetBestVendor(ipcCompany, 
+                         ipcItemID, 
+                         ipcItemType, 
+                         ipcScope, 
+                         iplIncludeBlankVendor,
+                         ipcEstimateNo,
+                         ipiFormNo,
+                         ipiBlankNo, 
+                         ipdQuantity, 
+                         ipcQuantityUOM, 
+                         ipdDimLength ,
+                         ipdDimWidth ,
+                         ipdDimDepth ,
+                         ipcDimUOM ,
+                         ipdBasisWeight, 
+                         ipcBasisWeightUOM, 
+                         ipcAdderList ,
+                         OUTPUT opcBestCostVendorID, 
+                         OUTPUT oplError ,
+                         OUTPUT opcMessage).  
+    
+END.
 
-    DEFINE BUFFER bf-ef FOR ef.
+PROCEDURE VendCost_GetBestVendor:
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo             AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength          AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBestCostVendorID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAdderList AS CHARACTER EXTENT 6.
+    
+    RUN pGetBestVendor(ipcCompany, 
+        ipcItemID, 
+        ipcItemType, 
+        ipcScope, 
+        iplIncludeBlankVendor,
+        ipcEstimateNo,
+        ipiFormNo,
+        ipiBlankNo, 
+        ipdQuantity, 
+        ipcQuantityUOM, 
+        ipdDimLength ,
+        ipdDimWidth ,
+        ipdDimDepth ,
+        ipcDimUOM ,
+        ipdBasisWeight, 
+        ipcBasisWeightUOM, 
+    cAdderList ,
+        OUTPUT opcBestCostVendorID, 
+        OUTPUT oplError ,
+        OUTPUT opcMessage).  
+    
+END.
+
+PROCEDURE pGetBestVendor PRIVATE:
+    DEFINE INPUT PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope              AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo         AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo             AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength          AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAdderList          AS CHARACTER EXTENT 6 NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBestCostVendorID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+
+/*    DEFINE BUFFER bf-ef FOR ef.*//*
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE lAdderAvail AS LOGICAL NO-UNDO.
     
@@ -2902,15 +2994,13 @@ PROCEDURE VendCost_GetBestVendor:
                     cAdderLExt[iCount] = bf-ef.adder[iCount]
                     lAdderAvail        = YES.
         END.
-    END.
-
-    IF lAdderAvail THEN
-    DO: 
-        RUN BuildVendItemCosts(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
+    END.*/
+ 
+        RUN BuildVendItemCostsWithAdders(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
             ipcEstimateNo, ipiFormNo, ipiBlankNo,
             ipdQuantity, ipcQuantityUOM, 
             ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-            ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
+            ipdBasisWeight, ipcBasisWeightUOM, ipcAdderList, 
             OUTPUT TABLE ttVendItemCost,
             OUTPUT oplError, OUTPUT opcMessage).
             
@@ -2930,8 +3020,7 @@ PROCEDURE VendCost_GetBestVendor:
                 opcBestCostVendorID  = ttVendItemCost.vendorID.
                 LEAVE.
             END.            
-    END.
-    
+
     EMPTY TEMP-TABLE ttVendItemCost.
 END PROCEDURE.
 
@@ -2967,15 +3056,12 @@ PROCEDURE VendCost_GetBestCost:
 
     DEFINE BUFFER bf-ef FOR ef.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lAdderAvail AS LOGICAL NO-UNDO.
-    
-    cAdderLExt = "".
     
     RUN BuildVendItemCosts(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
         ipcEstimateNo, ipiFormNo, ipiBlankNo,
         ipdQuantity, ipcQuantityUOM, 
         ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-        ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
+        ipdBasisWeight, ipcBasisWeightUOM, 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT oplError, OUTPUT opcMessage).
     /*Find "selected" vendor level first*/
@@ -3046,7 +3132,7 @@ PROCEDURE VendCost_GetWorstCost:
         ipcEstimateNo, ipiFormNo, ipiBlankNo,
         ipdQuantity, ipcQuantityUOM, 
         ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-        ipdBasisWeight, ipcBasisWeightUOM, cAdderLExt, 
+        ipdBasisWeight, ipcBasisWeightUOM, 
         OUTPUT TABLE ttVendItemCost,
         OUTPUT oplError, OUTPUT opcMessage).
     FOR EACH ttVendItemCost NO-LOCK
