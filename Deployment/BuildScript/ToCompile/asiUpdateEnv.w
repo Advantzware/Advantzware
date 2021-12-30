@@ -6071,6 +6071,8 @@ PROCEDURE ipLoadSettingType :
     
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
         RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
+
+    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
         
 END PROCEDURE.
 
