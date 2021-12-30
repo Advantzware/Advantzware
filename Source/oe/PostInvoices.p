@@ -3684,13 +3684,14 @@ PROCEDURE pGetOrderRelAndShipQty PRIVATE:
         opiOrderQty = bf-oe-ordl.qty.
         opiOverPct = bf-oe-ordl.over-pct.
         FOR EACH oe-boll NO-LOCK
-            WHERE oe-boll.company EQ cocode 
-            AND oe-boll.ord-no  EQ oe-ordl.ord-no 
-            AND oe-boll.i-no    EQ oe-ordl.i-no
-            AND oe-boll.line    EQ oe-ordl.LINE 
+            WHERE oe-boll.company EQ bf-oe-ordl.company 
+            AND oe-boll.ord-no  EQ bf-oe-ordl.ord-no 
+            AND oe-boll.i-no    EQ bf-oe-ordl.i-no
+            AND oe-boll.line    EQ bf-oe-ordl.LINE 
             USE-INDEX ord-no, 
-            FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no
-            AND oe-bolh.posted EQ YES NO-LOCK:
+            FIRST oe-bolh NO-LOCK  
+            WHERE oe-bolh.b-no EQ oe-boll.b-no
+            AND oe-bolh.posted EQ YES:
 
             opiReleaseQty = opiReleaseQty + oe-boll.qty.
      END.      
