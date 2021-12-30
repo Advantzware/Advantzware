@@ -6054,6 +6054,10 @@ PROCEDURE ipLoadSettingType :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Setting Type Records").
 
+    DEFINE VARIABLE hSession AS HANDLE.
+    RUN system/session.p PERSISTENT SET hSession.
+    SESSION:ADD-SUPER-PROCEDURE(hSession).
+
     &SCOPED-DEFINE tablename settingType
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
@@ -6071,6 +6075,8 @@ PROCEDURE ipLoadSettingType :
     
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
         RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
+
+    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
         
 END PROCEDURE.
 
