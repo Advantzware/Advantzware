@@ -1,0 +1,13 @@
+ISA*00*          *00*          *ZZ*<Enter Sender ID>*ZZ*<Enter Receiver ID>*$CurrentDate|YYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*U*00401*$ClientTransCounter|999999999|INT|$*0*T*:~
+GS*IN*  *  *$CurrentDate|YYYYMMDD|DATE|$*$CurrentTime|hhmm|TIME|$*$ClientTransCounter|999999999|INT|$*X*004010~
+ST*810*$ClientTransCounter|999999999|INT|$~
+BIG*$InvoiceDate|YYYYMMDD|Date|$*$InvoiceNum$*$InvoiceDueDate|YYYYMMDD|Date|$*$PurchaseOrder$~
+ITD*01*2*$TermDiscountPercent$*$TermDiscountDueDate|YYYYMMDD|Date|$*$TermDiscountDays$*$TermNetDueDate|YYYYMMDD|Date|$*$TermNetDays$*$TermDiscountAmount$~
+$ItemDetail$
+TDS*$TotalAmount$~
+$SurchargeDetail$
+$TaxDetail$
+CTT*$LineCount$~
+SE*$SECount$*$ClientTransCounter|999999999|INT|$~
+GE*1*$ClientTransCounter|999999999|INT|$~
+IEA*1*$ClientTransCounter|999999999|INT|$~

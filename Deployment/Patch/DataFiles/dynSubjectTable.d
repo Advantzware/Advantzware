@@ -183,3 +183,4 @@
 180 1 "EACH" "settingType" "settingType" "" "ASI" "202108208386107929642"
 195 1 "EACH" "country" "Country Table" "" "ASI" "202110221978408171274"
 196 1 "EACH" "ttImportData" "" "" "ASI" "202111040313208188211"
+198 1 "EACH" "ttExchangeRate" "" "" "ASI" "202112110937408312798"

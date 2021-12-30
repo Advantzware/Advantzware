@@ -2651,6 +2651,7 @@
 178 yes 41 "ttWIPStandards.comp" "Complete" "Yes/No" "ttWIPStandards" 0 "logical" "ASI" 0 no no "" "" no "" "" "202108207959907910505" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 40 "ttWIPStandards.crew" "Crew" ">9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202108207959907910506" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 43 "ttWIPStandards.cust-no" "Customer" "x(8)" "ttWIPStandards" 0 "character" "ASI" 0 no no "" "" no "" "" "202108207959907910507" no no no "" no "" "" 0 0 "" no no "" "" no
+178 yes 49 "ttWIPStandards.cuts" "Cuts" ">>>,>>9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202112091107808355855" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 16 "ttWIPStandards.dep" "Depth" ">>9.9<<" "ttWIPStandards" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202108207959907910508" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 36 "ttWIPStandards.deprt" "DP" "x(3)" "ttWIPStandards" 0 "character" "ASI" 0 no no "" "" no "" "" "202108207959907910509" no no no "" no "" "" 0 0 "" no no "" "" no
 178 yes 32 "ttWIPStandards.die-in" "Die Inches" ">>>>9" "ttWIPStandards" 0 "integer" "ASI" 0 no no "" "" no "" "" "202108207959907910510" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2909,3 +2910,8 @@
 196 yes 3 "ttImportData.cImportNote" "Reason" "x(50)" "ttImportData" 0 "character" "ASI" 0 no no "" "" no "" "" "202111040313208188212" no no no "" no "" "" 0 0 "" no no "" "" no
 196 yes 1 "ttImportData.iCount" "Record" "->,>>>,>>9" "ttImportData" 0 "integer" "ASI" 0 no no "" "" no "" "" "202111107720808193813" no no no "" no "" "" 0 0 "" no no "" "" no
 196 yes 2 "ttImportData.lValid" "Valid" "Yes/No" "ttImportData" 0 "logical" "ASI" 0 no no "" "" no "" "" "202111040313208188213" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 2 "ttExchangeRate.asOfDate" "As Of Date" "99/99/9999" "ttExchangeRate" 0 "date" "ASI" 0 no no "" "" no "" "" "202112110937408312799" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 3 "ttExchangeRate.baseCurrencyCode" "Base Currency" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312800" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 1 "ttExchangeRate.company" "Company" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312801" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 5 "ttExchangeRate.exchangeRate" "Exchange Rate" "->>,>>9.99<<<<<" "ttExchangeRate" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202112110937408312802" no no no "" no "" "" 0 0 "" no no "" "" no
+198 yes 4 "ttExchangeRate.rateCurrencyCode" "Rate Currency" "x(3)" "ttExchangeRate" 0 "character" "ASI" 0 no no "" "" no "" "" "202112110937408312803" no no no "" no "" "" 0 0 "" no no "" "" no

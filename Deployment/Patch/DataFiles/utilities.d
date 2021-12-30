@@ -23,6 +23,7 @@ This is designed to allow read only access." 1000
 "chgorduser.r" "OP" "OU1" "Update Replace User ID on all Orders" "Updated orders to replace the user id on the orders from the old user id to the new user id.  OPtion for open orders only or all orders." 900
 "ClearBOLTags.r" "UTIL" "" "Remove Tags from BOLs for a customer" "" 1000
 "CloseOrderTester.r" "OE" "OU6" "Close Order Tester" "Tests orders to see why they are in current state" 900
+"ClosePurchaseOrder.r" "PO" "PU1" "Close Purchase Order" "Close Purchase Order" 900
 "colorchg.r" "00" "" "Advantzware Color Changer" "Utility to change the default color palette for colors in the system." 1000
 "Consolidatexfer.r" "FG" "IF1" "Consolidate Transferred Tags" "For any FG item, all transfers will be consolidated into as few transfer transactions as possible for that item." 900
 "ConversionGLTrans.r" "GL" "" "Convert GL Transactions to History" "This utility will move all GL transaction records into GL history table with a posted flag based on the current period status." 900
@@ -149,6 +150,7 @@ It also provides for the ability to change the date of a BOL." 900
 "LDBOXIMG.R" "UTIL" "EB" "Load Box Image Into the sytem" "Utility to load the path location of the box images." 900
 "ldinks.r" "RM" "MF" "Load Inks from Inks.Dat File" "Load of inks into the system from a .d file.  Used to import a standard set of inks." 900
 "ldstyle.r" "CE" "EB" "Load Styles from Style.Dat File" "Load styles into the system." 900
+"loadAMSJobs.r" "UTIL" "NM" "Load AMS Jobs" "This utility is used to create jobs XML using SendJobAMS API." 900
 "loadApiData.r" "API" "NM" "Load API Data" "This utility is used to load API data into the system when changes are available and need to be loaded." 900
 "LoadMach.r" "CE" "EB1" "Copy Machine from Company A to Company B" "Allows for a copy of machines from one company to another." 900
 "loadmodl.r" "SA" "" "Load Module Records" "Allows for the import of modules into the system." 1000
@@ -246,6 +248,7 @@ Maintenance screen for the default settings.  This is used by ASI only to add an
 
 Display all job material quantities that are less than zero." 900
 "SoundTester.r" "" "" "Test Sound on Workstation" "Sound on workstation - Utility only for testing" 1000
+"SystemDataImportExportTester" "" "" "System Data Exporter" "Exports data for importing at customer site or another system." 1000
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly.
 
 If no invoice, it will set BOL to unposted as well as all lines." 900

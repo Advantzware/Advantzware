@@ -3778,7 +3778,6 @@ PROCEDURE ipDataFix210415:
     RUN ipStatus ("  Data Fix 210415...").
 
     RUN ipFixLocations.
-
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -6055,6 +6054,10 @@ PROCEDURE ipLoadSettingType :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Setting Type Records").
 
+    DEFINE VARIABLE hSession AS HANDLE.
+    RUN system/session.p PERSISTENT SET hSession.
+    SESSION:ADD-SUPER-PROCEDURE(hSession).
+
     &SCOPED-DEFINE tablename settingType
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
@@ -6071,7 +6074,9 @@ PROCEDURE ipLoadSettingType :
     INPUT CLOSE.
     
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
-        RUN VALUE (SEARCH("util/nk1ToSetting.r")).
+        RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
+
+    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
         
 END PROCEDURE.
 
@@ -8143,6 +8148,7 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 
