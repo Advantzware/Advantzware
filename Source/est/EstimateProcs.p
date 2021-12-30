@@ -13,6 +13,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{est/ttEstSysConfig.i}
 
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
@@ -63,6 +64,80 @@ ASSIGN
     .
     
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Estimate_GetSystemDataForEstimate:
+/*------------------------------------------------------------------------------
+     Purpose: Returns the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostCategory. 
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroup. 
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroupLevel. 
+    
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.
+    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.
+    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    
+    
+    /* Load the estCostCategorySystem data. If category data is setup in estCostCategory then overwrite it */
+    FOR EACH bf-estCostCategorySystem NO-LOCK
+        WHERE (bf-estCostCategorySystem.Company EQ ipcCompany OR bf-estCostCategorySystem.Company EQ ""):
+        
+        CREATE ttEstCostCategory.
+        
+        FIND FIRST bf-estCostCategory NO-LOCK
+            WHERE (bf-estCostCategory.Company EQ ipcCompany OR bf-estCostCategory.Company EQ "")
+            AND bf-estCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostCategory THEN
+            BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
+    END.
+    
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
+    FOR EACH bf-estCostGroupSystem NO-LOCK
+        WHERE (bf-estCostGroupSystem.Company EQ ipcCompany OR bf-estCostGroupSystem.Company EQ ""):
+                
+        CREATE ttEstCostGroup.
+        
+        FIND FIRST bf-estCostGroup NO-LOCK
+            WHERE (bf-estCostGroup.Company EQ ipcCompany OR bf-estCostGroup.Company EQ "")
+            AND bf-estCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroup THEN
+            BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
+    END.
+   
+    /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
+    FOR EACH bf-estCostGroupLevelSystem NO-LOCK
+        WHERE (bf-estCostGroupLevelSystem.Company EQ ipcCompany OR bf-estCostGroupLevelSystem.Company EQ ""):
+        
+        CREATE ttEstCostGroupLevel.
+            
+        FIND FIRST bf-estCostGroupLevel NO-LOCK
+            WHERE (bf-estCostGroupLevel.Company EQ ipcCompany OR bf-estCostGroupLevel.Company EQ "")
+            AND bf-estCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID NO-ERROR.
+        
+        IF AVAILABLE bf-estCostGroupLevel THEN
+            BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+            
+        ELSE 
+            BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
+        
+    END.
+
+END PROCEDURE.
+
 PROCEDURE Estimate_GetVersionSettings:
     /*------------------------------------------------------------------------------
      Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
