@@ -84,6 +84,10 @@ DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cArtiosCAD   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lArtiosCAD   AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+
+
+
 {custom/framechk.i NEW}
 
 DO TRANSACTION:
@@ -1616,6 +1620,11 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
 
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRecValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
+
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -3118,7 +3127,10 @@ PROCEDURE update-sheet :
     {ce/ceroute1.i w id l en}
   END.
 
-  RUN ce/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN ce/calc-dim.p.
 
   find xef where recid(xef) = recid(ef) no-lock.
   find xeb where recid(xeb) = recid(eb) no-lock.

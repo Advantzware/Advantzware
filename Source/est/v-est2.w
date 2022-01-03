@@ -36,6 +36,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 def var ll-auto-calc-selected as log no-undo.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 
 def new shared buffer xef for ef.
 def new shared buffer xeb for eb.
@@ -641,6 +644,12 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
 
+
+    RUN sys/ref/nk1look.p (INPUT ef.company, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+    IF lRecFound THEN
+        lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -786,7 +795,11 @@ PROCEDURE local-assign-record :
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
 
-     run ce/calc-dim.p .
+      IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+          run ce/calc-dim.p .
+     
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
 

@@ -13,6 +13,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{est/ttCalcLayoutSize.i}
 
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
@@ -731,6 +732,62 @@ PROCEDURE Estimate_GetEstimateDir:
     FILE-INFO:FILE-NAME = opcSubDir.
     IF FILE-INFO:FULL-PATHNAME EQ ? THEN
     OS-CREATE-DIR VALUE(opcSubDir).        
+
+END PROCEDURE.
+
+PROCEDURE Estimate_UpdateEfFormLayout:
+    /*------------------------------------------------------------------------------
+     Purpose: This procedure will update the ef record's dimension fields for a given
+              estimate number. This code is to replace calc-dim.p and calc-dim1.p programs,
+              where it updates the EF and eb fields for an estimate.
+              It calculates EF Gross, net, die size and other dimension fields
+     Notes: This will be called across codebase to calculate layout fields
+    ------------------------------------------------------------------------------*/
+
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
+        RETURN.
+
+    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
+        INPUT ROWID(ipbf-eb),
+        OUTPUT TABLE ttLayoutSize).
+    
+        
+    FOR FIRST ttLayoutSize:
+        
+        ASSIGN
+            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
+            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
+            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
+            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
+            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
+            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
+            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
+            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
+            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
+            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
+            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
+            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
+            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
+            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
+            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
+            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
+            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
+            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
+            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
+            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
+            .     
+   
+    END.     
+
+
 
 END PROCEDURE.
 
