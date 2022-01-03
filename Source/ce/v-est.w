@@ -2581,7 +2581,7 @@ PROCEDURE local-update-record :
             find xest where recid(xest) = recid(est) no-lock no-error.
             find xeb where recid(xeb) = recid(eb) no-lock no-error.
             find xef where recid(xef) = recid(ef) no-lock no-error.
-            run crt-itemfg (input self:screen-value).
+            run crt-itemfg (input eb.stock-no:screen-value).
          end.   
          return no-apply.        
       end.  
