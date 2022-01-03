@@ -100,27 +100,22 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttEstCostCategory ttEstCostGroup ~
-ttEstCostGroupLevel
+&Scoped-define INTERNAL-TABLES ttEstCostGroup ttEstCostGroupLevel
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostCategory.estCostCategoryID ttEstCostCategory.costCategoryLabel ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc   
+&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostGroup.estCostGroupID ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH ttEstCostCategory, ~
-       FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = ttEstCostCategory.estCostGroupID, ~
+&Scoped-define QUERY-STRING-br_table FOR EACH ttEstCostGroup, ~
        FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostCategory, ~
-       FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = ttEstCostCategory.estCostGroupID, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostGroup, ~
        FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID .
-&Scoped-define TABLES-IN-QUERY-br_table ttEstCostCategory ttEstCostGroup ~
-ttEstCostGroupLevel
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table ttEstCostCategory
-&Scoped-define SECOND-TABLE-IN-QUERY-br_table ttEstCostGroup
-&Scoped-define THIRD-TABLE-IN-QUERY-br_table ttEstCostGroupLevel
+&Scoped-define TABLES-IN-QUERY-br_table ttEstCostGroup ttEstCostGroupLevel
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table ttEstCostGroup
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table ttEstCostGroupLevel
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -185,7 +180,6 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      ttEstCostCategory, 
       ttEstCostGroup, 
       ttEstCostGroupLevel SCROLLING.
 &ANALYZE-RESUME
@@ -194,8 +188,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttEstCostCategory.estCostCategoryID  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "ID"
-      ttEstCostCategory.costCategoryLabel  FORMAT "X(50)" WIDTH 80 COLUMN-LABEL "Cost Category"
+      ttEstCostGroup.estCostGroupID  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "ID"
       ttEstCostGroup.costGroupLabel        FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "Group"
       ttEstCostGroupLevel.estCostGroupLevelDesc  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "Group Level"
 /* _UIB-CODE-BLOCK-END */
@@ -240,8 +233,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 18.38
-         WIDTH              = 130.6.
+         HEIGHT             = 18.33
+         WIDTH              = 134.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -278,8 +271,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostCategory,
-FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = ttEstCostCategory.estCostGroupID,
+OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostGroup,
 FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID
 .
      _END_FREEFORM
@@ -698,7 +690,6 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "ttEstCostCategory"}
   {src/adm/template/snd-list.i "ttEstCostGroup"}
   {src/adm/template/snd-list.i "ttEstCostGroupLevel"}
 

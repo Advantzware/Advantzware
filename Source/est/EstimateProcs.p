@@ -88,6 +88,9 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     FOR EACH bf-estCostCategorySystem NO-LOCK
         WHERE (bf-estCostCategorySystem.Company EQ ipcCompany OR bf-estCostCategorySystem.Company EQ ""):
         
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID ) THEN
+            NEXT.
+        
         CREATE ttEstCostCategory.
         
         FIND FIRST bf-estCostCategory NO-LOCK
@@ -104,7 +107,10 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK
         WHERE (bf-estCostGroupSystem.Company EQ ipcCompany OR bf-estCostGroupSystem.Company EQ ""):
-                
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID ) THEN
+            NEXT.
+                    
         CREATE ttEstCostGroup.
         
         FIND FIRST bf-estCostGroup NO-LOCK
@@ -122,6 +128,9 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK
         WHERE (bf-estCostGroupLevelSystem.Company EQ ipcCompany OR bf-estCostGroupLevelSystem.Company EQ ""):
         
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID ) THEN
+            NEXT.
+            
         CREATE ttEstCostGroupLevel.
             
         FIND FIRST bf-estCostGroupLevel NO-LOCK

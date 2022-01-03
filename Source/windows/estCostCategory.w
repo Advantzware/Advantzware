@@ -49,8 +49,14 @@ DEFINE VARIABLE v-att               AS LOG       NO-UNDO.
 {methods\defines\phone.i &new="NEW"}
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE h_Object01 h_setting-2
-&SCOPED-DEFINE moveRight h_setting-2
+&SCOPED-DEFINE h_Browse01 h_estcategory
+&SCOPED-DEFINE h_Browse01 h_b-estgrp
+&SCOPED-DEFINE h_Browse01 h_b-estgrplvl
+&SCOPED-DEFINE h_Object01 h_estcategory
+&SCOPED-DEFINE h_Object02 h_p-updsavec
+&SCOPED-DEFINE h_Object03 h_b-estgrp
+&SCOPED-DEFINE h_Object03 h_p-updsaveg
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -96,6 +102,12 @@ DEFINE VARIABLE h_setting-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_settingfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsavec AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsaveg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsavel AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-estgrp AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-estgrplvl  AS HANDLE NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -138,7 +150,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Estimate Cost Categories"
-         HEIGHT             = 36.57
+         HEIGHT             = 23.57
          WIDTH              = 184
          MAX-HEIGHT         = 47.38
          MAX-WIDTH          = 384
@@ -297,7 +309,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'CostHierarchy|CostCategory|CostGroup|GroupLevel ' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'CostCategory|CostGroup|GroupLevel ' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        //RUN set-position IN h_folder ( 3.86 , 1.00 ) NO-ERROR.
@@ -336,49 +348,117 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              h_smartmsg , 'AFTER':U ).
     END. /* Page 0 */
+   
     WHEN 1 THEN DO:
        
-    END. /* Page 1 */
-    WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/settingfilter.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_settingfilter ).
-       RUN set-position IN h_settingfilter ( 5.75 , 1.80 ) NO-ERROR.
-       /* Size in UIB:  ( 4.29 , 180.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
+        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/estCostCategory.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'SAVE-TYPE = DATABASE,
-                     BROWSE-COLUMNS = estCostCategoryID|costCategoryLabel|costGroupLabel|estCostGroupLevelDesc,
-                     BROWSE-COLUMNS-DISPLAY = estCostCategoryID|costCategoryLabel|costGroupLabel|estCostGroupLevelDesc,
-                     HIDE-SEARCH = FALSE,
-                     HIDE-SETTING-FILTER = FALSE,
-                     HIDE-SCOPE-FILTER = TRUE,
-                     //SETTING-FILTER-TYPE = SettingType,
-                     LOAD-DATA-FROM-TT = FALSE,
-                     COLUMN-NAME = TRUE':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_estcategory ).
-       RUN set-position IN h_estcategory ( 9.71 , 1.80 ) NO-ERROR.
-       RUN set-size IN h_estcategory ( 28.05 , 180.20 ) NO-ERROR.
+     
+       RUN set-position IN h_estcategory ( 6.05 , 7 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  FRAME F-Main:HANDLE,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsavec ).
+       RUN set-position IN h_p-updsavec ( 22.19 , 7.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavec ( 1.91 , 61.00 ) NO-ERROR.
+       
 
        /* Links to SmartBrowser h_estcategory. */
-       RUN add-link IN adm-broker-hdl ( h_settingfilter , 'Search':U , h_estcategory ).
-       RUN add-link IN adm-broker-hdl ( h_settingfilter , 'State':U , h_estcategory ).
        RUN add-link IN adm-broker-hdl ( h_estcategory , 'Record':U , THIS-PROCEDURE ).
-
+      
+      
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_settingfilter ,
-             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_estcategory ,
-             h_settingfilter , 'AFTER':U ).
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsavec ,
+             h_estcategory , 'AFTER':U ).
+    END. /* Page 1 */
+
+    WHEN 2 THEN
+    DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/estCostGrp.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
+             OUTPUT h_b-estgrp ).
+       RUN set-position IN h_b-estgrp ( 6.05 , 7.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.43 , 148.00 ) */
+
+      
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  FRAME F-Main:HANDLE,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsaveg ).
+       RUN set-position IN h_p-updsaveg ( 22.19 , 7.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsaveg ( 1.91 , 61.00 ) NO-ERROR.
+     
+       RUN add-link IN adm-broker-hdl ( h_b-estgrp , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsaveg , 'TableIO':U , h_b-estgrp).
+
+    
+      /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-estgrp ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsaveg ,
+             h_b-estgrp , 'AFTER':U ).
+
+       
     END. /* Page 2 */
 
-    WHEN 3 THEN DO:
+    WHEN 3 THEN
+    DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/estCostGrpLvl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
+             OUTPUT h_b-estgrplvl ).
+       RUN set-position IN h_b-estgrplvl ( 6.05 , 7.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.43 , 148.00 ) */
+
+      
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  FRAME F-Main:HANDLE,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsavel ).
+       RUN set-position IN h_p-updsavel ( 22.19 , 7.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavel ( 1.91 , 61.00 ) NO-ERROR.
+      
+       RUN add-link IN adm-broker-hdl ( h_b-estgrplvl , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsavel , 'TableIO':U , h_b-estgrplvl).
+      
+      /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-estgrp ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsaveg ,
+             h_b-estgrp , 'AFTER':U ).
+
        
-    END. /* Page 3 */
+    END. /* Page 4 */ 
 
   END CASE.
   /* Select a Startup page. */
