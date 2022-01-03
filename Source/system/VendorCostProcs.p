@@ -2952,7 +2952,7 @@ PROCEDURE VendCost_GetBestVendor:
         ipcDimUOM ,
         ipdBasisWeight, 
         ipcBasisWeightUOM, 
-    cAdderList ,
+        cAdderList ,
         OUTPUT opcBestCostVendorID, 
         OUTPUT oplError ,
         OUTPUT opcMessage).  
@@ -2981,45 +2981,31 @@ PROCEDURE pGetBestVendor PRIVATE:
     DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
 
-/*    DEFINE BUFFER bf-ef FOR ef.*//*
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lAdderAvail AS LOGICAL NO-UNDO.
-    
-    FOR EACH bf-ef NO-LOCK
-        WHERE bf-ef.company EQ ipcCompany
-        AND bf-ef.est-no  EQ ipcEstimateNo:
-        DO iCount = 1 TO 6:
-            IF bf-ef.adder[iCount] <> "" THEN
-                ASSIGN  
-                    cAdderLExt[iCount] = bf-ef.adder[iCount]
-                    lAdderAvail        = YES.
-        END.
-    END.*/
  
-        RUN BuildVendItemCostsWithAdders(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
-            ipcEstimateNo, ipiFormNo, ipiBlankNo,
-            ipdQuantity, ipcQuantityUOM, 
-            ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
-            ipdBasisWeight, ipcBasisWeightUOM, ipcAdderList, 
-            OUTPUT TABLE ttVendItemCost,
-            OUTPUT oplError, OUTPUT opcMessage).
-            
+    RUN BuildVendItemCostsWithAdders(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
+        ipcEstimateNo, ipiFormNo, ipiBlankNo,
+        ipdQuantity, ipcQuantityUOM, 
+        ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+        ipdBasisWeight, ipcBasisWeightUOM, ipcAdderList, 
+        OUTPUT TABLE ttVendItemCost,
+        OUTPUT oplError, OUTPUT opcMessage).
+        
+    FOR EACH ttVendItemCost NO-LOCK
+        WHERE ttVendItemCost.isSelected
+        AND ttVendItemCost.isValid
+        AND ttVendItemCost.costTotal GT 0
+        BY ttVendItemCost.costTotal:
+        opcBestCostVendorID  = ttVendItemCost.vendorID.
+        LEAVE.
+    END. 
+    IF opcBestCostVendorID = "" THEN
         FOR EACH ttVendItemCost NO-LOCK
-            WHERE ttVendItemCost.isSelected
-            AND ttVendItemCost.isValid
+            WHERE ttVendItemCost.isValid
             AND ttVendItemCost.costTotal GT 0
             BY ttVendItemCost.costTotal:
             opcBestCostVendorID  = ttVendItemCost.vendorID.
             LEAVE.
-        END. 
-        IF opcBestCostVendorID = "" THEN
-            FOR EACH ttVendItemCost NO-LOCK
-                WHERE ttVendItemCost.isValid
-                AND ttVendItemCost.costTotal GT 0
-                BY ttVendItemCost.costTotal:
-                opcBestCostVendorID  = ttVendItemCost.vendorID.
-                LEAVE.
-            END.            
+        END.            
 
     EMPTY TEMP-TABLE ttVendItemCost.
 END PROCEDURE.

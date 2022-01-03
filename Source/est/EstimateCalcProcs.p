@@ -3994,13 +3994,12 @@ PROCEDURE pProcessBoard PRIVATE:
     DEFINE VARIABLE lAvailAdder         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iCount              AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dQtyTotal           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cAdderList          AS CHARACTER EXTENT 6 NO-UNDO.
     
-    DO iCount = 1 TO EXTENT(ipbf-ef.adder):
+    DO iCount = 1 TO 6:
         IF ipbf-ef.adder[iCount] <> "" THEN
-        DO:
             lAvailAdder = TRUE.
-            LEAVE.
-        END.
+        cAdderList[iCount] = ipbf-ef.adder[iCount].
     END.
     
     FIND FIRST bf-item NO-LOCK 
@@ -4092,7 +4091,7 @@ PROCEDURE pProcessBoard PRIVATE:
                                                 bf-estCostMaterial.dimUOM, 
                                                 bf-estCostMaterial.basisWeight, 
                                                 bf-estCostMaterial.basisWeightUOM,
-                                                ipbf-ef.adder,
+                                                cAdderList,
                                                 OUTPUT bf-estCostMaterial.VendorID,
                                                 OUTPUT lError,
                                                 OUTPUT cMessage).
