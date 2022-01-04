@@ -27,12 +27,28 @@ DEFINE VARIABLE v-set-rcv-qty  AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-part-qty-dec AS DECIMAL NO-UNDO.
 
 {fg/fullset.i NEW}
+DEFINE TEMP-TABLE ttOnOrder
+    FIELD itemID      AS CHARACTER 
+    FIELD itemType    AS LOGICAL 
+    FIELD source      AS CHARACTER  
+    FIELD poID        AS CHARACTER 
+    FIELD poLine      AS INTEGER
+    FIELD jobID       AS CHARACTER
+    FIELD jobID2      AS INTEGER
+    FIELD formNo      AS INTEGER
+    FIELD blankNo     AS INTEGER
+    FIELD quantity    AS DECIMAL
+    FIELD quantityUOM AS CHARACTER
+    FIELD warehouseID AS CHARACTER.
 
 DEFINE BUFFER b-itemfg   FOR itemfg.
 DEFINE BUFFER bf-eb      FOR eb.
 DEFINE BUFFER bf-itemfg  FOR itemfg.
 DEFINE BUFFER bf-est     FOR est.
 DEFINE BUFFER bf-po-ordl FOR po-ordl.
+DEFINE BUFFER bf-job-hdr FOR job-hdr.
+DEFINE BUFFER bf-job     FOR job.
+DEFINE BUFFER bf1-job-hdr FOR job-hdr.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -43,7 +59,7 @@ DO:
     FOR EACH po-ordl NO-LOCK
         WHERE po-ordl.company   EQ itemfg.company
         AND po-ordl.i-no      EQ itemfg.i-no
-/*        AND po-ordl.job-no    EQ ""*/
+        /*        AND po-ordl.job-no    EQ ""*/
         AND po-ordl.item-type EQ NO
         AND po-ordl.opened    EQ YES
         AND po-ordl.stat      NE "C",
@@ -51,332 +67,127 @@ DO:
         po-ord.company EQ itemfg.company AND
         po-ord.po-no   EQ po-ordl.po-no
         NO-LOCK:
-        FIND FIRST job-hdr WHERE
-            job-hdr.company EQ itemfg.company AND
-            job-hdr.i-no    EQ itemfg.i-no AND
-            job-hdr.opened  EQ YES
-            NO-LOCK NO-ERROR.
-            
-        IF AVAILABLE job-hdr THEN 
-        DO:
-            FOR EACH job-hdr WHERE
-                job-hdr.company EQ itemfg.company AND
-                job-hdr.i-no    EQ itemfg.i-no AND
-                job-hdr.opened  EQ YES AND
-                CAN-FIND(FIRST job WHERE
-                job.company EQ job-hdr.company AND
-                job.job     EQ job-hdr.job AND
-                job.job-no  EQ job-hdr.job-no AND
-                job.job-no2 EQ job-hdr.job-no2)
-                USE-INDEX i-no
-                NO-LOCK:
-                
-                IF CAN-FIND(FIRST bf-po-ordl WHERE bf-po-ordl.i-no = job-hdr.i-no
-                                               AND bf-po-ordl.s-num = job-hdr.frm
-                                               AND bf-po-ordl.b-num = job-hdr.blank-no NO-LOCK) THEN
-                    NEXT.
-                
-                RELEASE eb.
-
-                IF NOT itemfg.isaset THEN
-                    FIND FIRST eb WHERE 
-                        eb.company  EQ job-hdr.company AND
-                        eb.est-no   EQ job-hdr.est-no AND
-                        eb.form-no  EQ job-hdr.frm AND
-                        eb.blank-no EQ job-hdr.blank-no
-                        NO-LOCK NO-ERROR.
-     
-                IF NOT(itemfg.isaset OR (AVAIL eb AND NOT eb.pur-man) OR
-                    (NOT AVAIL eb AND NOT itemfg.pur-man)) THEN
-                    NEXT.
-
-                ld-qty = 0.
-                RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                    INPUT job-hdr.job-no,
-                    INPUT job-hdr.job-no2,
-                    INPUT job-hdr.i-no,
-                    INPUT NO,
-                    OUTPUT ld-qty).
-      
-                IF ld-qty LT job-hdr.qty THEN
-                    op-q-ono = op-q-ono + (job-hdr.qty - ld-qty).
         
-            END. /* FOR EACH job-hdr */      
+        IF po-ordl.job-no <> "" AND NOT CAN-FIND(FIRST job WHERE job.company EQ po-ordl.company 
+            AND job.job-no  EQ po-ordl.job-no) THEN 
+            NEXT.    
+        /*craete temp table data*/
+        CREATE ttOnOrder.
+        ASSIGN
+            ttOnOrder.itemID      = po-ordl.i-no
+            ttOnOrder.itemType    = po-ordl.item-type
+            ttOnOrder.source        = "PO" /*Initial creation from PO, if created from Job then "Job"*/
+            ttOnOrder.poID        = STRING(po-ordl.po-no)
+            ttOnOrder.poLine      = po-ordl.line
+            ttOnOrder.jobID       = po-ordl.job-no
+            ttOnOrder.jobID2      = po-ordl.job-no2
+            ttOnOrder.formNo      = po-ordl.s-num
+            ttOnOrder.blankNo     = po-ordl.b-num
+            ttOnOrder.quantity    = po-ordl.ord-qty
+            ttOnOrder.quantityUOM = po-ordl.pr-qty-uom
+            ttOnOrder.warehouseID = po-ord.loc. /*when creating from Job header job.loc*/
+    END. /*each po-ordl*/  
+    /*check for availability of job-hdr*/  
+    FIND FIRST job-hdr WHERE job-hdr.company EQ itemfg.company 
+        AND job-hdr.i-no    EQ itemfg.i-no 
+        AND job-hdr.opened  EQ YES NO-LOCK NO-ERROR.
             
-            /*Below logic should be added if there is old version calculation*/
+    IF AVAILABLE job-hdr THEN 
+    DO:
+        FOR EACH job-hdr NO-LOCK
+            WHERE job-hdr.company EQ itemfg.company 
+            AND job-hdr.i-no    EQ itemfg.i-no 
+            AND job-hdr.opened  EQ YES 
+            AND CAN-FIND(FIRST job 
+            WHERE job.company EQ job-hdr.company 
+            AND job.job     EQ job-hdr.job 
+            AND job.job-no  EQ job-hdr.job-no 
+            AND job.job-no2 EQ job-hdr.job-no2)
+            USE-INDEX i-no:
             
-            /*Add here the check for the calculation type "JobBuildVersion" */
-            FOR EACH reftable NO-LOCK
-                WHERE reftable.reftable EQ "jc/jc-calc.p"
-                AND reftable.company  EQ itemfg.company
-                AND reftable.loc      EQ ""
-                AND reftable.code2    EQ itemfg.i-no
-                USE-INDEX code2,
-                EACH job NO-LOCK
-                WHERE job.company EQ itemfg.company
-                AND job.job EQ INTEGER(reftable.CODE)
-                AND job.opened  EQ YES 
-                USE-INDEX job,
-                FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ job.company
-                AND job-hdr.job     EQ job.job
-                AND job-hdr.job-no  EQ job.job-no
-                AND job-hdr.job-no2 EQ job.job-no2
-                USE-INDEX job-no,
-                FIRST b-itemfg NO-LOCK
-                WHERE b-itemfg.company EQ job-hdr.company
-                AND b-itemfg.i-no    EQ job-hdr.i-no
-                AND b-itemfg.isaset  EQ YES:
-
-                RUN fg/fullset.p (ROWID(b-itemfg)).
-          
-                FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
-                    ld-qty = 0.
-                    RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                        INPUT job-hdr.job-no,
-                        INPUT job-hdr.job-no2,
-                        INPUT job-hdr.i-no,
-                        INPUT NO,
-                        OUTPUT ld-qty).
-                    IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
-                        op-q-ono = op-q-ono + ((job-hdr.qty * tt-fg-set.part-qty-dec) - 
-                            ld-qty).
-              
-                END. /* FOR EACH tt-fg-set*/
-            END.
-        END. /*available job-hdr*/
-        ELSE 
-        DO:
-            FOR EACH bf-eb FIELDS(est-no) WHERE
-                bf-eb.company  EQ itemfg.company AND
-                bf-eb.stock-no EQ itemfg.i-no
-                NO-LOCK:
-
-                FOR EACH job-hdr FIELDS(company i-no) WHERE
-                    job-hdr.company EQ itemfg.company AND
-                    job-hdr.est-no  EQ bf-eb.est-no AND
-                    job-hdr.opened  EQ YES
-                    NO-LOCK:
-          
-                    FIND FIRST bf-itemfg WHERE
-                        bf-itemfg.company EQ job-hdr.company AND
-                        bf-itemfg.i-no    EQ job-hdr.i-no AND
-                        bf-itemfg.isaset
-                        NO-LOCK NO-ERROR.
-          
-                    IF AVAIL bf-itemfg THEN LEAVE.
-                END.
-            END.
-     
-            IF AVAIL bf-itemfg THEN 
+            /*record with job,form and blank already exist*/
+            IF CAN-FIND(FIRST ttOnOrder WHERE ttOnOrder.jobID   = job-hdr.job-no
+                AND ttOnOrder.jobID2  = job-hdr.job-no2
+                AND ttOnOrder.formNo  = job-hdr.frm
+                AND ttOnOrder.blankNo = job-hdr.blank-no) THEN 
+                NEXT.
+                
+            /*create temp-table*/
+            CREATE ttOnOrder.
+            ASSIGN
+                ttOnOrder.itemID      = job-hdr.i-no
+                //ttOnOrder.itemType    = po-ordl.item-type
+                ttOnOrder.source        = "Job"  /*Initial creation from PO, if created from Job then "Job"*/
+                ttOnOrder.poID        = job-hdr.po-no
+                //ttOnOrder.poLine      = po-ordl.line
+                ttOnOrder.jobID       = job-hdr.job-no
+                ttOnOrder.jobID2      = job-hdr.job-no2
+                ttOnOrder.formNo      = job-hdr.frm
+                ttOnOrder.blankNo     = job-hdr.blank-no
+                ttOnOrder.quantity    = job-hdr.qty
+                //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
+                ttOnOrder.warehouseID = job-hdr.loc. /*when creating from Job header job.loc*/
+            
+           // check if job-hdr.e-num in eb
+            FIND FIRST eb WHERE eb.company = job-hdr.company 
+                AND eb.e-num = job-hdr.e-num NO-LOCK NO-ERROR.
+            IF AVAILABLE eb AND (eb.est-type = 2 OR eb.est-type = 6) THEN /*Set record*/
             DO:
-          
-                IF bf-itemfg.alloc EQ YES THEN 
-                DO:
-                    FOR EACH job-hdr WHERE
-                        job-hdr.company EQ itemfg.company AND
-                        job-hdr.i-no    EQ bf-itemfg.i-no AND
-                        job-hdr.opened  EQ YES AND
-                        CAN-FIND(FIRST job WHERE
-                        job.company EQ job-hdr.company AND
-                        job.job     EQ job-hdr.job AND
-                        job.job-no  EQ job-hdr.job-no AND
-                        job.job-no2 EQ job-hdr.job-no2)
-                        NO-LOCK
-                        USE-INDEX i-no:
-         
-                        FIND FIRST bf-est WHERE
-                            bf-est.company EQ job-hdr.company AND
-                            bf-est.est-no EQ job-hdr.est-no
-                            NO-LOCK NO-ERROR.
-
-                        IF NOT AVAIL bf-est THEN NEXT.
-
-                        IF bf-est.est-type NE 6 AND bf-est.est-type NE 2 THEN
-                            FIND FIRST eb WHERE
-                                eb.company  EQ job-hdr.company AND
-                                eb.est-no   EQ job-hdr.est-no AND
-                                eb.form-no  EQ job-hdr.frm AND
-                                eb.blank-no EQ job-hdr.blank-no
-                                NO-LOCK NO-ERROR.
-                        ELSE
-                        DO:
-                            FIND FIRST eb WHERE
-                                eb.company  EQ job-hdr.company AND
-                                eb.est-no   EQ job-hdr.est-no AND
-                                eb.form-no  EQ job-hdr.frm AND
-                                eb.stock-no EQ itemfg.i-no
-                                NO-LOCK NO-ERROR.
-
-                            IF NOT AVAIL eb THEN
-                                FIND FIRST eb WHERE
-                                    eb.company  EQ job-hdr.company AND
-                                    eb.est-no   EQ job-hdr.est-no AND
-                                    eb.stock-no EQ itemfg.i-no
-                                    NO-LOCK NO-ERROR.
-                        END.
-
-                        IF NOT((AVAIL eb AND NOT eb.pur-man) OR
-                            (NOT AVAIL eb AND NOT itemfg.pur-man)) THEN
-                            NEXT.
-
-                        v-part-qty = 1.
-                        FIND FIRST fg-set
-                            WHERE fg-set.company EQ itemfg.company
-                            AND fg-set.part-no EQ itemfg.i-no
-                            NO-LOCK NO-ERROR.
-                        IF AVAIL(fg-set) THEN 
-                        DO:
-                            {sys/inc/part-qty.i v-part-qty fg-set}
-                            v-part-qty = 
-                                (IF AVAIL eb AND eb.spare-char-2 = "Y" THEN 1.0 ELSE v-part-qty).
-   
-                        END.
-    
-                        ld-qty = 0.
-                        RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                            INPUT job-hdr.job-no,
-                            INPUT job-hdr.job-no2,
-                            INPUT job-hdr.i-no,
-                            INPUT NO,
-                            OUTPUT ld-qty).
-                        IF ld-qty LT job-hdr.qty THEN
-                            op-q-ono = op-q-ono + ((job-hdr.qty - ld-qty) * v-part-qty).
-             
-                    END. /* FOR EACH job-hdr */         
-
-                    FOR EACH reftable NO-LOCK
-                        WHERE reftable.reftable EQ "jc/jc-calc.p"
-                        AND reftable.company  EQ itemfg.company
-                        AND reftable.loc      EQ ""
-                        AND reftable.code2    EQ itemfg.i-no
-                        USE-INDEX code2,
-                        EACH job NO-LOCK
-                        WHERE job.company EQ itemfg.company
-                        AND job.job EQ INTEGER(reftable.CODE)
-                        AND job.opened  EQ YES 
-                        USE-INDEX job,
-                        FIRST job-hdr NO-LOCK
-                        WHERE job-hdr.company EQ job.company
-                        AND job-hdr.job     EQ job.job
-                        AND job-hdr.job-no  EQ job.job-no
-                        AND job-hdr.job-no2 EQ job.job-no2
-                        USE-INDEX job-no,
-                        FIRST b-itemfg NO-LOCK
-                        WHERE b-itemfg.company EQ job-hdr.company
-                        AND b-itemfg.i-no    EQ job-hdr.i-no
-                        AND b-itemfg.isaset  EQ YES:
-
-                        RUN fg/fullset.p (ROWID(b-itemfg)).
-         
-                        FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
-                            ld-qty = 0.
-                            RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                                INPUT job-hdr.job-no,
-                                INPUT job-hdr.job-no2,
-                                INPUT job-hdr.i-no,
-                                INPUT NO,
-                                OUTPUT ld-qty).
-                            IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
-                                op-q-ono = op-q-ono + ((job-hdr.qty * tt-fg-set.part-qty-dec) - 
-                                    ld-qty).
-               
-                        END. /* FOR EACH tt-fg-set*/
-                    END. /* FOR EACH job */
-         
-                END.  /* if not assembled set */
-                ELSE 
-                DO:
-                    /* assembled set logic */
-            
-                    v-set-item = bf-itemfg.i-no.
-                    FOR EACH job-hdr WHERE
-                        job-hdr.company EQ itemfg.company AND
-                        job-hdr.i-no    EQ bf-itemfg.i-no AND
-                        job-hdr.opened  EQ YES AND
-                        CAN-FIND(FIRST job WHERE
-                        job.company EQ job-hdr.company AND
-                        job.job     EQ job-hdr.job AND
-                        job.job-no  EQ job-hdr.job-no AND
-                        job.job-no2 EQ job-hdr.job-no2)
-                        NO-LOCK
-                        USE-INDEX i-no:
-         
-                        FIND FIRST bf-est WHERE
-                            bf-est.company EQ job-hdr.company AND
-                            bf-est.est-no EQ job-hdr.est-no
-                            NO-LOCK NO-ERROR.
-
-                        IF NOT AVAIL bf-est THEN NEXT.
-
-                        IF bf-est.est-type NE 6 AND bf-est.est-type NE 2 THEN
-                            FIND FIRST eb WHERE
-                                eb.company  EQ job-hdr.company AND
-                                eb.est-no   EQ job-hdr.est-no AND
-                                eb.form-no  EQ job-hdr.frm AND
-                                eb.blank-no EQ job-hdr.blank-no
-                                NO-LOCK NO-ERROR.
-                        ELSE
-                        DO:
-                            FIND FIRST eb WHERE
-                                eb.company  EQ job-hdr.company AND
-                                eb.est-no   EQ job-hdr.est-no AND
-                                eb.form-no  EQ job-hdr.frm AND
-                                eb.stock-no EQ itemfg.i-no
-                                NO-LOCK NO-ERROR.
-
-                            IF NOT AVAIL eb THEN
-                                FIND FIRST eb WHERE
-                                    eb.company  EQ job-hdr.company AND
-                                    eb.est-no   EQ job-hdr.est-no AND
-                                    eb.stock-no EQ itemfg.i-no
-                                    NO-LOCK NO-ERROR.
-                        END.
-
-                        IF NOT((AVAIL eb AND NOT eb.pur-man) OR
-                            (NOT AVAIL eb AND NOT itemfg.pur-man)) THEN
-                            NEXT.
-
-                        ld-qty = 0.
-                        RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                            INPUT job-hdr.job-no,
-                            INPUT job-hdr.job-no2,
-                            INPUT job-hdr.i-no,
-                            INPUT NO,
-                            OUTPUT ld-qty).
-                        IF ld-qty LT job-hdr.qty THEN
-                            ASSIGN v-set-job-qty = job-hdr.qty
-                                v-set-rcv-qty =  ld-qty.
-                    END. /* FOR EACH job-hdr */
- 
-                    FOR EACH job-hdr NO-LOCK
-                        WHERE job-hdr.company EQ itemfg.company
-                        AND job-hdr.i-no    EQ v-set-item,
-                        FIRST job NO-LOCK
-                        WHERE job.company EQ job-hdr.company
-                        AND job.job     EQ job-hdr.job
-                        AND job.job-no  EQ job-hdr.job-no
-                        AND job.job-no2 EQ job-hdr.job-no2
-                        AND job.opened  EQ YES,
-                        FIRST b-itemfg NO-LOCK
-                        WHERE b-itemfg.company EQ job-hdr.company
-                        AND b-itemfg.i-no    EQ job-hdr.i-no
-                        AND b-itemfg.isaset  EQ YES:
-                   
-                        RUN fg/fullset.p (ROWID(b-itemfg)).
-           
-                        FOR EACH  fg-set NO-LOCK
-                            WHERE fg-set.company EQ itemfg.company
-                            AND fg-set.part-no EQ itemfg.i-no:
-                            {sys/inc/part-qty.i v-part-qty-dec fg-set}
-                            IF v-set-rcv-qty LT v-set-job-qty THEN
-                                op-q-ono = op-q-ono + ((v-set-job-qty - v-set-rcv-qty) * v-part-qty-dec).               
-                        END. /* FOR EACH tt-fg-set*/
-                    END. /* FOR EACH job */           
-         
+                FOR EACH bf-eb NO-LOCK
+                   WHERE bf-eb.company = job-hdr.company 
+                     AND bf-eb.e-num = job-hdr.e-num:
+                         /*set component not available in job-hdr - check the reftable in that case*/
+                     IF NOT CAN-FIND(FIRST bf-job-hdr WHERE bf-job-hdr.company = bf-eb.company
+                                                        AND bf-job-hdr.e-num = bf-eb.e-num
+                                                        AND bf-job-hdr.frm = bf-eb.form-no) THEN
+                     DO:
+                         /*Used the existing logic to for reftable search*/
+                         FOR EACH reftable NO-LOCK
+                             WHERE reftable.reftable EQ "jc/jc-calc.p"
+                             AND reftable.company  EQ itemfg.company
+                             AND reftable.loc      EQ ""
+                             AND reftable.code2    EQ itemfg.i-no
+                             USE-INDEX code2,
+                             FIRST bf-job NO-LOCK /*each removed as company and job is part of unique index and the combination will have only one record*/
+                             WHERE bf-job.company EQ itemfg.company
+                             AND bf-job.job EQ INTEGER(reftable.CODE)
+                             AND bf-job.opened  EQ YES 
+                             USE-INDEX job,
+                             FIRST bf1-job-hdr NO-LOCK
+                             WHERE bf1-job-hdr.company EQ bf-job.company
+                             AND bf1-job-hdr.job     EQ bf-job.job
+                             AND bf1-job-hdr.job-no  EQ bf-job.job-no
+                             AND bf1-job-hdr.job-no2 EQ bf-job.job-no2
+                             USE-INDEX job-no,
+                             FIRST b-itemfg NO-LOCK
+                             WHERE b-itemfg.company EQ job-hdr.company
+                             AND b-itemfg.i-no    EQ job-hdr.i-no
+                             AND b-itemfg.isaset  EQ YES:
+                             CREATE ttOnOrder.
+                             ASSIGN
+                                 ttOnOrder.itemID      = job-hdr.i-no
+                //ttOnOrder.itemType    = po-ordl.item-type
+                                 ttOnOrder.source        = "Job"  /*Initial creation from PO, if created from Job then "Job"*/
+                                 ttOnOrder.poID        = job-hdr.po-no
+                //ttOnOrder.poLine      = po-ordl.line
+                                 ttOnOrder.jobID       = job-hdr.job-no
+                                 ttOnOrder.jobID2      = job-hdr.job-no2
+                                 ttOnOrder.formNo      = job-hdr.frm
+                                 ttOnOrder.blankNo     = job-hdr.blank-no
+                                 ttOnOrder.quantity    = job-hdr.qty
+                //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
+                                 ttOnOrder.warehouseID = job-hdr.loc.
+                         END.
+                     END.
                 END.
-            END.
-        END. /*Not available */    
+            END. 
+        /*find job header for component if not available find in ref table*/
+                
+        END. /* FOR EACH job-hdr */      
+        /*Below logic should be added if there is old version calculation*/
             
-    END.        
-END.
+        /*Add here the check for the calculation type "JobBuildVersion" */
+        
+    END. /*available job-hdr*/    
+                
+END. /*item*/
