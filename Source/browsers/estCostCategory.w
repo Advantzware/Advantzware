@@ -39,34 +39,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
-DEFINE VARIABLE cCompany AS CHARACTER      NO-UNDO.
-
-DEFINE VARIABLE hdScopeField1       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdScopeField2       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdScopeField3       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSaveType           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lHideSearch         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lLoadDataFromTT     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lHideSettingFilter  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lHideScopeFilter    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cFilterType         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lShowAdvancedFilter AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCOLUMN-NAME        AS LOGICAL   NO-UNDO.
-
-DEFINE VARIABLE cGlobalSearch  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iSettingTypeID AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cSettingName   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCategory      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSettingType   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cScope         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cScopeField1   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cScopeField2   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cScopeField3   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cUser          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cProgram       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lStatus        AS LOGICAL   NO-UNDO.     
-
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
@@ -107,7 +79,7 @@ ttEstCostGroupLevel
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostCategory.estCostCategoryID ttEstCostCategory.costCategoryLabel ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc   
+&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostCategory.costCategoryLabel ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc ttEstCostCategory.estCostCategoryID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttEstCostCategory, ~
@@ -194,13 +166,13 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      ttEstCostCategory.estCostCategoryID  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "ID"
-      ttEstCostCategory.costCategoryLabel  FORMAT "X(50)" WIDTH 80 COLUMN-LABEL "Cost Category"
-      ttEstCostGroup.costGroupLabel        FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "Group"
+      ttEstCostCategory.costCategoryLabel  FORMAT "X(50)" WIDTH 50 COLUMN-LABEL "Cost Category"
+      ttEstCostGroup.costGroupLabel        FORMAT "X(50)" WIDTH 40 COLUMN-LABEL "Group"
       ttEstCostGroupLevel.estCostGroupLevelDesc  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "Group Level"
+      ttEstCostCategory.estCostCategoryID  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "ID"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 120 BY 16
+    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 16
          BGCOLOR 15 FGCOLOR 0 FONT 6 ROW-HEIGHT-CHARS .75 FIT-LAST-COLUMN.
 
 
@@ -241,7 +213,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 18.38
-         WIDTH              = 130.6.
+         WIDTH              = 161.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -344,15 +316,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  RUN set-attribute-list ("SAVE-TYPE=DATABASE, 
-                           BROWSE-COLUMNS=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
-                           BROWSE-COLUMNS-DISPLAY=settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
-                           HIDE-SEARCH=FALSE,
-                           HIDE-SETTING-FILTER=FALSE,
-                           HIDE-SCOPE-FILTER=FALSE,
-                           SETTING-FILTER-TYPE=SettingType,
-                           LOAD-DATA-FROM-TT=FALSE, 
-                           COLUMN-NAME = FALSE"). 
                      
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
@@ -422,83 +385,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplayColumns B-table-Win 
-PROCEDURE DisplayColumns :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iColumn  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE hdBrowse AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE hdColumn AS HANDLE  NO-UNDO.
-    
-    DEFINE VARIABLE cBrowseCols  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dBrowseWidth AS DECIMAL   NO-UNDO.
-        
-    RUN get-attribute IN THIS-PROCEDURE ('SAVE-TYPE':U).
-
-    cSaveType = RETURN-VALUE.
-    IF cSaveType EQ "" OR cSaveType EQ ? THEN
-        cSaveType = "DATABASE".
-
-    RUN get-attribute IN THIS-PROCEDURE ('HIDE-SEARCH':U).
-
-    lHideSearch = LOGICAL(RETURN-VALUE).
-    IF lHideSearch  EQ ? THEN
-        lHideSearch = FALSE.
-
-    RUN get-attribute IN THIS-PROCEDURE ('HIDE-SETTING-FILTER':U).
-
-    lHideSettingFilter = LOGICAL(RETURN-VALUE).
-    IF lHideSettingFilter  EQ ? THEN
-        lHideSettingFilter = FALSE.
-
-    RUN get-attribute IN THIS-PROCEDURE ('HIDE-SCOPE-FILTER':U).
-
-    lHideScopeFilter = LOGICAL(RETURN-VALUE).
-    IF lHideScopeFilter  EQ ? THEN
-        lHideScopeFilter = FALSE.
-                
-    RUN get-attribute IN THIS-PROCEDURE ('LOAD-DATA-FROM-TT':U).
-
-    lLoadDataFromTT = LOGICAL(RETURN-VALUE).
-    IF lLoadDataFromTT EQ ? THEN
-        lLoadDataFromTT = FALSE.
-
-    RUN get-attribute IN THIS-PROCEDURE ('COLUMN-NAME':U).
-
-    lCOLUMN-NAME = LOGICAL(RETURN-VALUE).
-    IF lCOLUMN-NAME EQ ? THEN
-        lCOLUMN-NAME = FALSE.
-    
-    RUN get-attribute IN THIS-PROCEDURE ('SETTING-FILTER-TYPE':U).
-
-    cFilterType = RETURN-VALUE.
-    IF cFilterType EQ ? OR cFilterType EQ "" THEN
-        cFilterType = "SettingType".
-                         
-    hdBrowse = BROWSE {&BROWSE-NAME}:HANDLE.
-
-    RUN get-attribute IN THIS-PROCEDURE ('BROWSE-COLUMNS-DISPLAY':U).
-    
-    cBrowseCols = RETURN-VALUE.
-
-    DO iColumn = 1 TO hdBrowse:NUM-COLUMNS :
-        hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumn).
-
-        hdColumn:VISIBLE = LOOKUP(hdColumn:NAME, cBrowseCols, "|") GT 0.
-        
-        IF hdColumn:VISIBLE THEN
-            dBrowseWidth = dBrowseWidth + hdColumn:WIDTH.
-
-    END.   
-
-    BROWSE {&BROWSE-NAME}:WIDTH = dBrowseWidth + 15 NO-ERROR. 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableBrowse B-table-Win 
 PROCEDURE EnableBrowse :
 /*------------------------------------------------------------------------------
@@ -508,27 +394,6 @@ PROCEDURE EnableBrowse :
     BROWSE {&BROWSE-NAME}:SENSITIVE = TRUE.
     
     {methods/run_link.i "SEARCH-SOURCE" "EnableAll"}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
-PROCEDURE local-destroy :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-OBJECT(oSetting) AND NOT lLoadDataFromTT THEN
-        DELETE OBJECT oSetting.
-    
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -573,26 +438,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available B-table-Win 
-PROCEDURE local-row-available :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    iSettingTypeID = 0.
-    
-    RUN pSearch.
-        
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -600,79 +445,26 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCategoryTagsList AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScopeList        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iBrowseColumn     AS INTEGER   NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
        
-    RUN spGetSessionParam (
-        INPUT  "Company",
-        OUTPUT cCompany
-        ). 
-    
+   
     EMPTY TEMP-TABLE ttEstCostCategory.
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT cCompany,
+    RUN Estimate_GetSystemDataForEstimate(INPUT "",
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
-        OUTPUT TABLE ttEstCostGroupLevel). 
-       
-    /*
-    DO iBrowseColumn = 1 TO BROWSE {&BROWSE-NAME}:NUM-COLUMNS :
-        IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "scopeField1" THEN
-            hdScopeField1 = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
-        ELSE IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "scopeField2" THEN
-            hdScopeField2 = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).
-        ELSE IF {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn):NAME = "scopeField3" THEN
-            hdScopeField3 = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iBrowseColumn).            
-    END.
-    
-    IF NOT lLoadDataFromTT THEN
-        oSetting = NEW system.Setting().
-    ELSE DO:        
-        {methods/run_link.i "CONTAINER-SOURCE" "GetSetting" "(OUTPUT oSetting)"}
-
-        IF VALID-OBJECT(oSetting) THEN
-            oSetting:GetCurrentSetting(OUTPUT TABLE ttSetting).
-        
-      
-    END.
-    
-    IF VALID-OBJECT (oSetting) THEN
-        ASSIGN
-            cCategoryTagsList = "All," + oSetting:GetCategoryTagsList()
-            cCategoryTagsList = TRIM(cCategoryTagsList, ",")
-            cScopeList        = "All," + oSetting:GetScopeList(TRUE)
-            cScopeList        = TRIM(cScopeList, ",")
-            .
-
-    IF cFilterType EQ "SettingType" THEN
-        {methods/run_link.i "SEARCH-SOURCE" "SetCategoryList" "(INPUT cCategoryTagsList )"}
-    
-    IF cFilterType EQ "Setting" THEN
-        {methods/run_link.i "SEARCH-SOURCE" "SetScopeList" "(INPUT cScopeList)"}
-    
-    IF lLoadDataFromTT THEN
-        {methods/run_link.i "SEARCH-SOURCE" "DisableAdvancedFilter"}
-        
-    RUN pSearch.
-          
-    RUN spGetSessionParam (
-        INPUT  "Company",
-        OUTPUT cCompany
-        ). 
-        */       
+        OUTPUT TABLE ttEstCostGroupLevel).    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RepositionSetting B-table-Win 
-PROCEDURE RepositionSetting :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE RepoQuery B-table-Win 
+PROCEDURE RepoQuery :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -734,6 +526,21 @@ PROCEDURE state-changed :
             RUN pSearch.
         END. 
     END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Update-Record B-table-Win 
+PROCEDURE Update-Record :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    IF ttEstCostCategory.estCostCategoryID NE "" THEN 
+        RUN est/destcostcat.w (INPUT ttEstCostCategory.estCostCategoryID).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

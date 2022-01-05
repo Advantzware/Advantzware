@@ -50,12 +50,13 @@ DEFINE VARIABLE v-att               AS LOG       NO-UNDO.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_estcategory
-&SCOPED-DEFINE h_Browse01 h_b-estgrp
-&SCOPED-DEFINE h_Browse01 h_b-estgrplvl
+&SCOPED-DEFINE h_Browse02 h_b-estgrp
+&SCOPED-DEFINE h_Browse03 h_b-estgrplvl
 &SCOPED-DEFINE h_Object01 h_estcategory
 &SCOPED-DEFINE h_Object02 h_p-updsavec
 &SCOPED-DEFINE h_Object03 h_b-estgrp
-&SCOPED-DEFINE h_Object03 h_p-updsaveg
+&SCOPED-DEFINE h_Object04 h_p-updsaveg
+&SCOPED-DEFINE h_Object05 h_p-updsavel
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -150,7 +151,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Estimate Cost Categories"
-         HEIGHT             = 23.57
+         HEIGHT             = 23.80
          WIDTH              = 184
          MAX-HEIGHT         = 47.38
          MAX-WIDTH          = 384
@@ -364,19 +365,21 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_estcategory ( 6.05 , 7 ) NO-ERROR.
        
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-estcostcat.w':U ,
              INPUT  FRAME F-Main:HANDLE,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsavec ).
        RUN set-position IN h_p-updsavec ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsavec ( 1.91 , 61.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavec ( 1.87 , 61.00 ) NO-ERROR.
        
 
        /* Links to SmartBrowser h_estcategory. */
        RUN add-link IN adm-broker-hdl ( h_estcategory , 'Record':U , THIS-PROCEDURE ).
-      
+       RUN add-link IN adm-broker-hdl ( h_p-updsavec , 'TableIO':U , h_estcategory ).
+       RUN add-link IN adm-broker-hdl ( h_estcategory , 'EditRecord':U , h_p-updsavec ).
+
       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_estcategory ,
@@ -401,16 +404,13 @@ PROCEDURE adm-create-objects :
 
       
         RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-estcostcat.w':U ,
              INPUT  FRAME F-Main:HANDLE,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_p-updsaveg ).
        RUN set-position IN h_p-updsaveg ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsaveg ( 1.91 , 61.00 ) NO-ERROR.
-     
-       RUN add-link IN adm-broker-hdl ( h_b-estgrp , 'Record':U , THIS-PROCEDURE ).
+       RUN set-size IN h_p-updsaveg ( 1.87 , 61.00 ) NO-ERROR.
+    
        RUN add-link IN adm-broker-hdl ( h_p-updsaveg , 'TableIO':U , h_b-estgrp).
 
     
@@ -439,16 +439,15 @@ PROCEDURE adm-create-objects :
 
       
         RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-estcostcat.w':U ,
              INPUT  FRAME F-Main:HANDLE,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsavel ).
        RUN set-position IN h_p-updsavel ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsavel ( 1.91 , 61.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavel ( 1.87 , 61.00 ) NO-ERROR.
       
-       RUN add-link IN adm-broker-hdl ( h_b-estgrplvl , 'Record':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_p-updsavel , 'TableIO':U , h_b-estgrplvl).
       
       /* Adjust the tab order of the smart objects. */
@@ -458,7 +457,7 @@ PROCEDURE adm-create-objects :
              h_b-estgrp , 'AFTER':U ).
 
        
-    END. /* Page 4 */ 
+    END. /* Page 3 */ 
 
   END CASE.
   /* Select a Startup page. */
@@ -581,6 +580,21 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTT W-Win
+PROCEDURE pBuildTT:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

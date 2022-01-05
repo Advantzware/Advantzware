@@ -83,10 +83,12 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
     
+    EMPTY TEMP-TABLE ttEstCostCategory.
+    EMPTY TEMP-TABLE ttEstCostGroup.
+    EMPTY TEMP-TABLE ttEstCostGroupLevel.
     
     /* Load the estCostCategorySystem data. If category data is setup in estCostCategory then overwrite it */
-    FOR EACH bf-estCostCategorySystem NO-LOCK
-        WHERE (bf-estCostCategorySystem.Company EQ ipcCompany OR bf-estCostCategorySystem.Company EQ ""):
+    FOR EACH bf-estCostCategorySystem NO-LOCK:
         
         IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID ) THEN
             NEXT.
@@ -94,8 +96,7 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         CREATE ttEstCostCategory.
         
         FIND FIRST bf-estCostCategory NO-LOCK
-            WHERE (bf-estCostCategory.Company EQ ipcCompany OR bf-estCostCategory.Company EQ "")
-            AND bf-estCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID NO-ERROR.
+            WHERE bf-estCostCategory.estCostCategoryID = bf-estCostCategorySystem.estCostCategoryID NO-ERROR.
         
         IF AVAILABLE bf-estCostCategory THEN
             BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
@@ -105,8 +106,7 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     END.
     
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
-    FOR EACH bf-estCostGroupSystem NO-LOCK
-        WHERE (bf-estCostGroupSystem.Company EQ ipcCompany OR bf-estCostGroupSystem.Company EQ ""):
+    FOR EACH bf-estCostGroupSystem NO-LOCK:
         
         IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID ) THEN
             NEXT.
@@ -114,8 +114,7 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         CREATE ttEstCostGroup.
         
         FIND FIRST bf-estCostGroup NO-LOCK
-            WHERE (bf-estCostGroup.Company EQ ipcCompany OR bf-estCostGroup.Company EQ "")
-            AND bf-estCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID NO-ERROR.
+            WHERE bf-estCostGroup.estCostGroupID = bf-estCostGroupSystem.estCostGroupID NO-ERROR.
         
         IF AVAILABLE bf-estCostGroup THEN
             BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
@@ -125,8 +124,7 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
     END.
    
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
-    FOR EACH bf-estCostGroupLevelSystem NO-LOCK
-        WHERE (bf-estCostGroupLevelSystem.Company EQ ipcCompany OR bf-estCostGroupLevelSystem.Company EQ ""):
+    FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
         
         IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID ) THEN
             NEXT.
@@ -134,15 +132,13 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         CREATE ttEstCostGroupLevel.
             
         FIND FIRST bf-estCostGroupLevel NO-LOCK
-            WHERE (bf-estCostGroupLevel.Company EQ ipcCompany OR bf-estCostGroupLevel.Company EQ "")
-            AND bf-estCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID NO-ERROR.
+            WHERE bf-estCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevelSystem.estCostGroupLevelID NO-ERROR.
         
         IF AVAILABLE bf-estCostGroupLevel THEN
             BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
             
         ELSE 
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
-        
     END.
 
 END PROCEDURE.
