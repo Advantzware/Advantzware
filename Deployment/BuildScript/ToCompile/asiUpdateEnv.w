@@ -218,6 +218,11 @@ DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
+DEF VAR hSession AS HANDLE NO-UNDO.
+DEF VAR hTags AS HANDLE NO-UNDO.
+DEF VAR hCommonProcs AS HANDLE NO-UNDO.
+DEF VAR hCreditProcs AS HANDLE NO-UNDO.
+DEF VAR hPurgeProcs AS HANDLE NO-UNDO.
 DEF VAR hPreRun AS HANDLE.
 DEF VAR giCountCreated    AS INTEGER   NO-UNDO.
 DEF VAR giCountDuplicate  AS INTEGER   NO-UNDO.
@@ -2528,32 +2533,6 @@ PROCEDURE ipConvertVendorCosts:
     DEF VAR iVendCostItemID AS INT64 NO-UNDO.
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
-    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
-
-        IF NOT VALID-HANDLE(hSession) THEN DO:
-            RUN system/session.p PERSISTENT SET hSession.
-            SESSION:ADD-SUPER-PROCEDURE (hSession).
-        END. 
-        IF NOT VALID-HANDLE(hTags) THEN DO: 
-            RUN system/TagProcs.p PERSISTENT SET hTags.
-            SESSION:ADD-SUPER-PROCEDURE (hTags).
-        END.
-        IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
-            RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
-        END.
-        IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
-            RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
-        END.
-        IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
-            RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
-            SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
-        END.
 
     RUN util/dev/VendorCostConvProcs PERSISTENT SET hVendCostProcs.
     FOR EACH company NO-LOCK:
@@ -2868,6 +2847,27 @@ PROCEDURE ipDataFix :
         PROPATH      = cNewPropath
         .
 
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END. 
+    IF NOT VALID-HANDLE(hTags) THEN DO: 
+        RUN system/TagProcs.p PERSISTENT SET hTags.
+        SESSION:ADD-SUPER-PROCEDURE (hTags).
+    END.
+    IF NOT VALID-HANDLE(hCommonProcs) THEN DO: 
+        RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
+    END.
+    IF NOT VALID-HANDLE(hCreditProcs) THEN DO:
+        RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
+    END.
+    IF NOT VALID-HANDLE(hPurgeProcs) THEN DO:
+        RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
+    END.
+    
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
@@ -6054,10 +6054,6 @@ PROCEDURE ipLoadSettingType :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Setting Type Records").
 
-    DEFINE VARIABLE hSession AS HANDLE.
-    RUN system/session.p PERSISTENT SET hSession.
-    SESSION:ADD-SUPER-PROCEDURE(hSession).
-
     &SCOPED-DEFINE tablename settingType
     
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
@@ -6076,8 +6072,6 @@ PROCEDURE ipLoadSettingType :
     IF SEARCH("util/nk1ToSetting.r") NE ? THEN 
         RUN VALUE (SEARCH("util/nk1ToSetting.r")) (fIntVer(fiFromVer:{&SV})).
 
-    SESSION:REMOVE-SUPER-PROCEDURE(hSession).
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6384,7 +6378,7 @@ PROCEDURE ipProcessAll :
 
     ASSIGN
         cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," + PROPATH
         PROPATH      = cNewPropath
         .
     ASSIGN
@@ -7183,7 +7177,7 @@ PROCEDURE ipSetDepartmentRequired:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Setting Dapartment isRequired Flags").
+    RUN ipStatus ("    Setting Department isRequired Flags").
 
     DEF BUFFER bdept FOR dept.
 
