@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update 
+&Scoped-Define ENABLED-OBJECTS btn-update btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -93,15 +93,9 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Add 
-     LABEL "Add" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Delete 
-     LABEL "&Delete" 
-     SIZE 9 BY 1.29
-     FONT 4.
+DEFINE BUTTON btn-Cancel 
+     LABEL "Cancel" 
+     SIZE 10 BY 1.29.
 
 DEFINE BUTTON btn-update 
      LABEL "Update" 
@@ -116,8 +110,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME Panel-Frame
      btn-update AT ROW 1.24 COL 2
-     Btn-Add AT ROW 1.24 COL 12
-     Btn-Delete AT ROW 1.24 COL 21
+     btn-Cancel AT ROW 1.24 COL 13.6 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -179,10 +172,6 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON Btn-Add IN FRAME Panel-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON Btn-Delete IN FRAME Panel-Frame
-   NO-ENABLE                                                            */
 ASSIGN 
        btn-update:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
@@ -208,12 +197,11 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn-Delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete C-WIn
-ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
+&Scoped-define SELF-NAME btn-Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Cancel C-WIn
+ON CHOOSE OF btn-Cancel IN FRAME Panel-Frame /* Cancel */
 DO:
-   RUN notify ('delete-record':U).  
-  
+    apply "window-close" to frame {&frame-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,10 +454,8 @@ PROCEDURE set-buttons :
         DO WITH FRAME {&FRAME-NAME}:
             IF NOT v-can-update THEN 
                 ASSIGN 
-                    btn-add:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                     btn-update:SENSITIVE                     = NO.
-            IF NOT v-can-delete THEN 
-                btn-delete:SENSITIVE = NO.
+            
         
         END.
       

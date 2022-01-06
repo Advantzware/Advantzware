@@ -345,7 +345,7 @@ PROCEDURE pDisplayRecord PRIVATE :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstGrpLvlId AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstGrpLvlId AS INTEGER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -361,8 +361,8 @@ PROCEDURE pDisplayRecord PRIVATE :
     END.
     
     ASSIGN
-        fil-estCostGroupLevelID:SCREEN-VALUE   = ttEstCostGroupLevel.estCostGroupLevelID
-        fil-estCostGroupLevelDesc:SCREEN-VALUE = ttEstCostGroupLevel.estCostGroupDesc
+        fil-estCostGroupLevelID:SCREEN-VALUE   = STRING(ttEstCostGroupLevel.estCostGroupLevelID)
+        fil-estCostGroupLevelDesc:SCREEN-VALUE = ttEstCostGroupLevel.estCostGroupLevelDesc
         .
        
       btnSave:SENSITIVE = NO. 
@@ -384,7 +384,7 @@ PROCEDURE pSaveRecord PRIVATE:
     END.
     
     FIND FIRST ttEstCostGroupLevel NO-lOCK
-        WHERE ttEstCostGroupLevel.estCostGroupLevelID = fil-estCostGroupLevelID:SCREEN-VALUE NO-ERROR.
+        WHERE ttEstCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE) NO-ERROR.
         
     IF NOT AVAILABLE ttEstCostGroupLevel THEN
     DO:
@@ -396,13 +396,13 @@ PROCEDURE pSaveRecord PRIVATE:
     DO TRANSACTION:
         
         FIND FIRST bf-estCostGroupLevel EXCLUSIVE-LOCK
-            WHERE bf-estCostGroupLevel.estCostGroupLevelID = fil-estCostGroupLevelID:SCREEN-VALUE NO-ERROR.
+            WHERE bf-estCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE) NO-ERROR.
             
         IF NOT AVAILABLE bf-estCostGroupLevel THEN
         DO:
             CREATE bf-estCostGroupLevel.
             ASSIGN
-                bf-estCostGroupLevel.estCostGroupLevelID = fil-estCostGroupLevelID:SCREEN-VALUE. 
+                bf-estCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE). 
         END.
            
         ASSIGN
@@ -433,21 +433,14 @@ PROCEDURE pInit :
     END.
     
     EMPTY TEMP-TABLE ttEstCostCategory.
+    EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
-    EMPTY TEMP-TABLE ttEstCostGroupLevelLevel.
       
     RUN Estimate_GetSystemDataForEstimate(INPUT "",
         OUTPUT TABLE ttEstCostCategory,
-        OUTPUT TABLE ttEstCostGroupLevel,
-        OUTPUT TABLE ttEstCostGroupLevelLevel).
-                   
-    FOR EACH ttEstCostGroupLevelLevel:
-        cListGroups = cListGroups + (IF cListGroups = "" THEN ""  ELSE ",")
-            + STRING(ttEstCostGroupLevelLevel.estCostGroupLevelID) + " - "  + ttEstCostGroupLevelLevel.estCostGroupLevelDesc + "," + STRING(ttEstCostGroupLevelLevel.estCostGroupLevelID).
-                   
-    END.
+        OUTPUT TABLE ttEstCostGroup,
+        OUTPUT TABLE ttEstCostGroupLevel).
     
-    lst-Group:LIST-ITEM-PAIRS  = cListGroups.
    
 END PROCEDURE.
 
@@ -464,7 +457,7 @@ PROCEDURE pTrackChngs :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    IF ttEstCostGroupLevel.estCostGroupLevelDesc NE fil-estCostGroupLevelDesc:SCREEN-VALUE) THEN
+    IF ttEstCostGroupLevel.estCostGroupLevelDesc NE fil-estCostGroupLevelDesc:SCREEN-VALUE THEN
     DO:
         btnSave:SENSITIVE = YES.  
             

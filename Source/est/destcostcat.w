@@ -658,7 +658,7 @@ PROCEDURE pSaveRecord PRIVATE:
         
     RELEASE bf-EstCostCategory.    
     
-    RUN pDisplayRecord (INPUT ipcEstCostCategoryID).
+    APPLY "window-close" to frame {&frame-name}.
         
 END PROCEDURE.
 

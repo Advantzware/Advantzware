@@ -412,7 +412,7 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    RUN pInit.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,7 +447,8 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    RUN pInit.
+  RUN pInit.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -465,8 +466,7 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-       
-   
+  
     EMPTY TEMP-TABLE ttEstCostCategory.
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
@@ -557,7 +557,9 @@ PROCEDURE Update-Record :
 
     IF ttEstCostCategory.estCostCategoryID NE "" THEN 
         RUN est/destcostcat.w (INPUT ttEstCostCategory.estCostCategoryID).
-
+    
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -451,10 +451,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsavel , 'TableIO':U , h_b-estgrplvl).
       
       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-estgrp ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-estgrplvl ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsaveg ,
-             h_b-estgrp , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsavel ,
+             h_b-estgrplvl , 'AFTER':U ).
 
        
     END. /* Page 3 */ 

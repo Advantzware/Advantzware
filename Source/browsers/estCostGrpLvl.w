@@ -548,8 +548,8 @@ PROCEDURE Update-Record :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    IF ttEstCostCategory.estCostCategoryID NE "" THEN 
-        RUN est/destcostgrplvl.w (INPUT ttEstCostCategory.estCostCategoryID).
+    IF ttEstCostGroupLevel.estCostGroupLevelID NE 0 THEN 
+        RUN est/destcostgrplvl.w (INPUT ttEstCostGroupLevel.estCostGroupLevelID).
         
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
     
