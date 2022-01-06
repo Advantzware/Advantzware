@@ -766,6 +766,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
     DEFINE VARIABLE dQuantityAssigned AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iIndex            AS INTEGER NO-UNDO.
     DEFINE VARIABLE lSuccess          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMsgResponse      AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     DEFINE BUFFER bf-itemfg FOR itemfg.
@@ -895,18 +896,22 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
         END.
 
         IF NOT oplError THEN DO:
-            RUN PostFinishedGoodsForUser (
-                INPUT        ipcCompany,
-                INPUT        "A",             /* Adjustment */
-                INPUT        USERID("ASI"),
-                INPUT        FALSE, /* Executes API closing orders logic */
-                INPUT-OUTPUT lSuccess,
-                INPUT-OUTPUT opcMessage
-                ).
-            oplError = NOT lSuccess.
-            
-            IF oplError THEN
-                UNDO, LEAVE.            
+            RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
+            IF lMsgResponse THEN
+            DO:
+                RUN PostFinishedGoodsForUser (
+                    INPUT        ipcCompany,
+                    INPUT        "A",             /* Adjustment */
+                    INPUT        USERID("ASI"),
+                    INPUT        FALSE, /* Executes API closing orders logic */
+                    INPUT-OUTPUT lSuccess,
+                    INPUT-OUTPUT opcMessage
+                    ).
+                oplError = NOT lSuccess.
+                
+                IF oplError THEN
+                    UNDO, LEAVE.            
+            END.    
         END.
         
     END.
