@@ -11,6 +11,21 @@ PROCEDURE postMonitor:
   Parameters: <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    FOR EACH ttAPIInbound:
+        monitorImportDir = ttAPIInbound.importPath.
+        RUN pPostMonitorAPI (ttAPIInbound.apiRoute).
+    END.
+END PROCEDURE.
+
+PROCEDURE pPostMonitorAPI:
+/*------------------------------------------------------------------------------
+  Purpose:    creates monitor, process and response directories and import 
+              monitored  files
+  Parameters: <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAPIRoute AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cMonitorFile   AS CHARACTER FORMAT 'X(50)' NO-UNDO.
     DEFINE VARIABLE cAttrList      AS CHARACTER FORMAT 'X(4)'  NO-UNDO.
     DEFINE VARIABLE cFile          AS CHARACTER NO-UNDO.
@@ -80,7 +95,7 @@ PROCEDURE postMonitor:
         SET cMonitorFile ^ cAttrList.
     
         /* skips directories and files which are not csv and xml */
-        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' OR (INDEX(cMonitorFile,'.csv') EQ 0 AND INDEX(cMonitorFile,'.xml') EQ 0) THEN
+        IF cAttrList NE 'F' OR cMonitorFile BEGINS '.' THEN
             NEXT.
         
         cFile = monitorImportDir + "\" + cMonitorFile.
@@ -93,33 +108,7 @@ PROCEDURE postMonitor:
                 ).
         &ENDIF
 
-        IF INDEX(cMonitorFile,'.xml') GT 0 THEN DO:
-            COPY-LOB FILE cFile TO lcResponseData NO-ERROR.
-            IF lcResponseData NE "" THEN
-                /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
-                RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
-                    INPUT  cocode,
-                    INPUT  "/api/cXMLOrder",
-                    INPUT  lcResponseData,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).  
-            ELSE 
-                cMessage = "Not able to extract contents of " + cFile.                  
-            
-            &IF DEFINED(monitorActivity) NE 0 &THEN
-                RUN monitorActivity (
-                    INPUT cMessage,
-                    INPUT TRUE,
-                    INPUT ''
-                    ).
-            &ENDIF
-            
-            /* Skips moving file to processed folder */
-            IF lcResponseData EQ "" THEN
-                NEXT.      
-        END.
-        ELSE IF INDEX(cMonitorFile,'.csv') GT 0 THEN DO:
+        IF INDEX(cMonitorFile,'.csv') GT 0 THEN DO:
             RUN LoadRequestsFromCSV IN hdInboundProcs (
                 INPUT  cFile,
                 OUTPUT TABLE ttInboundRequest
@@ -140,6 +129,32 @@ PROCEDURE postMonitor:
                         ).
                 &ENDIF        
             END.
+        END.
+        ELSE DO:
+            COPY-LOB FILE cFile TO lcResponseData NO-ERROR.
+            IF lcResponseData NE "" THEN
+                /* Currently cXMLOrder api is hardcoded. Need an identifier either by folder name or file name to get eh api route dynamically */
+                RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
+                    INPUT  cocode,
+                    INPUT  ipcAPIRoute,
+                    INPUT  lcResponseData,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).  
+            ELSE 
+                cMessage = "Not able to extract contents of " + cFile.                  
+            
+            &IF DEFINED(monitorActivity) NE 0 &THEN
+                RUN monitorActivity (
+                    INPUT cMessage,
+                    INPUT TRUE,
+                    INPUT ''
+                    ).
+            &ENDIF
+            
+            /* Skips moving file to processed folder */
+            IF lcResponseData EQ "" THEN
+                NEXT.      
         END.
                 
         RUN FileSys_CreateDirectory (

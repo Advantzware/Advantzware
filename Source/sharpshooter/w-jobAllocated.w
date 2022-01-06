@@ -81,23 +81,20 @@ RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES job job-mat
+&Scoped-define EXTERNAL-TABLES job
 &Scoped-define FIRST-EXTERNAL-TABLE job
 
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit ~
-btnFirst btnLast btnNext btnPrevious btnExitText imJobLookup ~
-btnViewRM btClear btnClearText btCopy btAdd btAllocate btUpdate ~
-btDelete
+&Scoped-Define ENABLED-OBJECTS btExit btnFirst btnLast btnNext btnPrevious ~
+btCopy btDelete btAdd btUpdate btAllocate btnExitText btnViewRM btClear ~
+btnClearText imJobLookup 
 &Scoped-Define DISPLAYED-OBJECTS fiStatusLabel fiStatus fiCreatedLabel ~
-fiCreated fiDueLabel fiDue fiCSRLabel fiCSR btnExitText statusMessage ~
-btnViewRM ~
-btnClearText fiLastRunLabel fiLastRun fiLastJobLabel fiLastJob ~
-fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel fiJobQty
-
+fiCreated fiDueLabel fiDue fiCSRLabel fiCSR fiLastRunLabel fiLastRun ~
+fiLastJobLabel fiLastJob fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel ~
+fiJobQty btnExitText statusMessage btnViewRM btnClearText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -113,50 +110,43 @@ fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel fiJobQty
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat-last-all AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_jobfilter AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_viewrminquiry AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btAdd  NO-FOCUS
+     LABEL "Add New Material" 
+     SIZE 35 BY 1.52
+     FONT 17.
+
+DEFINE BUTTON btAllocate  NO-FOCUS
+     LABEL "Allocate" 
+     SIZE 20 BY 1.52
+     FONT 17.
+
 DEFINE BUTTON btClear 
      IMAGE-UP FILE "Graphics/32x32/back_white.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91.
 
-DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8 BY 1.91.  
-     
 DEFINE BUTTON btCopy  NO-FOCUS
      LABEL "Copy" 
      SIZE 20 BY 1.52
-     FONT 17.   
-  
-DEFINE BUTTON btAdd  NO-FOCUS
-     LABEL "Add New Material" 
-     SIZE 35 BY 1.52
      FONT 17.
- 
-DEFINE BUTTON btUpdate  NO-FOCUS
-     LABEL "Update" 
-     SIZE 20 BY 1.52
-     FONT 17.
-     
-DEFINE BUTTON btAllocate  NO-FOCUS
-     LABEL "Allocate" 
-     SIZE 20 BY 1.52
-     FONT 17.     
 
 DEFINE BUTTON btDelete  NO-FOCUS
      LABEL "Delete" 
      SIZE 20 BY 1.52
      FONT 17.
+
+DEFINE BUTTON btExit 
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnFirst 
      IMAGE-UP FILE "Graphics/32x32/first.png":U NO-FOCUS FLAT-BUTTON
@@ -176,7 +166,12 @@ DEFINE BUTTON btnNext
 DEFINE BUTTON btnPrevious 
      IMAGE-UP FILE "Graphics/32x32/previous.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Prev" 
-     SIZE 8 BY 1.91 TOOLTIP "Previous". 
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
+
+DEFINE BUTTON btUpdate  NO-FOCUS
+     LABEL "Update" 
+     SIZE 20 BY 1.52
+     FONT 17.
 
 DEFINE VARIABLE btnClearText AS CHARACTER FORMAT "X(256)":U INITIAL "RESET" 
       VIEW-AS TEXT 
@@ -192,6 +187,10 @@ DEFINE VARIABLE btnViewRM AS CHARACTER FORMAT "X(256)":U INITIAL "RM INQUIRY"
       VIEW-AS TEXT 
      SIZE 21 BY 1.43
      BGCOLOR 21  NO-UNDO.
+
+DEFINE VARIABLE fiAllocatedLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Allocate Material:" 
+     VIEW-AS FILL-IN 
+     SIZE 40.4 BY 1.38 NO-UNDO.
 
 DEFINE VARIABLE fiCreated AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -220,6 +219,42 @@ DEFINE VARIABLE fiDueLabel AS CHARACTER FORMAT "X(256)":U INITIAL "DUE:"
      VIEW-AS FILL-IN 
      SIZE 9.6 BY 1.43 NO-UNDO.
 
+DEFINE VARIABLE fiJob AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1.43
+     FONT 38 NO-UNDO.
+
+DEFINE VARIABLE fiJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1.38 NO-UNDO.
+
+DEFINE VARIABLE fiJobQty AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1.43
+     FONT 38 NO-UNDO.
+
+DEFINE VARIABLE fiJobQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job Qty:" 
+     VIEW-AS FILL-IN 
+     SIZE 19.4 BY 1.38 NO-UNDO.
+
+DEFINE VARIABLE fiLastJob AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1.43
+     FONT 38 NO-UNDO.
+
+DEFINE VARIABLE fiLastJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1.38 NO-UNDO.
+
+DEFINE VARIABLE fiLastRun AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1.43
+     FONT 38 NO-UNDO.
+
+DEFINE VARIABLE fiLastRunLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Last Run:" 
+     VIEW-AS FILL-IN 
+     SIZE 18.4 BY 1.38 NO-UNDO.
+
 DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1.43
@@ -232,55 +267,16 @@ DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS:"
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
      SIZE 136 BY 1.43 NO-UNDO.
-     
-DEFINE VARIABLE fiLastRun AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 27 BY 1.43
-     FONT 38 NO-UNDO.
-
-DEFINE VARIABLE fiLastRunLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Last Run:" 
-     VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.38 NO-UNDO.
-     
-DEFINE VARIABLE fiLastJob AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 23 BY 1.43
-     FONT 38 NO-UNDO.
-
-DEFINE VARIABLE fiLastJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
-     VIEW-AS FILL-IN 
-     SIZE 15.4 BY 1.38 NO-UNDO.  
-     
-DEFINE VARIABLE fiAllocatedLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Allocate Material:" 
-     VIEW-AS FILL-IN 
-     SIZE 40.4 BY 1.38 NO-UNDO.  
-     
-DEFINE VARIABLE fiJob AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 27 BY 1.43
-     FONT 38 NO-UNDO.
-
-DEFINE VARIABLE fiJobLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job:" 
-     VIEW-AS FILL-IN 
-     SIZE 14.4 BY 1.38 NO-UNDO.
-     
-DEFINE VARIABLE fiJobQty AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 27 BY 1.43
-     FONT 38 NO-UNDO.
-
-DEFINE VARIABLE fiJobQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job Qty:" 
-     VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1.38 NO-UNDO.       
 
 DEFINE IMAGE imJobLookup
      FILENAME "Graphics/32x32/search_new.png":U
      STRETCH-TO-FIT RETAIN-SHAPE
-     SIZE 6.4 BY 1.52.     
+     SIZE 6.4 BY 1.52.
+
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main     
+DEFINE FRAME F-Main
      btExit AT ROW 1 COL 197 WIDGET-ID 126
      btnFirst AT ROW 10.67 COL 197 WIDGET-ID 44
      btnLast AT ROW 16.38 COL 197 WIDGET-ID 46
@@ -294,27 +290,26 @@ DEFINE FRAME F-Main
      fiDue AT ROW 5.52 COL 131.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      fiCSRLabel AT ROW 5.52 COL 85 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiCSR AT ROW 5.52 COL 94.2 COLON-ALIGNED NO-LABEL WIDGET-ID 100
-     fiLastRunLabel AT ROW 7.52 COL 2 NO-LABEL 
-     fiLastRun AT ROW 7.52 COL 16.6 COLON-ALIGNED NO-LABEL 
-     fiLastJobLabel AT ROW 7.52 COL 62.2 NO-LABEL 
-     fiLastJob AT ROW 7.52 COL 68.6 COLON-ALIGNED NO-LABEL 
-     imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
-     fiAllocatedLabel AT ROW 19.72 COL 2 COLON-ALIGNED NO-LABEL
-     fiJobLabel AT ROW 19.72 COL 52 NO-LABEL 
-     fiJob AT ROW 19.72 COL 60 COLON-ALIGNED NO-LABEL 
-     fiJobQtyLabel AT ROW 19.72 COL 122 NO-LABEL 
-     fiJobQty AT ROW 19.72 COL 136 COLON-ALIGNED NO-LABEL 
+     fiLastRunLabel AT ROW 7.52 COL 2 NO-LABEL
+     fiLastRun AT ROW 7.52 COL 16.6 COLON-ALIGNED NO-LABEL
+     fiLastJobLabel AT ROW 7.52 COL 62.2 NO-LABEL
+     fiLastJob AT ROW 7.52 COL 68.6 COLON-ALIGNED NO-LABEL
+     fiAllocatedLabel AT ROW 19.71 COL 4 NO-LABEL
+     fiJobLabel AT ROW 19.71 COL 52 NO-LABEL
+     fiJob AT ROW 19.71 COL 60 COLON-ALIGNED NO-LABEL
+     fiJobQtyLabel AT ROW 19.71 COL 122 NO-LABEL
+     fiJobQty AT ROW 19.71 COL 136 COLON-ALIGNED NO-LABEL
      btCopy AT ROW 7.33 COL 125 WIDGET-ID 118
      btDelete AT ROW 32.33 COL 142
-     btAdd AT ROW 32.33 COL 170 
-     btUpdate AT ROW 32.33 COL 212
-     btAllocate AT ROW 32.33 COL 240 
-     
+     btAdd AT ROW 32.33 COL 170
+     btUpdate AT ROW 32.33 COL 185.8
+     btAllocate AT ROW 32.33 COL 185.8
      btnExitText AT ROW 1.24 COL 187 NO-LABEL WIDGET-ID 24
-     statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28     
-     btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138     
+     statusMessage AT ROW 30.76 COL 3 NO-LABEL WIDGET-ID 28
+     btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
+     imJobLookup AT ROW 7.52 COL 94.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -329,7 +324,6 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -383,6 +377,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN btnExitText IN FRAME F-Main
    ALIGN-L                                                              */
+/* SETTINGS FOR FILL-IN fiAllocatedLabel IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiCreated IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiCreatedLabel IN FRAME F-Main
@@ -395,22 +391,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiDueLabel IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiStatus IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiStatusLabel IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN fiLastRun IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiLastRunLabel IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
-/* SETTINGS FOR FILL-IN fiLastJob IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiLastJobLabel IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */ 
-/* SETTINGS FOR FILL-IN fiAllocatedLabel IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */    
 /* SETTINGS FOR FILL-IN fiJob IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiJobLabel IN FRAME F-Main
@@ -418,8 +398,21 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiJobQty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiJobQtyLabel IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */   
-   
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiLastJob IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLastJobLabel IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiLastRun IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLastRunLabel IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiStatus IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiStatusLabel IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -434,7 +427,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Job Inquiry */
+ON END-ERROR OF W-Win /* Allocated Material */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -447,7 +440,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Job Inquiry */
+ON WINDOW-CLOSE OF W-Win /* Allocated Material */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -465,57 +458,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btClear
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
-ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
-DO:
-    {methods/run_link.i "JOB-SOURCE" "SetJob" "(?,?,?,?)"}
-    RUN pJobScan.
-
-    {methods/run_link.i "JOB-SOURCE" "Reset"}
-    
-    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
-    
-    RUN pStatusMessage ("", 0).
-    
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btCopy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCopy W-Win
-ON CHOOSE OF btCopy IN FRAME F-Main /* FG ITEMS */
-DO:
-   DEFINE VARIABLE lComplete AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
-   
-   RUN pStatusMessage ("", 0).
-                
-   IF NOT AVAIL job THEN
-   DO:
-       FIND FIRST job NO-LOCK
-            WHERE job.company EQ cCompany
-            AND job.job-no EQ  substring(fiJob:SCREEN-VALUE,1,6)
-            AND job.job-no2 EQ  integer(substring(fiJob:SCREEN-VALUE,8,2)) NO-ERROR.       
-   END.
-        
-   IF AVAIL job THEN
-   RUN pCopyJob IN h_b-job-mat-last-all(job.company, ROWID(job), OUTPUT lComplete) .
-   IF lComplete THEN
-   DO:    
-      RUN pStatusMessage ("Copy Complete", 2). 
-   END.     
-   RUN pReOpenQuery IN h_b-job-mat(rwRowid).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btAdd
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAdd W-Win
-ON CHOOSE OF btAdd IN FRAME F-Main /* Add */
+ON CHOOSE OF btAdd IN FRAME F-Main /* Add New Material */
 DO:
      DEFINE VARIABLE iForm AS INTEGER INIT 1 NO-UNDO.
      DEFINE VARIABLE iBlank AS INTEGER INIT 1 NO-UNDO.
@@ -543,36 +488,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btUpdate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate W-Win
-ON CHOOSE OF btUpdate IN FRAME F-Main /* Update */
-DO:
-     DEFINE VARIABLE iForm AS INTEGER NO-UNDO.
-     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
-     DEFINE VARIABLE cRmItem AS CHARACTER NO-UNDO.
-     DEFINE VARIABLE cRmItemDesc AS CHARACTER NO-UNDO.
-     DEFINE VARIABLE dAllocation AS DECIMAL NO-UNDO.
-     DEFINE VARIABLE dAvailQty AS DECIMAL NO-UNDO.
-     DEFINE VARIABLE lUpdated AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO. 
-     
-     RUN pStatusMessage ("", 0).
-     
-     IF AVAIL job THEN
-     DO:   
-         RUN pGetMaterial IN h_b-job-mat (OUTPUT rwRowid, OUTPUT iForm, OUTPUT iBlank, OUTPUT cRmItem, OUTPUT cRmItemDesc, OUTPUT dAllocation, OUTPUT dAvailQty).   
-         RUN jc/dJobMat.w("Update", cCompany, ROWID(job), INPUT-OUTPUT iForm, INPUT-OUTPUT iBlank, INPUT-OUTPUT cRmItem, INPUT-OUTPUT cRmItemDesc, INPUT-OUTPUT dAllocation, INPUT-OUTPUT dAvailQty, OUTPUT lUpdated). 
-         
-         IF lUpdated THEN
-         DO:        
-           RUN job_AllocationJobMaterial IN hdJobProcs("Update", cCompany, rowid(job), iForm, iBlank, cRmItem, dAllocation, INPUT-OUTPUT rwRowid). 
-           RUN pReOpenQuery IN h_b-job-mat(rwRowid).                  
-         END.
-     END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btAllocate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAllocate W-Win
@@ -588,6 +503,56 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btClear W-Win
+ON CHOOSE OF btClear IN FRAME F-Main /* Reset */
+DO:
+    {methods/run_link.i "JOB-SOURCE" "SetJob" "(?,?,?,?)"}
+    RUN pJobScan.
+
+    {methods/run_link.i "JOB-SOURCE" "Reset"}
+    
+    {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    
+    RUN pStatusMessage ("", 0).
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btCopy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCopy W-Win
+ON CHOOSE OF btCopy IN FRAME F-Main /* Copy */
+DO:
+   DEFINE VARIABLE lComplete AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+   
+   RUN pStatusMessage ("", 0).
+                
+   IF NOT AVAIL job THEN
+   DO:
+       FIND FIRST job NO-LOCK
+            WHERE job.company EQ cCompany
+            AND job.job-no EQ  substring(fiJob:SCREEN-VALUE,1,6)
+            AND job.job-no2 EQ  integer(substring(fiJob:SCREEN-VALUE,8,2)) NO-ERROR.       
+   END.
+        
+   IF AVAIL job THEN
+   RUN pCopyJob IN h_b-job-mat-last-all(job.company, ROWID(job), OUTPUT lComplete) .
+   IF lComplete THEN
+   DO:    
+      RUN pStatusMessage ("Copy Complete", 2). 
+   END.     
+   RUN pReOpenQuery IN h_b-job-mat(rwRowid).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete W-Win
@@ -622,6 +587,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
@@ -670,6 +636,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnLast
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast W-Win
 ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
@@ -712,6 +679,39 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btUpdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdate W-Win
+ON CHOOSE OF btUpdate IN FRAME F-Main /* Update */
+DO:
+     DEFINE VARIABLE iForm AS INTEGER NO-UNDO.
+     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
+     DEFINE VARIABLE cRmItem AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE cRmItemDesc AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE dAllocation AS DECIMAL NO-UNDO.
+     DEFINE VARIABLE dAvailQty AS DECIMAL NO-UNDO.
+     DEFINE VARIABLE lUpdated AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE rwRowid AS ROWID NO-UNDO. 
+     
+     RUN pStatusMessage ("", 0).
+     
+     IF AVAIL job THEN
+     DO:   
+         RUN pGetMaterial IN h_b-job-mat (OUTPUT rwRowid, OUTPUT iForm, OUTPUT iBlank, OUTPUT cRmItem, OUTPUT cRmItemDesc, OUTPUT dAllocation, OUTPUT dAvailQty).   
+         RUN jc/dJobMat.w("Update", cCompany, ROWID(job), INPUT-OUTPUT iForm, INPUT-OUTPUT iBlank, INPUT-OUTPUT cRmItem, INPUT-OUTPUT cRmItemDesc, INPUT-OUTPUT dAllocation, INPUT-OUTPUT dAvailQty, OUTPUT lUpdated). 
+         
+         IF lUpdated THEN
+         DO:        
+           RUN job_AllocationJobMaterial IN hdJobProcs("Update", cCompany, rowid(job), iForm, iBlank, cRmItem, dAllocation, INPUT-OUTPUT rwRowid). 
+           RUN pReOpenQuery IN h_b-job-mat(rwRowid).                  
+         END.
+     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME imJobLookup
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imJobLookup W-Win
@@ -762,6 +762,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -785,18 +786,26 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 154.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/jobfilter.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobfilter ).
        RUN set-position IN h_jobfilter ( 2.76 , 4.40 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 136.60 ) */ 
-      
+       /* Size in UIB:  ( 2.05 , 143.40 ) */
+
        /* Links to SmartObject h_jobfilter. */
        RUN add-link IN adm-broker-hdl ( h_jobfilter , 'JOB':U , THIS-PROCEDURE ).
-       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).        
+       RUN add-link IN adm-broker-hdl ( h_jobfilter , 'State':U , THIS-PROCEDURE ).
 
-    END. /* Page 0 */     
+    END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/viewrminquiry.w':U ,
@@ -805,7 +814,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_viewrminquiry ).
        RUN set-position IN h_viewrminquiry ( 2.71 , 161.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 8.00 ) */
-             
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-job-mat-last-all.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -821,23 +830,18 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-job-mat ).
        RUN set-position IN h_b-job-mat ( 21.29 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-job-mat ( 10.48 , 195.00 ) NO-ERROR.
-              
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.   
-      
+
+       /* Links to SmartBrowser h_b-job-mat-last-all. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-mat-last-all , 'LastAll':U , THIS-PROCEDURE ).
+
        /* Links to SmartBrowser h_b-job-mat. */
-       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_viewrminquiry , 'RMInq':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_1':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'RMInq':U , h_b-job-mat ).
-       RUN add-link IN adm-broker-hdl ( h_b-job-mat-last-all , 'LastAll':U , THIS-PROCEDURE ).
-              
+       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
-             fiCSR:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
-             h_b-job-mat-last-all , 'AFTER':U ).
-    END. /* Page 1 */      
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */
@@ -863,13 +867,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "job"}  
+  {src/adm/template/row-list.i "job"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "job"} 
+  {src/adm/template/row-find.i "job"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -911,14 +915,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiStatusLabel fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue 
-          fiCSRLabel fiCSR btnExitText statusMessage  
-          btnViewRM btnClearText 
-          fiLastRunLabel fiLastRun fiLastJobLabel fiLastJob
-          fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel fiJobQty
+          fiCSRLabel fiCSR fiLastRunLabel fiLastRun fiLastJobLabel fiLastJob 
+          fiAllocatedLabel fiJobLabel fiJob fiJobQtyLabel fiJobQty btnExitText 
+          statusMessage btnViewRM btnClearText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btExit btnFirst btnLast btnNext btAdd btAllocate
-         btUpdate btnPrevious btnExitText btCopy btDelete 
-         btnViewRM btClear btnClearText imJobLookup
+  ENABLE btExit btnFirst btnLast btnNext btnPrevious btCopy btDelete btAdd 
+         btUpdate btAllocate btnExitText btnViewRM btClear btnClearText 
+         imJobLookup 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1031,37 +1034,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobMaterial W-Win 
-PROCEDURE pUpdateJobMaterial :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJobQty W-Win 
+PROCEDURE pGetJobQty :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER iprwRowid     AS ROWID   NO-UNDO.
-   DEFINE INPUT PARAMETER ipiForm       AS INTEGER   NO-UNDO.
-   DEFINE INPUT PARAMETER ipiBlank      AS INTEGER   NO-UNDO.
-   DEFINE INPUT PARAMETER ipcRmItem     AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER ipdAllocation AS DECIMAL NO-UNDO.
+   DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiForm     AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiBlank    AS INTEGER   NO-UNDO.
+   DEFINE OUTPUT PARAMETER opiJobQty  AS INTEGER   NO-UNDO.
    
+   DEFINE BUFFER bf-job-hdr FOR job-hdr.  
    
-   DEFINE BUFFER bf-job-mat FOR job-mat.
+   FOR EACH bf-job-hdr NO-LOCK 
+             WHERE bf-job-hdr.company EQ ipcCompany
+             AND bf-job-hdr.job-no EQ ipcJobNo
+             AND bf-job-hdr.job-no2 EQ ipiJobNo2
+             AND (bf-job-hdr.frm EQ ipiForm OR ipiForm EQ ?)
+             AND (bf-job-hdr.blank-no EQ ipiBlank OR ipiBlank EQ ? ):
+             
+        opiJobQty = opiJobQty + bf-job-hdr.qty .     
+   END.
    
-   FIND FIRST bf-job-mat EXCLUSIVE-LOCK
-        WHERE bf-job-mat.company EQ cCompany
-        AND ROWID(bf-job-mat) EQ iprwRowid NO-ERROR.
-   IF avail bf-job-mat THEN     
-    ASSIGN            
-       bf-job-mat.rm-i-no  = ipcRmItem        
-       bf-job-mat.qty-all  = ipdAllocation       
-       .     
-   RELEASE bf-job-mat.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPrevoiusJob W-Win 
 PROCEDURE pGetPrevoiusJob :
@@ -1104,38 +1106,6 @@ PROCEDURE pGetPrevoiusJob :
              AND job-mch.job-no2 EQ bf-job.job-no2 :
             opiLastRun = opiLastRun + (IF AVAIL job-mch THEN job-mch.run-qty ELSE 0).  
         END.
-   END.
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-   
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetJobQty W-Win 
-PROCEDURE pGetJobQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
-   DEFINE INPUT PARAMETER ipiForm     AS INTEGER   NO-UNDO.
-   DEFINE INPUT PARAMETER ipiBlank    AS INTEGER   NO-UNDO.
-   DEFINE OUTPUT PARAMETER opiJobQty  AS INTEGER   NO-UNDO.
-   
-   DEFINE BUFFER bf-job-hdr FOR job-hdr.  
-   
-   FOR EACH bf-job-hdr NO-LOCK 
-             WHERE bf-job-hdr.company EQ ipcCompany
-             AND bf-job-hdr.job-no EQ ipcJobNo
-             AND bf-job-hdr.job-no2 EQ ipiJobNo2
-             AND (bf-job-hdr.frm EQ ipiForm OR ipiForm EQ ?)
-             AND (bf-job-hdr.blank-no EQ ipiBlank OR ipiBlank EQ ? ):
-             
-        opiJobQty = opiJobQty + bf-job-hdr.qty .     
    END.
    
 END PROCEDURE.
@@ -1259,6 +1229,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusClear W-Win 
+PROCEDURE pStatusClear :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+   RUN pStatusMessage("","0").
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateBrowse W-Win 
 PROCEDURE pUpdateBrowse :
 /*------------------------------------------------------------------------------
@@ -1305,6 +1289,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobMaterial W-Win 
+PROCEDURE pUpdateJobMaterial :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER iprwRowid     AS ROWID   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiForm       AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipiBlank      AS INTEGER   NO-UNDO.
+   DEFINE INPUT PARAMETER ipcRmItem     AS CHARACTER NO-UNDO.
+   DEFINE INPUT PARAMETER ipdAllocation AS DECIMAL NO-UNDO.
+   
+   
+   DEFINE BUFFER bf-job-mat FOR job-mat.
+   
+   FIND FIRST bf-job-mat EXCLUSIVE-LOCK
+        WHERE bf-job-mat.company EQ cCompany
+        AND ROWID(bf-job-mat) EQ iprwRowid NO-ERROR.
+   IF avail bf-job-mat THEN     
+    ASSIGN            
+       bf-job-mat.rm-i-no  = ipcRmItem        
+       bf-job-mat.qty-all  = ipdAllocation       
+       .     
+   RELEASE bf-job-mat.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize W-Win 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
@@ -1320,19 +1334,9 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT - 4
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH  - 4
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT 
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH  
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT 
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH  
             statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
             dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btExit:COL                         = dCol - 1
+            btExit:COL                         = dCol
             btnFirst:COL                       = dCol - 1
             btnPrevious:COL                    = dCol - 1
             btnNext:COL                        = dCol - 1
@@ -1356,6 +1360,7 @@ PROCEDURE pWinReSize :
             .      
         RUN set-size IN h_b-job-mat ( dHeight , dWidth ) NO-ERROR.
         RUN set-size IN h_b-job-mat-last-all ( 10.48 , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
@@ -1436,17 +1441,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStatusClear W-Win 
-PROCEDURE pStatusClear :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-   RUN pStatusMessage("","0").
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

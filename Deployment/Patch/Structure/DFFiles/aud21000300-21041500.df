@@ -1,0 +1,8 @@
+UPDATE FIELD "AuditRecKey" OF "AuditHdr"
+  FORMAT "x(26)"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000065

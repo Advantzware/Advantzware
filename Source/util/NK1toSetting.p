@@ -1,5 +1,7 @@
 /* NK1toSetting.p - rstark - 11.4.2021 */
 
+DEFINE INPUT  PARAMETER ipiCurrentVersion AS INTEGER NO-UNDO.
+
 DEFINE VARIABLE companyContext      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iScopeID            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSettingID          AS INTEGER   NO-UNDO.
@@ -14,6 +16,10 @@ DEFINE VARIABLE settingDescription  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingPassword     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE settingValidValues  AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+
+oSetting = NEW system.Setting().
 
 INPUT FROM VALUE(SEARCH("Documentation/NK1toSetting.csv")) NO-ECHO.
 IMPORT ^. // header line
@@ -125,3 +131,72 @@ REPEAT:
     END. // each sys-ctrl
 END. // repeat
 INPUT CLOSE.
+
+IF ipiCurrentVersion LT 21041500 THEN
+    RUN ipConvertInvoiceApprovalNK1s.
+
+FINALLY:
+    IF VALID-OBJECT (oSetting) THEN
+        DELETE OBJECT oSetting. 
+END FINALLY.
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE ipConvertInvoiceApprovalNK1s:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cNK1List      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSettingName  AS CHARACTER NO-UNDO.
+
+    cNK1List = "ApplyInvoiceApprovals,"
+             + "InvoiceApprovalBillNotes,"
+             + "InvoiceApprovalExpectZero,"
+             + "InvoiceApprovalFreightAmount,"
+             + "InvoiceApprovalFreightTerms,"
+             + "InvoiceApprovalInvoiceStatus,"
+             + "InvoiceApprovalMiscCharge,"
+             + "InvoiceApprovalOrderlineChange,"
+             + "InvoiceApprovalPriceGTCost,"
+             + "InvoiceApprovalTaxableCheck,"
+             + "InvoiceApprovalTaxCalc".
+    
+    DO iIndex = 1 TO NUM-ENTRIES(cNK1List):
+        cSettingName = ENTRY(iIndex, cNK1List).
+
+        IF cSettingName = "ApplyInvoiceApprovals" THEN
+            cSettingName = "InvoiceApproval".
+
+        FOR EACH sys-ctrl NO-LOCK
+            WHERE sys-ctrl.name EQ ENTRY(iIndex, cNK1List):
+            IF sys-ctrl.log-fld THEN DO:
+                cSettingValue = "Off".
+
+                IF sys-ctrl.int-fld EQ 0 THEN
+                    cSettingValue = "On".
+                ELSE IF sys-ctrl.int-fld EQ 1 THEN
+                    cSettingValue = "On Also During Post".
+    
+                oSetting:Update(cSettingName, "Company", sys-ctrl.company, "", "", cSettingValue).
+            END.
+
+            FOR EACH sys-ctrl-shipto NO-LOCK 
+                WHERE sys-ctrl-ship.company EQ sys-ctrl.company
+                  AND sys-ctrl-shipto.name  EQ sys-ctrl.name:
+
+                cSettingValue = "Off".
+
+                IF NOT sys-ctrl-shipto.log-fld THEN 
+                    cSettingValue = "Off".
+                ELSE IF sys-ctrl-shipto.int-fld EQ 0 THEN
+                    cSettingValue = "On".
+                ELSE IF sys-ctrl-shipto.int-fld EQ 1 THEN
+                    cSettingValue = "On Also During Post".
+                    
+                oSetting:Update(cSettingName, "Customer", sys-ctrl-shipto.company, sys-ctrl-shipto.cust-vend-no, "", cSettingValue).
+            END.
+        END.
+    END.
+END PROCEDURE.

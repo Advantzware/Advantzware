@@ -37,8 +37,10 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
 
-DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
+DEFINE VARIABLE oBOLHeader AS bol.BOLHeader    NO-UNDO.
+DEFINE VARIABLE oKeyboard  AS system.Keyboard  NO-UNDO.
 
 oBOLHeader = NEW bol.BOLHeader().
 
@@ -57,7 +59,7 @@ oBOLHeader = NEW bol.BOLHeader().
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiBOL 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardBOL fiBOL 
 &Scoped-Define DISPLAYED-OBJECTS fiBOL 
 
 /* Custom List Definitions                                              */
@@ -72,6 +74,11 @@ oBOLHeader = NEW bol.BOLHeader().
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnKeyboardBOL 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE VARIABLE fiBOL AS INTEGER FORMAT ">>>>>>>":U INITIAL 0 
      LABEL "BOL" 
      VIEW-AS FILL-IN 
@@ -82,6 +89,7 @@ DEFINE VARIABLE fiBOL AS INTEGER FORMAT ">>>>>>>":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboardBOL AT ROW 1.24 COL 43.8 WIDGET-ID 136 NO-TAB-STOP 
      fiBOL AT ROW 1.24 COL 8.6 COLON-ALIGNED WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -115,8 +123,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 2
-         WIDTH              = 44.4.
+         HEIGHT             = 2.91
+         WIDTH              = 51.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -143,6 +151,9 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       btnKeyboardBOL:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -162,6 +173,19 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnKeyboardBOL
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardBOL s-object
+ON CHOOSE OF btnKeyboardBOL IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiBOL.    
+    
+    oKeyboard:OpenKeyboardOverride (fiBOL:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiBOL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
 ON ANY-KEY OF fiBOL IN FRAME F-Main /* BOL */
@@ -180,6 +204,9 @@ DO:
     SELF:SET-SELECTION(1, -1).  
     
     SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -199,13 +226,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBOL s-object
 ON LEAVE OF fiBOL IN FRAME F-Main /* BOL */
 DO:
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN
+    IF ((LASTKEY NE 617 AND LASTKEY NE -1) OR (VALID-OBJECT (oKeyboard) AND oKeyboard:IsKeyboardOpen())) AND SELF:SCREEN-VALUE NE "" THEN    
+        RUN pBOLScan (
+            INPUT INTEGER(fiBOL:SCREEN-VALUE)
+            ).
+    ELSE
         RETURN.
-    
-    RUN pBOLScan (
-        INPUT INTEGER(fiBOL:SCREEN-VALUE)
-        ).
-    
+            
     SELF:BGCOLOR = 15.
 END.
 
@@ -230,6 +257,19 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
+PROCEDURE DisableErrorAlerts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -341,21 +381,9 @@ PROCEDURE pBOLScan :
         RUN new-state (
             INPUT "bol-valid"
              ).
-    ELSE DO:
-        ASSIGN
-            cStatusMessage     = "INVALID BOL '" + STRING(ipiBOLID) + "'"
-            iStatusMessageType = 3
-            .
-                
-        RUN new-state (
-            INPUT "bol-error"
-             ).
-    END.
-    
-    ASSIGN
-        cStatusMessage     = ""
-        iStatusMessageType = 0
-        .                 
+    ELSE
+        RUN pSendError ("INVALID BOL '" + STRING(ipiBOLID) + "'").
+               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,6 +398,39 @@ PROCEDURE pInit PRIVATE :
 ------------------------------------------------------------------------------*/
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "bol-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,6 +451,46 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object
+PROCEDURE SetKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object
+PROCEDURE ShowKeyboard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardBOL:VISIBLE   = TRUE
+        btnKeyboardBOL:SENSITIVE = TRUE
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
