@@ -429,6 +429,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pInit.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -533,7 +550,9 @@ PROCEDURE Update-Record :
     ------------------------------------------------------------------------------*/
     IF ttEstCostCategory.estCostCategoryID NE "" THEN 
         RUN est/destcostgrplvl.w (INPUT ttEstCostCategory.estCostCategoryID).
-
+        
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
