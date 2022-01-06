@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS btn-update 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -93,10 +93,6 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-Cancel 
-     LABEL "Cancel" 
-     SIZE 10 BY 1.29.
-
 DEFINE BUTTON btn-update 
      LABEL "Update" 
      SIZE 10 BY 1.29.
@@ -110,7 +106,6 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME Panel-Frame
      btn-update AT ROW 1.24 COL 2
-     btn-Cancel AT ROW 1.24 COL 13.6 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -196,17 +191,6 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME btn-Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Cancel C-WIn
-ON CHOOSE OF btn-Cancel IN FRAME Panel-Frame /* Cancel */
-DO:
-    apply "window-close" to frame {&frame-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btn-update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update C-WIn
