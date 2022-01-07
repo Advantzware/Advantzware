@@ -48,47 +48,53 @@
 
     {api/CommonAPIProcs.i}
     
-    DEFINE VARIABLE mptrTTReceipt          AS MEMPTR   NO-UNDO.
-    DEFINE VARIABLE hdTTHandle             AS HANDLE   NO-UNDO.
-    DEFINE VARIABLE lcReportHeader         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcPageHeader           AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcPageFooter           AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcJob                  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcForm                 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcMaterial             AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcOperation            AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcBlank                AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcConcatJob            AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcConcatForm           AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcConcatMaterial       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcConcatOperation      AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcConcatBlank          AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcReportFooter         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcJobHeader            AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcJobGroupHeader       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcJobGroupFooter       AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcFormGroupHeader      AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcFormGroupFooter      AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcMaterialGroupHeader  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcMaterialGroupFooter  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcOperationGroupHeader AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcOperationGroupFooter AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcBlankGroupHeader     AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcBlankGroupFooter     AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcData                 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE mptrTTReceipt              AS MEMPTR   NO-UNDO.
+    DEFINE VARIABLE hdTTHandle                 AS HANDLE   NO-UNDO.
+    DEFINE VARIABLE lcReportHeader             AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcPageHeader               AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcPageFooter               AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcJob                      AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcForm                     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcMaterial                 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormMaterial             AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOperation                AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBlank                    AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatJob                AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatForm               AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatMaterial           AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatFormMaterial       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatOperation          AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatBlank              AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcReportFooter             AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcJobHeader                AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcJobGroupHeader           AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcJobGroupFooter           AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormGroupHeader          AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormGroupFooter          AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcMaterialGroupHeader      AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcMaterialGroupFooter      AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormMaterialGroupHeader  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcFormMaterialGroupFooter  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOperationGroupHeader     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcOperationGroupFooter     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBlankGroupHeader         AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcBlankGroupFooter         AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcData                     AS LONGCHAR NO-UNDO.
 
-    DEFINE VARIABLE lcJobData       AS LONGCHAR.
-    DEFINE VARIABLE lcFormData      AS LONGCHAR.
-    DEFINE VARIABLE lcBlankData     AS LONGCHAR.
-    DEFINE VARIABLE lcMaterialData  AS LONGCHAR.
-    DEFINE VARIABLE lcOperationData AS LONGCHAR.
-    DEFINE VARIABLE lcItemData      AS LONGCHAR.
+    DEFINE VARIABLE lcJobData           AS LONGCHAR.
+    DEFINE VARIABLE lcFormData          AS LONGCHAR.
+    DEFINE VARIABLE lcBlankData         AS LONGCHAR.
+    DEFINE VARIABLE lcMaterialData      AS LONGCHAR.
+    DEFINE VARIABLE lcFormMaterialData  AS LONGCHAR.
+    DEFINE VARIABLE lcOperationData     AS LONGCHAR.
+    DEFINE VARIABLE lcItemData          AS LONGCHAR.
     
-    DEFINE VARIABLE lJobAvailable       AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lOperationAvailable AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lFormAvailable      AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lBlankAvailable     AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lMaterialAvailable  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lJobAvailable          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOperationAvailable    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFormAvailable         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lBlankAvailable        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lMaterialAvailable     AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFormMaterialAvailable AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
@@ -144,6 +150,7 @@
         RUN pGetRequestData ("Form", OUTPUT lcFormData).
         RUN pGetRequestData ("Blank", OUTPUT lcBlankData).
         RUN pGetRequestData ("Material", OUTPUT lcMaterialData).
+        RUN pGetRequestData ("FormMaterial", OUTPUT lcFormMaterialData).
         RUN pGetRequestData ("Operation", OUTPUT lcOperationData).
         RUN pGetRequestData ("Item", OUTPUT lcItemData).
         
@@ -155,6 +162,8 @@
         RUN pGetRequestData ("FormGroupFooter", OUTPUT lcFormGroupFooter).
         RUN pGetRequestData ("MaterialGroupHeader", OUTPUT lcMaterialGroupHeader).
         RUN pGetRequestData ("MaterialGroupFooter", OUTPUT lcMaterialGroupFooter).
+        RUN pGetRequestData ("FormMaterialGroupHeader", OUTPUT lcFormMaterialGroupHeader).
+        RUN pGetRequestData ("FormMaterialGroupFooter", OUTPUT lcFormMaterialGroupFooter).
         RUN pGetRequestData ("OperationGroupHeader", OUTPUT lcOperationGroupHeader).
         RUN pGetRequestData ("OperationGroupFooter", OUTPUT lcOperationGroupFooter).
         RUN pGetRequestData ("BlankGroupHeader", OUTPUT lcBlankGroupHeader).
@@ -252,6 +261,22 @@
                     
                     lcConcatBlank = lcConcatBlank + lcBlank.
                 END.
+
+                lFormMaterialAvailable = FALSE.
+                
+                lcConcatFormMaterial = "".
+                
+                FOR EACH estCostMaterial NO-LOCK
+                    WHERE estCostMaterial.estCostHeaderID EQ estCostForm.estCostHeaderID
+                      AND estCostMaterial.formNo          EQ estCostForm.formNo:
+                          
+                    lFormMaterialAvailable = TRUE.
+
+                    lcFormMaterial = lcFormMaterialData.
+                    
+                    lcFormMaterial = oAttribute:ReplaceAttributes(lcFormMaterial, BUFFER estCostMaterial:HANDLE).
+                    lcConcatFormMaterial = lcConcatFormMaterial + lcFormMaterial.
+                END.
                 
                 lcConcatOperation = "".
                 
@@ -279,6 +304,12 @@
                 lcForm = REPLACE(lcForm, "$Operations$", lcConcatOperation).
                 lcForm = REPLACE(lcForm, "$OperationGroupHeader$", lcOperationGroupHeader).
                 lcForm = REPLACE(lcForm, "$OperationGroupFooter$", lcOperationGroupFooter).
+
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FormMaterialAvailable",STRING(lFormMaterialAvailable)).
+
+                lcForm = REPLACE(lcForm, "$FormMaterials$", lcConcatFormMaterial).
+                lcForm = REPLACE(lcForm, "$FormMaterialGroupHeader$", lcFormMaterialGroupHeader).
+                lcForm = REPLACE(lcForm, "$FormMaterialGroupFooter$", lcFormMaterialGroupFooter).
 
                 lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER estCostForm:HANDLE).
                 lcForm = oAttribute:ReplaceAttributes(lcForm, BUFFER ef:HANDLE).
@@ -407,7 +438,7 @@ PROCEDURE pInsertPageHeaderFooter:
         lcRequestData1 = SUBSTRING(ioplcRequestData, 1, iIndex - 1).
         lcRequestData2 = SUBSTRING(ioplcRequestData, iIndex + LENGTH("$PageSeparator$")).
         
-        IF iLineCount GT 60 THEN
+        IF iLineCount GT 62 THEN
             ASSIGN
                 ioplcRequestData = lcRequestData1 + iplcFooter + iplcHeader + lcRequestData2
                 iLastIndex       = iIndex + LENGTH("$PageSeparator$")
