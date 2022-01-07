@@ -25,6 +25,9 @@ DEFINE VARIABLE v-part-qty     AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-set-job-qty  AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-set-rcv-qty  AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-part-qty-dec AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dConvQty       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
 {fg/fullset.i NEW}
 DEFINE TEMP-TABLE ttOnOrder
@@ -83,9 +86,32 @@ DO:
             ttOnOrder.jobID2      = po-ordl.job-no2
             ttOnOrder.formNo      = po-ordl.s-num
             ttOnOrder.blankNo     = po-ordl.b-num
-            ttOnOrder.quantity    = po-ordl.ord-qty
             ttOnOrder.quantityUOM = po-ordl.pr-qty-uom
             ttOnOrder.warehouseID = po-ord.loc. /*when creating from Job header job.loc*/
+            
+        IF po-ordl.pr-qty-uom = "EA" THEN     
+            ttOnOrder.quantity    = po-ordl.ord-qty.
+        ELSE 
+        DO:
+            /*Convert the quantity as per Unit of Measure*/
+            dConvQty = 0.
+            RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                                         itemfg.i-no, 
+                                         "FG", 
+                                         po-ordl.pr-qty-uom,
+                                         "EA",
+                                         0, 
+                                         po-ordl.s-len, 
+                                         po-ordl.s-wid, 
+                                         0,
+                                         po-ordl.ord-qty,
+                                         0, 
+                                         OUTPUT dConvQty,
+                                         OUTPUT lError,
+                                         OUTPUT cMessage).
+                
+            ttOnOrder.quantity = dConvQty.
+        END.
     END. /*each po-ordl*/  
     /*check for availability of job-hdr*/  
     FIND FIRST job-hdr WHERE job-hdr.company EQ itemfg.company 
@@ -130,15 +156,15 @@ DO:
             
            // check if job-hdr.e-num in eb
             FIND FIRST eb WHERE eb.company = job-hdr.company 
-                AND eb.e-num = job-hdr.e-num NO-LOCK NO-ERROR.
+                AND eb.est-no = job-hdr.est-no NO-LOCK NO-ERROR.
             IF AVAILABLE eb AND (eb.est-type = 2 OR eb.est-type = 6) THEN /*Set record*/
             DO:
                 FOR EACH bf-eb NO-LOCK
                    WHERE bf-eb.company = job-hdr.company 
-                     AND bf-eb.e-num = job-hdr.e-num:
+                     AND bf-eb.est-no = job-hdr.est-no:
                          /*set component not available in job-hdr - check the reftable in that case*/
                      IF NOT CAN-FIND(FIRST bf-job-hdr WHERE bf-job-hdr.company = bf-eb.company
-                                                        AND bf-job-hdr.e-num = bf-eb.e-num
+                                                        AND bf-job-hdr.est-no = bf-eb.est-no
                                                         AND bf-job-hdr.frm = bf-eb.form-no) THEN
                      DO:
                          /*Used the existing logic to for reftable search*/
@@ -174,20 +200,32 @@ DO:
                                  ttOnOrder.jobID2      = job-hdr.job-no2
                                  ttOnOrder.formNo      = job-hdr.frm
                                  ttOnOrder.blankNo     = job-hdr.blank-no
-                                 ttOnOrder.quantity    = job-hdr.qty
+/*                                 ttOnOrder.quantity    = job-hdr.qty*/
                 //ttOnOrder.quantityUOM = /*qunatity UOM field not available in job-hdr*/
                                  ttOnOrder.warehouseID = job-hdr.loc.
+                                 
+                             RUN fg/fullset.p (ROWID(b-itemfg)).
+          
+                             FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
+                                 ld-qty = 0.
+                                 RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                     INPUT job-hdr.job-no,
+                                     INPUT job-hdr.job-no2,
+                                     INPUT job-hdr.i-no,
+                                     INPUT NO,
+                                     OUTPUT ld-qty).
+                                 IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
+                                     ttOnOrder.quantity = ttOnOrder.quantity + ((job-hdr.qty * tt-fg-set.part-qty-dec) - ld-qty).
+              
+                             END.
                          END.
-                     END.
-                END.
-            END. 
-        /*find job header for component if not available find in ref table*/
-                
-        END. /* FOR EACH job-hdr */      
-        /*Below logic should be added if there is old version calculation*/
-            
-        /*Add here the check for the calculation type "JobBuildVersion" */
-        
+                     END. /*each reftable*/
+                END. /*each bf-eb*/
+            END. /*available eb Set record*/                
+        END. /* FOR EACH job-hdr */
     END. /*available job-hdr*/    
-                
+    /*Get the quantity*/
+    FOR EACH ttOnOrder:
+        op-q-ono = op-q-ono + ttOnOrder.quantity.
+    END.       
 END. /*item*/
