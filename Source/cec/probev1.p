@@ -101,7 +101,7 @@ DO:
 END.
 ELSE
 DO:
-   FIND FIRST CostHeader EXCLUSIVE-LOCK 
+   FIND FIRST CostHeader NO-LOCK 
         WHERE CostHeader.company EQ probe.company
           AND CostHeader.estimateNo EQ probe.est-no             
           AND CostHeader.quantityMaster EQ probe.est-qty              
