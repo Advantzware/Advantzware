@@ -1,6 +1,6 @@
 [
   {
-    "rec_key": "202006246224705383512",
+    "rec_key": "299906246224705383512",
     "estCostCategoryID": "boardMinDiff",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Board Cost - Min Difference",
@@ -16,7 +16,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383513",
+    "rec_key": "299906246224705383513",
     "estCostCategoryID": "boardNoWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Board Cost - No Waste",
@@ -32,7 +32,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383514",
+    "rec_key": "299906246224705383514",
     "estCostCategoryID": "boardRunWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Board Cost - Run Waste",
@@ -48,7 +48,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383515",
+    "rec_key": "299906246224705383515",
     "estCostCategoryID": "boardSetupVend",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Board Cost - Vendor Setup",
@@ -64,7 +64,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383516",
+    "rec_key": "299906246224705383516",
     "estCostCategoryID": "boardSetupWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Board Cost - Setup Waste",
@@ -80,7 +80,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383517",
+    "rec_key": "299906246224705383517",
     "estCostCategoryID": "commission",
     "estCostGroupID": "costGroup20",
     "estCostCategoryDesc": "Commission",
@@ -96,7 +96,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383518",
+    "rec_key": "299906246224705383518",
     "estCostCategoryID": "CostCategory67",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Material Handling Charge",
@@ -112,7 +112,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383519",
+    "rec_key": "299906246224705383519",
     "estCostCategoryID": "CostCategory68",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Finished Goods Handling Charge",
@@ -128,7 +128,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383565",
+    "rec_key": "299906246224805383565",
     "estCostCategoryID": "deviation",
     "estCostGroupID": "costGroup34",
     "estCostCategoryDesc": "Deviation",
@@ -144,7 +144,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383520",
+    "rec_key": "299906246224705383520",
     "estCostCategoryID": "matMinDiff",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Material Cost - Min Difference",
@@ -160,7 +160,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383521",
+    "rec_key": "299906246224705383521",
     "estCostCategoryID": "matNoWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Material Cost - No Waste",
@@ -176,7 +176,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383522",
+    "rec_key": "299906246224705383522",
     "estCostCategoryID": "matRunWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Material Cost - Run Waste",
@@ -192,7 +192,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383523",
+    "rec_key": "299906246224705383523",
     "estCostCategoryID": "matSetupVend",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Material Cost - Vendor Setup",
@@ -208,7 +208,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383524",
+    "rec_key": "299906246224705383524",
     "estCostCategoryID": "matSetupWaste",
     "estCostGroupID": "costGroup1",
     "estCostCategoryDesc": "Material Cost - Setup Waste",
@@ -224,7 +224,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383525",
+    "rec_key": "299906246224705383525",
     "estCostCategoryID": "mLabCost",
     "estCostGroupID": "costGroup6",
     "estCostCategoryDesc": "Misc Labor - Cost - COGS",
@@ -240,7 +240,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383526",
+    "rec_key": "299906246224705383526",
     "estCostCategoryID": "mLabCostSep",
     "estCostGroupID": "costGroup27",
     "estCostCategoryDesc": "Misc Labor - Cost - Separate Bill",
@@ -256,7 +256,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383527",
+    "rec_key": "299906246224705383527",
     "estCostCategoryID": "mLabPrice",
     "estCostGroupID": "costGroup24",
     "estCostCategoryDesc": "Misc Labor - Profit - Price",
@@ -272,7 +272,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383528",
+    "rec_key": "299906246224705383528",
     "estCostCategoryID": "mLabProfit",
     "estCostGroupID": "costGroup6",
     "estCostCategoryDesc": "Misc Labor - Profit - COGS",
@@ -288,7 +288,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383529",
+    "rec_key": "299906246224705383529",
     "estCostCategoryID": "mLabProfitSep",
     "estCostGroupID": "costGroup27",
     "estCostCategoryDesc": "Misc Labor - Profit - Separate Bill",
@@ -304,7 +304,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383530",
+    "rec_key": "299906246224705383530",
     "estCostCategoryID": "mMatCost",
     "estCostGroupID": "costGroup3",
     "estCostCategoryDesc": "Misc Material - Cost - COGS",
@@ -320,7 +320,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383531",
+    "rec_key": "299906246224705383531",
     "estCostCategoryID": "mMatCostSep",
     "estCostGroupID": "costGroup29",
     "estCostCategoryDesc": "Misc Material - Cost - Separate Bill",
@@ -336,7 +336,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383532",
+    "rec_key": "299906246224705383532",
     "estCostCategoryID": "mMatPrice",
     "estCostGroupID": "costGroup22",
     "estCostCategoryDesc": "Misc Material - Profit - Price",
@@ -352,7 +352,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383533",
+    "rec_key": "299906246224705383533",
     "estCostCategoryID": "mMatProfit",
     "estCostGroupID": "costGroup3",
     "estCostCategoryDesc": "Misc Material - Profit - COGS",
@@ -368,7 +368,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383534",
+    "rec_key": "299906246224705383534",
     "estCostCategoryID": "mMatProfitSep",
     "estCostGroupID": "costGroup29",
     "estCostCategoryDesc": "Misc Material - Profit - Separate Bill",
@@ -384,7 +384,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383535",
+    "rec_key": "299906246224705383535",
     "estCostCategoryID": "nfFolding",
     "estCostGroupID": "costGroup33",
     "estCostCategoryDesc": "Folding",
@@ -400,7 +400,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383536",
+    "rec_key": "299906246224705383536",
     "estCostCategoryID": "nfFreight",
     "estCostGroupID": "costGroup19",
     "estCostCategoryDesc": "Freight Charge",
@@ -416,7 +416,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383537",
+    "rec_key": "299906246224705383537",
     "estCostCategoryID": "nfFreightMinDiff",
     "estCostGroupID": "costGroup19",
     "estCostCategoryDesc": "Freight Charge - Minimum Difference",
@@ -432,7 +432,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224705383538",
+    "rec_key": "299906246224705383538",
     "estCostCategoryID": "nfGSABoard",
     "estCostGroupID": "costGroup31",
     "estCostCategoryDesc": "GS&A Board",
@@ -448,7 +448,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383539",
+    "rec_key": "299906246224805383539",
     "estCostCategoryID": "nfGSALab",
     "estCostGroupID": "costGroup18",
     "estCostCategoryDesc": "GS&A Labor",
@@ -464,7 +464,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383540",
+    "rec_key": "299906246224805383540",
     "estCostCategoryID": "nfGSAMat",
     "estCostGroupID": "costGroup17",
     "estCostCategoryDesc": "GS&A Material",
@@ -480,7 +480,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383541",
+    "rec_key": "299906246224805383541",
     "estCostCategoryID": "nfMatMarkup",
     "estCostGroupID": "costGroup30",
     "estCostCategoryDesc": "Direct Material Markup",
@@ -496,7 +496,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383542",
+    "rec_key": "299906246224805383542",
     "estCostCategoryID": "nfUserDef1",
     "estCostGroupID": "costGroup13",
     "estCostCategoryDesc": "User Defined Expense 1",
@@ -512,7 +512,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383543",
+    "rec_key": "299906246224805383543",
     "estCostCategoryID": "nfUserDef2",
     "estCostGroupID": "costGroup14",
     "estCostCategoryDesc": "User Defined Expense 2",
@@ -528,7 +528,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383544",
+    "rec_key": "299906246224805383544",
     "estCostCategoryID": "nfUserDef3",
     "estCostGroupID": "costGroup15",
     "estCostCategoryDesc": "User Defined Expense 3",
@@ -544,7 +544,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383545",
+    "rec_key": "299906246224805383545",
     "estCostCategoryID": "nfWarehouse",
     "estCostGroupID": "costGroup32",
     "estCostCategoryDesc": "Warehousing",
@@ -560,7 +560,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383546",
+    "rec_key": "299906246224805383546",
     "estCostCategoryID": "opRunDL",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Operation Run - Direct Labor",
@@ -576,7 +576,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383547",
+    "rec_key": "299906246224805383547",
     "estCostCategoryID": "opRunFO",
     "estCostGroupID": "costGroup8",
     "estCostCategoryDesc": "Operation Run - Fixed Overhead",
@@ -592,7 +592,7 @@
     "includeInFixedOverheadCost": true
   },
   {
-    "rec_key": "202006246224805383548",
+    "rec_key": "299906246224805383548",
     "estCostCategoryID": "opRunMinDiff",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Operation Run - Min Difference",
@@ -608,7 +608,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383549",
+    "rec_key": "299906246224805383549",
     "estCostCategoryID": "opRunVO",
     "estCostGroupID": "costGroup7",
     "estCostCategoryDesc": "Operation Run - Variable Overhead",
@@ -624,7 +624,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383550",
+    "rec_key": "299906246224805383550",
     "estCostCategoryID": "opSetupDL",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Operation Setup - Direct Labor",
@@ -640,7 +640,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383551",
+    "rec_key": "299906246224805383551",
     "estCostCategoryID": "opSetupFO",
     "estCostGroupID": "costGroup8",
     "estCostCategoryDesc": "Operation Setup - Fixed Overhead",
@@ -656,7 +656,7 @@
     "includeInFixedOverheadCost": true
   },
   {
-    "rec_key": "202006246224805383552",
+    "rec_key": "299906246224805383552",
     "estCostCategoryID": "opSetupMinDiff",
     "estCostGroupID": "costGroup4",
     "estCostCategoryDesc": "Operation Setup - Min Difference",
@@ -672,7 +672,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383553",
+    "rec_key": "299906246224805383553",
     "estCostCategoryID": "opSetupVO",
     "estCostGroupID": "costGroup7",
     "estCostCategoryDesc": "Operation Setup - Variable Overhead",
@@ -688,7 +688,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383554",
+    "rec_key": "299906246224805383554",
     "estCostCategoryID": "pLabCost",
     "estCostGroupID": "costGroup5",
     "estCostCategoryDesc": "Tooling Labor - Cost - COGS",
@@ -704,7 +704,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383555",
+    "rec_key": "299906246224805383555",
     "estCostCategoryID": "pLabCostSep",
     "estCostGroupID": "costGroup26",
     "estCostCategoryDesc": "Tooling Labor - Cost - Separate Bill",
@@ -720,7 +720,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383556",
+    "rec_key": "299906246224805383556",
     "estCostCategoryID": "pLabPrice",
     "estCostGroupID": "costGroup23",
     "estCostCategoryDesc": "Tooling Labor - Profit - Price",
@@ -736,7 +736,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383557",
+    "rec_key": "299906246224805383557",
     "estCostCategoryID": "pLabProfit",
     "estCostGroupID": "costGroup5",
     "estCostCategoryDesc": "Tooling Labor - Profit - COGS",
@@ -752,7 +752,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383558",
+    "rec_key": "299906246224805383558",
     "estCostCategoryID": "pLabProfitSep",
     "estCostGroupID": "costGroup26",
     "estCostCategoryDesc": "Tooling Labor - Profit - Separate Bill",
@@ -768,7 +768,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383559",
+    "rec_key": "299906246224805383559",
     "estCostCategoryID": "pMatCost",
     "estCostGroupID": "costGroup2",
     "estCostCategoryDesc": "Tooling Material - Cost - COGS",
@@ -784,7 +784,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383560",
+    "rec_key": "299906246224805383560",
     "estCostCategoryID": "pMatCostSep",
     "estCostGroupID": "costGroup28",
     "estCostCategoryDesc": "Tooling Material - Cost - Separate Bill",
@@ -800,7 +800,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383561",
+    "rec_key": "299906246224805383561",
     "estCostCategoryID": "pMatPrice",
     "estCostGroupID": "costGroup21",
     "estCostCategoryDesc": "Tooling Material - Profit - Price",
@@ -816,7 +816,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383562",
+    "rec_key": "299906246224805383562",
     "estCostCategoryID": "pMatProfit",
     "estCostGroupID": "costGroup2",
     "estCostCategoryDesc": "Tooling Material - Profit - COGS",
@@ -832,7 +832,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383563",
+    "rec_key": "299906246224805383563",
     "estCostCategoryID": "pMatProfitSep",
     "estCostGroupID": "costGroup28",
     "estCostCategoryDesc": "Tooling Material - Profit - Separate Bill",
@@ -848,7 +848,7 @@
     "includeInFixedOverheadCost": false
   },
   {
-    "rec_key": "202006246224805383564",
+    "rec_key": "299906246224805383564",
     "estCostCategoryID": "pProfit",
     "estCostGroupID": "costGroup25",
     "estCostCategoryDesc": "Profit",
