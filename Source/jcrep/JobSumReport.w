@@ -1233,31 +1233,31 @@ PROCEDURE pPrintData :
             END.    
             
             PUT SKIP(1)
-                " Total Standard Machine Cost:" totStdMachineCost   FORMAT "->>>,>>>,>>9.99"
-                "   Total Actual Machine Cost:"  totActMachineCost FORMAT "->>>,>>>,>>9.99"
+                " Total Standard Machine Cost:" bf-ttJobReport.totStdMachineCost   FORMAT "->>>,>>>,>>9.99"
+                "   Total Actual Machine Cost:" bf-ttJobReport.totActMachineCost FORMAT "->>>,>>>,>>9.99"
                 SKIP 
-                "Total Standard Material Cost:"  totStdMaterialCost  FORMAT "->>>,>>>,>>9.99"
-                "  Total Actual Material Cost:"   totActMaterialCost FORMAT "->>>,>>>,>>9.99"
+                "Total Standard Material Cost:"  bf-ttJobReport.totStdMaterialCost  FORMAT "->>>,>>>,>>9.99"
+                "  Total Actual Material Cost:"  bf-ttJobReport.totActMaterialCost FORMAT "->>>,>>>,>>9.99"
                 SKIP
-                "         Total Standard Cost:" totStdCost FORMAT "->>>,>>>,>>9.99"
-                "           Total Actual Cost:" totActCost FORMAT "->>>,>>>,>>9.99" SKIP(1).
+                "         Total Standard Cost:" (bf-ttJobReport.totStdMachineCost + bf-ttJobReport.totStdMaterialCost) FORMAT "->>>,>>>,>>9.99"
+                "           Total Actual Cost:" bf-ttJobReport.totActMachineCost + bf-ttJobReport.totActMaterialCost FORMAT "->>>,>>>,>>9.99" SKIP(1).
                 
             IF rd-dest EQ 3 THEN
                 PUT STREAM excel UNFORMATTED SKIP(1)
                     '"' "Total Standard Machine Cost:" '",,,'  
-                    '"' STRING(totStdMachineCost)      '",'
+                    '"' STRING(bf-ttJobReport.totStdMachineCost)      '",'
                     '"' "Total Actual Machine Cost:"  '",,,'  
-                    '"' STRING(totActMachineCost) '",' SKIP
+                    '"' STRING(bf-ttJobReport.totActMachineCost) '",' SKIP
                     
                     '"' "Total Standard Material Cost:" '",,,'  
-                    '"' STRING(totStdMaterialCost)      '",'
+                    '"' STRING(bf-ttJobReport.totStdMaterialCost)      '",'
                     '"' "Total Actual Material Cost:"  '",,,'  
-                    '"' STRING(totActMaterialCost) '",' SKIP
+                    '"' STRING(bf-ttJobReport.totActMaterialCost) '",' SKIP
                     
                     '"' "Total Standard Cost:" '",,,'  
-                    '"' STRING(totStdCost)      '",'
+                    '"' STRING(bf-ttJobReport.totStdMachineCost + bf-ttJobReport.totStdMaterialCost )      '",'
                     '"' "Total Actual Cost:"  '",,,'  
-                    '"' STRING(totActCost) '",' SKIP(2)
+                    '"' STRING(bf-ttJobReport.totActMachineCost + bf-ttJobReport.totActMaterialCost) '",' SKIP(2)
                     .                                  
         END.
     END.

@@ -394,6 +394,11 @@ PROCEDURE pTotalCalcCost PRIVATE:
                      ttJobReport.mRunWaste = dStdRunWaste / dActRunWaste * 100                      
                      ttJobReport.itemCost = dStdMaterialCost / dActMaterialCost * 100
                      ttJobReport.itemQty = dStdMaterialQty / dActMaterialQty * 100  .
+                     
+                IF ttJobReport.totActMaterialCost EQ ? THEN ttJobReport.totActMaterialCost = 0.
+                IF ttJobReport.totStdMaterialCost EQ ? THEN ttJobReport.totStdMaterialCost = 0.
+                IF ttJobReport.totActMachineCost EQ ? THEN ttJobReport.totActMachineCost = 0.
+                IF ttJobReport.totStdMachineCost EQ ? THEN ttJobReport.totStdMachineCost = 0.
             END.
         END.        
     END.
