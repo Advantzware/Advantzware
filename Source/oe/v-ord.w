@@ -5157,7 +5157,8 @@ PROCEDURE local-assign-record :
 
     RUN bill_notes .
 
-    IF oe-ord.due-date NE lv-date THEN
+    IF oe-ord.due-date NE lv-date 
+    AND lv-date NE ? THEN
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
 
             IF NOT ll-new-due THEN
